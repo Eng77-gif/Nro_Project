@@ -34,7 +34,7 @@ public class DataGame {
     public static byte vsData = 19; // tăng khi thêm part/vật phẩm mới để client tải lại
     public static byte vsMap = 3; // tăng khi thêm map (186 Rừng nguyên sinh - bản đồ truyền thuyết)
     public static byte vsSkill = 1;
-    public static byte vsItem = 15;
+    public static byte vsItem = 16; // tăng khi đổi item / bảng option để client tải lại (16: bảng option tối đa 255 dòng)
     public static int vsRes = 2; // tăng khi thêm file res để client tải lại
     public static short maxSmallVersion = 32767;
 

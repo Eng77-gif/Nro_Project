@@ -714,6 +714,7 @@ public final class Manager {
                 optionTemp.name = rs.getString("name");
                 ITEM_OPTION_TEMPLATES.add(optionTemp);
             }
+            nro.models.item.OptionIdMap.build(ITEM_OPTION_TEMPLATES);
             Logger.success(Logger.PURPLE + "Successfully loaded map item option template (" + ITEM_OPTION_TEMPLATES.size() + ")\n");
 
             //load shop

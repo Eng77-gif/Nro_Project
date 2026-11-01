@@ -1127,3 +1127,24 @@ Nguyên nhân: client J2ME 2.4.6 đọc một số trường khác client PC.
 **Đã đối chiếu tĩnh** toàn bộ gói của client J2ME (giải mã bytecode) với server: hai chiều, gói chính, -28 / -29 / -30. Các gói còn lại khớp.
 
 **Ghi chú:** thông báo "Máy chủ sẽ bảo trì trong … phút" là bảo trì tự động hằng ngày lúc 04:30 (`AutoMaintenance`), không phải lỗi client.
+
+## Đợt 47: Client APK / PC không hiện hành trang, đệ tử "Xin chờ" (bảng option quá 255 dòng)
+**Triệu chứng** (APK "Dragon Ball" 4.8.4, video):
+- Bảng ghép đồ Bà Hạt Mít không có hành trang.
+- Mở đệ tử bị treo "Xin chờ".
+
+**Nguyên nhân:** client APK / PC (Unity) đọc số dòng bảng option và id option bằng 1 byte không dấu, tối đa 255 dòng (id 0 – 254).
+- Bản gốc có 255 dòng.
+- Sau đó thêm option 255, 256, rồi Set Champa 257 – 260 (Đợt 41) → 261 dòng. Server ghi `writeByte(261)` = 5, nên client chỉ nhận 5 option.
+- Món đồ nào có option id ≥ 5 làm client lỗi khi đọc thông tin nhân vật (-30/0), đệ tử (-107), hành trang (-36). Kết quả: hành trang trống, đệ tử treo.
+
+Đã kiểm tra bằng cách đọc mã máy của APK (IL2CPP): mọi gói khác (-30/0, -36, -107, -81, -28/8) khớp định dạng server gửi.
+
+**Cách sửa** (không đổi database, không đổi id thật trên server):
+- `OptionIdMap`: khi gửi cho client byte, bảng option chỉ 255 dòng. Option id ≥ 255 được đặt vào các ô id không có item / shop / code nào dùng: 255→201, 256→202, 257→203, 258→205, 259→195, 260→197.
+- `Message.writeItemOption` đổi id theo bảng đó cho client byte. Client J2ME vẫn nhận id thật (short).
+- `DataGame.vsItem` 15 → 16 để mọi client tải lại bảng item / option (bảng lỗi đã lưu trong máy bị thay).
+
+**Lưu ý khi thêm option mới:** id từ 255 trở lên cần còn ô trống trong `OptionIdMap.SPARE` (hiện còn 4 ô: 192, 229, 62, 208). Hết ô thì server báo lỗi trong log.
+
+**Ghi chú:** APK 4.8.4 là client Unity, không phải J2ME. Phần tương thích J2ME (Đợt 46) chỉ áp dụng cho client J2ME (typeClient 1), không ảnh hưởng APK / PC.

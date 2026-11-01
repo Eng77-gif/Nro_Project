@@ -49,10 +49,13 @@ public class ItemData {
             msg.writer().writeByte(8);
             msg.writer().writeByte(DataGame.vsItem); //vcitem
             msg.writer().writeByte(0); //update option
-            msg.writer().writeByte(Manager.ITEM_OPTION_TEMPLATES.size());
-            for (ItemOptionTemplate io : Manager.ITEM_OPTION_TEMPLATES) {
-                msg.writer().writeUTF(io.name);
-                msg.writer().writeByte(io.type);
+            // client PC / APK: số dòng 1 byte không dấu (tối đa 255), option id >= 255 nằm ở ô trống (OptionIdMap)
+            int n = nro.models.item.OptionIdMap.clientCount();
+            msg.writer().writeByte(n);
+            for (int i = 0; i < n; i++) {
+                ItemOptionTemplate io = nro.models.item.OptionIdMap.clientSlot(i);
+                msg.writer().writeUTF(io != null ? io.name : "");
+                msg.writer().writeByte(io != null ? io.type : 0);
             }
             session.doSendMessage(msg);
             msg.cleanup();
