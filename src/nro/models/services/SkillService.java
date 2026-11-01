@@ -864,8 +864,8 @@ public class SkillService {
                         }
                     }
                     damePST = plAtt.injured(plAtt, damePST, true, false);
-                    msg.writer().writeInt(plAtt.nPoint.hp);
-                    msg.writer().writeInt(damePST);
+                    msg.writeNum(plAtt.nPoint.hp);
+                    msg.writeNum(damePST);
                     msg.writer().writeBoolean(false);
                     msg.writer().writeByte(36);
                     Service.gI().sendMessAllPlayerInMap(plAtt, msg);
@@ -945,7 +945,7 @@ public class SkillService {
             msg.writer().writeInt((int) plInjure.id); //id ăn pem
             msg.writer().writeByte(1); //read continue
             msg.writer().writeByte(0); //type skill
-            msg.writer().writeInt(dameHit); //dame ăn
+            msg.writeNum(dameHit); //dame ăn
             msg.writer().writeBoolean(plInjure.isDie()); //is die
             msg.writer().writeBoolean(plAtt.nPoint.isCrit); //crit
             Service.gI().sendMessAllPlayerInMap(plAtt, msg);

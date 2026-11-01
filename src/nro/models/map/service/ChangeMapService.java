@@ -611,7 +611,7 @@ public class ChangeMapService {
                 msg.writer().writeByte(0);//type
                 msg.writer().writeInt((int) player.id);
                 msg.writer().writeShort(player.mobMe.tempId);
-                msg.writer().writeInt(player.mobMe.point.gethp());// hp mob
+                msg.writeNum(player.mobMe.point.gethp());// hp mob
                 Service.gI().sendMessAnotherNotMeInMap(player, msg);
                 msg.cleanup();
             }
@@ -620,7 +620,7 @@ public class ChangeMapService {
                 msg.writer().writeByte(0);//type
                 msg.writer().writeInt((int) player.pet.mobMe.id);
                 msg.writer().writeShort(player.pet.mobMe.tempId);
-                msg.writer().writeInt(player.pet.mobMe.point.gethp());// hp mob
+                msg.writeNum(player.pet.mobMe.point.gethp());// hp mob
                 Service.gI().sendMessAnotherNotMeInMap(player, msg);
                 msg.cleanup();
             }
@@ -735,7 +735,7 @@ public class ChangeMapService {
                         msg.writer().writeByte(0);//type
                         msg.writer().writeInt((int) pl.id);
                         msg.writer().writeShort(pl.mobMe.tempId);
-                        msg.writer().writeInt(pl.mobMe.point.gethp());// hp mob
+                        msg.writeNum(pl.mobMe.point.gethp());// hp mob
                         player.sendMessage(msg);
                         msg.cleanup();
                     }

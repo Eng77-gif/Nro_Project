@@ -578,6 +578,7 @@ public class InventoryService {
             for (int i = 0; i < player.inventory.itemsBag.size(); i++) {
                 Item item = player.inventory.itemsBag.get(i);
                 if (!item.isNotNullItem()) {
+                    msg.writer().writeShort(-1); // ô trống: client đọc đủ số ô đã khai báo
                     continue;
                 }
                 msg.writer().writeShort(item.template.id);
@@ -596,11 +597,9 @@ public class InventoryService {
                             opId = 222;
                             param /= 1000;
                         }
-                        msg.writer().writeByte(opId);
-                        msg.writer().writeShort(param);
+                        msg.writeItemOption(opId, param);
                     } else {
-                        msg.writer().writeByte(item.itemOptions.get(j).optionTemplate.id);
-                        msg.writer().writeShort(item.itemOptions.get(j).param);
+                        msg.writeItemOption(item.itemOptions.get(j).optionTemplate.id, item.itemOptions.get(j).param);
                     }
                 }
             }
@@ -639,11 +638,9 @@ public class InventoryService {
                                 opId = 222;
                                 param /= 1000;
                             }
-                            msg.writer().writeByte(opId);
-                            msg.writer().writeShort(param);
+                            msg.writeItemOption(opId, param);
                         } else {
-                            msg.writer().writeByte(itemOption.optionTemplate.id);
-                            msg.writer().writeShort(itemOption.param);
+                            msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
                         }
                     }
                 }
@@ -680,11 +677,9 @@ public class InventoryService {
                                 opId = 222;
                                 param /= 1000;
                             }
-                            msg.writer().writeByte(opId);
-                            msg.writer().writeShort(param);
+                            msg.writeItemOption(opId, param);
                         } else {
-                            msg.writer().writeByte(io.optionTemplate.id);
-                            msg.writer().writeShort(io.param);
+                            msg.writeItemOption(io.optionTemplate.id, io.param);
                         }
                     }
                 }

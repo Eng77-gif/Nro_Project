@@ -50,7 +50,7 @@ public class FlagBagService {
             Message msg;
             try {
                 msg = new Message(-63);
-                msg.writer().writeByte(fb.id);
+                msg.writeDual(fb.id, 1, fb.id, 2); // J2ME đọc short
                 msg.writer().writeByte(fb.iconEffect.length);
                 for (Short iconId : fb.iconEffect) {
                     msg.writer().writeShort(iconId);
@@ -68,9 +68,9 @@ public class FlagBagService {
         try {
             msg = new Message(-46);
             msg.writer().writeByte(1); //type
-            msg.writer().writeByte(list.size());
+            msg.writeDual(list.size(), 1, list.size(), 2); // J2ME đọc short
             for (FlagBag fb : list) {
-                msg.writer().writeByte(fb.id);
+                msg.writeDual(fb.id, 1, fb.id, 2);
                 msg.writer().writeUTF(fb.name);
                 msg.writer().writeInt(fb.gold);
                 msg.writer().writeInt(fb.gem);

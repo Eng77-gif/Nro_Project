@@ -606,7 +606,7 @@ public class ClanService {
                 msg.writer().writeInt(clan.id);
                 msg.writer().writeUTF(clan.name);
                 msg.writer().writeUTF(clan.slogan);
-                msg.writer().writeByte(clan.imgId);
+                msg.writeDual(clan.imgId, 1, clan.imgId, 2); // J2ME: short
                 msg.writer().writeUTF(String.valueOf(clan.powerPoint));
                 msg.writer().writeUTF(clan.getLeader().name);
                 msg.writer().writeByte(clan.getCurrMembers());
@@ -665,7 +665,7 @@ public class ClanService {
                 msg.writer().writeInt(player.clan.id);
                 msg.writer().writeUTF(player.clan.name);
                 msg.writer().writeUTF(player.clan.slogan);
-                msg.writer().writeByte(player.clan.imgId);
+                msg.writeDual(player.clan.imgId, 1, player.clan.imgId, 2); // J2ME: short
                 msg.writer().writeUTF(String.valueOf(player.clan.powerPoint));
                 msg.writer().writeUTF(player.clan.getLeader().name);
                 msg.writer().writeByte(player.clan.getCurrMembers());

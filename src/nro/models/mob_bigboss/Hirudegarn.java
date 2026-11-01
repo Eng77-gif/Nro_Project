@@ -38,8 +38,8 @@ public class Hirudegarn extends BigBoss {
             try {
                 msg = new Message(-9);
                 msg.writer().writeByte(this.id);
-                msg.writer().writeInt(this.point.gethp());
-                msg.writer().writeInt(1);
+                msg.writeNum(this.point.gethp());
+                msg.writeNum(1);
                 Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             } catch (Exception e) {
             } finally {
@@ -121,8 +121,8 @@ public class Hirudegarn extends BigBoss {
                 try {
                     msg = new Message(-9);
                     msg.writer().writeByte(this.id);
-                    msg.writer().writeInt(this.point.gethp());
-                    msg.writer().writeInt(1);
+                    msg.writeNum(this.point.gethp());
+                    msg.writeNum(1);
                     Service.gI().sendMessAllPlayerInMap(this.zone, msg);
                 } catch (Exception e) {
                 } finally {
@@ -146,8 +146,8 @@ public class Hirudegarn extends BigBoss {
             try {
                 msg = new Message(-9);
                 msg.writer().writeByte(this.id);
-                msg.writer().writeInt(this.point.gethp());
-                msg.writer().writeInt(1);
+                msg.writeNum(this.point.gethp());
+                msg.writeNum(1);
                 Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             } catch (Exception e) {
             } finally {

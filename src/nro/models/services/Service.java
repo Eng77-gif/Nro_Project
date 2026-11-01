@@ -592,9 +592,9 @@ public class Service {
         try {
             msg = Service.gI().messageSubCommand((byte) 14);//Cập nhật máu
             msg.writer().writeInt((int) pl.id);
-            msg.writer().writeInt(pl.nPoint.hp);
+            msg.writeNum(pl.nPoint.hp);
             msg.writer().writeByte(0);//Hiệu ứng Ăn Đậu
-            msg.writer().writeInt(pl.nPoint.hpMax);
+            msg.writeNum(pl.nPoint.hpMax);
             sendMessAnotherNotMeInMap(pl, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -608,9 +608,9 @@ public class Service {
         try {
             msg = Service.gI().messageSubCommand((byte) 14);//Cập nhật máu
             msg.writer().writeInt((int) pl.id);
-            msg.writer().writeInt(pl.nPoint.hp);
+            msg.writeNum(pl.nPoint.hp);
             msg.writer().writeByte(2);
-            msg.writer().writeInt(pl.nPoint.hpMax);
+            msg.writeNum(pl.nPoint.hpMax);
             sendMessAnotherNotMeInMap(pl, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -624,9 +624,9 @@ public class Service {
         try {
             msg = Service.gI().messageSubCommand((byte) 14);
             msg.writer().writeInt((int) pl.id);
-            msg.writer().writeInt(pl.nPoint.hp);
+            msg.writeNum(pl.nPoint.hp);
             msg.writer().writeByte(1);
-            msg.writer().writeInt(pl.nPoint.hpMax);
+            msg.writeNum(pl.nPoint.hpMax);
             sendMessAnotherNotMeInMap(pl, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -640,8 +640,8 @@ public class Service {
         try {
             msg = messageSubCommand((byte) 9);
             msg.writer().writeInt((int) pl.id);
-            msg.writer().writeInt(pl.nPoint.hp);
-            msg.writer().writeInt(pl.nPoint.hpMax);
+            msg.writeNum(pl.nPoint.hp);
+            msg.writeNum(pl.nPoint.hpMax);
             sendMessAnotherNotMeInMap(pl, msg);
         } catch (Exception e) {
             e.printStackTrace();
@@ -776,21 +776,23 @@ public class Service {
                 msg.writer().writeInt(player.nPoint.hpg);
                 msg.writer().writeInt(player.nPoint.mpg);
                 msg.writer().writeInt(player.nPoint.dameg);
-                msg.writer().writeInt(player.nPoint.hpMax);
-                msg.writer().writeInt(player.nPoint.mpMax);
-                msg.writer().writeInt(player.nPoint.hp);
-                msg.writer().writeInt(player.nPoint.mp);
+                msg.writeNum(player.nPoint.hpMax);
+                msg.writeNum(player.nPoint.mpMax);
+                msg.writeNum(player.nPoint.hp);
+                msg.writeNum(player.nPoint.mp);
                 msg.writer().writeByte(player.nPoint.speed);
                 msg.writer().writeByte(20);
                 msg.writer().writeByte(20);
                 msg.writer().writeByte(1);
-                msg.writer().writeInt(player.nPoint.dame);
-                msg.writer().writeInt(player.nPoint.def);
+                msg.writeNum(player.nPoint.dame);
+                msg.writeNum(player.nPoint.def);
                 msg.writer().writeByte(player.nPoint.crit);
                 msg.writer().writeLong(player.nPoint.tiemNang);
                 msg.writer().writeShort(100);
-                msg.writer().writeShort(player.nPoint.defg);
+                msg.writeDual(player.nPoint.defg, 2, player.nPoint.defg, 4); // J2ME: int
                 msg.writer().writeByte(player.nPoint.critg);
+                msg.writeOnlyLong(0, 1); // J2ME đọc thêm 1 byte + 1 short
+                msg.writeOnlyLong(0, 2);
                 player.sendMessage(msg);
                 msg.cleanup();
             } catch (Exception e) {
@@ -863,8 +865,7 @@ public class Service {
                     List<ItemOption> itemOptions = item.itemOptions;
                     msg.writer().writeByte(itemOptions.size());
                     for (ItemOption itemOption : itemOptions) {
-                        msg.writer().writeByte(itemOption.optionTemplate.id);
-                        msg.writer().writeShort(itemOption.param);
+                        msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
                     }
                 }
 
@@ -883,8 +884,7 @@ public class Service {
                     List<ItemOption> itemOptions = item.itemOptions;
                     msg.writer().writeByte(itemOptions.size());
                     for (ItemOption itemOption : itemOptions) {
-                        msg.writer().writeByte(itemOption.optionTemplate.id);
-                        msg.writer().writeShort(itemOption.param);
+                        msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
                     }
                 }
 
@@ -903,8 +903,7 @@ public class Service {
                     List<ItemOption> itemOptions = item.itemOptions;
                     msg.writer().writeByte(itemOptions.size());
                     for (ItemOption itemOption : itemOptions) {
-                        msg.writer().writeByte(itemOption.optionTemplate.id);
-                        msg.writer().writeShort(itemOption.param);
+                        msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
                     }
                 }
             }
@@ -1119,8 +1118,8 @@ public class Service {
 
             msg = messageSubCommand((byte) 15);
             msg.writer().writeInt((int) pl.id);
-            msg.writer().writeInt(hp);
-            msg.writer().writeInt(mp);
+            msg.writeNum(hp);
+            msg.writeNum(mp);
             msg.writer().writeShort(pl.location.x);
             msg.writer().writeShort(pl.location.y);
             sendMessAllPlayerInMap(pl, msg);
@@ -1151,7 +1150,7 @@ public class Service {
                 ((Pet) pl).lastTimeDie = System.currentTimeMillis();
             }
             msg = new Message(-8);
-            msg.writer().writeShort((int) pl.id);
+            msg.writer().writeInt((int) pl.id); // trước ghi short: lệch với các chỗ gửi -8 khác
             int cPk = 0;
             msg.writer().writeByte(cPk); //cpk
             msg.writer().writeShort(pl.location.x);
@@ -1227,7 +1226,7 @@ public class Service {
         try {
             msg = new Message(-64);
             msg.writer().writeInt((int) pl.id);
-            msg.writer().writeByte(pl.getFlagBag());
+            msg.writeDual(pl.getFlagBag(), 1, pl.getFlagBag(), 2); // túi/cờ: J2ME đọc short
             sendMessAllPlayerInMap(pl, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -1591,17 +1590,16 @@ public class Service {
                         int countOption = item.itemOptions.size();
                         msg.writer().writeByte(countOption);
                         for (ItemOption iop : item.itemOptions) {
-                            msg.writer().writeByte(iop.optionTemplate.id);
-                            msg.writer().writeShort(iop.param);
+                            msg.writeItemOption(iop.optionTemplate.id, iop.param);
                         }
                     }
                 }
 
-                msg.writer().writeInt(pl.pet.nPoint.hp); //hp
-                msg.writer().writeInt(pl.pet.nPoint.hpMax); //hpfull
-                msg.writer().writeInt(pl.pet.nPoint.mp); //mp
-                msg.writer().writeInt(pl.pet.nPoint.mpMax); //mpfull
-                msg.writer().writeInt(pl.pet.nPoint.dame); //damefull
+                msg.writeNum(pl.pet.nPoint.hp); //hp
+                msg.writeNum(pl.pet.nPoint.hpMax); //hpfull
+                msg.writeNum(pl.pet.nPoint.mp); //mp
+                msg.writeNum(pl.pet.nPoint.mpMax); //mpfull
+                msg.writeNum(pl.pet.nPoint.dame); //damefull
                 msg.writer().writeUTF(pl.pet.name); //name
                 msg.writer().writeUTF(getCurrStrLevel(pl.pet)); //curr level
                 msg.writer().writeLong(pl.pet.nPoint.power); //power
@@ -1610,7 +1608,7 @@ public class Service {
                 msg.writer().writeShort(pl.pet.nPoint.stamina); //stamina
                 msg.writer().writeShort(pl.pet.nPoint.maxStamina); //stamina full
                 msg.writer().writeByte(pl.pet.nPoint.crit); //crit
-                msg.writer().writeShort(pl.pet.nPoint.def); //def
+                msg.writeDual(pl.pet.nPoint.def, 2, pl.pet.nPoint.def, 8); //def: J2ME đọc long
                 int sizeSkill = pl.pet.playerSkill.skills.size();
                 msg.writer().writeByte(5); //count pet skill
                 for (int i = 0; i < sizeSkill; i++) {
@@ -1645,6 +1643,8 @@ public class Service {
                         }
                     }
                 }
+                msg.writeOnlyLong(0, 1); // J2ME đọc thêm 1 byte + 1 short
+                msg.writeOnlyLong(-1, 2);
                 pl.sendMessage(msg);
                 msg.cleanup();
 
@@ -1905,6 +1905,8 @@ public class Service {
             String platform = msg.reader().readUTF();
             String[] arrPlatform = platform.split("\\|");
             session.version = Integer.parseInt(arrPlatform[1].replaceAll("\\.", ""));
+            // client J2ME (loại 1) từ 2.4.0 dùng giao thức số lớn
+            session.longNumbers = session.typeClient == 1 && session.version >= 240;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -2572,8 +2574,8 @@ public class Service {
             msg.writer().writeByte(pl.gender);
             msg.writer().writeShort(plHead);
             msg.writer().writeUTF(plName);
-            msg.writer().writeInt(pl.nPoint.hp);
-            msg.writer().writeInt(pl.nPoint.hpMax);
+            msg.writeNum(pl.nPoint.hp);
+            msg.writeNum(pl.nPoint.hpMax);
             msg.writer().writeShort(plBody);
             msg.writer().writeShort(plLeg);
             int flagbag = pl.getFlagBag();
@@ -2583,7 +2585,7 @@ public class Service {
                         flagbag = 205;
                 }
             }
-            msg.writer().writeByte(flagbag); //bag
+            msg.writeDual(flagbag, 1, flagbag, 2); // túi/cờ: J2ME đọc short //bag
             msg.writer().writeByte(-1);
             msg.writer().writeShort(pl.location.x);
             msg.writer().writeShort(pl.location.y);
@@ -2786,13 +2788,13 @@ public class Service {
 
             msg.writer().writeShort(bot.head);
             msg.writer().writeUTF(bot.name);
-            msg.writer().writeInt(bot.nPoint.hp);
-            msg.writer().writeInt(bot.nPoint.hpMax);
+            msg.writeNum(bot.nPoint.hp);
+            msg.writeNum(bot.nPoint.hpMax);
             msg.writer().writeShort(bot.body);
             msg.writer().writeShort(bot.leg);
 
             int flagbag = bot.getFlagBag();
-            msg.writer().writeByte(flagbag);
+            msg.writeDual(flagbag, 1, flagbag, 2); // túi/cờ: J2ME đọc short
             msg.writer().writeByte(-1);
 
             msg.writer().writeShort(bot.location.x);
@@ -2878,21 +2880,28 @@ public class Service {
             msg = messageSubCommand((byte) 7);
             msg.writer().writeInt((int) player.id);
             msg.writer().writeInt(player.clan != null ? player.clan.id : -1);
+            // cùng định dạng thông tin nhân vật với infoPlayer (trước thiếu cấp, cờ ẩn và 1 byte giới tính)
+            msg.writer().writeByte(Service.gI().getCurrLevel(player));
+            msg.writer().writeBoolean(false);
             msg.writer().writeByte(player.typePk);
+            msg.writer().writeByte(player.gender);
             msg.writer().writeByte(player.gender);
             msg.writer().writeShort(player.getHead());
             msg.writer().writeUTF(player.name);
-            msg.writer().writeInt(player.nPoint.hp);
-            msg.writer().writeInt(player.nPoint.hpMax);
+            msg.writeNum(player.nPoint.hp);
+            msg.writeNum(player.nPoint.hpMax);
             msg.writer().writeShort(player.getBody());
             msg.writer().writeShort(player.getLeg());
-            msg.writer().writeByte(player.getFlagBag());
+            msg.writeDual(player.getFlagBag(), 1, player.getFlagBag(), 2); // túi/cờ: J2ME đọc short
             msg.writer().writeByte(-1);
             msg.writer().writeShort(player.location.x);
             msg.writer().writeShort(player.location.y);
             msg.writer().writeShort(0);
             msg.writer().writeShort(0);
             msg.writer().writeByte(0);
+            msg.writer().writeShort(player.getAura());
+            msg.writer().writeByte(player.getEffFront());
+            msg.writer().writeShort(player.getHat());
             sendMessAllPlayer(msg);
         } catch (Exception e) {
             Logger.logException(Service.class, e);

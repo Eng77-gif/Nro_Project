@@ -336,15 +336,14 @@ public class Trade {
                 msg.writer().writeByte(itemsTrade1.size());
                 for (Item item : itemsTrade1) {
                     msg.writer().writeShort(item.template.id);
-                    if (player1.getSession().version < 222) {
+                    if (player2.getSession().version < 222) {
                         msg.writer().writeByte(item.quantity > Byte.MAX_VALUE ? Byte.MAX_VALUE : item.quantity);
                     } else {
                         msg.writer().writeInt(item.quantity);
                     }
                     msg.writer().writeByte(item.itemOptions.size());
                     for (Item.ItemOption io : item.itemOptions) {
-                        msg.writer().writeByte(io.optionTemplate.id);
-                        msg.writer().writeShort(io.param);
+                        msg.writeItemOption(io.optionTemplate.id, io.param);
                     }
                 }
                 player2.sendMessage(msg);
@@ -353,15 +352,14 @@ public class Trade {
                 msg.writer().writeByte(itemsTrade2.size());
                 for (Item item : itemsTrade2) {
                     msg.writer().writeShort(item.template.id);
-                    if (player2.getSession().version < 222) {
+                    if (player1.getSession().version < 222) {
                         msg.writer().writeByte(item.quantity > Byte.MAX_VALUE ? Byte.MAX_VALUE : item.quantity);
                     } else {
                         msg.writer().writeInt(item.quantity);
                     }
                     msg.writer().writeByte(item.itemOptions.size());
                     for (Item.ItemOption io : item.itemOptions) {
-                        msg.writer().writeByte(io.optionTemplate.id);
-                        msg.writer().writeShort(io.param);
+                        msg.writeItemOption(io.optionTemplate.id, io.param);
                     }
                 }
                 player1.sendMessage(msg);

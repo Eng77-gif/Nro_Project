@@ -38,6 +38,8 @@ public class MySession extends Session {
     public String pp;
 
     public int typeClient;
+    /** Client J2ME 2.4.x (vd Dragonboy247): đọc HP / KI / sát thương dạng long, option (short, int). Xem Message.writeNum. */
+    public boolean longNumbers;
     public byte zoomLevel;
 
     public long lastTimeLogout;

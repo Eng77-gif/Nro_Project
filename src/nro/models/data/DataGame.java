@@ -103,7 +103,7 @@ public class DataGame {
         try {
             msg = Service.gI().messageNotMap((byte) 6);
             msg.writer().writeByte(vsMap);
-            msg.writer().writeByte(Manager.MAP_TEMPLATES.length);
+            msg.writeDual(Manager.MAP_TEMPLATES.length, 1, Manager.MAP_TEMPLATES.length, 2); // J2ME: short
             for (MapTemplate temp : Manager.MAP_TEMPLATES) {
                 msg.writer().writeUTF(temp.name);
             }
@@ -115,11 +115,11 @@ public class DataGame {
                 msg.writer().writeShort(temp.leg);
                 msg.writer().writeByte(0);
             }
-            msg.writer().writeByte(Manager.MOB_TEMPLATES.size());
+            msg.writeDual(Manager.MOB_TEMPLATES.size(), 1, Manager.MOB_TEMPLATES.size(), 2); // J2ME: short
             for (MobTemplate temp : Manager.MOB_TEMPLATES) {
                 msg.writer().writeByte(temp.type);
                 msg.writer().writeUTF(temp.name);
-                msg.writer().writeInt(temp.hp);
+                msg.writeNum(temp.hp);
                 msg.writer().writeByte(temp.rangeMove);
                 msg.writer().writeByte(temp.speed);
                 msg.writer().writeByte(temp.dartType);

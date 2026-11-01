@@ -25,7 +25,90 @@ public class Message implements IMessage {
     public Message(byte command) {
         this.command = command;
         this.os = new ByteArrayOutputStream();
-        this.dos = new DataOutputStream(this.os);
+        this.tee = new Tee(this.os);
+        this.dos = new DataOutputStream(this.tee);
+    }
+
+    /**
+     * Bản dữ liệu cho client J2ME 2.4.x (Dragonboy247...): client này đọc HP / KI / sát thương... dạng long và chỉ số
+     * món đồ dạng (short id, int param), client cũ đọc int và (byte id, short param). Bản này chỉ được tạo khi gói có
+     * trường ghi riêng (writeNum, writeItemOption...); các lệnh ghi khác đi vào cả hai bản.
+     */
+    private ByteArrayOutputStream osLong;
+    private Tee tee;
+
+    private static final class Tee extends java.io.OutputStream {
+
+        private final java.io.OutputStream a;
+        private java.io.OutputStream b;
+
+        Tee(java.io.OutputStream a) {
+            this.a = a;
+        }
+
+        @Override
+        public void write(int v) throws IOException {
+            a.write(v);
+            if (b != null) {
+                b.write(v);
+            }
+        }
+
+        @Override
+        public void write(byte[] buf, int off, int len) throws IOException {
+            a.write(buf, off, len);
+            if (b != null) {
+                b.write(buf, off, len);
+            }
+        }
+    }
+
+    private ByteArrayOutputStream longStream() throws IOException {
+        if (this.osLong == null) {
+            this.osLong = new ByteArrayOutputStream();
+            this.osLong.write(this.os.toByteArray());
+            this.tee.b = this.osLong;
+        }
+        return this.osLong;
+    }
+
+    private static void put(ByteArrayOutputStream o, long v, int size) {
+        for (int s = (size - 1) * 8; s >= 0; s -= 8) {
+            o.write((byte) (v >>> s));
+        }
+    }
+
+    /** Ghi riêng cho 2 loại client: client cũ nhận oldV (oldSize byte), client J2ME nhận newV (newSize byte). */
+    public void writeDual(long oldV, int oldSize, long newV, int newSize) throws IOException {
+        ByteArrayOutputStream l = longStream();
+        put(this.os, oldV, oldSize);
+        put(l, newV, newSize);
+    }
+
+    /** Chỉ ghi cho client J2ME (client cũ không có trường này). */
+    public void writeOnlyLong(long v, int size) throws IOException {
+        put(longStream(), v, size);
+    }
+
+    /** Chỉ ghi chuỗi cho client J2ME. */
+    public void writeUTFOnlyLong(String s) throws IOException {
+        new DataOutputStream(longStream()).writeUTF(s);
+    }
+
+    /** Số lớn: client cũ nhận int (4 byte), client J2ME nhận long (8 byte). */
+    public void writeNum(long v) throws IOException {
+        writeDual(Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, v)), 4, v, 8);
+    }
+
+    /** 1 dòng chỉ số món đồ: (byte id, short param) cho client cũ, (short id, int param) cho J2ME 2.4.x. */
+    public void writeItemOption(int id, int param) throws IOException {
+        writeDual(id, 1, id, 2);
+        writeDual(Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, param)), 2, param, 4);
+    }
+
+    /** Dữ liệu gửi cho phiên: client J2ME lấy bản riêng (nếu gói có trường ghi riêng). */
+    public byte[] getData(boolean longNumbers) {
+        return longNumbers && this.osLong != null ? this.osLong.toByteArray() : this.os.toByteArray();
     }
 
     public Message(byte command, byte[] data) {
@@ -63,6 +146,9 @@ public class Message implements IMessage {
             }
             if (this.dos != null) {
                 this.dos.close();
+            }
+            if (this.osLong != null) {
+                this.osLong.close();
             }
         } catch (IOException iOException) {
         }

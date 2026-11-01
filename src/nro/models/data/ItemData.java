@@ -10,6 +10,10 @@ import nro.models.player_system.Template;
 public class ItemData {
 
     public static void updateItem(MySession session) {
+        if (session.longNumbers) {
+            updateItemJ2me(session);
+            return;
+        }
         updateItemOptionItemplate(session);
         updateItemArrHead2FTemplate(session);
         updateItemTemplate(session, 750);
@@ -133,5 +137,119 @@ public class ItemData {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // ------------------------------------------------------------------ client J2ME 2.4.x
+
+    /** Gói -28 tối đa 65535 byte (độ dài 2 byte). */
+    private static final int MAX_PACKET = 65_535 - 64;
+
+    /**
+     * Client J2ME 2.4.x (Dragonboy247...):
+     * - bảng option: số lượng short, (tên, loại) rồi bảng loại (short số dòng, (short id, ubyte loại));
+     * - danh sách item: chỉ nhận loại 1 (toàn bộ, id = thứ tự trong gói), bỏ qua loại 2, nên mọi item phải nằm
+     *   trong 1 gói. Bỏ mô tả và rút gọn các tên dài nhất (bỏ dấu, rồi cắt) cho tới khi vừa 65535 byte.
+     */
+    private static void updateItemJ2me(MySession session) {
+        try {
+            Message msg = new Message(-28);
+            msg.writer().writeByte(8);
+            msg.writer().writeByte(DataGame.vsItem);
+            msg.writer().writeByte(0);
+            int n = Manager.ITEM_OPTION_TEMPLATES.size();
+            msg.writer().writeShort(n);
+            for (ItemOptionTemplate io : Manager.ITEM_OPTION_TEMPLATES) {
+                msg.writer().writeUTF(io.name);
+                msg.writer().writeByte(io.type);
+            }
+            msg.writer().writeShort(n);
+            for (int i = 0; i < n; i++) {
+                msg.writer().writeShort(i);
+                msg.writer().writeByte(Manager.ITEM_OPTION_TEMPLATES.get(i).type);
+            }
+            session.doSendMessage(msg);
+            msg.cleanup();
+
+            updateItemArrHead2FTemplate(session);
+
+            int count = Manager.ITEM_TEMPLATES.size();
+            String[] names = fitNames(count);
+            msg = new Message(-28);
+            msg.writer().writeByte(8);
+            msg.writer().writeByte(DataGame.vsItem);
+            msg.writer().writeByte(1);
+            msg.writer().writeShort(count);
+            for (int i = 0; i < count; i++) {
+                Template.ItemTemplate it = Manager.ITEM_TEMPLATES.get(i);
+                msg.writer().writeByte(it.type);
+                msg.writer().writeByte(it.gender);
+                msg.writer().writeUTF(names[i]);
+                msg.writer().writeUTF("");
+                msg.writer().writeByte(it.level);
+                msg.writer().writeInt(it.strRequire);
+                msg.writer().writeShort(it.iconID);
+                msg.writer().writeShort(it.part);
+                msg.writer().writeBoolean(it.isUpToUp);
+            }
+            session.doSendMessage(msg);
+            msg.cleanup();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Tên item cho J2ME: bỏ dấu tất cả, rồi trả lại dấu cho các tên tốn ít byte thêm nhất khi gói còn chỗ.
+     * Nếu bỏ dấu hết vẫn không vừa (item tăng thêm), cắt bớt ở giữa các tên dài nhất, giữ 4 ký tự cuối.
+     */
+    private static String[] fitNames(int count) {
+        String[] full = new String[count];
+        String[] names = new String[count];
+        int[] len = new int[count];
+        long total = 5;
+        for (int i = 0; i < count; i++) {
+            String nm = Manager.ITEM_TEMPLATES.get(i).name;
+            full[i] = nm == null ? "" : nm;
+            names[i] = noAccent(full[i]);
+            len[i] = utfLength(names[i]) - 2;
+            total += 16 + len[i]; // 1+1+2+2+1+4+2+2+1 byte cố định
+        }
+        Integer[] order = new Integer[count];
+        for (int i = 0; i < count; i++) {
+            order[i] = i;
+        }
+        final String[] f = full;
+        java.util.Arrays.sort(order, (a, b) -> (utfLength(f[a]) - utfLength(noAccent(f[a]))) - (utfLength(f[b]) - utfLength(noAccent(f[b]))));
+        for (int i : order) {
+            int extra = utfLength(full[i]) - 2 - len[i];
+            if (total + extra <= MAX_PACKET) {
+                total += extra;
+                names[i] = full[i];
+                len[i] += extra;
+            }
+        }
+        java.util.PriorityQueue<Integer> q = new java.util.PriorityQueue<>((a, b) -> len[b] - len[a]);
+        for (int i = 0; i < count; i++) {
+            q.add(i);
+        }
+        while (total > MAX_PACKET && !q.isEmpty()) {
+            int i = q.poll();
+            String cur = names[i];
+            if (cur.isEmpty()) {
+                break;
+            }
+            String nm = cur.length() > 5 ? cur.substring(0, cur.length() - 5) + cur.substring(cur.length() - 4) : cur.substring(0, cur.length() - 1);
+            int nl = utfLength(nm) - 2;
+            total -= len[i] - nl;
+            names[i] = nm;
+            len[i] = nl;
+            q.add(i);
+        }
+        return names;
+    }
+
+    private static String noAccent(String s) {
+        String n = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+        return n.replace('đ', 'd').replace('Đ', 'D');
     }
 }

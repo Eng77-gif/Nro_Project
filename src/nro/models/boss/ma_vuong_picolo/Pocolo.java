@@ -155,7 +155,7 @@ public class Pocolo extends Boss {
                 msg.writer().writeInt((int) playerCall.id); //id ăn pem
                 msg.writer().writeByte(1); //read continue
                 msg.writer().writeByte(1); //type skill
-                msg.writer().writeInt(1_000_000_000); //dame ăn
+                msg.writeNum(1_000_000_000); //dame ăn
                 msg.writer().writeBoolean(true); //is die
                 msg.writer().writeBoolean(this.nPoint.isCrit); //crit
                 Service.gI().sendMessAllPlayerInMap(this, msg);

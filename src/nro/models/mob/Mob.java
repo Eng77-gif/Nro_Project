@@ -437,7 +437,8 @@ public class Mob {
             try {
                 msg = new Message(-11);
                 msg.writer().writeByte(this.id);
-                msg.writer().writeInt(dame); //dame
+                msg.writeNum(dame); //dame
+                msg.writeOnlyLong(0, 8); // J2ME đọc thêm sát thương KI
                 player.sendMessage(msg);
                 msg.cleanup();
             } catch (Exception e) {
@@ -452,7 +453,8 @@ public class Mob {
             msg = new Message(-10);
             msg.writer().writeByte(this.id);
             msg.writer().writeInt((int) player.id);
-            msg.writer().writeInt(player.nPoint.hp);
+            msg.writeNum(player.nPoint.hp);
+            msg.writeOnlyLong(0, 8); // J2ME đọc thêm 1 long
             Service.gI().sendMessAnotherNotMeInMap(player, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -484,7 +486,7 @@ public class Mob {
             msg.writer().writeByte(this.id);
             msg.writer().writeByte(this.tempId);
             msg.writer().writeByte(lvMob());
-            msg.writer().writeInt(this.point.hp);
+            msg.writeNum(this.point.hp);
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             this.sendMobMaxHp(this.point.hp);
         } catch (Exception e) {
@@ -503,8 +505,8 @@ public class Mob {
             int HP = hp > 0 ? 1 : Math.abs(hp);
             msg = new Message(-9);
             msg.writer().writeByte(this.id);
-            msg.writer().writeInt(this.point.gethp());
-            msg.writer().writeInt(HP);
+            msg.writeNum(this.point.gethp());
+            msg.writeNum(HP);
             msg.writer().writeBoolean(false);
             msg.writer().writeByte(-1);
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
@@ -523,8 +525,8 @@ public class Mob {
         try {
             msg = new Message(-9);
             msg.writer().writeByte(this.id);
-            msg.writer().writeInt(this.point.gethp());
-            msg.writer().writeInt(this.point.gethp());
+            msg.writeNum(this.point.gethp());
+            msg.writeNum(this.point.gethp());
             msg.writer().writeBoolean(false);
             msg.writer().writeByte(Effect);
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
@@ -543,7 +545,7 @@ public class Mob {
         try {
             msg = new Message(-12);
             msg.writer().writeByte(this.id);
-            msg.writer().writeInt(dameHit);
+            msg.writeNum(dameHit);
             msg.writer().writeBoolean(plKill.nPoint.isCrit); // crit
             List<ItemMap> items = mobReward(plKill, this.dropItemTask(plKill), msg);
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
@@ -1122,10 +1124,10 @@ public class Mob {
         try {
             msg = new Message(-9);
             msg.writer().writeByte(this.id);
-            msg.writer().writeInt(this.point.gethp());
-            msg.writer().writeInt(dameHit);
+            msg.writeNum(this.point.gethp());
+            msg.writeNum(dameHit);
             msg.writer().writeBoolean(crit); // chí mạng
-            msg.writer().writeInt(-1);
+            msg.writeDual(-1, 4, -1, 1); // hiệu ứng: J2ME đọc byte
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -1142,7 +1144,7 @@ public class Mob {
             msg.writer().writeByte(this.id);
             msg.writer().writeByte(this.tempId);
             msg.writer().writeByte(this.lvMob); //level mob
-            msg.writer().writeInt(this.point.hp);
+            msg.writeNum(this.point.hp);
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -1159,7 +1161,7 @@ public class Mob {
             msg.writer().writeByte(this.id);
             msg.writer().writeByte(this.tempId);
             msg.writer().writeByte(this.lvMob); //level mob
-            msg.writer().writeInt(this.point.hp);
+            msg.writeNum(this.point.hp);
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             msg.cleanup();
         } catch (IOException e) {
@@ -1243,7 +1245,7 @@ public class Mob {
         try {
             msg = new Message(87);
             msg.writer().writeByte(this.id);
-            msg.writer().writeInt(maxHp);
+            msg.writeDual(maxHp, 4, 0, 1); // J2ME: gói 87 là cờ boolean, không phải HP
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             msg.cleanup();
         } catch (IOException e) {
@@ -1270,8 +1272,8 @@ public class Mob {
                 int hpMob = this.point.hp;
                 injured(null, damePST, true);
                 damePST = hpMob - this.point.hp;
-                msg.writer().writeInt(this.point.hp);
-                msg.writer().writeInt(damePST);
+                msg.writeNum(this.point.hp);
+                msg.writeNum(damePST);
                 msg.writer().writeBoolean(false);
                 msg.writer().writeByte(36);
                 Service.gI().sendMessAllPlayerInMap(this.zone, msg);

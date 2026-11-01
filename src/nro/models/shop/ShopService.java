@@ -196,8 +196,7 @@ public class ShopService {
                         }
                         msg.writer().writeByte(itemShop.options.size());
                         for (Item.ItemOption option : itemShop.options) {
-                            msg.writer().writeByte(option.optionTemplate.id);
-                            msg.writer().writeShort(option.param);
+                            msg.writeItemOption(option.optionTemplate.id, option.param);
                         }
                         msg.writer().writeByte(itemShop.isNew ? 1 : 0);
                         if (itemShop.temp.type == 5) {
@@ -251,8 +250,7 @@ public class ShopService {
                         }
                         msg.writer().writeByte(itemShop.options.size());
                         for (Item.ItemOption option : itemShop.options) {
-                            msg.writer().writeByte(option.optionTemplate.id);
-                            msg.writer().writeShort(option.param);
+                            msg.writeItemOption(option.optionTemplate.id, option.param);
                         }
                         msg.writer().writeByte(itemShop.isNew ? 1 : 0);
                         if (itemShop.temp.type == 5) {
@@ -305,8 +303,7 @@ public class ShopService {
 
                         msg.writer().writeByte(itemShop.options.size());
                         for (Item.ItemOption option : itemShop.options) {
-                            msg.writer().writeByte(option.optionTemplate.id);
-                            msg.writer().writeShort(option.param);
+                            msg.writeItemOption(option.optionTemplate.id, option.param);
                         }
                         msg.writer().writeByte(itemShop.isNew ? 1 : 0);
 
@@ -343,8 +340,7 @@ public class ShopService {
                         msg.writer().writeInt(itemShop.cost);
                         msg.writer().writeByte(itemShop.options.size());
                         for (Item.ItemOption option : itemShop.options) {
-                            msg.writer().writeByte(option.optionTemplate.id);
-                            msg.writer().writeShort(option.param);
+                            msg.writeItemOption(option.optionTemplate.id, option.param);
                         }
                         msg.writer().writeByte(itemShop.isNew ? 1 : 0);
                         if (itemShop.temp.type == 5) {
@@ -386,8 +382,7 @@ public class ShopService {
                 msg.writer().writeUTF("|7| LUCKY REWARD");
                 msg.writer().writeByte(item.itemOptions.size() + 1);
                 for (Item.ItemOption io : item.itemOptions) {
-                    msg.writer().writeByte(io.optionTemplate.id);
-                    msg.writer().writeShort(io.param);
+                    msg.writeItemOption(io.optionTemplate.id, io.param);
                 }
                 //số lượng
                 msg.writer().writeByte(31);
@@ -435,8 +430,7 @@ public class ShopService {
                 msg.writer().writeInt(item.quantity);
                 msg.writer().writeByte(item.itemOptions.size());
                 for (Item.ItemOption io : item.itemOptions) {
-                    msg.writer().writeByte(io.optionTemplate.id);
-                    msg.writer().writeShort(io.param);
+                    msg.writeItemOption(io.optionTemplate.id, io.param);
                 }
                 msg.writer().writeByte(0);
                 if (item.template.type == 5) {
