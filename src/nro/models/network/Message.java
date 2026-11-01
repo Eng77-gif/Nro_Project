@@ -103,7 +103,7 @@ public class Message implements IMessage {
     /** 1 dòng chỉ số món đồ: (byte id, short param) cho client cũ, (short id, int param) cho J2ME 2.4.x. */
     public void writeItemOption(int id, int param) throws IOException {
         writeDual(id, 1, id, 2);
-        writeDual(Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, param)), 2, param, 4);
+        writeDual(param, 2, param, 4); // client cũ: giữ nguyên cách cũ (writeShort cắt 16 bit thấp)
     }
 
     /** Dữ liệu gửi cho phiên: client J2ME lấy bản riêng (nếu gói có trường ghi riêng). */

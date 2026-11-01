@@ -1094,3 +1094,36 @@ Code mới: `services/AnnounceService.java`.
   - Gói đăng nhập khớp.
 - **Chưa chạy thử client thật:** không được phép chạy jar của bên thứ ba trong môi trường làm việc.
 - Tính năng Firebase "Điều khiển từ xa" của mod mặc định tắt.
+
+## Đợt 46: Server tương thích giao thức client J2ME (Dragonboy247 / 2.4.6)
+Lỗi khi vào game bằng client J2ME (theo video):
+- Danh sách đồ trống ở bảng Bà Hạt Mít.
+- HP / KI sai.
+- "Xin chờ" treo ở mục Đệ tử.
+- Ảnh quái sai.
+
+Nguyên nhân: client J2ME 2.4.6 đọc một số trường khác client PC.
+
+**Cách làm:** server tự nhận client J2ME qua gói khai báo (`typeClient == 1`, phiên bản ≥ 240 → `MySession.longNumbers`). Mỗi gói tin ghi song song 2 bản: bản cũ cho client PC (giữ nguyên từng byte như trước) và bản J2ME. `MessageSendCollect` chọn bản theo phiên.
+- `Message`: thêm `writeNum`, `writeItemOption`, `writeDual`, `writeOnlyLong`, `getData(longNumbers)`.
+
+**Server → client (J2ME):**
+- HP / KI / sát thương / phòng thủ: long. Khoảng 70 chỗ: nhân vật, đệ tử, quái, quái của người chơi, boss lớn, bot.
+- Chỉ số đồ (option): short id + int param, 18 chỗ (túi, rương, người, shop, ký gửi, giao dịch).
+- Ô túi trống gửi `-1` thay vì bỏ qua (client đọc đủ số ô).
+- Id quái trong map, cờ / túi, biểu tượng bang, số lượng map / quái (-28/6): short.
+- Gói -42 (chỉ số), -107 (đệ tử), 87, -9 / -10 / -11 (quái): thêm hoặc đổi trường theo đúng client.
+- Dữ liệu item (-28/8): gửi theo định dạng J2ME. Tên item gói trong giới hạn 65535 byte của client: bỏ dấu bớt ở tên dài, mô tả để trống.
+- Gói -30/7 (bản thứ 2) thiếu trường, sai với mọi client: đã sửa đủ.
+- Gói -8: id người chơi ghi `int` (trước ghi `short`, sai với mọi client).
+- Giao dịch -86: kiểm tra phiên bản theo người nhận.
+- Gấu Tượng Cướp (-13/5): không gửi cho client J2ME, vì client này hiểu thành "hồi sinh quái thường" và làm hỏng quái.
+
+**Client J2ME → server:**
+- 11 (xin dữ liệu quái): client gửi short, server trước đọc byte → trả sai quái (ảnh quái lỗi). Đã đọc short.
+- -63 (xin ảnh cờ / túi): đọc short.
+- -46 tạo bang / đổi thông tin bang: id biểu tượng đọc short.
+
+**Đã đối chiếu tĩnh** toàn bộ gói của client J2ME (giải mã bytecode) với server: hai chiều, gói chính, -28 / -29 / -30. Các gói còn lại khớp.
+
+**Ghi chú:** thông báo "Máy chủ sẽ bảo trì trong … phút" là bảo trì tự động hằng ngày lúc 04:30 (`AutoMaintenance`), không phải lỗi client.

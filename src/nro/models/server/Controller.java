@@ -445,8 +445,8 @@ public class Controller implements IMessageHandler {
                     break;
                 case -63:
                     if (player != null) {
-                        byte fbid = _msg.reader().readByte();
-                        int fbidz = fbid & 0xFF; //Chuyển sang byte không dấu
+                        // client J2ME gửi id cờ/túi dạng short
+                        int fbidz = _session.longNumbers ? _msg.reader().readShort() : (_msg.reader().readByte() & 0xFF); //Chuyển sang byte không dấu
                         FlagBagService.gI().sendIconEffectFlag(player, fbidz);
                     }
                     break;
@@ -565,7 +565,8 @@ public class Controller implements IMessageHandler {
                     }
                     break;
                 case 11:
-                    byte modId = _msg.reader().readByte();
+                    // client J2ME gửi id quái dạng short
+                    int modId = _session.longNumbers ? _msg.reader().readShort() : _msg.reader().readByte();
                     DataGame.requestMobTemplate(_session, modId);
                     break;
                 case 44:

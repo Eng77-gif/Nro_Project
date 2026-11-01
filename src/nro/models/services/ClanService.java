@@ -131,7 +131,8 @@ public class ClanService {
                     FlagBagService.gI().sendListFlagClan(player);
                     break;
                 case ACCEPT_CREATE_CLAN:
-                    byte imgId = msg.reader().readByte();
+                    // client J2ME gửi id biểu tượng dạng short
+                    int imgId = readImgId(player, msg);
                     String name = msg.reader().readUTF();
                     createClan(player, imgId, name);
                     break;
@@ -139,7 +140,7 @@ public class ClanService {
                     FlagBagService.gI().sendListFlagClan(player);
                     break;
                 case ACCEPT_CHANGE_INFO_CLAN:
-                    imgId = msg.reader().readByte();
+                    imgId = readImgId(player, msg);
                     String slogan = msg.reader().readUTF();
                     changeInfoClan(player, imgId, slogan);
                     break;
@@ -148,6 +149,11 @@ public class ClanService {
             e.printStackTrace();
 
         }
+    }
+
+    private static int readImgId(Player player, Message msg) throws java.io.IOException {
+        nro.models.network.MySession s = player.getSession();
+        return s != null && s.longNumbers ? msg.reader().readShort() : msg.reader().readByte();
     }
 
     public void clanMessage(Player player, Message msg) {
@@ -539,7 +545,7 @@ public class ClanService {
     /**
      * Đổi thông tin clan (cờ, khẩu hiệu)
      */
-    private void changeInfoClan(Player player, byte imgId, String slogan) {
+    private void changeInfoClan(Player player, int imgId, String slogan) {
         if (!slogan.equals("")) {
             changeSlogan(player, slogan);
         } else {
@@ -550,7 +556,7 @@ public class ClanService {
     /**
      * Tạo clan mới
      */
-    private void createClan(Player player, byte imgId, String name) {
+    private void createClan(Player player, int imgId, String name) {
         if (player.clan == null) {
             if (name.length() > 30) {
                 Service.gI().sendThongBao(player, "Tên bang hội không được quá 30 ký tự");

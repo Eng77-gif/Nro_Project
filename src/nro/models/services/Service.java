@@ -2913,6 +2913,9 @@ public class Service {
     }
 
     public void loadMob(Player p, GauTuongCuop gauTuong) {
+        if (p.session != null && p.session.longNumbers) {
+            return; // client J2ME hiểu -13 là hồi sinh quái thường -> bỏ qua để không làm hỏng quái
+        }
         try {
             Message msg = new Message(-13);
             msg.writer().writeByte(5);

@@ -12,7 +12,10 @@
 ## Đã kiểm tra khớp với server
 - **Gói khai báo client** (`setClientType`): client gửi đúng thứ tự server đọc. Phiên bản `|2.4.6`, server tính ra version 246 (> 220, đủ điều kiện các phần mới).
 - **Gói đăng nhập:** server đọc tài khoản và mật khẩu như client gửi.
-- **Chưa test được:** môi trường làm việc không cho chạy file jar của bên thứ ba, nên chưa test client thật trên giả lập. Hãy thử trên điện thoại. Nếu không vào được, gửi ảnh màn hình để mình xem tiếp.
+- **Toàn bộ gói tin:** server tự nhận client J2ME và gửi đúng định dạng riêng (HP long, chỉ số đồ short/int, dữ liệu item…). Client PC không đổi gì. Chi tiết ở BUGFIXES.md, Đợt 46.
+- **Cần dùng `20.jar` mới** (đã có các sửa trên) rồi khởi động lại server.
+- **Giới hạn:** client J2ME chỉ nhận gói dữ liệu item tối đa 65535 byte, nên một phần tên item hiển thị không dấu, phần mô tả item để trống.
+- **Chưa test được:** môi trường làm việc không cho chạy file jar của bên thứ ba, nên chưa test client thật trên giả lập. Hãy thử trên điện thoại. Nếu lỗi, gửi ảnh / video để mình xem tiếp.
 
 ## Đổi IP / port khi chuyển VPS
 Cần Python 3:
