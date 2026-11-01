@@ -334,6 +334,8 @@ public class BossManager implements Runnable {
                     new DeathBeam5();
                 case BossID.BIMA ->
                     new BiMa();
+                case BossID.BOXUONG ->
+                    new nro.models.boss.event.Halloween.BoXuong();
                 case BossID.MATROI ->
                     new MaTroi();
                 case BossID.DOI ->

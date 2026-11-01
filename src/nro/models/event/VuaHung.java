@@ -64,14 +64,20 @@ public class VuaHung extends Npc {
         }
         List<String> act = new ArrayList<>();
         List<String> label = new ArrayList<>();
-        if (isPlantTime() && player.DuaHauEgg == null && !Long.valueOf(plantWindow()).equals(daTrong.get(player.id))) {
+        // trồng / đổi dưa hấu chỉ trong sự kiện Giỗ tổ Hùng Vương
+        boolean gioTo = nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.GIO_TO);
+        if (gioTo && isPlantTime() && player.DuaHauEgg == null && !Long.valueOf(plantWindow()).equals(daTrong.get(player.id))) {
             act.add("PLANT");
             label.add("Trồng\ndưa");
         }
-        act.add("DOI");
-        label.add("Đổi\ndưa hấu");
+        if (gioTo) {
+            act.add("DOI");
+            label.add("Đổi\ndưa hấu");
+        }
         List<String> ex = nro.models.services.SeasonEventService.gI().npcExchangeNames(tempId);
-        if (!ex.isEmpty()) {
+        if (!gioTo) {
+            // ngoài mùa Giỗ tổ: không đổi quà / dâng lễ
+        } else if (!ex.isEmpty()) {
             for (int i = 0; i < ex.size(); i++) {
                 act.add("EX" + i);
                 label.add(ex.get(i));
@@ -102,6 +108,8 @@ public class VuaHung extends Npc {
         String say = "Ngươi tìm ta có việc gì ?";
         if (player.DuaHauEgg != null) {
             say += player.DuaHauEgg.getSecondDone() == 0 ? "\nDưa của ngươi đã chín, về nhà thu hoạch rồi mang đến đây!" : "\nDưa đang lớn, chín lúc phút 00 hoặc 30.";
+        } else if (!gioTo) {
+            say += "\nTrồng dưa hấu chỉ có trong sự kiện Giỗ tổ Hùng Vương (10/3 âm lịch).";
         } else if (!isPlantTime()) {
             say += "\nTrồng dưa vào phút 25 và 55 mỗi giờ.";
         }
@@ -237,6 +245,10 @@ public class VuaHung extends Npc {
     }
 
     private void plant(Player pl) {
+        if (!nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.GIO_TO)) {
+            Service.gI().sendThongBao(pl, "Trồng dưa hấu chỉ có trong sự kiện Giỗ tổ Hùng Vương");
+            return;
+        }
         if (!isPlantTime() || pl.DuaHauEgg != null || Long.valueOf(plantWindow()).equals(daTrong.get(pl.id))) {
             Service.gI().sendThongBao(pl, "Chưa đến giờ trồng dưa hoặc ngươi đã trồng rồi");
             return;

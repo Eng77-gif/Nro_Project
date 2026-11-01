@@ -171,6 +171,7 @@ public class BossID {
     public static final int MATROI = -349;
     public static final int DOI = -350;
     public static final int BIMA = -351;
+    public static final int BOXUONG = -352;
 
     //========================CHRISTMAS EVENT========================
     public static final int ONG_GIA_NOEL = -353;

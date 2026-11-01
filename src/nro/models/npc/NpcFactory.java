@@ -230,6 +230,8 @@ public class NpcFactory {
                     new NoiBanh(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.XE_NUOC_MIA ->
                     new XeNuocMia(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.HOA_HONG ->
+                    new nro.models.event.HoaHong(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.BARDOCK ->
                     new Bardock(mapId, status, cx, cy, tempId, avatar);
                 default ->

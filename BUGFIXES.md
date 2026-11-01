@@ -1148,3 +1148,45 @@ Nguyên nhân: client J2ME 2.4.6 đọc một số trường khác client PC.
 **Lưu ý khi thêm option mới:** id từ 255 trở lên cần còn ô trống trong `OptionIdMap.SPARE` (hiện còn 4 ô: 192, 229, 62, 208). Hết ô thì server báo lỗi trong log.
 
 **Ghi chú:** APK 4.8.4 là client Unity, không phải J2ME. Phần tương thích J2ME (Đợt 46) chỉ áp dụng cho client J2ME (typeClient 1), không ảnh hưởng APK / PC.
+
+## Đợt 48: Sự kiện theo source V10 (ENZEEFXNROxBARCOLL V10), danh hiệu mới, sự kiện chạy lẫn lộn
+### Sự kiện chạy lẫn lộn (trồng dưa hấu đang có giữa Halloween)
+- **Nguyên nhân:**
+  - Hùng Vương ở Thành cổ có sẵn trong bản đồ và cho trồng dưa / đổi dưa / dâng lễ quanh năm, chỉ xét phút 25 / 55.
+  - Xe nước mía (Sự kiện Hè) đặt cứng ở Làng Aru / Mori / Kakarot.
+  - Lịch theo ngày cho nhiều sự kiện trùng nhau (Halloween 29/10 – 19/11 trùng 20/11 từ 15/11).
+- **Sửa:**
+  - Trồng dưa, đổi dưa hấu, dâng sính lễ / bánh chỉ có khi sự kiện **Giỗ tổ Hùng Vương** đang chạy. Dưa đã trồng vẫn thu hoạch được.
+  - Xe nước mía chỉ hiện trong **Sự kiện Hè**.
+  - Giống V10: **mỗi lúc chỉ 1 sự kiện**. Khi lịch trùng, sự kiện bắt đầu muộn nhất được chạy. Ví dụ 15/11 Nhà giáo 20/11 thay Halloween.
+  - `Config.properties`: `event.active=` để trống thì chạy theo lịch. Ghi id (ví dụ `event.active=7`) thì chỉ chạy đúng sự kiện đó, giống `active_event.txt` của V10. Sửa file có hiệu lực sau ≤ 30 giây, không cần khởi động lại.
+  - Bật / tắt tay trên panel vẫn được ưu tiên.
+
+### Sự kiện lấy từ V10
+- **Halloween:** thêm boss **Xương khô** (`BoXuong`, BossID -352, 10 con).
+  - Đánh trúng biến người chơi thành bộ xương 30 phút.
+  - Hạ rơi Bí ngô + 3 – 5 Kẹo bàn tay.
+- **Nhà giáo 20/11:** NPC **Hoa Hồng** (npc_template 111) mọc ở Làng Aru, Mori, Kakarot, Đảo Kamê, Đảo Guru.
+  - Dùng Kéo tỉa hoa → 1 – 5 Bông hoa hồng. Dùng Kéo tỉa hoa đặc biệt → 1 – 3 Bó hoa hồng.
+  - Mỗi cây hái 7 lần thì tàn 5 phút.
+  - Santa bán kéo (2 / 10 ngọc), đổi 20 Bông hoa hồng lấy Hộp quà, 10 Bó hoa hồng lấy danh hiệu Gõ đầu trẻ (7 ngày).
+
+### Danh hiệu mới
+Hiệu ứng lấy từ V10: `data/effdata` + `data/effect/x1..x4` cho 215, 255, 505, 506, 1099.
+
+| Danh hiệu | Chỉ số | Cách nhận |
+|---|---|---|
+| Chiến binh sao đen (1904) | SĐ +10%, HP +10%, KI +10%, +5% vàng từ quái, 7 ngày | Thắng Ngọc rồng 1 sao đen ở khu 1 ngày chủ nhật (người giữ ngọc), có thông báo server |
+| Tay nhanh hơn não (1673) | SĐ / HP / KI +11%, Đẹp +5%, 7 ngày | Halloween: Santa đổi 199 Kẹo bàn tay |
+| Mùa đông không lạnh (1765) | Né 5%, HP / KI +12%, 7 ngày | Giáng sinh: Santa đổi 50 Chuông + 50 Kẹo giáng sinh + 3 Tất |
+| Kẻ thao túng sói (1286) | SĐ +10%, chí mạng +5% | Đã bán ở tab Danh hiệu nhưng thiếu dòng `data_badges` nên mua không ra: đã thêm |
+
+Dùng vật phẩm danh hiệu trong hành trang để kích hoạt (theo hạn sử dụng).
+
+### Database
+- `Dot48Migration` tự thêm dữ liệu khi khởi động server (chạy lại không sao): `data_badges`, `item_template` (part / mô tả), `npc_template` 111, `season_event_npc`, `season_event_exchange` 201 – 206, boss và rơi đồ Halloween.
+- Không cần chạy file SQL.
+- `vsData` 19 → 20, `vsItem` 16 → 17 để client tải lại NPC và item.
+
+### Chưa làm
+Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Thỏ Đại Ca / Meowth (Trung Thu), Rồng nhí 1 – 7 sao (Giỗ tổ). Chúng dùng hệ boss riêng của V10, sẽ làm khi gần tới các sự kiện đó.

@@ -53,6 +53,7 @@ public class SeasonEventService implements Runnable {
         return instance;
     }
 
+    public static final int GIO_TO = 4;
     public static final int SUMMER = 5;
 
     // chỉ số menu ở NPC Santa
@@ -357,12 +358,54 @@ public class SeasonEventService implements Runnable {
         return null;
     }
 
-    private boolean shouldRun(Season s, LocalDate d) {
-        Boolean f = forced.get(s.id);
-        if (f != null) {
-            return f;
+    /**
+     * Sự kiện được chạy (theo kiểu source V10: mỗi lúc chỉ 1 sự kiện):
+     * - Config.properties có event.active=7 (hoặc 7,8...) thì chỉ chạy đúng các sự kiện đó, không xét ngày.
+     * - Để trống thì chạy theo lịch, nhưng chỉ 1 sự kiện: nếu nhiều đợt trùng ngày, đợt bắt đầu muộn nhất (mới nhất) được chạy.
+     * - Bật / tắt tay trên panel hoặc lệnh admin luôn được ưu tiên.
+     */
+    private Set<Integer> runSet(LocalDate d) {
+        Set<Integer> run = new HashSet<>();
+        Set<Integer> cfg = configActive();
+        if (!cfg.isEmpty()) {
+            for (int id : cfg) {
+                if (seasons.containsKey(id)) {
+                    run.add(id);
+                }
+            }
+        } else {
+            Season best = null;
+            LocalDate bestStart = null;
+            for (Season s : seasons.values()) {
+                LocalDate[] w = s.enabled ? window(s, d) : null;
+                if (w != null && (best == null || w[0].isAfter(bestStart))) {
+                    best = s;
+                    bestStart = w[0];
+                }
+            }
+            if (best != null) {
+                run.add(best.id);
+            }
         }
-        return s.enabled && window(s, d) != null;
+        for (Map.Entry<Integer, Boolean> f : forced.entrySet()) {
+            if (f.getValue()) {
+                run.add(f.getKey());
+            } else {
+                run.remove(f.getKey());
+            }
+        }
+        return run;
+    }
+
+    /** event.active trong Config.properties (đọc lại mỗi lần cập nhật để sửa file không cần khởi động lại). */
+    public static Set<Integer> configActive() {
+        java.util.Properties p = new java.util.Properties();
+        try (java.io.InputStream in = new java.io.FileInputStream("Config.properties")) {
+            p.load(new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            return new HashSet<>();
+        }
+        return parseSet(p.getProperty("event.active", ""));
     }
 
     /** Danh sách sự kiện cho panel web. */
@@ -423,11 +466,12 @@ public class SeasonEventService implements Runnable {
 
     public synchronized void update() {
         LocalDate d = today();
+        Set<Integer> runIds = runSet(d);
         for (Season s : seasons.values()) {
             LocalDate[] w = window(s, d);
             s.start = w != null ? w[0] : null;
             s.end = w != null ? w[1] : null;
-            boolean run = shouldRun(s, d);
+            boolean run = runIds.contains(s.id);
             if (run && !s.active) {
                 s.active = true;
                 spawnBosses(s);
@@ -573,6 +617,7 @@ public class SeasonEventService implements Runnable {
                 int x = n[2] > 0 ? n[2] : freeX(m);
                 int y = n[3] > 0 ? n[3] : groundY(m, x);
                 Npc npc = n[0] == nro.models.consts.ConstNpc.SANTA || n[0] == nro.models.consts.ConstNpc.HUNG_VUONG
+                        || n[0] == nro.models.consts.ConstNpc.HOA_HONG
                         ? nro.models.npc.NpcFactory.createNPC(m.mapId, 1, x, y, n[0])
                         : new EventNpc(m.mapId, x, y, n[0]);
                 if (npc != null) {

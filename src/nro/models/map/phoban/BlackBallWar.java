@@ -105,12 +105,22 @@ public class BlackBallWar implements Runnable {
         }
     }
 
+    /** Hiệu ứng danh hiệu Chiến binh sao đen (data_badges.idEffect). */
+    public static final int CHIEN_BINH_SAO_DEN = 506;
+
     private synchronized void win(Player player) {
         player.zone.finishBlackBallWar = true;
         int star = player.idMark.getTempIdBlackBallHold() - 371;
         player.rewardBlackBall.reward((byte) star);
         Service.gI().sendThongBao(player, "Chúc mừng bạn đã "
                 + "dành được Ngọc rồng " + star + " sao đen cho bang");
+        // Danh hiệu "Chiến binh sao đen" (7 ngày): thắng Ngọc rồng 1 sao đen ở khu 1 vào ngày chủ nhật
+        if (star == 1 && player.zone.zoneId == 0 && java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")).getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+            nro.models.player_badges.BadgesService.giveBadge(player, CHIEN_BINH_SAO_DEN, 7);
+            Service.gI().point(player);
+            Service.gI().sendThongBao(player, "Bạn nhận được danh hiệu Chiến binh sao đen (7 ngày)");
+            nro.models.server.ServerNotify.gI().notify(player.name + " đã thắng Ngọc rồng 1 sao đen khu 1 và nhận danh hiệu Chiến binh sao đen!");
+        }
 
         if (player.clan != null) {
             player.clan.members.forEach(m -> {
