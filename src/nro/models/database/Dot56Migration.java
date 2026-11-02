@@ -654,7 +654,7 @@ public final class Dot56Migration {
 
     /** {id, tên, icon, part, chỉ số {option, từ, đến}...} - theo ảnh: Đại bàng đất sét nổ / VIP; Kỳ Lân giữ tạm */
     private static final Object[][] MOUNTS_71 = {
-        {2121, "Đại bàng đất sét nổ VIP", 32301, 74, new int[][]{{50, 10, 10}, {77, 15, 15}, {103, 10, 10}, {94, 11, 11}, {108, 12, 12}, {6, 25000, 25000}, {80, 7, 7}, {85, 0, 0}}},
+        {2121, "Đại bàng đất sét nổ VIP", 32307, 74, new int[][]{{50, 10, 10}, {77, 15, 15}, {103, 10, 10}, {94, 11, 11}, {108, 12, 12}, {6, 25000, 25000}, {80, 7, 7}, {85, 0, 0}}},
         {2122, "Đại bàng đất sét nổ", 32301, 74, new int[][]{{50, 10, 10}, {77, 13, 13}, {103, 10, 10}, {94, 10, 10}, {108, 10, 10}, {6, 12000, 12000}, {80, 7, 7}, {85, 0, 0}}},
         {2123, "Thú cưỡi Kỳ Lân", 32304, 77, new int[][]{{50, 6, 10}, {77, 6, 10}, {103, 6, 10}, {85, 0, 0}}},};
 
@@ -698,6 +698,7 @@ public final class Dot56Migration {
                 }
             }
         }
+        changed += update(con, "update item_template set icon_id = 32307 where id = 2121 and icon_id <> 32307"); // icon vàng cho bản VIP
         if (redo) {
             changed += update(con, "insert into server_migration (name) values ('dot72_mounts')");
         }
