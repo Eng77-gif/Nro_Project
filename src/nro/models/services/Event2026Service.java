@@ -145,16 +145,27 @@ public class Event2026Service {
             return;
         }
         String boxName = box.template.name; // hộp cuối bị xóa (template = null) khi trừ số lượng
-        String got = openBoxById(pl, box.template.id);
+        short boxIcon = box.template.iconID;
+        short[] icon = {-1};
+        String got = openBoxById(pl, box.template.id, icon);
         if (got != null) {
             InventoryService.gI().subQuantityItemsBag(pl, box, 1);
             InventoryService.gI().sendItemBags(pl);
+            if (icon[0] >= 0) {
+                // hiệu ứng mở giống Capsule kì bí: icon hộp -> icon quà
+                nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, icon[0]);
+            }
             Service.gI().sendThongBao(pl, "Mở " + boxName + " nhận được " + got);
         }
     }
 
     /** Rút 1 phần quà của hộp boxId và cho vào hành trang; trả về tên quà (null nếu hộp không có quà). */
     public String openBoxById(Player pl, int boxId) {
+        return openBoxById(pl, boxId, null);
+    }
+
+    /** Như trên, iconOut[0] nhận icon của quà (để làm hiệu ứng mở hộp). */
+    public String openBoxById(Player pl, int boxId, short[] iconOut) {
         List<BoxReward> list = boxes.get(boxId);
         if (list == null || list.isEmpty()) {
             return null;
@@ -176,12 +187,18 @@ public class Event2026Service {
         String got;
         if (pick.itemId < 0) {
             got = giveCurrency(pl, pick.itemId, qty);
+            if (iconOut != null) {
+                iconOut[0] = (short) (pick.itemId == -1 ? 930 : pick.itemId == -2 ? 932 : 7743);
+            }
         } else {
             int days = 0;
             if (pick.days.length > 0 && !Util.isTrue(pick.permRate, 100)) {
                 days = pick.days[Util.nextInt(0, pick.days.length - 1)];
             }
             Item it = createItem(pick.itemId, qty, days);
+            if (iconOut != null) {
+                iconOut[0] = it.template.iconID;
+            }
             InventoryService.gI().addItemBag(pl, it);
             AnnounceService.gI().onOpenBox(pl, boxId, it);
             got = (qty > 1 ? "x" + qty + " " : "") + it.template.name + (days > 0 ? " (" + days + " ngày)" : (pick.days.length > 0 ? " (vĩnh viễn)" : ""));

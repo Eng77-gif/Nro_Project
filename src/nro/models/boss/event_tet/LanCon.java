@@ -200,6 +200,7 @@ public synchronized int injured(Player plAtt, long damage, boolean piercing, boo
         if (damage >= this.nPoint.hp || isPlayerChatThang(plAtt)) {
             this.changeToTypeNonPK();
             this.playerId = Math.abs(plAtt.id);
+            plAtt.escortType = 0;
             Service.gI().chat(plAtt, "Đi thôi lân con!");
             this.nPoint.hp = this.nPoint.hpMax;
             this.changeStatus(BossStatus.AFK);

@@ -1178,9 +1178,13 @@ public class SeasonEventService implements Runnable {
             int total = 0, bonus = 0;
             for (int i = 0; i < times; i++) {
                 if (e.openNow) {
-                    String g = Event2026Service.gI().openBoxById(pl, e.rewardItem);
+                    short[] icon = {-1};
+                    String g = Event2026Service.gI().openBoxById(pl, e.rewardItem, icon);
                     if (g != null) {
                         got.add(g);
+                        if (times == 1 && icon[0] >= 0 && ItemService.gI().getTemplate(e.rewardItem) != null) {
+                            nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, ItemService.gI().getTemplate(e.rewardItem).iconID, icon[0]);
+                        }
                     }
                 } else {
                     int qty = Util.nextInt(e.rewardQty, e.rewardQtyMax);

@@ -2604,6 +2604,38 @@ public class BossesData {
             REST_30_S //type appear
     );
 
+    /** Giáng sinh (source V10). */
+    public static final BossData TUAN_LOC = new BossData(
+            "Tuần Lộc", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{718, 719, 720, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
+            5000, //dame
+            new int[]{5000000}, //hp
+            new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 79, 80, 81, 82, 83, 84, 92, 93, 94, 96, 97, 98, 99, 100, 102, 103, 104, 105, 106, 107, 108, 109, 110}, //map join
+            new int[][]{
+                {Skill.TAI_TAO_NANG_LUONG, 7, Util.nextInt(5000, 10000)}},
+            new String[]{}, //text chat 1
+            new String[]{"|-1|Ọc ọc ọc", "|-1|Giáng sinh an lành!"}, //text chat 2
+            new String[]{}, //text chat 3
+            REST_1_M //type appear
+    );
+
+    /** Tết (source V10). */
+    public static final BossData BE_NA = new BossData(
+            "Bé Na", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{1889, 1890, 1891, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
+            6000, //dame
+            new int[]{5000000}, //hp
+            new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 79, 80, 81, 82, 83, 84, 92, 93, 94, 96, 97, 98, 99, 100, 102, 103, 104, 105, 106, 107, 108, 109, 110}, //map join
+            new int[][]{
+                {Skill.TAI_TAO_NANG_LUONG, 7, Util.nextInt(5000, 10000)}},
+            new String[]{}, //text chat 1
+            new String[]{"|-1|Chúc mừng năm mới!"}, //text chat 2
+            new String[]{}, //text chat 3
+            REST_1_M //type appear
+    );
+
     public static final BossData LAN_CON = new BossData(
             "Lân con", //name
             ConstPlayer.XAYDA, //gender

@@ -94,12 +94,80 @@ public final class Dot48Migration {
             if (!exists(con, "select 1 from season_event_drop where event_id = 7 and mobs = '-352'")) {
                 changed += update(con, "insert into season_event_drop (event_id, item_id, rate, qty_min, qty_max, source, daily_max, item_to, need_item, mobs, maps) values (7, 901, 10000, 3, 5, 'boss', 0, 0, 0, '-352', '')");
             }
+            changed += runDot50(con);
         } catch (Exception ex) {
             Logger.error("Đợt 48: không cập nhật được database: " + ex.getMessage() + "\n");
         }
         if (changed > 0) {
             Logger.success("Đợt 48: đã thêm sự kiện / danh hiệu mới vào database (" + changed + " dòng)\n");
         }
+    }
+
+    // ------------------------------------------------------------------ Đợt 50
+    /** {itemId, part (hiệu ứng), mô tả cách nhận} cho các danh hiệu không có nhiệm vụ danh hiệu. */
+    private static final Object[][] TITLE_ITEMS_50 = {
+        {2081, 302, "Sở hữu đủ 3 Pet Xên vĩnh viễn"},
+        {2076, 301, "Phần thưởng sự kiện Trung Thu (VIP)"},
+        {1885, 300, "Vòng quay ngọc sự kiện Trung Thu"},
+        {1978, 303, "Top 1 đua top Hộp đen bí ẩn"},};
+
+    /** Danh hiệu thêm vào tab Danh hiệu của Santa (tab_shop 44). */
+    private static final int[] SHOP_TITLES = {1904, 1673, 1765, 2081, 2076, 1885, 1978};
+
+    private static int runDot50(Connection con) throws Exception {
+        int changed = 0;
+        // boss Tuần Lộc (Giáng sinh) và Bé Na (Tết)
+        if (exists(con, "select 1 from season_event where id = 9 and bosses not like '%-372:%'")) {
+            changed += update(con, "update season_event set bosses = concat(bosses, if(bosses = '', '', ','), '-372:10') where id = 9");
+        }
+        if (exists(con, "select 1 from season_event where id = 1 and bosses not like '%-373:%'")) {
+            changed += update(con, "update season_event set bosses = concat(bosses, if(bosses = '', '', ','), '-373:10') where id = 1");
+        }
+        for (Object[] t : TITLE_ITEMS_50) {
+            try (PreparedStatement ps = con.prepareStatement("update item_template set part = ?, description = ? where id = ? and TYPE = 36 and (part <> ? or description <> ?)")) {
+                ps.setInt(1, (int) t[1]);
+                ps.setString(2, (String) t[2]);
+                ps.setInt(3, (int) t[0]);
+                ps.setInt(4, (int) t[1]);
+                ps.setString(5, (String) t[2]);
+                changed += ps.executeUpdate();
+            }
+        }
+        // thêm danh hiệu mới vào tab Danh hiệu (Santa), chỉ số lấy theo data_badges
+        for (int itemId : SHOP_TITLES) {
+            if (exists(con, "select 1 from item_shop where tab_id = 44 and temp_id = " + itemId)) {
+                continue;
+            }
+            String opts = null;
+            try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery("select Options from data_badges where idItem = " + itemId)) {
+                if (rs.next()) {
+                    opts = rs.getString(1);
+                }
+            }
+            if (opts == null) {
+                continue;
+            }
+            int shopId;
+            try (PreparedStatement ps = con.prepareStatement("insert into item_shop (tab_id, temp_id, is_new, is_sell, type_sell, cost, icon_spec) values (44, ?, 1, 1, 1, 2, 0)",
+                    Statement.RETURN_GENERATED_KEYS)) {
+                ps.setInt(1, itemId);
+                ps.executeUpdate();
+                try (ResultSet k = ps.getGeneratedKeys()) {
+                    k.next();
+                    shopId = k.getInt(1);
+                }
+            }
+            changed++;
+            org.json.simple.JSONArray arr = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(opts);
+            if (arr != null) {
+                for (Object o : arr) {
+                    org.json.simple.JSONObject j = (org.json.simple.JSONObject) o;
+                    changed += update(con, "insert into item_shop_option (item_shop_id, option_id, param) values (" + shopId + ", "
+                            + Integer.parseInt(String.valueOf(j.get("id"))) + ", " + Integer.parseInt(String.valueOf(j.get("param"))) + ")");
+                }
+            }
+        }
+        return changed;
     }
 
     private static boolean exists(Connection con, String sql) throws Exception {

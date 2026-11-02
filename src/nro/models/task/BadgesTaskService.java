@@ -53,6 +53,16 @@ public class BadgesTaskService {
         }
     }
 
+    /** Danh hiệu này có nhiệm vụ mở khóa (task_badges_template) không. */
+    public static boolean hasTask(int idBadgesReward) {
+        for (BadgesTaskTemplate t : Manager.TASKS_BADGES_TEMPLATE) {
+            if (t.idbadgesReward == idBadgesReward) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static int sendPercenBadgesTask(Player player, int idBadgesReward) {
         for (BadgesTask data : player.dataTaskBadges) {
             if (data.idBadgesReward == idBadgesReward) {

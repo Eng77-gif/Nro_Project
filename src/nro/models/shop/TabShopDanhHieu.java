@@ -43,10 +43,12 @@ public class TabShopDanhHieu extends TabShop {
                     }
 
                     itemShop.options.clear();
-                    int percent = BadgesTaskService.sendPercenBadgesTask(player, BagesTemplate.fineIdEffectbyIdItem(itemShop.temp.id));
-
+                    int effect = BagesTemplate.fineIdEffectbyIdItem(itemShop.temp.id);
                     itemShop.options.addAll(listOptionBackup);
-                    itemShop.options.add(new Item.ItemOption(220, percent));
+                    if (BadgesTaskService.hasTask(effect)) {
+                        int percent = BadgesTaskService.sendPercenBadgesTask(player, effect);
+                        itemShop.options.add(new Item.ItemOption(220, percent));
+                    }
 
                     this.itemShops.add(new ItemShop(itemShop));
                 }

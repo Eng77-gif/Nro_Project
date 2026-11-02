@@ -181,6 +181,8 @@ public class BossID {
     public static final int THUY_TINH = -355;
     //========================TET EVENT========================
     public static final int LAN_CON = -371;
+    public static final int TUAN_LOC = -372;
+    public static final int BE_NA = -373;
     // sự kiện theo mùa: Ngựa ăn cỏ (Tết), Đại chiến Zombie (Halloween)
     public static final int NGUA_DO = -9101000;
     public static final int NGUA_BE = -9201000;

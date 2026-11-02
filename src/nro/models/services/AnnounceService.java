@@ -125,8 +125,11 @@ public class AnnounceService {
                 days = io.param;
             }
         }
+        if (days > 0) {
+            return; // đồ có hạn dùng: không thông báo, chỉ thông báo đồ vĩnh viễn
+        }
         String box = ItemService.gI().getTemplate(boxId) != null ? ItemService.gI().getTemplate(boxId).name : "hộp quà";
         ServerNotify.gI().notify("Chúc mừng " + pl.name + " đã may mắn mở " + box + " nhận được " + it.template.name
-                + (days > 0 ? " hạn dùng " + days + " ngày" : " hạn dùng vĩnh viễn"));
+                + " hạn dùng vĩnh viễn");
     }
 }

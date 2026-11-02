@@ -947,6 +947,12 @@ public class ShopService {
 
     private void buyDanhHieu(Player pl, ItemShop is) {
         int idEffect = BagesTemplate.fineIdEffectbyIdItem(is.temp.id);
+        if (!BadgesTaskService.hasTask(idEffect)) {
+            // danh hiệu sự kiện / phần thưởng: không mua được, chỉ báo cách nhận
+            String how = is.temp.description != null && !is.temp.description.isBlank() ? is.temp.description : "Phần thưởng sự kiện";
+            Service.gI().sendThongBaoOK(pl, is.temp.name + "\nCách nhận: " + how);
+            return;
+        }
         int percent = BadgesTaskService.sendPercenBadgesTask(pl, idEffect);
 
         if (percent < 100) {

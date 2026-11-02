@@ -261,6 +261,24 @@ public class RewardService {
         return item;
     }
 
+    /** Giao con vật đang dẫn cho Quy Lão: Lân con / Tuần Lộc (thú cưỡi ngẫu nhiên), Bé Na (Capsule Tết 2026). */
+    public void rewardEscort(Player player) {
+        if (player.escortType == 2) {
+            if (InventoryService.gI().getCountEmptyBag(player) <= 0) {
+                Service.gI().sendThongBao(player, "Cần 1 ô hành trang trống");
+                return;
+            }
+            player.canReward = false;
+            player.haveReward = true;
+            Item item = ItemService.gI().createNewItem((short) 758); // Capsule Tết 2026
+            InventoryService.gI().addItemBag(player, item);
+            InventoryService.gI().sendItemBags(player);
+            Service.gI().sendThongBao(player, "Bạn vừa nhận được " + item.template.name);
+            return;
+        }
+        rewardLancon(player);
+    }
+
     public void rewardLancon(Player player) {
         if (InventoryService.gI().getCountEmptyBag(player) > 0) {
             player.canReward = false;

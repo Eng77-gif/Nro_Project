@@ -305,6 +305,8 @@ public class Player implements Runnable {
     public long timemamcay;
 
     public boolean canReward;
+    /** Con vật đang dẫn về Quy Lão: 0 Lân con, 1 Tuần Lộc, 2 Bé Na. */
+    public int escortType;
     public boolean changeMapVIP;
     public boolean haveReward;
 

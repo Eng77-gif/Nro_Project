@@ -104,7 +104,7 @@ public class QuyLaoKame extends Npc {
                     menu.add("Giao\nRùa con");
                 }
             } else {
-                menu.add("Giao\nLân con");
+                menu.add("Giao\n" + new String[]{"Lân con", "Tuần Lộc", "Bé Na"}[Math.max(0, Math.min(2, player.escortType))]);
             }
             String[] menus = menu.toArray(String[]::new);
             if (!TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
@@ -120,7 +120,7 @@ public class QuyLaoKame extends Npc {
         }
 
         if (player.canReward) {
-            RewardService.gI().rewardLancon(player);
+            RewardService.gI().rewardEscort(player);
             return;
         }
 

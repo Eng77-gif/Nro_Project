@@ -1196,3 +1196,33 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Nguyên nhân:** mở hộp cuối cùng thì `subQuantityItemsBag` xóa hộp khỏi hành trang (template = null), sau đó thông báo lại đọc `box.template.name`.
 - Quà vẫn được cộng, chỉ có thông báo lỗi và log dài.
 - **Sửa:** lấy tên hộp trước khi trừ số lượng.
+
+## Đợt 50: Boss Tuần Lộc, Bé Na; thông báo mở hộp; hiệu ứng mở hộp; danh hiệu mới ở Santa
+### Boss Tuần Lộc (Giáng sinh) và Bé Na (Tết) – theo source V10
+- Cùng cơ chế với Lân con:
+  - Đánh hết máu thì con vật đi theo người hạ.
+  - Dẫn về Quy Lão Kame, bấm **Giao Tuần Lộc / Giao Bé Na**.
+  - Đi xa quá 300px thì mất lượt giao.
+- **Phần thưởng:**
+  - Tuần Lộc: như Lân con (thú cưỡi ngẫu nhiên có chỉ số).
+  - Bé Na: 1 Capsule Tết 2026.
+- Mỗi sự kiện 10 con: Giáng sinh `-372:10`, Tết `-373:10`.
+- Bỏ cách gian lận "chat thang là con vật đi theo luôn" ở 2 boss mới.
+- Câu chat thô tục của Tuần Lộc trong V10 đã thay.
+
+### Mở hộp quà sự kiện
+- Thông báo toàn server chỉ khi nhận đồ **vĩnh viễn**. Đồ có hạn dùng (ngày) không thông báo nữa.
+- Thêm **hiệu ứng mở hộp giống Capsule kì bí** (gói -81 OPEN_ITEM: icon hộp → icon quà, vàng / ngọc / hồng ngọc có icon riêng).
+- Áp dụng khi dùng hộp và khi đổi quà "mở ngay" từng cái một.
+
+### Danh hiệu mới trong tab Danh hiệu (Santa)
+- Đã thêm vào tab (đánh dấu NEW), có chỉ số theo `data_badges`: Chiến binh sao đen, Tay nhanh hơn não, Mùa đông không lạnh, Perfect, Phá cỗ trung thu VIP, Phá cỗ trung thu, Đón Xuân.
+- Danh hiệu có nhiệm vụ: vẫn hiện % hoàn thành và mua khi đủ 100%.
+- Danh hiệu sự kiện / phần thưởng (không có nhiệm vụ):
+  - Không hiện dòng "Hoàn thành #%".
+  - Bấm mua thì báo **cách nhận** (lấy từ mô tả vật phẩm), không bán bằng ngọc.
+- Mô tả cách nhận đã ghi cho Perfect, Phá cỗ trung thu (VIP), Đón Xuân.
+
+### Database
+- Tự cập nhật khi khởi động (`Dot48Migration.runDot50`): `season_event.bosses`, `item_template`, `item_shop` + `item_shop_option` tab 44.
+- `vsItem` 17 → 18.
