@@ -1471,3 +1471,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Thú cưỡi mới theo ảnh: 2122 Đại bàng đất sét nổ (SĐ 10%, HP 13%, KI 10%, giảm ST 10%, né 10%, HP +12.000, hồi 7% HP/30s, bay hồi KI), 2121 Đại bàng đất sét nổ VIP (SĐ 10%, HP 15%, KI 10%, giảm ST 11%, né 12%, HP +25.000, hồi 7% HP/30s, bay hồi KI), 2123 Thú cưỡi Kỳ Lân (giữ tạm). Bỏ Rồng Hắc Ám, Kim Phượng, Hỏa Điểu, Rồng Lửa; dồn mã cho liền (client dùng thứ tự = mã).
 - Ván bay World Cup 2026 (2044) đã có sẵn với đúng chỉ số trong ảnh nhưng gán sai hình (tàu ngầm số 19, part 33): đổi sang hình ván bay 2026 (part 75). Bỏ bản trùng 2123 cũ.
 - vsData 24, vsItem 24.
+
+## Đợt 73
+- Client Unity 2.4.7 (Thời Đại Ngọc Rồng): sửa IP máy chủ thành 160.191.243.165:14445, bỏ logo trên màn hình trong game, gửi "|long" để server dùng giao thức số lớn (client này đọc mã chỉ số 2 byte + giá trị 4 byte như J2ME 2.4.x). File sửa và hướng dẫn: tools/client-2.4.7.
+- Server: nhận "|long" trong chuỗi phiên bản -> session.longNumbers. Config server.ip = 160.191.243.165 (server gửi IP này cho client).

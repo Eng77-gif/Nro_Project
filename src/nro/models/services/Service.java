@@ -1906,7 +1906,9 @@ public class Service {
             String[] arrPlatform = platform.split("\\|");
             session.version = Integer.parseInt(arrPlatform[1].replaceAll("\\.", ""));
             // client J2ME (loại 1) từ 2.4.0 dùng giao thức số lớn
-            session.longNumbers = session.typeClient == 1 && session.version >= 240;
+            // client Unity 2.4.7 (Thời Đại Ngọc Rồng, sửa) gửi thêm "|long" vì loại client là 4 / 6 nhưng đọc giao thức số lớn
+            boolean markLong = arrPlatform.length > 2 && "long".equalsIgnoreCase(arrPlatform[2].trim());
+            session.longNumbers = (session.typeClient == 1 && session.version >= 240) || markLong;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
