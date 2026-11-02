@@ -1466,3 +1466,8 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Ảnh thú cưỡi 48 - 79 (trước đây thiếu ảnh nên các thú cưỡi mã part 48 - 73 như Ván bay Cây Thông, Magikarp, Rồng Thiêng, Lugia, rồng Băng / Đen / Vô Cực, Chổi bay, Máy bay giấy, Ván bay sao băng... cưỡi vào không hiện), thêm dòng img_by_name (số frame tự đo theo ảnh).
 - 7 thú cưỡi mới (2121 - 2127): Rồng Hắc Ám, Bạch Điểu, Ván bay Bóng Đá 2026, Kim Phượng, Kỳ Lân, Hỏa Điểu, Rồng Lửa (SĐ / HP / KI 6 - 10%, bay và phục hồi KI).
 - Thêm ảnh Skills / aura còn thiếu từ gói data. vsData 23, vsItem 23.
+
+## Đợt 72
+- Thú cưỡi mới theo ảnh: 2122 Đại bàng đất sét nổ (SĐ 10%, HP 13%, KI 10%, giảm ST 10%, né 10%, HP +12.000, hồi 7% HP/30s, bay hồi KI), 2121 Đại bàng đất sét nổ VIP (SĐ 10%, HP 15%, KI 10%, giảm ST 11%, né 12%, HP +25.000, hồi 7% HP/30s, bay hồi KI), 2123 Thú cưỡi Kỳ Lân (giữ tạm). Bỏ Rồng Hắc Ám, Kim Phượng, Hỏa Điểu, Rồng Lửa; dồn mã cho liền (client dùng thứ tự = mã).
+- Ván bay World Cup 2026 (2044) đã có sẵn với đúng chỉ số trong ảnh nhưng gán sai hình (tàu ngầm số 19, part 33): đổi sang hình ván bay 2026 (part 75). Bỏ bản trùng 2123 cũ.
+- vsData 24, vsItem 24.

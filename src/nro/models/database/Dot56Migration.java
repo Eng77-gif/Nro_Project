@@ -652,12 +652,11 @@ public final class Dot56Migration {
     /** Đợt 71: ảnh thú cưỡi 48 - 79 (img_by_name), 7 thú cưỡi mới. {tên ảnh, số frame} */
     private static final Object[][] MOUNT_IMG = {{"mount_48_0", 4}, {"mount_49_0", 4}, {"mount_49_1", 4}, {"mount_50_0", 4}, {"mount_50_1", 4}, {"mount_51_0", 4}, {"mount_51_1", 4}, {"mount_52_1", 4}, {"mount_53_0", 4}, {"mount_53_1", 4}, {"mount_54_0", 4}, {"mount_54_1", 4}, {"mount_55_0", 4}, {"mount_55_1", 4}, {"mount_56_0", 4}, {"mount_56_1", 4}, {"mount_57_0", 3}, {"mount_57_1", 3}, {"mount_58_0", 5}, {"mount_58_1", 5}, {"mount_59_0", 4}, {"mount_59_1", 4}, {"mount_60_0", 4}, {"mount_60_1", 4}, {"mount_61_0", 4}, {"mount_61_1", 4}, {"mount_62_0", 4}, {"mount_62_1", 4}, {"mount_63_0", 4}, {"mount_63_1", 4}, {"mount_64_1", 8}, {"mount_65_1", 8}, {"mount_66_1", 4}, {"mount_67_1", 8}, {"mount_68_1", 8}, {"mount_69_1", 8}, {"mount_70_0", 4}, {"mount_70_1", 3}, {"mount_71_0", 5}, {"mount_71_1", 5}, {"mount_72_0", 4}, {"mount_72_1", 4}, {"mount_73_0", 4}, {"mount_73_1", 4}, {"mount_74_0", 4}, {"mount_74_1", 4}, {"mount_75_0", 3}, {"mount_75_1", 3}, {"mount_76_0", 5}, {"mount_76_1", 5}, {"mount_77_0", 5}, {"mount_77_1", 5}, {"mount_78_0", 3}, {"mount_78_1", 3}, {"mount_79_0", 5}, {"mount_79_1", 5}, };
 
-    /** {id, tên, icon, part} */
+    /** {id, tên, icon, part, chỉ số {option, từ, đến}...} - theo ảnh: Đại bàng đất sét nổ / VIP; Kỳ Lân giữ tạm */
     private static final Object[][] MOUNTS_71 = {
-        {2121, "Thú cưỡi Rồng Hắc Ám", 32300, 66}, {2122, "Thú cưỡi Bạch Điểu", 32301, 74},
-        {2123, "Ván bay Bóng Đá 2026", 32302, 75}, {2124, "Thú cưỡi Kim Phượng", 32303, 76},
-        {2125, "Thú cưỡi Kỳ Lân", 32304, 77}, {2126, "Thú cưỡi Hỏa Điểu", 32305, 78},
-        {2127, "Thú cưỡi Rồng Lửa", 32306, 79},};
+        {2121, "Đại bàng đất sét nổ VIP", 32301, 74, new int[][]{{50, 10, 10}, {77, 15, 15}, {103, 10, 10}, {94, 11, 11}, {108, 12, 12}, {6, 25000, 25000}, {80, 7, 7}, {85, 0, 0}}},
+        {2122, "Đại bàng đất sét nổ", 32301, 74, new int[][]{{50, 10, 10}, {77, 13, 13}, {103, 10, 10}, {94, 10, 10}, {108, 10, 10}, {6, 12000, 12000}, {80, 7, 7}, {85, 0, 0}}},
+        {2123, "Thú cưỡi Kỳ Lân", 32304, 77, new int[][]{{50, 6, 10}, {77, 6, 10}, {103, 6, 10}, {85, 0, 0}}},};
 
     private static int runDot71(Connection con) throws Exception {
         int changed = 0;
@@ -665,6 +664,14 @@ public final class Dot56Migration {
             if (!exists(con, "select 1 from img_by_name where NAME = '" + r[0] + "'")) {
                 changed += update(con, "insert into img_by_name (NAME, n_frame) values ('" + r[0] + "', " + r[1] + ")");
             }
+        }
+        boolean redo = !exists(con, "select 1 from server_migration where name = 'dot72_mounts'");
+        if (redo) {
+            // Đợt 72: bỏ 4 thú cưỡi (Rồng Hắc Ám, Kim Phượng, Hỏa Điểu, Rồng Lửa), dồn lại mã 2121 - 2123 cho liền
+            changed += update(con, "delete from item_template_option where template_id between 2121 and 2127");
+            changed += update(con, "delete from item_template where id between 2124 and 2127");
+            // Ván bay World Cup 2026 (2044) trước đây gán sai hình (tàu ngầm số 19): dùng hình ván bay 2026
+            changed += update(con, "update item_template set part = 75 where id = 2044");
         }
         for (Object[] m : MOUNTS_71) {
             if (!exists(con, "select 1 from item_template where id = " + m[0])) {
@@ -676,10 +683,23 @@ public final class Dot56Migration {
                     ps.setInt(4, (int) m[3]);
                     changed += ps.executeUpdate();
                 }
-                for (int[] o : new int[][]{{50, 6, 10}, {77, 6, 10}, {103, 6, 10}, {85, 0, 0}}) {
+            } else if (redo) {
+                try (PreparedStatement ps = con.prepareStatement("update item_template set NAME = ?, icon_id = ?, part = ?, TYPE = 23 where id = ?")) {
+                    ps.setString(1, (String) m[1]);
+                    ps.setInt(2, (int) m[2]);
+                    ps.setInt(3, (int) m[3]);
+                    ps.setInt(4, (int) m[0]);
+                    changed += ps.executeUpdate();
+                }
+            }
+            if (!exists(con, "select 1 from item_template_option where template_id = " + m[0])) {
+                for (int[] o : (int[][]) m[4]) {
                     changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (" + m[0] + ", " + o[0] + ", " + o[1] + ", " + o[2] + ", 100, 0)");
                 }
             }
+        }
+        if (redo) {
+            changed += update(con, "insert into server_migration (name) values ('dot72_mounts')");
         }
         return changed;
     }
