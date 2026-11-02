@@ -1425,3 +1425,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 
 ## Đợt 62
 - Boss chỉ rơi vàng theo bậc: bỏ điểm sự kiện (kể cả Ăn Trộm) và bỏ quà thêm (Đá bảo vệ, Capsule, Thỏi vàng, Rương SPL VIP... là đồ đua top).
+
+## Đợt 63
+- Boss không rơi vàng (bỏ cả vàng của Broly Super). Quà thêm theo bậc là nguyên liệu farm: đá nâng cấp, ngọc rồng 4 - 7 sao, sao pha lê, đậu thần 7 - 9, mảnh vỡ / mảnh hồn bông tai, cuồng nộ / bổ huyết / bổ khí, viên capsule kì bí, đá may mắn cấp 1 - 2. Không có đồ đua top.
+- Broly Super không rơi Mảnh khỉ Oozaru (đồ đua top).

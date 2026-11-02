@@ -102,12 +102,7 @@ public class BrolySuper extends Boss {
         if (Util.isTrue(30, 100)) {
             dropEquip(plKill, 8, 11, 0, x, y);
         }
-        // Vàng ngẫu nhiên
-        Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 190, Util.nextInt(100_000, 2_000_000), x, y, plKill.id));
-        // Mảnh khỉ Oozaru
-        if (Util.isTrue(30, 100)) {
-            drop(plKill, 1771, Util.nextInt(1, 5), x, y);
-        }
+        // (bỏ vàng rơi và Mảnh khỉ Oozaru: boss không rơi vàng, mảnh Oozaru là quà đua top)
         // Trang bị cấp 11 - 12 từ 5 - 8 sao
         if (Util.isTrue(10, 100)) {
             dropEquip(plKill, 11, 12, Util.isTrue(10, 100) ? 8 : Util.nextInt(5, 7), x, y);

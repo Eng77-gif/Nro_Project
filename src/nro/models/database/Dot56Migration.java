@@ -120,6 +120,7 @@ public final class Dot56Migration {
             changed += runDot60(con);
             changed += runDot61(con);
             changed += runDot62(con);
+            changed += runDot63(con);
         } catch (Exception ex) {
             Logger.error("Đợt 56 (Halloween): không cập nhật được database: " + ex.getMessage() + "\n");
         }
@@ -541,6 +542,48 @@ public final class Dot56Migration {
         }
         int changed = update(con, "delete from boss_reward where item_id <> -1");
         changed += update(con, "insert into server_migration (name) values ('dot62_boss_gold_only')");
+        return changed;
+    }
+
+    /**
+     * Đợt 63: boss không rơi vàng; quà thêm là nguyên liệu farm (không phải đồ đua top).
+     * {bậc, item, sl từ, đến, tỉ lệ /10000}. Mỗi dòng tung riêng.
+     */
+    private static final int[][] BOSS_DROP_63 = {
+        // bậc 1: đá nâng cấp, ngọc rồng 7 sao, đậu thần cấp 7, sao pha lê
+        {1, 220, 1, 1, 400}, {1, 221, 1, 1, 400}, {1, 222, 1, 1, 400}, {1, 223, 1, 1, 400}, {1, 224, 1, 1, 400},
+        {1, 20, 1, 1, 1500}, {1, 65, 1, 3, 2000}, {1, 441, 1, 1, 150}, {1, 442, 1, 1, 150}, {1, 443, 1, 1, 150}, {1, 444, 1, 1, 150},
+        {1, 445, 1, 1, 150}, {1, 446, 1, 1, 150}, {1, 447, 1, 1, 150},
+        // bậc 2: thêm mảnh vỡ bông tai, cuồng nộ / bổ huyết / bổ khí
+        {2, 220, 1, 2, 500}, {2, 221, 1, 2, 500}, {2, 222, 1, 2, 500}, {2, 223, 1, 2, 500}, {2, 224, 1, 2, 500},
+        {2, 19, 1, 1, 1500}, {2, 20, 1, 1, 1500}, {2, 352, 1, 3, 2000}, {2, 441, 1, 1, 250}, {2, 442, 1, 1, 250}, {2, 443, 1, 1, 250},
+        {2, 444, 1, 1, 250}, {2, 445, 1, 1, 250}, {2, 446, 1, 1, 250}, {2, 447, 1, 1, 250}, {2, 933, 1, 3, 1000},
+        {2, 381, 1, 1, 500}, {2, 382, 1, 1, 500}, {2, 383, 1, 1, 500},
+        // bậc 3: thêm mảnh hồn bông tai, viên capsule kì bí
+        {3, 220, 2, 3, 600}, {3, 221, 2, 3, 600}, {3, 222, 2, 3, 600}, {3, 223, 2, 3, 600}, {3, 224, 2, 3, 600},
+        {3, 18, 1, 1, 1500}, {3, 19, 1, 1, 1500}, {3, 523, 1, 3, 2000}, {3, 441, 1, 1, 400}, {3, 442, 1, 1, 400}, {3, 443, 1, 1, 400},
+        {3, 444, 1, 1, 400}, {3, 445, 1, 1, 400}, {3, 446, 1, 1, 400}, {3, 447, 1, 1, 400}, {3, 933, 2, 5, 1500}, {3, 934, 1, 1, 500},
+        {3, 381, 1, 1, 800}, {3, 382, 1, 1, 800}, {3, 383, 1, 1, 800}, {3, 380, 1, 1, 300},
+        // bậc 4: thêm đá may mắn cấp 1
+        {4, 220, 3, 5, 800}, {4, 221, 3, 5, 800}, {4, 222, 3, 5, 800}, {4, 223, 3, 5, 800}, {4, 224, 3, 5, 800},
+        {4, 17, 1, 1, 1500}, {4, 18, 1, 1, 1500}, {4, 441, 1, 2, 600}, {4, 442, 1, 2, 600}, {4, 443, 1, 2, 600}, {4, 444, 1, 2, 600},
+        {4, 445, 1, 2, 600}, {4, 446, 1, 2, 600}, {4, 447, 1, 2, 600}, {4, 933, 3, 8, 2500}, {4, 934, 1, 2, 1000}, {4, 380, 1, 1, 600},
+        {4, 1079, 1, 1, 500},
+        // bậc 5: thêm đá may mắn cấp 2
+        {5, 220, 5, 10, 1000}, {5, 221, 5, 10, 1000}, {5, 222, 5, 10, 1000}, {5, 223, 5, 10, 1000}, {5, 224, 5, 10, 1000},
+        {5, 17, 1, 1, 2000}, {5, 441, 2, 3, 800}, {5, 442, 2, 3, 800}, {5, 443, 2, 3, 800}, {5, 444, 2, 3, 800},
+        {5, 445, 2, 3, 800}, {5, 446, 2, 3, 800}, {5, 447, 2, 3, 800}, {5, 933, 5, 10, 3000}, {5, 934, 1, 3, 1500}, {5, 380, 1, 1, 1000},
+        {5, 1080, 1, 1, 500},};
+
+    private static int runDot63(Connection con) throws Exception {
+        if (exists(con, "select 1 from server_migration where name = 'dot63_boss_drop'")) {
+            return 0;
+        }
+        int changed = update(con, "delete from boss_reward where boss = '' or item_id = -1 or item_id = -4");
+        for (int[] r : BOSS_DROP_63) {
+            changed += update(con, "insert into boss_reward (tier, item_id, qty_min, qty_max, rate) values (" + r[0] + ", " + r[1] + ", " + r[2] + ", " + r[3] + ", " + r[4] + ")");
+        }
+        changed += update(con, "insert into server_migration (name) values ('dot63_boss_drop')");
         return changed;
     }
 
