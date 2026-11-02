@@ -2893,6 +2893,9 @@ public class UseItem {
         RadarService.fixMax(card, radarTemplate.Max);
         RadarService.gI().RadarSetAmount(pl, card.Id, card.Amount, card.MaxAmount);
         RadarService.gI().RadarSetLevel(pl, card.Id, card.Level);
+        if (RadarService.levelLook(card.Id, card.Level) != null) {
+            RadarService.gI().sendRadar(pl, pl.Cards); // thẻ đổi icon / hình theo cấp
+        }
         InventoryService.gI().subQuantityItemsBag(pl, item, 1);
         InventoryService.gI().sendItemBags(pl);
         refreshAura(pl, auraTruoc);

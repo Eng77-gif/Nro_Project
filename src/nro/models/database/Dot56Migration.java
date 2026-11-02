@@ -116,6 +116,7 @@ public final class Dot56Migration {
             changed += runHalloween(con);
             changed += runDot57(con);
             changed += runDot58(con);
+            changed += runDot59(con);
         } catch (Exception ex) {
             Logger.error("Đợt 56 (Halloween): không cập nhật được database: " + ex.getMessage() + "\n");
         }
@@ -136,7 +137,7 @@ public final class Dot56Migration {
     private static final Object[][] RENAME = {
         {2113, 5, "Cải trang Goku Ninja"},
         {PET_DAU_QUY, 27, "Pet Đầu Quỷ"},
-        {2115, 5, "Cải trang Melee"},
+        {2115, 5, "Cải trang Công Chúa Quỷ"},
         {2116, 5, "Tiểu thư Malfoy"},};
 
     /** Chỉ số mặc định (item_template_option): {template, option, param, param_max} */
@@ -404,6 +405,50 @@ public final class Dot56Migration {
         // Capsule Halloween bán ở Chi Chi hạn 30 ngày như Capsule Squid Game
         changed += update(con, "update season_event_exchange set reward_days = '30' where event_id = 7 and reward_item = 818 and reward_days = ''");
         changed += update(con, "insert into server_migration (name) values ('dot58_items')");
+        return changed;
+    }
+
+    /** Đợt 59: chỉ số theo ảnh tham khảo. {template, option, param} */
+    private static final int[][] OPTIONS_59 = {
+        {2115, 77, 20}, {2115, 103, 20}, {2115, 50, 25}, {2115, 101, 150}, // CT Công Chúa Quỷ (trước là "Melee")
+        {742, 8, 4}, {742, 50, 20}, {742, 77, 20}, {742, 103, 20}, {742, 154, 0}, // Caufila Dơi
+        {1702, 30, 1}, {1702, 50, 18}, {1702, 77, 15}, {1702, 103, 15}, {1702, 117, 3}, {1702, 80, 10}, // Lưỡi hái hồng
+        {1737, 30, 1}, // Rađa dò Zombie
+        {1797, 50, 24}, {1797, 77, 23}, {1797, 108, 23}, {1797, 5, 12}, {1797, 95, 10}, {1797, 253, 30}, {1797, 30, 1}, // CT Bunma Rider
+        {1235, 50, 24}, {1235, 77, 24}, {1235, 103, 24}, {1235, 14, 10}, {1235, 108, 15}, {1235, 148, 20}, // Poc Bikini
+        {1557, 50, 25}, {1557, 77, 24}, {1557, 103, 24}, {1557, 80, 15}, {1557, 108, 5}, {1557, 94, 15}, {1557, 148, 50}, {1557, 30, 1}, // Hắc Mị Nương
+        {1931, 50, 23}, {1931, 77, 23}, {1931, 103, 23}, {1931, 95, 10}, {1931, 108, 10}, {1931, 80, 8}, {1931, 30, 1}, // Janemba
+        {1942, 50, 14}, {1942, 77, 10}, {1942, 103, 10}, {1942, 94, 9}, {1942, 108, 20}, {1942, 85, 0}, {1942, 30, 1}, // Máy bay giấy
+        {1735, 77, 23}, {1735, 103, 20}, {1735, 94, 10}, {1735, 30, 1}, // Đeo lưng dụng cụ học tập
+        {1674, 50, 23}, {1674, 77, 23}, {1674, 103, 23}, {1674, 14, 11}, {1674, 108, 10}, {1674, 80, 8}, {1674, 183, 11}, {1674, 30, 1}, // Pikkon
+        {1898, 30, 1}, {1898, 50, 13}, {1898, 95, 15}, {1898, 85, 0}, // Thú cưỡi rồng Đen
+        {1897, 103, 17}, {1897, 81, 10}, {1897, 85, 0}, // Thú cưỡi rồng Băng
+        {2059, 30, 1}, {2059, 50, 18}, {2059, 77, 18}, {2059, 103, 22}, {2059, 10, 15}, {2059, 14, 10}, {2059, 204, 10}, // Pet Minion
+        {1567, 30, 1}, {1567, 50, 23}, {1567, 77, 20}, {1567, 103, 20}, {1567, 5, 20}, {1567, 80, 5}, {1567, 226, 17}, // CT Frieren
+        {1945, 30, 1}, {1945, 50, 14}, {1945, 103, 25}, {1945, 253, 61}, // Pet ngựa KPI
+        {1966, 50, 15}, {1966, 77, 15},}; // Đeo lưng Mãi Dell thành công
+
+    private static int runDot59(Connection con) throws Exception {
+        int changed = 0;
+        changed += update(con, "update item_template set NAME = 'Cải trang Công Chúa Quỷ' where id = 2115 and NAME <> 'Cải trang Công Chúa Quỷ'");
+        if (exists(con, "select 1 from server_migration where name = 'dot59_items'")) {
+            return changed;
+        }
+        java.util.Set<Integer> done = new java.util.HashSet<>();
+        for (int[] o : OPTIONS_59) {
+            if (done.add(o[0])) {
+                changed += update(con, "delete from item_template_option where template_id = " + o[0]);
+            }
+            changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (" + o[0] + ", " + o[1] + ", " + o[2] + ", " + o[2] + ", 100, 0)");
+        }
+        // Thiệp Ma: 50 ngọc, hạn 30 ngày; Rađa dò Zombie hạn 30 ngày (như ảnh shop Chi Chi)
+        changed += update(con, "update season_event_exchange set gem = 50, reward_days = '30' where event_id = 7 and reward_item = 1117");
+        changed += update(con, "update season_event_exchange set reward_days = '30' where event_id = 7 and reward_item = 1737");
+        // Công Chúa Quỷ trong Thiệp Ma (có bảo hiểm)
+        if (!exists(con, "select 1 from item_box_reward where box_id = 1117 and item_id = 2115")) {
+            changed += update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values (1117, 2115, 1, 1, 80, '3,7,15', 2, 100)");
+        }
+        changed += update(con, "insert into server_migration (name) values ('dot59_items')");
         return changed;
     }
 

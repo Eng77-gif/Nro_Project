@@ -1401,3 +1401,8 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Đeo lưng trỏ tới cờ chưa có trong flag_bag (21 món) trước đây đeo vào không hiện: thêm cờ Labubu (141) theo V10, các cờ còn thiếu tạm hiện icon vật phẩm.
 - Một dòng hạn dùng sai định dạng trong item_box_reward không còn làm hỏng cả bảng hộp quà.
 - Panel: sửa chỉ số mặc định của vật phẩm (Vật phẩm → Chi tiết → Sửa chỉ số), trang Cửa hàng sự kiện (sửa giá, hạn, quà, thêm / xóa), trang Kiểm tra dữ liệu (vật phẩm không tồn tại, chỉ số hỏng, đồ sự kiện thiếu chỉ số, part / cờ thiếu, icon thiếu, số ô option >= 255).
+
+## Đợt 59
+- "Cải trang Melee" (2115) chính là Cải trang Công Chúa Quỷ: đổi tên, chỉ số HP 20%, KI 20%, SĐ 25%, TNSM 150%; có trong Thiệp Ma (bảo hiểm 100 lần mở).
+- Thẻ radar Oozaru và Khỉ con đổi icon + hình theo cấp (Oozaru: Oozaru → Oozarun 1 → Oozarun 2; Khỉ con: Goku GT Kid → Goku GT → Goku cận vô cực). Lên cấp thì gửi lại bảng thẻ. Mã chỉ số thẻ gửi client qua OptionIdMap.
+- Chỉ số theo ảnh tham khảo: Caufila Dơi, Lưỡi hái hồng, Rađa dò Zombie, CT Bunma Rider, Poc Bikini, Hắc Mị Nương, Janemba, Máy bay giấy, Đeo lưng dụng cụ học tập, Pikkon, Thú cưỡi rồng Đen / Băng, Pet Minion, CT Frieren, Pet ngựa KPI, Đeo lưng Mãi Dell thành công. Thiệp Ma 50 ngọc hạn 30 ngày, Rađa dò Zombie hạn 30 ngày.

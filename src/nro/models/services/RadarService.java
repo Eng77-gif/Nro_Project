@@ -184,6 +184,19 @@ public class RadarService {
         return s * 10 + lv;
     }
 
+    /**
+     * Thẻ đổi icon và hình theo cấp: {icon, head, body, leg} cho Lv.1 / Lv.2 / Lv.3 (đang gom mảnh dùng Lv.1).
+     * Oozaru: 3 dạng của 3 thẻ Oozaru cũ đã gộp. Khỉ con: Goku GT Kid -> Goku GT -> Goku cận vô cực.
+     */
+    private static final java.util.Map<Integer, int[][]> LEVEL_LOOK = java.util.Map.of(
+            OOZARU, new int[][]{{14247, 1727, 1728, 1729}, {14248, 1730, 1731, 1732}, {14249, 1733, 1734, 1735}},
+            2040, new int[][]{{16482, 1977, 1978, 1979}, {16520, 1947, 1948, 1949}, {16976, 1980, 1981, 1982}});
+
+    public static int[] levelLook(int cardId, int level) {
+        int[][] l = LEVEL_LOOK.get(cardId);
+        return l == null ? null : l[Math.max(0, Math.min(2, level - 1))];
+    }
+
     public void sendRadar(Player pl, List<Card> cards) {
         try {
             Message m = new Message(127);
@@ -194,8 +207,9 @@ public class RadarService {
                 if (card == null) {
                     card = new Card(radar.Max, radar.Options);
                 }
+                int[] look = levelLook(radar.Id, card.Level);
                 m.writer().writeShort(radar.Id);
-                m.writer().writeShort(radar.IconId);
+                m.writer().writeShort(look != null ? look[0] : radar.IconId);
                 m.writer().writeByte(radar.Rank);
                 m.writer().writeByte(card.Amount);  //amount
                 m.writer().writeByte(card.MaxAmount);  //max_amount
@@ -205,9 +219,9 @@ public class RadarService {
                         m.writer().writeShort(radar.Template); //Monster
                         break;
                     case 1:
-                        m.writer().writeShort(radar.Head); //Head
-                        m.writer().writeShort(radar.Body); //Body
-                        m.writer().writeShort(radar.Leg); //Leg
+                        m.writer().writeShort(look != null ? look[1] : radar.Head); //Head
+                        m.writer().writeShort(look != null ? look[2] : radar.Body); //Body
+                        m.writer().writeShort(look != null ? look[3] : radar.Leg); //Leg
                         m.writer().writeShort(radar.Bag); //bag
                         break;
                 }
@@ -217,7 +231,7 @@ public class RadarService {
                 m.writer().writeByte(card.Used);  //use
                 m.writer().writeByte(radar.Options.size());  //option radar
                 for (OptionCard option : radar.Options) {
-                    m.writer().writeByte(option.id);  //id
+                    m.writer().writeByte(nro.models.item.OptionIdMap.toClient(option.id));  //id (mã >= 255 đổi sang ô trống)
                     m.writer().writeShort(option.param);  //param
                     m.writer().writeByte(option.active);  //ActiveCard
                 }
