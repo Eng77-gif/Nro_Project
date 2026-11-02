@@ -199,6 +199,7 @@ public class ShopService {
                             msg.writer().writeInt(0);
                             msg.writer().writeInt(itemShop.cost);
                         }
+                        itemShop.options.removeIf(o -> o == null || o.optionTemplate == null);
                         msg.writer().writeByte(itemShop.options.size());
                         for (Item.ItemOption option : itemShop.options) {
                             msg.writeItemOption(option.optionTemplate.id, option.param);
@@ -253,6 +254,7 @@ public class ShopService {
                             msg.writer().writeInt(0);
                             msg.writer().writeInt(itemShop.cost);
                         }
+                        itemShop.options.removeIf(o -> o == null || o.optionTemplate == null);
                         msg.writer().writeByte(itemShop.options.size());
                         for (Item.ItemOption option : itemShop.options) {
                             msg.writeItemOption(option.optionTemplate.id, option.param);
@@ -306,6 +308,8 @@ public class ShopService {
                                 .orElse(0); // Giá trị mặc định là int
                         msg.writer().writeLong(costPotential);
 
+                        itemShop.options.removeIf(o -> o == null || o.optionTemplate == null);
+
                         msg.writer().writeByte(itemShop.options.size());
                         for (Item.ItemOption option : itemShop.options) {
                             msg.writeItemOption(option.optionTemplate.id, option.param);
@@ -343,6 +347,7 @@ public class ShopService {
                         msg.writer().writeShort(itemShop.temp.id);
                         msg.writer().writeShort(itemShop.iconSpec);
                         msg.writer().writeInt(itemShop.cost);
+                        itemShop.options.removeIf(o -> o == null || o.optionTemplate == null);
                         msg.writer().writeByte(itemShop.options.size());
                         for (Item.ItemOption option : itemShop.options) {
                             msg.writeItemOption(option.optionTemplate.id, option.param);
@@ -912,7 +917,7 @@ public class ShopService {
         item = buyMagicPean(player, listDauThan, item);
         if (item.template.id == 1523 || item.template.id == 1524) {
             item = ItemService.gI().createNewItem((short) 521);
-            item.itemOptions.addAll(is.options);
+            item.itemOptions.addAll(Item.ItemOption.copyAll(is.options));
         }
         InventoryService.gI().addItemBag(player, item);
         InventoryService.gI().sendItemBags(player);

@@ -80,7 +80,7 @@ public class ItemMap {
         this.x = itemMap.x;
         this.y = itemMap.y;
         this.playerId = itemMap.playerId;
-        this.options = itemMap.options;
+        this.options = nro.models.item.Item.ItemOption.copyAll(itemMap.options);
         this.isBlackBall = itemMap.isBlackBall;
         this.isNamecBall = itemMap.isNamecBall;
         this.fromMob = itemMap.fromMob;

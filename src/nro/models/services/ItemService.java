@@ -349,12 +349,22 @@ public class ItemService {
 
     public Item createItemFromItemMap(ItemMap itemMap) {
         Item item = createNewItem(itemMap.itemTemplate.id, itemMap.quantity);
-        item.itemOptions = itemMap.options;
+        item.itemOptions = Item.ItemOption.copyAll(itemMap.options);
         return item;
     }
 
     public ItemOptionTemplate getItemOptionTemplate(int id) {
-        return Manager.ITEM_OPTION_TEMPLATES.get(id);
+        java.util.List<ItemOptionTemplate> list = Manager.ITEM_OPTION_TEMPLATES;
+        // bảng item_option_template có thể thiếu id (bị xóa tay): không lấy theo vị trí mà lấy đúng id
+        if (id >= 0 && id < list.size() && list.get(id).id == id) {
+            return list.get(id);
+        }
+        for (ItemOptionTemplate t : list) {
+            if (t.id == id) {
+                return t;
+            }
+        }
+        return null;
     }
 
     public Template.ItemTemplate getTemplate(int id) {
@@ -689,7 +699,7 @@ public class ItemService {
         List<Item.ItemOption> list = new ArrayList<>();
         Manager.SHOPS.forEach(shop -> shop.tabShops.forEach(tabShop -> tabShop.itemShops.forEach(itemShop -> {
             if (itemShop.temp.id == id && list.isEmpty()) {
-                list.addAll(itemShop.options);
+                list.addAll(Item.ItemOption.copyAll(itemShop.options));
             }
         })));
         return list;

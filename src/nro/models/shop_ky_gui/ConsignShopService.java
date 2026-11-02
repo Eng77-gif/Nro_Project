@@ -157,7 +157,7 @@ public class ConsignShopService {
         if (isBuy) {
             Item item = ItemService.gI().createNewItem(it.itemId);
             item.quantity = it.quantity;
-            item.itemOptions.addAll(it.options);
+            item.itemOptions.addAll(nro.models.item.Item.ItemOption.copyAll(it.options));
             it.isBuy = true;
             if (it.isBuy) {
                 InventoryService.gI().addItemBag(pl, item);
@@ -208,7 +208,7 @@ public class ConsignShopService {
                 if (itk.options.isEmpty()) {
                     it.itemOptions.add(new ItemOption(73, 0));
                 } else {
-                    it.itemOptions.addAll(itk.options);
+                    it.itemOptions.addAll(nro.models.item.Item.ItemOption.copyAll(itk.options));
                 }
                 msg.writer().writeShort(it.template.id);
                 msg.writer().writeShort(itk.id);
@@ -292,7 +292,7 @@ public class ConsignShopService {
                 }
                 Item item = ItemService.gI().createNewItem(it.itemId);
                 item.quantity = it.quantity;
-                item.itemOptions.addAll(it.options);
+                item.itemOptions.addAll(nro.models.item.Item.ItemOption.copyAll(it.options));
                 if (ConsignShopManager.gI().listItem.remove(it)) {
                     InventoryService.gI().addItemBag(pl, item);
                     InventoryService.gI().sendItemBags(pl);
@@ -501,7 +501,7 @@ public class ConsignShopService {
                         if (itk.options.isEmpty()) {
                             it.itemOptions.add(new ItemOption(73, 0));
                         } else {
-                            it.itemOptions.addAll(itk.options);
+                            it.itemOptions.addAll(nro.models.item.Item.ItemOption.copyAll(itk.options));
                         }
                         msg.writer().writeShort(it.template.id);
                         msg.writer().writeShort(itk.id);
@@ -537,7 +537,7 @@ public class ConsignShopService {
                         if (itk.options.isEmpty()) {
                             it.itemOptions.add(new ItemOption(73, 0));
                         } else {
-                            it.itemOptions.addAll(itk.options);
+                            it.itemOptions.addAll(nro.models.item.Item.ItemOption.copyAll(itk.options));
                         }
                         msg.writer().writeShort(it.template.id);
                         msg.writer().writeShort(itk.id);

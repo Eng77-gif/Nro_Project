@@ -198,7 +198,7 @@ public class ClanService {
                             } else if (pea != null) {
                                 InventoryService.gI().subQuantityItem(plGive.inventory.itemsBox, pea, 1);
                                 Item peaCopy = ItemService.gI().createNewItem(pea.template.id);
-                                peaCopy.itemOptions = pea.itemOptions;
+                                peaCopy.itemOptions = Item.ItemOption.copyAll(pea.itemOptions);
                                 InventoryService.gI().addItemBag(plReceive, peaCopy);
                                 InventoryService.gI().sendItemBags(plReceive);
                                 Service.gI().sendThongBao(plReceive, plGive.name + " đã cho bạn " + peaCopy.template.name);

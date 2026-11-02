@@ -111,7 +111,7 @@ public class Hirudegarn extends BigBoss {
                 ItemMap itemWithOptions = ItemService.gI().randDoTL(this.zone, 1, this.location.x,
                         this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), -1);
                 it.options.clear();
-                it.options.addAll(itemWithOptions.options);
+                it.options.addAll(nro.models.item.Item.ItemOption.copyAll(itemWithOptions.options));
                 Service.gI().dropItemMap(this.zone, it);
 
             }

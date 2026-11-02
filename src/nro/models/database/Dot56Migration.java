@@ -22,7 +22,9 @@ public final class Dot56Migration {
     public static final int ITEM_HAO_QUANG_SPL10 = 2112;
     /** Option 262: biến người xung quanh thành Zombi mỗi 30 giây (Cờ đeo lưng 3 con ma) */
     public static final int OPT_ZOMBIE_XQ = 262;
-    public static final int PET_DAU_QUY = 2114, CO_3_CON_MA = 2117, HOP_NR_BI = 2118, HOP_HALLOWEEN = 2119;
+    public static final int PET_DAU_QUY = 2114, CO_3_CON_MA = 2117, HOP_NR_BI = 2118, THE_SUU_TAM = 2120;
+    /** "Hộp Halloween" trong ảnh sự kiện = Hòm Halloween có sẵn (Chi Chi bán 10 triệu vàng, hạn 30 ngày) */
+    public static final int HOM_HALLOWEEN = 1116;
     public static final int FLAG_3_CON_MA = 174;
 
     /** {id, TYPE, DATA} */
@@ -112,6 +114,7 @@ public final class Dot56Migration {
         }
         try {
             changed += runHalloween(con);
+            changed += runDot57(con);
         } catch (Exception ex) {
             Logger.error("Đợt 56 (Halloween): không cập nhật được database: " + ex.getMessage() + "\n");
         }
@@ -126,7 +129,7 @@ public final class Dot56Migration {
     private static final Object[][] HAL_ITEMS = {
         {CO_3_CON_MA, 11, "Cờ đeo lưng 3 con ma", "Vật phẩm sự kiện Halloween", 17760, FLAG_3_CON_MA},
         {HOP_NR_BI, 27, "Hộp Ngọc Rồng Bí", "Mở ra 1 viên Ngọc Rồng Bí 1 - 7 sao", 17442, -1},
-        {HOP_HALLOWEEN, 27, "Hộp Halloween", "Mở ra 1 vật phẩm Halloween", 11743, -1},};
+        {THE_SUU_TAM, 27, "Thẻ sưu tầm thường", "Mở ra 1 mảnh Đội trưởng Vàng, Rồng thần Namếc hoặc Khỉ Oozaru", 17638, -1},};
 
     /** Đổi tên theo ảnh sự kiện: {id, TYPE, NAME} */
     private static final Object[][] RENAME = {
@@ -160,12 +163,15 @@ public final class Dot56Migration {
         {{1726}, {909, 1, 1, 100, T3, 2, 0}, {910, 1, 1, 100, T3, 2, 0}, {743, 1, 1, 100, T3, 2, 0},
             {644, 1, 1, 35, T3, 2, 0}, {645, 1, 1, 35, T3, 2, 0}, {646, 1, 1, 35, T3, 2, 0},
             {1106, 1, 1, 80, T3, 2, 0}, {1104, 1, 1, 80, T3, 2, 0}, {1042, 1, 1, 80, T3, 2, 0},
-            {1359, 1, 1, 100, T3, 2, 0}, {1708, 1, 1, 80, T3, 2, 0}, {1923, 1, 1, 100, T3, 2, 0}},
+            {1359, 1, 1, 100, T3, 2, 0}, {1708, 1, 1, 80, T3, 2, 0}, {1923, 1, 1, 100, T3, 2, 0},
+            {894, 1, 1, 35, T3, 2, 0}, {895, 1, 1, 35, T3, 2, 0}, {896, 1, 1, 35, T3, 2, 0}},
+        // Thẻ sưu tầm thường: 1 mảnh thẻ radar
+        {{THE_SUU_TAM}, {956, 1, 1, 40, "", 0, 0}, {1204, 1, 1, 40, "", 0, 0}, {1771, 1, 1, 20, "", 0, 0}},
         // Thiệp Ma Halloween
-        {{1117}, {597, 1, 1, 250, "", 0, 0}, {1721, 1, 1, 150, T3, 2, 100}, {2017, 1, 1, 100, T3, 2, 100},
+        {{1117}, {THE_SUU_TAM, 1, 1, 150, "", 0, 0}, {597, 1, 1, 250, "", 0, 0}, {1721, 1, 1, 150, T3, 2, 100}, {2017, 1, 1, 100, T3, 2, 100},
             {1923, 1, 1, 150, T3, 2, 0}, {1926, 1, 1, 80, T3, 2, 100}, {1453, 1, 1, 100, "", 0, 0}},
-        // Hộp Halloween (10 triệu vàng)
-        {{HOP_HALLOWEEN}, {1104, 1, 1, 100, T3, 2, 0}, {1105, 1, 1, 100, T3, 2, 0}, {1106, 1, 1, 100, T3, 2, 0},
+        // Hòm Halloween (10 triệu vàng)
+        {{HOM_HALLOWEEN}, {1104, 1, 1, 100, T3, 2, 0}, {1105, 1, 1, 100, T3, 2, 0}, {1106, 1, 1, 100, T3, 2, 0},
             {906, 1, 1, 100, T3, 2, 0}, {1318, 1, 1, 100, T3, 2, 0}, {1926, 1, 1, 100, T3, 2, 0},
             {2113, 1, 1, 60, T3, 2, 0}, {1453, 1, 1, 150, "", 0, 0}, {1173, 10, 10, 150, "", 0, 0}},
         // Hộp Ngọc Rồng Bí: Bí ngô (ngọc rồng bí) 1 - 7 sao
@@ -292,11 +298,67 @@ public final class Dot56Migration {
                 }
             }
         }
-        // Hộp Halloween bán ở Cửa hàng Chi Chi mùa Halloween: 10 triệu vàng
-        if (!exists(con, "select 1 from season_event_exchange where event_id = 7 and reward_item = " + HOP_HALLOWEEN)) {
-            changed += update(con, "insert into season_event_exchange (event_id, grp, name, need, gold, gem, reward_item, reward_qty, reward_days, npc) values (7, 'Cửa\nhàng', 'Hộp\nHalloween', '', 10000000, 0, " + HOP_HALLOWEEN + ", 1, '', '81')");
-        }
         changed += update(con, "insert into server_migration (name) values ('dot56_halloween')");
+        return changed;
+    }
+
+    /** Chỉ số mặc định thêm ở đợt 57: Avatar mang kính đo sức mạnh, Cánh thiên sứ hắc ám */
+    private static final int[][] OPTIONS_57 = {
+        {894, 50, 20, 20}, {894, 77, 17, 17}, {895, 50, 20, 20}, {895, 77, 17, 17}, {896, 50, 20, 20}, {896, 77, 17, 17},
+        {1149, 50, 15, 15}, {1149, 77, 13, 13}, {1149, 103, 13, 13}, {1149, 94, 3, 3}, {1149, 97, 5, 5}, {1149, 30, 1, 1},};
+
+    /**
+     * Đợt 57: cửa hàng Chi Chi mùa Halloween giống ảnh (Hòm Halloween 10 triệu vàng hạn 30 ngày, giỏ / giấy hạn 35 ngày,
+     * Giỏ đựng kẹo trái bí 5 triệu vàng, thêm Cánh thiên sứ hắc ám 999 ngọc); bỏ "Hộp Halloween" 2119 của đợt 56
+     * (trùng Hòm Halloween); Thẻ sưu tầm thường; Avatar mang kính trong Kẹo mù.
+     */
+    private static int runDot57(Connection con) throws Exception {
+        int changed = 0;
+        if (exists(con, "select 1 from server_migration where name = 'dot57_halloween'")) {
+            return 0;
+        }
+        changed += update(con, "delete from season_event_exchange where reward_item = 2119");
+        changed += update(con, "delete from item_template_option where template_id = 2119");
+        changed += update(con, "update season_event_exchange set gem = 0, gold = 10000000, reward_days = '30' where event_id = 7 and reward_item = " + HOM_HALLOWEEN);
+        changed += update(con, "update season_event_exchange set gem = 0, gold = 5000000, reward_days = '35' where event_id = 7 and reward_item = 1355");
+        changed += update(con, "update season_event_exchange set reward_days = '35' where event_id = 7 and reward_item in (1348, 1354)");
+        if (!exists(con, "select 1 from season_event_exchange where event_id = 7 and reward_item = 1149")) {
+            changed += update(con, "insert into season_event_exchange (event_id, grp, name, need, gold, gem, reward_item, reward_qty, reward_days, npc) values (7, 'Cửa\nhàng', 'Cánh thiên sứ\nhắc ám', '', 0, 999, 1149, 1, '', '81')");
+        }
+        for (int[] o : OPTIONS_57) {
+            if (!exists(con, "select 1 from item_template_option where template_id = " + o[0] + " and option_id = " + o[1])) {
+                changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (" + o[0] + ", " + o[1] + ", " + o[2] + ", " + o[3] + ", 100, 0)");
+            }
+        }
+        // nội dung Hòm Halloween, Thẻ sưu tầm thường, thêm vào Thiệp Ma / Kẹo mù (DB đã chạy đợt 56 trước đó)
+        for (Object[][] box : BOXES) {
+            int boxId = (int) box[0][0];
+            if (boxId != HOM_HALLOWEEN && boxId != THE_SUU_TAM && boxId != 1117 && boxId != 1726) {
+                continue;
+            }
+            for (int i = 1; i < box.length; i++) {
+                Object[] r = box[i];
+                boolean replaceAll = boxId == HOM_HALLOWEEN || boxId == THE_SUU_TAM;
+                if (replaceAll && i == 1) {
+                    changed += update(con, "delete from item_box_reward where box_id = " + boxId);
+                }
+                if (!replaceAll && exists(con, "select 1 from item_box_reward where box_id = " + boxId + " and item_id = " + r[0])) {
+                    continue;
+                }
+                try (PreparedStatement ps = con.prepareStatement("insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values (?, ?, ?, ?, ?, ?, ?, ?)")) {
+                    ps.setInt(1, boxId);
+                    ps.setInt(2, (int) r[0]);
+                    ps.setInt(3, (int) r[1]);
+                    ps.setInt(4, (int) r[2]);
+                    ps.setInt(5, (int) r[3]);
+                    ps.setString(6, (String) r[4]);
+                    ps.setInt(7, (int) r[5]);
+                    ps.setInt(8, (int) r[6]);
+                    changed += ps.executeUpdate();
+                }
+            }
+        }
+        changed += update(con, "insert into server_migration (name) values ('dot57_halloween')");
         return changed;
     }
 

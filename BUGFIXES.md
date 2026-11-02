@@ -1388,3 +1388,9 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - Nội dung Túi mù, Kẹo mù, Thiệp Ma, Hộp Halloween, Hộp NR Bí, quà Zombi; quà đua top Túi mù và Hộp Kẹo Ma Quỷ (top 1 Túi mù đạt 21000 điểm nhận thêm Set kích hoạt Beerus + Trứng Xên Vàng).
   - Hộp quà có "bảo hiểm" (cột pity, bảng box_pity): mở đủ số lần chưa ra thì lần đó chắc chắn ra. Sửa được trên panel.
   - Hộp / top / chỉ số chỉ ghi 1 lần (server_migration 'dot56_halloween'), sau đó sửa trên panel không bị ghi đè.
+
+## Đợt 57
+- **Sửa lỗi NullPointerException khi mở shop (Quy Lão "Đổi điểm", Chi Chi, mọi shop)**: vật phẩm tạo từ chỉ số mặc định / mua shop / nhặt dưới đất dùng chung đối tượng chỉ số với shop; khi vật phẩm bị hủy, chỉ số của shop bị xóa theo (optionTemplate = null) và lần mở shop sau bị lỗi. Giờ mọi nơi đều sao chép chỉ số (ItemOption.copyAll), hủy vật phẩm không xóa mẫu chỉ số, shop bỏ qua chỉ số hỏng, tra mẫu chỉ số theo đúng id (không theo vị trí).
+- Shop Chi Chi mùa Halloween giống ảnh: Hòm Halloween 10 triệu vàng (hạn 30 ngày, chứa quà "Hộp Halloween"), Giỏ đựng kẹo trái bí 5 triệu vàng, giỏ / giấy hạn 35 ngày, thêm Cánh thiên sứ hắc ám 999 ngọc (SĐ 15%, HP 13%, KI 13%, giảm 3% sát thương, phản 5%, không giao dịch). Bỏ Hộp Halloween 2119 (trùng Hòm Halloween; ai đã có vẫn mở được).
+- Thẻ sưu tầm thường (2120, icon 17638): mở ra 1 mảnh Đội trưởng Vàng / Rồng thần Namếc / Khỉ Oozaru; có trong Thiệp Ma.
+- Kẹo mù Halloween thêm Avatar mang kính đo sức mạnh (894 / 895 / 896, SĐ 20%, HP 17%).
