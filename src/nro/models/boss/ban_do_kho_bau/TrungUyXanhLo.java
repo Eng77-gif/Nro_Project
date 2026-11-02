@@ -42,9 +42,7 @@ public class TrungUyXanhLo extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
         if (Util.isTrue(100, 100)) {
             ItemMap it = new ItemMap(this.zone, 705, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x,
                     this.location.y - 24), plKill.id);

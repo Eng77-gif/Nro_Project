@@ -134,9 +134,7 @@ public class Virut extends Boss {
             Service.gI().dropItemMap(this.zone, itemDrop);
         }
 
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point sự kiện từ Virut");
+        // điểm sự kiện theo độ mạnh boss: BossRewardService
     }
 
     @Override

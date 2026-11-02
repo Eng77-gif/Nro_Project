@@ -151,8 +151,8 @@ const PAGES=[
  ['g','Máy chủ'],['dash','Tổng quan','📊'],['notify','Thông báo & quà','📣'],['maint','Bảo trì & lưu','🛠'],['logs','Nhật ký console','🖥'],['audit','Nhật ký thao tác','📝'],['config','Cấu hình','⚙'],
  ['g','Người chơi'],['players','Người chơi','👤'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],
  ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],
- ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['mobs','Quái','🐗'],
- ['g','Khác'],['health','Kiểm tra dữ liệu','🩺'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
+ ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['bossrw','Thưởng boss','💰'],['mobs','Quái','🐗'],
+ ['g','Khác'],['db','Database','🗄'],['health','Kiểm tra dữ liệu','🩺'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
 function buildNav(){if(innerWidth<760)$('#nav').classList.add('hide');let h='<h1>🐉<span>Panel NRO<small>chữ ký: Việt</small></span></h1>',open=false;
   for(const p of PAGES){if(p[0]==='g'){if(open)h+='</div>';h+=`<div class="g">${p[1]}</div><div class="tiles">`;open=true}else h+=`<a href="#${p[0]}" data-p="${p[0]}"><i>${p[2]||'•'}</i>${p[1]}</a>`}
   h+='</div><div class="g">Tài khoản</div><div class="tiles"><a href="#" onclick="toggleTheme();return false"><i>🌓</i>Đổi sáng / tối</a><a href="#" onclick="logout();return false"><i>🚪</i>Đăng xuất</a></div>';
@@ -446,6 +446,56 @@ async function page_health(){$('#main').innerHTML='<h2>Kiểm tra dữ liệu</h
   <div class="card mute">Tìm vật phẩm không tồn tại trong hộp quà / cửa hàng / quà top, chỉ số trỏ tới mã không có (gây lỗi mở shop), đồ mặc trong sự kiện không có dòng chỉ số nào, part / cờ đeo lưng thiếu (mặc không hiện), icon thiếu ảnh. Bấm "Sửa chỉ số" để thêm chỉ số ngay.</div>
   <div class="row" style="margin-bottom:8px"><button onclick="page_health()">🔄 Kiểm tra lại</button></div>`+
   table(r,[['level','Mức',v=>`<span class="tag ${v==='lỗi'?'bad1':v==='ok'?'on1':''}">${esc(v)}</span>`],['kind','Loại'],['msg','Chi tiết','','w']],x=>x.item?`<button class="s" onclick="editItemOptions(${x.item})">Sửa chỉ số</button>`:'')}
+
+/* ---------- database ---------- */
+let DB={table:'',page:0,size:50,q:'',sort:'',desc:false,data:null};
+async function page_db(){const t=await api('db/tables');
+  $('#main').innerHTML=`<h2>Database</h2><div class="card"><div class="row"><input id="dbf" class="grow" placeholder="Lọc tên bảng…"><span class="mute">${t.length} bảng</span></div>
+   <div id="dbl" class="row" style="margin-top:8px;max-height:200px;overflow:auto;align-items:flex-start"></div></div><div id="dbv"></div>`;
+  const draw=()=>{const k=$('#dbf').value.toLowerCase();$('#dbl').innerHTML=t.filter(x=>!k||x.name.toLowerCase().includes(k)).map(x=>`<button class="s ${x.name===DB.table?'p':''}" onclick="dbOpen('${esc(x.name)}')" title="${fmt(x.kb)} KB">${esc(x.name)} <span class="mute">${fmt(x.rows)}</span></button>`).join(' ')};
+  $('#dbf').oninput=draw;draw();if(DB.table)dbLoad()}
+function dbOpen(t){DB={table:t,page:0,size:50,q:'',sort:'',desc:false,data:null};document.querySelectorAll('#dbl button').forEach(b=>b.classList.toggle('p',b.textContent.startsWith(t+' ')));dbLoad()}
+async function dbLoad(){const d=await api(`db/rows?table=${encodeURIComponent(DB.table)}&page=${DB.page}&size=${DB.size}&q=${encodeURIComponent(DB.q)}&sort=${encodeURIComponent(DB.sort)}&desc=${DB.desc?1:0}`);DB.data=d;
+  const pages=Math.max(1,Math.ceil(d.total/d.size)),cut=v=>{if(v==null)return '<span class="mute">NULL</span>';const s=String(v);return esc(s.length>80?s.slice(0,80)+'…':s)};
+  $('#dbv').innerHTML=`<div class="card"><div class="row"><b>${esc(DB.table)}</b><span class="mute">${fmt(d.total)} dòng · khóa: ${esc(d.pk.join(', ')||'(không có)')}</span><span class="sp" style="flex:1"></span>
+    <input id="dbq" placeholder="Tìm trong mọi cột" value="${esc(DB.q)}" style="width:200px"><button onclick="DB.q=$('#dbq').value;DB.page=0;dbLoad()">Tìm</button>
+    <button class="p" onclick="dbEdit(null)">+ Thêm dòng</button><button onclick="dbExport('sql')">⬇ SQL</button><button onclick="dbExport('csv')">⬇ CSV</button><button onclick="dbSchema()">Cấu trúc</button></div></div>
+   <div class="tw"><table><thead><tr>${d.columns.map(c=>`<th style="cursor:pointer" onclick="DB.desc=DB.sort==='${c.name}'?!DB.desc:false;DB.sort='${c.name}';dbLoad()">${esc(c.name)}${DB.sort===c.name?(DB.desc?' ▼':' ▲'):''}</th>`).join('')}<th></th></tr></thead>
+   <tbody>${d.rows.map((r,i)=>`<tr>${d.columns.map(c=>`<td data-l="${esc(c.name)}">${cut(r[c.name])}</td>`).join('')}<td class="act" data-l=""><button class="s" onclick="dbEdit(${i})">Sửa</button> <button class="s d" onclick="dbDel(${i})">Xóa</button></td></tr>`).join('')}</tbody></table></div>
+   <div class="row" style="margin-top:8px"><button ${DB.page<=0?'disabled':''} onclick="DB.page--;dbLoad()">◀</button><span>Trang ${DB.page+1} / ${pages}</span><button ${DB.page+1>=pages?'disabled':''} onclick="DB.page++;dbLoad()">▶</button>
+   <select onchange="DB.size=+this.value;DB.page=0;dbLoad()">${[20,50,100,200,500].map(n=>`<option ${n===DB.size?'selected':''}>${n}</option>`).join('')}</select><span class="mute">dòng / trang</span></div>`;
+  $('#dbq').onkeydown=e=>{if(e.key==='Enter'){DB.q=e.target.value;DB.page=0;dbLoad()}}}
+function dbKey(r){const k={};(DB.data.pk.length?DB.data.pk:DB.data.columns.map(c=>c.name)).forEach(c=>k[c]=r[c]);return k}
+function dbEdit(i){const d=DB.data,r=i==null?null:d.rows[i];
+  const m=modal(`<h3>${r?'Sửa dòng':'Thêm dòng'} · ${esc(DB.table)}</h3><div class="mute">${r?'Chỉ lưu các ô đã đổi. Dòng cũ được ghi vào nhật ký thao tác để khôi phục khi cần.':'Để trống ô tự tăng / có giá trị mặc định.'}</div>
+   <div class="grid2" style="margin-top:8px">${d.columns.map(c=>{const v=r?r[c.name]:'';const long=String(v??'').length>60||/text|blob/.test(c.type);
+     return `<label class="f">${esc(c.name)} <span class="mute">${esc(c.type)}${c.key==='PRI'?' · khóa':''}${c.extra?' · '+esc(c.extra):''}</span>${long?`<textarea data-c="${esc(c.name)}">${esc(v??'')}</textarea>`:`<input data-c="${esc(c.name)}" value="${esc(v??'')}">`}${r?`<label style="font-size:11px"><input type="checkbox" data-n="${esc(c.name)}" ${v==null?'checked':''}> NULL</label>`:''}</label>`}).join('')}</div>
+   <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="dbs">Lưu</button></div>`);
+  m.querySelector('#dbs').onclick=()=>{const vals={};m.querySelectorAll('[data-c]').forEach(e=>{const c=e.dataset.c,nul=m.querySelector(`[data-n="${c}"]`);const nv=nul&&nul.checked?null:e.value;
+      if(!r){vals[c]=e.value}else{const ov=r[c]==null?null:String(r[c]);if(nv!==ov)vals[c]=nv}});
+    if(r&&!Object.keys(vals).length){m.remove();return}
+    act(()=>api(r?'db/update':'db/insert',r?{table:DB.table,key:dbKey(r),values:vals}:{table:DB.table,values:vals})).then(x=>{if(x){m.remove();dbLoad()}})}}
+function dbDel(i){const r=DB.data.rows[i];if(!confirm('Xóa dòng này khỏi '+DB.table+'? Dòng sẽ được ghi vào nhật ký thao tác.'))return;act(()=>api('db/delete',{table:DB.table,key:dbKey(r)})).then(()=>dbLoad())}
+async function dbExport(f){const r=await act(()=>api(`db/export?table=${encodeURIComponent(DB.table)}&format=${f}`),'Đã xuất');if(!r)return;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([(f==='csv'?'\ufeff':'')+r.content],{type:'text/plain;charset=utf-8'}));a.download=r.filename;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}
+function dbSchema(){modal(`<h3>Cấu trúc ${esc(DB.table)}</h3>${table(DB.data.columns,[['name','Cột'],['type','Kiểu'],['nullable','Null'],['key','Khóa'],['def','Mặc định'],['extra','Thêm']])}<div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Đóng</button></div>`)}
+
+/* ---------- thưởng boss ---------- */
+let BRW=null;
+async function page_bossrw(){BRW=await api('bossrewards');const T=BRW.tiers,nm=x=>x.item_id==-1?'Vàng':x.item_id==-4?'Điểm sự kiện':esc(x.item_name||'#'+x.item_id);
+  $('#main').innerHTML=`<h2>Thưởng boss</h2><div class="card mute">Mọi boss nhận thưởng theo bậc (máu tối đa). Dòng có "Boss" (một phần tên) chỉ áp dụng cho boss đó và thay dòng cùng vật phẩm của bậc. Vật phẩm -1 = vàng, -4 = điểm sự kiện. Tỉ lệ tính trên 10.000 (10000 = 100%). Quà riêng của từng boss vẫn rơi như cũ.</div>
+   <div class="row" style="margin-bottom:8px"><button class="p" onclick="editBrw({})">+ Thêm dòng</button></div>
+   ${[1,2,3,4,5].map(t=>`<h3>${esc(T[t])}</h3>`+table(BRW.rows.filter(x=>x.tier==t&&!x.boss),[['icon_id','',v=>v>=0?icon(v):''],['item_id','Vật phẩm',(v,x)=>nm(x)],['qty_min','Số lượng',(v,x)=>x.qty_min==x.qty_max?fmt(v):fmt(v)+' – '+fmt(x.qty_max)],['rate','Tỉ lệ',v=>(v/100).toFixed(2)+'%'],['hsd_days','Hạn (ngày)',v=>v||'']],(x)=>`<button class="s" onclick='editBrw(${JSON.stringify(x)})'>Sửa</button> <button class="s d" onclick="delBrw(${x.id})">Xóa</button>`)).join('')}
+   <h3>Riêng từng boss</h3>${table(BRW.rows.filter(x=>x.boss),[['boss','Boss'],['item_id','Vật phẩm',(v,x)=>nm(x)],['qty_min','Số lượng',(v,x)=>x.qty_min==x.qty_max?fmt(v):fmt(v)+' – '+fmt(x.qty_max)],['rate','Tỉ lệ',v=>(v/100).toFixed(2)+'%']],(x)=>`<button class="s" onclick='editBrw(${JSON.stringify(x)})'>Sửa</button> <button class="s d" onclick="delBrw(${x.id})">Xóa</button>`)}
+   <h3>Boss đang có và bậc</h3>${table(BRW.bosses,[['name','Boss'],['hp','HP tối đa',fmt],['tier','Bậc']])}`}
+function editBrw(x){const m=modal(`<h3>${x.id?'Sửa dòng #'+x.id:'Thêm dòng thưởng'}</h3><div class="grid2">
+   <label class="f">Bậc (1 - 5, 0 nếu chỉ dùng cho 1 boss)<input id="r0" type="number" value="${x.tier??1}"></label><label class="f">Boss (để trống = mọi boss của bậc)<input id="r1" value="${esc(x.boss||'')}"></label>
+   <label class="f">Vật phẩm (-1 vàng, -4 điểm sự kiện)<div class="row"><input id="r2" type="number" value="${x.item_id??-1}" style="width:110px"><span id="r2n" class="mute">${esc(x.item_name||'')}</span><button type="button" onclick="pickItem(i=>{$('#r2').value=i.id;$('#r2n').innerHTML=icon(i.icon)+' '+esc(i.name)})">Chọn…</button></div></label>
+   <label class="f">Tỉ lệ (/10.000)<input id="r5" type="number" value="${x.rate??10000}"></label><label class="f">Số lượng từ<input id="r3" type="number" value="${x.qty_min??1}"></label><label class="f">đến<input id="r4" type="number" value="${x.qty_max??1}"></label>
+   <label class="f">Hạn dùng (ngày, nhiều mức 3,7,15)<input id="r6" value="${esc(x.hsd_days||'')}"></label><label class="f">% vĩnh viễn<input id="r7" type="number" value="${x.perm_rate??0}"></label></div>
+   <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="rs">Lưu</button></div>`);
+  m.querySelector('#rs').onclick=()=>act(()=>api('bossreward/save',{id:x.id,tier:+$('#r0').value,boss:$('#r1').value,item_id:+$('#r2').value,qty_min:+$('#r3').value,qty_max:+$('#r4').value,rate:+$('#r5').value,hsd_days:$('#r6').value,perm_rate:+$('#r7').value})).then(r=>{if(r){m.remove();page_bossrw()}})}
+function delBrw(id){if(confirm('Xóa dòng thưởng này?'))act(()=>api('bossreward/delete',{id})).then(page_bossrw)}
 
 /* ---------- khởi động ---------- */
 api('me').then(()=>{$('#app').hidden=false;buildNav();route()}).catch(()=>{});

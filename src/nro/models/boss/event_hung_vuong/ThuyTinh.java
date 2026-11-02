@@ -34,9 +34,7 @@ public class ThuyTinh extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
         for (Boss boss : this.bossAppearTogether[this.currentLevel]) {
             boss.playerReward = plKill;
             boss.changeStatus(BossStatus.AFK);

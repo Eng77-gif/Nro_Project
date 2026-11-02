@@ -117,9 +117,7 @@ public class Mabu2H extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
     }
 

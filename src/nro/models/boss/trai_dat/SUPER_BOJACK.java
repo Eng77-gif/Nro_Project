@@ -55,9 +55,7 @@ public class SUPER_BOJACK extends Boss {
         Service.gI().dropItemMap(this.zone, it);
         Service.gI().dropItemMap(this.zone, it1);
         Service.gI().dropItemMap(this.zone, it2);
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
     }
 
     @Override

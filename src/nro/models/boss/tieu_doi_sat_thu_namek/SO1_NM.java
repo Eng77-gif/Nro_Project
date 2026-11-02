@@ -56,9 +56,7 @@ public class SO1_NM extends Boss {
       Service.gI().dropItemMap(this.zone, it);
         Service.gI().dropItemMap(this.zone, it1);
         Service.gI().dropItemMap(this.zone, it2);
-          int diem = 1;
-    plKill.event.addEventPoint(diem);
-    Service.gI().sendThongBao(plKill, "+1 Point");
+        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
     }
 
     @Override

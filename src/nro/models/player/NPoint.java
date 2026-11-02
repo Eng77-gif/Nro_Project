@@ -475,6 +475,7 @@ public class NPoint {
             }
         }
 
+        this.levelBT = 0;
         // Bông tai cấp 2
         if (this.player.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2) {
             this.player.inventory.itemsBag.stream()
@@ -1315,7 +1316,7 @@ public class NPoint {
         }
 
         // Xử lý +hp đệ
-        if (this.player.fusion.typeFusion != ConstPlayer.NON_FUSION) {
+        if (this.player.fusion.typeFusion != ConstPlayer.NON_FUSION && this.player.pet != null) {
             hpMax += this.player.pet.nPoint.hpMax;
         }
         // điều ước Rồng Xương: +15% HP khi hợp thể bông tai Porata
@@ -1454,7 +1455,7 @@ public class NPoint {
 
         // Xử lý hợp thể
         if (this.player.fusion.typeFusion
-                != 0) {
+                != 0 && this.player.pet != null) {
             mpMax += this.player.pet.nPoint.mpMax;
         }
         // điều ước Rồng Xương: +15% KI khi hợp thể bông tai Porata
@@ -1528,10 +1529,7 @@ public class NPoint {
                 }
             }
         }
-        // Xử lý pet pic
-        if (this.player.isPet && ((Pet) this.player).typePet == 3 && (((Pet) this.player).master.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA || ((Pet) this.player).master.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2 || ((Pet) this.player).master.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3)) {
-            dame += (dame * 20 / 100L);
-        }
+        // (đã bỏ khối "pet pic" trùng với "pet beer": đệ Vegeta / Kid Beer được cộng 20% SĐ hai lần)
 
         // Xử lý pet mabư
         if (this.player.isPet && ((Pet) this.player).typePet == 1 && (((Pet) this.player).master.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA || ((Pet) this.player).master.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2 || ((Pet) this.player).master.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3)) {
@@ -1622,7 +1620,7 @@ public class NPoint {
         }
 
         // Xử lý hợp thể
-        if (this.player.fusion.typeFusion != 0) {
+        if (this.player.fusion.typeFusion != 0 && this.player.pet != null) {
             dame += this.player.pet.nPoint.dame;
         }
         // điều ước Rồng Xương: +15% sức đánh khi hợp thể bông tai Porata

@@ -49,6 +49,8 @@ import nro.models.services.Service;
  */
 class PanelApi {
 
+    static final com.google.gson.Gson GSON_PUBLIC = new com.google.gson.GsonBuilder().serializeNulls().create();
+
     private final PanelServer server;
     private final long startedAt = System.currentTimeMillis();
 
@@ -76,6 +78,15 @@ class PanelApi {
             case "exchange/save" -> exchangeSave(b);
             case "exchange/delete" -> exchangeDelete(b);
             case "health" -> health();
+            case "db/tables" -> PanelDb.tables();
+            case "db/rows" -> PanelDb.rows(str(q.get("table")), intv(q.getOrDefault("page", "0")), intv(q.getOrDefault("size", "50")), str(q.get("q")), str(q.get("sort")), "1".equals(q.get("desc")));
+            case "db/update" -> PanelDb.update(b);
+            case "db/insert" -> PanelDb.insert(b);
+            case "db/delete" -> PanelDb.delete(b);
+            case "db/export" -> PanelDb.export(str(q.get("table")), str(q.get("format")));
+            case "bossrewards" -> bossRewards();
+            case "bossreward/save" -> bossRewardSave(b);
+            case "bossreward/delete" -> bossRewardDelete(b);
             case "options" -> options(q.getOrDefault("q", ""));
             case "giftcodes" -> rows("select id, code, count_left, detail, datecreate, expired from giftcode order by id desc");
             case "giftcode/save" -> giftcodeSave(b);
@@ -633,6 +644,48 @@ class PanelApi {
             add.accept("ok", new String[]{"Tổng quát", "Không tìm thấy lỗi dữ liệu"});
         }
         return out;
+    }
+
+    // ------------------------------------------------------------------ thưởng boss theo bậc
+
+    private Object bossRewards() throws Exception {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("tiers", nro.models.services.BossRewardService.TIER_NAME);
+        m.put("rows", rows("select b.*, t.NAME item_name, t.icon_id from boss_reward b left join item_template t on t.id = b.item_id order by b.tier, b.boss, b.id"));
+        List<Map<String, Object>> bosses = new ArrayList<>();
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (Boss bo : allBosses()) {
+            if (bo.name != null && seen.add(bo.name)) {
+                bosses.add(Map.of("name", bo.name, "hp", bo.nPoint == null ? 0 : bo.nPoint.hpMax, "tier", nro.models.services.BossRewardService.tierOf(bo)));
+            }
+        }
+        bosses.sort((a, c) -> Long.compare(((Number) a.get("hp")).longValue(), ((Number) c.get("hp")).longValue()));
+        m.put("bosses", bosses);
+        return m;
+    }
+
+    private Object bossRewardSave(Map<String, Object> b) throws Exception {
+        int item = intv(b.get("item_id"));
+        if (item >= 0 && ItemService.gI().getTemplate(item) == null) {
+            throw new IllegalArgumentException("Không có vật phẩm " + item);
+        }
+        Object[] v = {Math.max(0, Math.min(5, intv(b.getOrDefault("tier", 0)))), str(b.get("boss")).trim(), item, Math.max(1, intv(b.getOrDefault("qty_min", 1))),
+            Math.max(1, intv(b.getOrDefault("qty_max", 1))), Math.max(0, Math.min(10000, intv(b.getOrDefault("rate", 10000)))),
+            str(b.get("hsd_days")).replaceAll("[^0-9,]", ""), intv(b.getOrDefault("perm_rate", 0)), str(b.get("note"))};
+        if (b.get("id") != null && lng(b.get("id")) > 0) {
+            update("update boss_reward set tier=?, boss=?, item_id=?, qty_min=?, qty_max=?, rate=?, hsd_days=?, perm_rate=?, note=? where id=?",
+                    v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], lng(b.get("id")));
+        } else {
+            update("insert into boss_reward (tier, boss, item_id, qty_min, qty_max, rate, hsd_days, perm_rate, note) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", v);
+        }
+        nro.models.services.BossRewardService.gI().reload();
+        return Map.of("ok", true, "note", "Đã lưu, thưởng boss đã nạp lại");
+    }
+
+    private Object bossRewardDelete(Map<String, Object> b) throws Exception {
+        update("delete from boss_reward where id=?", lng(b.get("id")));
+        nro.models.services.BossRewardService.gI().reload();
+        return Map.of("ok", true);
     }
 
     private Object options(String kw) {

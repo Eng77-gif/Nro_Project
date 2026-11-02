@@ -640,6 +640,7 @@ public class Boss extends Player implements IBoss {
         if (plKill != null && !plKill.isBot) {
             nro.models.services.SeasonEventService.gI().onBossKilled(this, plKill);
             nro.models.services.SaoPhaLe10Service.gI().onBossKilled(this, plKill);
+            nro.models.services.BossRewardService.gI().reward(this, plKill); // vàng, điểm, quà theo độ mạnh boss
         }
 
         if (plKill != null

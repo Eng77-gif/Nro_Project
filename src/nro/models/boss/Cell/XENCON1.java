@@ -27,16 +27,12 @@ public class XENCON1 extends Boss {
     public void reward(Player plKill) {
         BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.TRUM_SAN_BOSS, 1);
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
-        Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 190, Util.nextInt(20000, 30001),
-                this.location.x, this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id));
         if (Util.isTrue(80, 100)) {
             int[] items = Util.isTrue(50, 100) ? new int[]{18, 19, 20} : new int[]{18, 19, 20};
             int randomItem = items[new Random().nextInt(items.length)];
             Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, randomItem, 1,
                     this.location.x, this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id));
-            int diem = 5;
-            plKill.event.addEventPoint(diem);
-            Service.gI().sendThongBao(plKill, "+5 Point");
+        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
         }
     }
 

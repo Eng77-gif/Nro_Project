@@ -859,7 +859,7 @@ public class Player implements Runnable {
     }
 
     public short getHead() {
-        if (this.isPl() && this.pet != null && this.fusion.typeFusion == ConstPlayer.HOP_THE_GOGETA || this.fusion.typeFusion == ConstPlayer.LUONG_LONG_NHAT_THE || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2 || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3) {
+        if (this.isPl() && this.pet != null && this.fusion.typeFusion != ConstPlayer.NON_FUSION) { // trước đây thiếu ngoặc: không có đệ mà đang hợp thể thì NullPointerException
             Item item = inventory.itemsBody.get(5);
             Item petItem = pet.inventory.itemsBody.get(5);
             boolean hasItem1 = item.isNotNullItem() && (item.template.id == 1693 || item.template.id == 1553);
@@ -913,7 +913,7 @@ public class Player implements Runnable {
     }
 
     public short getBody() {
-        if (this.isPl() && this.pet != null && this.fusion.typeFusion == ConstPlayer.HOP_THE_GOGETA || this.fusion.typeFusion == ConstPlayer.LUONG_LONG_NHAT_THE || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2 || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3) {
+        if (this.isPl() && this.pet != null && this.fusion.typeFusion != ConstPlayer.NON_FUSION) { // trước đây thiếu ngoặc: không có đệ mà đang hợp thể thì NullPointerException
             Item item = inventory.itemsBody.get(5);
             Item petItem = pet.inventory.itemsBody.get(5);
 
@@ -973,7 +973,7 @@ public class Player implements Runnable {
     }
 
     public short getLeg() {
-        if (this.isPl() && this.pet != null && this.fusion.typeFusion == ConstPlayer.HOP_THE_GOGETA || this.fusion.typeFusion == ConstPlayer.LUONG_LONG_NHAT_THE || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2 || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3) {
+        if (this.isPl() && this.pet != null && this.fusion.typeFusion != ConstPlayer.NON_FUSION) { // trước đây thiếu ngoặc: không có đệ mà đang hợp thể thì NullPointerException
             Item item = inventory.itemsBody.get(5);
             Item petItem = pet.inventory.itemsBody.get(5);
 
