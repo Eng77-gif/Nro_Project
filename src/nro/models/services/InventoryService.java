@@ -362,9 +362,11 @@ public class InventoryService {
                 index = player.isPet ? 8 : 10;
                 break;
         }
-        // "Dành cho đệ tử 2": chỉ đệ tử mặc được
-        if (!player.isPet && (item.template.id == 1930 || item.template.id == 1981 || item.template.id == 1932)) {
-            Service.gI().sendThongBaoOK(player, "Vật phẩm này chỉ dành cho đệ tử");
+        // "Dành cho đệ tử 2": chỉ đệ tử 2 (Uub, Kid Beer, Jiren - đổi bằng Bình hút năng lượng) mặc được
+        if ((item.template.id == 1930 || item.template.id == 1981 || item.template.id == 1932)
+                && !(player.isPet && (((Pet) player).typePet == 2 || ((Pet) player).typePet == 3 || ((Pet) player).typePet == 4))) {
+            Player recipient = player.isPet && ((Pet) player).master != null ? ((Pet) player).master : player;
+            Service.gI().sendThongBaoOK(recipient, "Vật phẩm này chỉ dành cho đệ tử 2");
             return sItem;
         }
         if (player.isPet && (item.template.type == 11 || item.template.type == 25)) {

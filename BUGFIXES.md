@@ -1451,3 +1451,8 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 
 ## Đợt 68
 - Quái chỉ rơi sao pha lê (441 - 447) khi người đánh mặc cải trang có dòng "Dò pha lê" (option 110, trước đây có dòng nhưng không có tác dụng). Tỉ lệ 10% (cỏ bốn lá +15%).
+
+## Đợt 69
+- Đệ tử 2: đệ tử đạt 40 tỷ (săn Super Broly) -> đánh Hirudegarn (22h) có 20% rơi Quả trứng Mabư (của riêng người đánh). Trứng nở xong (đếm về 0:00) hoặc đã có đệ Mabư -> đánh Hirudegarn lần nữa có 20% rơi Bình hút năng lượng. Tích 3000 Kilis ở Sa mạc hoang vu rồi dùng Bình hút: đổi ngẫu nhiên Uub / Kid Beer / Jiren (khởi đầu 40 tỷ, chỉ số gốc cao hơn đệ thường, 9 ô trang bị, có chiêu 5). Trước đây Hirudegarn rơi trứng / bình cho bất kỳ ai và đổi đệ đòi đệ Mabư 40 tỷ.
+- Tapion chỉ đưa vào map Hirudegarn lúc 22h - 23h.
+- Cánh thiên thần sa ngã (Đệ), Bư tập tạ, Cánh thiên thần 3 (Đệ) chỉ đệ tử 2 mặc được.

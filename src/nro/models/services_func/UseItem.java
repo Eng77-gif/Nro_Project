@@ -1377,9 +1377,16 @@ public class UseItem {
             return;
         }
 
-        if (player.pet == null || player.pet.typePet != 1 || player.pet.nPoint.power < 40_000_000_000L) {
-            Service.gI().sendThongBao(player, "Cần có đệ Mabư đạt 40 tỷ sức mạnh để thực hiện!");
+        if (player.pet == null || player.pet.nPoint.power < 40_000_000_000L) {
+            Service.gI().sendThongBao(player, "Cần có đệ tử đạt 40 tỷ sức mạnh để đổi đệ tử 2!");
             return;
+        }
+        if (player.pet.typePet == 2 || player.pet.typePet == 3 || player.pet.typePet == 4) {
+            Service.gI().sendThongBao(player, "Bạn đã có đệ tử 2");
+            return;
+        }
+        if (player.mabuEgg != null) {
+            player.mabuEgg.destroyEgg(); // trứng Mabư dùng làm điều kiện, đổi đệ tử 2 thì trứng mất
         }
 
         int[] petTypes = {2, 3, 4};
@@ -1399,7 +1406,7 @@ public class UseItem {
         InventoryService.gI().removeItemBag(player, item);
         InventoryService.gI().sendItemBags(player);
 
-        Service.gI().sendThongBao(player, "Bạn đã nhận được đệ tử mới!");
+        Service.gI().sendThongBao(player, "Bạn đã nhận được đệ tử 2 (khởi đầu 40 tỷ sức mạnh)!");
     }
 
     private void eatGrapes(Player pl, Item item) {

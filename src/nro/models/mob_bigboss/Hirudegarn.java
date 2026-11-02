@@ -18,8 +18,14 @@ public class Hirudegarn extends BigBoss {
         super(mob);
     }
 
+    /** Người đã đánh trong trận (nhận Trứng Mabư / Bình hút năng lượng theo điều kiện). */
+    private final java.util.Set<Long> attackers = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
     @Override
     public void injured(Player plAtt, long damage, boolean dieWhenHpFull) {
+        if (plAtt != null && plAtt.isPl()) {
+            attackers.add(plAtt.id);
+        }
         damage = this.point.hp / 100 > 0 ? this.point.hp / 100 : 1;
         super.injured(plAtt, damage, false);
     }
@@ -89,19 +95,26 @@ public class Hirudegarn extends BigBoss {
                         new ItemMap(zone, 190, 32000, this.location.x + X, this.location.y, -1)
                 );
             }
-            if (Util.isTrue(20, 100)) {
-                ItemMap it = new ItemMap(this.zone, 568, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x,
-                        this.location.y - 24), -1);
-                Service.gI().dropItemMap(this.zone, it);
+            // Đệ tử 2: đệ đạt 40 tỷ -> có tỉ lệ rơi Trứng Mabư; trứng nở xong (về 0:00) -> có tỉ lệ rơi Bình hút năng lượng
+            for (Player pl : new java.util.ArrayList<>(this.zone.getPlayers())) {
+                if (pl == null || !attackers.contains(pl.id) || !pl.isPl()) {
+                    continue;
+                }
+                int x = this.location.x + Util.nextInt(-40, 40);
+                int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
+                boolean coTrung = pl.mabuEgg != null || nro.models.services.InventoryService.gI().findItemBag(pl, 568) != null;
+                if (!coTrung && pl.pet != null && pl.pet.nPoint.power >= 40_000_000_000L && Util.isTrue(20, 100)) {
+                    Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 568, 1, x, y, pl.id));
+                    Service.gI().sendThongBao(pl, "Hirudegarn rơi Quả trứng Mabư cho bạn!");
+                } else if (((pl.mabuEgg != null && pl.mabuEgg.getSecondDone() <= 0) || (pl.pet != null && pl.pet.typePet == 1))
+                        && nro.models.services.InventoryService.gI().findItemBag(pl, 1852) == null && Util.isTrue(20, 100)) {
+                    ItemMap it = new ItemMap(this.zone, 1852, 1, x, y, pl.id);
+                    it.options.add(new ItemOption(250, 0));
+                    Service.gI().dropItemMap(this.zone, it);
+                    Service.gI().sendThongBao(pl, "Hirudegarn rơi Bình hút năng lượng cho bạn! Tích đủ 3000 Kilis ở Sa mạc hoang vu rồi dùng để đổi đệ tử 2");
+                }
             }
-            if (Util.isTrue(20, 100)) {
-                ItemMap it = new ItemMap(this.zone, 1852, 1, this.location.x,
-                        this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), -1);
-
-                it.options.add(new ItemOption(250, 0));
-
-                Service.gI().dropItemMap(this.zone, it);
-            }
+            attackers.clear();
 
             if (Util.isTrue(1, 40)) {
                 short[] possibleIds = {555, 557, 559};
