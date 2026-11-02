@@ -49,6 +49,13 @@ public class FlagBagService {
 
     private FlagBag fallbackFlag(int id) {
         return fallback.computeIfAbsent(id, k -> {
+            if (k >= 201 && k <= 254) { // đeo lưng hiệu ứng: client vẽ bằng DataEffect cùng mã, không vẽ thêm icon tĩnh
+                FlagBag f = new FlagBag();
+                f.id = k;
+                f.name = "effect";
+                f.iconEffect = new short[]{-1};
+                return f;
+            }
             for (nro.models.player_system.Template.ItemTemplate t : Manager.ITEM_TEMPLATES) {
                 if (t != null && t.type == 11 && t.part == k) {
                     FlagBag f = new FlagBag();

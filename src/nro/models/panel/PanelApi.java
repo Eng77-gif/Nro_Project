@@ -632,7 +632,7 @@ class PanelApi {
         for (Map<String, Object> r : rows("select id, NAME, head, body, leg from item_template where (head >= 0 and head not in (select id from part)) or (body >= 0 and body not in (select id from part)) or (leg >= 0 and leg not in (select id from part))")) {
             add.accept("lỗi", new String[]{"Part", r.get("NAME") + " (#" + r.get("id") + ") trỏ tới part không tồn tại (" + r.get("head") + "/" + r.get("body") + "/" + r.get("leg") + ")", String.valueOf(r.get("id"))});
         }
-        for (Map<String, Object> r : rows("select id, NAME, part from item_template where TYPE = 11 and part >= 0 and part not in (select id from flag_bag)")) {
+        for (Map<String, Object> r : rows("select id, NAME, part from item_template where TYPE = 11 and part >= 0 and part not between 201 and 254 and part not in (select id from flag_bag)")) {
             add.accept("cảnh báo", new String[]{"Đeo lưng", r.get("NAME") + " (#" + r.get("id") + ") dùng cờ " + r.get("part") + " chưa có trong flag_bag: đang tạm hiện icon vật phẩm, thêm khung hình vào flag_bag để có hoạt ảnh", String.valueOf(r.get("id"))});
         }
         // 5. icon thiếu ảnh

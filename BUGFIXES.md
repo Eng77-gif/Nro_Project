@@ -1504,3 +1504,9 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Panel: thêm trang "Đeo lưng & thú cưỡi" (xem khung hình, vật phẩm dùng cờ nào, cảnh báo trùng khung / thiếu icon, sửa khung, gán cờ khác; kiểm tra ảnh thú cưỡi; xem phiên bản item và nút buộc client tải lại) và trang "Lệnh admin trong game".
 - Admin trong game: menu "a" thêm "Công cụ admin": thông báo toàn server, tặng vàng / ngọc / hồng ngọc, hồi đầy HP KI, dịch chuyển map, danh sách online, đổi EXP server, nạp lại dữ liệu (cửa hàng, chỉ số, thưởng boss, hộp quà, sự kiện), khóa / mở khóa tài khoản theo tên (cả khi offline). Mọi thao tác ghi log [ADMIN].
 - Sửa nút "Ban" trong game: trước đây ghi ban = 0 (không khóa thật), nay ghi ban = 1.
+
+## Đợt 78
+- APK DragonBoy249 sửa IP mở lên bị văng: chuỗi danh sách server mới ("NRO:...") làm sai thứ tự bảng chuỗi trong classes.dex, Android từ chối nạp. Giữ tên "Vũ trụ 1" để chuỗi nằm đúng chỗ, chuỗi thứ hai đệm số 0 ở tham số cuối; công cụ mod_apk.py kiểm tra thứ tự trước khi ký.
+- Bóng mờ kiểu "bóng bước chân" (theo video): khi chạy / bay, cứ vài nhịp một vật (hoa hồng, bông tuyết, ngôi sao, ngọc rồng, lồng đèn) rơi xuống ngay chân, nằm yên trên mặt đất phía sau rồi nhỏ dần và biến mất; đứng im không có.
+- Đeo lưng chưa có hình sau lưng nay có hoạt ảnh: Lưỡi hái (cờ 300 không tồn tại), Lồng đèn Thỏ trắng, Lồng đèn Tết, Bao lì xì, Bư tập tạ, Cờ cớt hồng / VIP, Yêu quái núi lãng lãng, Kẹo Noel, Cờ sao may mắn, Bóng sinh nhật NRO, Đuôi rắn xanh / rực lửa (cờ 180 - 192); Bạch tuộc Xanh cáu kỉnh dùng hình bạch tuộc xanh, Cánh thiên thần 3 (Đệ) dùng hình bản thường.
+- Đeo lưng hiệu ứng (cờ 201 - 254, vd Thanh Long Yển Nguyệt đao): không vẽ thêm icon vật phẩm tĩnh sau lưng nữa (client vẽ bằng hiệu ứng), bỏ cảnh báo trên panel.

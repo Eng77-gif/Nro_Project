@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import dexpatch, apksign
 
 apk, ip, port, out, ks, pw = sys.argv[1:7]
-name = sys.argv[7] if len(sys.argv) > 7 else 'NRO'
+name = sys.argv[7] if len(sys.argv) > 7 else None  # mặc định giữ tên server gốc
 dex = zipfile.ZipFile(apk).read('classes.dex')
 
 def strings(d):
@@ -23,18 +23,43 @@ def strings(d):
         p += 1; e = d.index(b'\0', p); yield d[p:e]
 
 repl = {}
+lists = []
 for s in strings(dex):
     txt = s.decode('utf-8', 'replace')
-    if re.search(r'^[^,:]*:[^,:]+:\d+:\d:\d:\d,', txt) or s.startswith(b'|2.4.'):
-        if s.startswith(b'|2.4.'):
-            if len(s) == 6: repl[s] = '|2.4.9'
-            continue
-        head, tail = f'{name}:{ip}:', f'{port}:0:0:0,0,0'  # đuôi ',0,0' giữ như bản gốc
+    if re.search(r'^[^,:]*:[^,:]+:\d+:\d:\d:\d,', txt):
+        lists.append(s)
+    elif s.startswith(b'|2.4.') and len(s) == 6:
+        repl[s] = '|2.4.9'
+# Bảng chuỗi trong dex phải giữ đúng thứ tự tăng dần, nếu không Android từ chối nạp (mở game là văng).
+# Giữ nguyên tên server đầu (vd "Vũ trụ 1") để chuỗi mới vẫn nằm đúng chỗ; chuỗi sau = chuỗi trước + số 0 đệm ở cuối.
+prev = None
+for s in lists:  # thứ tự trong dex = thứ tự tăng dần
+    srv = name or s.decode('utf-8').split(':')[0]
+    if prev is None or len(s) <= len(prev.encode()):
+        head, tail = f'{srv}:{ip}:', f'{port}:0:0:0,0,0'
         pad = len(s) - len(head.encode()) - len(tail.encode())
         assert pad >= 0, 'chuỗi danh sách server quá ngắn'
-        repl[s] = head + '0' * pad + tail
+        new = head + '0' * pad + tail
+    else:
+        new = prev + '0' * (len(s) - len(prev.encode()))  # tham số cuối thành 000...0 (= 0)
+    repl[s] = new
+    prev = new
 new, n = dexpatch.patch(dex, repl)
 print('đã sửa', n, 'chuỗi')
+def units(b):  # MUTF-8 -> mã UTF-16 (cách Android so thứ tự chuỗi)
+    out, i = [], 0
+    while i < len(b):
+        c = b[i]
+        if c < 0x80:
+            out.append(c); i += 1
+        elif c & 0xe0 == 0xc0:
+            out.append(((c & 0x1f) << 6) | (b[i + 1] & 0x3f)); i += 2
+        else:
+            out.append(((c & 0x0f) << 12) | ((b[i + 1] & 0x3f) << 6) | (b[i + 2] & 0x3f)); i += 3
+    return out
+ss = list(strings(new))
+bad = [i for i in range(1, len(ss)) if units(ss[i - 1]) >= units(ss[i])]
+assert not bad, 'bảng chuỗi sai thứ tự quanh %r - đổi tên server khác' % ss[bad[0]][:40]
 with tempfile.TemporaryDirectory() as t:
     open(f'{t}/classes.dex', 'wb').write(new)
     e, cd, cnt = apksign.write_aligned(apk, None, {'classes.dex': new}, drop_sig=True)

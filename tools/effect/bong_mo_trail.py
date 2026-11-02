@@ -32,7 +32,7 @@ def write(eid, imgs, frames, trailer):
     b += trailer
     open(f'{REPO}/data/effdata/DataEffect_{eid}', 'wb').write(bytes(b))
 
-N, P = 24, 9
+N, STEP, SPEED = 24, 4, 8  # 24 nhịp / vòng, 4 nhịp rơi 1 vật, nhân vật chạy 8 px / nhịp
 for k, base in enumerate(BASES):
     imgs, trailer = parse(base)
     # ảnh nhỏ dần theo tuổi hạt: chọn tối đa 3 cỡ trong các ảnh vừa phải
@@ -45,21 +45,22 @@ for k, base in enumerate(BASES):
         return ink(i) / max(1, imgs[i][3] * imgs[i][4] * 16) > 0.25
     cand = sorted([i for i in range(len(imgs)) if solid(i) and imgs[i][3] <= 40 and imgs[i][4] <= 40], key=ink) or sorted(range(len(imgs)), key=ink)
     big, mid, small = cand[-1], cand[len(cand) // 2], cand[0]
+    # Kiểu "bóng bước chân": cứ STEP nhịp rơi 1 vật xuống đất ngay chân, vật lùi về sau đúng bằng tốc độ chạy (SPEED
+    # px / nhịp) nên đứng yên trên mặt đất, nhỏ dần rồi biến mất.
     for d, eid in ((1, FIRST + 2 * k), (-1, FIRST + 2 * k + 1)):
         frames = []
         for f in range(N):
             parts = []
-            for i in range(P):
-                a = (f - i * N // P) % N
-                if a >= N - 2:
+            for i in range(N // STEP):
+                a = (f - i * STEP) % N
+                if a >= N - 1:
                     continue
                 im = big if a < N // 3 else (mid if a < 2 * N // 3 else small)
                 w, h = imgs[im][3], imgs[im][4]
-                cx = -10 - a * 2.6 + 3 * math.sin((a + i) * 0.7)
-                cy = -(12 + (i * 11) % 34) + a * 0.5
+                cx = -(4 + a * SPEED) + ((i * 7) % 7 - 3)
                 if d < 0:
                     cx = -cx
-                parts.append((int(cx - w / 2), int(cy - h / 2), imgs[im][0]))
+                parts.append((int(cx - w / 2), int(-h + 1 + (i % 2)), imgs[im][0]))
             frames.append(parts)
         write(eid, imgs, frames, trailer)
         for z in (1, 2, 3, 4):
