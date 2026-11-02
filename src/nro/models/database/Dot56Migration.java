@@ -117,6 +117,7 @@ public final class Dot56Migration {
             changed += runDot57(con);
             changed += runDot58(con);
             changed += runDot59(con);
+            changed += runDot60(con);
         } catch (Exception ex) {
             Logger.error("Đợt 56 (Halloween): không cập nhật được database: " + ex.getMessage() + "\n");
         }
@@ -449,6 +450,65 @@ public final class Dot56Migration {
             changed += update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values (1117, 2115, 1, 1, 80, '3,7,15', 2, 100)");
         }
         changed += update(con, "insert into server_migration (name) values ('dot59_items')");
+        return changed;
+    }
+
+    /** Đợt 60: chỉ số ngẫu nhiên trong khoảng. {template, option, từ, đến} */
+    private static final int[][] OPTIONS_60 = {
+        // Bóng bước chân hoa hồng xanh (băng): SĐ 3-7%, SĐ +3000-10000, đi cùng Pet Xên hoàn hảo +6% STCM
+        {2097, 50, 3, 7}, {2097, 0, 3000, 10000}, {2097, 169, 6, 6},
+        // Bóng bước chân hoa hồng đỏ: HP 3-7%, HP +5000-15000, đi cùng Pet Xên Max +5% giảm sát thương
+        {2096, 77, 3, 7}, {2096, 6, 5000, 15000}, {2096, 42, 5, 5},
+        // Pet Xên con: KI 18-25%, KI +15000-35000, vàng rơi 5-15%, may mắn 5-20%
+        {2037, 103, 18, 25}, {2037, 7, 15000, 35000}, {2037, 100, 5, 15}, {2037, 236, 5, 20},
+        // Pet Xên hoàn hảo: SĐ 17-23%, SĐ +10000-25000, chí mạng 5-10%, SĐ chí mạng 5-15%, sát thương chuẩn 1-3%
+        {2036, 50, 17, 23}, {2036, 0, 10000, 25000}, {2036, 14, 5, 10}, {2036, 5, 5, 15}, {2036, 10, 1, 3},
+        // Pet Xên Max: HP 17-25%, HP +20000-150000, giảm sát thương 5-10%, né 10-20%, giáp +5000-35000
+        {2038, 77, 17, 25}, {2038, 6, 20000, 150000}, {2038, 94, 5, 10}, {2038, 108, 10, 20}, {2038, 47, 5000, 35000},
+        // Pháo hoa NRO (đeo lưng): SĐ 20%, SĐ +10000-25000
+        {1965, 50, 20, 20}, {1965, 0, 10000, 25000},
+        // Đeo lưng bông tuyết: HP 20%, HP +10000-25000
+        {1951, 77, 20, 20}, {1951, 6, 10000, 25000},
+        // Lưỡi hái hồng đi cùng CT Black Goku +4% SĐ, HP, KI; Poc Bikini giảm 5% SĐ người xung quanh
+        {1702, 264, 4, 4}, {1235, 265, 5, 5},};
+
+    public static final int FLAG_PHAO_HOA_NRO = 175;
+
+    private static int runDot60(Connection con) throws Exception {
+        int changed = 0;
+        if (!exists(con, "select 1 from item_option_template where id = 264")) {
+            changed += update(con, "insert into item_option_template (id, NAME) values (264, 'Đi cùng CT Black Goku tăng #% sức đánh, HP, KI')");
+        }
+        if (!exists(con, "select 1 from item_option_template where id = 265")) {
+            changed += update(con, "insert into item_option_template (id, NAME) values (265, 'Giảm #% sức đánh của người xung quanh, tối đa 10 người. Mặc CT hè Pic, Poc, King Kong không bị ảnh hưởng')");
+        }
+        // Pháo hoa NRO: cờ đeo lưng hoạt ảnh pháo hoa (icon 16560 - 16571)
+        if (!exists(con, "select 1 from flag_bag where id = " + FLAG_PHAO_HOA_NRO)) {
+            StringBuilder f = new StringBuilder();
+            for (int i = 16560; i <= 16571; i++) {
+                f.append(f.length() == 0 ? "" : ", ").append(i);
+            }
+            changed += update(con, "insert into flag_bag (id, icon_data, NAME, gold, gem, icon_id) values (" + FLAG_PHAO_HOA_NRO + ", '" + f + "', 'flag_bag', -1, -1, 0)");
+        }
+        changed += update(con, "update item_template set part = " + FLAG_PHAO_HOA_NRO + " where id = 1965 and part < 0");
+        if (exists(con, "select 1 from server_migration where name = 'dot60_items'")) {
+            return changed;
+        }
+        java.util.Set<Integer> done = new java.util.HashSet<>();
+        for (int[] o : OPTIONS_60) {
+            if (o[0] != 1702 && o[0] != 1235 && done.add(o[0])) { // Lưỡi hái / Poc Bikini chỉ thêm dòng
+                changed += update(con, "delete from item_template_option where template_id = " + o[0]);
+            }
+            changed += update(con, "delete from item_template_option where template_id = " + o[0] + " and option_id = " + o[1]);
+            changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (" + o[0] + ", " + o[1] + ", " + o[2] + ", " + o[3] + ", 100, 0)");
+        }
+        // Trứng Xên Vàng: 1 trong 3 Pet Xên, chỉ số tối đa, vĩnh viễn
+        changed += update(con, "delete from item_box_reward where box_id = 2084");
+        for (int pet : new int[]{2036, 2037, 2038}) {
+            changed += update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values (2084, " + pet + ", 1, 1, 1, '', 0, 0)");
+        }
+        changed += update(con, "update item_template set description = 'Mở ra 1 Pet Xên chỉ số tối đa, vĩnh viễn' where id = 2084");
+        changed += update(con, "insert into server_migration (name) values ('dot60_items')");
         return changed;
     }
 

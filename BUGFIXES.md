@@ -1406,3 +1406,10 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - "Cải trang Melee" (2115) chính là Cải trang Công Chúa Quỷ: đổi tên, chỉ số HP 20%, KI 20%, SĐ 25%, TNSM 150%; có trong Thiệp Ma (bảo hiểm 100 lần mở).
 - Thẻ radar Oozaru và Khỉ con đổi icon + hình theo cấp (Oozaru: Oozaru → Oozarun 1 → Oozarun 2; Khỉ con: Goku GT Kid → Goku GT → Goku cận vô cực). Lên cấp thì gửi lại bảng thẻ. Mã chỉ số thẻ gửi client qua OptionIdMap.
 - Chỉ số theo ảnh tham khảo: Caufila Dơi, Lưỡi hái hồng, Rađa dò Zombie, CT Bunma Rider, Poc Bikini, Hắc Mị Nương, Janemba, Máy bay giấy, Đeo lưng dụng cụ học tập, Pikkon, Thú cưỡi rồng Đen / Băng, Pet Minion, CT Frieren, Pet ngựa KPI, Đeo lưng Mãi Dell thành công. Thiệp Ma 50 ngọc hạn 30 ngày, Rađa dò Zombie hạn 30 ngày.
+
+## Đợt 60
+- Chỉ số ngẫu nhiên theo ảnh: Pet Xên con / hoàn hảo / Max, Bóng bước chân hoa hồng xanh (đi cùng Xên hoàn hảo +6% STCM) và đỏ (đi cùng Xên Max +5% giảm sát thương).
+- Pháo hoa NRO thành cờ đeo lưng (flag 175, hoạt ảnh pháo hoa) SĐ 20% + SĐ 10.000 - 25.000; Đeo lưng bông tuyết HP 20% + HP 10.000 - 25.000.
+- Trứng Xên Vàng: mở ra 1 trong 3 Pet Xên, chỉ số tối đa, vĩnh viễn.
+- Option mới 264 (Lưỡi hái hồng: đi cùng CT Black Goku +4% SĐ, HP, KI) và 265 (Poc Bikini: giảm 5% SĐ của 10 người gần nhất, mặc CT hè Pic / Poc / King Kong không bị ảnh hưởng).
+- OptionIdMap thêm 4 ô trống (67, 68, 69, 225) cho mã chỉ số >= 255 (đang dùng 11 / 14).

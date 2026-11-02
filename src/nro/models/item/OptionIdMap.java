@@ -15,7 +15,11 @@ public final class OptionIdMap {
     /** Số dòng tối đa client byte nhận được. */
     public static final int CLIENT_MAX = 255;
     /** Các id option không có item / shop / code nào dùng (kiểm tra trên database team2026). */
-    private static final int[] SPARE = {201, 202, 203, 205, 195, 197, 192, 229, 62, 208};
+    public static int spareCount() {
+        return SPARE.length;
+    }
+
+    private static final int[] SPARE = {201, 202, 203, 205, 195, 197, 192, 229, 62, 208, 67, 68, 69, 225};
 
     private static volatile int[] toClient = new int[0];
     private static volatile ItemOptionTemplate[] slots = new ItemOptionTemplate[0];

@@ -676,6 +676,19 @@ public class ItemService {
     /**
      * Ưu tiên chỉ số mặc định của vật phẩm (tung ngẫu nhiên trong khoảng), nếu không có thì lấy theo shop.
      */
+    /** Chỉ số mặc định ở mức cao nhất (mọi dòng, không tung ngẫu nhiên). */
+    public List<Item.ItemOption> getMaxOptions(short id) {
+        List<int[]> defaults = TEMPLATE_OPTIONS.get((int) id);
+        if (defaults == null || defaults.isEmpty()) {
+            return getListOptionItemShop(id);
+        }
+        List<Item.ItemOption> list = new ArrayList<>();
+        for (int[] d : defaults) {
+            list.add(new Item.ItemOption(d[0], Math.max(d[1], d[2])));
+        }
+        return list;
+    }
+
     public List<Item.ItemOption> getListOptionItemShop(short id) {
         List<int[]> defaults = TEMPLATE_OPTIONS.get((int) id);
         if (defaults != null && !defaults.isEmpty()) {

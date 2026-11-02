@@ -210,6 +210,9 @@ public class NPoint {
     public long aoThuatUntil, lastTimeAoThuat; // hiệu ứng Ảo Thuật
     private int setHpWithPet, setSTCuoiWithFlag, setCritWithFlag; // option 172, 39, 91
     private int setCritWithSkhBeerus, setSDCMWithXenHT, setGiapWithXenMax; // option 92, 169, 42
+    private int setAllWithBlackGoku; // option 264: đi cùng CT Black Goku tăng #% SĐ, HP, KI
+    public int giamSDXungQuanh; // option 265: giảm #% sức đánh người xung quanh (tối đa 10 người)
+    private static final int[] BLACK_GOKU = {1732, 1731, 1454, 904};
     private int setSDCMWithLuoiHaiHong; // option 255
     public int tlNeCrit; // option 191: né chí mạng
     public int tlGiamHoiKhien; // option 183: giảm % thời gian hồi Khiên năng lượng
@@ -583,10 +586,15 @@ public class NPoint {
             this.tlDameCrit.add(setSDCMWithXenHT);
             this.tlSDCM += setSDCMWithXenHT;
         }
+        if (setAllWithBlackGoku > 0 && in(BLACK_GOKU, costumeId(player))) {
+            this.tlDame.add(setAllWithBlackGoku);
+            this.tlHp.add(setAllWithBlackGoku);
+            this.tlMp.add(setAllWithBlackGoku);
+        }
         if (setGiapWithXenMax > 0 && isWearing(PET_XEN_MAX)) {
             this.tlGiap += setGiapWithXenMax;
         }
-        if (nearDame > 0) {
+        if (nearDame != 0) { // có thể âm (bị Poc Bikini giảm SĐ)
             this.tlDame.add(nearDame);
         }
         if (nearHp > 0) {
@@ -730,6 +738,28 @@ public class NPoint {
             if (p256 > 0) {
                 d += Math.min(12, p256 * otherKindsNear(HAU_GAI, near));
             }
+        }
+        // option 265 (Poc Bikini): người mặc làm giảm SĐ 10 người gần nhất; mặc CT hè Pic, Poc, King Kong thì không bị ảnh hưởng
+        if (player.zone != null && !player.isPet && !player.isNewPet && !player.isBoss) {
+            boolean mien = false;
+            for (int[] g : POC_PIC_KONG) {
+                mien |= in(g, costumeId(player));
+            }
+            int giam = 0;
+            if (!mien) {
+                java.util.List<Player> all = new java.util.ArrayList<>(player.zone.getNotBosses());
+                for (Player o : all) {
+                    if (o == player || o.isPet || o.isNewPet || o.isDie() || o.nPoint == null || o.nPoint.giamSDXungQuanh <= 0 || Util.getDistance(player, o) > 300) {
+                        continue;
+                    }
+                    long closer = all.stream().filter(x -> x != o && !x.isPet && !x.isNewPet && !x.isDie()
+                            && Util.getDistance(o, x) < Util.getDistance(o, player)).count();
+                    if (closer < 10) {
+                        giam = Math.max(giam, o.nPoint.giamSDXungQuanh);
+                    }
+                }
+            }
+            d -= giam;
         }
         if (d == nearDame && h == nearHp && k == nearKi && sp == nearSpeed) {
             return false;
@@ -887,6 +917,12 @@ public class NPoint {
                 this.setSDCMWithLuoiHaiHong += io.param;
                 break;
             case 256: //+#% sức đánh, tối đa 12% khi ở gần Lý Tiểu Nương : Hầu Gái xanh, hồng, bikini (tính trong updateNearSets)
+                break;
+            case 264: //Đi cùng CT Black Goku tăng #% SĐ, HP, KI
+                this.setAllWithBlackGoku += io.param;
+                break;
+            case 265: //Giảm #% sức đánh người xung quanh
+                this.giamSDXungQuanh = Math.max(this.giamSDXungQuanh, io.param);
                 break;
             case 42: //Đi cùng Pet Xên Max tăng #% giảm sát thương
                 this.setGiapWithXenMax += io.param;
@@ -1749,6 +1785,8 @@ public class NPoint {
         this.tlGiamKhongChe = 0;
 
         this.setGiapWithXenMax = 0;
+        this.setAllWithBlackGoku = 0;
+        this.giamSDXungQuanh = 0;
         this.skhBeerus = 0;
         this.skhChampa = 0;
         this.tlSpeed = 0;

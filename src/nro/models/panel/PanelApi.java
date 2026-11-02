@@ -627,7 +627,8 @@ class PanelApi {
         }
         // 6. số option id >= 255 (client PC/APK chỉ nhận được qua 10 ô trống)
         long big = Manager.ITEM_OPTION_TEMPLATES.stream().filter(t -> t.id >= 255).count();
-        add.accept(big > 10 ? "lỗi" : big >= 9 ? "cảnh báo" : "ok", new String[]{"Bảng chỉ số", big + " / 10 chỉ số có mã từ 255 trở lên (client APK/PC đọc mã 1 byte). Hết ô thì chỉ số mới sẽ hiện sai"});
+        int cap = nro.models.item.OptionIdMap.spareCount();
+        add.accept(big > cap ? "lỗi" : big >= cap - 1 ? "cảnh báo" : "ok", new String[]{"Bảng chỉ số", big + " / " + cap + " chỉ số có mã từ 255 trở lên (client APK/PC đọc mã 1 byte). Hết ô thì chỉ số mới sẽ hiện sai"});
         if (out.stream().noneMatch(m -> !"ok".equals(m.get("level")))) {
             add.accept("ok", new String[]{"Tổng quát", "Không tìm thấy lỗi dữ liệu"});
         }

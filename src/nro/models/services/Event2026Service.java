@@ -65,6 +65,8 @@ public class Event2026Service {
             Service.gI().sendEffAllPlayer(pl, now, 1, -1, 1);
         }
     }
+    /** Hộp ra vật phẩm chỉ số tối đa: Trứng Xên Vàng */
+    public static final Set<Integer> MAX_STAT_BOXES = Set.of(2084);
     public static final int VAN_RONG_7_SAO = 2100;
     public static final int CAPSULE_VO = 2111;
     public static final int MANH_CAPSULE_VO = 1909;
@@ -256,6 +258,10 @@ public class Event2026Service {
                 days = pick.days[Util.nextInt(0, pick.days.length - 1)];
             }
             Item it = createItem(pick.itemId, qty, days);
+            if (MAX_STAT_BOXES.contains(boxId)) { // Trứng Xên Vàng: pet chỉ số tối đa
+                it.itemOptions.removeIf(io -> io.optionTemplate == null || io.optionTemplate.id != 93);
+                it.itemOptions.addAll(0, ItemService.gI().getMaxOptions((short) pick.itemId));
+            }
             if (iconOut != null) {
                 iconOut[0] = it.template.iconID;
             }
