@@ -231,7 +231,7 @@ public class EffectSkillService {
         player.effectSkill.timeMonkey = timeMonkey;
         player.effectSkill.lastTimeUpMonkey = System.currentTimeMillis();
         player.effectSkill.levelMonkey = (byte) player.playerSkill.skillSelect.point;
-        player.nPoint.setHp(((int) player.nPoint.hp * 2));
+        player.nPoint.setHp((player.nPoint.hp * 2));
         Service.gI().Send_Caitrang(player);
         if (!player.isPet) {
             PlayerService.gI().sendInfoHpMp(player);
@@ -450,7 +450,7 @@ public class EffectSkillService {
         player.typeChibi = Util.nextInt(0, 3);
         if (player.typeChibi == 3) {
             player.nPoint.calPoint();
-            player.nPoint.setHp((int) player.nPoint.hpMax);
+            player.nPoint.setHp(player.nPoint.hpMax);
             Service.gI().point(player);
             Service.gI().Send_Info_NV(player);
         }

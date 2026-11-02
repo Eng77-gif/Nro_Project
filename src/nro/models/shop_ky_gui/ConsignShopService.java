@@ -418,13 +418,13 @@ public class ConsignShopService {
                 return;
             }
 
-            if (quantity > 99) {
-                Service.gI().sendThongBao(pl, "Ký gửi tối đa x99");
+            if (quantity > 999) {
+                Service.gI().sendThongBao(pl, "Ký gửi tối đa x999");
                 openShopKyGui(pl);
                 return;
             }
-            if ((moneyType == 0 && money > 100000) || (moneyType == 1 && money > 1000000)) {
-                Service.gI().sendThongBao(pl, moneyType == 0 ? "không thể ký gửi quá 100000 thỏi vàng" : "không thể ký gửi quá 1000000 ngọc");
+            if (money > 2_000_000_000) {
+                Service.gI().sendThongBao(pl, "Không thể ký gửi quá 2.000.000.000");
                 openShopKyGui(pl);
                 return;
             }

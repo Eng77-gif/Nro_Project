@@ -1479,3 +1479,10 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 ## Đợt 74
 - Santa > Danh hiệu > tab "Sở hữu": tên tab đếm đúng số danh hiệu nhưng bấm xem trống với các danh hiệu không nằm sẵn trong tab 45 (danh hiệu đua top / sự kiện mới). Giờ dựng thẳng từ danh hiệu người chơi đang có (kèm chỉ số và hạn dùng), bấm để đổi sang dùng.
 - Thẻ radar: aura chỉ hiện khi thẻ đang được bấm "Sử dụng" (trước đây đạt Lv.1 là tự hiện); bật / tắt thẻ thì aura hiện / ẩn ngay. Lên cấp thẻ hiện bảng thông báo (kèm nhắc bấm Sử dụng nếu chưa dùng).
+
+## Đợt 75
+- Nâng giới hạn server cho bằng client 2.4.7 (đọc số 8 byte):
+  - HP, KI, SĐ (cả chỉ số gốc) đổi sang số long, trần mới 900 nghìn tỷ (trước 2,1 tỷ). Đọc / lưu database bằng long. Sát thương mỗi đòn vẫn tối đa 2,1 tỷ.
+  - Vàng tối đa 999 nghìn tỷ (trước 200 tỷ).
+  - Giao dịch vàng mỗi lần tối đa 2 tỷ (trước 10 triệu); ký gửi giá tối đa 2 tỷ, tối đa x999 (trước 100.000 thỏi vàng / 1.000.000 ngọc, x99).
+  - Ngọc / hồng ngọc giữ 2,1 tỷ (client đọc 4 byte). Client cũ (byte) vẫn nhận số đã giới hạn như trước.

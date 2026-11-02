@@ -222,8 +222,8 @@ public class Osin extends Npc {
                                         player.inventory.subGem(10);
                                         player.isPhuHoMapMabu = true;
                                         player.nPoint.calPoint();
-                                        player.nPoint.setHp((int) player.nPoint.hpMax);
-                                        player.nPoint.setMp((int) player.nPoint.mpMax);
+                                        player.nPoint.setHp(player.nPoint.hpMax);
+                                        player.nPoint.setMp(player.nPoint.mpMax);
                                         Service.gI().point(player);
                                         Service.gI().Send_Info_NV(player);
                                         Service.gI().Send_Caitrang(player);

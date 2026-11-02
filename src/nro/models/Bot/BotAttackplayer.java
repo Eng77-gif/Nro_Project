@@ -224,7 +224,7 @@ public class BotAttackplayer extends Bot {
 
         int damePST = (int) (dame * percentPST / 100L);
         if (damePST >= attacker.nPoint.hp) {
-            damePST = attacker.nPoint.hp - 1;
+            damePST = (int) Math.min(Integer.MAX_VALUE, attacker.nPoint.hp - 1);
         }
 
         Message msg = null;

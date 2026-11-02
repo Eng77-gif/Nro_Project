@@ -162,7 +162,7 @@ public class CADICH extends Boss {
                     this.effectSkill.levelMonkey = 1;
                     long hpmax = (long) this.nPoint.hpMax * 2L;
                     this.nPoint.hpMax = (int) Math.min(hpmax, 2_000_000_000);
-                    this.nPoint.setHp(((int) this.nPoint.hpMax));
+                    this.nPoint.setHp((this.nPoint.hpMax));
                     EffectSkillService.gI().sendEffectMonkey(this);
                     Service.gI().Send_Caitrang(this);
                     Service.gI().point(this);

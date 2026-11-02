@@ -410,7 +410,7 @@ public class Mob {
         }
 
         if (this.lvMob > 0 && !MapService.gI().isMapPhoBan(this.zone.map.mapId)) {
-            dameMob = (int) (player.nPoint.hpMax * 0.1);
+            dameMob = (int) Math.min(Integer.MAX_VALUE, player.nPoint.hpMax / 10);
         }
 
         if (player.satellite != null && player.satellite.isDefend) {

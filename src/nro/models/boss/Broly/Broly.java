@@ -178,7 +178,7 @@ public class Broly extends Boss {
     }
 
     private void tangChiSo() {
-        int hpMax = this.nPoint.hpMax;
+        int hpMax = (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax);
         int rand = Util.nextInt(10, 100);
         hpMax = hpMax + hpMax / rand < 16_070_777 ? hpMax + hpMax / rand : 16_070_777;
         this.nPoint.hpMax = hpMax;

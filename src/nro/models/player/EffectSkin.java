@@ -188,10 +188,10 @@ public class EffectSkin {
                             int subHp = (int) ((long) pl.nPoint.hpMax * param / 100);
                             int subMp = (int) ((long) pl.nPoint.mpMax * param / 100);
                             if (subHp >= pl.nPoint.hp) {
-                                subHp = pl.nPoint.hp - 1;
+                                subHp = (int) Math.min(Integer.MAX_VALUE, pl.nPoint.hp - 1);
                             }
                             if (subMp >= pl.nPoint.mp) {
-                                subMp = pl.nPoint.mp - 1;
+                                subMp = (int) Math.min(Integer.MAX_VALUE, pl.nPoint.mp - 1);
                             }
                             hpHut += subHp;
                             mpHut += subMp;
@@ -225,7 +225,7 @@ public class EffectSkin {
                                     && Util.getDistance(this.player, pl) <= 200) {
                                 int subHp = (int) ((long) pl.nPoint.hpMax * param / 100);
                                 if (subHp >= pl.nPoint.hp) {
-                                    subHp = pl.nPoint.hp - 1;
+                                    subHp = (int) Math.min(Integer.MAX_VALUE, pl.nPoint.hp - 1);
                                 }
                                 Service.gI().chat(pl, textOdo[Util.nextInt(0, textOdo.length - 1)]);
                                 PlayerService.gI().sendInfoHpMpMoney(pl);
@@ -494,7 +494,7 @@ public class EffectSkin {
                     double param = this.player.effectSkill.playerUseMafuba.playerSkill.getSkillbyId(Skill.MA_PHONG_BA).point * (this.player.effectSkill.typeBinh == 0 ? 1 : 2);
                     int subHp = (int) ((long) this.player.effectSkill.playerUseMafuba.nPoint.hpMax * param / 100);
                     if (subHp >= this.player.nPoint.hp) {
-                        subHp = Math.abs(this.player.nPoint.hp - 100);
+                        subHp = (int) Math.min(Integer.MAX_VALUE, Math.abs(this.player.nPoint.hp - 100));
                     }
                     PlayerService.gI().sendInfoHpMpMoney(this.player);
                     Service.gI().Send_Info_NV(this.player);

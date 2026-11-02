@@ -195,7 +195,7 @@ public class PlayerService {
                 } catch (Exception e) {
                 }
                 if (player.isFly && player.getMount() == -1) {
-                    int mp = player.nPoint.mpg / (100 * (player.effectSkill.isMonkey ? 2 : 1));
+                    int mp = (int) Math.min(Integer.MAX_VALUE, player.nPoint.mpg / (100 * (player.effectSkill.isMonkey ? 2 : 1)));
                     hoiPhuc(player, 0, -mp);
                 }
             }

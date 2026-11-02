@@ -773,9 +773,9 @@ public class Service {
             Message msg;
             try {
                 msg = new Message(-42);
-                msg.writer().writeInt(player.nPoint.hpg);
-                msg.writer().writeInt(player.nPoint.mpg);
-                msg.writer().writeInt(player.nPoint.dameg);
+                msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, player.nPoint.hpg));
+                msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, player.nPoint.mpg));
+                msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, player.nPoint.dameg));
                 msg.writeNum(player.nPoint.hpMax);
                 msg.writeNum(player.nPoint.mpMax);
                 msg.writeNum(player.nPoint.hp);
@@ -1100,7 +1100,7 @@ public class Service {
         return 19;
     }
 
-    public void hsChar(Player pl, int hp, int mp) {
+    public void hsChar(Player pl, long hp, long mp) {
         Message msg;
         try {
             if (pl.isPl() && pl.effectSkill != null && pl.effectSkill.isBodyChangeTechnique) {

@@ -185,7 +185,7 @@ public class SaoPhaLe10Service {
         if (boss.zone == null) {
             return;
         }
-        int hp = boss.nPoint.hpMax;
+        int hp = (int) Math.min(Integer.MAX_VALUE, boss.nPoint.hpMax);
         if (hp >= 50_000_000 && Util.isTrue(5, 100)) {
             drop(boss, pl, HOP_DA_9);
         }

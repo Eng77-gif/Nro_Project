@@ -67,9 +67,9 @@ public class NPoint {
     public long power;
     public long tiemNang;
 
-    public int hp, hpMax, hpg;
-    public int mp, mpMax, mpg;
-    public int dame, dameg;
+    public long hp, hpMax, hpg;
+    public long mp, mpMax, mpg;
+    public long dame, dameg;
     public int def, defg;
     public int crit, critg, critdragon;
     public byte speed = 8;
@@ -107,7 +107,10 @@ public class NPoint {
     /**
      * Lượng hp, mp hồi mỗi 30s, mp hồi cho người khác
      */
-    public int hpHoi, mpHoi, mpHoiCute;
+    /** Trần HP / KI / SĐ (client 2.4.7 đọc số 8 byte): 900 nghìn tỷ */
+    public static final long MAX_STAT = 900_000_000_000_000L;
+    public long hpHoi, mpHoi;
+    public int mpHoiCute;
 
     /**
      * Tỉ lệ hp, mp hồi cộng thêm
@@ -1484,8 +1487,8 @@ public class NPoint {
         }
 
         hpMax -= hpMax * Math.min(100, tlSubHpKi) / 100L;
-        if (hpMax > 2_147_483_647) {
-            hpMax = 2_147_483_647;
+        if (hpMax > MAX_STAT) {
+            hpMax = MAX_STAT;
         }
 
         this.hpMax = (int) Math.max(1, hpMax);
@@ -1595,8 +1598,8 @@ public class NPoint {
 
         mpMax -= mpMax * Math.min(100, tlSubHpKi) / 100L;
         if (mpMax
-                > 2_147_483_647) {
-            mpMax = 2_147_483_647;
+                > MAX_STAT) {
+            mpMax = MAX_STAT;
         }
 
         this.mpMax = (int) Math.max(1, mpMax);
@@ -1606,7 +1609,7 @@ public class NPoint {
         this.mp = Math.min(this.mp, this.mpMax);
     }
 
-    public int getHP() {
+    public long getHP() {
         return Math.min(this.hp, this.hpMax);
     }
 
@@ -1618,7 +1621,7 @@ public class NPoint {
         }
     }
 
-    public int getMP() {
+    public long getMP() {
         return Math.min(this.mp, this.mpMax);
     }
 
@@ -1773,8 +1776,8 @@ public class NPoint {
             dame /= 2;
         }
 
-        if (dame > 2_147_483_647) {
-            dame = 2_147_483_647;
+        if (dame > MAX_STAT) {
+            dame = MAX_STAT;
         }
 
         this.dame = (int) dame;
@@ -1917,7 +1920,7 @@ public class NPoint {
             if (potentialHp > this.hpMax) {
                 this.hp = this.hpMax;
             } else {
-                this.hp = (int) Math.min(potentialHp, 2_147_483_647);
+                this.hp = Math.min(potentialHp, MAX_STAT);
             }
         }
     }
@@ -1938,7 +1941,7 @@ public class NPoint {
         if (hp < 0) {
             this.hp = 0;
         } else {
-            this.hp = (int) Math.min(hp, 2_147_483_647);
+            this.hp = Math.min(hp, MAX_STAT);
         }
     }
 
@@ -1946,7 +1949,7 @@ public class NPoint {
         if (mp < 0) {
             this.mp = 0;
         } else {
-            this.mp = (int) Math.min(mp, 2_147_483_647);
+            this.mp = Math.min(mp, MAX_STAT);
         }
     }
 
@@ -2213,8 +2216,8 @@ public class NPoint {
             this.mp = 0;
         }
 
-        if (this.mp > 2_147_483_647) {
-            this.mp = 2_147_483_647;
+        if (this.mp > MAX_STAT) {
+            this.mp = MAX_STAT;
         }
     }
 
@@ -2637,11 +2640,11 @@ public class NPoint {
                     long hpRecovered = hpMax / 100 * tiLeHoiPhuc;
                     long mpRecovered = mpMax / 100 * tiLeHoiPhuc;
 
-                    if (hp + hpRecovered > 2_147_483_647) {
-                        hpRecovered = 2_147_483_647 - hp;
+                    if (hp + hpRecovered > MAX_STAT) {
+                        hpRecovered = MAX_STAT - hp;
                     }
-                    if (mp + mpRecovered > 2_147_483_647) {
-                        mpRecovered = 2_147_483_647 - mp;
+                    if (mp + mpRecovered > MAX_STAT) {
+                        mpRecovered = MAX_STAT - mp;
                     }
 
                     PlayerService.gI().hoiPhuc(player, hpRecovered, mpRecovered);

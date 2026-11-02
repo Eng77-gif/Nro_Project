@@ -1003,9 +1003,9 @@ public class ShopService {
         Service.gI().sendThongBao(pl, "Đã đổi danh hiệu sang " + is.temp.name);
         pl.lastTimeChangeBadges = System.currentTimeMillis() + 3000;
         pl.nPoint.calPoint();
-        pl.nPoint.setHp((int) pl.nPoint.hpMax);
-        pl.nPoint.setMp((int) pl.nPoint.mpMax);
-        pl.nPoint.setDame((int) pl.nPoint.dame);
+        pl.nPoint.setHp(pl.nPoint.hpMax);
+        pl.nPoint.setMp(pl.nPoint.mpMax);
+        pl.nPoint.setDame(pl.nPoint.dame);
         Service.gI().point(pl);
         Service.gI().Send_Info_NV(pl);
     }

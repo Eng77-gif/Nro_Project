@@ -121,13 +121,13 @@ public class NinjaAoTim extends Boss {
             if (this.nPoint.hp <= this.nPoint.hpMax / 2 && !this.calledNinja) {
                 if (Util.isTrue(4, 5)) {
                     try {
-                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, this.nPoint.dame / 10, this.nPoint.hpMax / 10, BossID.NINJA_AO_TIM1));
-                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, this.nPoint.dame / 10, this.nPoint.hpMax / 10, BossID.NINJA_AO_TIM2));
-                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, this.nPoint.dame / 10, this.nPoint.hpMax / 10, BossID.NINJA_AO_TIM3));
-                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, this.nPoint.dame / 10, this.nPoint.hpMax / 10, BossID.NINJA_AO_TIM4));
+                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, (int) Math.min(Integer.MAX_VALUE, this.nPoint.dame / 10), (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM1));
+                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, (int) Math.min(Integer.MAX_VALUE, this.nPoint.dame / 10), (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM2));
+                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, (int) Math.min(Integer.MAX_VALUE, this.nPoint.dame / 10), (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM3));
+                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, (int) Math.min(Integer.MAX_VALUE, this.nPoint.dame / 10), (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM4));
                         if (Util.isTrue(1, 2)) {
-                            clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, this.nPoint.dame / 10, this.nPoint.hpMax / 10, BossID.NINJA_AO_TIM5));
-                            clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, this.nPoint.dame / 10, this.nPoint.hpMax / 10, BossID.NINJA_AO_TIM6));
+                            clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, (int) Math.min(Integer.MAX_VALUE, this.nPoint.dame / 10), (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM5));
+                            clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, (int) Math.min(Integer.MAX_VALUE, this.nPoint.dame / 10), (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM6));
                         }
                     } catch (Exception ex) {
                     }

@@ -26,7 +26,7 @@ public class Trade {
 
     public static final int TIME_TRADE = 180000;
     public static final int QUANLITY_MAX = 2_000_000_000;
-    public static final int MAX_GOLD_TRADE_PER_TIME = 10_000_000;
+    public static final int MAX_GOLD_TRADE_PER_TIME = 2_000_000_000; // ô nhập của client là số 4 byte
 
     private Player player1;
     private Player player2;

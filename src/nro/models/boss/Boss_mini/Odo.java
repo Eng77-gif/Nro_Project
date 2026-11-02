@@ -88,7 +88,7 @@ public class Odo extends Boss {
                             && Util.getDistance(this, pl) <= 200) {
                         int subHp = (int) ((long) pl.nPoint.hpMax * param / 100);
                         if (subHp >= pl.nPoint.hp) {
-                            subHp = pl.nPoint.hp - 1;
+                            subHp = (int) Math.min(Integer.MAX_VALUE, pl.nPoint.hp - 1);
                         }
                         this.chat("Bùm Bùm");
                         Service.gI().chat(pl, textOdo[Util.nextInt(0, textOdo.length - 1)]);
@@ -107,7 +107,7 @@ public class Odo extends Boss {
         try {
             if (Util.canDoWithTime(lastTimeHpRegen, 30000)) {
                 int regenPercentage = Util.nextInt(10, 20);
-                int regenAmount = (this.nPoint.hpMax * regenPercentage / 100);
+                int regenAmount = (int) Math.min(Integer.MAX_VALUE, (this.nPoint.hpMax * regenPercentage / 100));
                 PlayerService.gI().hoiPhuc(this, regenAmount, 0);
                 this.chat("Mùi Của Các Ngươi Thơm Quá!! HAHA");
                 this.lastTimeHpRegen = System.currentTimeMillis();
