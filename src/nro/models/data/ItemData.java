@@ -16,27 +16,114 @@ public class ItemData {
         }
         updateItemOptionItemplate(session);
         updateItemArrHead2FTemplate(session);
-        updateItemTemplate(session, 750);
-        // độ dài gói -28 chỉ có 2 byte (tối đa 65535): chia phần còn lại thành nhiều gói "thêm vật phẩm"
-        int start = 750;
+        // Client APK / PC lưu bộ nhớ đệm item theo 2 khóa: gói loại 1 và gói loại 2 (chỉ giữ gói loại 2 CUỐI CÙNG).
+        // Trước đây phần sau id 750 bị chia thành nhiều gói loại 2 -> vào lại game client chỉ còn gói cuối,
+        // thiếu item ở giữa -> mở shop / hành trang có item đó bị lỗi. Giờ luôn gửi đúng 2 gói, mỗi gói vừa 65535 byte
+        // (dời điểm chia, nếu vẫn không vừa thì rút gọn mô tả dài nhất).
         int size = Manager.ITEM_TEMPLATES.size();
-        while (start < size) {
-            int end = start;
-            int bytes = 0;
-            while (end < size && (end == start || bytes + itemSize(Manager.ITEM_TEMPLATES.get(end)) < MAX_ITEM_BYTES)) {
-                bytes += itemSize(Manager.ITEM_TEMPLATES.get(end));
-                end++;
-            }
-            updateItemTemplate(session, start, end);
-            start = end;
+        String[] desc = new String[size];
+        for (int i = 0; i < size; i++) {
+            String d = Manager.ITEM_TEMPLATES.get(i).description;
+            desc[i] = d == null ? "" : d;
+        }
+        int split = fitTwoPackets(desc);
+        updateItemTemplate(session, 0, split, (byte) 1, desc);
+        if (split < size) {
+            updateItemTemplate(session, split, size, (byte) 2, desc);
         }
     }
 
-    private static final int MAX_ITEM_BYTES = 60_000;
+    private static final int PACKET_LIMIT = 65_000;
 
-    private static int itemSize(Template.ItemTemplate it) {
-        return 13 + utfLength(it.name) + utfLength(it.description);
+    private static int itemSize(Template.ItemTemplate it, String desc) {
+        return 13 + utfLength(it.name) + utfLength(desc);
     }
+
+    /** Chọn điểm chia và rút gọn mô tả (nếu cần) để gói loại 1 và loại 2 đều dưới PACKET_LIMIT. Trả về điểm chia. */
+    private static int fitTwoPackets(String[] desc) {
+        int size = desc.length;
+        int maxLen = 0;
+        for (int i = 0; i < size; i++) {
+            maxLen = Math.max(maxLen, desc[i].getBytes(java.nio.charset.StandardCharsets.UTF_8).length);
+        }
+        for (int cap = Integer.MAX_VALUE; ; cap = cap == Integer.MAX_VALUE ? maxLen - 2 : cap - 2) {
+            if (cap != Integer.MAX_VALUE) {
+                for (int i = 0; i < size; i++) {
+                    desc[i] = cut(Manager.ITEM_TEMPLATES.get(i).description, cap);
+                }
+            }
+            int a = 0, i = 0;
+            while (i < size && a + itemSize(Manager.ITEM_TEMPLATES.get(i), desc[i]) < PACKET_LIMIT) {
+                a += itemSize(Manager.ITEM_TEMPLATES.get(i), desc[i]);
+                i++;
+            }
+            int b = 0;
+            for (int j = i; j < size; j++) {
+                b += itemSize(Manager.ITEM_TEMPLATES.get(j), desc[j]);
+            }
+            if (b < PACKET_LIMIT || cap <= 10) {
+                if (cap != Integer.MAX_VALUE) {
+                    nro.models.utils.Logger.error("Mô tả item quá dài, đã rút gọn còn " + cap + " byte cho client APK / PC\n");
+                }
+                return i;
+            }
+        }
+    }
+
+    /** Cắt chuỗi còn tối đa cap byte UTF-8 (thêm "..."). */
+    private static String cut(String s, int cap) {
+        if (s == null) {
+            return "";
+        }
+        if (s.getBytes(java.nio.charset.StandardCharsets.UTF_8).length <= cap) {
+            return s;
+        }
+        StringBuilder b = new StringBuilder();
+        int n = 3;
+        for (int k = 0; k < s.length(); ) {
+            int cp = s.codePointAt(k);
+            int l = new String(Character.toChars(cp)).getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+            if (n + l > cap) {
+                break;
+            }
+            b.appendCodePoint(cp);
+            n += l;
+            k += Character.charCount(cp);
+        }
+        return b + "...";
+    }
+
+    private static void updateItemTemplate(MySession session, int start, int end, byte type, String[] desc) {
+        try {
+            Message msg = new Message(-28);
+            msg.writer().writeByte(8);
+            msg.writer().writeByte(DataGame.vsItem);
+            msg.writer().writeByte(type); // 1: tải lại toàn bộ (từ 0), 2: thêm item [start, end)
+            if (type == 1) {
+                msg.writer().writeShort(end);
+            } else {
+                msg.writer().writeShort(start);
+                msg.writer().writeShort(end);
+            }
+            for (int i = start; i < end; i++) {
+                Template.ItemTemplate t = Manager.ITEM_TEMPLATES.get(i);
+                msg.writer().writeByte(t.type);
+                msg.writer().writeByte(t.gender);
+                msg.writer().writeUTF(t.name);
+                msg.writer().writeUTF(desc[i]);
+                msg.writer().writeByte(t.level);
+                msg.writer().writeInt(t.strRequire);
+                msg.writer().writeShort(t.iconID);
+                msg.writer().writeShort(t.part);
+                msg.writer().writeBoolean(t.isUpToUp);
+            }
+            session.doSendMessage(msg);
+            msg.cleanup();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private static int utfLength(String s) {
         return s == null ? 2 : 2 + s.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
