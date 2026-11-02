@@ -139,6 +139,11 @@ class PanelApi {
             case "mounts" -> PanelLooks.mounts();
             case "dataver" -> PanelLooks.dataVersion();
             case "fxbags" -> PanelLooks.effectBags();
+            case "auras" -> PanelLooks.auras();
+            case "mountimgs" -> PanelLooks.mountImages();
+            case "mount/assign" -> PanelLooks.mountAssign(b);
+            case "radar/aura" -> PanelLooks.radarAura(b);
+            case "flaggallery" -> PanelLooks.flagGallery();
             case "fxdata" -> PanelLooks.effectData(intv(q.get("id")));
             case "dataver/bump" -> PanelLooks.bumpItemVersion();
             default -> throw new IllegalArgumentException("Không có API " + r);

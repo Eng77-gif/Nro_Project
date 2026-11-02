@@ -277,5 +277,107 @@ final class PanelLooks {
         }
         return out;
     }
+
+    // ------------------------------------------------------------------ aura / thú cưỡi / cờ: thư viện hình để chọn
+
+    /** Ảnh theo tên (img_by_name) dạng {prefix}_{id}_{lớp}: id -> [số khung lớp 0, số khung lớp 1] (0 = không có / ảnh giữ chỗ). */
+    private static Map<Integer, int[]> layered(String prefix) {
+        Map<Integer, int[]> m = new java.util.TreeMap<>();
+        for (Map.Entry<String, Byte> e : Manager.IMAGES_BY_NAME.entrySet()) {
+            String k = e.getKey();
+            if (!k.startsWith(prefix + "_")) {
+                continue;
+            }
+            String[] a = k.substring(prefix.length() + 1).split("_");
+            if (a.length != 2) {
+                continue;
+            }
+            try {
+                int id = Integer.parseInt(a[0]), layer = Integer.parseInt(a[1]);
+                if (layer < 0 || layer > 1) {
+                    continue;
+                }
+                File f = new File("data/img_by_name/x2/" + k + ".png");
+                int n = e.getValue();
+                if (!f.exists() || f.length() < 200) { // ảnh giữ chỗ 1x1
+                    n = 0;
+                }
+                m.computeIfAbsent(id, x -> new int[2])[layer] = n;
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        m.values().removeIf(v -> v[0] == 0 && v[1] == 0);
+        return m;
+    }
+
+    static Object auras() {
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (Map.Entry<Integer, int[]> e : layered("aura").entrySet()) {
+            out.add(Map.of("id", e.getKey(), "n0", e.getValue()[0], "n1", e.getValue()[1]));
+        }
+        return out;
+    }
+
+    static Object mountImages() {
+        Map<Integer, List<String>> used = new HashMap<>();
+        for (ItemTemplate t : Manager.ITEM_TEMPLATES) {
+            if (t != null && t.type == 23 && t.part >= 0) {
+                used.computeIfAbsent((int) t.part, k -> new ArrayList<>()).add(t.name);
+            }
+        }
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (Map.Entry<Integer, int[]> e : layered("mount").entrySet()) {
+            out.add(Map.of("id", e.getKey(), "n0", e.getValue()[0], "n1", e.getValue()[1], "items", used.getOrDefault(e.getKey(), List.of())));
+        }
+        return out;
+    }
+
+    /** Đổi hình thú cưỡi của vật phẩm (part = số ảnh mount_{part}_0/1). */
+    static Object mountAssign(Map<String, Object> b) throws Exception {
+        int item = intv(b.get("item")), part = intv(b.get("part"));
+        ItemTemplate t = ItemService.gI().getTemplate(item);
+        if (t == null || t.type != 23) {
+            throw new IllegalArgumentException("Vật phẩm " + item + " không phải thú cưỡi");
+        }
+        if (Manager.getNFrameImageByName("mount_" + part + "_0") == 0 && Manager.getNFrameImageByName("mount_" + part + "_1") == 0) {
+            throw new IllegalArgumentException("Chưa có ảnh mount_" + part);
+        }
+        update("update item_template set part=? where id=?", part, item);
+        t.part = (short) part;
+        DataGame.MAP_MOUNT_NUM.put(t.id, (short) (part + 30000));
+        nro.models.data.DataVersionService.resync();
+        return Map.of("ok", true, "note", t.name + " -> hình thú cưỡi " + part + ". Người chơi cưỡi lại để thấy");
+    }
+
+    /** Aura từng cấp của thẻ radar (-1 = không aura, null / "" = dùng mặc định). */
+    static Object radarAura(Map<String, Object> b) throws Exception {
+        int card = intv(b.get("card")), lv = intv(b.get("lv"));
+        if (lv < 1 || lv > 3) {
+            throw new IllegalArgumentException("Cấp 1 - 3");
+        }
+        Object a = b.get("aura");
+        if (a == null || str(a).isBlank()) {
+            update("delete from radar_aura where card_id=? and lv=?", card, lv);
+        } else {
+            update("replace into radar_aura (card_id, lv, aura) values (?, ?, ?)", card, lv, intv(a));
+        }
+        try (java.sql.Connection con = nro.models.data.LocalManager.getConnection()) {
+            nro.models.services.RadarService.loadAuraOverride(con);
+        }
+        return Map.of("ok", true, "note", "Đã đặt aura thẻ " + card + " Lv." + lv + ". Người chơi bật lại thẻ để thấy");
+    }
+
+    /** Thư viện cờ đeo lưng (khung hình) để chọn. */
+    static Object flagGallery() throws Exception {
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (Map<String, Object> r : rows("select id, icon_data from flag_bag order by id")) {
+            String fr = str(r.get("icon_data")).replaceAll("[^0-9,-]", "");
+            if (fr.isEmpty() || fr.startsWith("-")) {
+                continue;
+            }
+            out.add(Map.of("id", intv(r.get("id")), "frames", fr));
+        }
+        return out;
+    }
 }
 

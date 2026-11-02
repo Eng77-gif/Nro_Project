@@ -1511,3 +1511,8 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Đeo lưng chưa có hình sau lưng nay có hoạt ảnh: Lưỡi hái (cờ 300 không tồn tại), Lồng đèn Thỏ trắng, Lồng đèn Tết, Bao lì xì, Bư tập tạ, Cờ cớt hồng / VIP, Yêu quái núi lãng lãng, Kẹo Noel, Cờ sao may mắn, Bóng sinh nhật NRO, Đuôi rắn xanh / rực lửa (cờ 180 - 192); Bạch tuộc Xanh cáu kỉnh dùng hình bạch tuộc xanh, Cánh thiên thần 3 (Đệ) dùng hình bản thường.
 - Đeo lưng hiệu ứng (cờ 201 - 254, vd Thanh Long Yển Nguyệt đao): không vẽ thêm icon vật phẩm tĩnh sau lưng nữa (client vẽ bằng hiệu ứng), bỏ cảnh báo trên panel.
 - Panel → Đeo lưng & thú cưỡi: thêm tab "Đeo lưng hiệu ứng" (xem trước động các hiệu ứng 201 - 254 khi đứng / chạy / bay, vật phẩm nào đang dùng) và nút "Chọn hiệu ứng" cho từng đeo lưng: bấm hiệu ứng là gán cho vật phẩm.
+- Panel: thư viện hình động dùng chung, bấm để chọn:
+  - Đeo lưng & thú cưỡi: "Chọn hình" cho đeo lưng (mọi cờ, khung chạy vòng) và cho thú cưỡi (ảnh mount lớp sau / trước, đổi part + bảng thú cưỡi ngay).
+  - Thẻ radar: chọn aura từng cấp Lv.1 / 2 / 3 (bảng radar_aura, ưu tiên hơn aura mặc định trong code; có "Dùng mặc định" / "Không có aura").
+  - Danh hiệu: "Xem hiệu ứng động" (danh hiệu trên đầu nhân vật). Chỉ xem, vì mã hiệu ứng cũng là mã danh hiệu người chơi đang sở hữu.
+  - Hiệu ứng & aura: tab "Aura động".

@@ -1,5 +1,7 @@
 package nro.models.services;
 
+import java.util.Map;
+
 import nro.models.radar.Card;
 import nro.models.radar.OptionCard;
 import nro.models.radar.RadarCard;
@@ -71,6 +73,24 @@ public class RadarService {
         ps.close();
         gI().RADAR_TEMPLATE.clear();
         gI().RADAR_TEMPLATE.addAll(list);
+        loadAuraOverride(con);
+    }
+
+    /** Aura theo cấp thẻ chọn trên panel (radar_aura), ưu tiên hơn bảng mặc định trong auraFor. key = mã thẻ * 10 + cấp. */
+    private static final Map<Integer, Short> AURA_OVERRIDE = new java.util.concurrent.ConcurrentHashMap<>();
+
+    public static void loadAuraOverride(java.sql.Connection con) throws Exception {
+        try (java.sql.Statement st = con.createStatement()) {
+            st.executeUpdate("create table if not exists radar_aura (card_id int not null, lv int not null, aura int not null, primary key (card_id, lv))");
+        }
+        Map<Integer, Short> m = new java.util.HashMap<>();
+        try (java.sql.Statement st = con.createStatement(); java.sql.ResultSet rs = st.executeQuery("select card_id, lv, aura from radar_aura")) {
+            while (rs.next()) {
+                m.put(rs.getInt(1) * 10 + rs.getInt(2), (short) rs.getInt(3));
+            }
+        }
+        AURA_OVERRIDE.clear();
+        AURA_OVERRIDE.putAll(m);
     }
 
     /** Thẻ Oozaru (1771) gộp 3 thẻ: mảnh Oozarun 1 (2104), Oozarun 2 (2105) cũng là Thẻ Oozaru. */
@@ -162,6 +182,10 @@ public class RadarService {
     /** Aura theo thẻ và cấp: Đội Trưởng Vàng 0, Rồng Thần Namek 1, Oozaru 2 / 3 / 4, Khỉ con 120 / 121 / 122. */
     public static short auraFor(int cardId, int lv) {
         int i = Math.max(1, Math.min(3, lv)) - 1;
+        Short o = AURA_OVERRIDE.get(cardId * 10 + i + 1);
+        if (o != null) {
+            return o; // -1 = không có aura ở cấp này
+        }
         return switch (cardId) {
             case 956 -> 0;
             case 1204 -> 1;

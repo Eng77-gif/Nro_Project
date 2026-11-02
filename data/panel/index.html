@@ -397,14 +397,16 @@ async function page_radar(){const r=await api('radar');window._radar=r;
    ['options','Chỉ số',v=>v.map(o=>`<span class="chip">Lv.${o.activeCard+1}: ${esc(o.text)}</span>`).join(''),'w']],x=>`<button class="s" onclick="editRadar(${x.id})">Sửa</button>`)}
 function editRadar(id){const x=_radar.find(r=>r.id===id);const m=modal(`<h3>${icon(x.icon)} ${esc(x.name)} <span class="mute">#${x.id}</span></h3><div class="grid2"><label class="f">Tên<input id="rn" value="${esc(x.name)}"></label><label class="f">Mô tả<input id="ri" value="${esc(x.info)}"></label></div>
   <label class="f" style="margin-top:8px">Dòng chỉ số (JSON: id = mã chỉ số, param = giá trị, activeCard 0/1/2 = Lv.1/2/3)<textarea id="ro" style="min-height:160px">${esc(JSON.stringify(x.options.map(o=>({id:o.id,param:o.param,activeCard:o.activeCard})),null,1))}</textarea></label>
+  <div class="row" style="margin-top:8px"><span class="mute">Aura:</span>${[1,2,3].map(l=>`<button onclick="pickAura(${x.id},${l},'${esc(x.name)}')">Lv.${l}: ${x.aura[l-1]<0?'—':x.aura[l-1]} · chọn…</button>`).join('')}</div>
   <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="rs">Lưu</button></div>`);
   m.querySelector('#rs').onclick=()=>act(()=>api('radar/save',{id,name:$('#rn').value,info:$('#ri').value,options:$('#ro').value})).then(r=>{if(r){m.remove();page_radar()}})}
 
 /* ---------- danh hiệu ---------- */
 async function page_badges(){const r=await api('badges');window._bdg=r;
   const ops=s=>{try{return JSON.parse(s).map(o=>`<span class="chip">${o.id}: ${o.param}</span>`).join('')}catch(e){return esc(s)}};
-  $('#main').innerHTML=`<h2>Danh hiệu</h2><div class="card mute">Hiệu ứng là ảnh danh hiệu trên đầu nhân vật. Chỉ số dạng [{"id":50,"param":10}] (mã chỉ số xem ở trang Vật phẩm → Tìm chỉ số).</div>`+
+  $('#main').innerHTML=`<h2>Danh hiệu</h2><div class="card mute">Hiệu ứng là ảnh danh hiệu trên đầu nhân vật. Chỉ số dạng [{"id":50,"param":10}] (mã chỉ số xem ở trang Vật phẩm → Tìm chỉ số).</div><div class="row" style="margin:6px 0"><button onclick="showBadgeGallery()">✨ Xem hiệu ứng động</button></div><div id="bgal"></div>`+
   table(r,[['icon','',v=>icon(v)],['id','ID'],['name','Tên'],['effect','Hiệu ứng',v=>`<img class="fx" onerror="this.remove()" src="/fx/eff/${v}"> ${v}`],['item','Vật phẩm'],['options','Chỉ số',ops,'w'],['descr','Cách nhận','','w']],x=>`<button class="s" onclick="editBadge(${x.id})">Sửa</button>`)}
+function showBadgeGallery(){animGallery($('#bgal'),_bdg.map(x=>titleCard(x.effect,x.name+' · hiệu ứng '+x.effect,`${x.item>=0?'vật phẩm #'+x.item:''}`)),null,200)}
 function editBadge(id){const x=_bdg.find(r=>r.id===id);const m=modal(`<h3>${icon(x.icon)} ${esc(x.name)} <span class="mute">#${x.id}</span></h3><label class="f">Tên<input id="bn" value="${esc(x.name)}"></label>
   <label class="f" style="margin-top:8px">Chỉ số (JSON)<textarea id="bo">${esc(x.options)}</textarea></label><div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="bs">Lưu</button></div>`);
   m.querySelector('#bs').onclick=()=>act(()=>api('badge/save',{id,name:$('#bn').value,options:$('#bo').value})).then(r=>{if(r){m.remove();page_badges()}})}
@@ -412,10 +414,10 @@ function editBadge(id){const x=_bdg.find(r=>r.id===id);const m=modal(`<h3>${icon
 /* ---------- hiệu ứng & aura ---------- */
 async function page_fx(){const r=await api('fx');
   $('#main').innerHTML=`<h2>Hiệu ứng & aura</h2><div class="card"><b>Đang dùng</b>${table(r.used,[['what','Dùng cho'],['kind','Loại'],['id','Mã',(v,x)=>`<img class="fx" onerror="this.remove()" src="/fx/${x.kind==='aura'?'aura':'eff'}/${v}"> ${v}`]])}</div>
-  <div class="tabs"><button class="on" id="t1">✨ Hiệu ứng (${r.effects.length})</button><button id="t2">🔥 Aura (${r.auras.length})</button><input id="fq" placeholder="Tìm mã" style="width:110px"></div><div id="fg"></div>`;
+  <div class="tabs"><button class="on" id="t1">✨ Hiệu ứng (${r.effects.length})</button><button id="t2">🔥 Aura (${r.auras.length})</button><input id="fq" placeholder="Tìm mã" style="width:110px"><button id="t3">🎞 Aura động</button></div><div id="fg"></div>`;
   let kind='eff';const draw=()=>{const k=$('#fq').value.trim();const ids=(kind==='eff'?r.effects:r.auras).filter(i=>!k||String(i).includes(k));
    $('#fg').innerHTML='<div class="gal">'+ids.map(i=>`<div><b>${kind==='eff'?'hiệu ứng':'aura'} ${i}</b><img loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'mute',textContent:'(chưa có ảnh)'}))" src="/fx/${kind}/${i}"></div>`).join('')+'</div>'};
-  $('#t1').onclick=()=>{kind='eff';$('#t1').classList.add('on');$('#t2').classList.remove('on');draw()};$('#t2').onclick=()=>{kind='aura';$('#t2').classList.add('on');$('#t1').classList.remove('on');draw()};$('#fq').oninput=draw;draw()}
+  $('#t1').onclick=()=>{kind='eff';$('#t1').classList.add('on');$('#t2').classList.remove('on');draw()};$('#t3').onclick=async()=>{$('#t3').classList.add('on');$('#t1').classList.remove('on');$('#t2').classList.remove('on');animGallery($('#fg'),await auraCards(),null,200)};$('#t2').onclick=()=>{kind='aura';$('#t2').classList.add('on');$('#t1').classList.remove('on');draw()};$('#fq').oninput=draw;draw()}
 
 /* ---------- đeo lưng & thú cưỡi ---------- */
 async function page_looks(){const [f,m,v]=await Promise.all([api('flags'),api('mounts'),api('dataver')]);
@@ -426,10 +428,10 @@ async function page_looks(){const [f,m,v]=await Promise.all([api('flags'),api('m
   let tab=1;const draw=()=>{const k=$('#lq').value.trim().toLowerCase(),w=$('#lw').checked;
    if(tab===1){const rows=f.filter(x=>(!w||x.warn)&&(!k||String(x.id).includes(k)||x.items.some(i=>i.name.toLowerCase().includes(k)||String(i.id).includes(k))));
     $('#lg').innerHTML=table(rows,[['id','Cờ'],['frames','Khung hình',v=>v?v.split(',').slice(0,8).map(i=>icon(+i)).join(''):'<span class="mute">—</span>'],['items','Vật phẩm dùng',v=>v.map(i=>`${icon(i.icon)} ${esc(i.name)} <span class="mute">#${i.id}</span>`).join('<br>')||'<span class="mute">không có</span>'],['warn','Cảnh báo',v=>v?`<span class="tag bad1">${esc(v)}</span>`:'']],
-     r=>`<button onclick="editFlag(${r.id},'${esc(r.frames)}')">Sửa khung</button>${r.items.length?`<button onclick="assignFlag(${r.items[0].id},${r.id})">Gán cờ khác</button><button onclick="pickFx(${r.items[0].id},'${esc(r.items[0].name)}')">Chọn hiệu ứng</button>`:''}`)}
+     r=>`<button onclick="editFlag(${r.id},'${esc(r.frames)}')">Sửa khung</button>${r.items.length?`<button onclick="assignFlag(${r.items[0].id},${r.id})">Gán cờ khác</button><button onclick="pickFlag(${r.items[0].id},'${esc(r.items[0].name)}')">Chọn hình</button><button onclick="pickFx(${r.items[0].id},'${esc(r.items[0].name)}')">Chọn hiệu ứng</button>`:''}`)}
    else if(tab===3){fxGallery($('#lg'),null)}
    else{const rows=m.filter(x=>(!w||x.warn)&&(!k||String(x.id).includes(k)||x.name.toLowerCase().includes(k)));
-    $('#lg').innerHTML=table(rows,[['id','Mã'],['name','Tên',(v,r)=>`${icon(r.icon)} ${esc(v)}`],['part','Ảnh',(v,r)=>v>=0?`<img style="height:70px" loading="lazy" src="/mount/${v}/0" onerror="this.remove()"><img style="height:70px" loading="lazy" src="/mount/${v}/1" onerror="this.remove()"> <span class="mute">${v} · khung ${esc(r.frames)}</span>`:'<span class="mute">—</span>'],['warn','Cảnh báo',v=>v?`<span class="tag bad1">${esc(v)}</span>`:'']])}};
+    $('#lg').innerHTML=table(rows,[['id','Mã'],['name','Tên',(v,r)=>`${icon(r.icon)} ${esc(v)}`],['part','Ảnh',(v,r)=>v>=0?`<img style="height:70px" loading="lazy" src="/mount/${v}/0" onerror="this.remove()"><img style="height:70px" loading="lazy" src="/mount/${v}/1" onerror="this.remove()"> <span class="mute">${v} · khung ${esc(r.frames)}</span>`:'<span class="mute">—</span>'],['warn','Cảnh báo',v=>v?`<span class="tag bad1">${esc(v)}</span>`:'']],r=>`<button onclick="pickMount(${r.id},'${esc(r.name)}')">Chọn hình</button>`)}};
   const sel=n=>{tab=n;['lt1','lt2','lt3'].forEach((x,i)=>$('#'+x).classList.toggle('on',i+1===n));draw()};$('#lt1').onclick=()=>sel(1);$('#lt2').onclick=()=>sel(2);$('#lt3').onclick=()=>sel(3);$('#lq').oninput=()=>tab!==3&&draw();$('#lw').onchange=draw;draw()}
 /* xem trước đeo lưng hiệu ứng: vẽ khung theo trạng thái nhân vật (1 đứng, 2 chạy, 10 bay) giống client (cách lưng 15, cao 25) */
 const FXC={};async function fxLoad(id){if(!FXC[id]){const d=await api('fxdata?id='+id);d.img=await new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src='/fx/eff/'+id});FXC[id]=d}return FXC[id]}
@@ -451,6 +453,46 @@ function editFlag(id,frames){const m=modal(`<h3>Khung hình cờ ${id}</h3><p cl
   m.querySelector('#fs').onclick=async()=>{if(await act(()=>api('flag/save',{id,frames:m.querySelector('#ff').value}))){m.remove();page_looks()}}}
 function assignFlag(item,cur){const m=modal(`<h3>Gán cờ cho vật phẩm #${item}</h3><div class="row"><input id="fi" type="number" value="${item}" style="width:110px" placeholder="Mã vật phẩm"><input id="fl" type="number" value="${cur}" style="width:110px" placeholder="Mã cờ"><button class="p" id="fa">Gán</button><button onclick="this.closest('.modal').remove()">Đóng</button></div>`);
   m.querySelector('#fa').onclick=async()=>{if(await act(()=>api('flag/assign',{item:+m.querySelector('#fi').value,flag:+m.querySelector('#fl').value}))){m.remove();page_looks()}}}
+
+/* ---------- thư viện hình động dùng chung (đeo lưng, thú cưỡi, aura, danh hiệu) ---------- */
+const IMGC={};function loadImg(src){return IMGC[src]||(IMGC[src]=new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src}))}
+/* vẽ 1 khung của dải ảnh (dọc nếu cao >= rộng), neo giữa-đáy tại (x, y) */
+function drawStrip(g,img,n,t,x,y,sc){if(!img||!n)return;const v=img.height>=img.width,fw=v?img.width:img.width/n,fh=v?img.height/n:img.height,k=t%n;
+  g.drawImage(img,v?0:k*fw,v?k*fh:0,fw,fh,x-fw*sc/2,y-fh*sc,fw*sc,fh*sc)}
+function charBox(g,x,y){g.strokeStyle='rgba(255,255,255,.5)';g.setLineDash([4,3]);g.strokeRect(x-16,y-92,32,92);g.setLineDash([])}
+/* list: [{key, title, html, draw(g, W, H, t)}]; onPick(key) khi bấm (bỏ trống = chỉ xem) */
+function animGallery(box,list,onPick,h){h=h||170;
+  box.innerHTML=`<div class="row" style="margin:6px 0"><input id="agq" placeholder="Tìm mã / tên" style="width:160px"><span class="mute">${list.length} mục${onPick?' · bấm vào hình để chọn':''}</span></div><div class="gal" id="agg">${list.map((x,i)=>`<div data-i="${i}" style="cursor:${onPick?'pointer':'default'}"><b>${esc(x.title)}</b><canvas width="220" height="${h}" style="background:#2a6a9a;border-radius:8px;width:100%"></canvas><div style="font-size:13px">${x.html||''}</div></div>`).join('')}</div>`;
+  const cards=[...box.querySelectorAll('#agg [data-i]')],vis=new Set();
+  const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?vis.add(e.target):vis.delete(e.target)));cards.forEach(c=>io.observe(c));
+  box.querySelector('#agq').oninput=e=>{const k=e.target.value.trim().toLowerCase();cards.forEach(c=>{const x=list[+c.dataset.i];c.style.display=!k||(x.title+' '+(x.html||'')).toLowerCase().includes(k)?'':'none'})};
+  if(onPick)box.querySelector('#agg').onclick=e=>{const c=e.target.closest('[data-i]');if(c)onPick(list[+c.dataset.i].key)};
+  let t=0;const my=routeGen;const tick=()=>{if(!document.body.contains(box)||routeGen!==my){io.disconnect();return}t++;
+    for(const c of vis){const cv=c.querySelector('canvas'),g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);try{list[+c.dataset.i].draw(g,cv.width,cv.height,t)}catch(e){}}setTimeout(tick,90)};tick()}
+function pickModal(title,note){const m=modal(`<h3>${title}</h3>${note?`<p class="mute">${note}</p>`:''}<div id="pkb"></div><div class="row"><button onclick="this.closest('.modal').remove()">Đóng</button></div>`);return [m,m.querySelector('#pkb')]}
+/* cờ đeo lưng thường: các khung icon chạy vòng */
+async function flagCards(){const L=await api('flaggallery');const imgs={};
+  return L.map(f=>{const fr=f.frames.split(',').map(Number);fr.forEach(i=>loadImg('/icon/'+i).then(m=>imgs[i]=m));
+   return {key:f.id,title:'Cờ '+f.id,html:'',draw:(g,W,H,t)=>{const ax=W/2,ay=H-12;const m=imgs[fr[Math.floor(t/2)%fr.length]];if(m){const sc=Math.min(1,90/Math.max(m.width,m.height));g.drawImage(m,ax-20-m.width*sc/2,ay-60-m.height*sc/2,m.width*sc,m.height*sc)}charBox(g,ax,ay)}}})}
+async function pickFlag(item,name){const [m,b]=pickModal(`Chọn hình đeo lưng cho ${esc(name)} <span class="mute">#${item}</span>`,'Bấm một cờ để gán. Người chơi mặc lại để thấy.');
+  animGallery(b,await flagCards(),async id=>{if(await act(()=>api('flag/assign',{item,flag:id}))){m.remove();page_looks()}})}
+/* thú cưỡi: lớp 0 sau lưng, lớp 1 trước */
+async function mountCards(){const L=await api('mountimgs');
+  return L.map(x=>{const a=x.n0?loadImg('/ibn/mount_'+x.id+'_0'):null,b=x.n1?loadImg('/ibn/mount_'+x.id+'_1'):null;let ia=null,ib=null;a&&a.then(v=>ia=v);b&&b.then(v=>ib=v);
+   return {key:x.id,title:'Thú cưỡi '+x.id,html:x.items.map(esc).join('<br>')||'<span class="mute">chưa vật phẩm nào dùng</span>',draw:(g,W,H,t)=>{const ax=W/2,ay=H-10,sc=.5;drawStrip(g,ia,x.n0,Math.floor(t/2),ax,ay,sc);charBox(g,ax,ay-30);drawStrip(g,ib,x.n1,Math.floor(t/2),ax,ay,sc)}}})}
+async function pickMount(item,name){const [m,b]=pickModal(`Chọn hình thú cưỡi cho ${esc(name)} <span class="mute">#${item}</span>`,'Bấm một hình để gán. Người chơi cưỡi lại để thấy.');
+  animGallery(b,await mountCards(),async part=>{if(await act(()=>api('mount/assign',{item,part}))){m.remove();page_looks()}},190)}
+/* aura: lớp 0 sau nhân vật, lớp 1 trước, neo dưới chân */
+async function auraCards(){const L=await api('auras');
+  return L.map(x=>{let ia=null,ib=null;x.n0&&loadImg('/ibn/aura_'+x.id+'_0').then(v=>ia=v);x.n1&&loadImg('/ibn/aura_'+x.id+'_1').then(v=>ib=v);
+   return {key:x.id,title:'Aura '+x.id,html:'',draw:(g,W,H,t)=>{const ax=W/2,ay=H-10,sc=.5;drawStrip(g,ia,x.n0,Math.floor(t/2),ax,ay,sc);charBox(g,ax,ay);drawStrip(g,ib,x.n1,Math.floor(t/2),ax,ay+2,sc)}}})}
+async function pickAura(card,lv,name){const [m,b]=pickModal(`Aura Lv.${lv} cho thẻ ${esc(name)}`,`<button id="pkd">Dùng mặc định</button> <button id="pkn">Không có aura</button>`);
+  const set=async a=>{if(await act(()=>api('radar/aura',{card,lv,aura:a}))){m.remove();page_radar()}};m.querySelector('#pkd').onclick=()=>set('');m.querySelector('#pkn').onclick=()=>set(-1);
+  animGallery(b,await auraCards(),set,200)}
+/* danh hiệu: hiệu ứng trên đầu nhân vật */
+function titleCard(id,title,html){let d=null;fxLoad(id).then(v=>d=v).catch(()=>{});
+  return {key:id,title,html,draw:(g,W,H,t)=>{const ax=W/2,ay=H-10;charBox(g,ax,ay);if(!d||!d.img)return;const seq=d.anim['all']||d.anim['1']||d.anim[Object.keys(d.anim)[0]]||[];if(!seq.length)return;
+    const fr=d.frames[seq[t%seq.length]],Z=2,hx=ax,hy=ay-96;for(const [dx,dy,im] of fr){const ii=d.imgs.find(x=>x[0]===im);if(ii)g.drawImage(d.img,ii[1]*Z,ii[2]*Z,ii[3]*Z,ii[4]*Z,hx+dx*Z,hy+dy*Z,ii[3]*Z,ii[4]*Z)}}}}
 
 /* ---------- lệnh admin trong game ---------- */
 async function page_admin(){const L=[['a','Menu admin: ngọc rồng, đệ tử, bảo trì, tìm người chơi, boss, công cụ admin'],['a → Công cụ admin','Thông báo toàn server, tặng vàng / ngọc / hồng ngọc, hồi đầy HP KI, dịch chuyển map, danh sách online, chỉnh EXP server, nạp lại dữ liệu, khóa / mở khóa tài khoản (cả khi offline)'],
