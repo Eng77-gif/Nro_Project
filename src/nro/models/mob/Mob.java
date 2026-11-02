@@ -716,7 +716,13 @@ public class Mob {
                 player.monsterKillCountAutoTrain++;
             }
 
-            // (bỏ ngọc miễn phí khi đánh quái: ngọc nhận qua nhiệm vụ hàng ngày - TaskService.paySideTask)
+            if (player.event.luotNhanNgocMienPhi == 1) { // ngọc miễn phí mỗi ngày (con quái đầu tiên)
+                ItemMap item1 = new ItemMap(zone, 77, 1, x, yEnd, player.id);
+                ItemMap item2 = new ItemMap(zone, 77, 1, x + 10, yEnd, player.id);
+                list.add(item1);
+                list.add(item2);
+                player.event.luotNhanNgocMienPhi = 0;
+            }
         }
         if (MapService.gI().AllMap(mapid) && nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.SUMMER)) {
             if (Util.isTrue(5, 100)) {

@@ -1456,3 +1456,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Đệ tử 2: đệ tử đạt 40 tỷ (săn Super Broly) -> đánh Hirudegarn (22h) có 20% rơi Quả trứng Mabư (của riêng người đánh). Trứng nở xong (đếm về 0:00) hoặc đã có đệ Mabư -> đánh Hirudegarn lần nữa có 20% rơi Bình hút năng lượng. Tích 3000 Kilis ở Sa mạc hoang vu rồi dùng Bình hút: đổi ngẫu nhiên Uub / Kid Beer / Jiren (khởi đầu 40 tỷ, chỉ số gốc cao hơn đệ thường, 9 ô trang bị, có chiêu 5). Trước đây Hirudegarn rơi trứng / bình cho bất kỳ ai và đổi đệ đòi đệ Mabư 40 tỷ.
 - Tapion chỉ đưa vào map Hirudegarn lúc 22h - 23h.
 - Cánh thiên thần sa ngã (Đệ), Bư tập tạ, Cánh thiên thần 3 (Đệ) chỉ đệ tử 2 mặc được.
+
+## Đợt 70
+- Trả lại ngọc miễn phí mỗi ngày (con quái đầu tiên rơi 2 ngọc) và thông báo khi vào game. Ngọc từ nhiệm vụ hàng ngày vẫn giữ.
+- Hirudegarn rơi Quả trứng Mabư 20%, ai cũng nhặt được. Bình hút năng lượng vẫn chỉ rơi cho người có trứng đã nở (hoặc đệ Mabư).

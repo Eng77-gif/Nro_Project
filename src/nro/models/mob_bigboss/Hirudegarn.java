@@ -95,18 +95,19 @@ public class Hirudegarn extends BigBoss {
                         new ItemMap(zone, 190, 32000, this.location.x + X, this.location.y, -1)
                 );
             }
-            // Đệ tử 2: đệ đạt 40 tỷ -> có tỉ lệ rơi Trứng Mabư; trứng nở xong (về 0:00) -> có tỉ lệ rơi Bình hút năng lượng
+            // Quả trứng Mabư: 20%, ai cũng nhặt được
+            if (Util.isTrue(20, 100)) {
+                Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 568, 1, this.location.x,
+                        this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), -1));
+            }
+            // Đệ tử 2: trứng nở xong (về 0:00) hoặc đã có đệ Mabư -> có tỉ lệ rơi Bình hút năng lượng
             for (Player pl : new java.util.ArrayList<>(this.zone.getPlayers())) {
                 if (pl == null || !attackers.contains(pl.id) || !pl.isPl()) {
                     continue;
                 }
                 int x = this.location.x + Util.nextInt(-40, 40);
                 int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
-                boolean coTrung = pl.mabuEgg != null || nro.models.services.InventoryService.gI().findItemBag(pl, 568) != null;
-                if (!coTrung && pl.pet != null && pl.pet.nPoint.power >= 40_000_000_000L && Util.isTrue(20, 100)) {
-                    Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 568, 1, x, y, pl.id));
-                    Service.gI().sendThongBao(pl, "Hirudegarn rơi Quả trứng Mabư cho bạn!");
-                } else if (((pl.mabuEgg != null && pl.mabuEgg.getSecondDone() <= 0) || (pl.pet != null && pl.pet.typePet == 1))
+                if (((pl.mabuEgg != null && pl.mabuEgg.getSecondDone() <= 0) || (pl.pet != null && pl.pet.typePet == 1))
                         && nro.models.services.InventoryService.gI().findItemBag(pl, 1852) == null && Util.isTrue(20, 100)) {
                     ItemMap it = new ItemMap(this.zone, 1852, 1, x, y, pl.id);
                     it.options.add(new ItemOption(250, 0));
