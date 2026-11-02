@@ -1490,3 +1490,4 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 ## Đợt 76
 - Client Android DragonBoy249 (bản chính thức 2.4.8, Java thường, không mã hoá) sửa IP sang 160.191.243.165:14445 (cả 2 danh sách máy chủ trong classes.dex), đổi đuôi phiên bản gửi lên thành 2.4.9 rồi ký lại APK (v1 + v2, khoá mới).
 - Server nhận client phiên bản 2.4.9 dùng giao thức số lớn (long) như J2ME 2.4.x, để HP / KI / SĐ / vàng hiển thị đúng với giới hạn mới của Đợt 75.
+- Đối chiếu bytecode client DragonBoy249 với server: mọi gói server gửi (chỉ số long, dòng chỉ số đồ short/int, id short, dữ liệu item 1 gói) và gói client gửi lên đều khớp chế độ long, không cần nhánh riêng. Thêm tools/client-db249 (đổi IP + ký lại APK, ghi chú giao thức).
