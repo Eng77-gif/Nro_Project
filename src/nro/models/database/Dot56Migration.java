@@ -123,6 +123,7 @@ public final class Dot56Migration {
             changed += runDot63(con);
             changed += runDot65(con);
             changed += runDot66(con);
+            changed += runDot71(con);
         } catch (Exception ex) {
             Logger.error("Đợt 56 (Halloween): không cập nhật được database: " + ex.getMessage() + "\n");
         }
@@ -645,6 +646,41 @@ public final class Dot56Migration {
         }
         changed += update(con, "update item_template set description = 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' where id in (1930, 1981)");
         changed += update(con, "insert into server_migration (name) values ('dot66')");
+        return changed;
+    }
+
+    /** Đợt 71: ảnh thú cưỡi 48 - 79 (img_by_name), 7 thú cưỡi mới. {tên ảnh, số frame} */
+    private static final Object[][] MOUNT_IMG = {{"mount_48_0", 4}, {"mount_49_0", 4}, {"mount_49_1", 4}, {"mount_50_0", 4}, {"mount_50_1", 4}, {"mount_51_0", 4}, {"mount_51_1", 4}, {"mount_52_1", 4}, {"mount_53_0", 4}, {"mount_53_1", 4}, {"mount_54_0", 4}, {"mount_54_1", 4}, {"mount_55_0", 4}, {"mount_55_1", 4}, {"mount_56_0", 4}, {"mount_56_1", 4}, {"mount_57_0", 3}, {"mount_57_1", 3}, {"mount_58_0", 5}, {"mount_58_1", 5}, {"mount_59_0", 4}, {"mount_59_1", 4}, {"mount_60_0", 4}, {"mount_60_1", 4}, {"mount_61_0", 4}, {"mount_61_1", 4}, {"mount_62_0", 4}, {"mount_62_1", 4}, {"mount_63_0", 4}, {"mount_63_1", 4}, {"mount_64_1", 8}, {"mount_65_1", 8}, {"mount_66_1", 4}, {"mount_67_1", 8}, {"mount_68_1", 8}, {"mount_69_1", 8}, {"mount_70_0", 4}, {"mount_70_1", 3}, {"mount_71_0", 5}, {"mount_71_1", 5}, {"mount_72_0", 4}, {"mount_72_1", 4}, {"mount_73_0", 4}, {"mount_73_1", 4}, {"mount_74_0", 4}, {"mount_74_1", 4}, {"mount_75_0", 3}, {"mount_75_1", 3}, {"mount_76_0", 5}, {"mount_76_1", 5}, {"mount_77_0", 5}, {"mount_77_1", 5}, {"mount_78_0", 3}, {"mount_78_1", 3}, {"mount_79_0", 5}, {"mount_79_1", 5}, };
+
+    /** {id, tên, icon, part} */
+    private static final Object[][] MOUNTS_71 = {
+        {2121, "Thú cưỡi Rồng Hắc Ám", 32300, 66}, {2122, "Thú cưỡi Bạch Điểu", 32301, 74},
+        {2123, "Ván bay Bóng Đá 2026", 32302, 75}, {2124, "Thú cưỡi Kim Phượng", 32303, 76},
+        {2125, "Thú cưỡi Kỳ Lân", 32304, 77}, {2126, "Thú cưỡi Hỏa Điểu", 32305, 78},
+        {2127, "Thú cưỡi Rồng Lửa", 32306, 79},};
+
+    private static int runDot71(Connection con) throws Exception {
+        int changed = 0;
+        for (Object[] r : MOUNT_IMG) {
+            if (!exists(con, "select 1 from img_by_name where NAME = '" + r[0] + "'")) {
+                changed += update(con, "insert into img_by_name (NAME, n_frame) values ('" + r[0] + "', " + r[1] + ")");
+            }
+        }
+        for (Object[] m : MOUNTS_71) {
+            if (!exists(con, "select 1 from item_template where id = " + m[0])) {
+                try (PreparedStatement ps = con.prepareStatement("insert into item_template (id, TYPE, gender, NAME, description, level, icon_id, part, is_up_to_up, power_require, gold, gem, head, body, leg)"
+                        + " values (?, 23, 3, ?, 'Thú cưỡi', 0, ?, ?, 0, 0, 0, 0, -1, -1, -1)")) {
+                    ps.setInt(1, (int) m[0]);
+                    ps.setString(2, (String) m[1]);
+                    ps.setInt(3, (int) m[2]);
+                    ps.setInt(4, (int) m[3]);
+                    changed += ps.executeUpdate();
+                }
+                for (int[] o : new int[][]{{50, 6, 10}, {77, 6, 10}, {103, 6, 10}, {85, 0, 0}}) {
+                    changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (" + m[0] + ", " + o[0] + ", " + o[1] + ", " + o[2] + ", 100, 0)");
+                }
+            }
+        }
         return changed;
     }
 

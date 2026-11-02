@@ -1460,3 +1460,9 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 ## Đợt 70
 - Trả lại ngọc miễn phí mỗi ngày (con quái đầu tiên rơi 2 ngọc) và thông báo khi vào game. Ngọc từ nhiệm vụ hàng ngày vẫn giữ.
 - Hirudegarn rơi Quả trứng Mabư 20%, ai cũng nhặt được. Bình hút năng lượng vẫn chỉ rơi cho người có trứng đã nở (hoặc đệ Mabư).
+
+## Đợt 71
+- Hiệu ứng danh hiệu động: Đón Xuân (303) dùng ảnh 511 (chữ ĐÓN XUÂN đổi màu + hoa mai, hoa đào rơi), Phá Cỗ Trung Thu / VIP (300, 301): bảng tên sáng nhấp nháy + đèn lồng rơi. Giữ nguyên mã hiệu ứng nên người đã có danh hiệu không bị ảnh hưởng. Công cụ tạo lại: tools/effect/build_title_effects.py.
+- Ảnh thú cưỡi 48 - 79 (trước đây thiếu ảnh nên các thú cưỡi mã part 48 - 73 như Ván bay Cây Thông, Magikarp, Rồng Thiêng, Lugia, rồng Băng / Đen / Vô Cực, Chổi bay, Máy bay giấy, Ván bay sao băng... cưỡi vào không hiện), thêm dòng img_by_name (số frame tự đo theo ảnh).
+- 7 thú cưỡi mới (2121 - 2127): Rồng Hắc Ám, Bạch Điểu, Ván bay Bóng Đá 2026, Kim Phượng, Kỳ Lân, Hỏa Điểu, Rồng Lửa (SĐ / HP / KI 6 - 10%, bay và phục hồi KI).
+- Thêm ảnh Skills / aura còn thiếu từ gói data. vsData 23, vsItem 23.
