@@ -134,7 +134,7 @@ public class Virut extends Boss {
             Service.gI().dropItemMap(this.zone, itemDrop);
         }
 
-        // điểm sự kiện theo độ mạnh boss: BossRewardService
+        // boss không cộng điểm sự kiện
     }
 
     @Override

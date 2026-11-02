@@ -48,7 +48,7 @@ public class BOJACK extends Boss {
         Service.gI().dropItemMap(this.zone, it);
         Service.gI().dropItemMap(this.zone, it1);
         Service.gI().dropItemMap(this.zone, it2);
-        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
     }
 
     @Override

@@ -28,7 +28,7 @@ public class SO4 extends Boss {
 
 @Override
     public void reward(Player plKill) {
-        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
         if (Util.isTrue(80, 100)) {
             int[] items = Util.isTrue(50, 100) ? new int[]{18, 19, 20} : new int[]{18,19,20};

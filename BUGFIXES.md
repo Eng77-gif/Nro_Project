@@ -1422,3 +1422,6 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - Bông tai không còn trong hành trang (bán, cất rương, giao dịch) mà vẫn hợp thể, chỉ số bông tai mất: giờ tự tách hợp thể. Đệ bị xóa khi đang hợp thể: tự bỏ trạng thái hợp thể.
 - Thưởng boss theo bậc (BossRewardService, bảng boss_reward): thay "20.000 - 30.000 vàng + 5 điểm" như nhau cho mọi boss bằng thưởng theo máu tối đa (5 bậc); quà riêng của từng boss giữ nguyên. Sửa trên panel trang "Thưởng boss".
 - Panel trang "Database": xem mọi bảng, tìm, sắp xếp, phân trang, sửa ô (đặt NULL), thêm / xóa dòng (dòng cũ ghi vào nhật ký thao tác), xem cấu trúc, xuất SQL / CSV.
+
+## Đợt 62
+- Boss chỉ rơi vàng theo bậc: bỏ điểm sự kiện (kể cả Ăn Trộm) và bỏ quà thêm (Đá bảo vệ, Capsule, Thỏi vàng, Rương SPL VIP... là đồ đua top).

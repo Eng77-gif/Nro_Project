@@ -38,7 +38,7 @@ public class BuiBui2 extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         int x = this.location.x; // đâyyyy
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
         int drop = 190; // 100% rơi item ID 190

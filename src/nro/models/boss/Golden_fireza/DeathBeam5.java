@@ -34,7 +34,7 @@ public class DeathBeam5 extends Boss {
     }
     @Override
     public void reward(Player plKill) {
-        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         ItemMap CaiTrangFideVang = new ItemMap(zone, 629,1, this.location.x + Util.nextInt(-50, 50), this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id);
         CaiTrangFideVang.options.add(new Item.ItemOption(30, 1));
         CaiTrangFideVang.options.add(new Item.ItemOption(50, 20));

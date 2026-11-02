@@ -75,7 +75,7 @@ public class SuperBu extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
     }
 

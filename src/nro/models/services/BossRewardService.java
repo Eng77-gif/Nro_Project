@@ -12,9 +12,10 @@ import nro.models.utils.Logger;
 import nro.models.utils.Util;
 
 /**
- * Thưởng boss theo độ mạnh (máu tối đa), dùng chung cho mọi boss thay cho "20.000 - 30.000 vàng + 5 điểm" như nhau.
+ * Vàng rơi theo độ mạnh boss (máu tối đa), dùng chung cho mọi boss thay cho "20.000 - 30.000 vàng" như nhau.
+ * Boss không còn cộng điểm sự kiện, không rơi đồ đua top.
  * Bậc 1 dưới 5 triệu HP, bậc 2 dưới 50 triệu, bậc 3 dưới 500 triệu, bậc 4 dưới 1,5 tỷ, bậc 5 từ 1,5 tỷ.
- * Vàng, điểm sự kiện và quà rơi thêm nằm ở bảng boss_reward (sửa trên panel, trang "Thưởng boss").
+ * Vàng (và quà thêm nếu admin tự thêm) nằm ở bảng boss_reward (sửa trên panel, trang "Thưởng boss").
  * Quà riêng của từng boss (đồ thần linh, ngọc rồng, cải trang...) vẫn giữ trong reward() của boss đó.
  *
  * @author Việt

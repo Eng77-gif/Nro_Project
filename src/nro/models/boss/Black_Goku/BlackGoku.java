@@ -84,7 +84,7 @@ public class BlackGoku extends Boss {
             Service.gI().dropItemMap(zone, optionalItemMap);
         }
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
-        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
     }
 
     @Override

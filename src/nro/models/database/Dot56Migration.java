@@ -119,6 +119,7 @@ public final class Dot56Migration {
             changed += runDot59(con);
             changed += runDot60(con);
             changed += runDot61(con);
+            changed += runDot62(con);
         } catch (Exception ex) {
             Logger.error("Đợt 56 (Halloween): không cập nhật được database: " + ex.getMessage() + "\n");
         }
@@ -513,13 +514,10 @@ public final class Dot56Migration {
         return changed;
     }
 
-    /** Đợt 61: thưởng boss theo bậc. {bậc, item (-1 vàng, -4 điểm sự kiện), sl từ, đến, tỉ lệ /10000} */
+    /** Đợt 61: vàng boss theo bậc. {bậc, item (-1 vàng), sl từ, đến, tỉ lệ /10000} */
     private static final int[][] BOSS_REWARD = {
-        {1, -1, 10000, 20000, 10000}, {1, -4, 1, 1, 10000}, {1, 987, 1, 1, 1000}, {1, 1909, 5, 10, 2000},
-        {2, -1, 30000, 60000, 10000}, {2, -4, 3, 3, 10000}, {2, 987, 1, 2, 2000}, {2, 1909, 10, 20, 3000}, {2, 1690, 1, 3, 1000},
-        {3, -1, 80000, 150000, 10000}, {3, -4, 5, 5, 10000}, {3, 987, 2, 3, 3000}, {3, 1690, 2, 5, 2500}, {3, 457, 1, 1, 1000}, {3, 1559, 1, 1, 200},
-        {4, -1, 200000, 400000, 10000}, {4, -4, 10, 10, 10000}, {4, 457, 1, 2, 3000}, {4, 1690, 5, 10, 4000}, {4, 1559, 1, 1, 500}, {4, 2111, 1, 1, 300}, {4, 1453, 1, 1, 300},
-        {5, -1, 500000, 1000000, 10000}, {5, -4, 20, 20, 10000}, {5, 457, 2, 5, 5000}, {5, 1690, 10, 20, 5000}, {5, 1559, 1, 1, 1000}, {5, 2111, 1, 1, 600}, {5, 1453, 1, 1, 600},};
+        {1, -1, 10000, 20000, 10000}, {2, -1, 30000, 60000, 10000}, {3, -1, 80000, 150000, 10000},
+        {4, -1, 200000, 400000, 10000}, {5, -1, 500000, 1000000, 10000},};
 
     private static int runDot61(Connection con) throws Exception {
         int changed = 0;
@@ -533,6 +531,16 @@ public final class Dot56Migration {
             changed += update(con, "insert into boss_reward (tier, item_id, qty_min, qty_max, rate) values (" + r[0] + ", " + r[1] + ", " + r[2] + ", " + r[3] + ", " + r[4] + ")");
         }
         changed += update(con, "insert into server_migration (name) values ('dot61_boss_reward')");
+        return changed;
+    }
+
+    /** Đợt 62: boss chỉ rơi vàng theo bậc; bỏ điểm sự kiện và quà thêm (đồ đua top không cho rơi). */
+    private static int runDot62(Connection con) throws Exception {
+        if (exists(con, "select 1 from server_migration where name = 'dot62_boss_gold_only'")) {
+            return 0;
+        }
+        int changed = update(con, "delete from boss_reward where item_id <> -1");
+        changed += update(con, "insert into server_migration (name) values ('dot62_boss_gold_only')");
         return changed;
     }
 

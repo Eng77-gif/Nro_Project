@@ -156,8 +156,6 @@ public class AnTrom extends Boss {
             Service.gI().dropItemMap(this.zone, item1594);
             
             BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.BI_MOC_SACH_TUI, 1);
-            plKill.event.addEventPoint(5);
-            Service.gI().sendThongBao(plKill, "+5 Point");
         }
     }
 

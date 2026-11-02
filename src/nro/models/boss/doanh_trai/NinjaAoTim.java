@@ -48,7 +48,7 @@ public class NinjaAoTim extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        // điểm sự kiện và vàng theo độ mạnh boss: BossRewardService
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
 
         // Xác suất rơi item 1560 (50%)
         if (Util.isTrue(50, 100)) {
