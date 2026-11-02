@@ -13,7 +13,7 @@ import nro.models.skill.Skill;
 import nro.models.utils.Util;
 
 /**
- * Broly Super (SSJ Broly tóc xanh lá): boss riêng ở vùng tuyết của Cooler (Cánh đồng tuyết -> Hang băng), HP 2 tỷ.
+ * SSJ Broly (tóc xanh lá; trước tên "Broly Super"): boss riêng ở vùng tuyết của Cooler (Cánh đồng tuyết -> Hang băng), HP 2 tỷ.
  * Khác Super Broly (hóa từ Broly, giết nhận đệ tử). Phần thưởng theo bài cập nhật boss SSJ Broly.
  */
 public class BrolySuper extends Boss {
@@ -22,7 +22,7 @@ public class BrolySuper extends Boss {
 
     public BrolySuper() throws Exception {
         super(BossID.BROLY_SUPER, new BossData(
-                "Broly Super",
+                "SSJ Broly",
                 ConstPlayer.XAYDA,
                 new short[]{2099, 2100, 2101, -1, -1, -1}, // Broly tóc xanh lá
                 1_000_000,
@@ -102,7 +102,12 @@ public class BrolySuper extends Boss {
         if (Util.isTrue(30, 100)) {
             dropEquip(plKill, 8, 11, 0, x, y);
         }
-        // (bỏ vàng rơi và Mảnh khỉ Oozaru: boss không rơi vàng, mảnh Oozaru là quà đua top)
+        // Vàng ngẫu nhiên
+        Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 190, Util.nextInt(100_000, 2_000_000), x, y, plKill.id));
+        // Mảnh khỉ Oozaru
+        if (Util.isTrue(30, 100)) {
+            drop(plKill, 1771, Util.nextInt(1, 5), x, y);
+        }
         // Trang bị cấp 11 - 12 từ 5 - 8 sao
         if (Util.isTrue(10, 100)) {
             dropEquip(plKill, 11, 12, Util.isTrue(10, 100) ? 8 : Util.nextInt(5, 7), x, y);

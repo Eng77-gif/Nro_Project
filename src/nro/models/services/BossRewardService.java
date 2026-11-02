@@ -103,6 +103,9 @@ public class BossRewardService {
         if (pl == null || boss.zone == null || !pl.isPl() || pl.isBot) {
             return;
         }
+        if (boss.id == nro.models.boss.BossID.BROLY_SUPER) {
+            return; // SSJ Broly giữ nguyên quà riêng (vàng, mảnh Oozaru, trang bị...), không nhận quà theo bậc
+        }
         int tier = tierOf(boss);
         String name = boss.name == null ? "" : boss.name.toLowerCase();
         // dòng riêng của boss (theo tên) thay thế dòng chung của bậc cùng loại vật phẩm
