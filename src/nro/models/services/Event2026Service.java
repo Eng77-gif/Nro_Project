@@ -40,7 +40,9 @@ public class Event2026Service {
             2054, 514, // Bóng mờ trung thu
             2096, 518, // Bóng mờ hoa hồng đỏ
             2097, 519); // Bóng mờ hoa hồng băng
-    public static final Set<Integer> FOOT_IDS = FOOT_EFFECT.keySet();
+    /** Các vật phẩm mang ở ô bóng bước chân (Hào quang chân SPL10 dùng hiệu ứng riêng, xem SaoPhaLe10Service.effectId). */
+    public static final Set<Integer> FOOT_IDS = java.util.stream.Stream.concat(FOOT_EFFECT.keySet().stream(),
+            java.util.stream.Stream.of(nro.models.database.Dot56Migration.ITEM_HAO_QUANG_SPL10)).collect(java.util.stream.Collectors.toUnmodifiableSet());
 
     /** Hiệu ứng bóng mờ đang mang, -1 nếu không có. */
     public static int footEffectId(Player pl) {
@@ -88,11 +90,13 @@ public class Event2026Service {
         }
         Item old = pl.itemFoot;
         int effTruoc = footEffectId(pl);
+        int spl10Truoc = SaoPhaLe10Service.effectId(pl);
         pl.itemFoot = item;
         pl.inventory.itemsBag.set(index, old != null && old.isNotNullItem() ? old : ItemService.gI().createItemNull());
         InventoryService.gI().sendItemBags(pl);
         Service.gI().point(pl);
         refreshFootEffect(pl, effTruoc);
+        Service.gI().refreshEffect(pl, spl10Truoc, SaoPhaLe10Service.effectId(pl));
         Service.gI().sendThongBao(pl, "Đã mang " + item.template.name + (old != null ? ", tháo " + old.template.name + " về hành trang" : "")
                 + ". Chat \"thao buoc chan\" để tháo ra");
     }
@@ -108,11 +112,13 @@ public class Event2026Service {
         }
         Item foot = pl.itemFoot;
         int effTruoc = footEffectId(pl);
+        int spl10Truoc = SaoPhaLe10Service.effectId(pl);
         pl.itemFoot = null;
         InventoryService.gI().addItemBag(pl, foot);
         InventoryService.gI().sendItemBags(pl);
         Service.gI().point(pl);
         refreshFootEffect(pl, effTruoc);
+        Service.gI().refreshEffect(pl, spl10Truoc, SaoPhaLe10Service.effectId(pl));
         Service.gI().sendThongBao(pl, "Đã tháo " + foot.template.name);
     }
 

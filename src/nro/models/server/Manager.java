@@ -314,6 +314,7 @@ public final class Manager {
         try (Connection ConnectionDatabase = LocalManager.getConnection()) {
             nro.models.database.Dot48Migration.run(ConnectionDatabase);
             nro.models.database.Dot52Migration.run(ConnectionDatabase);
+            nro.models.database.Dot56Migration.run(ConnectionDatabase);
             //load part
             ps = ConnectionDatabase.prepareStatement("select * from part");
             rs = ps.executeQuery();

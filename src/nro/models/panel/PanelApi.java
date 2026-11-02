@@ -746,6 +746,7 @@ class PanelApi {
         List<Map<String, Object>> used = new ArrayList<>();
         used.add(Map.of("what", "Đủ 5 món Set kích hoạt (mọi set, kể cả Champa)", "kind", "hiệu ứng", "id", Service.EFF_SET_KICH_HOAT));
         used.add(Map.of("what", "Đủ 5 món Set Beerus", "kind", "hiệu ứng", "id", Service.EFF_SET_BEERUS));
+        used.add(Map.of("what", "Hào quang chân Sao Pha Lê 10 (đồ đập 10 sao trong sự kiện / vật phẩm hào quang)", "kind", "hiệu ứng", "id", nro.models.services.SaoPhaLe10Service.EFF_HAO_QUANG));
         for (Map.Entry<Integer, Integer> e : new java.util.TreeMap<>(nro.models.services.Event2026Service.FOOT_EFFECT).entrySet()) {
             String n;
             try {

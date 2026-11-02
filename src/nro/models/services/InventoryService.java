@@ -405,12 +405,14 @@ public class InventoryService {
         Item item = player.inventory.itemsBag.get(index);
         if (item.isNotNullItem()) {
             int effTruoc = Service.gI().setEffectId(player);
+            int spl10Truoc = SaoPhaLe10Service.effectId(player);
             player.inventory.itemsBag.set(index, putItemBody(player, item));
             sendItemBags(player);
             sendItemBody(player);
             Service.gI().point(player);
             Service.gI().Send_Caitrang(player);
             Service.gI().refreshSetEffect(player, effTruoc); // hiệu ứng set kích hoạt / Beerus
+            Service.gI().refreshEffect(player, spl10Truoc, SaoPhaLe10Service.effectId(player)); // hào quang chân SPL10
         }
     }
 
@@ -431,6 +433,7 @@ public class InventoryService {
                 }
             }
             int effTruoc = Service.gI().setEffectId(player);
+            int spl10Truoc = SaoPhaLe10Service.effectId(player);
             player.inventory.itemsBody.set(index, putItemBag(player, item));
             sendItemBags(player);
             sendItemBody(player);
@@ -441,6 +444,7 @@ public class InventoryService {
             Service.gI().sendFlagBag(player);
             Service.gI().point(player);
             Service.gI().refreshSetEffect(player, effTruoc); // hiệu ứng set kích hoạt / Beerus
+            Service.gI().refreshEffect(player, spl10Truoc, SaoPhaLe10Service.effectId(player)); // hào quang chân SPL10
         }
     }
 

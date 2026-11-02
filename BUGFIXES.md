@@ -1374,3 +1374,10 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - **Danh hiệu:** ảnh hiệu ứng, chỉ số, cách nhận, sửa và nạp lại ngay.
   - **Hiệu ứng & aura:** bảng mã đang dùng và thư viện ảnh 174 hiệu ứng, 71 aura (cắt khung đầu), có tìm theo mã.
 - API mới: `server`, `eventtops`, `eventtop`, `radar`, `radar/save`, `badges`, `badge/save`, `fx`; ảnh `/fx/eff/<id>`, `/fx/aura/<id>`.
+
+## Đợt 56
+- Bà Hạt Mít (sự kiện Nâng cấp trang bị lên Sao Pha Lê 10, 31/10 - hết 20/11/2026): mốc 7 món thưởng Hộp Set kích hoạt tùy chọn + **Hào quang chân Sao Pha Lê 10** vĩnh viễn (item 2112, thay cho bóng mờ hoa hồng).
+- Đồ đập lên 10 sao trong thời gian sự kiện được gắn dòng "Hào quang chân Sao Pha Lê 10" (option 261). Mốc nhiệm vụ chỉ đếm đồ có dòng này.
+- Mặc đồ có dòng này hoặc mang Hào quang chân SPL10: hiệu ứng 515 + SĐ 6%, HP 6%, KI 6%, sát thương cuối 2% (cộng 1 lần, không cộng dồn).
+- 4 cải trang mới (2113 - 2116, part 2379 - 2390) và 123 icon mới / cập nhật từ gói 31/10. data v22, item v21.
+- Panel: giao diện riêng cho điện thoại (thanh dưới, menu dạng lưới ô, bảng thành thẻ, hộp thoại trượt từ dưới).

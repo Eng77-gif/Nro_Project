@@ -29,10 +29,63 @@ public class SaoPhaLe10Service {
 
     /** Mốc nhiệm vụ: số món đủ 10 sao -> phần thưởng */
     public static final int[] MOC = {1, 2, 3, 5, 7};
-    private static final String[] MOC_TEXT = {"1 Hộp ngọc rồng xanh", "2 Hộp ngọc rồng xanh", "1 Capsule vỡ", "2 Capsule vỡ",
-        "1 Capsule kích hoạt tự chọn + Bóng mờ hoa hồng"};
+    private static final String[] MOC_TEXT = {"1 hộp ngọc rồng xanh (tự chọn)", "2 hộp ngọc rồng xanh (tự chọn)", "1 Capsule Vỡ", "2 Capsule Vỡ",
+        "1 Hộp Set kích hoạt tùy chọn theo nhân vật + Hào quang chân Sao Pha Lê 10 vĩnh viễn"};
     private static final int CAPSULE_KICH_HOAT = 1655;
-    private static final int FOOT_REWARD = 2097;
+    private static final int FOOT_REWARD = nro.models.database.Dot56Migration.ITEM_HAO_QUANG_SPL10;
+
+    /** Dòng đánh dấu đồ đập lên 10 sao trong thời gian sự kiện (có hào quang chân, hiệu ứng 515). */
+    public static final int OPT_HAO_QUANG = nro.models.database.Dot56Migration.OPT_HAO_QUANG_SPL10;
+    public static final int EFF_HAO_QUANG = 515;
+    /** Thời gian sự kiện Nâng cấp trang bị lên Sao Pha Lê 10 (giờ Việt Nam) */
+    public static final java.time.LocalDateTime EVENT_START = java.time.LocalDateTime.of(2026, 10, 31, 0, 0);
+    public static final java.time.LocalDateTime EVENT_END = java.time.LocalDateTime.of(2026, 11, 21, 0, 0);
+    /** Chỉ số hào quang (không cộng dồn dù mặc nhiều món): SĐ, HP, KI, sát thương cuối */
+    public static final int BONUS_SD = 6, BONUS_HP = 6, BONUS_KI = 6, BONUS_ST_CUOI = 2;
+
+    public static boolean isEventTime() {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+        return !now.isBefore(EVENT_START) && now.isBefore(EVENT_END);
+    }
+
+    public static boolean hasMark(Item it) {
+        if (it == null || !it.isNotNullItem()) {
+            return false;
+        }
+        for (ItemOption io : it.itemOptions) {
+            if (io.optionTemplate != null && io.optionTemplate.id == OPT_HAO_QUANG) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Đập lên 10 sao trong thời gian sự kiện thì gắn hào quang chân Sao Pha Lê 10. */
+    public static void markIfEvent(Item it, int star) {
+        if (star >= 10 && isEventTime() && !hasMark(it)) {
+            it.itemOptions.add(new ItemOption(OPT_HAO_QUANG, 0));
+        }
+    }
+
+    /** Đang mặc đồ 10 sao sự kiện hoặc mang Hào quang chân Sao Pha Lê 10. */
+    public static boolean hasHaoQuang(Player pl) {
+        if (pl == null || !pl.isPl() || pl.inventory == null) {
+            return false;
+        }
+        if (hasMark(pl.itemFoot)) {
+            return true;
+        }
+        for (Item it : pl.inventory.itemsBody) {
+            if (hasMark(it)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static int effectId(Player pl) {
+        return hasHaoQuang(pl) ? EFF_HAO_QUANG : -1;
+    }
 
     private static SaoPhaLe10Service instance;
 
@@ -149,13 +202,13 @@ public class SaoPhaLe10Service {
 
     // ------------------------------------------------------------------ nhiệm vụ Bà Hạt Mít
 
-    /** Số món (đang mặc + hành trang + rương) đã khảm đủ 10 sao. */
+    /** Số món (đang mặc + hành trang + rương) đã khảm đủ 10 sao trong thời gian sự kiện. */
     public int countFull(Player pl) {
         int n = 0;
         List<List<Item>> all = List.of(pl.inventory.itemsBody, pl.inventory.itemsBag, pl.inventory.itemsBox);
         for (List<Item> list : all) {
             for (Item it : list) {
-                if (it != null && it.isNotNullItem()) {
+                if (it != null && it.isNotNullItem() && hasMark(it)) {
                     for (ItemOption io : it.itemOptions) {
                         if (io.optionTemplate.id == 102 && io.param >= 10) {
                             n++;
@@ -170,10 +223,13 @@ public class SaoPhaLe10Service {
 
     public void showQuest(Player pl, nro.models.npc.Npc npc) {
         int n = countFull(pl);
-        StringBuilder sb = new StringBuilder("|1|Nhiệm vụ Sao pha lê 10\n|2|Mang trang bị đã khảm đủ 10 sao đến đây để nhận thưởng.\nBạn đang có: " + n + " món\n");
+        java.time.format.DateTimeFormatter f = java.time.format.DateTimeFormatter.ofPattern("dd/MM");
+        StringBuilder sb = new StringBuilder("|1|Sự kiện Nâng cấp trang bị lên Sao Pha Lê 10\n|2|Thời gian từ " + EVENT_START.format(f)
+                + " đến hết " + EVENT_END.minusDays(1).format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                + "\nChỉ tính trang bị đập lên 10 sao trong thời gian sự kiện\n(có dòng Hào quang chân Sao Pha Lê 10).\nBạn đang có: " + n + " món\n");
         for (int i = 0; i < MOC.length; i++) {
             boolean got = (pl.spl10Reward & (1 << i)) != 0;
-            sb.append(got ? "|7|" : n >= MOC[i] ? "|1|" : "|4|").append(MOC[i]).append(" món: ").append(MOC_TEXT[i])
+            sb.append(got ? "|7|" : n >= MOC[i] ? "|1|" : "|4|").append("Nâng cấp ").append(MOC[i]).append(" món: ").append(MOC_TEXT[i])
                     .append(got ? " (đã nhận)" : "").append("\n");
         }
         npc.createOtherMenu(pl, MENU_NHIEM_VU, sb.toString(), "Nhận\nthưởng", "Đóng");
@@ -217,7 +273,9 @@ public class SaoPhaLe10Service {
                 list.add(ItemService.gI().createNewItem((short) Event2026Service.CAPSULE_VO, 2));
             case 4 -> {
                 list.add(ItemService.gI().createNewItem((short) CAPSULE_KICH_HOAT, 1));
-                list.add(ItemService.gI().createNewItem((short) FOOT_REWARD, 1));
+                Item foot = ItemService.gI().createNewItem((short) FOOT_REWARD, 1);
+                foot.itemOptions.add(new ItemOption(OPT_HAO_QUANG, 0));
+                list.add(foot);
             }
         }
         return list;

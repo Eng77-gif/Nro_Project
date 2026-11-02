@@ -152,6 +152,7 @@ public class EpSaoTrangBi {
                 } else {
                     trangBi.itemOptions.add(new ItemOption(102, 1));
                 }
+                SaoPhaLe10Service.markIfEvent(trangBi, optionStar != null ? optionStar.param : 1);
                 InventoryService.gI().subQuantityItemsBag(player, daPhaLe, 1);
                 CombineService.gI().sendEffectSuccessCombine(player);
                 InventoryService.gI().sendItemBags(player);

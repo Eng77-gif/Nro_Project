@@ -592,6 +592,13 @@ public class NPoint {
             this.tlMp.add(nearKi);
         }
         this.tlSpeed += nearSpeed;
+        // Hào quang chân Sao Pha Lê 10 (đồ đập 10 sao trong sự kiện hoặc vật phẩm hào quang): cộng 1 lần, không cộng dồn
+        if (!this.player.isPet && nro.models.services.SaoPhaLe10Service.hasHaoQuang(this.player)) {
+            this.tlDame.add(nro.models.services.SaoPhaLe10Service.BONUS_SD);
+            this.tlHp.add(nro.models.services.SaoPhaLe10Service.BONUS_HP);
+            this.tlMp.add(nro.models.services.SaoPhaLe10Service.BONUS_KI);
+            this.tlSTCuoi += nro.models.services.SaoPhaLe10Service.BONUS_ST_CUOI;
+        }
         if (setSDCMWithLuoiHaiHong > 0 && isWearing(LUOI_HAI_HONG)) {
             this.tlDameCrit.add(setSDCMWithLuoiHaiHong);
             this.tlSDCM += setSDCMWithLuoiHaiHong;

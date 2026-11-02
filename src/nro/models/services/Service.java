@@ -2103,6 +2103,10 @@ public class Service {
         if (foot >= 0) {
             sendEffAllPlayer(pl, foot, 1, -1, 1);
         }
+        int spl10 = SaoPhaLe10Service.effectId(pl); // hào quang chân Sao Pha Lê 10
+        if (spl10 >= 0) {
+            sendEffAllPlayer(pl, spl10, 1, -1, 1);
+        }
     }
 
     /** Gửi hiệu ứng set của người khác trong map cho mình (vào map). */
@@ -2118,10 +2122,27 @@ public class Service {
                     if (foot >= 0) {
                         sendEffPlayer(plM, pl, foot, 1, -1, 1);
                     }
+                    int spl10 = SaoPhaLe10Service.effectId(plM);
+                    if (spl10 >= 0) {
+                        sendEffPlayer(plM, pl, spl10, 1, -1, 1);
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /** Hiệu ứng đổi từ before sang now: gỡ cái cũ, bật cái mới cho cả map. */
+    public void refreshEffect(Player pl, int before, int now) {
+        if (now == before || pl.zone == null) {
+            return;
+        }
+        if (before >= 0) {
+            removeEffPlayer(pl, before);
+        }
+        if (now >= 0) {
+            sendEffAllPlayer(pl, now, 1, -1, 1);
         }
     }
 

@@ -68,7 +68,47 @@ nav a.on{background:linear-gradient(90deg,rgba(245,165,36,.18),transparent);box-
 .fx{width:64px;height:40px;object-fit:contain;vertical-align:middle;image-rendering:pixelated}.gal b{display:block;font-size:12px;color:var(--acc)}
 .chip{display:inline-block;padding:2px 8px;margin:2px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);font-size:12px}
 .tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}.tabs button.on{border-color:var(--acc);color:var(--acc)}
-@media(max-width:760px){#menu{display:inline-block}nav.hide{display:none!important}#top{padding:8px 16px}#app{flex-direction:column}nav{width:auto;height:auto;position:static;display:flex;flex-wrap:wrap;gap:2px}nav .g,nav h1{display:none}main{padding:14px 16px}}
+#tabbar,#ptitle,#mstat{display:none}
+/* ---- giao diện riêng cho điện thoại ---- */
+@media(max-width:760px){
+ body{font-size:15px;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+ input,select,textarea{font-size:16px;padding:10px 12px;border-radius:10px}button{padding:10px 14px;border-radius:10px;min-height:42px}button.s{min-height:34px;padding:6px 10px;font-size:13px}
+ #app{display:block}main{padding:12px 12px 20px}h2{font-size:18px;margin-bottom:10px}main>h2:first-child{display:none}
+ /* thanh trên: tên trang + trạng thái gọn, các nút thông tin cuộn ngang */
+ #top{padding:10px 12px 8px;gap:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}#top::-webkit-scrollbar{display:none}
+ #top>b,#top .sp,#top>.mute,#menu{display:none!important}#top .pill{flex:none}
+ #ptitle{display:block;font-weight:700;font-size:17px;flex:none;margin-right:4px}
+ #mstat{display:inline-flex}
+ /* menu: trang toàn màn hình dạng lưới ô */
+ nav{display:block!important;position:fixed;inset:0 0 calc(64px + env(safe-area-inset-bottom)) 0;width:auto;height:auto;z-index:40;border:0;padding:0 12px 16px;overflow:auto;transform:translateY(0);transition:transform .22s ease,opacity .22s;opacity:1}
+ nav.hide{transform:translateY(100%);opacity:0;pointer-events:none}
+ nav h1{margin:0 -12px 8px;padding:14px 16px;position:sticky;top:0;z-index:1}
+ nav .g{display:block;margin:14px 2px 6px}
+ nav{--cols:3}nav .tiles{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:8px}
+ nav a{flex-direction:column;justify-content:center;gap:4px;text-align:center;padding:12px 4px;margin:0;background:var(--panel2);border:1px solid var(--line);border-radius:12px;font-size:12.5px;line-height:1.2;min-height:76px}
+ nav a i{font-size:22px;width:auto}nav a.on{box-shadow:inset 0 0 0 2px var(--acc);background:var(--panel2)}
+ /* thanh dưới */
+ #tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:45;background:var(--panel);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+ #tabbar a{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0;color:var(--mute);text-decoration:none;font-size:11px;border-radius:10px}
+ #tabbar a i{font-style:normal;font-size:21px;line-height:1.1}#tabbar a.on{color:var(--acc);background:var(--panel2)}
+ /* bảng -> thẻ */
+ .tw{border:0;max-height:none;overflow:visible}.tw table,.tw tbody{display:block;background:none}.tw thead{display:none}
+ .tw tr{display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 12px;margin-bottom:8px}
+ .tw tr:hover td{background:none}
+ .tw td{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line);white-space:normal;text-align:right;min-width:0!important;word-break:break-word}
+ .tw td:last-child{border-bottom:0}.tw td::before{content:attr(data-l);color:var(--mute);font-size:12px;text-align:left;flex:none;max-width:45%}
+ .tw td[data-l=""]::before{display:none}.tw td[data-l=""]{justify-content:flex-start;text-align:left}
+ .tw td.act{justify-content:flex-end;flex-wrap:wrap;gap:6px}.tw td.act::before{display:none}
+ .stats{grid-template-columns:1fr 1fr;gap:8px}.stat{padding:10px}.stat b{font-size:17px}
+ .qa{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}
+ .row>input,.row>select{flex:1 1 140px}.row .grow{flex:1 1 100%!important}
+ .card{padding:12px;border-radius:12px}
+ .modal{padding:0;align-items:flex-end}.modal .box{width:100%;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
+ .pick{grid-template-columns:1fr}.gal{grid-template-columns:repeat(3,1fr)}
+ #toast{left:12px;right:12px;bottom:calc(72px + env(safe-area-inset-bottom))}#toast div{max-width:none}
+ .log{height:55vh}
+}
+@media(max-width:380px){nav{--cols:2}.stats{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -84,6 +124,7 @@ nav a.on{background:linear-gradient(90deg,rgba(245,165,36,.18),transparent);box-
   <nav id="nav"></nav>
   <div style="flex:1;min-width:0"><div id="top"></div><main id="main"></main></div>
 </div>
+<div id="tabbar"></div>
 <div id="toast"></div>
 <script>
 const $=s=>document.querySelector(s);
@@ -103,7 +144,7 @@ async function act(fn,ok){try{const r=await fn();toast(ok||(r&&r.note)||'Đã xo
 function table(rows,cols,actions){
   if(!rows||!rows.length)return '<div class="mute">Không có dữ liệu</div>';
   cols=cols||Object.keys(rows[0]).map(k=>[k,k]);
-  return `<div class="tw"><table><thead><tr>${cols.map(c=>`<th>${esc(c[1])}</th>`).join('')}${actions?'<th></th>':''}</tr></thead><tbody>${rows.map((r,i)=>`<tr>${cols.map(c=>`<td class="${c[3]||''}">${c[2]?c[2](r[c[0]],r):esc(r[c[0]])}</td>`).join('')}${actions?`<td>${actions(r,i)}</td>`:''}</tr>`).join('')}</tbody></table></div>`}
+  return `<div class="tw"><table><thead><tr>${cols.map(c=>`<th>${esc(c[1])}</th>`).join('')}${actions?'<th></th>':''}</tr></thead><tbody>${rows.map((r,i)=>`<tr>${cols.map(c=>`<td class="${c[3]||''}" data-l="${esc(c[1])}">${c[2]?c[2](r[c[0]],r):esc(r[c[0]])}</td>`).join('')}${actions?`<td class="act" data-l="">${actions(r,i)}</td>`:''}</tr>`).join('')}</tbody></table></div>`}
 function modal(html){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class="box">${html}</div>`;m.onclick=e=>{if(e.target===m)m.remove()};document.body.append(m);return m}
 
 const PAGES=[
@@ -112,10 +153,20 @@ const PAGES=[
  ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],
  ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['mobs','Quái','🐗'],
  ['g','Khác'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
-function buildNav(){if(innerWidth<760)$('#nav').classList.add('hide');$('#nav').innerHTML='<h1>🐉<span>Panel NRO<small>chữ ký: Việt</small></span></h1>'+PAGES.map(p=>p[0]==='g'?`<div class="g">${p[1]}</div>`:`<a href="#${p[0]}" data-p="${p[0]}"><i>${p[2]||'•'}</i>${p[1]}</a>`).join('')+'<div class="g">Tài khoản</div><a href="#" onclick="toggleTheme();return false"><i>🌓</i>Đổi sáng / tối</a><a href="#" onclick="logout();return false"><i>🚪</i>Đăng xuất</a>';
+function buildNav(){if(innerWidth<760)$('#nav').classList.add('hide');let h='<h1>🐉<span>Panel NRO<small>chữ ký: Việt</small></span></h1>',open=false;
+  for(const p of PAGES){if(p[0]==='g'){if(open)h+='</div>';h+=`<div class="g">${p[1]}</div><div class="tiles">`;open=true}else h+=`<a href="#${p[0]}" data-p="${p[0]}"><i>${p[2]||'•'}</i>${p[1]}</a>`}
+  h+='</div><div class="g">Tài khoản</div><div class="tiles"><a href="#" onclick="toggleTheme();return false"><i>🌓</i>Đổi sáng / tối</a><a href="#" onclick="logout();return false"><i>🚪</i>Đăng xuất</a></div>';
+  $('#nav').innerHTML=h;buildTabbar();
   document.querySelectorAll('#nav a[data-p]').forEach(a=>a.addEventListener('click',()=>{if(innerWidth<760)$('#nav').classList.add('hide')}));refreshTop();clearInterval(window._topT);window._topT=setInterval(refreshTop,15000)}
+/* thanh dưới cho điện thoại: 4 trang hay dùng + "Thêm" mở lưới tất cả trang */
+const TABS=[['dash','📊','Tổng quan'],['players','👤','Người chơi'],['items','🎒','Vật phẩm'],['events','🎉','Sự kiện']];
+function buildTabbar(){$('#tabbar').innerHTML=TABS.map(t=>`<a href="#${t[0]}" data-t="${t[0]}"><i>${t[1]}</i>${t[2]}</a>`).join('')+'<a href="#" id="more" onclick="$(\'#nav\').classList.toggle(\'hide\');markTab();return false"><i>☰</i>Thêm</a>';
+  $('#tabbar').querySelectorAll('a[data-t]').forEach(a=>a.addEventListener('click',()=>$('#nav').classList.add('hide')));markTab()}
+function markTab(){const p=(location.hash||'#dash').slice(1),navOpen=!$('#nav').classList.contains('hide');
+  document.querySelectorAll('#tabbar a').forEach(a=>a.classList.toggle('on',a.id==='more'?navOpen||!TABS.some(t=>t[0]===p):!navOpen&&a.dataset.t===p))}
+function pageName(p){const x=PAGES.find(x=>x[0]===p);return x?x[1]:'Tổng quan'}
 async function refreshTop(){try{const [s,v]=await Promise.all([api('stats'),api('server')]);
-  $('#top').innerHTML=`<button id="menu" onclick="$('#nav').classList.toggle('hide')">☰</button><b>${esc(s.server)}</b><span class="pill"><span class="dot"></span>${fmt(s.online)} online</span>
+  $('#top').innerHTML=`<button id="menu" onclick="$('#nav').classList.toggle('hide')">☰</button><span id="ptitle">${esc(pageName((location.hash||'#dash').slice(1)))}</span><b>${esc(s.server)}</b><span class="pill"><span class="dot"></span>${fmt(s.online)} online</span>
   <span class="pill">🎉 ${v.event?esc(v.event):'<span class="mute">không có sự kiện</span>'}</span><span class="pill" title="Kiểm tra chữ ký khi khởi động">🔏 ${esc(v.signature)}</span>
   <span class="pill">RAM ${fmt(s.memUsedMb)}/${fmt(s.memMaxMb)} MB</span>${s.maintenance?'<span class="pill tag bad1">đang bảo trì</span>':''}<span class="sp"></span><span class="mute" style="font-size:12px">Java ${esc(v.java)} · data v${v.vsData} · item v${v.vsItem}</span>`;
   window._online=(window._online||[]).concat([{t:Date.now(),n:s.online}]).slice(-120);drawChart()}catch(e){}}
@@ -129,6 +180,7 @@ let logTimer=null;
 async function route(){
   clearInterval(logTimer);routeGen++;const p=(location.hash||'#dash').slice(1);
   document.querySelectorAll('nav a[data-p]').forEach(a=>a.classList.toggle('on',a.dataset.p===p));
+  $('#nav').classList.toggle('hide',innerWidth<760||$('#nav').classList.contains('hide'));markTab();const pt=document.getElementById('ptitle');if(pt)pt.textContent=pageName(p);scrollTo(0,0);
   const f=window['page_'+p]||page_dash;$('#main').innerHTML='<div class="mute">Đang tải…</div>';
   try{await f()}catch(e){if(!e.stale)$('#main').innerHTML=`<div class="card">${esc(e.message)}</div>`}}
 window.onhashchange=route;
