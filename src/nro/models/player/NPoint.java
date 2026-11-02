@@ -241,6 +241,11 @@ public class NPoint {
      * Tính toán mọi chỉ số sau khi có thay đổi
      */
     public void calPoint() {
+        // đếm lại set kích hoạt mỗi lần tính chỉ số (trước đây chỉ đếm khi vào game nên thay đồ phải thoát ra vào lại)
+        if ((this.player.isPl() || this.player.isPet) && this.player.setClothes != null && this.player.inventory != null
+                && this.player.inventory.itemsBody != null && this.player.inventory.itemsBody.size() >= 6) {
+            this.player.setClothes.setup();
+        }
         if (this.player.pet != null) {
             this.player.pet.nPoint.setPointWhenWearClothes();
         }

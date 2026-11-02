@@ -80,6 +80,10 @@ public class ServerManager {
     }
 
     public static void main(String[] args) {
+        if (!JarSignatureCheck.verify()) {
+            System.exit(1);
+            return;
+        }
         try {
             timeStart = TimeUtil.getTimeNow("dd/MM/yyyy HH:mm:ss");
             //ShopTab.loadItem();

@@ -67,7 +67,7 @@ public interface IBoss {
 
     short getFlagBag();
 
-    byte getAura();
+    short getAura();
 
     byte getEffFront();
 }

@@ -279,8 +279,8 @@ public class Boss extends Player implements IBoss {
     }
 
     @Override
-    public byte getAura() {
-        return (byte) this.data[this.currentLevel].getOutfit()[4];
+    public short getAura() {
+        return this.data[this.currentLevel].getOutfit()[4];
     }
 
     @Override

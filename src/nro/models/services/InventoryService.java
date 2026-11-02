@@ -404,11 +404,17 @@ public class InventoryService {
         }
         Item item = player.inventory.itemsBag.get(index);
         if (item.isNotNullItem()) {
+            short auraTruoc = player.getAura();
             player.inventory.itemsBag.set(index, putItemBody(player, item));
             sendItemBags(player);
             sendItemBody(player);
             Service.gI().point(player);
             Service.gI().Send_Caitrang(player);
+            if (player.getAura() != auraTruoc && player.zone != null) {
+                // aura set kích hoạt / Beerus vừa bật hoặc tắt: gửi lại cho mình và người trong map
+                Service.gI().player(player);
+                player.zone.load_Me_To_Another(player);
+            }
         }
     }
 

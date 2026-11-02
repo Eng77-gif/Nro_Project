@@ -749,21 +749,33 @@ public class Player implements Runnable {
         return -1;
     }
 
-    public byte getAura() {
+    /** Aura khi mặc đủ 5 món cùng một Set kích hoạt (mọi set trừ Beerus) và khi đủ set Beerus. */
+    public static final short AURA_SET_KICH_HOAT = 504;
+    public static final short AURA_SET_BEERUS = 512;
+
+    public short getAura() {
         if (!isPl()) {
             return -1;
+        }
+        if (this.setClothes != null) {
+            if (this.setClothes.beerus >= 5) {
+                return AURA_SET_BEERUS;
+            }
+            if (this.setClothes.fullSetKichHoat()) {
+                return AURA_SET_KICH_HOAT;
+            }
         }
         for (Card card : this.Cards) {
             if (card != null && (card.Id == 956 || card.Id == 1771 || card.Id == 1204 || card.Id == 1142) && card.Level > 1) {
                 RadarCard radarTemplate = RadarService.gI().RADAR_TEMPLATE.stream().filter(r -> r.Id == card.Id).findFirst().orElse(null);
                 if (radarTemplate != null) {
-                    return (byte) radarTemplate.AuraId;
+                    return radarTemplate.AuraId;
                 }
             }
         }
         // aura thưởng đua top Quy Lão
         if (this.auraReward >= 0 && this.auraRewardUntil > System.currentTimeMillis()) {
-            return (byte) this.auraReward;
+            return (short) this.auraReward;
         }
         return -1;
     }

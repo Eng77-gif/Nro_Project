@@ -1297,3 +1297,21 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - Chứng chỉ công khai và script ký lại: `tools/codesign/`.
   - Khóa riêng `viet-codesign.p12` **không đưa lên git** (đã gửi riêng cho chủ server).
 - `vsData` 20 → 21, `vsItem` 19 → 20.
+
+## Đợt 53: Kiểm tra chữ ký Việt khi khởi động, aura Set kích hoạt / Beerus
+### Kiểm tra chữ ký khi server khởi động (`JarSignatureCheck`)
+- Trước khi chạy, server đọc toàn bộ file trong `20.jar` và kiểm tra:
+  - Mã băm của từng file.
+  - Mọi file đều phải được ký bằng chứng chỉ **CN=Việt** (so vân tay SHA-256).
+- Không cho chạy (thoát, báo "KIỂM TRA CHỮ KÝ VIỆT THẤT BẠI") khi: jar chưa ký, bị sửa file, bị thêm file lạ, hoặc ký bằng khóa khác.
+- Đã thử cả 4 trường hợp: jar đã ký chạy bình thường (3.434 file hợp lệ); jar chưa ký, sửa 1 byte class, thêm file lạ đều bị chặn.
+- Chạy từ thư mục class (lập trình trong NetBeans) chỉ cảnh báo, vẫn chạy.
+- **Từ bản này, mọi bản build phải ký bằng `tools/codesign/sign_jar.*` mới chạy được.**
+
+### Aura Set kích hoạt
+- Mặc đủ **5 món cùng một Set kích hoạt** (mọi set, kể cả Champa) → **aura 504**.
+- Đủ **5 món set Beerus** → **aura 512**.
+- Ưu tiên: aura set > aura thẻ radar > aura thưởng top.
+- `getAura()` đổi từ byte sang short (504 / 512 vượt quá giới hạn byte).
+- Đếm thêm set Champa (option 257) và Beerus (option 115).
+- **Sửa lỗi cũ:** số món set kích hoạt chỉ được đếm khi vào game, thay đồ phải thoát ra vào lại mới có hiệu lực. Giờ đếm lại mỗi lần tính chỉ số. Aura đổi ngay khi mặc / tháo đồ.
