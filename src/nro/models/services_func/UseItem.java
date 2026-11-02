@@ -2933,7 +2933,8 @@ public class UseItem {
         if (card.Amount >= th[stage]) {
             card.Amount = 0;
             card.Level = (byte) (stage + 1);
-            Service.gI().sendThongBao(pl, radarTemplate.Name + " đạt Lv." + card.Level);
+            Service.gI().sendThongBaoOK(pl, radarTemplate.Name + " đạt Lv." + card.Level
+                    + (card.Used == 1 ? "" : "\nBấm nút Sử dụng (giữa thanh dưới của Rađa) để dùng thẻ và hiện aura"));
             Service.gI().point(pl);
         }
         RadarService.fixMax(card, radarTemplate.Max);

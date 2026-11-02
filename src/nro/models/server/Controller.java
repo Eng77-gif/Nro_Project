@@ -150,6 +150,7 @@ public class Controller implements IMessageHandler {
                                         Service.gI().sendThongBao(player, "Thẻ chưa đạt Lv.1, hãy sưu tầm thêm mảnh");
                                         return;
                                     }
+                                    short auraTruoc = player.getAura();
                                     if (card.Used == 0) {
                                         if (player.Cards.stream().anyMatch(c -> c != null && c.Used == 1)) {
                                             Service.gI().sendThongBao(player, "Số thẻ sử dụng đã đạt tối đa");
@@ -161,6 +162,10 @@ public class Controller implements IMessageHandler {
                                     }
                                     RadarService.gI().Radar1(player, idC, card.Used);
                                     Service.gI().point(player);
+                                    if (player.getAura() != auraTruoc && player.zone != null) { // bật / tắt thẻ: hiện / ẩn aura ngay
+                                        Service.gI().player(player);
+                                        player.zone.load_Me_To_Another(player);
+                                    }
                                 }
                                 break;
                         }

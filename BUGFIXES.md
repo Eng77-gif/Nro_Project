@@ -1475,3 +1475,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 ## Đợt 73
 - Client Unity 2.4.7 (Thời Đại Ngọc Rồng): sửa IP máy chủ thành 160.191.243.165:14445, bỏ logo trên màn hình trong game, gửi "|long" để server dùng giao thức số lớn (client này đọc mã chỉ số 2 byte + giá trị 4 byte như J2ME 2.4.x). File sửa và hướng dẫn: tools/client-2.4.7.
 - Server: nhận "|long" trong chuỗi phiên bản -> session.longNumbers. Config server.ip = 160.191.243.165 (server gửi IP này cho client).
+
+## Đợt 74
+- Santa > Danh hiệu > tab "Sở hữu": tên tab đếm đúng số danh hiệu nhưng bấm xem trống với các danh hiệu không nằm sẵn trong tab 45 (danh hiệu đua top / sự kiện mới). Giờ dựng thẳng từ danh hiệu người chơi đang có (kèm chỉ số và hạn dùng), bấm để đổi sang dùng.
+- Thẻ radar: aura chỉ hiện khi thẻ đang được bấm "Sử dụng" (trước đây đạt Lv.1 là tự hiện); bật / tắt thẻ thì aura hiện / ẩn ngay. Lên cấp thẻ hiện bảng thông báo (kèm nhắc bấm Sử dụng nếu chưa dùng).
