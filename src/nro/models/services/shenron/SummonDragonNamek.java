@@ -3,7 +3,7 @@ package nro.models.services.shenron;
 import nro.models.services.shenron.SummonDragon;
 import nro.models.network.Message;
 import nro.models.consts.ConstNpc;
-import nro.models.database.MrBlue;
+import nro.models.database.VietLoader;
 import nro.models.database.PlayerDAO;
 import nro.models.item.Item;
 import java.util.List;
@@ -18,7 +18,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class SummonDragonNamek {
@@ -156,7 +156,7 @@ public class SummonDragonNamek {
                                     InventoryService.gI().addItemBag(p, it);
                                     InventoryService.gI().sendItemBags(p);
                                 } else {
-                                    Player p = MrBlue.loadById(m.id);
+                                    Player p = VietLoader.loadById(m.id);
                                     if (p != null) {
                                         Item it = ItemService.gI().createNewItem((short) 16);
                                         it.quantity = Util.nextInt(1, 20);
@@ -196,7 +196,7 @@ public class SummonDragonNamek {
                                     InventoryService.gI().addItemBag(p, it);
                                     InventoryService.gI().sendItemBags(p);
                                 } else {
-                                    Player p = MrBlue.loadById(m.id);
+                                    Player p = VietLoader.loadById(m.id);
                                     if (p != null) {
                                         byte[] option = {77, 80, 81, 103, 50, 94, 5};
                                         byte[] option_v2 = {14, 16, 17, 19, 27, 28, 5, 47, 87}; //77 %hp // 80 //81 //103 //50 //94 //5 % sdcm
@@ -250,7 +250,7 @@ public class SummonDragonNamek {
                                     InventoryService.gI().addItemBag(p, it);
                                     InventoryService.gI().sendItemBags(p);
                                 } else {
-                                    Player p = MrBlue.loadById(m.id);
+                                    Player p = VietLoader.loadById(m.id);
                                     if (p != null) {
                                         Item it = ItemService.gI().createNewItem((short) 2053);
                                         it.quantity = 99;

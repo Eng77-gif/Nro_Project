@@ -25,7 +25,7 @@ import nro.models.services.shenron.SummonDragonNamek;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 

@@ -18,7 +18,7 @@ import nro.models.server.ServerManager;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 

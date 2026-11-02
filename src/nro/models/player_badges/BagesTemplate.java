@@ -10,7 +10,7 @@ import java.util.Set;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class BagesTemplate {

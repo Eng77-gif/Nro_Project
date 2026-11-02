@@ -3,7 +3,7 @@ package nro.models.map.phoban;
 
 
 import nro.models.utils.Functions;
-import nro.models.database.MrBlue;
+import nro.models.database.VietLoader;
 import nro.models.database.PlayerDAO;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -128,7 +128,7 @@ public class BlackBallWar implements Runnable {
                 if (p != null) {
                     p.rewardBlackBall.reward((byte) star);
                 } else {
-                    Player pFromDb = MrBlue.loadById(m.id);
+                    Player pFromDb = VietLoader.loadById(m.id);
                     if (pFromDb != null) {
                         pFromDb.rewardBlackBall.reward((byte) star);
                         PlayerDAO.updatePlayer(pFromDb);

@@ -14,7 +14,7 @@ import nro.models.services.InventoryService;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 
 public class CombineService {

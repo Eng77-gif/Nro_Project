@@ -12,7 +12,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author MrBlue
+ * @author Việt
  */
 public class TaiTaoCapsuleKichHoat {
 

@@ -9,7 +9,7 @@ import java.util.Date;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class ServerLog {

@@ -1268,3 +1268,32 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 ### Database
 - Tự cập nhật khi khởi động (`Dot48Migration.runDot51`).
 - `vsItem` 18 → 19.
+
+## Đợt 52: Item mặc không hiện, Xe nước mía, gộp thẻ Oozaru, chữ ký số "Việt"
+### Item mặc vào không hiện (gán đúng part)
+- So item_template với source V10:
+  - 34 pet (Thỏ xám / trắng, Hổ mặp, Lính bảo vệ, Pet mèo, Pet Voi / Gà / Ngựa chín…, Pikachu thanh long, Thỏ Ú…) và 9 cải trang (Goku / Pôcôlô / Cađíc võ sĩ, Gohan / Biđen / Bản Cô Nương Siêu Nhân, Chan Xư, Arale, Xuka): part giống hệt, gán thẳng.
+  - 9 cải trang (Android 21 Evil / Thân Thiện, Đặng Văn Chiến, Bunma Rider, Kochiro, Musashi, Kirin chú cuội, Ác Ma Pico, Janemba): part V10 khác part cùng id của mình nên chép sang **part mới 2352 – 2378**.
+  - 13 đeo lưng (bạch tuộc, Bông cúc, Cờ Pokemon, Thùng rác, Lồng đèn 2 lon, Cú con cưng, Bó hoa hồng 2, Ba lô ngọc rồng, Bông tuyết, Cúp vàng, Hỏa tiêm thương): thêm **flag_bag 162 – 173**.
+- Ảnh:
+  - 60 ảnh thiếu chép từ V10 vào `data/icon/x1..x4`.
+  - 21 ảnh trùng id nhưng khác hình (Cờ Pokemon, chân Android 21) chép sang id mới 32278 – 32298.
+- **Xe nước mía** (NPC 84) đang dùng part của *Quán phở anh 2* (sự kiện Phở Anh Hai trong V10). Đổi sang part xe nước mía đúng (part mới 2349 – 2351).
+- `Dot52Migration` tự chạy khi khởi động:
+  - Thêm part / flag_bag nếu chưa có, cập nhật item chỉ khi đang trống.
+  - Bảng `part` không có khóa chính nên dùng `insert ... where not exists`.
+  - Nếu id mới đã có dữ liệu khác thì bỏ qua và báo lỗi, không ghi đè.
+
+### Gộp 3 thẻ Oozaru
+- Thẻ Oozaru / Oozarun 1 / Oozarun 2 → 1 thẻ **Thẻ Oozaru (1771)**, chỉ số và aura của Oozarun 2.
+- Mảnh khỉ Oorazu 1 / 2 dùng vẫn tính vào Thẻ Oozaru.
+- Người chơi đã có thẻ cũ được gộp khi vào game (giữ cấp cao nhất).
+
+### Bỏ "Mr Blue", chữ ký "Việt"
+- 196 dòng `@author ... Mr Blue` → `@author Việt`.
+- Lớp `MrBlue` (nạp dữ liệu người chơi) đổi tên `VietLoader`.
+- Tên bot `mrblue1, 2…` → `viet1, 2…`.
+- `20.jar` được **ký số bằng chứng chỉ riêng "Việt"** (RSA 3072, SHA-256, hạn đến 2036).
+  - Chứng chỉ công khai và script ký lại: `tools/codesign/`.
+  - Khóa riêng `viet-codesign.p12` **không đưa lên git** (đã gửi riêng cho chủ server).
+- `vsData` 20 → 21, `vsItem` 19 → 20.

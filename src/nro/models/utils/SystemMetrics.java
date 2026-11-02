@@ -7,7 +7,7 @@ import java.lang.management.MemoryUsage;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 

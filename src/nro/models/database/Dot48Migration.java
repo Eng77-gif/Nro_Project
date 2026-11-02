@@ -94,6 +94,11 @@ public final class Dot48Migration {
             }
             changed += runDot50(con);
             changed += runDot51(con);
+            // Đợt 52: gộp 3 thẻ Oozaru làm 1 (chỉ số và aura của Oozarun 2)
+            if (exists(con, "select 1 from radar where id = 2105")) {
+                changed += update(con, "update radar r join (select options, aura_id from radar where id = 2105) b set r.options = b.options, r.aura_id = b.aura_id, r.name = 'Thẻ Oozaru' where r.id = 1771");
+                changed += update(con, "delete from radar where id in (2104, 2105)");
+            }
         } catch (Exception ex) {
             Logger.error("Đợt 48: không cập nhật được database: " + ex.getMessage() + "\n");
         }

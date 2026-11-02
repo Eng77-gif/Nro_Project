@@ -1640,7 +1640,7 @@ public class SeasonEventService implements Runnable {
                 for (long[] r : rows) {
                     Player p = Client.gI().getPlayer(r[0]);
                     if (p == null) {
-                        p = nro.models.database.MrBlue.loadById(r[0]);
+                        p = nro.models.database.VietLoader.loadById(r[0]);
                     }
                     if (p != null) {
                         list.add(p);

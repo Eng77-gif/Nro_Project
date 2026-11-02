@@ -7,3 +7,7 @@ nbproject/private/
 # Log khi chạy server
 log/
 admin/
+
+# khóa riêng chữ ký số Việt: không đưa lên git
+*.p12
+*.jks

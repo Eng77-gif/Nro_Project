@@ -11,7 +11,7 @@ import java.util.TimerTask;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class NewSkill {

@@ -55,7 +55,7 @@ import nro.models.data.LocalResultSet;
 import nro.models.npc.DuaHauEgg;
 import nro.models.player.KOLProgressData;
 
-public class MrBlue {
+public class VietLoader {
 
     public static Player login(MySession session, AntiLogin al) {
         Player player = null;
@@ -140,7 +140,7 @@ public class MrBlue {
                 player.dispose();
                 player = null;
             }
-            Logger.logException(MrBlue.class, e);
+            Logger.logException(VietLoader.class, e);
         } finally {
             if (rs != null) {
                 rs.dispose();
@@ -163,7 +163,7 @@ public class MrBlue {
                 player.dispose();
                 player = null;
             }
-            Logger.logException(MrBlue.class, e);
+            Logger.logException(VietLoader.class, e);
         } finally {
             if (rs != null) {
                 rs.dispose();
@@ -914,6 +914,7 @@ public class MrBlue {
                 player.Cards.add(new Card(Short.parseShort(obj.get("id").toString()), Byte.parseByte(obj.get("amount").toString()), Byte.parseByte(obj.get("max").toString()), Byte.parseByte(obj.get("level").toString()), loadOptionCard((JSONArray) JSONValue.parse(obj.get("option").toString())), Byte.parseByte(obj.get("used").toString())));
             }
             dataArray.clear();
+            nro.models.services.RadarService.mergeOozaru(player);
 
             //data PK Commeson
             player.lastPkCommesonTime = rs.getLong("lasttimepkcommeson");

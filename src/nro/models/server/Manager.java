@@ -64,7 +64,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public final class Manager {
@@ -313,6 +313,7 @@ public final class Manager {
         ResultSet rs = null;
         try (Connection ConnectionDatabase = LocalManager.getConnection()) {
             nro.models.database.Dot48Migration.run(ConnectionDatabase);
+            nro.models.database.Dot52Migration.run(ConnectionDatabase);
             //load part
             ps = ConnectionDatabase.prepareStatement("select * from part");
             rs = ps.executeQuery();

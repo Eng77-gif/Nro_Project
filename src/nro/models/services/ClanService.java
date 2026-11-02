@@ -15,7 +15,7 @@ import nro.models.consts.ConstAchievement;
 import nro.models.player.Player;
 import nro.models.network.Message;
 import nro.models.consts.ConstTask;
-import nro.models.database.MrBlue;
+import nro.models.database.VietLoader;
 import nro.models.database.PlayerDAO;
 import nro.models.server.Client;
 import nro.models.server.Manager;
@@ -31,7 +31,7 @@ import nro.models.utils.TimeUtil;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -395,7 +395,7 @@ public class ClanService {
 
                 //lấy info player đã offline
                 if (pl == null) {
-                    pl = MrBlue.loadById(plxinvao);
+                    pl = VietLoader.loadById(plxinvao);
                 }
                 if (pl != null) {
                     if (pl.idMark.isHoldBlackBall()) {

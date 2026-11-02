@@ -5,7 +5,7 @@ import java.net.Socket;
 import nro.models.player.Player;
 import nro.models.server.Controller;
 import nro.models.data.DataGame;
-import nro.models.database.MrBlue;
+import nro.models.database.VietLoader;
 import nro.models.item.Item;
 import java.io.IOException;
 import nro.models.network.Message;
@@ -123,7 +123,7 @@ public class MySession extends Session {
                 long st = System.currentTimeMillis();
                 this.uu = username;
                 this.pp = password;
-                pl = MrBlue.login(this, al);
+                pl = VietLoader.login(this, al);
                 if (pl != null) {
                     DataGame.sendSmallVersion(this);
                     DataGame.sendBgItemVersion(this);

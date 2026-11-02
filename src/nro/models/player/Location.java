@@ -2,7 +2,7 @@ package nro.models.player;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 

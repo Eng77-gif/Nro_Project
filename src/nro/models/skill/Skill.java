@@ -4,7 +4,7 @@ import nro.models.player_system.Template.SkillTemplate;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 

@@ -17,7 +17,7 @@ import nro.models.services_func.Input;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class BoMong extends Npc {

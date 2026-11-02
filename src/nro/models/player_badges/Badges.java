@@ -2,7 +2,7 @@ package nro.models.player_badges;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 

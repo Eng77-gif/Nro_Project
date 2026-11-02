@@ -10,7 +10,7 @@ import nro.models.player.Player;
 import nro.models.server.Client;
 import nro.models.services.Service;
 import nro.models.network.Message;
-import nro.models.database.MrBlue;
+import nro.models.database.VietLoader;
 import nro.models.utils.Logger;
 import nro.models.utils.Util;
 import java.sql.Connection;
@@ -259,7 +259,7 @@ public class Clan {
             }
         }
 
-        Player playeroffline = MrBlue.loadById(playerId);
+        Player playeroffline = VietLoader.loadById(playerId);
         if (playeroffline != null) {
             return playeroffline;
         }

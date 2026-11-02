@@ -12,7 +12,7 @@ import nro.models.player_badges.BagesTemplate;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 

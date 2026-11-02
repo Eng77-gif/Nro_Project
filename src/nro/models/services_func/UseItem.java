@@ -56,7 +56,7 @@ import nro.models.utils.Logger;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class UseItem {
@@ -2843,7 +2843,9 @@ public class UseItem {
     }
 
     public void UseCard(Player pl, Item item) {
-        RadarCard radarTemplate = RadarService.gI().RADAR_TEMPLATE.stream().filter(c -> c.Id == item.template.id).findFirst().orElse(null);
+        // 3 thẻ Oozaru đã gộp làm 1: mảnh Oozarun 1 / 2 tính vào Thẻ Oozaru
+        final int cardId = RadarService.cardIdOf(item.template.id);
+        RadarCard radarTemplate = RadarService.gI().RADAR_TEMPLATE.stream().filter(c -> c.Id == cardId).findFirst().orElse(null);
         if (radarTemplate == null) {
             return;
         }
@@ -2858,9 +2860,9 @@ public class UseItem {
                 return;
             }
         }
-        Card card = pl.Cards.stream().filter(r -> r.Id == item.template.id).findFirst().orElse(null);
+        Card card = pl.Cards.stream().filter(r -> r.Id == cardId).findFirst().orElse(null);
         if (card == null) {
-            Card newCard = new Card(item.template.id, (byte) 1, radarTemplate.Max, (byte) -1, radarTemplate.Options);
+            Card newCard = new Card((short) cardId, (byte) 1, radarTemplate.Max, (byte) -1, radarTemplate.Options);
             pl.Cards.add(newCard);
             RadarService.gI().RadarSetAmount(pl, newCard.Id, newCard.Amount, newCard.MaxAmount);
             RadarService.gI().RadarSetLevel(pl, newCard.Id, newCard.Level);

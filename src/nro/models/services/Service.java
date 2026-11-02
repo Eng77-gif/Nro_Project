@@ -12,7 +12,7 @@ import nro.models.boss.BossData;
 import nro.models.boss.nhan_ban.NhanBan;
 import nro.models.boss.luyen_tap_tu_dong.TrainingBoss;
 import nro.models.consts.ConstAchievement;
-import nro.models.database.MrBlue;
+import nro.models.database.VietLoader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ import nro.models.server.Manager;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class Service {
@@ -235,7 +235,7 @@ public class Service {
 
             for (int i = 0; i < tops.size(); i++) {
                 TOP top = tops.get(i);
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
 
                 if (pl == null) {
                     continue;
@@ -266,7 +266,7 @@ public class Service {
         try {
             List<TOP> filteredTops = new ArrayList<>();
             for (TOP top : tops) {
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
                 if (pl != null && pl.gender == 0) {
                     filteredTops.add(top);
                 }
@@ -278,7 +278,7 @@ public class Service {
             msg.writer().writeByte(filteredTops.size());
             for (int i = 0; i < filteredTops.size(); i++) {
                 TOP top = filteredTops.get(i);
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
                 msg.writer().writeInt(i + 1);
                 msg.writer().writeInt((int) pl.id);
                 msg.writer().writeShort(pl.getHead());
@@ -303,7 +303,7 @@ public class Service {
         try {
             List<TOP> filteredTops = new ArrayList<>();
             for (TOP top : tops) {
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
                 if (pl != null && pl.gender == 1) {
                     filteredTops.add(top);
                 }
@@ -315,7 +315,7 @@ public class Service {
             msg.writer().writeByte(filteredTops.size());
             for (int i = 0; i < filteredTops.size(); i++) {
                 TOP top = filteredTops.get(i);
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
                 msg.writer().writeInt(i + 1);
                 msg.writer().writeInt((int) pl.id);
                 msg.writer().writeShort(pl.getHead());
@@ -340,7 +340,7 @@ public class Service {
         try {
             List<TOP> filteredTops = new ArrayList<>();
             for (TOP top : tops) {
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
                 if (pl != null && pl.gender == 2) {
                     filteredTops.add(top);
                 }
@@ -352,7 +352,7 @@ public class Service {
             msg.writer().writeByte(filteredTops.size());
             for (int i = 0; i < filteredTops.size(); i++) {
                 TOP top = filteredTops.get(i);
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
                 msg.writer().writeInt(i + 1);
                 msg.writer().writeInt((int) pl.id);
                 msg.writer().writeShort(pl.getHead());

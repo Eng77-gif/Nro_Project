@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 @AllArgsConstructor
 @NoArgsConstructor

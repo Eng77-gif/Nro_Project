@@ -16,7 +16,7 @@ import nro.models.services.Service;
  * các đua top của sự kiện (thông tin, Top 100, Xem điểm), nhận giải đua top, Cửa hàng sự kiện,
  * hủy trang bị có hạn sử dụng, hủy bóng mờ hạn dưới 35 ngày. Đổi sự kiện thì menu / cửa hàng đổi theo.
  *
- * @author By Mr Blue
+ * @author Việt
  */
 public class ChiChi extends Npc {
 

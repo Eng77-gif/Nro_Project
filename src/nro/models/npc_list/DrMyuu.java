@@ -7,7 +7,7 @@ import nro.models.services.TaskService;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 public class DrMyuu extends Npc {
 

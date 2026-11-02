@@ -2,7 +2,7 @@ package nro.models.matches.dai_hoi_vo_thuat;
 import nro.models.consts.ConstSuperRank;
 import java.util.List;
 import nro.models.consts.ConstTaskBadges;
-import nro.models.database.MrBlue;
+import nro.models.database.VietLoader;
 import nro.models.database.SuperRankDAO;
 import nro.models.managers.SuperRankManager;
 import nro.models.matches.dai_hoi_vo_thuat.SuperRank;
@@ -124,7 +124,7 @@ public class SuperRankService {
 
 
     public Player loadPlayer(long id) {
-        Player pl = MrBlue.loadById(id);
+        Player pl = VietLoader.loadById(id);
         if (pl != null) {
             pl.setClothes.setup();
             if (pl.pet != null) {

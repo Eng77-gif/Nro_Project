@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -25,6 +25,39 @@ public class RadarService {
             instance = new RadarService();
         }
         return instance;
+    }
+
+    /** Thẻ Oozaru (1771) gộp 3 thẻ: mảnh Oozarun 1 (2104), Oozarun 2 (2105) cũng là Thẻ Oozaru. */
+    public static final int OOZARU = 1771;
+
+    public static int cardIdOf(int itemId) {
+        return itemId == 2104 || itemId == 2105 ? OOZARU : itemId;
+    }
+
+    /** Gộp thẻ Oozarun 1 / 2 cũ của người chơi vào Thẻ Oozaru (giữ cấp cao nhất), chỉ số lấy theo bảng radar hiện tại. */
+    public static void mergeOozaru(nro.models.player.Player pl) {
+        Card best = null;
+        java.util.Iterator<Card> it = pl.Cards.iterator();
+        java.util.List<Card> olds = new ArrayList<>();
+        while (it.hasNext()) {
+            Card c = it.next();
+            if (c != null && (c.Id == OOZARU || c.Id == 2104 || c.Id == 2105)) {
+                olds.add(c);
+                it.remove();
+            }
+        }
+        if (olds.isEmpty()) {
+            return;
+        }
+        for (Card c : olds) {
+            if (best == null || c.Level > best.Level || (c.Level == best.Level && c.Amount > best.Amount)) {
+                best = c;
+            }
+        }
+        boolean used = olds.stream().anyMatch(c -> c.Used == 1);
+        RadarCard t = gI().RADAR_TEMPLATE.stream().filter(r -> r.Id == OOZARU).findFirst().orElse(null);
+        Card m = new Card((short) OOZARU, best.Amount, t != null ? t.Max : best.MaxAmount, best.Level, t != null ? t.Options : best.Options, (byte) (used ? 1 : 0));
+        pl.Cards.add(m);
     }
 
     public void sendRadar(Player pl, List<Card> cards) {

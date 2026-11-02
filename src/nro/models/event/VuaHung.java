@@ -15,7 +15,7 @@ import nro.models.services.Service;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 public class VuaHung extends Npc {
 
