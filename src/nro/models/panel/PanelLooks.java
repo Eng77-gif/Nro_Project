@@ -204,4 +204,78 @@ final class PanelLooks {
         DataGame.vsItem = (byte) v;
         return Map.of("ok", true, "note", "Phiên bản item: " + v + ". Client tải lại danh sách item ở lần vào game sau");
     }
+
+    // ------------------------------------------------------------------ đeo lưng hiệu ứng (cờ 201 - 254)
+
+    /** Đọc DataEffect: ảnh, khung, hoạt ảnh theo trạng thái nhân vật (1 đứng, 2 chạy, 3 nhảy, 4 rơi, 10 bay...). */
+    static Map<String, Object> effectData(int id) throws Exception {
+        File f = new File("data/effdata/DataEffect_" + id);
+        if (!f.exists()) {
+            throw new IllegalArgumentException("Không có hiệu ứng " + id);
+        }
+        java.io.DataInputStream in = new java.io.DataInputStream(new java.io.ByteArrayInputStream(java.nio.file.Files.readAllBytes(f.toPath())));
+        List<int[]> imgs = new ArrayList<>();
+        int n = in.readByte();
+        for (int i = 0; i < n; i++) {
+            imgs.add(new int[]{in.readByte(), in.readUnsignedByte(), in.readUnsignedByte(), in.readUnsignedByte(), in.readUnsignedByte()});
+        }
+        List<List<int[]>> frames = new ArrayList<>();
+        int nf = in.readShort();
+        for (int i = 0; i < nf; i++) {
+            int k = in.readByte();
+            List<int[]> parts = new ArrayList<>();
+            for (int j = 0; j < k; j++) {
+                parts.add(new int[]{in.readShort(), in.readShort(), in.readByte()});
+            }
+            frames.add(parts);
+        }
+        int na = in.readShort();
+        Map<String, List<Integer>> anim = new LinkedHashMap<>();
+        List<Integer> all = new ArrayList<>(), cur = new ArrayList<>();
+        for (int i = 0; i < na; i++) {
+            int v = in.readShort();
+            if (v >= 0) {
+                cur.add(v);
+                all.add(v);
+            } else {
+                anim.put(String.valueOf(Math.abs(v + 500)), cur);
+                cur = new ArrayList<>();
+            }
+        }
+        if (anim.isEmpty()) {
+            anim.put("all", all);
+        }
+        Map<String, Object> o = new LinkedHashMap<>();
+        o.put("id", id);
+        o.put("imgs", imgs);
+        o.put("frames", frames);
+        o.put("anim", anim);
+        return o;
+    }
+
+    /** Hiệu ứng dùng được làm đeo lưng (có hoạt ảnh theo trạng thái) + vật phẩm đang dùng. */
+    static Object effectBags() throws Exception {
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (int id = 201; id <= 254; id++) {
+            if (!new File("data/effdata/DataEffect_" + id).exists()) {
+                continue;
+            }
+            Map<String, Object> d = effectData(id);
+            @SuppressWarnings("unchecked")
+            Map<String, List<Integer>> anim = (Map<String, List<Integer>>) d.get("anim");
+            Map<String, Object> o = new LinkedHashMap<>();
+            o.put("id", id);
+            o.put("byStatus", !anim.containsKey("all"));
+            List<Map<String, Object>> used = new ArrayList<>();
+            for (ItemTemplate t : Manager.ITEM_TEMPLATES) {
+                if (t != null && t.type == 11 && t.part == id) {
+                    used.add(Map.of("id", t.id, "name", t.name, "icon", t.iconID));
+                }
+            }
+            o.put("items", used);
+            out.add(o);
+        }
+        return out;
+    }
 }
+

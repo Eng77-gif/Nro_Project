@@ -138,6 +138,8 @@ class PanelApi {
             case "flag/assign" -> PanelLooks.flagAssign(b);
             case "mounts" -> PanelLooks.mounts();
             case "dataver" -> PanelLooks.dataVersion();
+            case "fxbags" -> PanelLooks.effectBags();
+            case "fxdata" -> PanelLooks.effectData(intv(q.get("id")));
             case "dataver/bump" -> PanelLooks.bumpItemVersion();
             default -> throw new IllegalArgumentException("Không có API " + r);
         };
