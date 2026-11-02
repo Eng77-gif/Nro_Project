@@ -716,13 +716,7 @@ public class Mob {
                 player.monsterKillCountAutoTrain++;
             }
 
-            if (player.event.luotNhanNgocMienPhi == 1) {
-                ItemMap item1 = new ItemMap(zone, 77, 1, x, yEnd, player.id);
-                ItemMap item2 = new ItemMap(zone, 77, 1, x + 10, yEnd, player.id);
-                list.add(item1);
-                list.add(item2);
-                player.event.luotNhanNgocMienPhi = 0;
-            }
+            // (bỏ ngọc miễn phí khi đánh quái: ngọc nhận qua nhiệm vụ hàng ngày - TaskService.paySideTask)
         }
         if (MapService.gI().AllMap(mapid) && nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.SUMMER)) {
             if (Util.isTrue(5, 100)) {
@@ -790,10 +784,7 @@ public class Mob {
                 }
             }
         }
-        if (Util.isTrue(1, 1000000)) {
-            int ngoc = Util.nextInt(1, 1);
-            list.add(new ItemMap(zone, 77, ngoc, x, yEnd, player.id));
-        }
+        // (quái không rơi ngọc)
         if (MapService.gI().isMapUpSKH(mapid)) {
             int baseTileDrop = 1;
             int tileDrop = baseTileDrop;

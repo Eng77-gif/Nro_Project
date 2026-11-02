@@ -1635,6 +1635,10 @@ public class UseItem {
                 pl.itemTime.lastTimeUseCoBonLa = System.currentTimeMillis();
                 pl.itemTime.isUseCoBonLa = true;
                 break;
+            case 2035: // Năng lượng E10: 10 phút KI +10%, SĐ +5%, giảm 5% HP
+                pl.e10Until = Math.max(pl.e10Until, System.currentTimeMillis()) + 600_000;
+                ItemTimeService.gI().sendItemTime(pl, item.template.iconID, (int) ((pl.e10Until - System.currentTimeMillis()) / 1000));
+                break;
             case 1614: // nuoc mia 1
                 if (pl.itemTime.isUseNuocMia2 || pl.itemTime.isUseNuocMia3) {
                     Service.gI().sendThongBao(pl, "Chỉ có thể sự dụng cùng lúc 1 vật phẩm bổ trợ cùng loại");

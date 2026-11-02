@@ -232,7 +232,7 @@ public class NPoint {
     public int giamSTKhiItKi; // option 157: giảm #% mọi sát thương khi KI dưới 20%
     private int flyMobCotNha, flyMobGheBay; // option 166 / 170: +#% SĐ lên quái khi bay cùng cải trang
     // hiệu ứng "ở gần cải trang khác loại" (145, 146, 150, 177, 179, 193, 196, 256), cập nhật mỗi 3 giây
-    public int nearDame, nearHp, nearKi, nearSpeed;
+    public int nearDame, nearHp, nearKi, nearSpeed, nearCrit;
     public int skhBeerus; // số món SKH Thần hủy diệt Beerus đang mặc (option 115)
     public int skhChampa; // số món SKH Thần hủy diệt Champa đang mặc (option 257)
 
@@ -588,6 +588,7 @@ public class NPoint {
             this.tlDameCrit.add(setSDCMWithXenHT);
             this.tlSDCM += setSDCMWithXenHT;
         }
+        applyCompanionBonus();
         if (setAllWithBlackGoku > 0 && in(BLACK_GOKU, costumeId(player))) {
             this.tlDame.add(setAllWithBlackGoku);
             this.tlHp.add(setAllWithBlackGoku);
@@ -763,6 +764,19 @@ public class NPoint {
             }
             d -= giam;
         }
+        int cr = 0;
+        if (player.zone != null && !player.isPet && costumeId(player) == 1709) {
+            for (Player o : new java.util.ArrayList<>(player.zone.getNotBosses())) {
+                if (o != player && !o.isPet && !o.isNewPet && !o.isDie() && costumeId(o) == 1708 && Util.getDistance(player, o) <= 300) {
+                    cr = 10;
+                    break;
+                }
+            }
+        }
+        if (cr != nearCrit) {
+            nearCrit = cr;
+            nearDame = Integer.MIN_VALUE; // buộc tính lại
+        }
         if (d == nearDame && h == nearHp && k == nearKi && sp == nearSpeed) {
             return false;
         }
@@ -785,6 +799,99 @@ public class NPoint {
 
     public static final int PET_XEN_HOAN_THIEN = 2036;
     public static final int PET_XEN_MAX = 2038;
+    public static final int PET_MA_TOC_DO = 1929;
+
+    public boolean hasBatTuMaTocDo() {
+        return !this.player.isPet && isWearing(PET_MA_TOC_DO);
+    }
+
+    private boolean isWearingAny(int... ids) {
+        for (int id : ids) {
+            if (isWearing(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isFoot(int id) {
+        return this.player.itemFoot != null && this.player.itemFoot.isNotNullItem() && this.player.itemFoot.template.id == id;
+    }
+
+    /** Có đủ các vật phẩm (đang mặc, hành trang, rương, rương sưu tầm). */
+    private boolean ownsAll(int... ids) {
+        java.util.Set<Integer> have = new java.util.HashSet<>();
+        java.util.List<java.util.List<Item>> all = new java.util.ArrayList<>();
+        all.add(this.player.inventory.itemsBody);
+        all.add(this.player.inventory.itemsBag);
+        all.add(this.player.inventory.itemsBox);
+        if (this.player.itemsCollection != null) {
+            all.add(this.player.itemsCollection);
+        }
+        for (java.util.List<Item> l : all) {
+            for (Item it : l) {
+                if (it != null && it.isNotNullItem()) {
+                    have.add((int) it.template.id);
+                }
+            }
+        }
+        for (int id : ids) {
+            if (!have.contains(id)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Các dòng "Đi cùng ...", "Đủ 4 món ...", "Sưu tập đủ ..." và Năng lượng E10. */
+    private void applyCompanionBonus() {
+        if (this.player.isPet || this.player.inventory == null) {
+            return;
+        }
+        // Đủ 4 món Mèo thần tài, ván sao băng, bóng mờ sao may mắn, cờ sao may mắn: +10% vàng rơi
+        if (isWearing(2025) && isWearing(2022) && isWearing(2024) && isFoot(2023)) {
+            this.tlGold += 10;
+        }
+        // Cân Đẩu Vân Thơ Mộng đi cùng CT Chi Chi Võ Đài: +5% giảm sát thương
+        if (isWearing(1711) && isWearing(1705)) {
+            this.tlGiap += 5;
+        }
+        // Khủng Long Thơ Mộng đi cùng Cân Đẩu Vân Thơ Mộng: +5% giảm sát thương
+        if (isWearing(1713) && isWearing(1711)) {
+            this.tlGiap += 5;
+        }
+        // CT Urôn Trư Bát Giới đi cùng Bồ cào 9 răng: +5% SĐ, +10% SĐ chí mạng
+        if (isWearing(1698) && isWearing(1699)) {
+            this.tlDame.add(5);
+            this.tlDameCrit.add(10);
+            this.tlSDCM += 10;
+        }
+        // Ván bay Sọ Dừa + Cánh Thiên thần - Ác quỷ: +3% SĐ chí mạng và +10% HP
+        if (isWearing(1724) && isWearing(1722)) {
+            this.tlDameCrit.add(3);
+            this.tlSDCM += 3;
+            this.tlHp.add(10);
+        }
+        // Thú cưỡi rồng Đen đi cùng Pet Rồng nhí: +5% né, +5% chí mạng
+        if (isWearing(1898) && isWearingAny(1813, 1814, 1815, 1816, 1817, 1818, 1819)) {
+            this.tlNeDon += 5;
+            this.critAdd += 5;
+        }
+        // Sưu tập đủ 4 thú cưỡi rồng (Thiêng, Băng, Đen, Vô Cực): +2% SĐ, HP, KI
+        if (isWearingAny(1896, 1897, 1898, 1899) && ownsAll(1896, 1897, 1898, 1899)) {
+            this.tlDame.add(2);
+            this.tlHp.add(2);
+            this.tlMp.add(2);
+        }
+        // CT Android 21 Evil ở gần người mặc CT Android 21 Thân Thiện: +10% chí mạng
+        this.critAdd += nearCrit;
+        // Năng lượng E10 (10 phút): KI +10%, SĐ +5%, giảm 5% HP
+        if (this.player.e10Until > System.currentTimeMillis()) {
+            this.tlMp.add(10);
+            this.tlDame.add(5);
+            this.tlHp.add(-5);
+        }
+    }
 
     /**
      * Gọi khi bị đánh: kích hoạt Akaza (HP dưới 50%, hồi 180s) và Ảo Thuật (hồi 120s), mỗi hiệu ứng kéo dài 3 giây.

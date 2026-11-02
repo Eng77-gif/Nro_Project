@@ -102,8 +102,15 @@ public class Message implements IMessage {
 
     /** 1 dòng chỉ số món đồ: (byte id, short param) cho client cũ, (short id, int param) cho J2ME 2.4.x. */
     public void writeItemOption(int id, int param) throws IOException {
-        writeDual(nro.models.item.OptionIdMap.toClient(id), 1, id, 2); // client byte: id >= 255 dời sang ô trống
-        writeDual(param, 2, param, 4); // client cũ: giữ nguyên cách cũ (writeShort cắt 16 bit thấp)
+        int cid = id, cparam = param;
+        if (param > 32767 && (id == 6 || id == 7)) { // HP+# / KI+# lớn: hiện bằng HP+#K / KI+#K cho client APK / PC
+            cid = id == 6 ? 22 : 23;
+            cparam = param / 1000;
+        }
+        writeDual(nro.models.item.OptionIdMap.toClient(cid), 1, id, 2); // client byte: id >= 255 dời sang ô trống
+        // client APK / PC đọc param 2 byte có dấu: số > 32767 bị cắt thành số âm làm client lỗi khi vẽ hành trang
+        // (Pet Xên Max HP +150.000, Giáp +35.000...). Gửi tối đa 32767, server và client J2ME vẫn giữ số thật.
+        writeDual(Math.max(-32768, Math.min(32767, cparam)), 2, param, 4);
     }
 
     /** Dữ liệu gửi cho phiên: client J2ME lấy bản riêng (nếu gói có trường ghi riêng). */

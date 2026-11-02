@@ -2794,9 +2794,7 @@ public class Service {
     }
 
     public void sendDanhQuaiNhanNgoc(Player player) {
-        if (player.event.luotNhanNgocMienPhi == 1) {
-            Service.gI().sendThongBao(player, "Hôm nay bạn sẽ nhận được từ 1 đến 2 viên ngọc khi tiêu diệt 1 con quái");
-        }
+        // quái không rơi ngọc nữa: ngọc nhận qua nhiệm vụ hàng ngày (Bò Mộng)
     }
 
     public static void sendIcon(MySession session, int id) {

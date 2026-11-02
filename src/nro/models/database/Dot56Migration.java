@@ -122,6 +122,7 @@ public final class Dot56Migration {
             changed += runDot62(con);
             changed += runDot63(con);
             changed += runDot65(con);
+            changed += runDot66(con);
         } catch (Exception ex) {
             Logger.error("Đợt 56 (Halloween): không cập nhật được database: " + ex.getMessage() + "\n");
         }
@@ -630,6 +631,20 @@ public final class Dot56Migration {
             changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (2021, 1, 1440, 1440, 100, 0), (2021, 30, 1, 1, 100, 0)");
         }
         changed += update(con, "insert into server_migration (name) values ('dot65_items')");
+        return changed;
+    }
+
+    /** Đợt 66: Pet Ma tốc độ 10% có dòng chống lạnh; mô tả "chỉ dành cho đệ tử". */
+    private static int runDot66(Connection con) throws Exception {
+        if (exists(con, "select 1 from server_migration where name = 'dot66'")) {
+            return 0;
+        }
+        int changed = 0;
+        if (!exists(con, "select 1 from item_template_option where template_id = 1929 and option_id = 106")) {
+            changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1929, 106, 0, 0, 10, 0)");
+        }
+        changed += update(con, "update item_template set description = 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' where id in (1930, 1981)");
+        changed += update(con, "insert into server_migration (name) values ('dot66')");
         return changed;
     }
 

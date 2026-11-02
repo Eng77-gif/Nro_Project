@@ -362,6 +362,11 @@ public class InventoryService {
                 index = player.isPet ? 8 : 10;
                 break;
         }
+        // "Dành cho đệ tử 2": chỉ đệ tử mặc được
+        if (!player.isPet && (item.template.id == 1930 || item.template.id == 1981 || item.template.id == 1932)) {
+            Service.gI().sendThongBaoOK(player, "Vật phẩm này chỉ dành cho đệ tử");
+            return sItem;
+        }
         if (player.isPet && (item.template.type == 11 || item.template.type == 25)) {
             Pet pet = (Pet) player;
             if (pet.type != 2 && pet.type != 3 && pet.type != 4) {

@@ -927,6 +927,12 @@ public class ChangeMapService {
                 case 3: //rừng nấm
                 case 11: //thung lũng maima
                 case 17: //rừng nguyên sinh
+                case 4: //rừng xương (trước đây không chặn: đi capsule tới được khi chưa làm nhiệm vụ)
+                case 12: //vực maima
+                case 18: //rừng thông xayda
+                case 5: //đảo kamê
+                case 13: //đảo guru
+                case 20: //vách núi đen
                     if (TaskService.gI().getIdTask(player) < ConstTask.TASK_7_0) {
                         return null;
                     }
@@ -937,6 +943,12 @@ public class ChangeMapService {
                 case 32: //núi hoa tím
                 case 35: //rừng cọ
                 case 36: //rừng đá
+                case 29: //nam kamê
+                case 33: //nam guru
+                case 37: //thung lũng đen
+                case 39: //vách núi aru
+                case 40: //vách núi moori
+                case 41: //vực plant
                     if (TaskService.gI().getIdTask(player) < ConstTask.TASK_13_0) {
                         return null;
                     }
@@ -990,6 +1002,7 @@ public class ChangeMapService {
                     if (TaskService.gI().getIdTask(player) < ConstTask.TASK_20_0) {
                         return null;
                     }
+                    break;
 
                 case 102: //nhà bunma
                 case 92: //thành phố phía đông

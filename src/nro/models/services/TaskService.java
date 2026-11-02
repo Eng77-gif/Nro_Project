@@ -1276,32 +1276,38 @@ public class TaskService {
         if (player.playerTask.sideTask.template != null) {
             if (player.playerTask.sideTask.isDone()) {
                 int goldReward = 0;
+                int gemReward = 0; // ngọc xanh: nguồn ngọc thay cho quái rơi
                 int ngocBi = 708;
                 int cayThong = -1;
                 switch (player.playerTask.sideTask.level) {
                     case ConstTask.EASY:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_EASY;
+                        gemReward = 2;
                         ngocBi = 708;
                         break;
                     case ConstTask.NORMAL:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_NORMAL;
+                        gemReward = 4;
                         ngocBi = 707;
                         break;
                     case ConstTask.HARD:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_HARD;
+                        gemReward = 6;
                         ngocBi = 706;
                         break;
                     case ConstTask.VERY_HARD:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_VERY_HARD;
+                        gemReward = 10;
                         ngocBi = 705;
                         break;
                     case ConstTask.HELL:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_HELL;
+                        gemReward = 15;
                         ngocBi = 704;
                         if (player.playerTask.sideTask.leftTask < 15) {
                             cayThong = 822;
@@ -1332,10 +1338,11 @@ public class TaskService {
                     }
                     InventoryService.gI().sendItemBags(player);
                     player.inventory.addGold(goldReward);
+                    player.inventory.gem += gemReward;
                     BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                     Service.gI().sendMoney(player);
                     Service.gI().sendThongBao(player, "Bạn nhận được "
-                            + Util.numberToMoney(goldReward) + " vàng");
+                            + Util.numberToMoney(goldReward) + " vàng và " + gemReward + " ngọc xanh");
                     player.playerTask.sideTask.reset();
                 } else {
                     Service.gI().sendThongBao(player, "Hành trang không đủ chỗ trống.");

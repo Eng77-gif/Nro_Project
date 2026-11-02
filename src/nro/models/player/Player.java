@@ -266,6 +266,9 @@ public class Player implements Runnable {
     public int hdbaRewardRank; // hạng top mua Hộp đen bí ẩn đang chờ nhận quà
     // điều ước Rồng Xương (Halloween): hết hạn lúc (ms)
     public long hlwPetX3Until, hlwSelfX3Until, hlwHpUntil, hlwKiUntil, hlwDameUntil;
+    /** Pet Ma tốc độ: hết bất tử lúc này; Năng lượng E10: hết hiệu lực lúc này */
+    public long batTuUntil, e10Until;
+    private boolean e10Active;
     /** Hạn vào Ngục tù may mắn (Phiếu sao vàng may mắn) */
     public long luckyMapUntil;
     private long lastLuckyMapCheck;
@@ -482,6 +485,11 @@ public class Player implements Runnable {
                     if (isPl() && Util.canDoWithTime(lastLuckyMapCheck, 5000)) {
                         lastLuckyMapCheck = System.currentTimeMillis();
                         nro.models.services_func.UseItem.gI().checkLuckyMap(this);
+                        boolean e10 = e10Until > System.currentTimeMillis();
+                        if (e10 != e10Active) { // Năng lượng E10 hết hạn: tính lại chỉ số
+                            e10Active = e10;
+                            Service.gI().point(this);
+                        }
                     }
                     if (effectSkill != null) {
                         effectSkill.update();
@@ -1283,6 +1291,18 @@ public class Player implements Runnable {
                 }
             }
             damage = Math.min(damage, 2_147_483_647);
+            // Pet Ma tốc độ: HP xuống dưới 5% thì bất tử 3 giây, hồi 120 giây
+            if (this.nPoint != null && this.nPoint.hasBatTuMaTocDo()) {
+                long now = System.currentTimeMillis();
+                if (now >= this.batTuUntil && now - this.batTuUntil >= 117_000
+                        && this.nPoint.hp - damage < (long) this.nPoint.hpMax * 5 / 100) {
+                    this.batTuUntil = now + 3000;
+                    Service.gI().sendThongBao(this, "Bất tử 3 giây (Pet Ma tốc độ)");
+                }
+                if (now < this.batTuUntil && damage >= this.nPoint.hp) {
+                    damage = Math.max(0, this.nPoint.hp - 1);
+                }
+            }
             if (isMobAttack && this.charms.tdBatTu > System.currentTimeMillis() && damage >= this.nPoint.hp) {
                 damage = this.nPoint.hp - 1;
             }
