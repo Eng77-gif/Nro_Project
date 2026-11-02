@@ -1381,3 +1381,10 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Mặc đồ có dòng này hoặc mang Hào quang chân SPL10: hiệu ứng 515 + SĐ 6%, HP 6%, KI 6%, sát thương cuối 2% (cộng 1 lần, không cộng dồn).
 - 4 cải trang mới (2113 - 2116, part 2379 - 2390) và 123 icon mới / cập nhật từ gói 31/10. data v22, item v21.
 - Panel: giao diện riêng cho điện thoại (thanh dưới, menu dạng lưới ô, bảng thành thẻ, hộp thoại trượt từ dưới).
+- Halloween theo ảnh sự kiện:
+  - Đổi tên: 2113 Cải trang Goku Ninja, 2114 Pet Đầu Quỷ (pet đi theo), 2115 Cải trang Melee, 2116 Tiểu thư Malfoy.
+  - Vật phẩm mới: 2117 Cờ đeo lưng 3 con ma (cờ 174, 18 khung), 2118 Hộp Ngọc Rồng Bí (Bí ngô 1 - 7 sao), 2119 Hộp Halloween (Chi Chi bán 10 triệu vàng).
+  - Chỉ số theo ảnh "Chỉ số vật phẩm HLW" (item_template_option). Option mới 262 biến người xung quanh thành Zombi; làm thêm option 221 (hồi HP/KI cho mình và đồng bang mỗi 30 giây) và 161 (ngọc mỗi ngày khi hạ quái).
+  - Nội dung Túi mù, Kẹo mù, Thiệp Ma, Hộp Halloween, Hộp NR Bí, quà Zombi; quà đua top Túi mù và Hộp Kẹo Ma Quỷ (top 1 Túi mù đạt 21000 điểm nhận thêm Set kích hoạt Beerus + Trứng Xên Vàng).
+  - Hộp quà có "bảo hiểm" (cột pity, bảng box_pity): mở đủ số lần chưa ra thì lần đó chắc chắn ra. Sửa được trên panel.
+  - Hộp / top / chỉ số chỉ ghi 1 lần (server_migration 'dot56_halloween'), sau đó sửa trên panel không bị ghi đè.

@@ -91,6 +91,8 @@ public class EffectSkin {
             updateTanHinh();
             updateHoaDa();
             updateSocolaXq();
+            updateZombieXq();
+            updateHoiDongBang();
             updateNearSets();
             updateLamCham();
             updateXChuong();
@@ -386,6 +388,48 @@ public class EffectSkin {
                     }
                 }
                 this.lastTimeSocolaXq = System.currentTimeMillis();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private long lastTimeZombieXq, lastTimeHoiDongBang;
+
+    /** option 262: biến người xung quanh (200px) thành Zombi mỗi 30 giây, mỗi lần 5 giây. */
+    private void updateZombieXq() {
+        try {
+            if (this.player.nPoint != null && this.player.nPoint.isZombieXq && Util.canDoWithTime(lastTimeZombieXq, 30000)) {
+                List<Player> playersMap = this.player.zone.getNotBosses();
+                for (int i = playersMap.size() - 1; i >= 0; i--) {
+                    Player pl = playersMap.get(i);
+                    if (pl != null && pl.nPoint != null && pl.effectSkill != null && !this.player.equals(pl) && !pl.isBoss && !pl.isDie()
+                            && !pl.effectSkill.isHalloween && Util.getDistance(this.player, pl) <= 200) {
+                        EffectSkillService.gI().setIsHalloween(pl, 0, 5000);
+                    }
+                }
+                this.lastTimeZombieXq = System.currentTimeMillis();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** option 221: phục hồi #% HP và KI mỗi 30 giây cho bản thân và người cùng bang trong khu. */
+    private void updateHoiDongBang() {
+        try {
+            int tl = this.player.nPoint == null ? 0 : this.player.nPoint.tlHoiDongBang;
+            if (tl > 0 && !this.player.isPet && Util.canDoWithTime(lastTimeHoiDongBang, 30000)) {
+                this.lastTimeHoiDongBang = System.currentTimeMillis();
+                for (Player pl : new java.util.ArrayList<>(this.player.zone.getNotBosses())) {
+                    boolean dongBang = pl == this.player || (this.player.clan != null && pl.clan != null && pl.clan.id == this.player.clan.id && !pl.isPet);
+                    if (pl != null && pl.nPoint != null && dongBang && !pl.isDie()) {
+                        long hp = (long) pl.nPoint.hpMax * tl / 100, mp = (long) pl.nPoint.mpMax * tl / 100;
+                        pl.nPoint.addHp((int) Math.min(Integer.MAX_VALUE, hp));
+                        pl.nPoint.addMp((int) Math.min(Integer.MAX_VALUE, mp));
+                        PlayerService.gI().sendInfoHpMp(pl);
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

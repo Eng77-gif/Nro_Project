@@ -104,7 +104,7 @@ public class SeasonEventService implements Runnable {
         int id;
         String name;
         Season season;
-        List<int[]> rewards = new ArrayList<>(); // {rankFrom, rankTo, itemId, qty}
+        List<int[]> rewards = new ArrayList<>(); // {rankFrom, rankTo, itemId, qty, điểm tối thiểu (0 = không cần)}
         List<int[]> rewardDays = new ArrayList<>();
     }
 
@@ -182,7 +182,12 @@ public class SeasonEventService implements Runnable {
                     Top t = topMap.get(rs.getInt("top_id"));
                     int item = rs.getInt("item_id");
                     if (t != null && (item < 0 || validItem(item))) {
-                        t.rewards.add(new int[]{rs.getInt("rank_from"), rs.getInt("rank_to"), item, Math.max(1, rs.getInt("qty"))});
+                        int minPoint = 0;
+                        try {
+                            minPoint = rs.getInt("min_point");
+                        } catch (Exception noColumn) {
+                        }
+                        t.rewards.add(new int[]{rs.getInt("rank_from"), rs.getInt("rank_to"), item, Math.max(1, rs.getInt("qty")), minPoint});
                         t.rewardDays.add(parseInts(rs.getString("hsd_days")));
                     }
                 }
@@ -1331,6 +1336,9 @@ public class SeasonEventService implements Runnable {
                 sb.append(",");
             }
             sb.append(" ").append(rewardName(r[2], r[3], t.rewardDays.get(i)));
+            if (r[4] > 0) {
+                sb.append(" (đạt ").append(Util.numberToMoney(r[4])).append(" điểm)");
+            }
         }
         sb.append("\nTop chốt khi hết sự kiện, quà nhận khi vào game.");
         return sb.toString();
@@ -1360,20 +1368,21 @@ public class SeasonEventService implements Runnable {
         int n = 0;
         try (Connection con = LocalManager.getConnection()) {
             List<long[]> ranks = new ArrayList<>();
-            try (PreparedStatement ps = con.prepareStatement("select player_id from season_event_point where top_id = ? and points >= " + MIN_TOP_POINT + " order by points desc, player_id limit ?")) {
+            try (PreparedStatement ps = con.prepareStatement("select player_id, points from season_event_point where top_id = ? and points >= " + MIN_TOP_POINT + " order by points desc, player_id limit ?")) {
                 ps.setInt(1, t.id);
                 ps.setInt(2, Math.max(1, maxRank));
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        ranks.add(new long[]{rs.getLong("player_id"), ++n});
+                        ranks.add(new long[]{rs.getLong("player_id"), ++n, rs.getLong("points")});
                     }
                 }
             }
-            try (PreparedStatement ps = con.prepareStatement("insert into season_event_reward_pending (player_id, top_id, rank_no) values (?, ?, ?)")) {
+            try (PreparedStatement ps = con.prepareStatement("insert into season_event_reward_pending (player_id, top_id, rank_no, points) values (?, ?, ?, ?)")) {
                 for (long[] r : ranks) {
                     ps.setLong(1, r[0]);
                     ps.setInt(2, t.id);
                     ps.setInt(3, (int) r[1]);
+                    ps.setLong(4, r[2]);
                     ps.addBatch();
                 }
                 ps.executeBatch();
@@ -1402,22 +1411,22 @@ public class SeasonEventService implements Runnable {
         }
         synchronized (pl) {
             try (Connection con = LocalManager.getConnection()) {
-                List<int[]> pend = new ArrayList<>();
-                try (PreparedStatement ps = con.prepareStatement("select id, top_id, rank_no from season_event_reward_pending where player_id = ? and (created_at is null or created_at > now() - interval " + CLAIM_DAYS + " day)")) {
+                List<long[]> pend = new ArrayList<>();
+                try (PreparedStatement ps = con.prepareStatement("select id, top_id, rank_no, points from season_event_reward_pending where player_id = ? and (created_at is null or created_at > now() - interval " + CLAIM_DAYS + " day)")) {
                     ps.setLong(1, pl.id);
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
-                            pend.add(new int[]{rs.getInt("id"), rs.getInt("top_id"), rs.getInt("rank_no")});
+                            pend.add(new long[]{rs.getInt("id"), rs.getInt("top_id"), rs.getInt("rank_no"), rs.getLong("points")});
                         }
                     }
                 }
-                for (int[] p : pend) {
-                    Top t = tops.get(p[1]);
+                for (long[] p : pend) {
+                    Top t = tops.get((int) p[1]);
                     List<Integer> idx = new ArrayList<>();
                     if (t != null) {
                         for (int i = 0; i < t.rewards.size(); i++) {
                             int[] r = t.rewards.get(i);
-                            if (p[2] >= r[0] && p[2] <= r[1]) {
+                            if (p[2] >= r[0] && p[2] <= r[1] && p[3] >= r[4]) {
                                 idx.add(i);
                             }
                         }
@@ -1437,7 +1446,7 @@ public class SeasonEventService implements Runnable {
                         }
                     }
                     try (PreparedStatement ps = con.prepareStatement("delete from season_event_reward_pending where id = ?")) {
-                        ps.setInt(1, p[0]);
+                        ps.setLong(1, p[0]);
                         ps.executeUpdate();
                     }
                     InventoryService.gI().sendItemBags(pl);

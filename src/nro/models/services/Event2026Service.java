@@ -130,13 +130,15 @@ public class Event2026Service {
     private static class BoxReward {
 
         int itemId, qtyMin, qtyMax, weight, permRate;
+        /** Bảo hiểm: mở đủ số lần này mà chưa ra thì lần đó chắc chắn ra (0 = không có). */
+        int pity;
         int[] days;
     }
 
     public void loadBoxes(Connection con) {
         boxes.clear();
         int n = 0;
-        try (PreparedStatement p = con.prepareStatement("select box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate from item_box_reward order by id");
+        try (PreparedStatement p = con.prepareStatement("select * from item_box_reward order by id");
                 ResultSet r = p.executeQuery()) {
             while (r.next()) {
                 BoxReward b = new BoxReward();
@@ -145,6 +147,11 @@ public class Event2026Service {
                 b.qtyMax = Math.max(b.qtyMin, r.getInt("qty_max"));
                 b.weight = r.getInt("weight");
                 b.permRate = r.getInt("perm_rate");
+                try {
+                    b.pity = Math.max(0, r.getInt("pity"));
+                } catch (Exception noColumn) {
+                    b.pity = 0;
+                }
                 String hsd = r.getString("hsd_days");
                 List<Integer> days = new ArrayList<>();
                 if (hsd != null) {
@@ -223,6 +230,14 @@ public class Event2026Service {
                 break;
             }
         }
+        boolean baoHiem = false;
+        if (pl != null && pl.isPl() && list.stream().anyMatch(b -> b.pity > 0)) {
+            BoxReward forced = applyPity(pl, boxId, list, pick);
+            if (forced != null) {
+                pick = forced;
+                baoHiem = true;
+            }
+        }
         int qty = Util.nextInt(pick.qtyMin, pick.qtyMax);
         String got;
         if (pick.itemId < 0) {
@@ -243,7 +258,50 @@ public class Event2026Service {
             AnnounceService.gI().onOpenBox(pl, boxId, it);
             got = (qty > 1 ? "x" + qty + " " : "") + it.template.name + (days > 0 ? " (" + days + " ngày)" : (pick.days.length > 0 ? " (vĩnh viễn)" : ""));
         }
-        return got;
+        return baoHiem ? got + " [bảo hiểm]" : got;
+    }
+
+    /**
+     * Bảo hiểm hộp quà: đếm số lần mở chưa ra từng món có bảo hiểm (bảng box_pity). Món nào đạt đủ số lần thì lần này
+     * chắc chắn ra món đó. Ra món nào thì đếm lại từ 0. Trả về món bị ép ra (null nếu không có).
+     */
+    private BoxReward applyPity(Player pl, int boxId, List<BoxReward> list, BoxReward pick) {
+        try (Connection con = nro.models.data.LocalManager.getConnection()) {
+            Map<Integer, Integer> cnt = new java.util.HashMap<>();
+            try (PreparedStatement ps = con.prepareStatement("select item_id, cnt from box_pity where player_id = ? and box_id = ?")) {
+                ps.setLong(1, pl.id);
+                ps.setInt(2, boxId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        cnt.put(rs.getInt(1), rs.getInt(2));
+                    }
+                }
+            }
+            BoxReward forced = null;
+            for (BoxReward b : list) {
+                if (b.pity > 0 && b != pick && forced == null && cnt.getOrDefault(b.itemId, 0) + 1 >= b.pity) {
+                    forced = b;
+                }
+            }
+            BoxReward got = forced != null ? forced : pick;
+            try (PreparedStatement ps = con.prepareStatement("insert into box_pity (player_id, box_id, item_id, cnt) values (?, ?, ?, ?) on duplicate key update cnt = values(cnt)")) {
+                for (BoxReward b : list) {
+                    if (b.pity <= 0) {
+                        continue;
+                    }
+                    ps.setLong(1, pl.id);
+                    ps.setInt(2, boxId);
+                    ps.setInt(3, b.itemId);
+                    ps.setInt(4, b == got ? 0 : cnt.getOrDefault(b.itemId, 0) + 1);
+                    ps.addBatch();
+                }
+                ps.executeBatch();
+            }
+            return forced;
+        } catch (Exception e) {
+            Logger.error("Bảo hiểm hộp quà lỗi: " + e.getMessage() + "\n");
+            return null;
+        }
     }
 
     public String giveCurrency(Player pl, int type, int qty) {

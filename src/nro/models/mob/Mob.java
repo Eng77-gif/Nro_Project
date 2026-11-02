@@ -548,6 +548,14 @@ public class Mob {
             msg.writeNum(dameHit);
             msg.writer().writeBoolean(plKill.nPoint.isCrit); // crit
             List<ItemMap> items = mobReward(plKill, this.dropItemTask(plKill), msg);
+            // option 161: thêm # ngọc mỗi ngày khi đánh quái (lần hạ quái đầu tiên trong ngày)
+            if (plKill.nPoint != null && plKill.nPoint.ngocMoiNgay > 0 && plKill.isPl()
+                    && nro.models.daily_Giftcode.DailyGiftService.checkOrAdd(plKill, nro.models.consts.ConstDailyGift.NGOC_KHI_DANH_QUAI)) {
+                nro.models.daily_Giftcode.DailyGiftService.updateDailyGift(plKill, nro.models.consts.ConstDailyGift.NGOC_KHI_DANH_QUAI);
+                plKill.inventory.gem += plKill.nPoint.ngocMoiNgay;
+                Service.gI().sendMoney(plKill);
+                Service.gI().sendThongBao(plKill, "Nhận " + plKill.nPoint.ngocMoiNgay + " ngọc mỗi ngày khi đánh quái");
+            }
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             msg.cleanup();
             hutItem(plKill, items);

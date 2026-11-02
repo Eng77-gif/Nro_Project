@@ -580,17 +580,17 @@ class PanelApi {
     // ------------------------------------------------------------------ hộp quà
 
     private Object boxRows(int boxId) throws Exception {
-        return rows("select b.id, b.box_id, b.item_id, t.name, t.icon_id, b.qty_min, b.qty_max, b.weight, b.hsd_days, b.perm_rate from item_box_reward b left join item_template t on t.id=b.item_id where b.box_id=? order by b.id", boxId);
+        return rows("select b.id, b.box_id, b.item_id, t.name, t.icon_id, b.qty_min, b.qty_max, b.weight, b.hsd_days, b.perm_rate, b.pity from item_box_reward b left join item_template t on t.id=b.item_id where b.box_id=? order by b.id", boxId);
     }
 
     private Object boxSave(Map<String, Object> b) throws Exception {
         Object[] v = {intv(b.get("box_id")), intv(b.get("item_id")), Math.max(1, intv(b.getOrDefault("qty_min", 1))), Math.max(1, intv(b.getOrDefault("qty_max", 1))),
-            intv(b.getOrDefault("weight", 1)), str(b.get("hsd_days")), intv(b.getOrDefault("perm_rate", 0))};
+            intv(b.getOrDefault("weight", 1)), str(b.get("hsd_days")), intv(b.getOrDefault("perm_rate", 0)), Math.max(0, intv(b.getOrDefault("pity", 0)))};
         if (b.get("id") != null && lng(b.get("id")) > 0) {
-            update("update item_box_reward set box_id=?, item_id=?, qty_min=?, qty_max=?, weight=?, hsd_days=?, perm_rate=? where id=?",
-                    v[0], v[1], v[2], v[3], v[4], v[5], v[6], lng(b.get("id")));
+            update("update item_box_reward set box_id=?, item_id=?, qty_min=?, qty_max=?, weight=?, hsd_days=?, perm_rate=?, pity=? where id=?",
+                    v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], lng(b.get("id")));
         } else {
-            update("insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate) values (?, ?, ?, ?, ?, ?, ?)", v);
+            update("insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values (?, ?, ?, ?, ?, ?, ?, ?)", v);
         }
         Event2026Service.gI().reloadBoxes();
         return Map.of("ok", true);
