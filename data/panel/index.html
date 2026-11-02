@@ -151,8 +151,8 @@ const PAGES=[
  ['g','Máy chủ'],['dash','Tổng quan','📊'],['notify','Thông báo & quà','📣'],['maint','Bảo trì & lưu','🛠'],['logs','Nhật ký console','🖥'],['audit','Nhật ký thao tác','📝'],['config','Cấu hình','⚙'],
  ['g','Người chơi'],['players','Người chơi','👤'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],
  ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],
- ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['mobs','Quái','🐗'],
- ['g','Khác'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
+ ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['mobs','Quái','🐗'],
+ ['g','Khác'],['health','Kiểm tra dữ liệu','🩺'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
 function buildNav(){if(innerWidth<760)$('#nav').classList.add('hide');let h='<h1>🐉<span>Panel NRO<small>chữ ký: Việt</small></span></h1>',open=false;
   for(const p of PAGES){if(p[0]==='g'){if(open)h+='</div>';h+=`<div class="g">${p[1]}</div><div class="tiles">`;open=true}else h+=`<a href="#${p[0]}" data-p="${p[0]}"><i>${p[2]||'•'}</i>${p[1]}</a>`}
   h+='</div><div class="g">Tài khoản</div><div class="tiles"><a href="#" onclick="toggleTheme();return false"><i>🌓</i>Đổi sáng / tối</a><a href="#" onclick="logout();return false"><i>🚪</i>Đăng xuất</a></div>';
@@ -276,7 +276,19 @@ async function page_items(){$('#main').innerHTML=`<h2>Vật phẩm</h2><div clas
   $('#q').onkeydown=e=>{if(e.key==='Enter')loadItems()};loadItems()}
 async function loadItems(){const r=await api(`items?q=${encodeURIComponent($('#q').value)}&type=${$('#ty').value}`);$('#it').innerHTML=table(r,[['icon','',v=>icon(v)],['id','ID'],['name','Tên'],['type','Loại'],['gender','Hành tinh'],['level','Cấp'],['desc','Mô tả','','w']],x=>`<button class="s" onclick="itemInfo(${x.id})">Chi tiết</button>`)}
 async function loadOps(){const r=await api('options?q='+encodeURIComponent($('#oq').value));$('#it').innerHTML=table(r,[['id','ID'],['name','Chỉ số']])}
-async function itemInfo(id){const i=await api('item?id='+id);modal(`<h3>${icon(i.icon)} ${esc(i.name)} <span class="mute">#${i.id}</span></h3><div class="mute">Loại ${i.type} · hành tinh ${i.gender} · cấp ${i.level} · part ${i.part} · sức mạnh ${fmt(i.strRequire)}</div><p>${esc(i.desc)}</p><b>Chỉ số mặc định</b>${table(i.options,[['id','ID'],['param','Giá trị'],['text','Hiển thị']])}<div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Đóng</button></div>`)}
+async function itemInfo(id){const i=await api('item?id='+id);modal(`<h3>${icon(i.icon)} ${esc(i.name)} <span class="mute">#${i.id}</span></h3><div class="mute">Loại ${i.type} · hành tinh ${i.gender} · cấp ${i.level} · part ${i.part} · sức mạnh ${fmt(i.strRequire)}</div><p>${esc(i.desc)}</p><b>Chỉ số khi tạo vật phẩm</b>${table(i.options,[['id','ID'],['param','Giá trị'],['text','Hiển thị']])}<div class="row" style="justify-content:flex-end;margin-top:10px"><button class="p" onclick="this.closest('.modal').remove();editItemOptions(${i.id})">✏ Sửa chỉ số mặc định</button><button onclick="this.closest('.modal').remove()">Đóng</button></div>`)}
+/* sửa bảng item_template_option của 1 vật phẩm */
+let OPT_NAMES=null;async function optNames(){if(!OPT_NAMES){OPT_NAMES={};(await api('options?q=')).forEach(o=>OPT_NAMES[o.id]=o.name)}return OPT_NAMES}
+async function editItemOptions(id){const [i,rows,names]=await Promise.all([api('item?id='+id),api('item/options?id='+id),optNames()]);
+  const row=o=>`<tr><td data-l="Chỉ số"><input class="oi" type="number" value="${o.option_id??''}" style="width:80px" oninput="this.nextElementSibling.textContent=OPT_NAMES[this.value]||'(không có)'"><span class="mute" style="margin-left:6px">${esc(names[o.option_id]||'')}</span></td><td data-l="Từ"><input class="op" type="number" value="${o.param??0}" style="width:80px"></td><td data-l="Đến"><input class="oq" type="number" value="${o.param_max??o.param??0}" style="width:80px"></td><td data-l="% có"><input class="oc" type="number" value="${o.chance??100}" style="width:70px"></td><td data-l="Nhóm"><input class="og" type="number" value="${o.group_id??0}" style="width:60px"></td><td class="act" data-l=""><button class="s d" onclick="this.closest('tr').remove()">Xóa</button></td></tr>`;
+  const m=modal(`<h3>Chỉ số mặc định: ${icon(i.icon)} ${esc(i.name)} <span class="mute">#${id}</span></h3><div class="mute">Mỗi dòng: mã chỉ số, giá trị từ / đến (ngẫu nhiên trong khoảng), % xuất hiện, nhóm (cùng nhóm &gt; 0 chỉ chọn 1). Áp dụng cho vật phẩm tạo mới (shop, hộp quà, sự kiện).</div>
+   <div class="tw" style="margin-top:8px"><table><thead><tr><th>Chỉ số</th><th>Từ</th><th>Đến</th><th>% có</th><th>Nhóm</th><th></th></tr></thead><tbody id="eo">${rows.map(row).join('')}</tbody></table></div>
+   <div class="row" style="margin-top:8px"><button id="ea">+ Thêm dòng</button><input id="es" class="grow" placeholder="Tìm tên chỉ số để lấy mã…"><span id="er" class="mute"></span></div>
+   <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="ev">Lưu</button></div>`);
+  m.querySelector('#ea').onclick=()=>m.querySelector('#eo').insertAdjacentHTML('beforeend',row({}));
+  m.querySelector('#es').oninput=e=>{const k=e.target.value.toLowerCase();m.querySelector('#er').textContent=k?Object.entries(OPT_NAMES).filter(([a,b])=>b.toLowerCase().includes(k)).slice(0,6).map(([a,b])=>a+': '+b).join(' · '):''};
+  m.querySelector('#ev').onclick=()=>{const options=[...m.querySelectorAll('#eo tr')].filter(tr=>tr.querySelector('.oi').value!=='').map(tr=>({option_id:+tr.querySelector('.oi').value,param:+tr.querySelector('.op').value,param_max:+tr.querySelector('.oq').value,chance:+tr.querySelector('.oc').value,group_id:+tr.querySelector('.og').value})).filter(o=>!isNaN(o.option_id));
+    act(()=>api('item/options/save',{id,options})).then(r=>{if(r)m.remove()})}}
 
 /* ---------- hộp quà ---------- */
 async function page_boxes(){const r=await api('boxes');
@@ -404,6 +416,36 @@ async function page_fx(){const r=await api('fx');
   let kind='eff';const draw=()=>{const k=$('#fq').value.trim();const ids=(kind==='eff'?r.effects:r.auras).filter(i=>!k||String(i).includes(k));
    $('#fg').innerHTML='<div class="gal">'+ids.map(i=>`<div><b>${kind==='eff'?'hiệu ứng':'aura'} ${i}</b><img loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'mute',textContent:'(chưa có ảnh)'}))" src="/fx/${kind}/${i}"></div>`).join('')+'</div>'};
   $('#t1').onclick=()=>{kind='eff';$('#t1').classList.add('on');$('#t2').classList.remove('on');draw()};$('#t2').onclick=()=>{kind='aura';$('#t2').classList.add('on');$('#t1').classList.remove('on');draw()};$('#fq').oninput=draw;draw()}
+
+/* ---------- cửa hàng sự kiện (season_event_exchange) ---------- */
+async function page_evshop(){const ev=await api('seasons');
+  $('#main').innerHTML=`<h2>Cửa hàng sự kiện</h2><div class="card"><div class="row"><b>Sự kiện:</b><select id="evs" class="grow">${ev.map(e=>`<option value="${e.id}" ${e.active?'selected':''}>#${e.id} ${esc(e.name)}${e.active?' (đang chạy)':''}</option>`).join('')}</select><button class="p" onclick="editExchange({})">+ Thêm dòng</button></div>
+   <div class="mute" style="margin-top:6px">Nhóm "Cửa hàng" hiện ở shop Chi Chi; nhóm "Đổi điểm" (giá = điểm sự kiện) hiện ở Quy Lão; nhóm khác hiện trong menu NPC. Gõ \\n để xuống dòng ở tên nút.</div></div><div id="evt"></div>`;
+  $('#evs').onchange=loadExchanges;loadExchanges()}
+let EXCH=[];
+async function loadExchanges(){EXCH=await api('exchanges?event='+$('#evs').value);
+  const price=x=>[x.gold>0?fmt(x.gold)+' vàng':'',x.gem>0?fmt(x.gem)+' ngọc':'',x.ruby>0?fmt(x.ruby)+' hồng ngọc':'',x.cost_point>0?fmt(x.cost_point)+' điểm':'',x.need?'cần '+x.need:''].filter(Boolean).join(' + ')||'miễn phí';
+  $('#evt').innerHTML=table(EXCH,[['icon_id','',v=>icon(v)],['grp','Nhóm',v=>esc(String(v).replace(/\n/g,' '))],['name','Nút',v=>esc(String(v).replace(/\n/g,' '))],['item_name','Vật phẩm',(v,x)=>esc(v||'')+' <span class="mute">#'+x.reward_item+'</span>'+(x.reward_qty>1?' x'+x.reward_qty:'')],['gold','Giá',(v,x)=>price(x)],['reward_days','Hạn (ngày)',v=>v||'vĩnh viễn'],['perm_rate','% vĩnh viễn']],
+   (x,i)=>`<button class="s" onclick="editExchange(EXCH[${i}])">Sửa</button> <button class="s d" onclick="if(confirm('Xóa dòng này?'))act(()=>api('exchange/delete',{id:${x.id}})).then(loadExchanges)">Xóa</button>`)}
+function editExchange(x){const ev=+$('#evs').value;const n=s=>esc(String(s??'').replace(/\n/g,'\\n'));
+  const m=modal(`<h3>${x.id?'Sửa dòng #'+x.id:'Thêm dòng mới'}</h3><div class="grid2">
+   <label class="f">Nhóm<input id="xg" value="${n(x.grp??'Cửa\nhàng')}"></label><label class="f">Tên nút<input id="xn" value="${n(x.name)}"></label>
+   <label class="f">Vật phẩm thưởng<div class="row"><input id="xi" type="number" value="${x.reward_item??''}" style="width:110px"><span id="xin" class="mute">${esc(x.item_name||'')}</span><button type="button" onclick="pickItem(i=>{$('#xi').value=i.id;$('#xin').innerHTML=icon(i.icon)+' '+esc(i.name)})">Chọn…</button></div></label>
+   <label class="f">Số lượng<input id="xq" type="number" value="${x.reward_qty??1}"></label>
+   <label class="f">Giá vàng<input id="x1" type="number" value="${x.gold??0}"></label><label class="f">Giá ngọc<input id="x2" type="number" value="${x.gem??0}"></label>
+   <label class="f">Giá hồng ngọc<input id="x3" type="number" value="${x.ruby??0}"></label><label class="f">Giá điểm sự kiện (Quy Lão)<input id="x4" type="number" value="${x.cost_point??0}"></label>
+   <label class="f">Cần vật phẩm (id:sl, cách nhau dấu phẩy)<input id="xe" value="${esc(x.need||'')}"></label><label class="f">Hạn dùng (ngày, nhiều mức: 3,7,15; trống = vĩnh viễn)<input id="xd" value="${esc(x.reward_days||'')}"></label>
+   <label class="f">% ra vĩnh viễn<input id="xp" type="number" value="${x.perm_rate??0}"></label><label class="f">NPC (id, trống = mặc định)<input id="xc" value="${esc(x.npc||'')}"></label></div>
+   <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="xs">Lưu</button></div>`);
+  m.querySelector('#xs').onclick=()=>act(()=>api('exchange/save',{id:x.id,event_id:x.event_id??ev,grp:$('#xg').value,name:$('#xn').value,need:$('#xe').value,gold:+$('#x1').value,gem:+$('#x2').value,ruby:+$('#x3').value,cost_point:+$('#x4').value,reward_item:+$('#xi').value,reward_qty:+$('#xq').value,reward_days:$('#xd').value,perm_rate:+$('#xp').value,npc:$('#xc').value})).then(r=>{if(r){m.remove();loadExchanges()}})}
+
+/* ---------- kiểm tra dữ liệu ---------- */
+async function page_health(){$('#main').innerHTML='<h2>Kiểm tra dữ liệu</h2><div class="card mute">Đang kiểm tra…</div>';const r=await api('health');
+  const bad=r.filter(x=>x.level==='lỗi').length,warn=r.filter(x=>x.level==='cảnh báo').length;
+  $('#main').innerHTML=`<h2>Kiểm tra dữ liệu</h2><div class="stats" style="margin-bottom:12px"><div class="stat"><span class="ico">⛔</span><span>Lỗi</span><b>${bad}</b></div><div class="stat"><span class="ico">⚠</span><span>Cảnh báo</span><b>${warn}</b></div></div>
+  <div class="card mute">Tìm vật phẩm không tồn tại trong hộp quà / cửa hàng / quà top, chỉ số trỏ tới mã không có (gây lỗi mở shop), đồ mặc trong sự kiện không có dòng chỉ số nào, part / cờ đeo lưng thiếu (mặc không hiện), icon thiếu ảnh. Bấm "Sửa chỉ số" để thêm chỉ số ngay.</div>
+  <div class="row" style="margin-bottom:8px"><button onclick="page_health()">🔄 Kiểm tra lại</button></div>`+
+  table(r,[['level','Mức',v=>`<span class="tag ${v==='lỗi'?'bad1':v==='ok'?'on1':''}">${esc(v)}</span>`],['kind','Loại'],['msg','Chi tiết','','w']],x=>x.item?`<button class="s" onclick="editItemOptions(${x.item})">Sửa chỉ số</button>`:'')}
 
 /* ---------- khởi động ---------- */
 api('me').then(()=>{$('#app').hidden=false;buildNav();route()}).catch(()=>{});

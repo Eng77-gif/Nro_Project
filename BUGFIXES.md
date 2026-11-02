@@ -1394,3 +1394,10 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Shop Chi Chi mùa Halloween giống ảnh: Hòm Halloween 10 triệu vàng (hạn 30 ngày, chứa quà "Hộp Halloween"), Giỏ đựng kẹo trái bí 5 triệu vàng, giỏ / giấy hạn 35 ngày, thêm Cánh thiên sứ hắc ám 999 ngọc (SĐ 15%, HP 13%, KI 13%, giảm 3% sát thương, phản 5%, không giao dịch). Bỏ Hộp Halloween 2119 (trùng Hòm Halloween; ai đã có vẫn mở được).
 - Thẻ sưu tầm thường (2120, icon 17638): mở ra 1 mảnh Đội trưởng Vàng / Rồng thần Namếc / Khỉ Oozaru; có trong Thiệp Ma.
 - Kẹo mù Halloween thêm Avatar mang kính đo sức mạnh (894 / 895 / 896, SĐ 20%, HP 17%).
+
+## Đợt 58
+- Chỉ số đúng theo ảnh (trước đây các món này mua / nhận về không có dòng chỉ số nào): Ma trơi giảm 14% sát thương, Hồn ma Goku HP 24%, Hồn ma Ca đíc SĐ 14%, Hồn ma Pôcôlô KI 24%, Capsule Halloween / Squid Game không giao dịch (Capsule Halloween hạn 30 ngày), Bill Bí Ngô SĐ/HP/KI 20% + biến người xung quanh thành Bí Ngô (option mới 263) + không bị hóa Xương + không thể bán lại, Pet Cerberus SĐ 16% HP 15% KI 15% chống lạnh, Cánh thiên thần sa ngã +30% tấn công lên boss, biến 15% tấn công thành HP, giảm 10% sát thương, không giao dịch, Cánh thiên thần 1 / 2 SĐ 11%.
+- Option 32 "Không bị hóa Xương" giờ có tác dụng (miễn mọi biến hình Halloween).
+- Đeo lưng trỏ tới cờ chưa có trong flag_bag (21 món) trước đây đeo vào không hiện: thêm cờ Labubu (141) theo V10, các cờ còn thiếu tạm hiện icon vật phẩm.
+- Một dòng hạn dùng sai định dạng trong item_box_reward không còn làm hỏng cả bảng hộp quà.
+- Panel: sửa chỉ số mặc định của vật phẩm (Vật phẩm → Chi tiết → Sửa chỉ số), trang Cửa hàng sự kiện (sửa giá, hạn, quà, thêm / xóa), trang Kiểm tra dữ liệu (vật phẩm không tồn tại, chỉ số hỏng, đồ sự kiện thiếu chỉ số, part / cờ thiếu, icon thiếu, số ô option >= 255).

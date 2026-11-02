@@ -291,6 +291,9 @@ public class EffectSkillService {
     }
 
     public void setIsHalloween(Player player, int outFit, int time) {
+        if (player.nPoint != null && player.nPoint.khongHoaXuong) {
+            return; // option 32: không bị hóa Xương
+        }
         if (player.effectSkill != null) {
             player.effectSkill.isHalloween = true;
             player.effectSkill.idOutfitHalloween = outFit != -1 ? outFit : Util.nextInt(5);

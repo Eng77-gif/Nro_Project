@@ -289,6 +289,15 @@ public final class Manager {
         }
     }
 
+    /** Nạp lại bảng item_template_option (panel sửa chỉ số mặc định). */
+    public void reloadTemplateOptions() {
+        try (Connection con = LocalManager.getConnection()) {
+            loadTemplateOptions(con);
+        } catch (Exception e) {
+            Logger.error("Không nạp lại được item_template_option: " + e.getMessage() + "\n");
+        }
+    }
+
     private void loadTemplateOptions(Connection con) {
         ItemService.TEMPLATE_OPTIONS.clear();
         try (PreparedStatement p = con.prepareStatement("select template_id, option_id, param, param_max, chance, group_id from item_template_option order by id");

@@ -70,6 +70,12 @@ class PanelApi {
             case "account/update" -> accountUpdate(b);
             case "items" -> items(q.getOrDefault("q", ""), q.getOrDefault("type", ""));
             case "item" -> item(intv(q.get("id")));
+            case "item/options" -> rows("select o.id, o.option_id, t.NAME name, o.param, o.param_max, o.chance, o.group_id from item_template_option o left join item_option_template t on t.id=o.option_id where o.template_id=? order by o.id", intv(q.get("id")));
+            case "item/options/save" -> itemOptionsSave(b);
+            case "exchanges" -> rows("select e.id, e.event_id, e.grp, e.name, e.need, e.gold, e.gem, e.ruby, e.cost_point, e.reward_item, t.NAME item_name, t.icon_id, e.reward_qty, e.reward_days, e.perm_rate, e.npc from season_event_exchange e left join item_template t on t.id=e.reward_item where e.event_id=? order by e.grp, e.id", intv(q.get("event")));
+            case "exchange/save" -> exchangeSave(b);
+            case "exchange/delete" -> exchangeDelete(b);
+            case "health" -> health();
             case "options" -> options(q.getOrDefault("q", ""));
             case "giftcodes" -> rows("select id, code, count_left, detail, datecreate, expired from giftcode order by id desc");
             case "giftcode/save" -> giftcodeSave(b);
@@ -501,6 +507,131 @@ class PanelApi {
         }
         o.put("options", ops);
         return o;
+    }
+
+    // ------------------------------------------------------------------ chỉ số mặc định / cửa hàng sự kiện / kiểm tra dữ liệu
+
+    @SuppressWarnings("unchecked")
+    private Object itemOptionsSave(Map<String, Object> b) throws Exception {
+        int id = intv(b.get("id"));
+        if (ItemService.gI().getTemplate(id) == null) {
+            throw new IllegalArgumentException("Không có vật phẩm " + id);
+        }
+        List<Object> list = (List<Object>) b.getOrDefault("options", List.of());
+        for (Object x : list) {
+            int oid = intv(((Map<String, Object>) x).get("option_id"));
+            if (ItemService.gI().getItemOptionTemplate(oid) == null) {
+                throw new IllegalArgumentException("Không có chỉ số (option) " + oid);
+            }
+        }
+        update("delete from item_template_option where template_id=?", id);
+        for (Object x : list) {
+            Map<String, Object> o = (Map<String, Object>) x;
+            int param = intv(o.getOrDefault("param", 0));
+            update("insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (?, ?, ?, ?, ?, ?)",
+                    id, intv(o.get("option_id")), param, Math.max(param, intv(o.getOrDefault("param_max", param))),
+                    Math.max(1, Math.min(100, intv(o.getOrDefault("chance", 100)))), Math.max(0, intv(o.getOrDefault("group_id", 0))));
+        }
+        Manager.gI().reloadTemplateOptions();
+        return Map.of("ok", true, "note", "Đã lưu " + list.size() + " dòng chỉ số, áp dụng cho vật phẩm tạo mới");
+    }
+
+    private Object exchangeSave(Map<String, Object> b) throws Exception {
+        int item = intv(b.get("reward_item"));
+        if (item >= 0 && ItemService.gI().getTemplate(item) == null) {
+            throw new IllegalArgumentException("Không có vật phẩm " + item);
+        }
+        String days = str(b.get("reward_days")).replaceAll("[^0-9,]", "");
+        Object[] v = {intv(b.get("event_id")), str(b.get("grp")).replace("\\n", "\n"), str(b.get("name")).replace("\\n", "\n"), str(b.get("need")),
+            lng(b.getOrDefault("gold", 0)), intv(b.getOrDefault("gem", 0)), intv(b.getOrDefault("ruby", 0)), intv(b.getOrDefault("cost_point", 0)),
+            item, Math.max(1, intv(b.getOrDefault("reward_qty", 1))), days, intv(b.getOrDefault("perm_rate", 0)), str(b.get("npc"))};
+        if (b.get("id") != null && lng(b.get("id")) > 0) {
+            update("update season_event_exchange set event_id=?, grp=?, name=?, need=?, gold=?, gem=?, ruby=?, cost_point=?, reward_item=?, reward_qty=?, reward_days=?, perm_rate=?, npc=? where id=?",
+                    v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], lng(b.get("id")));
+        } else {
+            update("insert into season_event_exchange (event_id, grp, name, need, gold, gem, ruby, cost_point, reward_item, reward_qty, reward_days, perm_rate, npc) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", v);
+        }
+        SeasonEventService.gI().admin(" reload");
+        return Map.of("ok", true, "note", "Đã lưu, sự kiện đã nạp lại");
+    }
+
+    private Object exchangeDelete(Map<String, Object> b) throws Exception {
+        update("delete from season_event_exchange where id=?", lng(b.get("id")));
+        SeasonEventService.gI().admin(" reload");
+        return Map.of("ok", true);
+    }
+
+    private static final java.util.Set<Integer> WEAR_TYPES = java.util.Set.of(5, 11, 23, 24, 72);
+
+    /** Kiểm tra dữ liệu: tìm các lỗi hay gặp (vật phẩm không có chỉ số, id không tồn tại, option hỏng, part thiếu...). */
+    private Object health() throws Exception {
+        List<Map<String, Object>> out = new ArrayList<>();
+        java.util.function.BiConsumer<String, String[]> add = (lv, a) -> {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("level", lv);
+            m.put("kind", a[0]);
+            m.put("msg", a[1]);
+            m.put("item", a.length > 2 ? a[2] : "");
+            out.add(m);
+        };
+        // 1. vật phẩm không tồn tại trong hộp quà / cửa hàng sự kiện / quà top / shop
+        for (Map<String, Object> r : rows("select box_id, item_id from item_box_reward where item_id >= 0 and item_id not in (select id from item_template)")) {
+            add.accept("lỗi", new String[]{"Hộp quà", "Hộp #" + r.get("box_id") + " có vật phẩm #" + r.get("item_id") + " không tồn tại"});
+        }
+        for (Map<String, Object> r : rows("select id, event_id, reward_item from season_event_exchange where reward_item >= 0 and reward_item not in (select id from item_template) and reward_item not in (select box_id from item_box_reward)")) {
+            add.accept("lỗi", new String[]{"Cửa hàng sự kiện", "Dòng #" + r.get("id") + " (sự kiện " + r.get("event_id") + ") thưởng vật phẩm #" + r.get("reward_item") + " không tồn tại"});
+        }
+        for (Map<String, Object> r : rows("select top_id, item_id from season_event_top_reward where item_id >= 0 and item_id not in (select id from item_template)")) {
+            add.accept("lỗi", new String[]{"Quà đua top", "Top #" + r.get("top_id") + " có vật phẩm #" + r.get("item_id") + " không tồn tại"});
+        }
+        for (Map<String, Object> r : rows("select s.id, s.temp_id from item_shop s where s.temp_id not in (select id from item_template)")) {
+            add.accept("lỗi", new String[]{"Shop", "Dòng shop #" + r.get("id") + " bán vật phẩm #" + r.get("temp_id") + " không tồn tại"});
+        }
+        // 2. chỉ số trỏ tới option không tồn tại (gây lỗi khi mở shop / xem đồ)
+        for (Map<String, Object> r : rows("select template_id, option_id from item_template_option where option_id not in (select id from item_option_template)")) {
+            add.accept("lỗi", new String[]{"Chỉ số mặc định", "Vật phẩm #" + r.get("template_id") + " có chỉ số #" + r.get("option_id") + " không tồn tại", String.valueOf(r.get("template_id"))});
+        }
+        for (Map<String, Object> r : rows("select s.temp_id, o.option_id from item_shop_option o join item_shop s on s.id=o.item_shop_id where o.option_id not in (select id from item_option_template)")) {
+            add.accept("lỗi", new String[]{"Shop", "Vật phẩm #" + r.get("temp_id") + " trong shop có chỉ số #" + r.get("option_id") + " không tồn tại", String.valueOf(r.get("temp_id"))});
+        }
+        // 3. đồ mặc / đeo được bán hoặc tặng trong sự kiện nhưng không có dòng chỉ số nào
+        java.util.Set<Integer> seen = new java.util.HashSet<>();
+        List<Map<String, Object>> used = rows("select reward_item id, concat('Cửa hàng sự kiện ', event_id) src from season_event_exchange where reward_item >= 0"
+                + " union select item_id, concat('Hộp quà #', box_id) from item_box_reward where item_id >= 0"
+                + " union select temp_id, concat('Shop tab #', tab_id) from item_shop"
+                + " union select item_id, concat('Quà top #', top_id) from season_event_top_reward where item_id >= 0");
+        for (Map<String, Object> r : used) {
+            int id = ((Number) r.get("id")).intValue();
+            ItemTemplate t = id >= 0 && id < Manager.ITEM_TEMPLATES.size() ? ItemService.gI().getTemplate(id) : null;
+            if (t == null || !seen.add(id)) {
+                continue;
+            }
+            boolean pet = t.type == 27 && t.head >= 0;
+            if ((WEAR_TYPES.contains((int) t.type) || pet) && ItemService.gI().getListOptionItemShop((short) id).isEmpty()) {
+                add.accept("cảnh báo", new String[]{"Thiếu chỉ số", t.name + " (#" + id + ", loại " + t.type + ") có trong " + r.get("src") + " nhưng không có dòng chỉ số nào", String.valueOf(id)});
+            }
+        }
+        // 4. part / cờ đeo lưng không tồn tại (mặc vào không hiện)
+        for (Map<String, Object> r : rows("select id, NAME, head, body, leg from item_template where (head >= 0 and head not in (select id from part)) or (body >= 0 and body not in (select id from part)) or (leg >= 0 and leg not in (select id from part))")) {
+            add.accept("lỗi", new String[]{"Part", r.get("NAME") + " (#" + r.get("id") + ") trỏ tới part không tồn tại (" + r.get("head") + "/" + r.get("body") + "/" + r.get("leg") + ")", String.valueOf(r.get("id"))});
+        }
+        for (Map<String, Object> r : rows("select id, NAME, part from item_template where TYPE = 11 and part >= 0 and part not in (select id from flag_bag)")) {
+            add.accept("cảnh báo", new String[]{"Đeo lưng", r.get("NAME") + " (#" + r.get("id") + ") dùng cờ " + r.get("part") + " chưa có trong flag_bag: đang tạm hiện icon vật phẩm, thêm khung hình vào flag_bag để có hoạt ảnh", String.valueOf(r.get("id"))});
+        }
+        // 5. icon thiếu ảnh
+        for (Map<String, Object> r : rows("select id, NAME, icon_id from item_template where id in (select reward_item from season_event_exchange union select item_id from item_box_reward)")) {
+            int icon = ((Number) r.get("icon_id")).intValue();
+            if (icon >= 0 && !new java.io.File("data/icon/x2/" + icon + ".png").exists() && !new java.io.File("data/icon/x4/" + icon + ".png").exists()) {
+                add.accept("cảnh báo", new String[]{"Icon", r.get("NAME") + " (#" + r.get("id") + ") thiếu ảnh icon " + icon, String.valueOf(r.get("id"))});
+            }
+        }
+        // 6. số option id >= 255 (client PC/APK chỉ nhận được qua 10 ô trống)
+        long big = Manager.ITEM_OPTION_TEMPLATES.stream().filter(t -> t.id >= 255).count();
+        add.accept(big > 10 ? "lỗi" : big >= 9 ? "cảnh báo" : "ok", new String[]{"Bảng chỉ số", big + " / 10 chỉ số có mã từ 255 trở lên (client APK/PC đọc mã 1 byte). Hết ô thì chỉ số mới sẽ hiện sai"});
+        if (out.stream().noneMatch(m -> !"ok".equals(m.get("level")))) {
+            add.accept("ok", new String[]{"Tổng quát", "Không tìm thấy lỗi dữ liệu"});
+        }
+        return out;
     }
 
     private Object options(String kw) {

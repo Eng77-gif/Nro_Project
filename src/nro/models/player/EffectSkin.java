@@ -396,16 +396,16 @@ public class EffectSkin {
 
     private long lastTimeZombieXq, lastTimeHoiDongBang;
 
-    /** option 262: biến người xung quanh (200px) thành Zombi mỗi 30 giây, mỗi lần 5 giây. */
+    /** option 262 / 263: biến người xung quanh (200px) thành Zombi / Bí Ngô mỗi 30 giây, mỗi lần 5 giây. */
     private void updateZombieXq() {
         try {
-            if (this.player.nPoint != null && this.player.nPoint.isZombieXq && Util.canDoWithTime(lastTimeZombieXq, 30000)) {
+            if (this.player.nPoint != null && this.player.nPoint.halloweenXq >= 0 && Util.canDoWithTime(lastTimeZombieXq, 30000)) {
                 List<Player> playersMap = this.player.zone.getNotBosses();
                 for (int i = playersMap.size() - 1; i >= 0; i--) {
                     Player pl = playersMap.get(i);
                     if (pl != null && pl.nPoint != null && pl.effectSkill != null && !this.player.equals(pl) && !pl.isBoss && !pl.isDie()
                             && !pl.effectSkill.isHalloween && Util.getDistance(this.player, pl) <= 200) {
-                        EffectSkillService.gI().setIsHalloween(pl, 0, 5000);
+                        EffectSkillService.gI().setIsHalloween(pl, this.player.nPoint.halloweenXq, 5000);
                     }
                 }
                 this.lastTimeZombieXq = System.currentTimeMillis();

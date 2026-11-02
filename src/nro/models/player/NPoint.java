@@ -219,7 +219,8 @@ public class NPoint {
     public int kiHoiKhiBiDanh; // option 4: hồi #% KI khi bị đánh
     public int phanDonCanChien; // option 15: phản # sát thương khi bị đánh cận chiến
     public boolean isSocolaXq; // option 29 / 186: biến sôcôla (kẹo) người xung quanh mỗi 30 giây
-    public boolean isZombieXq; // option 262: biến người xung quanh thành Zombi mỗi 30 giây
+    public int halloweenXq = -1; // option 262 / 263: biến người xung quanh thành Zombi (0) / Bí Ngô (2) mỗi 30 giây
+    public boolean khongHoaXuong; // option 32: không bị hóa Xương
     public int tlHoiDongBang; // option 221: phục hồi #% HP và KI mỗi 30 giây cho bản thân và đồng bang
     public int ngocMoiNgay; // option 161: thêm # ngọc mỗi ngày khi đánh quái
     public int punchStackMax; // option 156: cộng dồn 1% SĐ mỗi đòn đấm liên tiếp, tối đa #%
@@ -847,7 +848,13 @@ public class NPoint {
                 this.isSocolaXq = true;
                 break;
             case 262: //Biến người xung quanh thành Zombi mỗi 30 giây
-                this.isZombieXq = true;
+                this.halloweenXq = 0;
+                break;
+            case 263: //Biến người xung quanh thành Bí Ngô mỗi 30 giây
+                this.halloweenXq = 2;
+                break;
+            case 32: //Không bị hóa Xương
+                this.khongHoaXuong = true;
                 break;
             case 221: //Phục hồi #% HP và KI mỗi 30 giây cho bản thân và đồng bang
                 this.tlHoiDongBang += io.param;
@@ -1730,7 +1737,8 @@ public class NPoint {
         this.giamSTXD = 0;
         this.phanDonCanChien = 0;
         this.isSocolaXq = false;
-        this.isZombieXq = false;
+        this.halloweenXq = -1;
+        this.khongHoaXuong = false;
         this.tlHoiDongBang = 0;
         this.ngocMoiNgay = 0;
         this.punchStackMax = 0;

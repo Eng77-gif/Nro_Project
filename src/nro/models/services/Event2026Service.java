@@ -156,8 +156,13 @@ public class Event2026Service {
                 List<Integer> days = new ArrayList<>();
                 if (hsd != null) {
                     for (String s : hsd.split(",")) {
-                        if (!s.isBlank() && Integer.parseInt(s.trim()) > 0) {
-                            days.add(Integer.parseInt(s.trim()));
+                        try {
+                            int d = Integer.parseInt(s.replaceAll("[^0-9]", ""));
+                            if (d > 0) {
+                                days.add(d);
+                            }
+                        } catch (NumberFormatException badText) {
+                            // "7 ngày", ô trống... bỏ qua thay vì làm hỏng cả bảng hộp quà
                         }
                     }
                 }

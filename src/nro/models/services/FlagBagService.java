@@ -44,8 +44,31 @@ public class FlagBagService {
         }
     }
 
+    /** Cờ đeo lưng thiếu trong flag_bag (mã cờ lấy từ part của vật phẩm loại 11): dùng icon vật phẩm làm hình. */
+    private final java.util.Map<Integer, FlagBag> fallback = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private FlagBag fallbackFlag(int id) {
+        return fallback.computeIfAbsent(id, k -> {
+            for (nro.models.player_system.Template.ItemTemplate t : Manager.ITEM_TEMPLATES) {
+                if (t != null && t.type == 11 && t.part == k) {
+                    FlagBag f = new FlagBag();
+                    f.id = k;
+                    f.name = t.name;
+                    f.iconId = t.iconID;
+                    f.iconEffect = new short[]{t.iconID};
+                    nro.models.utils.Logger.error("Cờ đeo lưng " + k + " (" + t.name + ") chưa có trong flag_bag, tạm dùng icon vật phẩm\n");
+                    return f;
+                }
+            }
+            return null;
+        });
+    }
+
     public void sendIconEffectFlag(Player player, int id) {
         FlagBag fb = getFlagBag(id);
+        if (fb == null && id > 0) {
+            fb = fallbackFlag(id);
+        }
         if (fb != null) {
             Message msg;
             try {

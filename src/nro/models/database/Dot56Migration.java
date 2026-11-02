@@ -115,6 +115,7 @@ public final class Dot56Migration {
         try {
             changed += runHalloween(con);
             changed += runDot57(con);
+            changed += runDot58(con);
         } catch (Exception ex) {
             Logger.error("Đợt 56 (Halloween): không cập nhật được database: " + ex.getMessage() + "\n");
         }
@@ -359,6 +360,50 @@ public final class Dot56Migration {
             }
         }
         changed += update(con, "insert into server_migration (name) values ('dot57_halloween')");
+        return changed;
+    }
+
+    /** Option 263: biến người xung quanh thành Bí Ngô mỗi 30 giây (Cải trang Bill Bí Ngô) */
+    public static final int OPT_BINGO_XQ = 263;
+
+    /**
+     * Đợt 58: chỉ số đúng theo ảnh shop Chi Chi / túi mù (trước đây các món này không có dòng chỉ số nào).
+     * {template, option, param}
+     */
+    private static final int[][] OPTIONS_58 = {
+        {814, 94, 14}, // Ma trơi: giảm 14% sát thương
+        {815, 77, 24}, // Hồn ma Goku: HP +24%
+        {816, 50, 14}, // Hồn ma Ca đíc: SĐ +14%
+        {817, 103, 24}, // Hồn ma Pôcôlô: KI +24%
+        {818, 30, 1}, // Capsule Halloween: không giao dịch
+        {915, 30, 1}, // Capsule Squid Game: không giao dịch
+        {739, 50, 20}, {739, 77, 20}, {739, 103, 20}, {739, OPT_BINGO_XQ, 0}, {739, 32, 0}, {739, 154, 0}, // Bill Bí Ngô
+        {1654, 50, 16}, {1654, 77, 15}, {1654, 103, 15}, {1654, 106, 0}, // Pet Cerberus (chống lạnh)
+        {1927, 204, 30}, {1927, 95, 15}, {1927, 94, 10}, {1927, 30, 1}, // Cánh thiên thần sa ngã
+        {1110, 50, 11}, {1111, 50, 11},}; // Cánh thiên thần, Cánh thiên thần 2
+
+    private static int runDot58(Connection con) throws Exception {
+        int changed = 0;
+        if (!exists(con, "select 1 from item_option_template where id = " + OPT_BINGO_XQ)) {
+            changed += update(con, "insert into item_option_template (id, NAME) values (" + OPT_BINGO_XQ + ", 'Biến người xung quanh thành Bí Ngô mỗi 30 giây')");
+        }
+        // cờ Labubu (141) có trong source V10 nhưng thiếu ở database này: đeo vào không hiện
+        if (!exists(con, "select 1 from flag_bag where id = 141")) {
+            changed += update(con, "insert into flag_bag (id, icon_data, NAME, gold, gem, icon_id) values (141, '13993, 13994', 'flag_bag', -1, -1, 0)");
+        }
+        if (exists(con, "select 1 from server_migration where name = 'dot58_items'")) {
+            return changed;
+        }
+        java.util.Set<Integer> done = new java.util.HashSet<>();
+        for (int[] o : OPTIONS_58) {
+            if (done.add(o[0])) {
+                changed += update(con, "delete from item_template_option where template_id = " + o[0]);
+            }
+            changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (" + o[0] + ", " + o[1] + ", " + o[2] + ", " + o[2] + ", 100, 0)");
+        }
+        // Capsule Halloween bán ở Chi Chi hạn 30 ngày như Capsule Squid Game
+        changed += update(con, "update season_event_exchange set reward_days = '30' where event_id = 7 and reward_item = 818 and reward_days = ''");
+        changed += update(con, "insert into server_migration (name) values ('dot58_items')");
         return changed;
     }
 
