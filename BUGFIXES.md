@@ -1317,3 +1317,18 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Đếm thêm set Champa (option 257) và Beerus (option 115).
 - **Sửa lỗi cũ:** số món set kích hoạt chỉ được đếm khi vào game, thay đồ phải thoát ra vào lại mới có hiệu lực. Giờ đếm lại mỗi lần tính chỉ số.
 - `getAura()` đổi từ byte sang short.
+
+## Đợt 54: Aura thẻ radar theo cấp
+| Thẻ | Lv.1 | Lv.2 | Lv.3 |
+|---|---|---|---|
+| Thẻ Đội Trưởng Vàng | aura 0 | aura 0 | aura 0 |
+| Thẻ Rồng Thần Namek | aura 1 | aura 1 | aura 1 |
+| Thẻ Oozaru (đã gộp) | aura 2 | aura 3 | aura 4 |
+| Thẻ khỉ con | aura 120 | aura 121 | aura 122 |
+
+- **Lv.1:** đã sưu tầm thẻ (Level -1). **Lv.2:** Level 1. **Lv.3:** Level 2, giống dòng "Sử dụng Lv.x" trong bảng thẻ.
+- Trước đây phải đạt Lv.3 mới có aura, giờ có từ Lv.1.
+- Có nhiều thẻ thì hiện aura của **thẻ có chỉ số cao nhất**: tổng chỉ số các dòng đã mở tới cấp hiện tại, bằng nhau thì thẻ cấp cao hơn.
+- Aura thưởng đua top chỉ hiện khi không có aura thẻ.
+- Sưu tầm / lên cấp thẻ làm đổi aura thì cập nhật ngay cho mình và người trong map, không cần đổi map.
+- Bỏ thẻ 1142 khỏi danh sách aura (không có trong bảng radar).

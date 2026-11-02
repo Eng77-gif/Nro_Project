@@ -753,13 +753,26 @@ public class Player implements Runnable {
         if (!isPl()) {
             return -1;
         }
+        // aura thẻ radar: có nhiều thẻ thì lấy thẻ có chỉ số cao nhất
+        short best = -1;
+        int bestScore = -1;
         for (Card card : this.Cards) {
-            if (card != null && (card.Id == 956 || card.Id == 1771 || card.Id == 1204 || card.Id == 1142) && card.Level > 1) {
-                RadarCard radarTemplate = RadarService.gI().RADAR_TEMPLATE.stream().filter(r -> r.Id == card.Id).findFirst().orElse(null);
-                if (radarTemplate != null) {
-                    return radarTemplate.AuraId;
-                }
+            if (card == null || card.Level == 0) {
+                continue;
             }
+            int lv = RadarService.displayLevel(card);
+            short aura = RadarService.auraFor(card.Id, lv);
+            if (aura < 0) {
+                continue;
+            }
+            int score = RadarService.cardScore(card, lv);
+            if (score > bestScore) {
+                best = aura;
+                bestScore = score;
+            }
+        }
+        if (best >= 0) {
+            return best;
         }
         // aura thưởng đua top Quy Lão
         if (this.auraReward >= 0 && this.auraRewardUntil > System.currentTimeMillis()) {

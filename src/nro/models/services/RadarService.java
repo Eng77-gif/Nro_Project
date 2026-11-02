@@ -60,6 +60,36 @@ public class RadarService {
         pl.Cards.add(m);
     }
 
+    /** Cấp hiển thị trong game: đã sưu tầm = Lv.1, Level 1 = Lv.2, Level 2 = Lv.3. */
+    public static int displayLevel(Card card) {
+        return card.Level < 0 ? 1 : Math.min(3, card.Level + 1);
+    }
+
+    /** Aura theo thẻ và cấp: Đội Trưởng Vàng 0, Rồng Thần Namek 1, Oozaru 2 / 3 / 4, Khỉ con 120 / 121 / 122. */
+    public static short auraFor(int cardId, int lv) {
+        int i = Math.max(1, Math.min(3, lv)) - 1;
+        return switch (cardId) {
+            case 956 -> 0;
+            case 1204 -> 1;
+            case OOZARU -> new short[]{2, 3, 4}[i];
+            case 2040 -> new short[]{120, 121, 122}[i];
+            default -> -1;
+        };
+    }
+
+    /** Điểm so sánh "thẻ có chỉ số cao nhất": tổng chỉ số các dòng đã mở tới cấp hiện tại. */
+    public static int cardScore(Card card, int lv) {
+        int s = 0;
+        if (card.Options != null) {
+            for (OptionCard o : card.Options) {
+                if (o.active < lv) {
+                    s += o.param;
+                }
+            }
+        }
+        return s * 10 + lv;
+    }
+
     public void sendRadar(Player pl, List<Card> cards) {
         try {
             Message m = new Message(127);

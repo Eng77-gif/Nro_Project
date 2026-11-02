@@ -2861,6 +2861,7 @@ public class UseItem {
             }
         }
         Card card = pl.Cards.stream().filter(r -> r.Id == cardId).findFirst().orElse(null);
+        short auraTruoc = pl.getAura();
         if (card == null) {
             Card newCard = new Card((short) cardId, (byte) 1, radarTemplate.Max, (byte) -1, radarTemplate.Options);
             pl.Cards.add(newCard);
@@ -2888,6 +2889,15 @@ public class UseItem {
             RadarService.gI().RadarSetLevel(pl, card.Id, card.Level);
             InventoryService.gI().subQuantityItemsBag(pl, item, 1);
             InventoryService.gI().sendItemBags(pl);
+        }
+        refreshAura(pl, auraTruoc);
+    }
+
+    /** Aura đổi (sưu tầm / lên cấp thẻ): gửi lại cho mình và người trong map. */
+    private void refreshAura(Player pl, short before) {
+        if (pl.getAura() != before && pl.zone != null) {
+            Service.gI().player(pl);
+            pl.zone.load_Me_To_Another(pl);
         }
     }
 
