@@ -41,8 +41,8 @@ public class RewardService {
     public static final int[] SPECIAL_WHEEL_ITEMS = {
         2053, 2026, 2027, 2039, 2082, 2075, 2043, // Akaza (Thượng Tam), Naruto, Sasuke, Akatsuki, Beerus, Nappa Aura, Pan Trung Thu
         2019, 2072, 2059, 2037, 2036, 2038, // Pet Kuma, Ngựa Thành Troy, Minion 2026, 3 Pet Xên
-        2054, 2061, 2030, 2041, 2058, 2044, 2031, 2060, 2017, // Bóng Mờ, Lồng Đèn, Cờ Vạn Hoa Đồng, Đại Bàng (+VIP), Ván bay WC, Cờ WC, Ván bay TT, Bóng WC
-        1885 // Danh hiệu Phá Cổ Trung Thu
+        2054, 2061, 2030, 2041, 2058, 2044, 2031, 2060, 2017 // Bóng Mờ, Lồng Đèn, Cờ Vạn Hoa Đồng, Đại Bàng (+VIP), Ván bay WC, Cờ WC, Ván bay TT, Bóng WC
+        // Danh hiệu Phá Cổ Trung Thu (1885) chỉ nhận qua đua top Trung Thu
     };
     public static final int SPECIAL_WHEEL_RATE = 3; // % mỗi ô quay
     public static final int SPECIAL_WHEEL_PERMANENT = 3; // % vĩnh viễn (x3)

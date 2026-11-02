@@ -684,6 +684,9 @@ public class Player implements Runnable {
         },
         {
             {651, 652, 653}, {651, 652, 653}, {651, 652, 653}
+        },
+        {
+            {406, 407, 408}, {406, 407, 408}, {406, 407, 408} // củ cà rốt (Thỏ đại ca)
         }};
 
     public static final short[][] idOutfitMafuba = {

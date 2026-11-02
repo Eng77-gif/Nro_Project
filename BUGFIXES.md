@@ -1226,3 +1226,45 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 ### Database
 - Tự cập nhật khi khởi động (`Dot48Migration.runDot50`): `season_event.bosses`, `item_template`, `item_shop` + `item_shop_option` tab 44.
 - `vsItem` 17 → 18.
+
+## Đợt 51: Boss Thỏ đại ca, Meowth, Rồng nhí; danh hiệu chỉ qua đua top; Chi Chi / Quy Lão theo sự kiện (như video)
+### Boss mới (theo source V10)
+- **Trung Thu:**
+  - **Thỏ đại ca** (-374): đánh trúng biến người chơi thành củ cà rốt 30 phút (outfit 406/407/408); mỗi đòn mất tối đa 1.000 HP; hạ rơi 10 Củ cà rốt.
+  - **Meowth** (-377): mỗi đòn chỉ mất 1 HP (HP 2.000). Hạ rơi 30% Ván bay cá đuối VIP (1 – 5 ngày); không thì 90% Pet rồng Pikachu (SĐ / HP / KI +22%); còn lại vật phẩm 1099 – 1103.
+- **Giỗ tổ:** **Rồng nhí 1 – 7 sao** (-390 … -396): không đánh, chỉ chạy theo người chơi; mỗi đòn tối đa 25.000 HP. Hạ rơi 90% 1 – 3 Mảnh trứng rồng nhí, 10% Trứng rồng nhí.
+- Mỗi loại 5 – 10 con, chỉ khi sự kiện đó chạy.
+
+### Danh hiệu chỉ nhận qua đua top
+| Danh hiệu | Đua top |
+|---|---|
+| Đón Xuân | Tết – top Lì xì (1–10: 30 ngày, 11–100: 7 ngày); vẫn còn top 1 Hộp đen |
+| Phá cỗ trung thu VIP / Phá cỗ trung thu | Trung Thu – top Hộp bánh (top 1–3 VIP 30 ngày, top 4–100 thường 15 ngày) |
+| Tay nhanh hơn não | Halloween – top Túi mù |
+| Mùa đông không lạnh | Giáng sinh – top mới **Hộp quà Giáng sinh** |
+
+- Đã xóa mọi công thức đổi lấy danh hiệu.
+- Bỏ Phá cỗ trung thu khỏi vòng quay ngọc.
+- Thêm đua top **Hộp quà 20-11** (quà như các top khác).
+- Cần ít nhất **10 điểm** mới được xếp top. Quà nhận trong **7 ngày** sau khi chốt.
+
+### Chi Chi (Đảo Kamê) theo sự kiện đang chạy, như video
+- Menu gồm:
+  - Các **Top** của sự kiện. Chọn top: thông tin (kết thúc sau N ngày, hạn chót nhận giải), **Top 100** (bảng xếp hạng), **Xem điểm** ("Chưa đủ điểm vào TOP (ít nhất là 10 điểm)").
+  - **Nhận giải đua top** (khi có quà chờ).
+  - **Cửa hàng** (shop sự kiện dạng cửa hàng thật).
+  - **Hủy bỏ trang bị có hsd**, **Hủy bỏ bóng mờ hsd dưới 35 ngày** (có hỏi xác nhận).
+- Đã bỏ các top cứng chạy quanh năm (Hộp quà thiếu nhi 2025, Nước mía, Kem trái cây) và nút Hộp đen bí ẩn.
+- Cửa hàng lấy từ nhóm "Cửa hàng" của sự kiện đang chạy. Mua vẫn tính hạn dùng, điểm top, điểm sự kiện.
+- Halloween thêm như video: Lưỡi hái hồng, CT Bill Bí Ngô, CT Caufila Dơi, Ma trơi, Hồn ma Goku / Ca đíc / Pôcôlô, Capsule Squid Game, Cánh thiên thần 1 – 2.
+
+### Quy Lão: Đổi điểm sự kiện
+- Mở cửa hàng **Đổi thưởng** trả bằng **điểm sự kiện** (trước đây là shop trả ngọc).
+- Danh sách như video (Hộp quà Cađíc VIP, Goku Day VIP, Ván bay cung trăng, CT Android 21 Evil, Cánh Thiên thần – Ác quỷ, Gohan Beast, Black Goku Rose, …, Bóng mờ sao may mắn, Bư tập tạ). Có cho mọi sự kiện, sửa được trong bảng `season_event_exchange` (nhóm "Đổi điểm").
+- **Đổi sự kiện thì cửa hàng Chi Chi và Quy Lão đổi theo.**
+- "Đua top ngọc rồng" và "Quà Trung Thu" chỉ hiện trong Trung Thu.
+- Nhóm "Cửa hàng" / "Đổi điểm" không còn hiện trong menu sự kiện của Santa (đã thành cửa hàng).
+
+### Database
+- Tự cập nhật khi khởi động (`Dot48Migration.runDot51`).
+- `vsItem` 18 → 19.

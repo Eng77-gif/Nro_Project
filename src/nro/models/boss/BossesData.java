@@ -2604,6 +2604,54 @@ public class BossesData {
             REST_30_S //type appear
     );
 
+    /** Trung Thu (source V10): Thỏ đại ca. */
+    public static final BossData THO_DAI_CA = new BossData(
+            "Thỏ đại ca", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{403, 404, 405, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
+            1, //dame
+            new int[]{50000}, //hp
+            new int[]{3, 4, 5, 6, 27, 28, 29, 30, 9, 11, 12, 13, 10, 34, 33, 32, 31, 16, 17, 18, 19, 20, 37, 38, 36, 35, 24, 25, 26}, //map join
+            new int[][]{{Skill.DRAGON, 3, 20000}},
+            new String[]{"|-1|Ta bắt tay làm quen nhé"}, //text chat 1
+            new String[]{"|-1|Muốn biến thành củ cà rốt thì cứ nhào vô", "|-1|Ta thách ngươi đấy nhóc con"}, //text chat 2
+            new String[]{"|-1|Ôi xin ông đừng nấu cà ri con!!!"}, //text chat 3
+            REST_1_M
+    );
+
+    /** Trung Thu (source V10): Meowth, mỗi đòn mất 1 HP. */
+    public static final BossData MEOWTH = new BossData(
+            "Meowth", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{1866, 1867, 1868, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
+            17000, //dame
+            new int[]{2000}, //hp (mỗi đòn 1 HP)
+            new int[]{5, 13, 20, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38}, //map join
+            new int[][]{{Skill.DEMON, 7, 1000}, {Skill.MASENKO, 7, 1000}},
+            new String[]{}, //text chat 1
+            new String[]{}, //text chat 2
+            new String[]{"|-1|Cay quá!", "|-1|Ta mà lại thua được sao?"}, //text chat 3
+            REST_1_M
+    );
+
+    /** Giỗ tổ (source V10): Rồng nhí 1 - 7 sao. */
+    public static final BossData[] RONG_NHI_SAO = {
+        new BossData("Rồng nhí 1 sao", ConstPlayer.XAYDA, new short[]{1713, 1714, 1715, -1, -1, -1}, 10000, new int[]{5000000},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}, new int[][]{{Skill.DRAGON, 7, 5000}}, new String[]{}, new String[]{"|-1|Hè hè"}, new String[]{}, REST_1_M),
+        new BossData("Rồng nhí 2 sao", ConstPlayer.XAYDA, new short[]{1716, 1717, 1718, -1, -1, -1}, 10000, new int[]{5000000},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}, new int[][]{{Skill.DRAGON, 7, 5000}}, new String[]{}, new String[]{"|-1|Hè hè"}, new String[]{}, REST_1_M),
+        new BossData("Rồng nhí 3 sao", ConstPlayer.XAYDA, new short[]{1719, 1720, 1721, -1, -1, -1}, 10000, new int[]{5000000},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}, new int[][]{{Skill.DRAGON, 7, 5000}}, new String[]{}, new String[]{"|-1|Hè hè"}, new String[]{}, REST_1_M),
+        new BossData("Rồng nhí 4 sao", ConstPlayer.XAYDA, new short[]{1722, 1723, 1724, -1, -1, -1}, 10000, new int[]{5000000},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}, new int[][]{{Skill.DRAGON, 7, 5000}}, new String[]{}, new String[]{"|-1|Hè hè"}, new String[]{}, REST_1_M),
+        new BossData("Rồng nhí 5 sao", ConstPlayer.XAYDA, new short[]{1725, 1726, 1727, -1, -1, -1}, 10000, new int[]{5000000},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}, new int[][]{{Skill.DRAGON, 7, 5000}}, new String[]{}, new String[]{"|-1|Hè hè"}, new String[]{}, REST_1_M),
+        new BossData("Rồng nhí 6 sao", ConstPlayer.XAYDA, new short[]{1728, 1729, 1730, -1, -1, -1}, 10000, new int[]{5000000},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}, new int[][]{{Skill.DRAGON, 7, 5000}}, new String[]{}, new String[]{"|-1|Hè hè"}, new String[]{}, REST_1_M),
+        new BossData("Rồng nhí 7 sao", ConstPlayer.XAYDA, new short[]{1731, 1732, 1733, -1, -1, -1}, 10000, new int[]{5000000},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}, new int[][]{{Skill.DRAGON, 7, 5000}}, new String[]{}, new String[]{"|-1|Hè hè"}, new String[]{}, REST_1_M)
+    };
+
     /** Giáng sinh (source V10). */
     public static final BossData TUAN_LOC = new BossData(
             "Tuần Lộc", //name

@@ -214,7 +214,7 @@ public class SeasonEventService implements Runnable {
                     e.season = s;
                     if (s != null && (e.openNow || validItem(e.rewardItem)) && (e.bonusItem <= 0 || validItem(e.bonusItem))) {
                         s.exchanges.add(e);
-                        if (!s.groups.contains(e.group)) {
+                        if (!s.groups.contains(e.group) && !isShopGroup(e.group) && !isPointGroup(e.group)) {
                             s.groups.add(e.group);
                         }
                         exMap.put(e.id, e);
@@ -948,6 +948,9 @@ public class SeasonEventService implements Runnable {
         for (Season s : seasons.values()) {
             if (s.active) {
                 for (Exchange e : s.exchanges) {
+                    if (isShopGroup(e.group) || isPointGroup(e.group)) {
+                        continue; // bán trong cửa hàng Chi Chi / Quy Lão
+                    }
                     for (int n : e.npcs) {
                         if (n == npcTemp) {
                             list.add(e);
@@ -1357,7 +1360,7 @@ public class SeasonEventService implements Runnable {
         int n = 0;
         try (Connection con = LocalManager.getConnection()) {
             List<long[]> ranks = new ArrayList<>();
-            try (PreparedStatement ps = con.prepareStatement("select player_id from season_event_point where top_id = ? and points > 0 order by points desc, player_id limit ?")) {
+            try (PreparedStatement ps = con.prepareStatement("select player_id from season_event_point where top_id = ? and points >= " + MIN_TOP_POINT + " order by points desc, player_id limit ?")) {
                 ps.setInt(1, t.id);
                 ps.setInt(2, Math.max(1, maxRank));
                 try (ResultSet rs = ps.executeQuery()) {
@@ -1400,7 +1403,7 @@ public class SeasonEventService implements Runnable {
         synchronized (pl) {
             try (Connection con = LocalManager.getConnection()) {
                 List<int[]> pend = new ArrayList<>();
-                try (PreparedStatement ps = con.prepareStatement("select id, top_id, rank_no from season_event_reward_pending where player_id = ?")) {
+                try (PreparedStatement ps = con.prepareStatement("select id, top_id, rank_no from season_event_reward_pending where player_id = ? and (created_at is null or created_at > now() - interval " + CLAIM_DAYS + " day)")) {
                     ps.setLong(1, pl.id);
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
@@ -1447,6 +1450,266 @@ public class SeasonEventService implements Runnable {
                 Logger.error("Lỗi phát quà top: " + e.getMessage() + "\n");
             }
         }
+    }
+
+    // ------------------------------------------------------------------ Chi Chi / Quy Lão theo sự kiện (giống video)
+    public static final int MIN_TOP_POINT = 10;
+    public static final int CLAIM_DAYS = 7;
+    public static final String SHOP_CHICHI = "SK_CHICHI", SHOP_QUYLAO = "SK_QUYLAO";
+    /** playerId -> (id vật phẩm -> công thức) của cửa hàng sự kiện đang mở */
+    private final Map<Long, Map<Integer, Exchange>> shopOpen = new ConcurrentHashMap<>();
+
+    private static String plain(String g) {
+        return g == null ? "" : g.replace("\n", " ").replace("<>", " ").trim().toLowerCase();
+    }
+
+    public static boolean isShopGroup(String g) {
+        return plain(g).equals("cửa hàng");
+    }
+
+    public static boolean isPointGroup(String g) {
+        return plain(g).equals("đổi điểm");
+    }
+
+    /** Sự kiện đang chạy (mỗi lúc 1 sự kiện), null nếu không có. */
+    public Season current() {
+        List<Season> list = activeSeasons();
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    public String currentName() {
+        Season s = current();
+        return s == null ? null : s.name;
+    }
+
+    /** Cửa hàng sự kiện dạng shop: Chi Chi bán nhóm "Cửa hàng" (ngọc / vàng / hồng ngọc), Quy Lão nhóm "Đổi điểm" (điểm sự kiện). */
+    public void openEventShop(Player pl, boolean quyLao) {
+        Season s = current();
+        if (s == null) {
+            Service.gI().sendThongBaoOK(pl, "Hiện chưa có sự kiện nào.\n" + upcomingText());
+            return;
+        }
+        nro.models.shop.Shop shop = new nro.models.shop.Shop();
+        shop.id = -1;
+        shop.npcId = (byte) (quyLao ? 13 : 81);
+        shop.tagName = quyLao ? SHOP_QUYLAO : SHOP_CHICHI;
+        nro.models.shop.TabShop tab = new nro.models.shop.TabShop();
+        tab.shop = shop;
+        tab.id = -1;
+        tab.name = quyLao ? "Đổi<>thưởng" : "Shop<>sự kiện";
+        Map<Integer, Exchange> map = new LinkedHashMap<>();
+        for (Exchange e : s.exchanges) {
+            boolean ok = quyLao ? isPointGroup(e.group) && e.costPoint > 0 : isShopGroup(e.group);
+            if (!ok || e.need.length > 0 || e.openNow || map.containsKey(e.rewardItem)) {
+                continue;
+            }
+            nro.models.shop.ItemShop is = new nro.models.shop.ItemShop();
+            is.tabShop = tab;
+            is.id = e.id;
+            is.temp = ItemService.gI().getTemplate(e.rewardItem);
+            if (quyLao) {
+                is.typeSell = 0; // hiện ở cột vàng (icon đồng xu), trừ điểm sự kiện
+                is.cost = e.costPoint;
+            } else if (e.gem > 0) {
+                is.typeSell = 1;
+                is.cost = e.gem;
+            } else if (e.ruby > 0) {
+                is.typeSell = 3;
+                is.cost = e.ruby;
+            } else {
+                is.typeSell = 0;
+                is.cost = (int) Math.min(Integer.MAX_VALUE, e.gold);
+            }
+            try {
+                is.options.addAll(Event2026Service.gI().createItem(e.rewardItem, 1, e.rewardDays.length > 0 ? e.rewardDays[0] : 0).itemOptions);
+            } catch (Exception ignored) {
+            }
+            tab.itemShops.add(is);
+            map.put(e.rewardItem, e);
+        }
+        if (map.isEmpty()) {
+            Service.gI().sendThongBaoOK(pl, quyLao ? "Sự kiện " + s.name + " chưa có quà đổi điểm" : "Sự kiện " + s.name + " chưa có cửa hàng");
+            return;
+        }
+        shop.tabShops.add(tab);
+        shopOpen.put(pl.id, map);
+        nro.models.shop.ShopService.gI().openCustomShop(pl, shop);
+    }
+
+    /** Mua 1 món trong cửa hàng sự kiện: đi qua công thức đổi (trừ tiền / điểm, hạn dùng, điểm top, điểm sự kiện). */
+    public void buyFromEventShop(Player pl, int tempId) {
+        Map<Integer, Exchange> m = shopOpen.get(pl.id);
+        Exchange e = m == null ? null : m.get(tempId);
+        if (e == null || e.season == null || !e.season.active) {
+            Service.gI().sendThongBao(pl, "Sự kiện đã kết thúc");
+            return;
+        }
+        if (maxTimes(pl, e) <= 0) {
+            Service.gI().sendThongBao(pl, e.costPoint > 0 ? "Bạn không đủ điểm sự kiện (cần " + e.costPoint + ")" : "Bạn không đủ tiền để mua");
+            return;
+        }
+        exchange(pl, e, 1);
+        Service.gI().sendMoney(pl);
+    }
+
+    public List<Top> currentTops() {
+        Season s = current();
+        return s == null ? new ArrayList<>() : s.tops;
+    }
+
+    public String topName(Top t) {
+        return t.name.replace("\n", " ");
+    }
+
+    /** Lời Chi Chi khi chọn 1 đua top (như video). */
+    public String topIntro(Top t) {
+        Season s = t.season;
+        StringBuilder sb = new StringBuilder("Sự kiện đua Top " + topName(t) + " nhận quà khủng\n");
+        if (s != null && s.end != null) {
+            long left = Math.max(0, ChronoUnit.DAYS.between(today(), s.end) + 1);
+            sb.append("Kết thúc và trao giải sau: (").append(left).append(" ngày nữa)\n");
+            sb.append("Hạn chót nhận giải: (").append(left + CLAIM_DAYS).append(" ngày nữa)\n");
+        } else {
+            sb.append("Kết thúc và trao giải khi sự kiện kết thúc\n");
+        }
+        sb.append("Đến gặp Chi Chi để nhận giải nhé\nCần ít nhất ").append(MIN_TOP_POINT).append(" điểm để vào TOP");
+        return sb.toString();
+    }
+
+    private int[] myPoint(Top t, Player pl) {
+        try (Connection con = LocalManager.getConnection()) {
+            int pts = 0;
+            try (PreparedStatement ps = con.prepareStatement("select points from season_event_point where top_id = ? and player_id = ?")) {
+                ps.setInt(1, t.id);
+                ps.setLong(2, pl.id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        pts = rs.getInt(1);
+                    }
+                }
+            }
+            int rank = 0;
+            if (pts >= MIN_TOP_POINT) {
+                try (PreparedStatement ps = con.prepareStatement("select count(*) from season_event_point where top_id = ? and (points > ? or (points = ? and player_id < ?))")) {
+                    ps.setInt(1, t.id);
+                    ps.setInt(2, pts);
+                    ps.setInt(3, pts);
+                    ps.setLong(4, pl.id);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        rank = rs.next() ? rs.getInt(1) + 1 : 0;
+                    }
+                }
+            }
+            return new int[]{pts, rank};
+        } catch (Exception e) {
+            return new int[]{0, 0};
+        }
+    }
+
+    /** Nút "Xem điểm". */
+    public String viewPoint(Top t, Player pl) {
+        int[] p = myPoint(t, pl);
+        if (p[0] < MIN_TOP_POINT) {
+            return "Chưa đủ điểm vào TOP (ít nhất là " + MIN_TOP_POINT + " điểm)\nĐiểm của bạn: " + p[0];
+        }
+        return "Bạn đang hạng " + p[1] + " với " + p[0] + " điểm\n\n" + topText(t, pl);
+    }
+
+    /** Bảng Top 100 dạng danh sách (như video). */
+    public void showTop100(Player pl, Top t) {
+        new Thread(() -> {
+            try (Connection con = LocalManager.getConnection();
+                    PreparedStatement ps = con.prepareStatement("select player_id, points from season_event_point where top_id = ? and points >= "
+                            + MIN_TOP_POINT + " order by points desc, player_id limit 100")) {
+                ps.setInt(1, t.id);
+                List<long[]> rows = new ArrayList<>();
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        rows.add(new long[]{rs.getLong(1), rs.getInt(2)});
+                    }
+                }
+                if (rows.isEmpty()) {
+                    Service.gI().sendThongBaoOK(pl, "Chưa có ai đủ " + MIN_TOP_POINT + " điểm vào TOP " + topName(t));
+                    return;
+                }
+                nro.models.network.Message msg = new nro.models.network.Message(-96);
+                msg.writer().writeByte(0);
+                msg.writer().writeUTF("Top 100");
+                List<Player> list = new ArrayList<>();
+                List<Integer> pts = new ArrayList<>();
+                for (long[] r : rows) {
+                    Player p = Client.gI().getPlayer(r[0]);
+                    if (p == null) {
+                        p = nro.models.database.MrBlue.loadById(r[0]);
+                    }
+                    if (p != null) {
+                        list.add(p);
+                        pts.add((int) r[1]);
+                    }
+                }
+                msg.writer().writeByte(list.size());
+                for (int i = 0; i < list.size(); i++) {
+                    Player p = list.get(i);
+                    msg.writer().writeInt(i + 1);
+                    msg.writer().writeInt((int) p.id);
+                    msg.writer().writeShort(p.getHead());
+                    if (pl.getSession() != null && pl.getSession().version > 214) {
+                        msg.writer().writeShort(-1);
+                    }
+                    msg.writer().writeShort(p.getBody());
+                    msg.writer().writeShort(p.getLeg());
+                    msg.writer().writeUTF(p.name);
+                    msg.writer().writeUTF("Hạng: " + (i + 1));
+                    msg.writer().writeUTF(pts.get(i) + " điểm");
+                }
+                pl.sendMessage(msg);
+                msg.cleanup();
+            } catch (Exception e) {
+                Logger.error("Lỗi xem top 100: " + e.getMessage() + "\n");
+            }
+        }, "Top100").start();
+    }
+
+    public boolean hasPendingReward(Player pl) {
+        try (Connection con = LocalManager.getConnection();
+                PreparedStatement ps = con.prepareStatement("select 1 from season_event_reward_pending where player_id = ? and (created_at is null or created_at > now() - interval " + CLAIM_DAYS + " day) limit 1")) {
+            ps.setLong(1, pl.id);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** Hủy vật phẩm có hạn sử dụng trong hành trang. bongMo = chỉ bóng mờ còn dưới 35 ngày. Trả về số món đã hủy (dryRun: chỉ đếm). */
+    public int destroyTimedItems(Player pl, boolean bongMo, boolean dryRun) {
+        int n = 0;
+        synchronized (pl) {
+            for (int i = 0; i < pl.inventory.itemsBag.size(); i++) {
+                Item it = pl.inventory.itemsBag.get(i);
+                if (it == null || !it.isNotNullItem()) {
+                    continue;
+                }
+                int days = -1;
+                for (Item.ItemOption io : it.itemOptions) {
+                    if (io.optionTemplate.id == 93) {
+                        days = io.param;
+                    }
+                }
+                boolean match = bongMo ? days >= 0 && days < 35 && it.template.name.toLowerCase().startsWith("bóng mờ") : days >= 0;
+                if (match) {
+                    n++;
+                    if (!dryRun) {
+                        pl.inventory.itemsBag.set(i, ItemService.gI().createItemNull());
+                    }
+                }
+            }
+        }
+        if (!dryRun && n > 0) {
+            InventoryService.gI().sendItemBags(pl);
+        }
+        return n;
     }
 
     // ------------------------------------------------------------------ admin

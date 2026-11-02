@@ -167,6 +167,11 @@ public class ShopService {
         return s;
     }
 
+    /** Mở 1 cửa hàng dựng sẵn (không lấy từ database), ví dụ cửa hàng sự kiện của Chi Chi / Quy Lão. */
+    public void openCustomShop(Player player, Shop shop) {
+        openShopType0(player, shop);
+    }
+
     private void openShopType0(Player player, Shop shop) {
         if (shop != null) {
             player.idMark.setShopOpen(shop);
@@ -468,6 +473,9 @@ public class ShopService {
             return;
         } else if (tagName.equals("BILL")) {
             buyItemHD(player, tempId);
+            return;
+        } else if (tagName.equals(nro.models.services.SeasonEventService.SHOP_CHICHI) || tagName.equals(nro.models.services.SeasonEventService.SHOP_QUYLAO)) {
+            nro.models.services.SeasonEventService.gI().buyFromEventShop(player, tempId);
             return;
         }
 

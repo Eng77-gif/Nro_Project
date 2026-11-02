@@ -94,15 +94,27 @@ public class QuyLaoKame extends Npc {
         if (canOpenNpc(player)) {
             ArrayList<String> menu = new ArrayList<>();
             if (!player.canReward) {
+                List<Integer> act = new ArrayList<>();
                 menu.add("Nói\nchuyện");
+                act.add(0);
                 menu.add("Đổi điểm\nsự kiện\n[" + player.event.getEventPoint() + "]");
+                act.add(1);
                 menu.add("Nhận quà\nKOL");
+                act.add(2);
                 menu.add("Nhận quà\nKOL VIP");
-                menu.add("Đua top\nngọc rồng\n[" + player.qlPoints + "]");
-                menu.add("Quà\nTrung Thu");
+                act.add(3);
+                if (nro.models.services.SeasonEventService.gI().isActive(TRUNG_THU)) {
+                    // nội dung riêng của sự kiện Trung Thu
+                    menu.add("Đua top\nngọc rồng\n[" + player.qlPoints + "]");
+                    act.add(4);
+                    menu.add("Quà\nTrung Thu");
+                    act.add(5);
+                }
                 if (ruacon != null && ruacon.quantity >= 1) {
                     menu.add("Giao\nRùa con");
+                    act.add(6);
                 }
+                actions.put(player.id, act);
             } else {
                 menu.add("Giao\n" + new String[]{"Lân con", "Tuần Lộc", "Bé Na"}[Math.max(0, Math.min(2, player.escortType))]);
             }
@@ -178,13 +190,22 @@ public class QuyLaoKame extends Npc {
         }
     }
 
+    private static final int TRUNG_THU = 6; // season_event Trung Thu
+    private final java.util.Map<Long, List<Integer>> actions = new java.util.concurrent.ConcurrentHashMap<>();
+
     private void handleBaseMenu(Player player, int select) {
+        List<Integer> act = actions.get(player.id);
+        if (act == null || select < 0 || select >= act.size()) {
+            return;
+        }
+        select = act.get(select);
         switch (select) {
             case 0:
                 handleTalk(player);
                 break;
             case 1:
-                ShopService.gI().opendShop(player, "SHOP_DOI_DIEM", false);
+                // đổi điểm sự kiện: cửa hàng theo sự kiện đang chạy, trả bằng điểm sự kiện
+                nro.models.services.SeasonEventService.gI().openEventShop(player, true);
                 break;
             case 2:
                 handleKOLQuest(player, false);

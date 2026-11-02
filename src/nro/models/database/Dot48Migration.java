@@ -25,17 +25,15 @@ public final class Dot48Migration {
     /** {itemId, part (hiệu ứng), mô tả} */
     private static final Object[][] TITLE_ITEMS = {
         {1904, 506, "Thắng ngọc rồng 1 sao đen tại khu 1 vào ngày chủ nhật"},
-        {1673, 1099, "Đổi tại Santa trong sự kiện Halloween"},
-        {1765, 255, "Đổi tại Santa trong sự kiện Giáng sinh"},};
+        {1673, 1099, "Top 1 - 100 đua top Túi mù Halloween"},
+        {1765, 255, "Top 1 - 100 đua top Hộp quà Giáng sinh"},};
 
     /** season_event_exchange: {id, event, grp, name, need, gold, gem, reward, qty, days} */
     private static final Object[][] EXCHANGES = {
-        {201, 7, "Danh\\nhiệu", "Tay nhanh\\nhơn não", "901:199", 0, 0, 1673, 1, "7"},
         {202, 8, "Cửa\\nhàng", "Kéo tỉa\\nhoa", "", 0, 2, 1387, 1, ""},
         {203, 8, "Cửa\\nhàng", "Kéo tỉa hoa\\nđặc biệt", "", 0, 10, 1382, 1, ""},
         {204, 8, "Đổi\\nquà", "Hộp quà\\n(hoa hồng)", "1530:20", 0, 0, 1739, 1, ""},
-        {205, 8, "Danh\\nhiệu", "Gõ đầu trẻ\\n7 ngày", "1388:10", 0, 0, 1392, 1, "7"},
-        {206, 9, "Danh\\nhiệu", "Mùa đông\\nkhông lạnh", "1459:50,1464:50,649:3", 0, 0, 1765, 1, "7"},};
+};
 
     public static void run(Connection con) {
         int changed = 0;
@@ -95,6 +93,7 @@ public final class Dot48Migration {
                 changed += update(con, "insert into season_event_drop (event_id, item_id, rate, qty_min, qty_max, source, daily_max, item_to, need_item, mobs, maps) values (7, 901, 10000, 3, 5, 'boss', 0, 0, 0, '-352', '')");
             }
             changed += runDot50(con);
+            changed += runDot51(con);
         } catch (Exception ex) {
             Logger.error("Đợt 48: không cập nhật được database: " + ex.getMessage() + "\n");
         }
@@ -107,9 +106,9 @@ public final class Dot48Migration {
     /** {itemId, part (hiệu ứng), mô tả cách nhận} cho các danh hiệu không có nhiệm vụ danh hiệu. */
     private static final Object[][] TITLE_ITEMS_50 = {
         {2081, 302, "Sở hữu đủ 3 Pet Xên vĩnh viễn"},
-        {2076, 301, "Phần thưởng sự kiện Trung Thu (VIP)"},
-        {1885, 300, "Vòng quay ngọc sự kiện Trung Thu"},
-        {1978, 303, "Top 1 đua top Hộp đen bí ẩn"},};
+        {2076, 301, "Top 1 - 3 đua top Hộp bánh Trung Thu"},
+        {1885, 300, "Top 4 - 100 đua top Hộp bánh Trung Thu"},
+        {1978, 303, "Top 1 - 100 đua top Lì xì Tết"},};
 
     /** Danh hiệu thêm vào tab Danh hiệu của Santa (tab_shop 44). */
     private static final int[] SHOP_TITLES = {1904, 1673, 1765, 2081, 2076, 1885, 1978};
@@ -168,6 +167,110 @@ public final class Dot48Migration {
             }
         }
         return changed;
+    }
+
+    // ------------------------------------------------------------------ Đợt 51
+    /** Quà đổi điểm sự kiện ở Quy Lão (như video): {itemId, điểm, hạn dùng} — dùng cho mọi sự kiện. */
+    private static final Object[][] POINT_SHOP = {
+        {1757, 99, "30"}, {1840, 99, "30"}, {1887, 149, "30"}, {1709, 500, ""}, {1722, 750, ""}, {1832, 999, ""},
+        {1731, 999, ""}, {1724, 999, ""}, {1929, 999, ""}, {1930, 999, ""}, {1698, 499, ""}, {1682, 499, ""},
+        {1713, 499, ""}, {1711, 750, ""}, {2025, 499, ""}, {2022, 999, ""}, {2023, 1999, ""}, {1981, 1999, ""},};
+
+    /** Cửa hàng Chi Chi sự kiện Halloween thêm theo video: {itemId, ngọc, hạn dùng} */
+    private static final Object[][] HALLOWEEN_SHOP = {
+        {1702, 10, ""}, {739, 5000, ""}, {742, 6000, ""}, {814, 100, "30"}, {815, 100, "30"}, {816, 100, "30"},
+        {817, 100, "30"}, {915, 300, "30"}, {1110, 499, ""}, {1111, 499, ""},};
+
+    /** Danh hiệu chỉ nhận qua đua top: {topId, itemId, rankFrom, rankTo, hạn dùng} */
+    private static final Object[][] TITLE_TOP = {
+        {101, 1978, 1, 10, "30"}, {101, 1978, 11, 100, "7"},
+        {601, 2076, 1, 3, "30"}, {601, 1885, 4, 100, "15"},
+        {702, 1673, 1, 10, "30"}, {702, 1673, 11, 100, "7"},
+        {901, 1765, 1, 10, "30"}, {901, 1765, 11, 100, "7"},};
+
+    private static int runDot51(Connection con) throws Exception {
+        int changed = 0;
+        // bỏ mọi chức năng đổi lấy danh hiệu
+        changed += update(con, "delete from season_event_exchange where id in (201, 205, 206)");
+        // hạn chót nhận giải đua top (7 ngày sau khi chốt)
+        if (!exists(con, "select 1 from information_schema.columns where table_schema = database() and table_name = 'season_event_reward_pending' and column_name = 'created_at'")) {
+            changed += 1 + update(con, "alter table season_event_reward_pending add column created_at timestamp null default current_timestamp");
+        }
+        // đua top mới: 20/11 và Giáng sinh
+        if (!exists(con, "select 1 from season_event_top where id = 801")) {
+            changed += update(con, "insert into season_event_top (id, event_id, name) values (801, 8, 'Hộp quà 20-11')");
+            changed += update(con, "update season_event_exchange set top_id = 801, top_point = if(id = 76, 3, 1) where id in (75, 76, 204)");
+        }
+        if (!exists(con, "select 1 from season_event_top where id = 901")) {
+            changed += update(con, "insert into season_event_top (id, event_id, name) values (901, 9, 'Hộp quà Giáng sinh')");
+            changed += update(con, "update season_event_exchange set top_id = 901, top_point = if(id = 78, 3, 1) where id in (77, 78)");
+        }
+        for (int top : new int[]{801, 901}) {
+            if (!exists(con, "select 1 from season_event_top_reward where top_id = " + top)) {
+                changed += update(con, "insert into season_event_top_reward (top_id, rank_from, rank_to, item_id, qty, hsd_days) "
+                        + "select " + top + ", rank_from, rank_to, item_id, qty, hsd_days from season_event_top_reward where top_id = 703");
+            }
+        }
+        for (Object[] r : TITLE_TOP) {
+            if (!exists(con, "select 1 from season_event_top_reward where top_id = " + r[0] + " and item_id = " + r[1] + " and rank_from = " + r[2])) {
+                changed += update(con, "insert into season_event_top_reward (top_id, rank_from, rank_to, item_id, qty, hsd_days) values ("
+                        + r[0] + ", " + r[2] + ", " + r[3] + ", " + r[1] + ", 1, '" + r[4] + "')");
+            }
+        }
+        // Quy Lão: đổi điểm sự kiện cho mọi sự kiện
+        try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery("select id from season_event")) {
+            java.util.List<Integer> ids = new java.util.ArrayList<>();
+            while (rs.next()) {
+                ids.add(rs.getInt(1));
+            }
+            for (int ev : ids) {
+                for (Object[] p : POINT_SHOP) {
+                    changed += addShopExchange(con, ev, "Đổi\nđiểm", (int) p[0], 0, (int) p[1], (String) p[2], "13");
+                }
+                if (ev == 7) {
+                    changed += addShopExchange(con, ev, "Đổi\nđiểm", 1728, 0, 99, "30", "13"); // Túi mù Halloween
+                }
+            }
+        }
+        for (Object[] p : HALLOWEEN_SHOP) {
+            changed += addShopExchange(con, 7, "Cửa\nhàng", (int) p[0], (int) p[1], 0, (String) p[2], "81");
+        }
+        // 20/11: kéo tỉa hoa bán ở cửa hàng Chi Chi
+        changed += update(con, "update season_event_exchange set npc = '81' where id in (202, 203) and npc = ''");
+        return changed;
+    }
+
+    /** Thêm 1 món vào cửa hàng sự kiện (nếu chưa có): gem > 0 bán bằng ngọc, point > 0 bằng điểm sự kiện. */
+    private static int addShopExchange(Connection con, int event, String grp, int item, int gem, int point, String days, String npc) throws Exception {
+        String g = grp.replace("\\n", "\n");
+        try (PreparedStatement ps = con.prepareStatement("select 1 from season_event_exchange where event_id = ? and grp = ? and reward_item = ?")) {
+            ps.setInt(1, event);
+            ps.setString(2, g);
+            ps.setInt(3, item);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return 0;
+                }
+            }
+        }
+        if (!exists(con, "select 1 from item_template where id = " + item)) {
+            return 0;
+        }
+        String name;
+        try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery("select NAME from item_template where id = " + item)) {
+            name = rs.next() ? rs.getString(1) : "Vật phẩm";
+        }
+        try (PreparedStatement ps = con.prepareStatement("insert into season_event_exchange (event_id, grp, name, need, gold, gem, cost_point, reward_item, reward_qty, reward_days, npc) values (?, ?, ?, '', 0, ?, ?, ?, 1, ?, ?)")) {
+            ps.setInt(1, event);
+            ps.setString(2, g);
+            ps.setString(3, name.length() > 60 ? name.substring(0, 60) : name);
+            ps.setInt(4, gem);
+            ps.setInt(5, point);
+            ps.setInt(6, item);
+            ps.setString(7, days);
+            ps.setString(8, npc);
+            return ps.executeUpdate();
+        }
     }
 
     private static boolean exists(Connection con, String sql) throws Exception {
