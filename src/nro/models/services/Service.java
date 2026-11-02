@@ -2078,36 +2078,56 @@ public class Service {
         }
     }
 
+    /** Hiệu ứng quanh nhân vật khi mặc đủ 5 món: mọi Set kích hoạt (kể cả Champa) và Set Beerus (data/effdata). */
+    public static final int EFF_SET_KICH_HOAT = 504;
+    public static final int EFF_SET_BEERUS = 512;
+
+    /** Mã hiệu ứng set của người chơi, -1 nếu không đủ set. */
+    public int setEffectId(Player pl) {
+        if (pl == null || !pl.isPl() || pl.setClothes == null) {
+            return -1;
+        }
+        if (pl.setClothes.beerus >= 5) {
+            return EFF_SET_BEERUS;
+        }
+        return pl.setClothes.fullSetKichHoat() ? EFF_SET_KICH_HOAT : -1;
+    }
+
+    /** Gửi hiệu ứng set của mình cho cả map (vào map). */
     public void sendEffPlayer(Player pl) {
-        if (pl.isPl()) {
-            if (pl.setClothes.songoku >= 5
-                    || pl.setClothes.kaioken >= 5
-                    || pl.setClothes.kirin >= 5
-                    || pl.setClothes.thienXinHang >= 5) {
-                Service.gI().sendEffAllPlayer(pl, 1200, 1, -1, 1);
-            } else if (pl.setClothes.ocTieu >= 5
-                    || pl.setClothes.pikkoroDaimao >= 5
-                    || pl.setClothes.picolo >= 5) {
-                Service.gI().sendEffAllPlayer(pl, 10277, 1, -1, 1);
-            } else if (pl.setClothes.thanVuTruKaio >= 5) {
-                Service.gI().sendEffAllPlayer(pl, 10277, 1, -1, 1);
-                Service.gI().sendEffAllPlayer(pl, 5017, 1, -1, 1);
-            } else if (pl.setClothes.kakarot >= 5
-                    || pl.setClothes.nappa >= 5
-                    || pl.setClothes.cadic >= 5) {
-                Service.gI().sendEffAllPlayer(pl, 1202, 1, -1, 1);
-            }
+        int eff = setEffectId(pl);
+        if (eff >= 0) {
+            sendEffAllPlayer(pl, eff, 1, -1, 1);
         }
     }
 
+    /** Gửi hiệu ứng set của người khác trong map cho mình (vào map). */
     public void sendEffAllPlayerMapToMe(Player pl) {
         try {
             for (Player plM : pl.zone.getPlayers()) {
-                if (plM.isPl() && plM.inventory.itemsBody.size() >= 10) {
+                if (plM != pl) {
+                    int eff = setEffectId(plM);
+                    if (eff >= 0) {
+                        sendEffPlayer(plM, pl, eff, 1, -1, 1);
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /** Mặc / tháo đồ làm đổi hiệu ứng set: gỡ cái cũ, bật cái mới cho cả map. */
+    public void refreshSetEffect(Player pl, int before) {
+        int now = setEffectId(pl);
+        if (now == before || pl.zone == null) {
+            return;
+        }
+        if (before >= 0) {
+            removeEffPlayer(pl, before);
+        }
+        if (now >= 0) {
+            sendEffAllPlayer(pl, now, 1, -1, 1);
         }
     }
 

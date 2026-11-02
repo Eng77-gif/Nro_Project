@@ -1308,10 +1308,12 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Chạy từ thư mục class (lập trình trong NetBeans) chỉ cảnh báo, vẫn chạy.
 - **Từ bản này, mọi bản build phải ký bằng `tools/codesign/sign_jar.*` mới chạy được.**
 
-### Aura Set kích hoạt
-- Mặc đủ **5 món cùng một Set kích hoạt** (mọi set, kể cả Champa) → **aura 504**.
-- Đủ **5 món set Beerus** → **aura 512**.
-- Ưu tiên: aura set > aura thẻ radar > aura thưởng top.
-- `getAura()` đổi từ byte sang short (504 / 512 vượt quá giới hạn byte).
+### Hiệu ứng Set kích hoạt / Beerus
+- Mặc đủ **5 món cùng một Set kích hoạt** (mọi set, kể cả Champa) → **hiệu ứng 504** quanh nhân vật.
+- Đủ **5 món set Beerus** → **hiệu ứng 512**.
+- 504 / 512 là mã **hiệu ứng** (`data/effdata`), không phải aura. Aura là ảnh riêng `aura_<id>_0/1` trong `data/img_by_name`, chỉ có các id 0 – 94, 120 – 122.
+- Hệ hiệu ứng set có sẵn trong source dùng mã 1200 / 10277 / 5017 / 1202 **không tồn tại** nên chưa bao giờ hiện. Hàm gửi hiệu ứng của người khác cho người mới vào map cũng rỗng. Đã viết lại cả hai.
+- Mặc / tháo đồ thì hiệu ứng bật / tắt ngay cho cả map.
 - Đếm thêm set Champa (option 257) và Beerus (option 115).
-- **Sửa lỗi cũ:** số món set kích hoạt chỉ được đếm khi vào game, thay đồ phải thoát ra vào lại mới có hiệu lực. Giờ đếm lại mỗi lần tính chỉ số. Aura đổi ngay khi mặc / tháo đồ.
+- **Sửa lỗi cũ:** số món set kích hoạt chỉ được đếm khi vào game, thay đồ phải thoát ra vào lại mới có hiệu lực. Giờ đếm lại mỗi lần tính chỉ số.
+- `getAura()` đổi từ byte sang short.

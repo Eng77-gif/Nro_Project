@@ -404,17 +404,13 @@ public class InventoryService {
         }
         Item item = player.inventory.itemsBag.get(index);
         if (item.isNotNullItem()) {
-            short auraTruoc = player.getAura();
+            int effTruoc = Service.gI().setEffectId(player);
             player.inventory.itemsBag.set(index, putItemBody(player, item));
             sendItemBags(player);
             sendItemBody(player);
             Service.gI().point(player);
             Service.gI().Send_Caitrang(player);
-            if (player.getAura() != auraTruoc && player.zone != null) {
-                // aura set kích hoạt / Beerus vừa bật hoặc tắt: gửi lại cho mình và người trong map
-                Service.gI().player(player);
-                player.zone.load_Me_To_Another(player);
-            }
+            Service.gI().refreshSetEffect(player, effTruoc); // hiệu ứng set kích hoạt / Beerus
         }
     }
 
@@ -434,6 +430,7 @@ public class InventoryService {
                     player.newPet = null;
                 }
             }
+            int effTruoc = Service.gI().setEffectId(player);
             player.inventory.itemsBody.set(index, putItemBag(player, item));
             sendItemBags(player);
             sendItemBody(player);
@@ -443,6 +440,7 @@ public class InventoryService {
             Service.gI().Send_Caitrang(player);
             Service.gI().sendFlagBag(player);
             Service.gI().point(player);
+            Service.gI().refreshSetEffect(player, effTruoc); // hiệu ứng set kích hoạt / Beerus
         }
     }
 
