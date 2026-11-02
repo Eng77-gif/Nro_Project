@@ -214,7 +214,8 @@ public class PanelServer {
 
     /** Khung đầu của aura (ảnh aura là dải nhiều khung xếp dọc; ghép lớp sau _0 và lớp trước _1). */
     private void serveAura(HttpExchange ex, String id) throws IOException {
-        java.awt.image.BufferedImage out = null;
+        java.util.List<java.awt.image.BufferedImage> frames = new java.util.ArrayList<>();
+        int w = 0, h = 0;
         for (int k = 0; k <= 1; k++) {
             File f = new File("data/img_by_name/x2/aura_" + id + "_" + k + ".png");
             if (id.isEmpty() || !f.exists()) {
@@ -232,23 +233,26 @@ public class PanelServer {
             } catch (Exception ignored) {
             }
             java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(f);
-            if (img == null) {
-                continue;
+            if (img == null || img.getWidth() < 4 || img.getHeight() < 4) {
+                continue; // lớp rỗng (ảnh giữ chỗ 1x1)
             }
             java.awt.image.BufferedImage fr = img.getHeight() >= img.getWidth()
                     ? img.getSubimage(0, 0, img.getWidth(), Math.max(1, img.getHeight() / n))
                     : img.getSubimage(0, 0, Math.max(1, img.getWidth() / n), img.getHeight());
-            if (out == null) {
-                out = new java.awt.image.BufferedImage(fr.getWidth(), fr.getHeight(), java.awt.image.BufferedImage.TYPE_INT_ARGB);
-            }
-            java.awt.Graphics2D g = out.createGraphics();
-            g.drawImage(fr, (out.getWidth() - fr.getWidth()) / 2, (out.getHeight() - fr.getHeight()) / 2, null);
-            g.dispose();
+            frames.add(fr);
+            w = Math.max(w, fr.getWidth());
+            h = Math.max(h, fr.getHeight());
         }
-        if (out == null) {
+        if (frames.isEmpty()) {
             ex.sendResponseHeaders(404, -1);
             return;
         }
+        java.awt.image.BufferedImage out = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+        java.awt.Graphics2D g = out.createGraphics();
+        for (java.awt.image.BufferedImage fr : frames) {
+            g.drawImage(fr, (w - fr.getWidth()) / 2, (h - fr.getHeight()) / 2, null);
+        }
+        g.dispose();
         java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream();
         javax.imageio.ImageIO.write(out, "png", bo);
         ex.getResponseHeaders().add("Cache-Control", "max-age=86400");

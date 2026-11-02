@@ -90,9 +90,12 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>n==null?'':Number(n).toLocaleString('vi-VN');
 const icon=id=>id>=0?`<img class="ic" loading="lazy" src="/icon/${id}" onerror="this.style.visibility='hidden'">`:'';
+let routeGen=0;
 async function api(path,body){
   const o=body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json','X-Panel':'panel'},body:JSON.stringify(body)};
-  const r=await fetch('/api/'+path,o);let j;try{j=await r.json()}catch(e){j={error:'Lỗi '+r.status}}
+  const gen=routeGen;const r=await fetch('/api/'+path,o);
+  // đã chuyển trang trong lúc chờ: bỏ dữ liệu đọc của trang cũ để không ghi đè trang mới
+  if(body===undefined&&gen!==routeGen&&!['stats','server'].includes(path)){const e=new Error('stale');e.stale=1;throw e}let j;try{j=await r.json()}catch(e){j={error:'Lỗi '+r.status}}
   if(r.status===401&&path!=='login'){showLogin();throw new Error('Chưa đăng nhập')}
   if(!r.ok||j.error){throw new Error(j.error||('Lỗi '+r.status))}return j}
 function toast(m,err){const d=document.createElement('div');d.textContent=m;if(err)d.className='e';$('#toast').append(d);setTimeout(()=>d.remove(),4500)}
@@ -124,10 +127,10 @@ function toggleTheme(){const t=document.documentElement.dataset.theme==='light'?
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')||'dark'}catch(e){}
 let logTimer=null;
 async function route(){
-  clearInterval(logTimer);const p=(location.hash||'#dash').slice(1);
+  clearInterval(logTimer);routeGen++;const p=(location.hash||'#dash').slice(1);
   document.querySelectorAll('nav a[data-p]').forEach(a=>a.classList.toggle('on',a.dataset.p===p));
   const f=window['page_'+p]||page_dash;$('#main').innerHTML='<div class="mute">Đang tải…</div>';
-  try{await f()}catch(e){$('#main').innerHTML=`<div class="card">${esc(e.message)}</div>`}}
+  try{await f()}catch(e){if(!e.stale)$('#main').innerHTML=`<div class="card">${esc(e.message)}</div>`}}
 window.onhashchange=route;
 function showLogin(){$('#app').hidden=true;$('#login').hidden=false}
 async function doLogin(e){e.preventDefault();try{await api('login',{user:$('#lu').value,pass:$('#lp').value});$('#login').hidden=true;$('#app').hidden=false;buildNav();route()}catch(x){$('#lerr').textContent=x.message}}
