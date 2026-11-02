@@ -1486,3 +1486,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - Vàng tối đa 999 nghìn tỷ (trước 200 tỷ).
   - Giao dịch vàng mỗi lần tối đa 2 tỷ (trước 10 triệu); ký gửi giá tối đa 2 tỷ, tối đa x999 (trước 100.000 thỏi vàng / 1.000.000 ngọc, x99).
   - Ngọc / hồng ngọc giữ 2,1 tỷ (client đọc 4 byte). Client cũ (byte) vẫn nhận số đã giới hạn như trước.
+
+## Đợt 76
+- Client Android DragonBoy249 (bản chính thức 2.4.8, Java thường, không mã hoá) sửa IP sang 160.191.243.165:14445 (cả 2 danh sách máy chủ trong classes.dex), đổi đuôi phiên bản gửi lên thành 2.4.9 rồi ký lại APK (v1 + v2, khoá mới).
+- Server nhận client phiên bản 2.4.9 dùng giao thức số lớn (long) như J2ME 2.4.x, để HP / KI / SĐ / vàng hiển thị đúng với giới hạn mới của Đợt 75.
