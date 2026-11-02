@@ -1448,3 +1448,6 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 
 ## Đợt 67
 - Lỗi "lần đầu bình thường, thoát ra vào lại thì không mở được shop Đảo Kamê và hành trang lỗi": client APK / PC lưu bộ nhớ đệm danh sách item theo 2 gói (loại 1 và loại 2), gói loại 2 chỉ giữ gói cuối. Phần item sau id 750 đã vượt 65535 byte nên bị chia nhiều gói loại 2 -> vào lại game client mất các item ở giữa (shop / hành trang có item đó bị lỗi). Giờ luôn gửi đúng 2 gói: dời điểm chia và rút gọn 77 mô tả dài nhất (còn khoảng 80 byte) cho vừa. Tăng vsItem lên 22 để client tải lại.
+
+## Đợt 68
+- Quái chỉ rơi sao pha lê (441 - 447) khi người đánh mặc cải trang có dòng "Dò pha lê" (option 110, trước đây có dòng nhưng không có tác dụng). Tỉ lệ 10% (cỏ bốn lá +15%).

@@ -1058,7 +1058,8 @@ public class Mob {
             }
         }
 
-        if (this.zone.map.mapId >= 0) {
+        // sao pha lê chỉ rơi khi mặc cải trang có dòng "Dò pha lê" (option 110)
+        if (this.zone.map.mapId >= 0 && player.nPoint != null && player.nPoint.isDoSPL) {
             int dropRate = 10;
             if (player.itemTime.isUseCoBonLa) {
                 dropRate = (int) (dropRate * 1.15);
