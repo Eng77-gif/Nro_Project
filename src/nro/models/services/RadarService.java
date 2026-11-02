@@ -27,6 +27,52 @@ public class RadarService {
         return instance;
     }
 
+    /** Nạp bảng radar từ database (khởi động và nút "nạp lại" trên panel). */
+    public static void load(java.sql.Connection con) throws Exception {
+        java.sql.PreparedStatement ps;
+        java.sql.ResultSet rs;
+        List<RadarCard> list = new ArrayList<>();
+                ps = con.prepareStatement("select * from radar");
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    RadarCard rd = new RadarCard();
+                    rd.Id = rs.getShort("id");
+                    rd.IconId = rs.getShort("iconId");
+                    rd.Rank = rs.getByte("rank");
+                    rd.Max = rs.getByte("max");
+                    rd.Type = rs.getByte("type");
+                    rd.Template = rs.getShort("mob_id");
+                    rd.Name = rs.getString("name");
+                    rd.Info = rs.getString("info");
+                    org.json.simple.JSONArray arr = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(rs.getString("body"));
+                    for (int i = 0; i < arr.size(); i++) {
+                        org.json.simple.JSONObject ob = (org.json.simple.JSONObject) arr.get(i);
+                        if (ob != null) {
+                            rd.Head = Short.parseShort(ob.get("head").toString());
+                            rd.Body = Short.parseShort(ob.get("body").toString());
+                            rd.Leg = Short.parseShort(ob.get("leg").toString());
+                            rd.Bag = Short.parseShort(ob.get("bag").toString());
+                        }
+                    }
+                    rd.Options.clear();
+                    arr = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(rs.getString("options"));
+                    for (int i = 0; i < arr.size(); i++) {
+                        org.json.simple.JSONObject ob = (org.json.simple.JSONObject) arr.get(i);
+                        if (ob != null) {
+                            rd.Options.add(new OptionCard(Integer.parseInt(ob.get("id").toString()), Short.parseShort(ob.get("param").toString()), Byte.parseByte(ob.get("activeCard").toString())));
+                        }
+                    }
+                    rd.Require = rs.getShort("require");
+                    rd.RequireLevel = rs.getShort("require_level");
+                    rd.AuraId = rs.getShort("aura_id");
+                    list.add(rd);
+                }
+        rs.close();
+        ps.close();
+        gI().RADAR_TEMPLATE.clear();
+        gI().RADAR_TEMPLATE.addAll(list);
+    }
+
     /** Thẻ Oozaru (1771) gộp 3 thẻ: mảnh Oozarun 1 (2104), Oozarun 2 (2105) cũng là Thẻ Oozaru. */
     public static final int OOZARU = 1771;
 
@@ -60,9 +106,57 @@ public class RadarService {
         pl.Cards.add(m);
     }
 
-    /** Cấp hiển thị trong game: đã sưu tầm = Lv.1, Level 1 = Lv.2, Level 2 = Lv.3. */
+    /**
+     * Cấp thẻ (Đợt 55): Level -1 = đang sưu tầm (chưa đạt Lv.1), 1 / 2 / 3 = Lv.1 / Lv.2 / Lv.3 (tối đa), 0 = chưa có.
+     * Dòng chỉ số activeCard 0 có tác dụng từ Lv.1, activeCard k (1, 2) khi đang dùng thẻ ở Lv.(k + 1).
+     */
+    public static final int MAX_LEVEL = 3;
+
     public static int displayLevel(Card card) {
-        return card.Level < 0 ? 1 : Math.min(3, card.Level + 1);
+        return card.Level >= 1 ? Math.min(MAX_LEVEL, card.Level) : 0;
+    }
+
+    /** Số mảnh cần cho từng cấp {lên Lv.1, lên Lv.2, lên Lv.3}. */
+    public static int[] thresholds(int cardId, int defMax) {
+        return switch (cardId) {
+            case 956, 1204 -> new int[]{3, 30, 30}; // Đội Trưởng Vàng, Rồng Thần Namek
+            case OOZARU, 2040 -> new int[]{10, 125, 125}; // Oozaru, Khỉ con
+            default -> new int[]{1, Math.max(1, defMax), Math.max(1, defMax)};
+        };
+    }
+
+    /** Điều kiện dùng mảnh: {thẻ cần có, cấp tối thiểu}. Oozaru cần Rồng Thần Namek Lv.1, Khỉ con cần Oozaru Lv.2. */
+    public static int[] requirement(int cardId) {
+        return switch (cardId) {
+            case OOZARU -> new int[]{1204, 1};
+            case 2040 -> new int[]{OOZARU, 2};
+            default -> null;
+        };
+    }
+
+    /** Số mảnh tối đa hiển thị cho cấp hiện tại của thẻ. */
+    public static void fixMax(Card card, int defMax) {
+        int[] th = thresholds(card.Id, defMax);
+        if (card.Level >= MAX_LEVEL) {
+            card.MaxAmount = (byte) th[MAX_LEVEL - 1];
+            card.Amount = card.MaxAmount;
+        } else {
+            card.MaxAmount = (byte) th[card.Level >= 1 ? card.Level : 0];
+            if (card.Amount >= card.MaxAmount) {
+                card.Amount = (byte) (card.MaxAmount - 1);
+            }
+        }
+    }
+
+    /** Khi vào game: số mảnh tối đa theo cấp hiện tại. */
+    public static void normalizeCards(nro.models.player.Player pl) {
+        for (Card c : pl.Cards) {
+            if (c == null) {
+                continue;
+            }
+            RadarCard t = gI().RADAR_TEMPLATE.stream().filter(r -> r.Id == c.Id).findFirst().orElse(null);
+            fixMax(c, t != null ? t.Max : c.MaxAmount);
+        }
     }
 
     /** Aura theo thẻ và cấp: Đội Trưởng Vàng 0, Rồng Thần Namek 1, Oozaru 2 / 3 / 4, Khỉ con 120 / 121 / 122. */

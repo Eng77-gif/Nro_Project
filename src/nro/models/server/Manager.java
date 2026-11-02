@@ -905,41 +905,7 @@ public final class Manager {
                 Logger.success(Logger.RED + "Successfully loaded map template (" + MAP_TEMPLATES.length + ")\n");
             }
 
-            ps = ConnectionDatabase.prepareStatement("select * from radar");
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                RadarCard rd = new RadarCard();
-                rd.Id = rs.getShort("id");
-                rd.IconId = rs.getShort("iconId");
-                rd.Rank = rs.getByte("rank");
-                rd.Max = rs.getByte("max");
-                rd.Type = rs.getByte("type");
-                rd.Template = rs.getShort("mob_id");
-                rd.Name = rs.getString("name");
-                rd.Info = rs.getString("info");
-                JSONArray arr = (JSONArray) JSONValue.parse(rs.getString("body"));
-                for (int i = 0; i < arr.size(); i++) {
-                    JSONObject ob = (JSONObject) arr.get(i);
-                    if (ob != null) {
-                        rd.Head = Short.parseShort(ob.get("head").toString());
-                        rd.Body = Short.parseShort(ob.get("body").toString());
-                        rd.Leg = Short.parseShort(ob.get("leg").toString());
-                        rd.Bag = Short.parseShort(ob.get("bag").toString());
-                    }
-                }
-                rd.Options.clear();
-                arr = (JSONArray) JSONValue.parse(rs.getString("options"));
-                for (int i = 0; i < arr.size(); i++) {
-                    JSONObject ob = (JSONObject) arr.get(i);
-                    if (ob != null) {
-                        rd.Options.add(new OptionCard(Integer.parseInt(ob.get("id").toString()), Short.parseShort(ob.get("param").toString()), Byte.parseByte(ob.get("activeCard").toString())));
-                    }
-                }
-                rd.Require = rs.getShort("require");
-                rd.RequireLevel = rs.getShort("require_level");
-                rd.AuraId = rs.getShort("aura_id");
-                RadarService.gI().RADAR_TEMPLATE.add(rd);
-            }
+            RadarService.load(ConnectionDatabase);
             Logger.success(Logger.PURPLE + "Successfully loaded radar template (" + RadarService.gI().RADAR_TEMPLATE.size() + ")\n");
 
             //Load giftcode

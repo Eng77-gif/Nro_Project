@@ -32,7 +32,37 @@ public class Event2026Service {
         return instance;
     }
 
-    public static final Set<Integer> FOOT_IDS = Set.of(2097, 2096);
+    /** Bóng mờ (ô bóng bước chân) -> hiệu ứng quanh nhân vật (data/effdata). */
+    public static final Map<Integer, Integer> FOOT_EFFECT = Map.of(
+            1960, 508, // Bóng mờ tuyết rơi
+            1971, 509, // Bóng mờ NRO
+            2023, 513, // Bóng mờ sao may mắn
+            2054, 514, // Bóng mờ trung thu
+            2096, 518, // Bóng mờ hoa hồng đỏ
+            2097, 519); // Bóng mờ hoa hồng băng
+    public static final Set<Integer> FOOT_IDS = FOOT_EFFECT.keySet();
+
+    /** Hiệu ứng bóng mờ đang mang, -1 nếu không có. */
+    public static int footEffectId(Player pl) {
+        Item f = pl == null ? null : pl.itemFoot;
+        if (f == null || !f.isNotNullItem()) {
+            return -1;
+        }
+        return FOOT_EFFECT.getOrDefault((int) f.template.id, -1);
+    }
+
+    private static void refreshFootEffect(Player pl, int before) {
+        int now = footEffectId(pl);
+        if (now == before || pl.zone == null) {
+            return;
+        }
+        if (before >= 0) {
+            Service.gI().removeEffPlayer(pl, before);
+        }
+        if (now >= 0) {
+            Service.gI().sendEffAllPlayer(pl, now, 1, -1, 1);
+        }
+    }
     public static final int VAN_RONG_7_SAO = 2100;
     public static final int CAPSULE_VO = 2111;
     public static final int MANH_CAPSULE_VO = 1909;
@@ -57,10 +87,12 @@ public class Event2026Service {
             return;
         }
         Item old = pl.itemFoot;
+        int effTruoc = footEffectId(pl);
         pl.itemFoot = item;
         pl.inventory.itemsBag.set(index, old != null && old.isNotNullItem() ? old : ItemService.gI().createItemNull());
         InventoryService.gI().sendItemBags(pl);
         Service.gI().point(pl);
+        refreshFootEffect(pl, effTruoc);
         Service.gI().sendThongBao(pl, "Đã mang " + item.template.name + (old != null ? ", tháo " + old.template.name + " về hành trang" : "")
                 + ". Chat \"thao buoc chan\" để tháo ra");
     }
@@ -75,10 +107,12 @@ public class Event2026Service {
             return;
         }
         Item foot = pl.itemFoot;
+        int effTruoc = footEffectId(pl);
         pl.itemFoot = null;
         InventoryService.gI().addItemBag(pl, foot);
         InventoryService.gI().sendItemBags(pl);
         Service.gI().point(pl);
+        refreshFootEffect(pl, effTruoc);
         Service.gI().sendThongBao(pl, "Đã tháo " + foot.template.name);
     }
 

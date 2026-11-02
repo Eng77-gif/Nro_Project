@@ -2099,6 +2099,10 @@ public class Service {
         if (eff >= 0) {
             sendEffAllPlayer(pl, eff, 1, -1, 1);
         }
+        int foot = Event2026Service.footEffectId(pl); // bóng mờ
+        if (foot >= 0) {
+            sendEffAllPlayer(pl, foot, 1, -1, 1);
+        }
     }
 
     /** Gửi hiệu ứng set của người khác trong map cho mình (vào map). */
@@ -2109,6 +2113,10 @@ public class Service {
                     int eff = setEffectId(plM);
                     if (eff >= 0) {
                         sendEffPlayer(plM, pl, eff, 1, -1, 1);
+                    }
+                    int foot = Event2026Service.footEffectId(plM);
+                    if (foot >= 0) {
+                        sendEffPlayer(plM, pl, foot, 1, -1, 1);
                     }
                 }
             }

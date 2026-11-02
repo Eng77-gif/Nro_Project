@@ -22,6 +22,9 @@ public final class JarSignatureCheck {
     /** Vân tay SHA-256 chứng chỉ "CN=Việt" (tools/codesign/viet-codesign.cer). */
     private static final String VIET_SHA256 = "5B7B7149C3A5F20A9D95BC90FEBE0912403612398F5407879B393B223A3FC608";
 
+    /** Trạng thái để panel hiển thị. */
+    public static volatile String status = "chưa kiểm tra";
+
     private JarSignatureCheck() {
     }
 
@@ -36,6 +39,7 @@ public final class JarSignatureCheck {
         }
         if (f.isDirectory()) {
             Logger.warning("Đang chạy từ thư mục class (không phải jar đã ký): bỏ qua kiểm tra chữ ký Việt\n");
+            status = "chạy từ thư mục class (không kiểm tra)";
             return true;
         }
         int signed = 0;
@@ -68,6 +72,7 @@ public final class JarSignatureCheck {
             return fail("jar chưa được ký");
         }
         Logger.success("Chữ ký số Việt hợp lệ (" + signed + " file)\n");
+        status = "hợp lệ · CN=Việt · " + signed + " file";
         return true;
     }
 

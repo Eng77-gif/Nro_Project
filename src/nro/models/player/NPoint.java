@@ -296,11 +296,11 @@ public class NPoint {
         // thẻ radar: dòng "Mở khóa" (active 0) có tác dụng khi đã sưu tầm thẻ,
         // dòng "Sử dụng Lv.x" chỉ khi đang dùng thẻ ở đúng cấp x
         for (Card card : player.Cards) {
-            if (card == null || card.Level == 0) {
-                continue;
+            if (card == null || card.Level < 1) {
+                continue; // chưa đạt Lv.1
             }
             for (OptionCard io : card.Options) {
-                if (io.active == 0 || (card.Used == 1 && io.active == card.Level)) {
+                if (io.active == 0 || (card.Used == 1 && io.active == card.Level - 1)) {
                     switch (io.id) {
                         case 0: //Tấn công +#
                             this.dameAdd += io.param;

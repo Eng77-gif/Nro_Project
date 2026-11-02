@@ -84,6 +84,14 @@ class PanelApi {
             case "shop/delete" -> shopDelete(b);
             case "shop/reload" -> shopReload();
             case "seasons" -> seasons();
+            case "server" -> serverInfo();
+            case "eventtops" -> SeasonEventService.gI().panelTops();
+            case "eventtop" -> rows("select e.player_id id, e.name, e.points from season_event_point e where e.top_id = ? order by e.points desc, e.player_id limit 100", intv(q.get("id")));
+            case "radar" -> radarList();
+            case "radar/save" -> radarSave(b);
+            case "badges" -> rows("select b.id, b.idEffect effect, b.idItem item, b.NAME name, b.Options options, t.icon_id icon, t.description descr from data_badges b left join item_template t on t.id = b.idItem order by b.id");
+            case "badge/save" -> badgeSave(b);
+            case "fx" -> fxInfo();
             case "season/cmd" -> Map.of("result", SeasonEventService.gI().admin(" " + str(b.get("cmd")).trim()));
             case "bosses" -> bosses();
             case "boss/spawn" -> bossSpawn(b);
@@ -618,6 +626,143 @@ class PanelApi {
             Manager.SHOPS = nro.models.database.ShopDAO.getShops(con);
         }
         return Map.of("ok", true, "shops", Manager.SHOPS.size());
+    }
+
+    // ------------------------------------------------------------------ máy chủ / thẻ radar / danh hiệu / hiệu ứng
+
+    private Object serverInfo() {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("signature", nro.models.server.JarSignatureCheck.status);
+        m.put("java", System.getProperty("java.version"));
+        m.put("os", System.getProperty("os.name") + " " + System.getProperty("os.arch"));
+        m.put("vsData", nro.models.data.DataGame.vsData);
+        m.put("vsItem", nro.models.data.DataGame.vsItem);
+        m.put("event", SeasonEventService.gI().currentName());
+        m.put("eventConfig", SeasonEventService.configActive().toString());
+        return m;
+    }
+
+    private Object radarList() {
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (nro.models.radar.RadarCard r : nro.models.services.RadarService.gI().RADAR_TEMPLATE) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id", r.Id);
+            m.put("icon", r.IconId);
+            m.put("name", r.Name);
+            m.put("info", r.Info);
+            m.put("rank", r.Rank);
+            m.put("max", r.Max);
+            m.put("thresholds", nro.models.services.RadarService.thresholds(r.Id, r.Max));
+            int[] req = nro.models.services.RadarService.requirement(r.Id);
+            m.put("require", req == null ? (r.Require >= 0 ? r.Require + " Lv." + Math.max(1, r.RequireLevel) : "") : req[0] + " Lv." + req[1]);
+            m.put("aura", new int[]{nro.models.services.RadarService.auraFor(r.Id, 1), nro.models.services.RadarService.auraFor(r.Id, 2), nro.models.services.RadarService.auraFor(r.Id, 3)});
+            List<Map<String, Object>> ops = new ArrayList<>();
+            for (nro.models.radar.OptionCard o : r.Options) {
+                Map<String, Object> x = new LinkedHashMap<>();
+                x.put("id", o.id);
+                x.put("param", o.param);
+                x.put("activeCard", o.active);
+                try {
+                    x.put("text", nro.models.services.ItemService.gI().getItemOptionTemplate(o.id).name.replace("#", String.valueOf(o.param)));
+                } catch (Exception e) {
+                    x.put("text", "option " + o.id);
+                }
+                ops.add(x);
+            }
+            m.put("options", ops);
+            out.add(m);
+        }
+        return out;
+    }
+
+    private Object radarSave(Map<String, Object> b) throws Exception {
+        int id = intv(b.get("id"));
+        String opts = str(b.get("options"));
+        org.json.simple.JSONArray arr = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(opts);
+        if (arr == null) {
+            throw new Exception("Dòng chỉ số không đúng dạng JSON");
+        }
+        for (Object o : arr) {
+            org.json.simple.JSONObject j = (org.json.simple.JSONObject) o;
+            if (j.get("id") == null || j.get("param") == null || j.get("activeCard") == null) {
+                throw new Exception("Mỗi dòng cần id, param, activeCard");
+            }
+        }
+        try (Connection con = LocalManager.getConnection()) {
+            try (java.sql.PreparedStatement ps = con.prepareStatement("update radar set name = ?, info = ?, options = ? where id = ?")) {
+                ps.setString(1, str(b.get("name")));
+                ps.setString(2, str(b.get("info")));
+                ps.setString(3, arr.toJSONString());
+                ps.setInt(4, id);
+                ps.executeUpdate();
+            }
+            nro.models.services.RadarService.load(con);
+        }
+        return Map.of("ok", true, "note", "Đã lưu và nạp lại thẻ radar (người chơi mở lại bảng thẻ để thấy)");
+    }
+
+    private Object badgeSave(Map<String, Object> b) throws Exception {
+        String opts = str(b.get("options"));
+        org.json.simple.JSONArray arr = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(opts);
+        if (arr == null) {
+            throw new Exception("Chỉ số không đúng dạng JSON");
+        }
+        try (Connection con = LocalManager.getConnection()) {
+            try (java.sql.PreparedStatement ps = con.prepareStatement("update data_badges set NAME = ?, Options = ? where id = ?")) {
+                ps.setString(1, str(b.get("name")));
+                ps.setString(2, arr.toJSONString());
+                ps.setInt(3, intv(b.get("id")));
+                ps.executeUpdate();
+            }
+            nro.models.player_badges.BagesTemplate.reload(con);
+        }
+        return Map.of("ok", true, "note", "Đã lưu và nạp lại danh hiệu");
+    }
+
+    private Object fxInfo() {
+        Map<String, Object> m = new LinkedHashMap<>();
+        java.util.TreeSet<Integer> eff = new java.util.TreeSet<>();
+        java.io.File[] ef = new java.io.File("data/effdata").listFiles();
+        if (ef != null) {
+            for (java.io.File f : ef) {
+                java.util.regex.Matcher mt = java.util.regex.Pattern.compile("_(\\d+)$").matcher(f.getName());
+                if (mt.find()) {
+                    eff.add(Integer.parseInt(mt.group(1)));
+                }
+            }
+        }
+        java.util.TreeSet<Integer> aura = new java.util.TreeSet<>();
+        java.io.File[] af = new java.io.File("data/img_by_name/x2").listFiles();
+        if (af != null) {
+            for (java.io.File f : af) {
+                java.util.regex.Matcher mt = java.util.regex.Pattern.compile("^aura_(\\d+)_\\d+\\.png$").matcher(f.getName());
+                if (mt.find() && !mt.group(1).equals("999")) {
+                    aura.add(Integer.parseInt(mt.group(1)));
+                }
+            }
+        }
+        m.put("effects", eff);
+        m.put("auras", aura);
+        List<Map<String, Object>> used = new ArrayList<>();
+        used.add(Map.of("what", "Đủ 5 món Set kích hoạt (mọi set, kể cả Champa)", "kind", "hiệu ứng", "id", Service.EFF_SET_KICH_HOAT));
+        used.add(Map.of("what", "Đủ 5 món Set Beerus", "kind", "hiệu ứng", "id", Service.EFF_SET_BEERUS));
+        for (Map.Entry<Integer, Integer> e : new java.util.TreeMap<>(nro.models.services.Event2026Service.FOOT_EFFECT).entrySet()) {
+            String n;
+            try {
+                n = nro.models.services.ItemService.gI().getTemplate(e.getKey()).name;
+            } catch (Exception x) {
+                n = "Bóng mờ " + e.getKey();
+            }
+            used.add(Map.of("what", n, "kind", "hiệu ứng", "id", e.getValue()));
+        }
+        for (int[] c : new int[][]{{956}, {1204}, {nro.models.services.RadarService.OOZARU}, {2040}}) {
+            String n = nro.models.services.RadarService.gI().RADAR_TEMPLATE.stream().filter(r -> r.Id == c[0]).map(r -> r.Name).findFirst().orElse("Thẻ " + c[0]);
+            for (int lv = 1; lv <= 3; lv++) {
+                used.add(Map.of("what", n + " Lv." + lv, "kind", "aura", "id", (int) nro.models.services.RadarService.auraFor(c[0], lv)));
+            }
+        }
+        m.put("used", used);
+        return m;
     }
 
     // ------------------------------------------------------------------ sự kiện mùa

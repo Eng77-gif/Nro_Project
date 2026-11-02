@@ -94,6 +94,7 @@ public final class Dot48Migration {
             }
             changed += runDot50(con);
             changed += runDot51(con);
+            changed += convertCardLevels(con);
             // Đợt 52: gộp 3 thẻ Oozaru làm 1 (chỉ số và aura của Oozarun 2)
             if (exists(con, "select 1 from radar where id = 2105")) {
                 changed += update(con, "update radar r join (select options, aura_id from radar where id = 2105) b set r.options = b.options, r.aura_id = b.aura_id, r.name = 'Thẻ Oozaru' where r.id = 1771");
@@ -276,6 +277,47 @@ public final class Dot48Migration {
             ps.setString(8, npc);
             return ps.executeUpdate();
         }
+    }
+
+    /**
+     * Đợt 55: cấp thẻ radar mới (-1 đang sưu tầm, 1 / 2 / 3 = Lv.1 / Lv.2 / Lv.3).
+     * Đổi 1 lần dữ liệu cũ (-1 / 1 / 2) sang (1 / 2 / 3) để người chơi giữ nguyên cấp và chỉ số. Đánh dấu trong bảng server_migration.
+     */
+    private static int convertCardLevels(Connection con) throws Exception {
+        update(con, "create table if not exists server_migration (name varchar(64) primary key, done_at timestamp default current_timestamp)");
+        if (exists(con, "select 1 from server_migration where name = 'card_level_v2'")) {
+            return 0;
+        }
+        int n = 0;
+        java.util.List<Object[]> rows = new java.util.ArrayList<>();
+        try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery("select id, data_card from player where data_card like '%level%'")) {
+            while (rs.next()) {
+                rows.add(new Object[]{rs.getLong(1), rs.getString(2)});
+            }
+        }
+        try (PreparedStatement ps = con.prepareStatement("update player set data_card = ? where id = ?")) {
+            for (Object[] r : rows) {
+                org.json.simple.JSONArray arr = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse((String) r[1]);
+                if (arr == null) {
+                    continue;
+                }
+                for (Object o : arr) {
+                    org.json.simple.JSONObject c = (org.json.simple.JSONObject) o;
+                    int lv = Integer.parseInt(String.valueOf(c.get("level")));
+                    int nv = lv == -1 ? 1 : lv >= 1 ? Math.min(3, lv + 1) : lv;
+                    c.put("level", String.valueOf(nv));
+                    c.put("amount", "0");
+                }
+                ps.setString(1, arr.toJSONString());
+                ps.setLong(2, (long) r[0]);
+                ps.addBatch();
+                n++;
+            }
+            ps.executeBatch();
+        }
+        update(con, "insert into server_migration (name) values ('card_level_v2')");
+        Logger.success("Đợt 55: đổi cấp thẻ radar cho " + n + " người chơi\n");
+        return n;
     }
 
     private static boolean exists(Connection con, String sql) throws Exception {

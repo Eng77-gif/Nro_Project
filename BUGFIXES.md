@@ -1332,3 +1332,45 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Aura thưởng đua top chỉ hiện khi không có aura thẻ.
 - Sưu tầm / lên cấp thẻ làm đổi aura thì cập nhật ngay cho mình và người trong map, không cần đổi map.
 - Bỏ thẻ 1142 khỏi danh sách aura (không có trong bảng radar).
+
+## Đợt 55: Hiệu ứng bóng mờ, số mảnh thẻ radar, panel admin v2
+### Bóng mờ có hiệu ứng
+| Bóng mờ | Hiệu ứng |
+|---|---|
+| Tuyết rơi (1960) | 508 |
+| NRO (1971) | 509 |
+| Sao may mắn (2023) | 513 |
+| Trung thu (2054) | 514 |
+| Hoa hồng đỏ (2096) | 518 |
+| Hoa hồng băng (2097) | 519 |
+
+- Cả 6 bóng mờ mang ở ô **bóng bước chân** (trước chỉ 2 bóng hoa hồng), không chiếm ô pet / đeo lưng.
+- Mang / tháo (chat "thao buoc chan") là bật / tắt hiệu ứng ngay. Người vào map sau cũng thấy.
+
+### Thẻ radar: số mảnh và điều kiện
+- Cấp thẻ: -1 = đang sưu tầm (chưa có chỉ số), 1 / 2 / 3 = Lv.1 / Lv.2 / Lv.3 (tối đa).
+- Dòng chỉ số Lv.1 có tác dụng từ Lv.1. Dòng Lv.2 / Lv.3 khi đang dùng thẻ ở đúng cấp đó.
+
+| Thẻ | Mảnh lên Lv.1 / Lv.2 / Lv.3 | Điều kiện dùng mảnh |
+|---|---|---|
+| Đội Trưởng Vàng | 3 / 30 / 30 | — |
+| Rồng Thần Namek | 3 / 30 / 30 | — |
+| Oozaru | 10 / 125 / 125 | Rồng Thần Namek Lv.1 |
+| Khỉ con | 10 / 125 / 125 | Oozaru Lv.2 |
+| Thẻ khác | 1 / tối đa của thẻ / tối đa của thẻ | như cũ |
+
+- Dữ liệu cũ (-1 / 1 / 2) đổi **1 lần** sang (1 / 2 / 3), người chơi giữ nguyên cấp và chỉ số. Đánh dấu ở bảng mới `server_migration`.
+- Thẻ chưa đạt Lv.1 không bật dùng được, không có aura.
+
+### Panel admin v2
+- **Giao diện:**
+  - Thanh trên luôn hiện: tên server, số online, sự kiện đang chạy, trạng thái chữ ký Việt, RAM, phiên bản Java / dữ liệu.
+  - Menu có biểu tượng.
+  - Điện thoại: menu thu gọn, mở bằng nút ☰.
+- **Tổng quan:** biểu đồ người online, thẻ sự kiện, thao tác nhanh (lưu tất cả, nạp lại sự kiện / shop, thông báo nhanh, bảo trì), Top 10 sức mạnh.
+- **Trang mới:**
+  - **Đua top sự kiện:** danh sách top, Top 100, chốt top.
+  - **Thẻ radar:** số mảnh, điều kiện, aura từng cấp, sửa tên / chỉ số và nạp lại ngay.
+  - **Danh hiệu:** ảnh hiệu ứng, chỉ số, cách nhận, sửa và nạp lại ngay.
+  - **Hiệu ứng & aura:** bảng mã đang dùng và thư viện ảnh 174 hiệu ứng, 71 aura (cắt khung đầu), có tìm theo mã.
+- API mới: `server`, `eventtops`, `eventtop`, `radar`, `radar/save`, `badges`, `badge/save`, `fx`; ảnh `/fx/eff/<id>`, `/fx/aura/<id>`.

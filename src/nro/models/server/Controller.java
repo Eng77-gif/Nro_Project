@@ -146,7 +146,8 @@ public class Controller implements IMessageHandler {
                                 short idC = _msg.reader().readShort();
                                 Card card = player.Cards.stream().filter(r -> r != null && r.Id == idC).findFirst().orElse(null);
                                 if (card != null) {
-                                    if (card.Level == 0) {
+                                    if (card.Level < 1) {
+                                        Service.gI().sendThongBao(player, "Thẻ chưa đạt Lv.1, hãy sưu tầm thêm mảnh");
                                         return;
                                     }
                                     if (card.Used == 0) {

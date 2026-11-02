@@ -47,7 +47,28 @@ tr:hover td{background:var(--panel2)}
 label.f{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute)}label.f>*{color:var(--text)}
 .pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px;max-height:55vh;overflow:auto;margin-top:10px}
 .pick div{display:flex;gap:8px;align-items:center;padding:6px;border:1px solid var(--line);border-radius:8px;cursor:pointer}.pick div:hover{border-color:var(--acc)}
-@media(max-width:760px){#app{flex-direction:column}nav{width:auto;height:auto;position:static;display:flex;flex-wrap:wrap;gap:2px}nav .g,nav h1{display:none}main{padding:14px 16px}}
+/* ---- giao diện v2 ---- */
+:root{--acc3:#a855f7;--grad:linear-gradient(135deg,#f5a524 0%,#ef4444 55%,#a855f7 100%)}
+nav{padding:0 10px 14px}nav h1{display:flex;align-items:center;gap:10px;margin:0 -10px 10px;padding:16px 18px;background:var(--grad);color:#1b1300;font-size:17px;letter-spacing:.02em}
+nav h1 small{display:block;font-size:11px;font-weight:500;opacity:.8}
+nav a{display:flex;align-items:center;gap:9px}nav a i{font-style:normal;width:20px;text-align:center;opacity:.9}
+nav a.on{background:linear-gradient(90deg,rgba(245,165,36,.18),transparent);box-shadow:inset 3px 0 0 var(--acc)}
+#top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 24px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+#top .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);background:var(--panel);font-size:12px}
+#top .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(34,197,94,.2)}
+#top .sp{flex:1}#menu{display:none}
+.stat{position:relative;overflow:hidden}.stat::after{content:"";position:absolute;inset:auto -20px -30px auto;width:90px;height:90px;border-radius:50%;background:var(--grad);opacity:.08}
+.stat .ico{font-size:20px;float:right;opacity:.85}
+.qa{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.qa button{padding:12px;text-align:left;border-radius:10px;background:var(--panel2)}.qa button b{display:block}.qa button span{font-size:12px;color:var(--mute)}
+.chart{width:100%;height:120px;display:block}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.gal div{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:6px;text-align:center}
+.gal img{width:100%;height:86px;object-fit:contain;image-rendering:pixelated}
+.fx{width:64px;height:40px;object-fit:contain;vertical-align:middle;image-rendering:pixelated}.gal b{display:block;font-size:12px;color:var(--acc)}
+.chip{display:inline-block;padding:2px 8px;margin:2px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);font-size:12px}
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}.tabs button.on{border-color:var(--acc);color:var(--acc)}
+@media(max-width:760px){#menu{display:inline-block}nav.hide{display:none!important}#top{padding:8px 16px}#app{flex-direction:column}nav{width:auto;height:auto;position:static;display:flex;flex-wrap:wrap;gap:2px}nav .g,nav h1{display:none}main{padding:14px 16px}}
 </style>
 </head>
 <body>
@@ -61,7 +82,7 @@ label.f{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mu
 </div>
 <div id="app" hidden>
   <nav id="nav"></nav>
-  <main id="main"></main>
+  <div style="flex:1;min-width:0"><div id="top"></div><main id="main"></main></div>
 </div>
 <div id="toast"></div>
 <script>
@@ -83,12 +104,22 @@ function table(rows,cols,actions){
 function modal(html){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class="box">${html}</div>`;m.onclick=e=>{if(e.target===m)m.remove()};document.body.append(m);return m}
 
 const PAGES=[
- ['g','Máy chủ'],['dash','Tổng quan'],['notify','Thông báo & quà'],['maint','Bảo trì & lưu'],['logs','Nhật ký console'],['audit','Nhật ký thao tác'],['config','Cấu hình'],
- ['g','Người chơi'],['players','Người chơi'],['accounts','Tài khoản'],['tops','Bảng xếp hạng'],['clans','Bang hội'],
- ['g','Nội dung'],['items','Vật phẩm'],['boxes','Hộp quà'],['giftcode','Giftcode'],['shop','Cửa hàng'],['kygui','Ký gửi'],
- ['g','Thế giới'],['maps','Bản đồ & NPC'],['events','Sự kiện'],['bosses','Boss'],['mobs','Quái'],
- ['g','Khác'],['napthe','Nạp thẻ'],['sql','Truy vấn SQL']];
-function buildNav(){$('#nav').innerHTML='<h1>⚙ Panel NRO</h1>'+PAGES.map(p=>p[0]==='g'?`<div class="g">${p[1]}</div>`:`<a href="#${p[0]}" data-p="${p[0]}">${p[1]}</a>`).join('')+'<div class="g">Tài khoản</div><a href="#" onclick="toggleTheme();return false">Đổi sáng / tối</a><a href="#" onclick="logout();return false">Đăng xuất</a>'}
+ ['g','Máy chủ'],['dash','Tổng quan','📊'],['notify','Thông báo & quà','📣'],['maint','Bảo trì & lưu','🛠'],['logs','Nhật ký console','🖥'],['audit','Nhật ký thao tác','📝'],['config','Cấu hình','⚙'],
+ ['g','Người chơi'],['players','Người chơi','👤'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],
+ ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],
+ ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['mobs','Quái','🐗'],
+ ['g','Khác'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
+function buildNav(){if(innerWidth<760)$('#nav').classList.add('hide');$('#nav').innerHTML='<h1>🐉<span>Panel NRO<small>chữ ký: Việt</small></span></h1>'+PAGES.map(p=>p[0]==='g'?`<div class="g">${p[1]}</div>`:`<a href="#${p[0]}" data-p="${p[0]}"><i>${p[2]||'•'}</i>${p[1]}</a>`).join('')+'<div class="g">Tài khoản</div><a href="#" onclick="toggleTheme();return false"><i>🌓</i>Đổi sáng / tối</a><a href="#" onclick="logout();return false"><i>🚪</i>Đăng xuất</a>';
+  document.querySelectorAll('#nav a[data-p]').forEach(a=>a.addEventListener('click',()=>{if(innerWidth<760)$('#nav').classList.add('hide')}));refreshTop();clearInterval(window._topT);window._topT=setInterval(refreshTop,15000)}
+async function refreshTop(){try{const [s,v]=await Promise.all([api('stats'),api('server')]);
+  $('#top').innerHTML=`<button id="menu" onclick="$('#nav').classList.toggle('hide')">☰</button><b>${esc(s.server)}</b><span class="pill"><span class="dot"></span>${fmt(s.online)} online</span>
+  <span class="pill">🎉 ${v.event?esc(v.event):'<span class="mute">không có sự kiện</span>'}</span><span class="pill" title="Kiểm tra chữ ký khi khởi động">🔏 ${esc(v.signature)}</span>
+  <span class="pill">RAM ${fmt(s.memUsedMb)}/${fmt(s.memMaxMb)} MB</span>${s.maintenance?'<span class="pill tag bad1">đang bảo trì</span>':''}<span class="sp"></span><span class="mute" style="font-size:12px">Java ${esc(v.java)} · data v${v.vsData} · item v${v.vsItem}</span>`;
+  window._online=(window._online||[]).concat([{t:Date.now(),n:s.online}]).slice(-120);drawChart()}catch(e){}}
+function drawChart(){const c=document.getElementById('chart');if(!c)return;const d=window._online||[];if(d.length<2){c.innerHTML='<text x="10" y="60" fill="currentColor" opacity=".5">Đang thu thập số liệu…</text>';return}
+  const W=c.clientWidth||600,H=120,mx=Math.max(1,...d.map(x=>x.n)),st=W/(d.length-1);
+  const pts=d.map((x,i)=>`${(i*st).toFixed(1)},${(H-8-(x.n/mx)*(H-24)).toFixed(1)}`).join(' ');
+  c.setAttribute('viewBox',`0 0 ${W} ${H}`);c.innerHTML=`<defs><linearGradient id="gg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f5a524" stop-opacity=".45"/><stop offset="1" stop-color="#f5a524" stop-opacity="0"/></linearGradient></defs><polygon fill="url(#gg)" points="0,${H} ${pts} ${W},${H}"/><polyline fill="none" stroke="#f5a524" stroke-width="2" points="${pts}"/><text x="6" y="14" font-size="11" fill="currentColor" opacity=".6">cao nhất ${mx} người</text>`}
 function toggleTheme(){const t=document.documentElement.dataset.theme==='light'?'dark':'light';document.documentElement.dataset.theme=t;try{localStorage.setItem('theme',t)}catch(e){}}
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')||'dark'}catch(e){}
 let logTimer=null;
@@ -117,13 +148,27 @@ function parseOps(s){return (s||'').split(/[;\n]/).map(x=>x.trim()).filter(Boole
 async function page_dash(){
   const s=await api('stats');const up=s.uptimeSec;
   $('#main').innerHTML=`<h2>Tổng quan — ${esc(s.server)}</h2><div class="stats">
-  ${[['Đang online',fmt(s.online)+' / '+fmt(s.maxPlayer)],['Tài khoản',fmt(s.accounts)],['Nhân vật',fmt(s.players)],['Boss đang có mặt',fmt(s.bosses)],
-     ['RAM',fmt(s.memUsedMb)+' / '+fmt(s.memMaxMb)+' MB'],['CPU (tải TB)',s.cpuLoad<0?'—':s.cpuLoad.toFixed(2)+' / '+s.cpus+' nhân'],['Luồng',fmt(s.threads)],
-     ['Chạy được',Math.floor(up/86400)+'n '+Math.floor(up%86400/3600)+'g '+Math.floor(up%3600/60)+'p'],['Bảo trì',s.maintenance?'Đang bảo trì':'Không']]
-    .map(x=>`<div class="stat"><span>${x[0]}</span><b>${esc(x[1])}</b></div>`).join('')}</div>
-  <div class="card" style="margin-top:14px"><b>Sự kiện đang chạy:</b> ${s.seasons.length?s.seasons.map(n=>`<span class="tag on1">${esc(n)}</span>`).join(' '):'<span class="mute">không có</span>'}<br><span class="mute">Khởi động lúc ${esc(s.startedAt)}</span></div>
-  <h3>Người chơi đang online</h3><div id="onl"></div>`;
+  ${[['🟢','Đang online',fmt(s.online)+' / '+fmt(s.maxPlayer)],['🔑','Tài khoản',fmt(s.accounts)],['👤','Nhân vật',fmt(s.players)],['👹','Boss đang có mặt',fmt(s.bosses)],
+     ['💾','RAM',fmt(s.memUsedMb)+' / '+fmt(s.memMaxMb)+' MB'],['🧠','CPU (tải TB)',s.cpuLoad<0?'—':s.cpuLoad.toFixed(2)+' / '+s.cpus+' nhân'],['🧵','Luồng',fmt(s.threads)],
+     ['⏱','Chạy được',Math.floor(up/86400)+'n '+Math.floor(up%86400/3600)+'g '+Math.floor(up%3600/60)+'p'],['🛠','Bảo trì',s.maintenance?'Đang bảo trì':'Không']]
+    .map(x=>`<div class="stat"><span class="ico">${x[0]}</span><span>${x[1]}</span><b>${esc(x[2])}</b></div>`).join('')}</div>
+  <div class="grid2" style="margin-top:14px">
+   <div class="card"><b>Người online (cập nhật 15 giây)</b><svg id="chart" class="chart"></svg></div>
+   <div class="card"><b>🎉 Sự kiện</b><div style="margin:6px 0">${s.seasons.length?s.seasons.map(n=>`<span class="tag on1">${esc(n)}</span>`).join(' '):'<span class="mute">không có sự kiện nào đang chạy</span>'}</div>
+    <div class="mute">Khởi động lúc ${esc(s.startedAt)}</div><div class="row" style="margin-top:8px"><a href="#eventtops">Xem đua top →</a><a href="#events">Quản lý sự kiện →</a></div></div>
+  </div>
+  <div class="card"><b>⚡ Thao tác nhanh</b><div class="qa" style="margin-top:8px">
+   <button onclick="act(()=>api('player/save',{}).then(r=>{toast('Đã lưu '+r.saved+' người chơi');return r}))"><b>💾 Lưu tất cả</b><span>Lưu dữ liệu người online</span></button>
+   <button onclick="act(()=>api('season/cmd',{cmd:'reload'}).then(r=>{toast(r.result);return r}))"><b>🔄 Nạp lại sự kiện</b><span>Đọc lại bảng season_event</span></button>
+   <button onclick="act(()=>api('shop/reload',{}),'Đã nạp lại cửa hàng')"><b>🏪 Nạp lại shop</b><span>Áp dụng sửa cửa hàng</span></button>
+   <button onclick="quickNotify()"><b>📣 Thông báo nhanh</b><span>Dòng chữ chạy cho cả server</span></button>
+   <button onclick="location.hash='#maint'"><b>🛠 Bảo trì</b><span>Đếm ngược và tắt server</span></button>
+  </div></div>
+  <div class="grid2"><div><h3>🏆 Top 10 sức mạnh</h3><div id="tp"></div></div><div><h3>🟢 Người chơi đang online</h3><div id="onl"></div></div></div>`;
+  drawChart();
+  api('tops?kind=power').then(r=>$('#tp').innerHTML=table(r.slice(0,10).map((x,i)=>({...x,rank:i+1})),[['rank','#'],['name','Tên',(v,x)=>`<a href="#" onclick="openPlayer(${x.id});return false">${esc(v)}</a>`],['point','Sức mạnh',fmt]])).catch(()=>{});
   const p=await api('players?online=1');$('#onl').innerHTML=playerTable(p)}
+function quickNotify(){const t=prompt('Nội dung thông báo (dòng chữ chạy):');if(t)act(()=>api('notify',{type:'ticker',text:t}),'Đã gửi thông báo')}
 
 /* ---------- người chơi ---------- */
 const GENDER=['Trái Đất','Namếc','Xayda'];
@@ -269,6 +314,41 @@ async function page_config(){const c=await api('config');
 function saveCfg(){const values={};document.querySelectorAll('input[data-k]:not([disabled])').forEach(i=>{if(i.value!=='')values[i.dataset.k]=i.value});act(()=>api('config/save',{values}))}
 async function page_sql(){$('#main').innerHTML=`<h2>Truy vấn SQL (chỉ đọc)</h2><div class="card"><textarea id="sq">select id, name from player order by id desc limit 50</textarea><div class="row" style="justify-content:flex-end"><button class="p" onclick="runSql()">Chạy</button></div></div><div id="sr"></div>`}
 async function runSql(){try{$('#sr').innerHTML=table(await api('sql',{query:$('#sq').value}))}catch(e){toast(e.message,1)}}
+
+/* ---------- đua top sự kiện ---------- */
+async function page_eventtops(){const r=await api('eventtops');
+  $('#main').innerHTML=`<h2>Đua top sự kiện</h2><div class="card mute">Top chốt tự động khi hết sự kiện (cần ít nhất 10 điểm, quà nhận tại Chi Chi trong 7 ngày). Nút <b>Chốt top</b> chốt ngay và phát quà.</div>`+
+  table(r,[['id','ID'],['season','Sự kiện'],['name','Đua top'],['active','Trạng thái',v=>v?'<span class="tag on1">đang chạy</span>':'<span class="tag off1">không chạy</span>'],['end','Kết thúc'],['rewards','Dòng quà']],
+   x=>`<button class="s" onclick="openTop(${x.id},'${esc(x.name).replace(/'/g,'')}')">Top 100</button> <button class="s d" onclick="if(confirm('Chốt top và phát quà ngay?'))sev2('chottop ${x.id}')">Chốt top</button>`)+'<div id="tdet"></div>'}
+async function openTop(id,name){const r=await api('eventtop?id='+id);$('#tdet').innerHTML=`<h3>Top 100 — ${esc(name)}</h3>`+table(r.map((x,i)=>({...x,rank:i+1})),[['rank','Hạng'],['name','Tên',(v,x)=>`<a href="#" onclick="openPlayer(${x.id});return false">${esc(v)}</a>`],['points','Điểm',fmt],['points','Đủ điều kiện',v=>v>=10?'<span class="tag on1">≥ 10</span>':'<span class="tag off1">chưa đủ</span>']]);$('#tdet').scrollIntoView({behavior:'smooth'})}
+async function sev2(cmd){const r=await act(()=>api('season/cmd',{cmd}));if(r)toast(r.result);page_eventtops()}
+
+/* ---------- thẻ radar ---------- */
+async function page_radar(){const r=await api('radar');window._radar=r;
+  $('#main').innerHTML=`<h2>Thẻ radar</h2><div class="card mute">Lv.1 / Lv.2 / Lv.3: số mảnh cần cho từng cấp và aura ở từng cấp. Sửa tên / mô tả / dòng chỉ số rồi lưu là áp dụng ngay.</div>`+
+  table(r,[['icon','',v=>icon(v)],['id','ID'],['name','Tên'],['rank','Hạng'],['thresholds','Mảnh lên Lv.1 / 2 / 3',v=>v.join(' / ')],['require','Cần thẻ'],['aura','Aura Lv.1 / 2 / 3',v=>v.map(a=>a<0?'—':`<img class="fx" onerror="this.remove()" src="/fx/aura/${a}" title="aura ${a}"> ${a}`).join(' · ')],
+   ['options','Chỉ số',v=>v.map(o=>`<span class="chip">Lv.${o.activeCard+1}: ${esc(o.text)}</span>`).join(''),'w']],x=>`<button class="s" onclick="editRadar(${x.id})">Sửa</button>`)}
+function editRadar(id){const x=_radar.find(r=>r.id===id);const m=modal(`<h3>${icon(x.icon)} ${esc(x.name)} <span class="mute">#${x.id}</span></h3><div class="grid2"><label class="f">Tên<input id="rn" value="${esc(x.name)}"></label><label class="f">Mô tả<input id="ri" value="${esc(x.info)}"></label></div>
+  <label class="f" style="margin-top:8px">Dòng chỉ số (JSON: id = mã chỉ số, param = giá trị, activeCard 0/1/2 = Lv.1/2/3)<textarea id="ro" style="min-height:160px">${esc(JSON.stringify(x.options.map(o=>({id:o.id,param:o.param,activeCard:o.activeCard})),null,1))}</textarea></label>
+  <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="rs">Lưu</button></div>`);
+  m.querySelector('#rs').onclick=()=>act(()=>api('radar/save',{id,name:$('#rn').value,info:$('#ri').value,options:$('#ro').value})).then(r=>{if(r){m.remove();page_radar()}})}
+
+/* ---------- danh hiệu ---------- */
+async function page_badges(){const r=await api('badges');window._bdg=r;
+  const ops=s=>{try{return JSON.parse(s).map(o=>`<span class="chip">${o.id}: ${o.param}</span>`).join('')}catch(e){return esc(s)}};
+  $('#main').innerHTML=`<h2>Danh hiệu</h2><div class="card mute">Hiệu ứng là ảnh danh hiệu trên đầu nhân vật. Chỉ số dạng [{"id":50,"param":10}] (mã chỉ số xem ở trang Vật phẩm → Tìm chỉ số).</div>`+
+  table(r,[['icon','',v=>icon(v)],['id','ID'],['name','Tên'],['effect','Hiệu ứng',v=>`<img class="fx" onerror="this.remove()" src="/fx/eff/${v}"> ${v}`],['item','Vật phẩm'],['options','Chỉ số',ops,'w'],['descr','Cách nhận','','w']],x=>`<button class="s" onclick="editBadge(${x.id})">Sửa</button>`)}
+function editBadge(id){const x=_bdg.find(r=>r.id===id);const m=modal(`<h3>${icon(x.icon)} ${esc(x.name)} <span class="mute">#${x.id}</span></h3><label class="f">Tên<input id="bn" value="${esc(x.name)}"></label>
+  <label class="f" style="margin-top:8px">Chỉ số (JSON)<textarea id="bo">${esc(x.options)}</textarea></label><div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="bs">Lưu</button></div>`);
+  m.querySelector('#bs').onclick=()=>act(()=>api('badge/save',{id,name:$('#bn').value,options:$('#bo').value})).then(r=>{if(r){m.remove();page_badges()}})}
+
+/* ---------- hiệu ứng & aura ---------- */
+async function page_fx(){const r=await api('fx');
+  $('#main').innerHTML=`<h2>Hiệu ứng & aura</h2><div class="card"><b>Đang dùng</b>${table(r.used,[['what','Dùng cho'],['kind','Loại'],['id','Mã',(v,x)=>`<img class="fx" onerror="this.remove()" src="/fx/${x.kind==='aura'?'aura':'eff'}/${v}"> ${v}`]])}</div>
+  <div class="tabs"><button class="on" id="t1">✨ Hiệu ứng (${r.effects.length})</button><button id="t2">🔥 Aura (${r.auras.length})</button><input id="fq" placeholder="Tìm mã" style="width:110px"></div><div id="fg"></div>`;
+  let kind='eff';const draw=()=>{const k=$('#fq').value.trim();const ids=(kind==='eff'?r.effects:r.auras).filter(i=>!k||String(i).includes(k));
+   $('#fg').innerHTML='<div class="gal">'+ids.map(i=>`<div><b>${kind==='eff'?'hiệu ứng':'aura'} ${i}</b><img loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'mute',textContent:'(chưa có ảnh)'}))" src="/fx/${kind}/${i}"></div>`).join('')+'</div>'};
+  $('#t1').onclick=()=>{kind='eff';$('#t1').classList.add('on');$('#t2').classList.remove('on');draw()};$('#t2').onclick=()=>{kind='aura';$('#t2').classList.add('on');$('#t1').classList.remove('on');draw()};$('#fq').oninput=draw;draw()}
 
 /* ---------- khởi động ---------- */
 api('me').then(()=>{$('#app').hidden=false;buildNav();route()}).catch(()=>{});

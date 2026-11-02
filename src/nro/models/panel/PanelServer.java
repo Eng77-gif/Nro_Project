@@ -110,6 +110,10 @@ public class PanelServer {
                 handleApi(ex, path.substring(5));
             } else if (path.startsWith("/icon/")) {
                 serveIcon(ex, path.substring(6));
+            } else if (path.startsWith("/fx/eff/")) {
+                serveFile(ex, "data/effect/x2/ImgEffect_" + path.substring(8).replaceAll("[^0-9]", "") + ".png");
+            } else if (path.startsWith("/fx/aura/")) {
+                serveAura(ex, path.substring(9).replaceAll("[^0-9]", ""));
             } else {
                 serveStatic(ex);
             }
@@ -206,6 +210,59 @@ public class PanelServer {
         }
         ex.getResponseHeaders().add("Cache-Control", "no-cache");
         sendText(ex, 200, "text/html; charset=utf-8", Files.readAllBytes(f.toPath()));
+    }
+
+    /** Khung đầu của aura (ảnh aura là dải nhiều khung xếp dọc; ghép lớp sau _0 và lớp trước _1). */
+    private void serveAura(HttpExchange ex, String id) throws IOException {
+        java.awt.image.BufferedImage out = null;
+        for (int k = 0; k <= 1; k++) {
+            File f = new File("data/img_by_name/x2/aura_" + id + "_" + k + ".png");
+            if (id.isEmpty() || !f.exists()) {
+                continue;
+            }
+            int n = 4;
+            try (java.sql.Connection con = nro.models.data.LocalManager.getConnection();
+                    java.sql.PreparedStatement ps = con.prepareStatement("select n_frame from img_by_name where NAME = ?")) {
+                ps.setString(1, "aura_" + id + "_" + k);
+                try (java.sql.ResultSet rs = ps.executeQuery()) {
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        n = rs.getInt(1);
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+            java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(f);
+            if (img == null) {
+                continue;
+            }
+            java.awt.image.BufferedImage fr = img.getHeight() >= img.getWidth()
+                    ? img.getSubimage(0, 0, img.getWidth(), Math.max(1, img.getHeight() / n))
+                    : img.getSubimage(0, 0, Math.max(1, img.getWidth() / n), img.getHeight());
+            if (out == null) {
+                out = new java.awt.image.BufferedImage(fr.getWidth(), fr.getHeight(), java.awt.image.BufferedImage.TYPE_INT_ARGB);
+            }
+            java.awt.Graphics2D g = out.createGraphics();
+            g.drawImage(fr, (out.getWidth() - fr.getWidth()) / 2, (out.getHeight() - fr.getHeight()) / 2, null);
+            g.dispose();
+        }
+        if (out == null) {
+            ex.sendResponseHeaders(404, -1);
+            return;
+        }
+        java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream();
+        javax.imageio.ImageIO.write(out, "png", bo);
+        ex.getResponseHeaders().add("Cache-Control", "max-age=86400");
+        sendText(ex, 200, "image/png", bo.toByteArray());
+    }
+
+    private void serveFile(HttpExchange ex, String path) throws IOException {
+        File f = new File(path);
+        if (f.exists() && f.isFile()) {
+            ex.getResponseHeaders().add("Cache-Control", "max-age=86400");
+            sendText(ex, 200, "image/png", Files.readAllBytes(f.toPath()));
+        } else {
+            ex.sendResponseHeaders(404, -1);
+        }
     }
 
     private void serveIcon(HttpExchange ex, String name) throws IOException {

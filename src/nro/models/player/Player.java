@@ -757,8 +757,8 @@ public class Player implements Runnable {
         short best = -1;
         int bestScore = -1;
         for (Card card : this.Cards) {
-            if (card == null || card.Level == 0) {
-                continue;
+            if (card == null || card.Level < 1) {
+                continue; // chưa đạt Lv.1
             }
             int lv = RadarService.displayLevel(card);
             short aura = RadarService.auraFor(card.Id, lv);

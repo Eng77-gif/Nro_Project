@@ -1552,6 +1552,22 @@ public class SeasonEventService implements Runnable {
         Service.gI().sendMoney(pl);
     }
 
+    /** Danh sách đua top cho panel. */
+    public List<java.util.Map<String, Object>> panelTops() {
+        List<java.util.Map<String, Object>> out = new ArrayList<>();
+        for (Top t : tops.values()) {
+            java.util.Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id", t.id);
+            m.put("season", t.season != null ? t.season.name : "");
+            m.put("name", topName(t));
+            m.put("active", t.season != null && t.season.active);
+            m.put("end", t.season != null && t.season.end != null ? t.season.end.toString() : "");
+            m.put("rewards", t.rewards.size());
+            out.add(m);
+        }
+        return out;
+    }
+
     public List<Top> currentTops() {
         Season s = current();
         return s == null ? new ArrayList<>() : s.tops;

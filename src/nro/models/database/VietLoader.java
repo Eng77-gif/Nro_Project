@@ -915,6 +915,7 @@ public class VietLoader {
             }
             dataArray.clear();
             nro.models.services.RadarService.mergeOozaru(player);
+            nro.models.services.RadarService.normalizeCards(player);
 
             //data PK Commeson
             player.lastPkCommesonTime = rs.getLong("lasttimepkcommeson");
