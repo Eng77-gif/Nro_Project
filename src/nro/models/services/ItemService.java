@@ -368,7 +368,8 @@ public class ItemService {
     }
 
     public Template.ItemTemplate getTemplate(int id) {
-        return Manager.ITEM_TEMPLATES.get(id);
+        // vật phẩm đã xóa (vd. thú cưỡi 2124 - 2127) không làm lỗi cả hành trang khi tải nhân vật
+        return id >= 0 && id < Manager.ITEM_TEMPLATES.size() ? Manager.ITEM_TEMPLATES.get(id) : null;
     }
 
     public int getPercentTrainArmor(Item item) {

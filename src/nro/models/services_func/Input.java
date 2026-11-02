@@ -101,6 +101,9 @@ public class Input {
                 text[i] = msg.reader().readUTF();
             }
             int typeInput = player.idMark.getTypeInput();
+            if (AdminTools.gI().doInput(player, typeInput, text)) {
+                return;
+            }
             switch (typeInput) {
                 case BOTITEM, BOTBOSS, BOTQUAI, BOTATTACKPLAYER, GIVE_IT, CHANGE_NAME, FIND_PLAYER -> {
                     // các form này chỉ dành cho admin

@@ -410,6 +410,10 @@ public class InventoryService {
             return;
         }
         Item item = player.inventory.itemsBag.get(index);
+        if (Event2026Service.gI().isFoot(item)) { // bóng mờ vào ô riêng, không chiếm ô pet
+            Event2026Service.gI().equipFoot(player, item);
+            return;
+        }
         if (item.isNotNullItem()) {
             int effTruoc = Service.gI().setEffectId(player);
             int spl10Truoc = SaoPhaLe10Service.effectId(player);
@@ -424,6 +428,10 @@ public class InventoryService {
     }
 
     public void itemBodyToBag(Player player, int index) {
+        if (!player.isPet && index == footSlot(player)) {
+            Event2026Service.gI().unequipFoot(player);
+            return;
+        }
         if (index < 0 || index >= player.inventory.itemsBody.size()) {
             return;
         }
@@ -625,14 +633,29 @@ public class InventoryService {
         }
     }
 
+    /** Các ô trang bị gửi cho client: ô trên người + ô bóng mờ (bóng bước chân) ở cuối. */
+    public List<Item> bodyForClient(Player player) {
+        List<Item> list = new ArrayList<>(player.inventory.itemsBody);
+        if (!player.isPet) {
+            list.add(player.itemFoot != null && player.itemFoot.isNotNullItem() ? player.itemFoot : ItemService.gI().createItemNull());
+        }
+        return list;
+    }
+
+    /** Vị trí ô bóng mờ trong danh sách trang bị client thấy. */
+    public static int footSlot(Player player) {
+        return player.inventory.itemsBody.size();
+    }
+
     public void sendItemBody(Player player) {
         Message msg;
         try {
             msg = new Message(-37);
             msg.writer().writeByte(0);
             msg.writer().writeShort(player.getHead());
-            msg.writer().writeByte(player.inventory.itemsBody.size());
-            for (Item item : player.inventory.itemsBody) {
+            List<Item> body = bodyForClient(player);
+            msg.writer().writeByte(body.size());
+            for (Item item : body) {
                 if (!item.isNotNullItem()) {
                     msg.writer().writeShort(-1);
                 } else {

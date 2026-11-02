@@ -253,7 +253,11 @@ public class Player implements Runnable {
     public int thoiVangVoDaiSinhTu;
 
     // dữ liệu bảng player_extra
-    public Item itemFoot; // ô bóng bước chân (chỉ server tính chỉ số)
+    public Item itemFoot; // ô bóng bước chân (hiện ở ô cuối của trang bị)
+    public int trailEff = -1; // vệt bóng mờ đang hiện (chỉ khi chạy / bay)
+    public int trailDir = 1;
+    public long trailLastMove;
+    public Object trailZone;
     public java.util.List<Item> itemsCollection; // Rương sưu tập (NPC Rương Sưu Tầm)
     public boolean collectionOpen; // đang mở Rương sưu tập: thao tác rương áp lên itemsCollection
     public int qlPoints; // điểm đua top tặng bộ ngọc rồng cho Quy Lão
@@ -456,6 +460,9 @@ public class Player implements Runnable {
         if (!this.beforeDispose) {
             try {
                 if (this.zone != null || (!this.isPl() && this.zone == null)) {
+                    if (this.trailEff >= 0) {
+                        nro.models.services.Event2026Service.updateTrail(this);
+                    }
                     if (itemTime != null) {
                         itemTime.update();
                     }

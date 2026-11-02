@@ -112,6 +112,9 @@ public class PanelServer {
                 serveIcon(ex, path.substring(6));
             } else if (path.startsWith("/fx/eff/")) {
                 serveFile(ex, "data/effect/x2/ImgEffect_" + path.substring(8).replaceAll("[^0-9]", "") + ".png");
+            } else if (path.startsWith("/mount/")) { // ảnh thú cưỡi mount_{part}_{0|1}
+                String[] a = path.substring(7).split("/");
+                serveFile(ex, "data/img_by_name/x2/mount_" + a[0].replaceAll("[^0-9]", "") + "_" + (a.length > 1 && a[1].equals("1") ? 1 : 0) + ".png");
             } else if (path.startsWith("/fx/aura/")) {
                 serveAura(ex, path.substring(9).replaceAll("[^0-9]", ""));
             } else {

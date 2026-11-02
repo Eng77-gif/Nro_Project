@@ -133,6 +133,12 @@ class PanelApi {
             case "tops" -> tops(str(q.getOrDefault("kind", "power")));
             case "clans" -> rows("select id, NAME name, slogan, power_point, max_member, clan_point, LEVEL level, create_time from clan order by power_point desc limit 300");
             case "kygui" -> rows("select k.id, k.player_id, p.name player, k.item_id, t.name, t.icon_id, k.gold, k.gem, k.quantity, k.isBuy from shop_ky_gui k left join player p on p.id=k.player_id left join item_template t on t.id=k.item_id order by k.id desc limit 300");
+            case "flags" -> PanelLooks.flags();
+            case "flag/save" -> PanelLooks.flagSave(b);
+            case "flag/assign" -> PanelLooks.flagAssign(b);
+            case "mounts" -> PanelLooks.mounts();
+            case "dataver" -> PanelLooks.dataVersion();
+            case "dataver/bump" -> PanelLooks.bumpItemVersion();
             default -> throw new IllegalArgumentException("Không có API " + r);
         };
     }

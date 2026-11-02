@@ -1491,3 +1491,16 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Client Android DragonBoy249 (bản chính thức 2.4.8, Java thường, không mã hoá) sửa IP sang 160.191.243.165:14445 (cả 2 danh sách máy chủ trong classes.dex), đổi đuôi phiên bản gửi lên thành 2.4.9 rồi ký lại APK (v1 + v2, khoá mới).
 - Server nhận client phiên bản 2.4.9 dùng giao thức số lớn (long) như J2ME 2.4.x, để HP / KI / SĐ / vàng hiển thị đúng với giới hạn mới của Đợt 75.
 - Đối chiếu bytecode client DragonBoy249 với server: mọi gói server gửi (chỉ số long, dòng chỉ số đồ short/int, id short, dữ liệu item 1 gói) và gói client gửi lên đều khớp chế độ long, không cần nhánh riêng. Thêm tools/client-db249 (đổi IP + ký lại APK, ghi chú giao thức).
+
+## Đợt 77
+- Đeo lưng hiện nhầm hình Ngọc Rồng Super: Cánh thiên thần sa ngã, bản đệ tử và Cánh hào khí trỏ vào cờ 154 - 156 (NR Super 5 - 7 sao). Tạo cờ riêng 176 - 178 đúng khung hình cánh. Sửa thêm Diều rồng băng (đang dùng hình Rìu Sơn Tinh, nay cờ 179) và Cá Koi zombie (đang dùng hình rồng hồng).
+- Bóng mờ:
+  - Hiện ở ô cuối danh sách trang bị (sau ô Sách tuyệt kỹ). Bấm "Mặc" từ hành trang là vào ô này (trước đây có thể vào nhầm ô pet), bấm vào ô để tháo ra.
+  - Đứng im không có hiệu ứng; chạy / bay mới có vệt kéo theo sau lưng, đúng hướng di chuyển (hiệu ứng 1201 - 1212). Dừng khoảng 0,75 giây thì tắt.
+- Ván bay / thú cưỡi mới làm lỗi hành trang:
+  - Phiên bản dữ liệu item (vsItem) tự tăng khi bảng vật phẩm đổi (lưu ở bảng data_version), lần chạy này tăng lên 26 để mọi client tải lại danh sách item. Trước đây phải sửa tay, quên tăng thì client giữ danh sách cũ và gặp vật phẩm mới (Kỳ Lân, Đại bàng đất sét nổ...) là lỗi hành trang.
+  - Vật phẩm đã xóa khỏi item_template (thú cưỡi 2124 - 2127) còn trong hành trang / rương không còn làm lỗi tải nhân vật, được bỏ đi.
+  - Nạp item_template theo thứ tự mã (ORDER BY id).
+- Panel: thêm trang "Đeo lưng & thú cưỡi" (xem khung hình, vật phẩm dùng cờ nào, cảnh báo trùng khung / thiếu icon, sửa khung, gán cờ khác; kiểm tra ảnh thú cưỡi; xem phiên bản item và nút buộc client tải lại) và trang "Lệnh admin trong game".
+- Admin trong game: menu "a" thêm "Công cụ admin": thông báo toàn server, tặng vàng / ngọc / hồng ngọc, hồi đầy HP KI, dịch chuyển map, danh sách online, đổi EXP server, nạp lại dữ liệu (cửa hàng, chỉ số, thưởng boss, hộp quà, sự kiện), khóa / mở khóa tài khoản theo tên (cả khi offline). Mọi thao tác ghi log [ADMIN].
+- Sửa nút "Ban" trong game: trước đây ghi ban = 0 (không khóa thật), nay ghi ban = 1.

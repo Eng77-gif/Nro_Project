@@ -325,6 +325,9 @@ public class NpcFactory {
         new Npc(-1, -1, -1, -1, ConstNpc.CON_MEO, 351) {
             @Override
             public void confirmMenu(Player player, int select) {
+                if (nro.models.services_func.AdminTools.gI().confirmMenu(player, player.idMark.getIndexMenu(), select)) {
+                    return;
+                }
                 if (nro.models.services.shenron.RongXuong.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
                     return;
                 }
@@ -526,6 +529,8 @@ public class NpcFactory {
                                 Input.gI().createFormFindPlayer(player);
                             case 4 ->
                                 BossManager.gI().showListBoss(player);
+                            case 5 ->
+                                nro.models.services_func.AdminTools.gI().showMain(player);
                         }
                     }
                     case ConstNpc.CONFIRM_DISSOLUTION_CLAN -> {

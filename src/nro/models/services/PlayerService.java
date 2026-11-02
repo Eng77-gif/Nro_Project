@@ -156,9 +156,11 @@ public class PlayerService {
             if (player.effectSkill.useTroi) {
                 EffectSkillService.gI().removeUseTroi(player);
             }
+            int oldX = player.location.x, oldY = player.location.y;
             player.location.x = x;
             player.location.y = y;
             player.location.lastTimeplayerMove = System.currentTimeMillis();
+            Event2026Service.onMove(player, oldX, oldY, x, y); // vệt bóng mờ khi chạy / bay
             switch (player.zone.map.mapId) {
                 case 85:
                 case 86:
@@ -251,7 +253,7 @@ public class PlayerService {
 
     public void banPlayer(Player playerBaned) {
         try {
-            LocalManager.executeUpdate("update account set ban = 0 where id = ? and username = ?",
+            LocalManager.executeUpdate("update account set ban = 1 where id = ? and username = ?", // 1 = khóa (VietLoader chặn đăng nhập khi ban = 1)
                     playerBaned.getSession().userId, playerBaned.getSession().uu);
         } catch (Exception e) {
         }

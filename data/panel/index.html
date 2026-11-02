@@ -150,7 +150,7 @@ function modal(html){const m=document.createElement('div');m.className='modal';m
 const PAGES=[
  ['g','Máy chủ'],['dash','Tổng quan','📊'],['notify','Thông báo & quà','📣'],['maint','Bảo trì & lưu','🛠'],['logs','Nhật ký console','🖥'],['audit','Nhật ký thao tác','📝'],['config','Cấu hình','⚙'],
  ['g','Người chơi'],['players','Người chơi','👤'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],
- ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],
+ ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],['looks','Đeo lưng & thú cưỡi','🪽'],['admin','Lệnh admin trong game','🧙'],
  ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['bossrw','Thưởng boss','💰'],['mobs','Quái','🐗'],
  ['g','Khác'],['db','Database','🗄'],['health','Kiểm tra dữ liệu','🩺'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
 function buildNav(){if(innerWidth<760)$('#nav').classList.add('hide');let h='<h1>🐉<span>Panel NRO<small>chữ ký: Việt</small></span></h1>',open=false;
@@ -416,6 +416,31 @@ async function page_fx(){const r=await api('fx');
   let kind='eff';const draw=()=>{const k=$('#fq').value.trim();const ids=(kind==='eff'?r.effects:r.auras).filter(i=>!k||String(i).includes(k));
    $('#fg').innerHTML='<div class="gal">'+ids.map(i=>`<div><b>${kind==='eff'?'hiệu ứng':'aura'} ${i}</b><img loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'mute',textContent:'(chưa có ảnh)'}))" src="/fx/${kind}/${i}"></div>`).join('')+'</div>'};
   $('#t1').onclick=()=>{kind='eff';$('#t1').classList.add('on');$('#t2').classList.remove('on');draw()};$('#t2').onclick=()=>{kind='aura';$('#t2').classList.add('on');$('#t1').classList.remove('on');draw()};$('#fq').oninput=draw;draw()}
+
+/* ---------- đeo lưng & thú cưỡi ---------- */
+async function page_looks(){const [f,m,v]=await Promise.all([api('flags'),api('mounts'),api('dataver')]);
+  const bad=f.filter(x=>x.warn&&x.items.length).length,mbad=m.filter(x=>x.warn).length;
+  $('#main').innerHTML=`<h2>Đeo lưng & thú cưỡi</h2>
+  <div class="card row" style="flex-wrap:wrap"><span>Phiên bản dữ liệu item: <b>${v.vsItem}</b> (${fmt(v.items)} vật phẩm) · tự tăng khi vật phẩm đổi</span><span class="sp"></span><button onclick="act(()=>api('dataver/bump',{}))">Buộc client tải lại item</button></div>
+  <div class="tabs"><button class="on" id="lt1">🪽 Đeo lưng (${f.length}${bad?`, <span class="tag bad1">${bad} cảnh báo</span>`:''})</button><button id="lt2">🐉 Thú cưỡi (${m.length}${mbad?`, ${mbad} cảnh báo`:''})</button><input id="lq" placeholder="Tìm tên / mã" style="width:150px"><label><input type="checkbox" id="lw"> chỉ cảnh báo</label></div><div id="lg"></div>`;
+  let tab=1;const draw=()=>{const k=$('#lq').value.trim().toLowerCase(),w=$('#lw').checked;
+   if(tab===1){const rows=f.filter(x=>(!w||x.warn)&&(!k||String(x.id).includes(k)||x.items.some(i=>i.name.toLowerCase().includes(k)||String(i.id).includes(k))));
+    $('#lg').innerHTML=table(rows,[['id','Cờ'],['frames','Khung hình',v=>v?v.split(',').slice(0,8).map(i=>icon(+i)).join(''):'<span class="mute">—</span>'],['items','Vật phẩm dùng',v=>v.map(i=>`${icon(i.icon)} ${esc(i.name)} <span class="mute">#${i.id}</span>`).join('<br>')||'<span class="mute">không có</span>'],['warn','Cảnh báo',v=>v?`<span class="tag bad1">${esc(v)}</span>`:'']],
+     r=>`<button onclick="editFlag(${r.id},'${esc(r.frames)}')">Sửa khung</button>${r.items.length?`<button onclick="assignFlag(${r.items[0].id},${r.id})">Gán cờ khác</button>`:''}`)}
+   else{const rows=m.filter(x=>(!w||x.warn)&&(!k||String(x.id).includes(k)||x.name.toLowerCase().includes(k)));
+    $('#lg').innerHTML=table(rows,[['id','Mã'],['name','Tên',(v,r)=>`${icon(r.icon)} ${esc(v)}`],['part','Ảnh',(v,r)=>v>=0?`<img style="height:70px" loading="lazy" src="/mount/${v}/0" onerror="this.remove()"><img style="height:70px" loading="lazy" src="/mount/${v}/1" onerror="this.remove()"> <span class="mute">${v} · khung ${esc(r.frames)}</span>`:'<span class="mute">—</span>'],['warn','Cảnh báo',v=>v?`<span class="tag bad1">${esc(v)}</span>`:'']])}};
+  $('#lt1').onclick=()=>{tab=1;$('#lt1').classList.add('on');$('#lt2').classList.remove('on');draw()};$('#lt2').onclick=()=>{tab=2;$('#lt2').classList.add('on');$('#lt1').classList.remove('on');draw()};$('#lq').oninput=draw;$('#lw').onchange=draw;draw()}
+function editFlag(id,frames){const m=modal(`<h3>Khung hình cờ ${id}</h3><p class="mute">Mã icon cách nhau bởi dấu phẩy, theo thứ tự hoạt ảnh.</p><textarea id="ff" rows="3" style="width:100%">${esc(frames)}</textarea><div id="fp" class="row"></div><div class="row"><button class="p" id="fs">Lưu</button><button onclick="this.closest('.modal').remove()">Đóng</button></div>`);
+  const pv=()=>m.querySelector('#fp').innerHTML=m.querySelector('#ff').value.split(/[,\s]+/).filter(Boolean).map(i=>icon(+i)).join('');m.querySelector('#ff').oninput=pv;pv();
+  m.querySelector('#fs').onclick=async()=>{if(await act(()=>api('flag/save',{id,frames:m.querySelector('#ff').value}))){m.remove();page_looks()}}}
+function assignFlag(item,cur){const m=modal(`<h3>Gán cờ cho vật phẩm #${item}</h3><div class="row"><input id="fi" type="number" value="${item}" style="width:110px" placeholder="Mã vật phẩm"><input id="fl" type="number" value="${cur}" style="width:110px" placeholder="Mã cờ"><button class="p" id="fa">Gán</button><button onclick="this.closest('.modal').remove()">Đóng</button></div>`);
+  m.querySelector('#fa').onclick=async()=>{if(await act(()=>api('flag/assign',{item:+m.querySelector('#fi').value,flag:+m.querySelector('#fl').value}))){m.remove();page_looks()}}}
+
+/* ---------- lệnh admin trong game ---------- */
+async function page_admin(){const L=[['a','Menu admin: ngọc rồng, đệ tử, bảo trì, tìm người chơi, boss, công cụ admin'],['a → Công cụ admin','Thông báo toàn server, tặng vàng / ngọc / hồng ngọc, hồi đầy HP KI, dịch chuyển map, danh sách online, chỉnh EXP server, nạp lại dữ liệu, khóa / mở khóa tài khoản (cả khi offline)'],
+  ['item','Tặng vật phẩm cho người chơi (tên, id, option, param, số lượng)'],['getitem','Lấy vật phẩm cho bản thân'],['m [mã map]','Dịch chuyển tới map'],['goiboss [BossID]','Gọi boss'],['den boss [tên]','Tới chỗ boss'],['giet boss','Hạ mọi boss trong khu'],
+  ['hs','Hồi chiêu'],['sukien ...','Lệnh sự kiện mùa'],['chottopql / chottophdba','Chốt top đua sự kiện'],['toado','Xem tọa độ'],['brl','Danh sách Broly']];
+  $('#main').innerHTML=`<h2>Lệnh admin trong game</h2><div class="card">Gõ ở khung chat khi đăng nhập tài khoản admin (is_admin = 1).</div>`+table(L.map(x=>({c:x[0],d:x[1]})),[['c','Lệnh',v=>`<code>${esc(v)}</code>`],['d','Tác dụng']])}
 
 /* ---------- cửa hàng sự kiện (season_event_exchange) ---------- */
 async function page_evshop(){const ev=await api('seasons');

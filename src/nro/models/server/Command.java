@@ -68,7 +68,7 @@ public class Command {
                 + "\n Sessions: " + SessionManager.gI().getNumSession()
                 + "\nThreads: " + Thread.activeCount()
                 + " luồng" + "\n" + SystemMetrics.ToString(),
-                "Ngọc rồng", "Đệ tử", "Bảo trì", "Tìm kiếm\nngười chơi", "Boss", "Đóng"));
+                "Ngọc rồng", "Đệ tử", "Bảo trì", "Tìm kiếm\nngười chơi", "Boss", "Công cụ\nadmin", "Đóng"));
     }
 
     private void initParameterizedCommands() {

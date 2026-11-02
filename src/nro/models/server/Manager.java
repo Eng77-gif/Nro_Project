@@ -324,6 +324,7 @@ public final class Manager {
             nro.models.database.Dot48Migration.run(ConnectionDatabase);
             nro.models.database.Dot52Migration.run(ConnectionDatabase);
             nro.models.database.Dot56Migration.run(ConnectionDatabase);
+            nro.models.database.Dot77Migration.run(ConnectionDatabase);
             //load part
             ps = ConnectionDatabase.prepareStatement("select * from part");
             rs = ps.executeQuery();
@@ -667,7 +668,7 @@ public final class Manager {
 
             try {
                 while (true) {
-                    ps = ConnectionDatabase.prepareStatement("SELECT * FROM item_template LIMIT ? OFFSET ?");
+                    ps = ConnectionDatabase.prepareStatement("SELECT * FROM item_template ORDER BY id LIMIT ? OFFSET ?");
                     ps.setInt(1, batchSize);
                     ps.setInt(2, offset);
                     rs = ps.executeQuery();
@@ -728,6 +729,7 @@ public final class Manager {
                 ITEM_OPTION_TEMPLATES.add(optionTemp);
             }
             nro.models.item.OptionIdMap.build(ITEM_OPTION_TEMPLATES);
+            nro.models.data.DataVersionService.syncItemVersion(ConnectionDatabase);
             Logger.success(Logger.PURPLE + "Successfully loaded map item option template (" + ITEM_OPTION_TEMPLATES.size() + ")\n");
 
             //load shop

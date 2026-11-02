@@ -53,18 +53,75 @@ public class Event2026Service {
         return FOOT_EFFECT.getOrDefault((int) f.template.id, -1);
     }
 
+    /** Vệt bóng mờ khi chạy / bay: hiệu ứng 1201 + 2k (đi sang phải, vệt kéo về bên trái) và 1202 + 2k (sang trái). */
+    private static final int[] TRAIL_BASE = {508, 509, 513, 514, 518, 519};
+    /** Không nhận vị trí mới quá thời gian này coi như đứng im, tắt vệt. Client gửi vị trí khoảng 0,3 - 0,6 giây / lần khi chạy. */
+    private static final long TRAIL_IDLE_MS = 750;
+
+    private static int trailEffect(int base, int dir) {
+        for (int k = 0; k < TRAIL_BASE.length; k++) {
+            if (TRAIL_BASE[k] == base) {
+                return 1201 + 2 * k + (dir < 0 ? 1 : 0);
+            }
+        }
+        return -1;
+    }
+
+    /** Đổi bóng mờ: tắt vệt đang hiện (vệt mới bật ở lần di chuyển sau). */
     private static void refreshFootEffect(Player pl, int before) {
-        int now = footEffectId(pl);
-        if (now == before || pl.zone == null) {
-            return;
-        }
-        if (before >= 0) {
-            Service.gI().removeEffPlayer(pl, before);
-        }
-        if (now >= 0) {
-            Service.gI().sendEffAllPlayer(pl, now, 1, -1, 1);
+        stopTrail(pl);
+        if (before >= 0 && pl.zone != null) {
+            Service.gI().removeEffPlayer(pl, before); // hiệu ứng luôn hiện của bản cũ
         }
     }
+
+    /** Gọi khi người chơi gửi vị trí mới. */
+    public static void onMove(Player pl, int oldX, int oldY, int x, int y) {
+        if (pl == null || pl.isPet || pl.isBot || pl.zone == null || (oldX == x && oldY == y)) {
+            return;
+        }
+        int eff = trailEffect(footEffectId(pl), x > oldX ? 1 : x < oldX ? -1 : pl.trailDir);
+        if (eff < 0) {
+            stopTrail(pl);
+            return;
+        }
+        if (x != oldX) {
+            pl.trailDir = x > oldX ? 1 : -1;
+        }
+        pl.trailLastMove = System.currentTimeMillis();
+        if (pl.trailEff == eff && pl.trailZone == pl.zone) {
+            return;
+        }
+        if (pl.trailEff >= 0 && pl.trailZone == pl.zone) {
+            Service.gI().removeEffPlayer(pl, pl.trailEff);
+        }
+        pl.trailEff = eff;
+        pl.trailZone = pl.zone;
+        Service.gI().sendEffAllPlayer(pl, eff, 0, -1, 1, 1); // sau lưng, hiện cả khi chạy / bay
+    }
+
+    /** Gọi trong vòng cập nhật người chơi: đứng im thì tắt vệt. */
+    public static void updateTrail(Player pl) {
+        if (pl.trailEff >= 0 && System.currentTimeMillis() - pl.trailLastMove > TRAIL_IDLE_MS) {
+            stopTrail(pl);
+        }
+    }
+
+    public static void stopTrail(Player pl) {
+        if (pl.trailEff >= 0) {
+            if (pl.zone != null && pl.trailZone == pl.zone) {
+                Service.gI().removeEffPlayer(pl, pl.trailEff);
+            }
+            pl.trailEff = -1;
+            pl.trailZone = null;
+        }
+    }
+
+    /** Người mới vào map thấy vệt của người đang chạy. */
+    public static int currentTrail(Player pl) {
+        return pl.trailEff >= 0 && pl.trailZone == pl.zone ? pl.trailEff : -1;
+    }
+
     /** Hộp ra vật phẩm chỉ số tối đa: Trứng Xên Vàng */
     public static final Set<Integer> MAX_STAT_BOXES = Set.of(2084);
     public static final int VAN_RONG_7_SAO = 2100;
@@ -96,11 +153,12 @@ public class Event2026Service {
         pl.itemFoot = item;
         pl.inventory.itemsBag.set(index, old != null && old.isNotNullItem() ? old : ItemService.gI().createItemNull());
         InventoryService.gI().sendItemBags(pl);
+        InventoryService.gI().sendItemBody(pl); // ô bóng mờ cuối danh sách trang bị
         Service.gI().point(pl);
         refreshFootEffect(pl, effTruoc);
         Service.gI().refreshEffect(pl, spl10Truoc, SaoPhaLe10Service.effectId(pl));
         Service.gI().sendThongBao(pl, "Đã mang " + item.template.name + (old != null ? ", tháo " + old.template.name + " về hành trang" : "")
-                + ". Chat \"thao buoc chan\" để tháo ra");
+                + ". Bấm vào ô bóng mờ (ô cuối trang bị) để tháo ra");
     }
 
     public void unequipFoot(Player pl) {
@@ -118,6 +176,7 @@ public class Event2026Service {
         pl.itemFoot = null;
         InventoryService.gI().addItemBag(pl, foot);
         InventoryService.gI().sendItemBags(pl);
+        InventoryService.gI().sendItemBody(pl);
         Service.gI().point(pl);
         refreshFootEffect(pl, effTruoc);
         Service.gI().refreshEffect(pl, spl10Truoc, SaoPhaLe10Service.effectId(pl));

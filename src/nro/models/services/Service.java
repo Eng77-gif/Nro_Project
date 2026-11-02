@@ -852,7 +852,7 @@ public class Service {
             }
             msg.writer().writeInt(pl.inventory.ruby);
             msg.writer().writeInt(pl.inventory.gem);
-            ArrayList<Item> itemsBody = (ArrayList<Item>) pl.inventory.itemsBody;
+            List<Item> itemsBody = InventoryService.gI().bodyForClient(pl); // + ô bóng mờ cuối
             msg.writer().writeByte(itemsBody.size());
             for (Item item : itemsBody) {
                 if (!item.isNotNullItem()) {
@@ -1975,6 +1975,10 @@ public class Service {
     }
 
     public void sendEffPlayer(Player pl, Player plReceive, int idEff, int layer, int loop, int loopCount) {
+        sendEffPlayerStand(pl, plReceive, idEff, layer, loop, loopCount, 0);
+    }
+
+    public void sendEffPlayerStand(Player pl, Player plReceive, int idEff, int layer, int loop, int loopCount, int isStand) {
         Message msg = null;
         try {
             msg = new Message(-128);
@@ -1984,7 +1988,7 @@ public class Service {
             msg.writer().writeByte(layer);
             msg.writer().writeByte(loop);
             msg.writer().writeShort(loopCount);
-            msg.writer().writeByte(0);
+            msg.writer().writeByte(isStand);
             plReceive.sendMessage(msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -2000,6 +2004,11 @@ public class Service {
     }
 
     public void sendEffAllPlayer(Player pl, int idEff, int layer, int loop, int loopCount) {
+        sendEffAllPlayer(pl, idEff, layer, loop, loopCount, 0);
+    }
+
+    /** isStand 0: client chỉ vẽ khi đứng im; 1: vẽ cả khi chạy / bay. */
+    public void sendEffAllPlayer(Player pl, int idEff, int layer, int loop, int loopCount, int isStand) {
         try {
             Message msg = new Message(-128);
             msg.writer().writeByte(0);
@@ -2008,7 +2017,7 @@ public class Service {
             msg.writer().writeByte(layer);
             msg.writer().writeByte(loop);
             msg.writer().writeShort(loopCount);
-            msg.writer().writeByte(0);
+            msg.writer().writeByte(isStand);
             sendMessAllPlayerInMap(pl.zone, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -2102,10 +2111,7 @@ public class Service {
         if (eff >= 0) {
             sendEffAllPlayer(pl, eff, 1, -1, 1);
         }
-        int foot = Event2026Service.footEffectId(pl); // bóng mờ
-        if (foot >= 0) {
-            sendEffAllPlayer(pl, foot, 1, -1, 1);
-        }
+        // bóng mờ: chỉ hiện vệt khi chạy / bay (Event2026Service.onMove)
         int spl10 = SaoPhaLe10Service.effectId(pl); // hào quang chân Sao Pha Lê 10
         if (spl10 >= 0) {
             sendEffAllPlayer(pl, spl10, 1, -1, 1);
@@ -2121,9 +2127,9 @@ public class Service {
                     if (eff >= 0) {
                         sendEffPlayer(plM, pl, eff, 1, -1, 1);
                     }
-                    int foot = Event2026Service.footEffectId(plM);
-                    if (foot >= 0) {
-                        sendEffPlayer(plM, pl, foot, 1, -1, 1);
+                    int trail = Event2026Service.currentTrail(plM); // vệt bóng mờ của người đang chạy
+                    if (trail >= 0) {
+                        sendEffPlayerStand(plM, pl, trail, 0, -1, 1, 1);
                     }
                     int spl10 = SaoPhaLe10Service.effectId(plM);
                     if (spl10 >= 0) {

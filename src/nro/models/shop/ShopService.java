@@ -1067,6 +1067,10 @@ public class ShopService {
     public void showConfirmSellItem(Player pl, int where, int index) {
         Item item = null;
         if (where == 0) {
+            if (index == pl.inventory.itemsBody.size() && pl.itemFoot != null) {
+                Service.gI().sendThongBao(pl, "Tháo bóng mờ ra hành trang trước khi bán");
+                return;
+            }
             if (index < 0 || index >= pl.inventory.itemsBody.size()) {
                 Service.gI().sendThongBao(pl, "Không thể thực hiện");
                 return;
@@ -1074,7 +1078,7 @@ public class ShopService {
             item = pl.inventory.itemsBody.get(index);
         } else {
             if (pl.getSession().version < 220) {
-                index -= (pl.inventory.itemsBody.size() - 7);
+                index -= (pl.inventory.itemsBody.size() + 1 - 7); // + ô bóng mờ
             }
             if (index < 0 || index >= pl.inventory.itemsBag.size()) {
                 Service.gI().sendThongBao(pl, "Không thể thực hiện");
