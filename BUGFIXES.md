@@ -1190,3 +1190,9 @@ Dùng vật phẩm danh hiệu trong hành trang để kích hoạt (theo hạn 
 
 ### Chưa làm
 Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Thỏ Đại Ca / Meowth (Trung Thu), Rồng nhí 1 – 7 sao (Giỗ tổ). Chúng dùng hệ boss riêng của V10, sẽ làm khi gần tới các sự kiện đó.
+
+## Đợt 49: Lỗi NullPointerException khi mở hộp quà sự kiện
+- Log: `NullPointerException: Cannot read field "name" because "<parameter2>.template" is null` tại `Event2026Service.openBox` (dòng 151).
+- **Nguyên nhân:** mở hộp cuối cùng thì `subQuantityItemsBag` xóa hộp khỏi hành trang (template = null), sau đó thông báo lại đọc `box.template.name`.
+- Quà vẫn được cộng, chỉ có thông báo lỗi và log dài.
+- **Sửa:** lấy tên hộp trước khi trừ số lượng.

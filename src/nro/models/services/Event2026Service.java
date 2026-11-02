@@ -144,11 +144,12 @@ public class Event2026Service {
             Service.gI().sendThongBao(pl, "Hành trang không còn chỗ trống");
             return;
         }
+        String boxName = box.template.name; // hộp cuối bị xóa (template = null) khi trừ số lượng
         String got = openBoxById(pl, box.template.id);
         if (got != null) {
             InventoryService.gI().subQuantityItemsBag(pl, box, 1);
             InventoryService.gI().sendItemBags(pl);
-            Service.gI().sendThongBao(pl, "Mở " + box.template.name + " nhận được " + got);
+            Service.gI().sendThongBao(pl, "Mở " + boxName + " nhận được " + got);
         }
     }
 
