@@ -623,6 +623,15 @@ public class Mob {
         return itemReward;
     }
 
+    /**
+     * Hệ số may mắn (option 236) cho tỉ lệ rơi đồ hiếm: +1% may mắn = +1% tỉ lệ, tối đa +200%.
+     * Trước đây chỉ đếm đồ đang mặc (bỏ sót bóng mờ, danh hiệu, thẻ) và công thức (p/100)^1.5*20 làm 10% may mắn chỉ còn +0,6%.
+     */
+    public static double luckFactor(Player player) {
+        int luck = player.nPoint == null ? 0 : Math.max(0, Math.min(200, player.nPoint.tlMayMan));
+        return 1 + luck / 100.0;
+    }
+
     public List<ItemMap> getItemMobReward(Player player, int x, int yEnd) {
         List<ItemMap> list = new ArrayList<>();
         if (player.isBoss) {
@@ -825,23 +834,7 @@ public class Mob {
             int baseTileDrop = 2;
             double tileDrop = baseTileDrop;
 
-            int totalOption236Param = 0;
-            for (Item item : player.inventory.itemsBody) {
-                if (item != null && item.itemOptions != null) {
-                    for (Item.ItemOption op : item.itemOptions) {
-                        if (op.optionTemplate.id == 236) {
-                            totalOption236Param += op.param;
-                        }
-                    }
-                }
-            }
-
-            if (totalOption236Param > 100) {
-                totalOption236Param = 100;
-            }
-
-            double percentFromOption236 = Math.pow(totalOption236Param / 100.0, 1.5) * 20.0; // max 20%
-            tileDrop *= (1 + percentFromOption236 / 100.0);
+            tileDrop *= luckFactor(player); // option 236: may mắn từ mọi nguồn
             tileDrop *= (1 + player.nPoint.tlRareMob / 100.0); // option 206: vật phẩm hiếm rơi từ quái
 
             if (player.itemTime.isUseCoBonLa) {
@@ -874,23 +867,7 @@ public class Mob {
             int baseTileDrop = 2;
             double tileDrop = baseTileDrop;
 
-            int totalOption236Param = 0;
-            for (Item item : player.inventory.itemsBody) {
-                if (item != null && item.itemOptions != null) {
-                    for (Item.ItemOption op : item.itemOptions) {
-                        if (op.optionTemplate.id == 236) {
-                            totalOption236Param += op.param;
-                        }
-                    }
-                }
-            }
-
-            if (totalOption236Param > 100) {
-                totalOption236Param = 100;
-            }
-
-            double percentFromOption236 = Math.pow(totalOption236Param / 100.0, 1.5) * 20.0; // max 20%
-            tileDrop *= (1 + percentFromOption236 / 100.0);
+            tileDrop *= luckFactor(player); // option 236: may mắn từ mọi nguồn
             tileDrop *= (1 + player.nPoint.tlRareMob / 100.0); // option 206: vật phẩm hiếm rơi từ quái
 
             if (player.itemTime.isUseCoBonLa) {
@@ -1060,12 +1037,18 @@ public class Mob {
                 list.add(it);
             }
         }
+        //======================== Ngục tù may mắn (Phiếu sao vàng may mắn) ========================
+        if (MapService.gI().isMapNgucTuMayMan(mapid) && Util.isTrue(50, 100)) {
+            int vang = Util.nextInt(300_000, 600_000);
+            vang = (int) Math.min(Integer.MAX_VALUE, vang * luckFactor(player));
+            list.add(new ItemMap(zone, 190, vang, x, yEnd, player.id));
+        }
         if (player.setClothes.checkSetDes() && MapService.gI().isMapNgucTu(mapid)) {
-            if ((player.isActive() && Util.isTrue(2, 555)) || Util.isTrue(10, 100)) {
+            if ((player.isActive() && Util.isTrue(2, 555)) || Util.isTrue((int) Math.round(10 * luckFactor(player)), 100)) {
                 list.add(new ItemMap(zone, Util.nextInt(1066, 1070), 1, x, yEnd, player.id));
             }
         }
-        if ((Util.isTrue(10, 100) || (player.isActive() && player.setClothes.checkSetDes() && Util.isTrue(20, 100))) && MapService.gI().isMapNgucTu(mapid)) {
+        if ((Util.isTrue((int) Math.round(10 * luckFactor(player)), 100) || (player.isActive() && player.setClothes.checkSetDes() && Util.isTrue(20, 100))) && MapService.gI().isMapNgucTu(mapid)) {
             list.add(new ItemMap(zone, 1229, 1, x, yEnd, player.id));
         }
 

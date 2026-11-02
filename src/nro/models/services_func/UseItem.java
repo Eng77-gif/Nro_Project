@@ -684,6 +684,9 @@ public class UseItem {
                             case 1825: // capule kich hoat
                                 UseItem.gI().MapRiengTu(pl, item);
                                 break;
+                            case 2021: // Phiếu sao vàng may mắn: vào Ngục tù may mắn
+                                UseItem.gI().useLuckyTicket(pl, item);
+                                break;
                             case 718: // vé tặng ngọc
                                 UseItem.gI().VeTangNgoc(pl, item);
                                 break;
@@ -2799,6 +2802,38 @@ public class UseItem {
 
     private void CapsuleKichHoat(Player pl, Item item) {
         NpcService.gI().createMenuConMeo(pl, item.template.id, -1, "Hãy chọn một món quà", "Áo", "Quần", "Găng", "Giày", "Rada");
+    }
+
+    /** Phiếu sao vàng may mắn: vào Ngục tù may mắn (bản sao Hành tinh ngục tù, vàng rơi nhiều) trong thời gian ghi trên phiếu. */
+    private void useLuckyTicket(Player pl, Item item) {
+        long now = System.currentTimeMillis();
+        if (pl.luckyMapUntil <= now) {
+            int minutes = 1440;
+            for (ItemOption io : item.itemOptions) {
+                if (io.optionTemplate != null && io.optionTemplate.id == 1 && io.param > 0) {
+                    minutes = io.param;
+                }
+            }
+            InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+            InventoryService.gI().sendItemBags(pl);
+            pl.luckyMapUntil = now + minutes * 60_000L;
+            nro.models.database.PlayerExtraDAO.save(pl);
+            Service.gI().sendThongBao(pl, "Được vào Ngục tù may mắn trong " + minutes + " phút. Dùng lại phiếu để quay lại map khi còn hạn");
+        }
+        if (pl.zone != null && nro.models.map.service.MapService.gI().isMapNgucTuMayMan(pl.zone.map.mapId)) {
+            Service.gI().sendThongBao(pl, "Còn " + Math.max(1, (pl.luckyMapUntil - now) / 60_000) + " phút ở Ngục tù may mắn");
+            return;
+        }
+        ChangeMapService.gI().changeMapBySpaceShip(pl, nro.models.map.service.MapService.MAP_NGUC_TU_MAY_MAN, -1, Util.nextInt(300, 700));
+    }
+
+    /** Hết hạn phiếu (hoặc vào map không có phiếu) thì đưa về nhà. */
+    public void checkLuckyMap(Player pl) {
+        if (pl.zone != null && nro.models.map.service.MapService.gI().isMapNgucTuMayMan(pl.zone.map.mapId)
+                && pl.luckyMapUntil <= System.currentTimeMillis() && !pl.isDie()) {
+            ChangeMapService.gI().changeMapBySpaceShip(pl, 21 + pl.gender, -1, 400);
+            Service.gI().sendThongBao(pl, "Phiếu sao vàng may mắn đã hết hạn");
+        }
     }
 
     private void MapRiengTu(Player pl, Item item) {

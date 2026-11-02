@@ -121,6 +121,7 @@ public final class Dot56Migration {
             changed += runDot61(con);
             changed += runDot62(con);
             changed += runDot63(con);
+            changed += runDot65(con);
         } catch (Exception ex) {
             Logger.error("Đợt 56 (Halloween): không cập nhật được database: " + ex.getMessage() + "\n");
         }
@@ -584,6 +585,51 @@ public final class Dot56Migration {
             changed += update(con, "insert into boss_reward (tier, item_id, qty_min, qty_max, rate) values (" + r[0] + ", " + r[1] + ", " + r[2] + ", " + r[3] + ", " + r[4] + ")");
         }
         changed += update(con, "insert into server_migration (name) values ('dot63_boss_drop')");
+        return changed;
+    }
+
+    /** Đợt 65: chỉ số theo ảnh shop Quy Lão "Đổi thưởng". {template, option, param từ, đến} */
+    private static final int[][] OPTIONS_65 = {
+        {1981, 50, 10, 10}, {1981, 0, 7000, 7000}, // Bư tập tạ
+        {2023, 100, 10, 10}, {2023, 236, 10, 10}, // Bóng mờ sao may mắn
+        {2022, 50, 8, 8}, {2022, 77, 8, 8}, {2022, 103, 8, 8}, {2022, 100, 15, 15}, {2022, 96, 15, 15}, {2022, 85, 0, 0}, // Ván bay sao băng
+        {2025, 50, 15, 15}, {2025, 77, 15, 15}, {2025, 103, 15, 15}, {2025, 100, 15, 15}, {2025, 95, 15, 15}, // Pet Mèo thần tài
+        {1711, 50, 8, 8}, {1711, 77, 8, 8}, {1711, 103, 8, 8}, {1711, 85, 0, 0}, {1711, 226, 5, 5}, {1711, 236, 10, 10}, // Cân Đẩu Vân Thơ Mộng
+        {1713, 50, 18, 18}, {1713, 77, 15, 15}, {1713, 103, 15, 15}, {1713, 226, 3, 3}, {1713, 236, 15, 15}, // Khủng Long Thơ Mộng
+        {1682, 50, 15, 15}, {1682, 77, 15, 15}, {1682, 103, 18, 18}, {1682, 236, 15, 15}, {1682, 253, 20, 20}, // Pet Hải Ly
+        {1698, 50, 26, 26}, {1698, 77, 25, 25}, {1698, 103, 25, 25}, {1698, 148, 45, 45}, {1698, 94, 15, 15}, {1698, 236, 15, 15}, // Urôn Trư Bát Giới
+        {1930, 50, 7, 7}, {1930, 77, 7, 7}, {1930, 103, 7, 7}, // Cánh thiên thần sa ngã (Đệ)
+        {1929, 50, 17, 17}, {1929, 77, 17, 17}, {1929, 103, 17, 17}, {1929, 148, 100, 100}, {1929, 10, 5, 10}, // Pet Ma tốc độ
+        {1724, 50, 8, 8}, {1724, 77, 10, 10}, {1724, 103, 8, 8}, {1724, 117, 3, 3}, {1724, 85, 0, 0}, // Ván bay Sọ Dừa
+        {1722, 50, 17, 17}, {1722, 77, 15, 15}, {1722, 103, 15, 15}, {1722, 5, 10, 10}, {1722, 94, 7, 7}, // Cánh Thiên thần - Ác quỷ
+        {1709, 50, 29, 29}, {1709, 77, 20, 20}, {1709, 103, 20, 20}, {1709, 8, 5, 5}, {1709, 5, 25, 25}, // CT Android 21 Evil
+        {1887, 50, 7, 7}, {1887, 77, 7, 7}, {1887, 103, 7, 7}, {1887, 97, 10, 10}, {1887, 204, 3, 3}, {1887, 84, 0, 0},}; // Ván bay cung trăng
+
+    /** Đợt 65: Ngục tù may mắn (map 187, bản sao Hành tinh ngục tù), cột hạn phiếu, chỉ số vật phẩm Quy Lão. */
+    private static int runDot65(Connection con) throws Exception {
+        int changed = 0;
+        if (!columnExists(con, "player_extra", "lucky_map_until")) {
+            changed += 1 + update(con, "alter table player_extra add column lucky_map_until bigint not null default 0");
+        }
+        if (!exists(con, "select 1 from map_template where id = 187")) {
+            changed += update(con, "insert into map_template (id, NAME, zones, max_player, data, type, planet_id, bg_type, tile_id, bg_id, waypoints, mobs, npcs, is_map_double) "
+                    + "select 187, 'Ngục tù may mắn', zones, max_player, data, type, planet_id, bg_type, tile_id, bg_id, waypoints, mobs, npcs, is_map_double from map_template where id = 155");
+        }
+        changed += update(con, "update item_template set description = 'Vào Ngục tù may mắn (vàng rơi nhiều) trong thời gian sử dụng' where id = 2021 and description = 'Vật phẩm sự kiện'");
+        if (exists(con, "select 1 from server_migration where name = 'dot65_items'")) {
+            return changed;
+        }
+        java.util.Set<Integer> done = new java.util.HashSet<>();
+        for (int[] o : OPTIONS_65) {
+            if (done.add(o[0])) {
+                changed += update(con, "delete from item_template_option where template_id = " + o[0]);
+            }
+            changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (" + o[0] + ", " + o[1] + ", " + o[2] + ", " + o[3] + ", 100, 0)");
+        }
+        if (!exists(con, "select 1 from item_template_option where template_id = 2021")) {
+            changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (2021, 1, 1440, 1440, 100, 0), (2021, 30, 1, 1, 100, 0)");
+        }
+        changed += update(con, "insert into server_migration (name) values ('dot65_items')");
         return changed;
     }
 

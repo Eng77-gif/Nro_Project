@@ -1432,3 +1432,9 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 
 ## Đợt 64
 - Boss "Broly Super" đổi tên thành "SSJ Broly". Quà giữ nguyên như cũ (vàng 100.000 - 2.000.000, Mảnh khỉ Oozaru, trang bị cấp 11 - 12...), không nhận quà theo bậc của BossRewardService.
+
+## Đợt 65
+- Phiếu sao vàng may mắn (2021): dùng để vào Ngục tù may mắn (map 187, bản sao Hành tinh ngục tù) trong thời gian ghi trên phiếu (1440 phút). Còn hạn dùng lại phiếu để quay lại (không mất phiếu); hết hạn tự đưa về nhà. Hạn lưu ở player_extra.lucky_map_until.
+- Ngục tù may mắn: quái rơi 300.000 - 600.000 vàng (50%), nhân theo may mắn; vẫn rơi đồ của Hành tinh ngục tù.
+- Option 236 "May mắn" trước đây gần như không có tác dụng: chỉ đếm đồ đang mặc (bỏ sót bóng mờ, danh hiệu, thẻ), chỉ dùng ở Map riêng tư / map đồ kích hoạt, và công thức làm 10% may mắn chỉ tăng 0,6% tỉ lệ. Giờ tính từ mọi nguồn (NPoint.tlMayMan), +1% may mắn = +1% tỉ lệ rơi đồ hiếm (tối đa +200%), áp dụng thêm cho đồ hiếm ở Ngục tù và vàng ở Ngục tù may mắn.
+- Chỉ số theo ảnh shop Quy Lão: Bư tập tạ, Bóng mờ sao may mắn, Ván bay sao băng, Pet Mèo thần tài, Cân Đẩu Vân / Khủng Long Thơ Mộng, Pet Hải Ly, CT Urôn Trư Bát Giới, Cánh thiên thần sa ngã (Đệ), Pet Ma tốc độ, Ván bay Sọ Dừa, Cánh Thiên thần - Ác quỷ, CT Android 21 Evil, Ván bay cung trăng.

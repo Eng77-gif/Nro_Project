@@ -218,6 +218,7 @@ public class NPoint {
     public int tlGiamHoiKhien; // option 183: giảm % thời gian hồi Khiên năng lượng
     public int tlGiamKhongChe; // option 227: giảm % thời gian bị khống chế khi đang dùng khiên
     public int tlRareMob, tlRareBoss; // option 206 / 207: +#% vật phẩm hiếm rơi từ quái / boss
+    public int tlMayMan; // option 236: +#% may mắn (từ mọi nguồn: đồ mặc, bóng mờ, danh hiệu, thẻ...)
     public int giamSTTD, giamSTNM, giamSTXD; // option 198 / 199 / 200: giảm #% sát thương từ tộc Trái Đất / Namếc / Xayda
     public int kiHoiKhiBiDanh; // option 4: hồi #% KI khi bị đánh
     public int phanDonCanChien; // option 15: phản # sát thương khi bị đánh cận chiến
@@ -852,6 +853,9 @@ public class NPoint {
                 break;
             case 169: //Đi cùng Pet Xên hoàn thiện tăng #% sát thương chí mạng
                 this.setSDCMWithXenHT += io.param;
+                break;
+            case 236: //+#% May mắn
+                this.tlMayMan += io.param;
                 break;
             case 206: //Vật phẩm hiếm rơi từ quái (+#%)
                 this.tlRareMob += io.param;
@@ -1765,6 +1769,7 @@ public class NPoint {
         this.tlNeCrit = 0;
         this.kiHoiKhiBiDanh = 0;
         this.tlRareMob = 0;
+        this.tlMayMan = 0;
         this.tlRareBoss = 0;
         this.giamSTTD = 0;
         this.giamSTNM = 0;

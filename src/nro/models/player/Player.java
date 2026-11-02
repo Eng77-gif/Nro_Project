@@ -266,6 +266,9 @@ public class Player implements Runnable {
     public int hdbaRewardRank; // hạng top mua Hộp đen bí ẩn đang chờ nhận quà
     // điều ước Rồng Xương (Halloween): hết hạn lúc (ms)
     public long hlwPetX3Until, hlwSelfX3Until, hlwHpUntil, hlwKiUntil, hlwDameUntil;
+    /** Hạn vào Ngục tù may mắn (Phiếu sao vàng may mắn) */
+    public long luckyMapUntil;
+    private long lastLuckyMapCheck;
     public long timePKVDST;
 
     public int binhChonHatMit;
@@ -475,6 +478,10 @@ public class Player implements Runnable {
                     }
                     if (fusion != null) {
                         fusion.update();
+                    }
+                    if (isPl() && Util.canDoWithTime(lastLuckyMapCheck, 5000)) {
+                        lastLuckyMapCheck = System.currentTimeMillis();
+                        nro.models.services_func.UseItem.gI().checkLuckyMap(this);
                     }
                     if (effectSkill != null) {
                         effectSkill.update();

@@ -501,8 +501,15 @@ public class MapService {
         return mapId == 164;
     }
 
+    /** Ngục tù may mắn: bản sao Hành tinh ngục tù, vào bằng Phiếu sao vàng may mắn */
+    public static final int MAP_NGUC_TU_MAY_MAN = 187;
+
     public boolean isMapNgucTu(int mapId) {
-        return mapId == 155;
+        return mapId == 155 || mapId == MAP_NGUC_TU_MAY_MAN;
+    }
+
+    public boolean isMapNgucTuMayMan(int mapId) {
+        return mapId == MAP_NGUC_TU_MAY_MAN;
     }
 
     public boolean isMapHuyDiet(int mapId) {
