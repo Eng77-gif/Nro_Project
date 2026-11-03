@@ -157,6 +157,7 @@ public class Controller implements IMessageHandler {
                                             return;
                                         }
                                         card.Used = 1;
+                                        card.usedAt = System.currentTimeMillis();
                                     } else {
                                         card.Used = 0;
                                     }

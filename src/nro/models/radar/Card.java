@@ -17,6 +17,8 @@ public class Card {
     public byte Level;
     public byte Used;
     public List<OptionCard> Options;
+    /** lúc bật "Sử dụng" (không lưu): thẻ bật sau cùng được ưu tiên hiện aura */
+    public transient long usedAt;
 
     public Card() {
         Id = -1;

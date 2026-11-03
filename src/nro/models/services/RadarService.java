@@ -131,6 +131,27 @@ public class RadarService {
      * Dòng chỉ số activeCard 0 có tác dụng từ Lv.1, activeCard k (1, 2) khi đang dùng thẻ ở Lv.(k + 1).
      */
     public static final int MAX_LEVEL = 3;
+    /** Chỉ số của thẻ theo bảng radar hiện tại (không có trong bảng thì dùng bản sao của người chơi). */
+    public static List<OptionCard> optionsOf(Card card) {
+        for (RadarCard r : gI().RADAR_TEMPLATE) {
+            if (r.Id == card.Id) {
+                return r.Options;
+            }
+        }
+        return card.Options;
+    }
+
+    /** Thứ tự (no.) của thẻ trong bảng radar, dùng khi chưa biết thẻ nào bật sau. */
+    public static int orderOf(int cardId) {
+        List<RadarCard> l = gI().RADAR_TEMPLATE;
+        for (int i = 0; i < l.size(); i++) {
+            if (l.get(i).Id == cardId) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     /** số thẻ được bật "Sử dụng" cùng lúc */
     public static final int MAX_USED = 5;
 

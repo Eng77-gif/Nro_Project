@@ -85,6 +85,27 @@ public class Dot92Migration {
         } catch (Exception e) {
             Logger.error("Đợt 92: không cập nhật được hạn đổi điểm: " + e.getMessage() + "\n");
         }
+        try {
+            if (!exists(con, "select 1 from server_migration where name = 'dot92_official'")) {
+                // chỉ số thẻ radar theo bản chính thức (activeCard 0 = Mở khóa, k = Sử dụng Lv.k)
+                changed += update(con, "update radar set options = '[{\"id\": 50, \"param\": 1, \"activeCard\": 0}, {\"id\": 50, \"param\": 2, \"activeCard\": 1},"
+                        + " {\"id\": 50, \"param\": 3, \"activeCard\": 2}]' where id = 956"); // Đội trưởng Vàng
+                changed += update(con, "update radar set options = '[{\"id\": 77, \"param\": 1, \"activeCard\": 0}, {\"id\": 14, \"param\": 1, \"activeCard\": 1},"
+                        + " {\"id\": 14, \"param\": 2, \"activeCard\": 2}]' where id = 1204"); // Rồng thần Namếc
+                changed += update(con, "update radar set options = '[{\"id\": 14, \"param\": 1, \"activeCard\": 0}, {\"id\": 14, \"param\": 4, \"activeCard\": 1},"
+                        + " {\"id\": 50, \"param\": 5, \"activeCard\": 2}, {\"id\": 77, \"param\": 10, \"activeCard\": 3}, {\"id\": 103, \"param\": 5, \"activeCard\": 3},"
+                        + " {\"id\": 94, \"param\": 3, \"activeCard\": 3}]' where id = 1771"); // Oozaru
+                // bộ sao may mắn như bản chính thức: "+#% vàng rơi" (option mới 268, tác dụng như vàng từ quái), ván bay bỏ dòng "Dùng để bay..."
+                if (!exists(con, "select 1 from item_option_template where id = 268")) {
+                    changed += update(con, "insert into item_option_template (id, NAME) values (268, '+#% vàng rơi')");
+                }
+                changed += update(con, "update item_template_option set option_id = 268 where template_id in (2022, 2023, 2025) and option_id = 100");
+                changed += update(con, "delete from item_template_option where template_id = 2022 and option_id = 85");
+                changed += update(con, "insert into server_migration (name) values ('dot92_official')");
+            }
+        } catch (Exception e) {
+            Logger.error("Đợt 92: không cập nhật được chỉ số radar / bộ sao may mắn: " + e.getMessage() + "\n");
+        }
         if (changed > 0) {
             Logger.success("Đợt 92: thêm quà cho hộp / capsule / rương chưa có quà (" + changed + " dòng)\n");
         }

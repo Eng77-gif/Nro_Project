@@ -310,8 +310,10 @@ public class NPoint {
             if (card == null || card.Level < 1) {
                 continue; // chưa đạt Lv.1
             }
-            for (OptionCard io : card.Options) {
-                if (io.active == 0 || (card.Used == 1 && io.active == card.Level - 1)) {
+            // chỉ số lấy theo bảng radar hiện tại (sửa trên panel là có tác dụng ngay, không theo bản sao cũ trong dữ liệu người chơi);
+            // dòng "Mở khóa" (active 0) khi đã đạt Lv.1, dòng "Sử dụng Lv.k" (active k) khi đang bật thẻ ở đúng Lv.k
+            for (OptionCard io : nro.models.services.RadarService.optionsOf(card)) {
+                if (io.active == 0 || (card.Used == 1 && io.active == card.Level)) {
                     switch (io.id) {
                         case 0: //Tấn công +#
                             this.dameAdd += io.param;
@@ -416,6 +418,7 @@ public class NPoint {
                             this.tlxgcc += io.param;
                             break;
                         case 100: //+#% vàng từ quái
+                        case 268: //+#% vàng rơi
                             this.tlGold += io.param;
                             break;
                         case 101: //+#% TN,SM
@@ -1151,6 +1154,7 @@ public class NPoint {
                 this.tlxgcc += io.param;
                 break;
             case 100: //+#% vàng từ quái
+            case 268: //+#% vàng rơi
                 this.tlGold += io.param;
                 break;
             case 101: //+#% TN,SM

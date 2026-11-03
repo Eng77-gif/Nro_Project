@@ -783,9 +783,10 @@ public class Player implements Runnable {
         if (!isPl()) {
             return -1;
         }
-        // aura thẻ radar: có nhiều thẻ thì lấy thẻ có chỉ số cao nhất
+        // aura thẻ radar: bật nhiều thẻ thì ưu tiên thẻ bật sau cùng (vd bật Đội trưởng Vàng rồi bật Rồng thần Namếc -> Rồng thần);
+        // vừa vào game chưa biết thứ tự bật thì ưu tiên thẻ số (no.) lớn hơn
         short best = -1;
-        int bestScore = -1;
+        long bestKey = Long.MIN_VALUE;
         for (Card card : this.Cards) {
             if (card == null || card.Level < 1 || card.Used != 1) {
                 continue; // chưa đạt Lv.1 hoặc chưa bấm "Sử dụng" thẻ
@@ -795,10 +796,10 @@ public class Player implements Runnable {
             if (aura < 0) {
                 continue;
             }
-            int score = RadarService.cardScore(card, lv);
-            if (score > bestScore) {
+            long key = card.usedAt * 1000 + RadarService.orderOf(card.Id);
+            if (key > bestKey) {
                 best = aura;
-                bestScore = score;
+                bestKey = key;
             }
         }
         if (best >= 0) {
