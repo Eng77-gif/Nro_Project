@@ -255,8 +255,8 @@ public class RadarService {
                 m.writer().writeByte(card.Used);  //use
                 m.writer().writeByte(radar.Options.size());  //option radar
                 for (OptionCard option : radar.Options) {
-                    m.writer().writeByte(nro.models.item.OptionIdMap.toClient(option.id));  //id (mã >= 255 đổi sang ô trống)
-                    m.writer().writeShort(option.param);  //param
+                    // client long (DragonBoy249, J2ME, Unity) đọc chỉ số (short id, int param): ghi byte / short làm lệch gói, Rađa trống
+                    m.writeItemOption(option.id, option.param);
                     m.writer().writeByte(option.active);  //ActiveCard
                 }
             }

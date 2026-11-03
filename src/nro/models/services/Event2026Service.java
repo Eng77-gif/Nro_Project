@@ -56,16 +56,16 @@ public class Event2026Service {
     /**
      * Bóng mờ (bóng bước chân): nhân vật chạy / bay đi qua đâu thì vật (hoa hồng, bông tuyết...) rơi lại ở đó, nằm yên trên
      * map rồi nhỏ dần và biến mất. Gửi lệnh 113 (hiệu ứng cố định trên map) tại các điểm cách nhau FOOT_STEP px trên đoạn
-     * đường từ vị trí cũ tới vị trí mới; điểm đi qua lâu hơn dùng bản hiệu ứng đã mờ hơn (1221 + 4k + 0..3).
+     * đường từ vị trí cũ tới vị trí mới, vật hiện ngang lưng; điểm đi qua lâu hơn dùng bản đã mờ hơn (1221 + 8k + 0..7).
      */
     private static final int[] TRAIL_BASE = {508, 509, 513, 514, 518, 519};
-    private static final int FOOT_STEP = 30, FOOT_MAX = 8;
-    private static final long FRAME_MS = 33 * 8; // client chạy khoảng 30 nhịp / giây, mỗi bản bỏ 8 nhịp
+    private static final int FOOT_STEP = 22, FOOT_MAX = 12, FOOT_VARIANTS = 8;
+    private static final long FRAME_MS = 33 * 4; // client chạy khoảng 30 nhịp / giây, mỗi bản bỏ 4 nhịp
 
     private static int footBase(int eff) {
         for (int k = 0; k < TRAIL_BASE.length; k++) {
             if (TRAIL_BASE[k] == eff) {
-                return 1221 + 4 * k;
+                return 1221 + FOOT_VARIANTS * k;
             }
         }
         return -1;
@@ -110,7 +110,7 @@ public class Event2026Service {
         pl.footAcc = n == FOOT_MAX ? 0 : (int) (len - (d - FOOT_STEP));
         for (int[] p : pts) {
             long age = (long) (dt * (1 - p[2] / len)); // điểm gần chỗ cũ đã đi qua lâu hơn
-            int v = (int) Math.min(3, age / FRAME_MS);
+            int v = (int) Math.min(FOOT_VARIANTS - 1, age / FRAME_MS);
             nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, base + v, 2, 1, p[0], p[1], 1);
         }
     }

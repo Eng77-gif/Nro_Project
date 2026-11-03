@@ -1529,3 +1529,9 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 ## Đợt 81
 - Bảng kỹ năng đệ tử: đệ thường (săn Broly) không mở được kỹ năng 5 nên bỏ hẳn ô "Không thể mở kỹ năng này", chỉ hiện 4 ô; đệ VIP (Uub, Kid Beer, Jiren) vẫn 5 ô ("Cần đạt sức mạnh 40tỷ để mở").
 - Cửa hàng Đổi thưởng của Quy Lão trừ điểm sự kiện nhưng giá hiện kèm icon đồng vàng: chuyển sang kiểu cửa hàng có icon riêng, giá hiện kèm icon ngôi sao (điểm sự kiện).
+
+## Đợt 82
+- Rađa trống (client DragonBoy249 / J2ME / Unity): dòng chỉ số thẻ gửi (byte mã, short giá trị) trong khi client số lớn đọc (short, int), client đọc lệch cả gói nên không hiện thẻ nào. Nay ghi theo từng loại client (Message.writeItemOption).
+- Bỏ bảng "Thẻ ... đạt Lv.1 / Bấm nút Sử dụng..." bắt bấm OK: chỉ hiện dòng chữ nhỏ "Thẻ ... đạt Lv.N".
+- Bóng mờ: vật hiện ngang lưng nhân vật (không ở chân), mờ dần mượt (8 mức nhỏ dần + trong dần, bay lên rất nhẹ), điểm cách nhau 22 px, 8 bản theo thời gian đi qua nên vệt liền mạch không khựng (hiệu ứng 1221 - 1268).
+- Menu game (Chức năng → Mini game / Lý Tiểu Nương): thêm "Điểm Quy Lão" (điểm sự kiện đổi thưởng + điểm đua top tặng ngọc rồng, nút "Đổi thưởng" mở thẳng cửa hàng Quy Lão). Menu game mở được ở mọi map kể cả khi không đặt NPC Lý Tiểu Nương trên map nào (trước đây không mở được).

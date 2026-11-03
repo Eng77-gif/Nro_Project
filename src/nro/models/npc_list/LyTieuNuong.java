@@ -24,13 +24,22 @@ public class LyTieuNuong extends Npc {
                     "Con số\nmay mắn\nthỏi vàng",
                     "Con số\nmay mắn\nngọc xanh",
                     "Chọn ai đây",
+                    "Điểm\nQuy Lão",
                     "Đóng");
             return;
         }
     }
 
+    private static final int MENU_QL_POINT = 54_401;
+
     @Override
     public void confirmMenu(Player player, int select) {
+        if (player.idMark.getIndexMenu() == MENU_QL_POINT) {
+            if (select == 0) {
+                nro.models.services.SeasonEventService.gI().openEventShop(player, true);
+            }
+            return;
+        }
         String time = ((ChonAiDay_Gold.gI().lastTimeEnd - System.currentTimeMillis()) / 1000) + " giây";
         if (((ChonAiDay_Gold.gI().lastTimeEnd - System.currentTimeMillis()) / 1000) < 0) {
             ChonAiDay_Gold.gI().lastTimeEnd = System.currentTimeMillis() + 300000;
@@ -41,7 +50,7 @@ public class LyTieuNuong extends Npc {
         }
 
         if (canOpenNpc(player)) {
-            if (this.mapId == 5) {
+            if (this.mapId == 5 || this.mapId == -1) { // -1: mở từ Menu game
                 if (player.idMark.isBaseMenu()) {
                     switch (select) {
                         case 0: // Kéo, Búa, Bao
@@ -55,6 +64,12 @@ public class LyTieuNuong extends Npc {
                             break;
                         case 2: // Con số may mắn ngọc xanh
                             xửLýLựaChọnMiniGame_Gem(player);
+                            break;
+                        case 4: // Điểm Quy Lão: điểm sự kiện (đổi quà) + điểm đua top tặng ngọc rồng
+                            createOtherMenu(player, MENU_QL_POINT, "|7|Điểm Quy Lão\n|1|Điểm sự kiện (đổi thưởng): "
+                                    + nro.models.utils.Util.numberToMoney(player.event.getEventPoint())
+                                    + "\nĐiểm đua top tặng ngọc rồng: " + nro.models.utils.Util.numberToMoney(player.qlPoints)
+                                    + "\n|2|Đổi thưởng bằng điểm sự kiện ở Quy Lão hoặc bấm nút dưới", "Đổi\nthưởng", "Đóng");
                             break;
                         case 3: // Chọn ai đây
                             createOtherMenu(player, ConstNpc.CHON_AI_DAY, "Trò chơi Chọn Ai Đây đang được diễn ra, nếu bạn tin tưởng mình đang tràn đầy "
