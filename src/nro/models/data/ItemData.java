@@ -288,19 +288,37 @@ public class ItemData {
         }
     }
 
+    private static String[] cachedNames;
+    private static int cachedCount = -1;
+
+    /** Xoá bộ nhớ đệm tên (khi bảng item / shop / sự kiện đổi). */
+    public static synchronized void resetNames() {
+        cachedNames = null;
+    }
+
     /**
-     * Tên item cho J2ME: bỏ dấu tất cả, rồi trả lại dấu cho các tên tốn ít byte thêm nhất khi gói còn chỗ.
-     * Nếu bỏ dấu hết vẫn không vừa (item tăng thêm), cắt bớt ở giữa các tên dài nhất, giữ 4 ký tự cuối.
+     * Tên item cho J2ME (cả danh sách phải vừa 1 gói 65535 byte, không có chỗ cho đủ dấu của ~2100 tên):
+     * 1. bỏ dấu mọi tên; item cũ không còn bán / đổi / rơi rút "Cai trang" thành "CT", "Vật phẩm đã xoá" thành rỗng;
+     * 2. trả dấu theo thứ tự ưu tiên: quà đổi sự kiện / đua top, item bán trong shop, rồi quà trong hộp, vật phẩm rơi,
+     *    nguyên liệu đổi quà, rồi các item còn lại (cùng mức: tên tốn ít byte trước);
+     * 3. vẫn không vừa thì cắt ở giữa các tên dài nhất.
      */
-    private static String[] fitNames(int count) {
+    private static synchronized String[] fitNames(int count) {
+        if (cachedNames != null && cachedCount == count) {
+            return cachedNames;
+        }
+        java.util.Map<Integer, Integer> prio = priorities();
         String[] full = new String[count];
         String[] names = new String[count];
         int[] len = new int[count];
         long total = 5;
         for (int i = 0; i < count; i++) {
             String nm = Manager.ITEM_TEMPLATES.get(i).name;
-            full[i] = nm == null ? "" : nm;
+            full[i] = nm == null || nm.equals("Vật phẩm đã xoá") ? "" : nm;
             names[i] = noAccent(full[i]);
+            if (!prio.containsKey(i) && names[i].startsWith("Cai trang ")) {
+                names[i] = "CT " + names[i].substring(10);
+            }
             len[i] = utfLength(names[i]) - 2;
             total += 16 + len[i]; // 1+1+2+2+1+4+2+2+1 byte cố định
         }
@@ -309,10 +327,16 @@ public class ItemData {
             order[i] = i;
         }
         final String[] f = full;
-        java.util.Arrays.sort(order, (a, b) -> (utfLength(f[a]) - utfLength(noAccent(f[a]))) - (utfLength(f[b]) - utfLength(noAccent(f[b]))));
+        java.util.Arrays.sort(order, (x, y) -> {
+            int px = prio.getOrDefault(x, 9), py = prio.getOrDefault(y, 9);
+            if (px != py) {
+                return px - py;
+            }
+            return (utfLength(f[x]) - utfLength(noAccent(f[x]))) - (utfLength(f[y]) - utfLength(noAccent(f[y])));
+        });
         for (int i : order) {
             int extra = utfLength(full[i]) - 2 - len[i];
-            if (total + extra <= MAX_PACKET) {
+            if (extra > 0 && total + extra <= MAX_PACKET) {
                 total += extra;
                 names[i] = full[i];
                 len[i] += extra;
@@ -335,7 +359,51 @@ public class ItemData {
             len[i] = nl;
             q.add(i);
         }
+        cachedNames = names;
+        cachedCount = count;
         return names;
+    }
+
+    /** Mức ưu tiên giữ dấu: 0 quà đổi sự kiện / đua top, 1 shop, 2 hộp quà / rơi / nguyên liệu (cùng mức: tên tốn ít byte trước). */
+    private static java.util.Map<Integer, Integer> priorities() {
+        java.util.Map<Integer, Integer> m = new java.util.HashMap<>();
+        String[][] q = {
+            {"1", "select temp_id from item_shop where is_sell = 1"},
+            {"0", "select reward_item from season_event_exchange"},
+            {"0", "select item_id from season_event_top_reward"},
+            {"2", "select box_id from item_box_reward"},
+            {"2", "select item_id from item_box_reward"},
+            {"2", "select item_id from season_event_drop"},};
+        try (java.sql.Connection con = nro.models.data.LocalManager.getConnection()) {
+            for (String[] e : q) {
+                int p = Integer.parseInt(e[0]);
+                try (java.sql.PreparedStatement ps = con.prepareStatement(e[1]); java.sql.ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        m.merge(rs.getInt(1), p, Math::min);
+                    }
+                }
+            }
+            try (java.sql.PreparedStatement ps = con.prepareStatement("select need from season_event_exchange"); java.sql.ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String need = rs.getString(1);
+                    if (need == null) {
+                        continue;
+                    }
+                    for (String part : need.split(",")) {
+                        int c = part.indexOf(':');
+                        if (c > 0) {
+                            try {
+                                m.merge(Integer.parseInt(part.substring(0, c).trim()), 2, Math::min);
+                            } catch (NumberFormatException ignored) {
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            nro.models.utils.Logger.error("Không đọc được danh sách item ưu tiên giữ dấu: " + e.getMessage() + "\n");
+        }
+        return m;
     }
 
     private static String noAccent(String s) {

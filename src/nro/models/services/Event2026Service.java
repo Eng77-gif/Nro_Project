@@ -303,10 +303,19 @@ public class Event2026Service {
 
     /**
      * Quà "ngẫu nhiên theo loại" (item_id trong item_box_reward = -100 - loại): -100 áo, -101 quần, -102 găng, -103 giày, -104 rada,
-     * -107 sách kỹ năng; lấy đồ đúng hành tinh, cấp 1 - 10 (đồ thường, không phải đồ thần / đồ sự kiện).
+     * -107 sách kỹ năng, -120 đồ Thần Linh; lấy đồ đúng hành tinh, cấp 1 - 10 (đồ thường, không phải đồ thần / đồ sự kiện).
      */
     private static int randomByType(int type, Player pl) {
         List<Integer> c = new ArrayList<>();
+        if (type == 20) { // -120: 1 món đồ Thần Linh (áo, quần, găng, giày đúng hành tinh, nhẫn)
+            for (int id = 555; id <= 567; id++) {
+                nro.models.player_system.Template.ItemTemplate t = ItemService.gI().getTemplate(id);
+                if (t != null && (pl == null || t.gender == pl.gender || t.gender == 3)) {
+                    c.add(id);
+                }
+            }
+            return c.isEmpty() ? -1 : c.get(Util.nextInt(0, c.size() - 1));
+        }
         for (nro.models.player_system.Template.ItemTemplate t : nro.models.server.Manager.ITEM_TEMPLATES) {
             if (t.type == type && (pl == null || t.gender == pl.gender || t.gender == 3) && t.level >= 1 && t.level <= 10
                     && !t.name.toLowerCase().contains("thần") && !t.name.toLowerCase().contains("thiên sứ")) {
