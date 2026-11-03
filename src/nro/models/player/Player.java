@@ -258,6 +258,7 @@ public class Player implements Runnable {
     public int trailDir = 1;
     public long trailLastMove;
     public Object trailZone;
+    public int footAcc; // quãng đường đã đi từ điểm bóng mờ gần nhất
     public java.util.List<Item> itemsCollection; // Rương sưu tập (NPC Rương Sưu Tầm)
     public boolean collectionOpen; // đang mở Rương sưu tập: thao tác rương áp lên itemsCollection
     public int qlPoints; // điểm đua top tặng bộ ngọc rồng cho Quy Lão

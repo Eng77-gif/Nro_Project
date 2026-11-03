@@ -53,15 +53,19 @@ public class Event2026Service {
         return FOOT_EFFECT.getOrDefault((int) f.template.id, -1);
     }
 
-    /** Vệt bóng mờ khi chạy / bay: hiệu ứng 1201 + 2k (đi sang phải, vệt kéo về bên trái) và 1202 + 2k (sang trái). */
+    /**
+     * Bóng mờ (bóng bước chân): nhân vật chạy / bay đi qua đâu thì vật (hoa hồng, bông tuyết...) rơi lại ở đó, nằm yên trên
+     * map rồi nhỏ dần và biến mất. Gửi lệnh 113 (hiệu ứng cố định trên map) tại các điểm cách nhau FOOT_STEP px trên đoạn
+     * đường từ vị trí cũ tới vị trí mới; điểm đi qua lâu hơn dùng bản hiệu ứng đã mờ hơn (1221 + 4k + 0..3).
+     */
     private static final int[] TRAIL_BASE = {508, 509, 513, 514, 518, 519};
-    /** Không nhận vị trí mới quá thời gian này coi như đứng im, tắt vệt. Client gửi vị trí khoảng 0,3 - 0,6 giây / lần khi chạy. */
-    private static final long TRAIL_IDLE_MS = 750;
+    private static final int FOOT_STEP = 30, FOOT_MAX = 8;
+    private static final long FRAME_MS = 33 * 8; // client chạy khoảng 30 nhịp / giây, mỗi bản bỏ 8 nhịp
 
-    private static int trailEffect(int base, int dir) {
+    private static int footBase(int eff) {
         for (int k = 0; k < TRAIL_BASE.length; k++) {
-            if (TRAIL_BASE[k] == base) {
-                return 1201 + 2 * k + (dir < 0 ? 1 : 0);
+            if (TRAIL_BASE[k] == eff) {
+                return 1221 + 4 * k;
             }
         }
         return -1;
@@ -80,29 +84,40 @@ public class Event2026Service {
         if (pl == null || pl.isPet || pl.isBot || pl.zone == null || (oldX == x && oldY == y)) {
             return;
         }
-        int eff = trailEffect(footEffectId(pl), x > oldX ? 1 : x < oldX ? -1 : pl.trailDir);
-        if (eff < 0) {
-            stopTrail(pl);
+        int base = footBase(footEffectId(pl));
+        long now = System.currentTimeMillis();
+        long dt = now - pl.trailLastMove;
+        dt = dt > 700 || dt < 0 ? 250 : dt; // vừa đứng im rồi đi tiếp: coi như đoạn đường mới đi
+        pl.trailLastMove = now;
+        if (base < 0) {
             return;
         }
-        if (x != oldX) {
-            pl.trailDir = x > oldX ? 1 : -1;
-        }
-        pl.trailLastMove = System.currentTimeMillis();
-        if (pl.trailEff == eff && pl.trailZone == pl.zone) {
+        double dx = x - oldX, dy = y - oldY, len = Math.hypot(dx, dy);
+        if (len > 400 || pl.trailZone != pl.zone) { // dịch chuyển / đổi khu: chỉ đặt 1 điểm ở chỗ mới
+            pl.trailZone = pl.zone;
+            pl.footAcc = 0;
+            nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, base, 2, 1, x, y, 1);
             return;
         }
-        if (pl.trailEff >= 0 && pl.trailZone == pl.zone) {
-            Service.gI().removeEffPlayer(pl, pl.trailEff);
+        double d = FOOT_STEP - pl.footAcc;
+        int n = 0;
+        java.util.List<int[]> pts = new java.util.ArrayList<>();
+        while (d <= len && n < FOOT_MAX) {
+            pts.add(new int[]{(int) Math.round(oldX + dx * d / len), (int) Math.round(oldY + dy * d / len), (int) Math.round(d)});
+            d += FOOT_STEP;
+            n++;
         }
-        pl.trailEff = eff;
-        pl.trailZone = pl.zone;
-        Service.gI().sendEffAllPlayer(pl, eff, 0, -1, 1, 1); // sau lưng, hiện cả khi chạy / bay
+        pl.footAcc = n == FOOT_MAX ? 0 : (int) (len - (d - FOOT_STEP));
+        for (int[] p : pts) {
+            long age = (long) (dt * (1 - p[2] / len)); // điểm gần chỗ cũ đã đi qua lâu hơn
+            int v = (int) Math.min(3, age / FRAME_MS);
+            nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, base + v, 2, 1, p[0], p[1], 1);
+        }
     }
 
     /** Gọi trong vòng cập nhật người chơi: đứng im thì tắt vệt. */
     public static void updateTrail(Player pl) {
-        if (pl.trailEff >= 0 && System.currentTimeMillis() - pl.trailLastMove > TRAIL_IDLE_MS) {
+        if (pl.trailEff >= 0 && System.currentTimeMillis() - pl.trailLastMove > 750) { // vệt kiểu cũ (gắn theo người) nếu còn
             stopTrail(pl);
         }
     }

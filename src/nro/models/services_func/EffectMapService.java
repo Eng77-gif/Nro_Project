@@ -30,9 +30,9 @@ public class EffectMapService {
         Message msg = null;
         try {
             msg = new Message(113);
-            msg.writer().writeByte(id);
+            msg.writer().writeByte(loop);
             msg.writer().writeByte(layer);
-            msg.writer().writeByte(id);
+            msg.writer().writeShort(id);
             msg.writer().writeShort(x);
             msg.writer().writeShort(y);
             msg.writer().writeShort(delay);
@@ -52,7 +52,7 @@ public class EffectMapService {
             msg = new Message(113);
             msg.writer().writeByte(loop);
             msg.writer().writeByte(layer);
-            msg.writer().writeByte(id);
+            msg.writer().writeShort(id); // client đọc mã hiệu ứng 2 byte (trước đây ghi 1 byte làm lệch x / y)
             msg.writer().writeShort(x);
             msg.writer().writeShort(y);
             msg.writer().writeShort(delay);
@@ -72,7 +72,7 @@ public class EffectMapService {
             msg = new Message(113);
             msg.writer().writeByte(loop);
             msg.writer().writeByte(layer);
-            msg.writer().writeByte(id);
+            msg.writer().writeShort(id); // client đọc mã hiệu ứng 2 byte (trước đây ghi 1 byte làm lệch x / y)
             msg.writer().writeShort(x);
             msg.writer().writeShort(y);
             msg.writer().writeShort(delay);

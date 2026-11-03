@@ -1516,3 +1516,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - Thẻ radar: chọn aura từng cấp Lv.1 / 2 / 3 (bảng radar_aura, ưu tiên hơn aura mặc định trong code; có "Dùng mặc định" / "Không có aura").
   - Danh hiệu: "Xem hiệu ứng động" (danh hiệu trên đầu nhân vật). Chỉ xem, vì mã hiệu ứng cũng là mã danh hiệu người chơi đang sở hữu.
   - Hiệu ứng & aura: tab "Aura động".
+
+## Đợt 79
+- Bóng mờ làm lại đúng kiểu "chạy để lại bóng rồi mờ dần": trước đây hiệu ứng gắn theo người nên vật chạy theo nhân vật và đứng lại là tắt hết. Giờ server gửi lệnh 113 (hiệu ứng cố định trên map) tại các điểm nhân vật đi qua, cách nhau 30 px: vật nằm yên tại chỗ khoảng 1,5 giây, nhỏ dần rồi biến mất; điểm đi qua lâu hơn dùng bản đã mờ hơn (hiệu ứng 1221 - 1244, bỏ 1201 - 1212). Đứng im không rơi thêm.
+- Sửa lệnh hiệu ứng trên map (113): mã hiệu ứng ghi 1 byte trong khi client đọc 2 byte làm lệch tọa độ (hiệu ứng bẫy map, kỹ năng đặt hiệu ứng trên map).
