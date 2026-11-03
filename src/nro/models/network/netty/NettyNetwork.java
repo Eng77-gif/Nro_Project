@@ -76,7 +76,7 @@ public final class NettyNetwork {
                         SessionManager.gI().putSession(s);
                         ch.eventLoop().schedule(() -> {
                             if (!s.sentKey()) {
-                                AntiDdos.ban(ip, "không bắt tay trong " + AntiDdos.HANDSHAKE_SECONDS + " giây");
+                                AntiDdos.strike(ip, "không bắt tay trong " + AntiDdos.HANDSHAKE_SECONDS + " giây");
                                 ch.close();
                             }
                         }, AntiDdos.HANDSHAKE_SECONDS, TimeUnit.SECONDS);

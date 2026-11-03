@@ -153,6 +153,7 @@ public class MySession extends Session {
                     pl.setSession(this);
                     Client.gI().put(pl);
                     this.player = pl;
+                    nro.models.network.netty.AntiDdos.markTrusted(this.getIP());
                     DataGame.sendVersionGame(this);
                     DataGame.sendDataItemBG(this);
                     Controller.gI().sendInfo(this);

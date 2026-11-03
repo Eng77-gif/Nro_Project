@@ -60,7 +60,7 @@ public class NroDecoder extends ByteToMessageDecoder {
             }
             curR = enc ? r % k.length : 0;
             if (!enc && (byte) cmd != -27) {
-                AntiDdos.ban(session.getIP(), "không bắt tay đúng giao thức");
+                AntiDdos.strike(session.getIP(), "không bắt tay đúng giao thức");
                 ctx.close();
                 return;
             }

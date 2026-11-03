@@ -29,6 +29,11 @@ public final class AntiDdos {
     private static final Map<String, AtomicInteger> perIp = new ConcurrentHashMap<>();
     private static final Map<String, long[]> rate = new ConcurrentHashMap<>();   // {bắt đầu cửa sổ, số kết nối}
     private static final Map<String, long[]> banned = new ConcurrentHashMap<>(); // {hết hạn, số lần bị chặn}
+    private static final Map<String, Long> trusted = new ConcurrentHashMap<>();  // IP đã đăng nhập thành công -> hết hạn tin cậy
+    private static final Map<String, long[]> strikes = new ConcurrentHashMap<>(); // {bắt đầu cửa sổ, số lỗi nhẹ}
+    private static final java.util.Set<String> whitelist = ConcurrentHashMap.newKeySet();
+    public static int STRIKE_LIMIT = 10;              // số kết nối không bắt tay / IP / phút mới bị chặn
+    private static final long TRUST_MS = 24 * 3600_000L;
     private static final AtomicInteger dropped = new AtomicInteger();
     private static volatile long lastLog;
 
@@ -40,6 +45,46 @@ public final class AntiDdos {
         MAX_CONN_PER_IP = intOf(p, "server.ddos.maxperip", Math.max(MAX_CONN_PER_IP, nro.models.server.Manager.MAX_PER_IP));
         MAX_NEW_CONN_10S = intOf(p, "server.ddos.newconn10s", MAX_NEW_CONN_10S);
         MAX_MSG_PER_SEC = intOf(p, "server.ddos.msgpersec", MAX_MSG_PER_SEC);
+        STRIKE_LIMIT = intOf(p, "server.ddos.strikes", STRIKE_LIMIT);
+        whitelist.clear();
+        String w = p.getProperty("server.ddos.whitelist", "");
+        for (String ip : w.split("[,; ]+")) {
+            if (!ip.isBlank()) {
+                whitelist.add(ip.trim());
+            }
+        }
+    }
+
+    /** Đăng nhập thành công: IP được tin cậy 24 giờ (không bị chặn cả IP, giới hạn kết nối nới gấp 4). */
+    public static void markTrusted(String ip) {
+        if (ip != null) {
+            trusted.put(ip, System.currentTimeMillis() + TRUST_MS);
+            banned.remove(ip);
+        }
+    }
+
+    public static boolean isTrusted(String ip) {
+        if (ip == null) {
+            return false;
+        }
+        if (isLocal(ip) || whitelist.contains(ip)) {
+            return true;
+        }
+        Long t = trusted.get(ip);
+        return t != null && t > System.currentTimeMillis();
+    }
+
+    /** Lỗi nhẹ (kết nối không bắt tay kịp - mạng chậm cũng gặp): chỉ chặn IP khi lặp lại nhiều trong 1 phút. */
+    public static void strike(String ip, String why) {
+        if (isTrusted(ip)) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        long[] r = strikes.compute(ip, (k, v) -> v == null || now - v[0] > 60_000 ? new long[]{now, 1} : new long[]{v[0], v[1] + 1});
+        if (r[1] >= STRIKE_LIMIT) {
+            strikes.remove(ip);
+            ban(ip, r[1] + " lần " + why + " trong 1 phút");
+        }
     }
 
     private static int intOf(java.util.Properties p, String k, int def) {
@@ -60,13 +105,18 @@ public final class AntiDdos {
                 return false;
             }
         }
-        if (isLocal(ip)) {
+        if (isLocal(ip) || whitelist.contains(ip)) {
             total.incrementAndGet();
             perIp.computeIfAbsent(ip, k -> new AtomicInteger()).incrementAndGet();
             return true;
         }
         long[] r = rate.compute(ip, (k, v) -> v == null || now - v[0] > 10_000 ? new long[]{now, 1} : new long[]{v[0], v[1] + 1});
-        if (r[1] > MAX_NEW_CONN_10S) {
+        boolean trust = isTrusted(ip);
+        if (r[1] > MAX_NEW_CONN_10S * (trust ? 4 : 1)) {
+            if (trust) {
+                dropped.incrementAndGet();
+                return false;
+            }
             ban(ip, "mở " + r[1] + " kết nối trong 10 giây");
             return false;
         }
@@ -75,7 +125,7 @@ public final class AntiDdos {
             return false;
         }
         AtomicInteger c = perIp.computeIfAbsent(ip, k -> new AtomicInteger());
-        if (c.get() >= MAX_CONN_PER_IP) {
+        if (c.get() >= MAX_CONN_PER_IP * (trust ? 4 : 1)) {
             dropped.incrementAndGet();
             return false;
         }
@@ -94,7 +144,7 @@ public final class AntiDdos {
 
     /** Chặn IP: 2 phút, tái phạm gấp đôi, tối đa 1 ngày. */
     public static void ban(String ip, String why) {
-        if (isLocal(ip)) {
+        if (isTrusted(ip)) { // IP người chơi thật: chỉ ngắt kết nối vi phạm (nơi gọi tự đóng), không chặn cả IP
             return;
         }
         long now = System.currentTimeMillis();
@@ -119,11 +169,13 @@ public final class AntiDdos {
         long now = System.currentTimeMillis();
         banned.values().removeIf(v -> v[0] < now - 6 * 3600_000L); // nhớ số lần tái phạm thêm 6 giờ
         rate.values().removeIf(v -> now - v[0] > 60_000);
+        strikes.values().removeIf(v -> now - v[0] > 60_000);
+        trusted.values().removeIf(t -> t < now);
     }
 
     public static String stats() {
         long now = System.currentTimeMillis();
         long ban = banned.values().stream().filter(v -> v[0] > now).count();
-        return "Kết nối: " + total.get() + ", IP đang bị chặn: " + ban + ", đã chặn: " + dropped.get();
+        return "Kết nối: " + total.get() + ", IP đang bị chặn: " + ban + ", IP tin cậy: " + trusted.size() + ", đã chặn: " + dropped.get();
     }
 }
