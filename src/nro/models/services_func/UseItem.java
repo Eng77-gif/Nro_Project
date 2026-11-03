@@ -2933,7 +2933,6 @@ public class UseItem {
         if (card.Amount >= th[stage]) {
             card.Amount = 0;
             card.Level = (byte) (stage + 1);
-            Service.gI().sendThongBao(pl, radarTemplate.Name + " đạt Lv." + card.Level); // dòng chữ nhỏ, không bật bảng bấm OK
             Service.gI().point(pl);
         }
         RadarService.fixMax(card, radarTemplate.Max);

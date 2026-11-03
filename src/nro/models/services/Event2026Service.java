@@ -56,11 +56,11 @@ public class Event2026Service {
     /**
      * Bóng mờ (bóng bước chân): nhân vật chạy / bay đi qua đâu thì vật (hoa hồng, bông tuyết...) rơi lại ở đó, nằm yên trên
      * map rồi nhỏ dần và biến mất. Gửi lệnh 113 (hiệu ứng cố định trên map) tại các điểm cách nhau FOOT_STEP px trên đoạn
-     * đường từ vị trí cũ tới vị trí mới, vật hiện ngang lưng; điểm đi qua lâu hơn dùng bản đã mờ hơn (1221 + 8k + 0..7).
+     * đường từ vị trí cũ tới vị trí mới, vật nằm dưới chân; điểm đi qua lâu hơn dùng bản đã mờ hơn (1221 + 12k + 0..11).
      */
     private static final int[] TRAIL_BASE = {508, 509, 513, 514, 518, 519};
-    private static final int FOOT_STEP = 22, FOOT_MAX = 12, FOOT_VARIANTS = 8;
-    private static final long FRAME_MS = 33 * 4; // client chạy khoảng 30 nhịp / giây, mỗi bản bỏ 4 nhịp
+    private static final int FOOT_STEP = 16, FOOT_MAX = 16, FOOT_VARIANTS = 12;
+    private static final long FRAME_MS = 33 * 3; // client chạy khoảng 30 nhịp / giây, mỗi bản bỏ 3 nhịp
 
     private static int footBase(int eff) {
         for (int k = 0; k < TRAIL_BASE.length; k++) {

@@ -1,5 +1,7 @@
-// NroRepoDownloader: tải toàn bộ file server từ GitHub về máy, bỏ qua các thư mục không cần (mặc định tools/ và client/).
-// Lần đầu tải 1 file zip của nhánh rồi giải nén; các lần sau so mã hash từng file, chỉ tải file mới / đã thay đổi.
+// NroRepoDownloader: tải file server từ GitHub về máy, bỏ qua các thư mục không cần (mặc định tools/ và client/).
+// Thư mục trống: tải 1 file zip của nhánh rồi giải nén. Đã có file: chỉ tải file mới / đã thay đổi (so mã hash git).
+// Mã hash từng file lưu trong .nro_manifest.json: file trên máy không đổi (cùng kích thước + thời gian sửa) thì
+// không phải tính lại, lần kiểm tra sau gần như tức thì.
 package main
 
 import (
@@ -24,7 +26,7 @@ import (
 	"time"
 )
 
-const version = "1.0 (27/10/2026)"
+const version = "1.1 (03/11/2026)"
 
 var (
 	repo     = flag.String("repo", "Eng77-gif/nro_dev_al", "repo GitHub dạng chủ/tên")
@@ -34,7 +36,8 @@ var (
 	keep     = flag.String("keep", "Config.properties,maintenanceConfig.txt", "file đã có trên máy thì giữ nguyên, không ghi đè (cấu hình riêng)")
 	token    = flag.String("token", "", "GitHub token (chỉ cần khi repo riêng tư; có thể để trong file token.txt cạnh exe)")
 	workers  = flag.Int("workers", 16, "số file tải cùng lúc ở chế độ cập nhật")
-	zipLimit = flag.Int("zip", 3000, "thiếu nhiều hơn số file này thì tải 1 file zip cho nhanh")
+	zipLimit = flag.Int("zip", 3000, "thư mục còn trống và thiếu nhiều hơn số file này thì tải 1 file zip cho nhanh")
+	force    = flag.Bool("force", false, "bỏ qua bộ nhớ mã hash, tính lại mã từng file trên máy")
 	noPause  = flag.Bool("nopause", false, "không chờ bấm Enter khi xong")
 )
 
@@ -153,6 +156,52 @@ func gitSha(p string, size int64) string {
 		return ""
 	}
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+// manifest: đường dẫn -> mã hash git + kích thước + thời gian sửa của file trên máy lúc tính.
+type mEntry struct {
+	Sha  string `json:"sha"`
+	Size int64  `json:"size"`
+	Mod  int64  `json:"mod"`
+}
+
+func loadManifest(base string) map[string]mEntry {
+	m := map[string]mEntry{}
+	if *force {
+		return m
+	}
+	if b, err := os.ReadFile(filepath.Join(base, ".nro_manifest.json")); err == nil {
+		json.Unmarshal(b, &m)
+	}
+	return m
+}
+
+func saveManifest(base string, m map[string]mEntry) {
+	b, err := json.Marshal(m)
+	if err == nil {
+		tmp := filepath.Join(base, ".nro_manifest.json.tmp")
+		if os.WriteFile(tmp, b, 0o644) == nil {
+			os.Remove(filepath.Join(base, ".nro_manifest.json"))
+			os.Rename(tmp, filepath.Join(base, ".nro_manifest.json"))
+		}
+	}
+}
+
+// localSha: mã hash của file trên máy, dùng lại mã đã nhớ nếu file không đổi.
+func localSha(m map[string]mEntry, mu *sync.Mutex, p, dst string, st os.FileInfo) string {
+	mu.Lock()
+	c, ok := m[p]
+	mu.Unlock()
+	if ok && c.Size == st.Size() && c.Mod == st.ModTime().UnixNano() {
+		return c.Sha
+	}
+	sha := gitSha(dst, st.Size())
+	if sha != "" {
+		mu.Lock()
+		m[p] = mEntry{sha, st.Size(), st.ModTime().UnixNano()}
+		mu.Unlock()
+	}
+	return sha
 }
 
 func splitList(s string) []string {
@@ -411,42 +460,93 @@ func main() {
 		return
 	}
 	var need []entry
-	var total, skipped int
+	var total, skipped, haveAny, newFiles int
 	var needBytes int64
 	want := map[string]entry{}
-	logf("Kiểm tra file trên máy...")
-	for _, e := range files {
+	manifest := loadManifest(base)
+	var mmu sync.Mutex
+	logf("Kiểm tra file trên máy (file đã có và đúng thì bỏ qua)...")
+	type res struct {
+		e      entry
+		exists bool
+		ok     bool
+	}
+	results := make([]res, len(files))
+	var wgc sync.WaitGroup
+	var checked int64
+	jobsC := make(chan int)
+	for w := 0; w < 8; w++ {
+		wgc.Add(1)
+		go func() {
+			defer wgc.Done()
+			for i := range jobsC {
+				e := files[i]
+				r := res{e: e}
+				if dst, err := localPath(base, e.Path); err == nil {
+					if st, err := os.Stat(dst); err == nil && !st.IsDir() {
+						r.exists = true
+						r.ok = matches(e.Path, keepL) || (st.Size() == e.Size && localSha(manifest, &mmu, e.Path, dst, st) == e.Sha)
+					}
+				}
+				results[i] = r
+				if n := atomic.AddInt64(&checked, 1); n%2000 == 0 {
+					fmt.Printf("\r  đã kiểm tra %d/%d file      ", n, len(files))
+				}
+			}
+		}()
+	}
+	for i := range files {
+		jobsC <- i
+	}
+	close(jobsC)
+	wgc.Wait()
+	fmt.Println()
+	saveManifest(base, manifest)
+	for _, r := range results {
 		total++
-		dst, err := localPath(base, e.Path)
-		if err != nil {
+		if r.exists {
+			haveAny++
+		}
+		if r.ok {
+			skipped++
 			continue
 		}
-		if st, err := os.Stat(dst); err == nil {
-			if matches(e.Path, keepL) {
-				skipped++
-				continue
-			}
-			if st.Size() == e.Size && gitSha(dst, e.Size) == e.Sha {
-				skipped++
-				continue
-			}
+		if !r.exists {
+			newFiles++
 		}
-		need = append(need, e)
-		want[e.Path] = e
-		needBytes += e.Size
+		need = append(need, r.e)
+		want[r.e.Path] = r.e
+		needBytes += r.e.Size
 	}
-	logf("%d file cần có, đã đúng %d, cần tải %d (%s)", total, skipped, len(need), human(needBytes))
+	logf("%d file cần có, đã có và đúng %d, cần tải %d (%s): %d file mới, %d file đã thay đổi", total, skipped, len(need), human(needBytes), newFiles, len(need)-newFiles)
 	if len(need) == 0 {
 		finish(0, nil, nil, start)
 		return
 	}
 	sort.Slice(need, func(i, j int) bool { return need[i].Path < need[j].Path })
-	if len(need) > *zipLimit {
+	// zip gồm cả nhánh (kể cả thư mục bỏ qua): chỉ dùng khi máy gần như chưa có gì, còn lại tải đúng file thiếu
+	if len(need) > *zipLimit && haveAny < total/10 {
 		n, err := downloadZip(base, want, false, excl, keepL)
 		finish(n, nil, err, start)
 		return
 	}
 	n, failed := downloadEach(base, need)
+	// nhớ mã hash file vừa tải (đúng bằng mã trên GitHub) để lần sau khỏi tính lại
+	bad := map[string]bool{}
+	for _, f := range failed {
+		bad[strings.SplitN(f, ": ", 2)[0]] = true
+	}
+	for _, e := range need {
+		if bad[e.Path] {
+			continue
+		}
+		if dst, err := localPath(base, e.Path); err == nil {
+			if st, err := os.Stat(dst); err == nil && st.Size() == e.Size {
+				manifest[e.Path] = mEntry{e.Sha, st.Size(), st.ModTime().UnixNano()}
+			}
+		}
+	}
+	saveManifest(base, manifest)
 	finish(n, failed, nil, start)
 }
 

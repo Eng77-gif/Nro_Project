@@ -1535,3 +1535,8 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Bỏ bảng "Thẻ ... đạt Lv.1 / Bấm nút Sử dụng..." bắt bấm OK: chỉ hiện dòng chữ nhỏ "Thẻ ... đạt Lv.N".
 - Bóng mờ: vật hiện ngang lưng nhân vật (không ở chân), mờ dần mượt (8 mức nhỏ dần + trong dần, bay lên rất nhẹ), điểm cách nhau 22 px, 8 bản theo thời gian đi qua nên vệt liền mạch không khựng (hiệu ứng 1221 - 1268).
 - Menu game (Chức năng → Mini game / Lý Tiểu Nương): thêm "Điểm Quy Lão" (điểm sự kiện đổi thưởng + điểm đua top tặng ngọc rồng, nút "Đổi thưởng" mở thẳng cửa hàng Quy Lão). Menu game mở được ở mọi map kể cả khi không đặt NPC Lý Tiểu Nương trên map nào (trước đây không mở được).
+
+## Đợt 83
+- Bóng mờ về lại dưới chân (đáy vật chạm đất), mượt hơn: điểm cách nhau 16 px, 12 bản theo thời gian đi qua, 10 mức nhỏ dần + trong dần; bỏ chấm lẻ cạnh bông tuyết làm vật lơ lửng (hiệu ứng 1221 - 1292).
+- Lên cấp thẻ radar: bỏ cả dòng thông báo.
+- NroRepoDownloader 1.1: nhớ mã hash từng file trong .nro_manifest.json (file trên máy không đổi thì khỏi tính lại, kiểm tra gần như tức thì); kiểm tra song song; chỉ tải file mới / đã đổi, báo rõ bao nhiêu file mới và bao nhiêu file đã đổi; chỉ tải file zip cả nhánh khi máy gần như chưa có gì (trước đây thiếu hơn 3000 file là tải lại cả zip); tham số -force để tính lại mã từ đầu.

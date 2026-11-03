@@ -1,4 +1,4 @@
-"""Hiệu ứng "bóng mờ": vật rơi lại ngang lưng nhân vật trên đường chạy, nằm yên rồi mờ dần, nhỏ dần đều tay.
+"""Hiệu ứng "bóng mờ": vật rơi lại dưới chân nhân vật trên đường chạy, nằm yên rồi mờ dần, nhỏ dần đều tay.
 
 python3 bong_mo_trail.py <thư mục repo>
 
@@ -11,9 +11,9 @@ from PIL import Image
 
 REPO = sys.argv[1]
 BASES = [508, 509, 513, 514, 518, 519]  # tuyết rơi, NRO, sao may mắn, trung thu, hoa hồng đỏ, hoa hồng băng
-FIRST, VARIANTS, SKIP = 1221, 8, 4
-LEVELS, HOLD, STEP = 8, 16, 3       # 8 mức mờ, giữ nguyên 16 nhịp, mỗi mức 3 nhịp
-BACK_Y = -26                        # tâm vật ngang lưng (px x1 so với chân)
+FIRST, VARIANTS, SKIP = 1221, 12, 3
+LEVELS, HOLD, STEP = 10, 14, 3      # 10 mức mờ, giữ nguyên 14 nhịp, mỗi mức 3 nhịp
+FOOT_Y = 0                          # đáy vật chạm đất tại chân (px x1)
 
 
 def parse(eid):
@@ -35,6 +35,31 @@ def pad4(im):
     return o
 
 
+def largest_part(im):
+    """Giữ mảng hình lớn nhất (bỏ chấm lẻ cùng ô ảnh, vd bông tuyết kèm 1 chấm làm vật lơ lửng)."""
+    w, h = im.size
+    a = im.split()[3].load()
+    seen, best = set(), []
+    for y in range(h):
+        for x in range(w):
+            if a[x, y] > 40 and (x, y) not in seen:
+                comp, st = [], [(x, y)]
+                seen.add((x, y))
+                while st:
+                    cx, cy = st.pop()
+                    comp.append((cx, cy))
+                    for nx, ny in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
+                        if 0 <= nx < w and 0 <= ny < h and (nx, ny) not in seen and a[nx, ny] > 40:
+                            seen.add((nx, ny)); st.append((nx, ny))
+                if len(comp) > len(best):
+                    best = comp
+    xs, ys = [p[0] for p in best], [p[1] for p in best]
+    box = (max(0, min(xs) - 2), max(0, min(ys) - 2), min(w, max(xs) + 3), min(h, max(ys) + 3))
+    if len(best) < 0.6 * sum(1 for v in im.split()[3].getdata() if v > 40):
+        return im.crop(im.getbbox())  # hình nhiều mảnh rời (hoa, chùm sao): giữ nguyên
+    return im.crop(box)
+
+
 for k, base in enumerate(BASES):
     imgs, trailer = parse(base)
     src = Image.open(f'{REPO}/data/effect/x4/ImgEffect_{base}.png').convert('RGBA')
@@ -50,11 +75,10 @@ for k, base in enumerate(BASES):
         return ink(i) / max(1, imgs[i][3] * imgs[i][4] * 16) > 0.25
 
     cand = sorted([i for i in range(len(imgs)) if solid(i) and imgs[i][3] <= 40 and imgs[i][4] <= 40], key=ink) or sorted(range(len(imgs)), key=ink)
-    obj = crop(cand[-1])
-    obj = obj.crop(obj.getbbox())
+    obj = largest_part(crop(cand[-1]))
     sprites = []
     for lv in range(LEVELS):
-        sc, al = 1 - 0.07 * lv, 1 - 0.115 * lv
+        sc, al = 1 - 0.055 * lv, 1 - 0.095 * lv
         im = obj.resize((max(4, int(obj.width * sc)), max(4, int(obj.height * sc))), Image.LANCZOS)
         a = im.split()[3].point(lambda v, al=al: int(v * al))
         im.putalpha(a)
@@ -72,8 +96,7 @@ for k, base in enumerate(BASES):
         frames = []
         for f, lv in enumerate(life[v * SKIP:]):
             w, h = info[lv][3], info[lv][4]
-            rise = (f + v * SKIP) // 8  # bay lên rất nhẹ khi mờ dần
-            frames.append([(-w // 2, BACK_Y - h // 2 - rise, lv)])
+            frames.append([(-w // 2, FOOT_Y - h + 1, lv)])  # nằm trên mặt đất, nhỏ dần về phía đáy
         frames.append([])
         eid = FIRST + VARIANTS * k + v
         b = bytearray([len(info)])
