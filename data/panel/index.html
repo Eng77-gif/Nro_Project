@@ -215,6 +215,7 @@ async function page_dash(){
   <div class="card"><b>⚡ Thao tác nhanh</b><div class="qa" style="margin-top:8px">
    <button onclick="act(()=>api('player/save',{}).then(r=>{toast('Đã lưu '+r.saved+' người chơi');return r}))"><b>💾 Lưu tất cả</b><span>Lưu dữ liệu người online</span></button>
    <button onclick="act(()=>api('season/cmd',{cmd:'reload'}).then(r=>{toast(r.result);return r}))"><b>🔄 Nạp lại sự kiện</b><span>Đọc lại bảng season_event</span></button>
+   <button onclick="act(()=>api('ddos/unban',{}).then(r=>{toast(r.result);return r}))"><b>🛡️ Gỡ chặn IP</b><span>Gỡ mọi IP đang bị chống DDoS chặn</span></button>
    <button onclick="act(()=>api('shop/reload',{}),'Đã nạp lại cửa hàng')"><b>🏪 Nạp lại shop</b><span>Áp dụng sửa cửa hàng</span></button>
    <button onclick="quickNotify()"><b>📣 Thông báo nhanh</b><span>Dòng chữ chạy cho cả server</span></button>
    <button onclick="location.hash='#maint'"><b>🛠 Bảo trì</b><span>Đếm ngược và tắt server</span></button>

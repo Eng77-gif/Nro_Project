@@ -109,6 +109,7 @@ class PanelApi {
             case "badges" -> rows("select b.id, b.idEffect effect, b.idItem item, b.NAME name, b.Options options, t.icon_id icon, t.description descr from data_badges b left join item_template t on t.id = b.idItem order by b.id");
             case "badge/save" -> badgeSave(b);
             case "fx" -> fxInfo();
+            case "ddos/unban" -> Map.of("result", "Đã gỡ chặn " + nro.models.network.netty.AntiDdos.unbanAll() + " IP");
             case "season/cmd" -> Map.of("result", SeasonEventService.gI().admin(" " + str(b.get("cmd")).trim()));
             case "bosses" -> bosses();
             case "boss/spawn" -> bossSpawn(b);

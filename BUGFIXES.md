@@ -1587,3 +1587,19 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Tab cửa hàng sự kiện hiện nguyên chữ "Shop<>sự kiện" / "Đổi<>thưởng": sửa thành xuống dòng đúng.
 - Ngũ Hành Sơn đủ 3 vùng: map 122 / 124 / 123 đặt tên Ngũ Hành Sơn 1 / 2 / 3 (cả tên cổng dịch chuyển). Đường Tăng ở làng có 3 nút chọn thẳng vùng 1 / 2 / 3, trong map vẫn đi bộ qua cổng 1 <-> 2 <-> 3. Nhiệm vụ hộ tống: đi qua đủ Ngũ Hành Sơn 2 và 3 (thứ tự nào cũng được) rồi về gặp Ngộ Không ở Ngũ Hành Sơn 1.
 - Yêu quái núi Lãng Lãng (1988): chỉ số mới sức đánh 21%, HP 17%, KI 17%, tiềm năng sức mạnh ngẫu nhiên 50 - 120% (áp cho món nhận mới: đổi công đức ở Đường Tăng, Sơn Tinh / Thủy Tinh rơi, admin tặng).
+
+## Đợt 90
+- **Chống DDoS chặn nhầm chính mình (lần 2):** mọi lỗi của 1 kết nối (gói tin lớn, gửi dồn nhiều gói khi mạng lag, chậm bắt tay, sai giao thức) giờ chỉ ngắt kết nối đó và tính 1 "lỗi". Chỉ chặn cả IP khi 1 IP có từ 30 lỗi trong 1 phút (server.ddos.strikes) hoặc mở quá 60 kết nối / 10 giây. Nới giới hạn: 20 kết nối / IP, 300 gói / giây, gói tối đa 64 KB. Mạng LAN (192.168.x, 10.x, 172.16 - 31.x) coi như máy chủ, không bao giờ bị chặn. IP đã đăng nhập vẫn được tin cậy 24 giờ. Thêm `server.ddos.ban=false` để tắt hẳn chặn IP, nút "🛡️ Gỡ chặn IP" trên web panel, lịch sử chặn ghi vào logs/ddos.log (gửi file này nếu còn bị chặn nhầm).
+- **Túi mù Halloween / hộp quà / capsule mở ra quà bị tách lẻ:** các vật phẩm trong bảng item_box_reward (Túi mù Halloween, Kẹo mù, Hòm / Thiệp Halloween, Hộp quà 20/10, 20/11, Lì xì, Hộp hào khí...) giờ gộp chung 1 ô và không có hạn sử dụng (hạn khác nhau mỗi ngày làm chúng không gộp được). Hộp cũ đang có hạn trong hành trang tự gộp vào khi nhận thêm hộp cùng loại.
+- **Vật phẩm bấm "Sử dụng" không có phản hồi** (dò tự động 260 vật phẩm bán ở shop / phần thưởng / hộp quà):
+  - Gói 30 đậu thần cấp 1 - 9: nhận 30 hạt đậu thần cấp tương ứng.
+  - Capsule hồng, Capsule Trung Thu: mở ra quà (vàng, ngọc, hồng ngọc, thỏi vàng, đá bảo vệ, đá nâng cấp / Hộp bánh Trung Thu 2026, Bóng mờ trung thu...). Nội dung sửa được trên panel (bảng item_box_reward).
+  - Bánh tét, Bánh chưng, kẹo / súp / hamburger Halloween, Mì thanh long, Cơm gà quay, Gà tây nướng, Bánh sinh nhật NRO, Chai Cuke: ăn được (+10% sức đánh như thức ăn).
+  - Pet cậu vàng, Hộp quà Goku Day VIP 2025 bị gán loại 75 (không dùng được): về loại 27 như DataNRO.
+  - Vật phẩm chỉ là nguyên liệu (Quả Hồng Đào, Cápsule Vỡ, Bánh trung thu hạt sen...): bấm dùng báo "là nguyên liệu sự kiện, mang tới <NPC> để đổi <quà>" hoặc công dụng của nó, thay vì im lặng.
+- **Tên / icon chuẩn theo DataNRO:** sửa icon Đổi đệ tử, Phá cỗ trung thu; "Capsule vỡ" (2111) đổi tên / icon thành Cápsule Vỡ chuẩn; 749 mô tả "VPSK" / bị cắt ngắn thay bằng mô tả DataNRO (file sql/dot89_datanro.sql, chạy 1 lần).
+- **Shop sự kiện mất dòng hạn sử dụng / vĩnh viễn:** mỗi món hiện "Hạn sử dụng X ngày", "Hạn sử dụng hoặc vĩnh viễn" (có tỉ lệ vĩnh viễn) hoặc "Vĩnh viễn".
+- **Danh hiệu:** Đón Xuân có chỉ số như bản chính thức (+50% TN SM, +25% TN SM đệ tử khi sư phụ mặc, +5% vàng rơi, SĐ 11%, chí mạng 5%, 30 ngày); vật phẩm Phá cỗ trung thu / Phá cỗ trung thu VIP / Đón Xuân hiện đủ chỉ số.
+- **CT Android 21 Evil gây lỗi hành trang:** thiếu ảnh đại diện (head_avatar). Bổ sung ảnh đại diện cho 13 cải trang còn thiếu (Android 21 Evil / Thân Thiện, Bunma Rider, Kochiro, Musashi, Ác Ma Pico, Janemba, Trâu Nâu, Bản Cô Nương, Broly, Đặng Văn Chiến, Kirin chú cuội).
+- **Shop đổi điểm Quy Lão:** giá hiện kèm icon đồng xu NRO như bản chính thức (trước là ngôi sao).
+- **Đua top kết thúc:** Chi Chi vẫn hiện mục đua top đó trong 7 ngày, nút "Xem điểm" đổi thành "Nhận quà đua top"; Top 100 vẫn xem được (lấy bảng xếp hạng lúc chốt).

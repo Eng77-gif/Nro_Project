@@ -982,6 +982,9 @@ public class UseItem {
                                     Event2026Service.gI().equipFoot(pl, item);
                                     return;
                                 }
+                                if (EventItemUse.use(pl, item)) {
+                                    return;
+                                }
                                 if (item.template.id == nro.models.boss.event_tet.NguaCon.BO_ROM) {
                                     nro.models.boss.event_tet.NguaCon.feed(pl, item);
                                     return;
@@ -1035,6 +1038,8 @@ public class UseItem {
                                         InventoryService.gI().sendItemBags(pl);
                                         return; // item đã bị dispose, không chạy tiếp checkDoneTaskUseItem
                                     }
+                                } else {
+                                    EventItemUse.hint(pl, item); // không có chức năng dùng: báo công dụng thay vì im lặng
                                 }
                                 break;
                         }

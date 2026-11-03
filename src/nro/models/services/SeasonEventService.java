@@ -1363,7 +1363,83 @@ public class SeasonEventService implements Runnable {
     }
 
     /** Chốt top: xếp hạng, lưu quà chờ nhận và xoá điểm cho mùa sau. */
+    /** Vật phẩm là nguyên liệu công thức đổi: "mang tới <NPC> để đổi <quà>" (ưu tiên sự kiện đang chạy), không phải thì null. */
+    public String ingredientHint(int itemId) {
+        List<Season> order = new ArrayList<>(activeSeasons());
+        for (Season se : seasons.values()) {
+            if (!order.contains(se)) {
+                order.add(se);
+            }
+        }
+        for (Season se : order) {
+            for (Exchange e : se.exchanges) {
+                for (int[] n : e.need) {
+                    if (n[0] == itemId) {
+                        String npc = "Chi Chi";
+                        if (e.npcs != null && e.npcs.length > 0) {
+                            for (nro.models.player_system.Template.NpcTemplate t : nro.models.server.Manager.NPC_TEMPLATES) {
+                                if (t.id == e.npcs[0]) {
+                                    npc = t.name;
+                                }
+                            }
+                        }
+                        String reward = e.rewardItem >= 0 && ItemService.gI().getTemplate(e.rewardItem) != null
+                                ? ItemService.gI().getTemplate(e.rewardItem).name : e.name.replace("\n", " ");
+                        return "mang tới " + npc + " để đổi " + reward + (isActive(se.id) ? "" : " (sự kiện " + se.name + ")");
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Đua top đã chốt trong CLAIM_DAYS ngày gần đây (Chi Chi vẫn hiện, nút "Xem điểm" thành "Nhận quà đua top"). */
+    public List<Top> endedTops() {
+        List<Top> out = new ArrayList<>();
+        Set<Integer> active = new HashSet<>();
+        for (Top t : currentTops()) {
+            active.add(t.id);
+        }
+        try (Connection con = LocalManager.getConnection()) {
+            try (java.sql.Statement st = con.createStatement()) {
+                st.executeUpdate("create table if not exists season_event_top_closed (top_id int primary key, closed_at timestamp not null default current_timestamp)");
+            }
+            try (PreparedStatement ps = con.prepareStatement("select top_id from season_event_top_closed where closed_at > now() - interval " + CLAIM_DAYS + " day order by closed_at desc");
+                    ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int id = rs.getInt(1);
+                    if (active.contains(id)) {
+                        continue;
+                    }
+                    for (Season se : seasons.values()) {
+                        for (Top t : se.tops) {
+                            if (t.id == id) {
+                                out.add(t);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Logger.error("Không đọc được đua top đã chốt: " + e.getMessage() + "\n");
+        }
+        return out;
+    }
+
+    /** Lời Chi Chi cho đua top đã kết thúc. */
+    public String endedTopIntro(Top t, Player pl) {
+        int[] p = myPoint(t, pl);
+        return "Sự kiện đua Top " + topName(t) + " đã kết thúc\nHạn chót nhận giải: " + CLAIM_DAYS + " ngày sau khi chốt\n"
+                + (hasPendingReward(pl) ? "Bạn có quà đua top chưa nhận, bấm Nhận quà đua top nhé" : "Bạn không có quà đua top" + (p[0] > 0 ? " (điểm: " + p[0] + ")" : ""));
+    }
+
     public synchronized int closeTop(Top t) {
+        try (Connection con = LocalManager.getConnection(); java.sql.Statement st = con.createStatement()) {
+            st.executeUpdate("create table if not exists season_event_top_closed (top_id int primary key, closed_at timestamp not null default current_timestamp)");
+            st.executeUpdate("replace into season_event_top_closed (top_id) values (" + t.id + ")");
+        } catch (Exception e) {
+            Logger.error("Không lưu được đua top đã chốt: " + e.getMessage() + "\n");
+        }
         int maxRank = 0;
         for (int[] r : t.rewards) {
             maxRank = Math.max(maxRank, r[1]);
@@ -1537,6 +1613,16 @@ public class SeasonEventService implements Runnable {
                 is.options.addAll(Event2026Service.gI().createItem(e.rewardItem, 1, e.rewardDays.length > 0 ? e.rewardDays[0] : 0).itemOptions);
             } catch (Exception ignored) {
             }
+            // dòng hạn dùng: "Hạn sử dụng X ngày", "Hạn sử dụng hoặc vĩnh viễn" (có tỉ lệ vĩnh viễn / nhiều mức ngày) hoặc "Vĩnh viễn"
+            is.options.removeIf(o -> o.optionTemplate != null && (o.optionTemplate.id == 93 || o.optionTemplate.id == 231 || o.optionTemplate.id == OPT_VINH_VIEN));
+            boolean expirable = !ItemService.gI().getTemplate(e.rewardItem).isUpToUp || e.rewardDays.length > 0;
+            if (e.rewardDays.length == 1 && e.permRate <= 0) {
+                is.options.add(new Item.ItemOption(93, e.rewardDays[0]));
+            } else if (e.rewardDays.length > 0) {
+                is.options.add(new Item.ItemOption(231, 0));
+            } else if (expirable) {
+                is.options.add(new Item.ItemOption(OPT_VINH_VIEN, 0));
+            }
             tab.itemShops.add(is);
             map.put(e.rewardItem, e);
         }
@@ -1554,7 +1640,9 @@ public class SeasonEventService implements Runnable {
     }
 
     /** Icon "điểm sự kiện" hiện cạnh giá ở cửa hàng đổi điểm Quy Lão (icon vật phẩm Ngôi sao). */
-    public static final int ICON_EVENT_POINT = 12323;
+    public static final int ICON_EVENT_POINT = 14116; // đồng xu NRO như bản chính thức
+    /** Dòng "Vĩnh viễn" hiện trong cửa hàng sự kiện */
+    public static final int OPT_VINH_VIEN = 266;
 
     /** Mua 1 món trong cửa hàng sự kiện: đi qua công thức đổi (trừ tiền / điểm, hạn dùng, điểm top, điểm sự kiện). */
     public void buyFromEventShop(Player pl, int tempId) {
@@ -1662,6 +1750,16 @@ public class SeasonEventService implements Runnable {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         rows.add(new long[]{rs.getLong(1), rs.getInt(2)});
+                    }
+                }
+                if (rows.isEmpty()) { // đua top đã chốt: điểm đã xoá, lấy bảng xếp hạng lúc chốt
+                    try (PreparedStatement p2 = con.prepareStatement("select player_id, points from season_event_reward_pending where top_id = ? order by rank_no limit 100")) {
+                        p2.setInt(1, t.id);
+                        try (ResultSet rs = p2.executeQuery()) {
+                            while (rs.next()) {
+                                rows.add(new long[]{rs.getLong(1), rs.getLong(2)});
+                            }
+                        }
                     }
                 }
                 if (rows.isEmpty()) {

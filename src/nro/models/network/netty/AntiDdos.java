@@ -17,10 +17,10 @@ public final class AntiDdos {
 
     // ---- giới hạn (đọc thêm từ Config.properties: server.ddos.*)
     public static int MAX_CONN_TOTAL = 3000;          // tổng kết nối cùng lúc
-    public static int MAX_CONN_PER_IP = 8;            // kết nối cùng lúc mỗi IP
-    public static int MAX_NEW_CONN_10S = 20;          // kết nối mới mỗi IP trong 10 giây
-    public static int MAX_MSG_PER_SEC = 120;          // gói tin / giây mỗi kết nối (client thật < 40)
-    public static int MAX_FRAME = 16 * 1024;          // gói client gửi lên lớn nhất (client thật < 2 KB)
+    public static int MAX_CONN_PER_IP = 20;            // kết nối cùng lúc mỗi IP
+    public static int MAX_NEW_CONN_10S = 60;          // kết nối mới mỗi IP trong 10 giây
+    public static int MAX_MSG_PER_SEC = 300;          // gói tin / giây mỗi kết nối (client thật < 40, mạng lag dồn gói có thể vọt cao)
+    public static int MAX_FRAME = 64 * 1024;          // gói client gửi lên lớn nhất (client thật < 2 KB)
     public static int HANDSHAKE_SECONDS = 10;         // phải gửi gói bắt tay (-27) trong thời gian này
     public static int LOGIN_IDLE_SECONDS = 120;       // chưa vào nhân vật mà im lặng quá lâu thì ngắt
     public static long MAX_PENDING_WRITE = 32L * 1024 * 1024; // byte chờ gửi tối đa / kết nối
@@ -32,7 +32,8 @@ public final class AntiDdos {
     private static final Map<String, Long> trusted = new ConcurrentHashMap<>();  // IP đã đăng nhập thành công -> hết hạn tin cậy
     private static final Map<String, long[]> strikes = new ConcurrentHashMap<>(); // {bắt đầu cửa sổ, số lỗi nhẹ}
     private static final java.util.Set<String> whitelist = ConcurrentHashMap.newKeySet();
-    public static int STRIKE_LIMIT = 10;              // số kết nối không bắt tay / IP / phút mới bị chặn
+    public static int STRIKE_LIMIT = 30;
+    public static boolean BAN_ENABLED = true;          // server.ddos.ban=false: không bao giờ chặn cả IP, chỉ ngắt kết nối vi phạm              // số kết nối không bắt tay / IP / phút mới bị chặn
     private static final long TRUST_MS = 24 * 3600_000L;
     private static final AtomicInteger dropped = new AtomicInteger();
     private static volatile long lastLog;
@@ -46,6 +47,7 @@ public final class AntiDdos {
         MAX_NEW_CONN_10S = intOf(p, "server.ddos.newconn10s", MAX_NEW_CONN_10S);
         MAX_MSG_PER_SEC = intOf(p, "server.ddos.msgpersec", MAX_MSG_PER_SEC);
         STRIKE_LIMIT = intOf(p, "server.ddos.strikes", STRIKE_LIMIT);
+        BAN_ENABLED = !"false".equalsIgnoreCase(p.getProperty("server.ddos.ban", "true").trim());
         whitelist.clear();
         String w = p.getProperty("server.ddos.whitelist", "");
         for (String ip : w.split("[,; ]+")) {
@@ -144,7 +146,7 @@ public final class AntiDdos {
 
     /** Chặn IP: 2 phút, tái phạm gấp đôi, tối đa 1 ngày. */
     public static void ban(String ip, String why) {
-        if (isTrusted(ip)) { // IP người chơi thật: chỉ ngắt kết nối vi phạm (nơi gọi tự đóng), không chặn cả IP
+        if (!BAN_ENABLED || isTrusted(ip)) { // IP người chơi thật: chỉ ngắt kết nối vi phạm (nơi gọi tự đóng), không chặn cả IP
             return;
         }
         long now = System.currentTimeMillis();
@@ -158,10 +160,38 @@ public final class AntiDdos {
             lastLog = now;
             Logger.warning("[CHỐNG DDOS] chặn " + ip + " " + ((b[0] - now) / 60_000) + " phút: " + why + "\n");
         }
+        try (java.io.FileWriter fw = new java.io.FileWriter("logs/ddos.log", true)) { // lịch sử chặn để kiểm tra chặn nhầm
+            fw.write(java.time.LocalDateTime.now().withNano(0) + " chặn " + ip + " " + ((b[0] - now) / 60_000) + " phút: " + why + "\n");
+        } catch (Exception ignored) {
+        }
     }
 
     public static boolean isLocal(String ip) {
-        return ip.equals("127.0.0.1") || ip.equals("0:0:0:0:0:0:0:1") || ip.equals("::1");
+        if (ip == null) {
+            return false;
+        }
+        if (ip.equals("127.0.0.1") || ip.equals("0:0:0:0:0:0:0:1") || ip.equals("::1") || ip.startsWith("10.") || ip.startsWith("192.168.")) {
+            return true; // máy chủ / mạng LAN
+        }
+        if (ip.startsWith("172.")) {
+            String[] p = ip.split("\\.");
+            try {
+                int b = Integer.parseInt(p[1]);
+                return b >= 16 && b <= 31;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /** Admin: gỡ chặn mọi IP, trả về số IP được gỡ. */
+    public static int unbanAll() {
+        int n = banned.size();
+        banned.clear();
+        strikes.clear();
+        rate.clear();
+        return n;
     }
 
     /** Dọn bảng định kỳ (gọi mỗi phút). */

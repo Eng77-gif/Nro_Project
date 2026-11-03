@@ -869,7 +869,33 @@ public class InventoryService {
         return addItemList(player.inventory.itemsBox, item);
     }
 
+    /** Gộp mọi ô cùng loại hộp quà (bỏ hạn sử dụng) vào ô đầu tiên. */
+    public void mergeBoxStacks(List<Item> items, int templateId) {
+        Item first = null;
+        for (int i = 0; i < items.size(); i++) {
+            Item it = items.get(i);
+            if (it == null || !it.isNotNullItem() || it.template.id != templateId) {
+                continue;
+            }
+            it.itemOptions.removeIf(io -> io.optionTemplate != null && io.optionTemplate.id == 93);
+            if (it.itemOptions.isEmpty()) {
+                it.itemOptions.add(new Item.ItemOption(73, 0));
+            }
+            if (first == null) {
+                first = it;
+            } else {
+                first.quantity += it.quantity;
+                items.set(i, ItemService.gI().createItemNull());
+            }
+        }
+    }
+
     public boolean addItemList(List<Item> items, Item itemAdd) {
+        if (itemAdd.template != null && Event2026Service.gI().isBox(itemAdd)) {
+            // hộp quà / túi mù / capsule mở ra quà: không có hạn sử dụng để luôn gộp chung 1 ô (cả hộp cũ đã có hạn)
+            itemAdd.itemOptions.removeIf(io -> io.optionTemplate != null && io.optionTemplate.id == 93);
+            mergeBoxStacks(items, itemAdd.template.id);
+        }
         if (itemAdd.itemOptions.isEmpty()) {
             itemAdd.itemOptions.add(new Item.ItemOption(73, 0));
         }

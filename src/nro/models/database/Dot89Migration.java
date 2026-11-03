@@ -39,6 +39,57 @@ public class Dot89Migration {
                 changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values "
                         + "(1988, 50, 21, 21, 100, 0), (1988, 77, 17, 17, 100, 0), (1988, 103, 17, 17, 100, 0), (1988, 101, 50, 120, 100, 0)");
             }
+            // hộp quà / túi mù / capsule mở ra quà (item_box_reward): gộp chung ô, không hạn sử dụng
+            changed += update(con, "update item_template set is_up_to_up = 1 where is_up_to_up = 0 and id in (select box_id from (select distinct box_id from item_box_reward) b)");
+            changed += update(con, "update season_event_exchange set reward_days = '' where reward_days <> '' and reward_item in (select box_id from (select distinct box_id from item_box_reward) b)");
+            // ảnh đại diện (head_avatar) cho cải trang còn thiếu: thiếu thì khung nhân vật trong hành trang lỗi (CT Android 21 Evil...)
+            int[][] avatars = {{2364, 14195}, {2367, 14187}, {2355, 14897}, {2358, 15724}, {2361, 15757}, {2373, 16173}, {2376, 16216},
+                {837, 7645}, {836, 7643}, {1060, 9458}, {1083, 9780}, {2352, 14794}, {2370, 15813}};
+            for (int[] a : avatars) {
+                if (!exists(con, "select 1 from head_avatar where head_id = " + a[0])) {
+                    changed += update(con, "insert into head_avatar (head_id, avatar_id) values (" + a[0] + ", " + a[1] + ")");
+                }
+            }
+            // Danh hiệu Đón Xuân (1978): chỉ số theo bản chính thức; vật phẩm danh hiệu Phá cỗ Trung Thu / VIP hiện đủ chỉ số
+            if (exists(con, "select 1 from data_badges where idItem = 1978 and (Options = '[]' or Options = '')")) {
+                changed += update(con, "update data_badges set Options = '[{\"param\":50,\"id\":101},{\"param\":25,\"id\":160},{\"param\":5,\"id\":100},"
+                        + "{\"param\":11,\"id\":50},{\"param\":5,\"id\":14},{\"param\":30,\"id\":93}]' where idItem = 1978");
+            }
+            int[][][] badgeItems = {
+                {{1978}, {101, 50}, {160, 25}, {100, 5}, {50, 11}, {14, 5}, {93, 30}},
+                {{1885}, {50, 14}, {77, 14}, {10, 10}, {14, 7}, {93, 30}},
+                {{2076}, {50, 20}, {77, 20}, {103, 20}, {10, 20}, {14, 10}},};
+            for (int[][] b : badgeItems) {
+                if (!exists(con, "select 1 from item_template_option where template_id = " + b[0][0])) {
+                    for (int i = 1; i < b.length; i++) {
+                        changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values ("
+                                + b[0][0] + ", " + b[i][0] + ", " + b[i][1] + ", " + b[i][1] + ", 100, 0)");
+                    }
+                }
+            }
+            // tên / icon / mô tả vật phẩm theo DataNRO (file sql/dot89_datanro.sql, chạy 1 lần)
+            java.io.File f = new java.io.File("sql/dot89_datanro.sql");
+            if (f.exists() && !exists(con, "select 1 from server_migration where name = 'dot89_datanro'")) {
+                for (String line : java.nio.file.Files.readAllLines(f.toPath(), java.nio.charset.StandardCharsets.UTF_8)) {
+                    if (line.startsWith("update ")) {
+                        changed += update(con, line.endsWith(";") ? line.substring(0, line.length() - 1) : line);
+                    }
+                }
+                changed += update(con, "insert into server_migration (name) values ('dot89_datanro')");
+            }
+            if (!exists(con, "select 1 from item_option_template where id = 266")) {
+                changed += update(con, "insert into item_option_template (id, NAME) values (266, 'Vĩnh viễn')");
+            }
+            // Capsule hồng (722), Capsule Trung Thu (737): mở ra quà (trước đây bấm dùng không có gì)
+            if (!exists(con, "select 1 from item_box_reward where box_id in (722, 737)")) {
+                String v = "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values ";
+                changed += update(con, v + "(722, -1, 5000000, 20000000, 300, '', 0, 0), (722, -2, 5, 20, 150, '', 0, 0), (722, -3, 5, 15, 120, '', 0, 0),"
+                        + " (722, 457, 1, 2, 60, '', 0, 0), (722, 1143, 1, 1, 60, '', 0, 0), (722, 220, 1, 3, 80, '', 0, 0), (722, 222, 1, 3, 80, '', 0, 0), (722, 441, 1, 1, 40, '', 0, 0)");
+                changed += update(con, v + "(737, -1, 10000000, 30000000, 300, '', 0, 0), (737, -2, 10, 30, 150, '', 0, 0), (737, -3, 10, 25, 120, '', 0, 0),"
+                        + " (737, 457, 1, 3, 80, '', 0, 0), (737, 1143, 1, 1, 70, '', 0, 0), (737, 2078, 1, 1, 80, '', 0, 0), (737, 2054, 1, 1, 30, '7,15', 1, 0)");
+            }
+            // Hộp quà Goku Day VIP 2025 (1840) và Pet cậu vàng (1935) bị gán loại 75 (không dùng được): về loại 27 như DataNRO
+            changed += update(con, "update item_template set TYPE = 27 where id in (1840, 1935) and TYPE = 75");
             if (!exists(con, "select 1 from server_migration where name = 'dot89'")) {
                 changed += event(con, EV_PHO, "Quán phở Anh 2", 0, 1, 1, 0, 0, 0,
                         "Quán phở Anh 2 mở cửa! Đánh quái nhặt Bột gạo, Thịt tươi, Cục xương rồi mang tới Chi Chi nấu phở: "

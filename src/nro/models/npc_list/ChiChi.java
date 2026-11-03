@@ -22,6 +22,8 @@ public class ChiChi extends Npc {
 
     private static final int MENU_TOP = 2096; // + chỉ số top
     private static final int MENU_HUY_HSD = 2190;
+    private static final int MENU_TOP_ENDED = 2195;
+    private final Map<Long, SeasonEventService.Top> endedMenu = new ConcurrentHashMap<>();
     private static final int MENU_HUY_BONG_MO = 2191;
 
     /** playerId -> danh sách hành động của menu chính đang mở */
@@ -44,7 +46,12 @@ public class ChiChi extends Npc {
             act.add("TOP" + i);
             label.add("Top\n" + sv.topName(tops.get(i)));
         }
-        if (sv.hasPendingReward(player)) {
+        List<SeasonEventService.Top> ended = sv.endedTops();
+        for (int i = 0; i < ended.size(); i++) {
+            act.add("END" + i);
+            label.add("Top\n" + sv.topName(ended.get(i)));
+        }
+        if (ended.isEmpty() && sv.hasPendingReward(player)) {
             act.add("CLAIM");
             label.add("Nhận giải\nđua top");
         }
@@ -84,6 +91,16 @@ public class ChiChi extends Npc {
                 }
                 return;
             }
+            if (a.startsWith("END")) {
+                int i = Integer.parseInt(a.substring(3));
+                List<SeasonEventService.Top> ended = sv.endedTops();
+                if (i < ended.size()) {
+                    SeasonEventService.Top t = ended.get(i);
+                    endedMenu.put(player.id, t);
+                    createOtherMenu(player, MENU_TOP_ENDED, sv.endedTopIntro(t, player), "Top 100\n" + sv.topName(t), "Nhận quà\nđua top", "Đóng");
+                }
+                return;
+            }
             switch (a) {
                 case "CLAIM" ->
                     sv.deliverTopRewards(player);
@@ -103,6 +120,26 @@ public class ChiChi extends Npc {
                         Service.gI().sendThongBao(player, "Hành trang không có bóng mờ nào hạn dưới 35 ngày");
                     } else {
                         createOtherMenu(player, MENU_HUY_BONG_MO, "Hủy bỏ " + n + " bóng mờ hạn dưới 35 ngày trong hành trang?", "Đồng ý", "Từ chối");
+                    }
+                }
+                default -> {
+                }
+            }
+            return;
+        }
+        if (menu == MENU_TOP_ENDED) {
+            SeasonEventService.Top t = endedMenu.get(player.id);
+            if (t == null) {
+                return;
+            }
+            switch (select) {
+                case 0 ->
+                    sv.showTop100(player, t);
+                case 1 -> {
+                    if (sv.hasPendingReward(player)) {
+                        sv.deliverTopRewards(player);
+                    } else {
+                        Service.gI().sendThongBao(player, "Bạn không có quà đua top nào để nhận");
                     }
                 }
                 default -> {

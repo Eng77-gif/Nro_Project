@@ -42,7 +42,7 @@ public class NroDecoder extends ByteToMessageDecoder {
             }
             int size = s1 << 8 | s2;
             if (size > AntiDdos.MAX_FRAME) {
-                AntiDdos.ban(session.getIP(), "gói tin " + size + " byte");
+                AntiDdos.strike(session.getIP(), "gói tin " + size + " byte");
                 in.skipBytes(in.readableBytes());
                 ctx.close();
                 return;
@@ -65,7 +65,7 @@ public class NroDecoder extends ByteToMessageDecoder {
                 return;
             }
             if (!rateOk()) {
-                AntiDdos.ban(session.getIP(), "gửi quá " + AntiDdos.MAX_MSG_PER_SEC + " gói / giây");
+                AntiDdos.strike(session.getIP(), "gửi quá " + AntiDdos.MAX_MSG_PER_SEC + " gói / giây");
                 ctx.close();
                 return;
             }
