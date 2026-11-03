@@ -234,6 +234,9 @@ public class Boss extends Player implements IBoss {
             }
             this.playerSkill.skills.add(skill);
         }
+        if (this.playerSkill.skills.isEmpty()) { // chỉ có chiêu khống chế (vd Ăn Trộm): cho 1 chiêu đánh thường
+            this.playerSkill.skills.add(SkillUtil.createSkill(Skill.DRAGON, 1));
+        }
     }
 
     protected void resetBase() {
