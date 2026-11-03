@@ -24,32 +24,24 @@ public class BotPemQuai {
     private boolean isPickingItem = false;
     private long lastSpecialSkillTime;
     private long lastChatTime = 0;
-    private final long chatInterval = 3000;
+    private final long chatInterval = 90_000;
 
     public BotPemQuai(Bot b) {
         this.bot = b;
     }
 
-    private static final String[] chatMessages = {
-        "|1|Con chó tài tỏi súc vật cali",
-        "|2|bê ka tê địt mẹ tài tỏi tung lồn",
-        "|3|arriety địt nhau với mẹ tài tỏi"
-    };
+    /** câu chat bình thường như người chơi thật (thỉnh thoảng mới chat) */
+    static final String[] chatMessages = {
+        "up sm mệt ghê", "ai đi săn boss không", "map này đông quá", "cày xong lên map khác", "đệ mình sắp đánh được Broly rồi",
+        "hôm nay sự kiện vui ghê", "có ai pt không", "lag quá ae", "sắp lên cấp rồi", "cày đua top thôi", "gg", "ae ở đâu đấy",
+        "hello mọi người", "ai bán thỏi vàng không", "săn đệ mãi chưa ra", "đi ngọc rồng sao đen không ae"};
 
     private void autoChat() {
         long now = System.currentTimeMillis();
-        if (now - lastChatTime >= chatInterval) {
-            String message;
-
-            if (new Random().nextBoolean()) {
-                message = chatMessages[new Random().nextInt(chatMessages.length)];
-            } else if (this.bot != null) {
-                message = this.bot.getChat();
-            } else {
-                return;
-            }
-
-            Service.gI().chat(this.bot, message);
+        if (now - lastChatTime >= chatInterval && Util.isTrue(15, 100)) {
+            Service.gI().chat(this.bot, chatMessages[new Random().nextInt(chatMessages.length)]);
+            lastChatTime = now;
+        } else if (now - lastChatTime >= chatInterval) {
             lastChatTime = now;
         }
     }

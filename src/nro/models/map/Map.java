@@ -366,6 +366,9 @@ public class Map implements Runnable {
 
     //--------------------------------------------------------------------------
     public int yPhysicInTop(int x, int y) {
+        if (tileMap == null || tileMap.length == 0) {
+            return y; // map thiếu dữ liệu ô gạch
+        }
         try {
             int rX = x / SIZE;
             int rY = 0;

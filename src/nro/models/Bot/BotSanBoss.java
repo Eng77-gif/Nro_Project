@@ -38,9 +38,28 @@ public class BotSanBoss {
                 || MapService.gI().isMapConDuongRanDoc(mapId));
     }
 
+    /** ưu tiên boss có tên chứa chuỗi này (vd "Broly" khi đi săn đệ), null = boss bất kỳ */
+    public String prefer;
+
     public void GetBoss(int status) {
         if (this.bossAttack == null || this.bossAttack.isDie()) {
-            this.bossAttack = BossManager.gI().getBosses().get(new Random().nextInt(BossManager.gI().getBosses().size()));
+            List<Boss> all = BossManager.gI().getBosses();
+            if (all.isEmpty()) {
+                giveUp();
+                return;
+            }
+            this.bossAttack = all.get(new Random().nextInt(all.size()));
+            if (prefer != null) {
+                List<Boss> want = new ArrayList<>();
+                for (Boss b : all) {
+                    if (b != null && b.name != null && b.name.toLowerCase().contains(prefer.toLowerCase()) && !b.isDie() && b.zone != null) {
+                        want.add(b);
+                    }
+                }
+                if (!want.isEmpty()) {
+                    this.bossAttack = want.get(new Random().nextInt(want.size()));
+                }
+            }
 
             boolean bosAction = false;
             if (this.bossAttack != null && this.bossAttack.zone != null && this.bossAttack.zone.map != null) {
@@ -60,10 +79,21 @@ public class BotSanBoss {
                 this.bossAttack = null;
                 this.GetBoss(status + 1);
             } else if (!bosAction) {
-                BotManager.gI().bot.remove(this.bot);
-                ChangeMapService.gI().exitMap(this.bot);
                 this.bossAttack = null;
+                giveUp();
             }
+        }
+    }
+
+    /** Không tìm được boss: bot của BotWorld quay về luyện tập, bot gọi tay thì rời game như cũ. */
+    private void giveUp() {
+        if (this.bot.worldBot) {
+            this.prefer = null;
+            this.bot.setMode(0);
+            this.bot.joinMap();
+        } else {
+            BotManager.gI().bot.remove(this.bot);
+            ChangeMapService.gI().exitMap(this.bot);
         }
     }
 

@@ -213,6 +213,10 @@ public class Boss extends Player implements IBoss {
         this.resetBase();
     }
 
+    /** chiêu khống chế người chơi: boss không được dùng */
+    public static final java.util.Set<Integer> CONTROL_SKILLS = java.util.Set.of((int) Skill.THOI_MIEN, (int) Skill.DICH_CHUYEN_TUC_THOI,
+            (int) Skill.TROI, (int) Skill.SOCOLA, (int) Skill.THAI_DUONG_HA_SAN, (int) Skill.MA_PHONG_BA);
+
     protected void initSkill() {
         for (Skill skill : this.playerSkill.skills) {
             skill.dispose();
@@ -221,6 +225,9 @@ public class Boss extends Player implements IBoss {
         this.playerSkill.skillSelect = null;
         int[][] skillTemps = data[this.currentLevel].getSkillTemp();
         for (int[] skillTemp : skillTemps) {
+            if (CONTROL_SKILLS.contains(skillTemp[0])) {
+                continue; // boss không dùng chiêu khống chế (thôi miên, dịch chuyển tức thời, trói, socola, thái dương hạ san, ma phong ba)
+            }
             Skill skill = SkillUtil.createSkill(skillTemp[0], skillTemp[1]);
             if (skillTemp.length == 3) {
                 skill.coolDown = skillTemp[2];

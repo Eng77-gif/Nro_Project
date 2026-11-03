@@ -149,7 +149,7 @@ function modal(html){const m=document.createElement('div');m.className='modal';m
 
 const PAGES=[
  ['g','Máy chủ'],['dash','Tổng quan','📊'],['notify','Thông báo & quà','📣'],['maint','Bảo trì & lưu','🛠'],['logs','Nhật ký console','🖥'],['audit','Nhật ký thao tác','📝'],['config','Cấu hình','⚙'],
- ['g','Người chơi'],['players','Người chơi','👤'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],
+ ['g','Người chơi'],['players','Người chơi','👤'],['bots','Bot','🤖'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],
  ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],['looks','Đeo lưng & thú cưỡi','🪽'],['admin','Lệnh admin trong game','🧙'],
  ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['bossrw','Thưởng boss','💰'],['mobs','Quái','🐗'],
  ['g','Khác'],['db','Database','🗄'],['health','Kiểm tra dữ liệu','🩺'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
@@ -266,6 +266,15 @@ async function openPlayer(id){
   m.querySelector('#bdel').onclick=()=>{if(prompt('Gõ XOA để xoá vĩnh viễn nhân vật '+p.name)!=='XOA')return;act(()=>api('player/delete',{id,confirm:'XOA'}),'Đã xoá nhân vật').then(()=>{m.remove();if($('#pt'))loadPlayers()})};
   m.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{const [where,index]=b.dataset.rm.split(':');if(!confirm('Xoá vật phẩm này?'))return;act(()=>api('player/removeitem',{id,where,index:+index}),'Đã xoá vật phẩm').then(re)});
   if(p.online){m.querySelector('#bk').onclick=()=>act(()=>api('player/kick',{id})).then(()=>m.remove());m.querySelector('#bt').onclick=()=>act(()=>api('player/teleport',{id,mapId:+$('#tm').value}))}}
+
+/* ---------- bot ---------- */
+async function page_bots(){const d=await api('bots');
+  $('#main').innerHTML=`<h2>Bot</h2><div class="card"><div class="mute">Bot tự vào game cho đỡ trống server: luyện tập lên sức mạnh, săn boss, săn đệ (Broly), cộng điểm đua top sự kiện (hiện trong bảng xếp hạng nhưng không nhận quà, không chiếm quà của người chơi). Tiến độ bot được lưu, khởi động lại vẫn giữ sức mạnh.</div>
+  <div class="row" style="margin-top:8px"><label>Số bot online <input id="bc" type="number" min="0" max="200" value="${d.target}" style="width:90px"></label><button class="p" id="bcs">Lưu</button><button id="bc0">Tắt hết bot</button><span class="mute">Đang online: ${d.list.length}</span></div></div>
+  <div class="tw"><table><tr><th>Tên</th><th>Hành tinh</th><th>Sức mạnh</th><th>Đang làm</th><th>Bản đồ</th></tr>${d.list.map(b=>`<tr><td><b>${esc(b.name)}</b> <span class="mute">#${b.id}</span></td><td>${['Trái Đất','Namếc','Xayda'][b.gender]||b.gender}</td><td>${fmt(b.power)}</td><td>${esc(b.activity)}</td><td>${esc(b.map)}</td></tr>`).join('')}</table></div>
+  <h3>Lỗi bot gần đây <span class="mute">(đầy đủ trong logs/bot.log)</span></h3>${d.errors&&d.errors.length?`<pre style="white-space:pre-wrap;max-height:300px;overflow:auto">${esc(d.errors.join('\n'))}</pre>`:'<span class="mute">Không có lỗi</span>'}`;
+  $('#bcs').onclick=()=>act(()=>api('bot/set',{count:+$('#bc').value}),'Đã lưu, bot vào / ra dần trong ít phút').then(page_bots);
+  $('#bc0').onclick=()=>act(()=>api('bot/set',{count:0}),'Đã tắt bot').then(page_bots)}
 
 /* ---------- tài khoản ---------- */
 async function page_accounts(){

@@ -146,6 +146,7 @@ public class ServerManager {
             new Thread(nro.models.services.SeasonEventService.gI(), "Update season event").start();
 
             new Thread(BotManager.gI(), "Thread Bot Game").start();
+            nro.models.Bot.BotWorld.gI().start(15); // bot tự duy trì cho đỡ trống server (số lượng đổi trên web panel)
             new Thread(ChonAiDay_Gem.gI(), "Thread MiniGame").start();
             new Thread(ChonAiDay_Gold.gI(), "Thread MiniGame").start();
             new Thread(ConSoMayManGold.gI(), "ConSoMayManGoldThread").start();

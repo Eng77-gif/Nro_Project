@@ -91,7 +91,7 @@ public class Cadic extends Boss {
         for (Player pl : this.zone.getNotBosses()) {
             if (Util.isTrue(1, 10)) {
                 this.chat("phẹt");
-                EffectSkillService.gI().setIsStone(pl, 16000);
+                ; // bỏ khống chế của boss: EffectSkillService.gI().setIsStone(pl, 16000)
             }
         }
     }

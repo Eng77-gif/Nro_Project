@@ -1323,6 +1323,9 @@ public class Service {
     }
 
     public void sendMoney(Player pl) {
+        if (pl == null || pl.getSession() == null) {
+            return; // bot / boss không có kết nối
+        }
         Message msg;
         try {
             msg = new Message(6);

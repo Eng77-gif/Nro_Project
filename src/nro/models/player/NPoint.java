@@ -1495,7 +1495,7 @@ public class NPoint {
             hpMax = MAX_STAT;
         }
 
-        this.hpMax = (int) Math.max(1, hpMax);
+        this.hpMax = Math.max(1, hpMax); // không ép int: boss HP > 2,1 tỷ (SSJ Broly 15 tỷ); gửi client qua writeNum (tự xử lý client đọc int)
     }
 
     private void setHp() {

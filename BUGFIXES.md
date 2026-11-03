@@ -1630,3 +1630,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - nút ✕ xoá từng vật phẩm ở Đang mặc / Hành trang / Rương;
   - xoá nhân vật (phải gõ XOA để xác nhận; đang online thì kick, đợi lưu xong mới xoá; tài khoản giữ lại).
   Người chơi đang online được sửa trực tiếp và lưu ngay, offline thì sửa trong database.
+- **Bot cho đỡ trống server (web panel → Bot):** luôn giữ đủ số bot đặt trên panel (mặc định 15, 0 = tắt), vào / ra dần. Mỗi bot có tên giống người chơi, hành tinh và cải trang ngẫu nhiên, lưu tiến độ (bảng bot_profile) nên sức mạnh tăng dần qua các lần khởi động. Bot luyện tập đánh quái map hợp sức mạnh, nhặt đồ, săn boss, săn đệ (ưu tiên Broly), cộng điểm đua top sự kiện: hiện trong Top 100 nhưng chốt top bỏ qua bot nên không chiếm quà của người chơi thật. Bỏ các câu chat chửi bậy của bot cũ, bot chat câu bình thường thỉnh thoảng.
+- **Log lỗi bot:** lỗi của từng bot ghi vào logs/bot.log (tên bot, đang làm gì, map nào, chỗ lỗi), xem nhanh 50 lỗi gần nhất trên trang Bot của panel; lỗi 1 bot không làm dừng bot khác, bot lỗi liên tục tự thoát rồi vào lại. Sửa lỗi khi bot nhặt vàng (không có kết nối) và đánh quái ở map thiếu dữ liệu ô gạch.
+- **Boss không dùng chiêu khống chế:** bỏ thôi miên, dịch chuyển tức thời, trói, socola, thái dương hạ san, ma phong ba khỏi mọi boss; bỏ hoá đá / biến kẹo của Mabư, Drabura, Cadic, Goku (sự kiện Mabư).
+- **SSJ Broly HP 15 tỷ.** Sửa lỗi HP tối đa bị ép về số int (> 2,1 tỷ bị cắt sai), gửi client vẫn tự xử lý số lớn.

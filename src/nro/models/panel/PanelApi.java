@@ -73,6 +73,11 @@ class PanelApi {
             case "player/removeitem" -> playerRemoveItem(b);
             case "player/delete" -> playerDelete(b);
             case "tasks" -> taskList();
+            case "bots" -> Map.of("target", nro.models.Bot.BotWorld.gI().target(), "list", nro.models.Bot.BotWorld.gI().panelList(), "errors", nro.models.Bot.BotWorld.gI().recentErrors());
+            case "bot/set" -> {
+                nro.models.Bot.BotWorld.gI().setTarget(intv(b.get("count")));
+                yield Map.of("ok", true);
+            }
             case "player/save" -> playerSave(b);
             case "accounts" -> accounts(q.getOrDefault("q", ""));
             case "account/update" -> accountUpdate(b);

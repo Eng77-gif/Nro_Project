@@ -1291,6 +1291,13 @@ public class SeasonEventService implements Runnable {
     }
 
     // ------------------------------------------------------------------ đua top
+    /** Bot cộng điểm đua top của sự kiện đang chạy (hiện trong bảng xếp hạng, không nhận quà). */
+    public void addBotTopPoint(Player bot, int pts) {
+        for (Top t : currentTops()) {
+            addTopPoint(t, bot, pts);
+        }
+    }
+
     private void addTopPoint(Top t, Player pl, int pts) {
         try {
             LocalManager.executeUpdate("INSERT INTO season_event_point (top_id, player_id, name, points) VALUES (?, ?, ?, ?) "
@@ -1479,7 +1486,9 @@ public class SeasonEventService implements Runnable {
         int n = 0;
         try (Connection con = LocalManager.getConnection()) {
             List<long[]> ranks = new ArrayList<>();
-            try (PreparedStatement ps = con.prepareStatement("select player_id, points from season_event_point where top_id = ? and points >= " + MIN_TOP_POINT + " order by points desc, player_id limit ?")) {
+            // bot (id từ BotWorld.ID_BASE) không nhận quà: xếp hạng quà chỉ tính người chơi thật
+            try (PreparedStatement ps = con.prepareStatement("select player_id, points from season_event_point where top_id = ? and points >= " + MIN_TOP_POINT
+                    + " and player_id < " + nro.models.Bot.BotWorld.ID_BASE + " order by points desc, player_id limit ?")) {
                 ps.setInt(1, t.id);
                 ps.setInt(2, Math.max(1, maxRank));
                 try (ResultSet rs = ps.executeQuery()) {
@@ -2016,6 +2025,12 @@ public class SeasonEventService implements Runnable {
                 List<Integer> pts = new ArrayList<>();
                 for (long[] r : rows) {
                     Player p = Client.gI().getPlayer(r[0]);
+                    if (p == null && nro.models.Bot.BotWorld.isBotId(r[0])) {
+                        p = nro.models.Bot.BotWorld.gI().find(r[0]);
+                        if (p == null) {
+                            continue; // bot đang không online
+                        }
+                    }
                     if (p == null) {
                         p = nro.models.database.VietLoader.loadById(r[0]);
                     }

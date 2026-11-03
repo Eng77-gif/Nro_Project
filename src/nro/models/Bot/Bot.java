@@ -92,7 +92,7 @@ public class Bot extends Player {
         Map map = MapService.gI().getMapById(mapId);
         Zone zone = null;
         try {
-            if (map != null) {
+            if (map != null && map.tileMap != null) { // map thiếu dữ liệu ô gạch: người chơi không vào được, bot cũng không
                 zone = map.zones.stream()
                         .filter(z -> z.getNumOfPlayers() == 0)
                         .findFirst()
@@ -260,12 +260,19 @@ public class Bot extends Player {
     }
 
     public String getChat() {
-        String[] messages = {
-            "|1|Con chó tài tỏi súc vật cali",
-            "|2|bê ka tê địt mẹ tài tỏi tung lồn",
-            "|3|arriety địt nhau với mẹ tài tỏi"
-        };
-        return messages[new Random().nextInt(messages.length)];
+        return BotPemQuai.chatMessages[new Random().nextInt(BotPemQuai.chatMessages.length)];
     }
+
+    /** Đổi hoạt động: 0 luyện tập (đánh quái), 1 bán đồ, 2 săn boss. */
+    public void setMode(int type) {
+        this.type = type;
+    }
+
+    public int getMode() {
+        return this.type;
+    }
+
+    /** bot của BotWorld (tự duy trì, lưu tiến độ) */
+    public boolean worldBot;
 
 }

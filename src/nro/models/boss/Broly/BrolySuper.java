@@ -19,6 +19,8 @@ import nro.models.utils.Util;
 public class BrolySuper extends Boss {
 
     private static final int HP = 2_000_000_000;
+    /** HP thật 15 tỷ (BossData chỉ nhận int) */
+    private static final long HP_REAL = 15_000_000_000L;
 
     public BrolySuper() throws Exception {
         super(BossID.BROLY_SUPER, new BossData(
@@ -36,6 +38,14 @@ public class BrolySuper extends Boss {
                 new String[]{"|-1|Mất của ta", "|-1|Chói mắt quá", "|-1|Ta sẽ nghiền nát các ngươi!"},
                 new String[]{"|-1|Các ngươi... sẽ phải trả giá!"},
                 900));
+    }
+
+    @Override
+    public void initBase() {
+        super.initBase();
+        this.nPoint.hpg = HP_REAL;
+        this.nPoint.calPoint();
+        this.nPoint.hp = this.nPoint.hpMax;
     }
 
     @Override

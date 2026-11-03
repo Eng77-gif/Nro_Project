@@ -63,7 +63,7 @@ public class Mabu2H extends Boss {
         for (Player pl : this.zone.getNotBosses()) {
             if (Util.isTrue(1, 5)) {
                 this.chat("Úm ba la xì bùa");
-                EffectSkillService.gI().setSocola(pl, System.currentTimeMillis(), 30000);
+                ; // bỏ khống chế của boss: EffectSkillService.gI().setSocola(pl, System.currentTimeMillis(), 30000)
                 Service.gI().Send_Caitrang(pl);
                 ItemTimeService.gI().sendItemTime(pl, 4133, 30);
             }
