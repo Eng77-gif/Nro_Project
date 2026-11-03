@@ -100,7 +100,7 @@ public class Trade {
             Service.gI().sendThongBao(pl, "Đã khóa giao dịch, không thể thay đổi");
             return;
         }
-        if (pl.getSession().actived) {
+        if (pl.getSession() == null ? pl.isBot : pl.getSession().actived) { // tài khoản bot không có phiên kết nối
             if (index == -1) { // Giao dịch vàng
                 if (quantity > MAX_GOLD_TRADE_PER_TIME || quantity < 0) {
                     Service.gI().sendThongBao(pl, "Số vàng giao dịch không được vượt quá " + MAX_GOLD_TRADE_PER_TIME + " vàng.");
@@ -336,7 +336,7 @@ public class Trade {
                 msg.writer().writeByte(itemsTrade1.size());
                 for (Item item : itemsTrade1) {
                     msg.writer().writeShort(item.template.id);
-                    if (player2.getSession().version < 222) {
+                    if (ver(player2) < 222) {
                         msg.writer().writeByte(item.quantity > Byte.MAX_VALUE ? Byte.MAX_VALUE : item.quantity);
                     } else {
                         msg.writer().writeInt(item.quantity);
@@ -352,7 +352,7 @@ public class Trade {
                 msg.writer().writeByte(itemsTrade2.size());
                 for (Item item : itemsTrade2) {
                     msg.writer().writeShort(item.template.id);
-                    if (player1.getSession().version < 222) {
+                    if (ver(player1) < 222) {
                         msg.writer().writeByte(item.quantity > Byte.MAX_VALUE ? Byte.MAX_VALUE : item.quantity);
                     } else {
                         msg.writer().writeInt(item.quantity);
@@ -370,8 +370,10 @@ public class Trade {
             if (msg != null) {
                 msg.cleanup();
             }
-            if (player2 != null && player2.isBot) {
-                if (pl.equals(player1)) {
+            if (player2 != null && player2.isBot && pl.equals(player1)) {
+                if (player2 instanceof Bot && ((Bot) player2).accountBot) {
+                    nro.models.Bot.BotTrade.gI().onPlayerLock(this, (Bot) player2, itemsTrade1, goldTrade1); // tài khoản bot ra giá bằng đồ / vàng thật
+                } else {
                     ((Bot) player2).shop.CheckTraDe(itemsTrade1);
                 }
             }
@@ -413,6 +415,15 @@ public class Trade {
      * người chơi đã dùng/cất/vứt đồ trong lúc giao dịch và việc ghi đè hành
      * trang bằng bản sao sẽ gây nhân bản vật phẩm.
      */
+    private static int ver(Player p) {
+        return p.getSession() == null ? 999 : p.getSession().version;
+    }
+
+    /** Bot bán hàng (tạo đồ ra để đổi), khác tài khoản bot (dùng hành trang thật như người chơi). */
+    private static boolean shopBot(Player p) {
+        return p.isBot && !(p instanceof Bot && ((Bot) p).accountBot);
+    }
+
     private static boolean sameBag(List<Item> before, List<Item> now) {
         if (before.size() != now.size()) {
             return false;
@@ -434,7 +445,7 @@ public class Trade {
 
     private void startTrade() {
         byte tradeStatus = SUCCESS;
-        if (!sameBag(bag1Before, player1.inventory.itemsBag) || (!player2.isBot && !sameBag(bag2Before, player2.inventory.itemsBag))
+        if (!sameBag(bag1Before, player1.inventory.itemsBag) || (!shopBot(player2) && !sameBag(bag2Before, player2.inventory.itemsBag))
                 || player1.inventory.gold < goldTrade1 || player2.inventory.gold < goldTrade2) {
             cancelTrade();
             return;
@@ -448,7 +459,7 @@ public class Trade {
             sendNotifyTrade(tradeStatus);
         } else {
             for (Item item : itemsTrade1) {
-                if (!player2.isBot) {
+                if (!shopBot(player2)) {
                     if (!InventoryService.gI().addItemList(itemsBag2, item)) {
                         tradeStatus = FAIL_NOT_ENOUGH_BAG_P1;
                         break;
@@ -459,7 +470,7 @@ public class Trade {
                 sendNotifyTrade(tradeStatus);
             } else {
                 for (Item item : itemsTrade2) {
-                    if (!player1.isBot) {
+                    if (!shopBot(player1)) {
                         if (!InventoryService.gI().addItemList(itemsBag1, item)) {
                             tradeStatus = FAIL_NOT_ENOUGH_BAG_P2;
                             break;

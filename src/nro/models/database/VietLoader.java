@@ -67,7 +67,6 @@ public class VietLoader {
                 session.userId = rs.getInt("account.id");
                 session.isAdmin = rs.getBoolean("is_admin");
                 nro.models.data.ResGuard.onLogin(session);
-                nro.models.Bot.BotWorld.gI().releaseAccount(session.userId); // chủ tài khoản bot vào game: bot thoát và lưu trước
                 session.lastTimeLogout = rs.getTimestamp("last_time_logout").getTime();
                 session.actived = rs.getBoolean("active");
                 session.goldBar = rs.getInt("account.thoi_vang");
@@ -87,6 +86,8 @@ public class VietLoader {
 
                 if (rs.getBoolean("ban")) {
                     Service.gI().sendThongBaoOK(session, "Tài khoản này đang bị khóa. Liên hệ Admin để biết thêm thông tin");
+                } else if (nro.models.Bot.BotWorld.gI().isBotAccount(session.userId)) {
+                    Service.gI().sendThongBaoOK(session, "Đây là tài khoản bot của máy chủ, không thể đăng nhập");
                 } else if (secondsPass1 < Manager.SECOND_WAIT_LOGIN) {
                     if (secondsPass < secondsPass1) {
                         Service.gI().sendWaitToLogin(session, Manager.SECOND_WAIT_LOGIN - secondsPass);

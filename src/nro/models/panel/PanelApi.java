@@ -75,16 +75,25 @@ class PanelApi {
             case "tasks" -> taskList();
             case "bots" -> Map.of("target", nro.models.Bot.BotWorld.gI().target(), "list", nro.models.Bot.BotWorld.gI().panelList(), "errors", nro.models.Bot.BotWorld.gI().recentErrors());
             case "bot/accounts" -> botAccounts();
-            case "bot/account" -> {
-                long pid = lng(b.get("id"));
-                if (pid <= 0 && b.get("name") != null) {
-                    List<Map<String, Object>> f = rows("select id from player where name=?", str(b.get("name")).trim());
-                    if (f.isEmpty()) {
-                        throw new IllegalArgumentException("Không có nhân vật tên " + b.get("name"));
-                    }
-                    pid = ((Number) f.get(0).get("id")).longValue();
+            case "bot/account" -> { // bật / tắt tài khoản bot
+                nro.models.Bot.BotWorld.gI().setAccountBot(lng(b.get("id")), lng(b.getOrDefault("on", 1)) != 0);
+                yield Map.of("ok", true);
+            }
+            case "bot/create" -> {
+                int n = Math.max(1, Math.min(20, intv(b.getOrDefault("count", 1))));
+                String nm = str(b.get("name")).trim();
+                List<Long> ids = new ArrayList<>();
+                for (int i = 0; i < n; i++) {
+                    ids.add(nro.models.Bot.BotWorld.gI().createBotAccount(n == 1 ? nm : "", intv(b.getOrDefault("gender", -1)),
+                            lng(b.getOrDefault("power", 0)), intv(b.getOrDefault("task", 0))));
                 }
-                nro.models.Bot.BotWorld.gI().setAccountBot(pid, lng(b.getOrDefault("on", 1)) != 0);
+                yield Map.of("ok", true, "ids", ids);
+            }
+            case "bot/delete" -> {
+                if (!"XOA".equals(str(b.get("confirm")))) {
+                    throw new IllegalArgumentException("Thiếu xác nhận");
+                }
+                nro.models.Bot.BotWorld.gI().deleteBotAccount(lng(b.get("id")));
                 yield Map.of("ok", true);
             }
             case "bot/set" -> {
@@ -276,7 +285,7 @@ class PanelApi {
         if (on == null) {
             on = nro.models.Bot.BotWorld.gI().find(id); // tài khoản bot đang chơi: xem hành trang thật lúc này
         }
-        o.put("botAccount", nro.models.Bot.BotWorld.gI().accountBots().containsKey(id));
+        o.put("botAccount", nro.models.Bot.BotWorld.gI().accountBots(false).containsKey(id));
         List<Map<String, Object>> rs = rows("select p.id, p.name, p.gender, p.account_id, a.username, a.ban, a.is_admin, a.vnd, a.tongnap, a.last_time_login, a.ip_address, p.data_point, p.data_inventory, p.data_location, p.items_bag, p.items_body, p.items_box from player p left join account a on a.id=p.account_id where p.id=?", id);
         if (rs.isEmpty()) {
             throw new IllegalArgumentException("Không có nhân vật " + id);
@@ -569,7 +578,8 @@ class PanelApi {
 
     private Object botAccounts() throws Exception {
         List<Map<String, Object>> out = new ArrayList<>();
-        Map<Long, Integer> acc = nro.models.Bot.BotWorld.gI().accountBots();
+        Map<Long, Integer> acc = nro.models.Bot.BotWorld.gI().accountBots(false);
+        Map<Long, Integer> on = nro.models.Bot.BotWorld.gI().accountBots(true);
         for (Map.Entry<Long, Integer> e : acc.entrySet()) {
             Map<String, Object> m = new LinkedHashMap<>();
             long pid = e.getKey();
@@ -578,8 +588,9 @@ class PanelApi {
             m.put("name", r.isEmpty() ? "?" : r.get(0).get("name"));
             m.put("username", r.isEmpty() ? "" : r.get(0).get("username"));
             nro.models.Bot.Bot bot = nro.models.Bot.BotWorld.gI().find(pid);
-            boolean owner = Client.gI().getPlayerByID((int) pid) != null;
-            m.put("state", owner ? "Chủ tài khoản đang chơi" : bot != null ? "Bot đang chơi" : "Chờ vào game");
+            m.put("enabled", on.containsKey(pid));
+            m.put("state", !on.containsKey(pid) ? "Đã tắt" : bot != null ? "Đang chơi" : "Chờ vào game");
+            m.put("clan", bot != null && bot.clan != null ? bot.clan.name : "");
             m.put("activity", bot != null ? bot.activity : "");
             m.put("power", bot != null ? bot.nPoint.power : null);
             m.put("map", bot != null && bot.zone != null ? bot.zone.map.mapName + " khu " + bot.zone.zoneId : "");

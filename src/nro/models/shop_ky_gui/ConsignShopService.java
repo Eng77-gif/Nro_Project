@@ -188,6 +188,9 @@ public class ConsignShopService {
     }
 
     public void openShopKyGui(Player pl, byte index, int page) {
+        if (pl.getSession() == null) {
+            return; // tài khoản bot không có màn hình
+        }
         if (page > getItemKyGui(pl, index).size()) {
             return;
         }
@@ -481,6 +484,9 @@ public class ConsignShopService {
     }
 
     public void openShopKyGui(Player pl) {
+        if (pl.getSession() == null) {
+            return;
+        }
         Message msg = null;
         try {
             msg = new Message(-44);

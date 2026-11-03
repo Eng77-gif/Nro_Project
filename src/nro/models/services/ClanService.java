@@ -287,6 +287,12 @@ public class ClanService {
      */
     private void sendInviteClan(Player player, int playerId) {
         Player pl = Client.gI().getPlayer(playerId);
+        if (pl == null) {
+            pl = nro.models.Bot.BotWorld.gI().find(playerId); // mời tài khoản bot: bot tự cân nhắc như người chơi
+            if (pl == null) {
+                return;
+            }
+        }
         if (pl != null && player.clan != null && (player.clan.isLeader(player) || player.clan.isDeputy(player))) {
             if (player.clan.getCurrMembers() < player.clan.maxMember) {
                 if (TaskService.gI().getIdTask(pl) < ConstTask.TASK_10_0) {
@@ -304,6 +310,10 @@ public class ClanService {
                 pl.idMark.setIdClanInvited(player.clan.id);
                 pl.idMark.setLastTimeClanInvited(System.currentTimeMillis());
                 Service.gI().sendThongBao(player, "Đã gửi lời mời đến " + pl.name);
+                if (pl.isBot) {
+                    nro.models.Bot.BotWorld.gI().onClanInvite(pl, player.clan);
+                    return;
+                }
                 Message msg;
                 try {
                     msg = new Message(-57);
@@ -393,6 +403,9 @@ public class ClanService {
                 cmg.isNewMessage = 0;
                 cmg.color = ClanMessage.RED;
 
+                if (pl == null) {
+                    pl = nro.models.Bot.BotWorld.gI().find(plxinvao); // tài khoản bot đang chơi
+                }
                 //lấy info player đã offline
                 if (pl == null) {
                     pl = VietLoader.loadById(plxinvao);
@@ -550,6 +563,36 @@ public class ClanService {
             changeSlogan(player, slogan);
         } else {
             changeFlag(player, imgId);
+        }
+    }
+
+    // ------------------------------------------------------------------ tài khoản bot dùng bang hội như người chơi
+    public void botCreateClan(Player bot, int imgId, String name) {
+        createClan(bot, imgId, name);
+    }
+
+    public void botAskJoin(Player bot, int clanId) {
+        askForJoinClan(bot, clanId);
+    }
+
+    public void botAcceptInvite(Player bot, int clanId) {
+        acceptJoinClan(bot, clanId);
+    }
+
+    /** Bot làm bang chủ: duyệt các đơn xin vào bang (người chơi hay bot đều như nhau), bang đầy thì từ chối. */
+    public void botHandleAsks(Player leader) {
+        Clan clan = leader.clan;
+        if (clan == null || !clan.isLeader(leader)) {
+            return;
+        }
+        for (ClanMessage c : new java.util.ArrayList<>(clan.getCurrClanMessages())) {
+            if (c.type == 2 && c.role == -1) {
+                if (clan.getCurrMembers() < clan.maxMember && c.playerPower >= 1_500_000) {
+                    acceptAskJoinClan(leader, c.id);
+                } else {
+                    cancelAskJoinClan(leader, c.id);
+                }
+            }
         }
     }
 

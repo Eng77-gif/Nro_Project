@@ -77,7 +77,8 @@ public class TransactionService implements Runnable {
                         return;
                     }
                     plMap = pl.zone.getPlayerInMap(playerId);
-                    if (plMap != null && plMap.isPl()) {
+                    boolean accBot = plMap instanceof Bot && ((Bot) plMap).accountBot;
+                    if (plMap != null && (plMap.isPl() || accBot)) {
                         if (plMap.tradeWVP) {
                             return;
                         }
@@ -93,7 +94,7 @@ public class TransactionService implements Runnable {
                                     boolean checkLogout2 = false;
                                     try (Connection con = LocalManager.getConnection()) {
                                         checkLogout1 = PlayerDAO.checkLogout(con, pl);
-                                        checkLogout2 = PlayerDAO.checkLogout(con, plMap);
+                                        checkLogout2 = !accBot && PlayerDAO.checkLogout(con, plMap);
                                     } catch (Exception e) {
                                     }
                                     if (checkLogout1) {
@@ -181,6 +182,10 @@ public class TransactionService implements Runnable {
      * Mời giao dịch
      */
     private void sendInviteTrade(Player plInvite, Player plReceive) {
+        if (plReceive instanceof Bot && ((Bot) plReceive).accountBot) {
+            nro.models.Bot.BotTrade.gI().onInvite(plInvite, (Bot) plReceive); // tài khoản bot tự nhận giao dịch như người chơi
+            return;
+        }
         if(plReceive.isBot){
               ((Bot) plReceive).shop.activeTraDe(plInvite);
         }

@@ -59,6 +59,9 @@ public class BotPemQuai {
         if (this.bot.accountBot && defendNrsd()) {
             return;
         }
+        if (this.bot.accountBot && doanhTrai()) {
+            return;
+        }
         Attack();
         if (!this.bot.worldBot || !"NRSD".equals(this.bot.activity)) {
             chanGeMap(); // đang đánh NRSD thì ở lại map NRSD
@@ -94,6 +97,60 @@ public class BotPemQuai {
         if (this.bot.UseLastTimeSkill()) {
             PlayerService.gI().playerMove(this.bot, best.location.x + Util.nextInt(-30, 30), best.location.y);
             SkillService.gI().useSkillAttack(bot, best, null);
+        }
+        NhatItem();
+        return true;
+    }
+
+    /** Trong doanh trại: đánh hết quái, đánh boss của map, xong thì sang map tiếp theo của doanh trại; nhặt ngọc rồng rơi ra. */
+    private boolean doanhTrai() {
+        if (this.bot.zone == null || !nro.models.map.service.MapService.gI().isMapDoanhTrai(this.bot.zone.map.mapId)) {
+            return false;
+        }
+        nro.models.player.Player boss = null;
+        for (nro.models.player.Player p : this.bot.zone.getBosses()) {
+            if (p != null && !p.isDie()) {
+                boss = p;
+                break;
+            }
+        }
+        Mob alive = null;
+        for (Mob m : this.bot.zone.mobs) {
+            if (!m.isDie()) {
+                alive = m;
+                break;
+            }
+        }
+        if (alive != null) {
+            if (this.mAttack == null || this.mAttack.isDie() || this.mAttack.zone != this.bot.zone) {
+                this.mAttack = alive;
+            }
+            Attack();
+        } else if (boss != null) {
+            if (!bot.playerSkill.skills.isEmpty()) {
+                bot.playerSkill.skillSelect = bot.playerSkill.skills.get(new Random().nextInt(Math.min(2, bot.playerSkill.skills.size())));
+            }
+            if (this.bot.UseLastTimeSkill()) {
+                PlayerService.gI().playerMove(this.bot, boss.location.x + Util.nextInt(-30, 30), boss.location.y);
+                SkillService.gI().useSkillAttack(bot, boss, null);
+            }
+        } else if (this.bot.clan != null && this.bot.clan.doanhTrai != null && this.bot.zone.items.isEmpty()
+                && System.currentTimeMillis() - this.lastTimeChanM > 5_000) {
+            for (nro.models.map.Zone z : this.bot.clan.doanhTrai.zones) {
+                if (z == this.bot.zone) {
+                    continue;
+                }
+                boolean left = !z.getBosses().stream().allMatch(p -> p == null || p.isDie());
+                for (Mob m : z.mobs) {
+                    left |= !m.isDie();
+                }
+                if (left) {
+                    nro.models.map.service.ChangeMapService.gI().goToMap(this.bot, z);
+                    this.bot.zone.load_Me_To_Another(this.bot);
+                    this.lastTimeChanM = System.currentTimeMillis();
+                    break;
+                }
+            }
         }
         NhatItem();
         return true;
