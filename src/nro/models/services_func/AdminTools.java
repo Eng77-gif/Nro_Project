@@ -25,12 +25,14 @@ public class AdminTools {
     public static final int MENU_MAIN = 77_001;
     public static final int MENU_EXP = 77_002;
     public static final int MENU_RELOAD = 77_003;
+    public static final int MENU_EVENT = 77_004;
 
     public static final int INPUT_ANNOUNCE = 77_101;
     public static final int INPUT_MONEY = 77_102;
     public static final int INPUT_TELEPORT = 77_103;
     public static final int INPUT_BAN = 77_104;
     public static final int INPUT_QL_POINT = 77_105;
+    public static final int INPUT_EVENT = 77_106;
 
     private static final int[] EXP_RATES = {1, 2, 3, 5, 10};
 
@@ -50,12 +52,12 @@ public class AdminTools {
         NpcService.gI().createMenuConMeo(pl, MENU_MAIN, -1, "|7|Công cụ admin\n|1|Online: " + Client.gI().getPlayers().size()
                 + " · EXP server x" + Manager.RATE_EXP_SERVER,
                 "Thông báo\ntoàn server", "Tặng vàng\nngọc", "Hồi đầy\nHP KI", "Dịch chuyển\nmap", "Người chơi\nonline",
-                "EXP\nserver", "Nạp lại\ndữ liệu", "Khóa / mở\ntài khoản", "Tặng điểm\nQuy Lão");
+                "EXP\nserver", "Nạp lại\ndữ liệu", "Khóa / mở\ntài khoản", "Tặng điểm\nQuy Lão", "Bật / tắt\nsự kiện");
     }
 
     /** Trả về true nếu menu thuộc công cụ admin (đã xử lý). */
     public boolean confirmMenu(Player pl, int menu, int select) {
-        if (menu != MENU_MAIN && menu != MENU_EXP && menu != MENU_RELOAD) {
+        if (menu != MENU_MAIN && menu != MENU_EXP && menu != MENU_RELOAD && menu != MENU_EVENT) {
             return false;
         }
         if (!pl.isAdmin()) {
@@ -85,6 +87,8 @@ public class AdminTools {
                     }
                     case 6 -> NpcService.gI().createMenuConMeo(pl, MENU_RELOAD, -1, "Nạp lại dữ liệu từ database (không cần khởi động lại)",
                             "Cửa hàng", "Chỉ số\nvật phẩm", "Thưởng boss", "Hộp quà", "Sự kiện", "Tất cả");
+                    case 9 -> NpcService.gI().createMenuConMeo(pl, MENU_EVENT, -1, nro.models.services.SeasonEventService.gI().adminList(),
+                            "Bật / tắt\ntheo mã", "Đóng");
                     case 8 -> Input.gI().createForm(pl, INPUT_QL_POINT, "Tặng điểm Quy Lão (số âm để trừ)", new Input.SubInput("Tên người chơi", Input.ANY),
                             new Input.SubInput("Điểm sự kiện (đổi thưởng)", Input.ANY), new Input.SubInput("Điểm đua top ngọc rồng", Input.ANY));
                     case 7 -> Input.gI().createForm(pl, INPUT_BAN, "Khóa / mở khóa tài khoản", new Input.SubInput("Tên nhân vật", Input.ANY),
@@ -99,13 +103,19 @@ public class AdminTools {
                 }
             }
             case MENU_RELOAD -> reload(pl, select);
+            case MENU_EVENT -> {
+                if (select == 0) {
+                    Input.gI().createForm(pl, INPUT_EVENT, "Bật / tắt sự kiện", new Input.SubInput("Mã sự kiện", Input.NUMERIC),
+                            new Input.SubInput("1 = bật, 0 = tắt, 2 = tự động theo lịch", Input.NUMERIC));
+                }
+            }
         }
         return true;
     }
 
     /** Trả về true nếu form thuộc công cụ admin (đã xử lý). */
     public boolean doInput(Player pl, int type, String[] text) {
-        if (type < INPUT_ANNOUNCE || type > INPUT_QL_POINT) {
+        if (type < INPUT_ANNOUNCE || type > INPUT_EVENT) {
             return false;
         }
         if (!pl.isAdmin()) {
@@ -127,6 +137,12 @@ public class AdminTools {
                     ChangeMapService.gI().changeMapInYard(pl, map, zone, -1);
                 }
                 case INPUT_BAN -> ban(pl, text[0].trim(), num(text[1]) != 0);
+                case INPUT_EVENT -> {
+                    long id = num(text[0]), mode = num(text[1]);
+                    String r = nro.models.services.SeasonEventService.gI().admin((mode == 1 ? "bat " : mode == 0 ? "tat " : "tudong ") + id);
+                    Service.gI().sendThongBao(pl, r);
+                    log(pl, "sự kiện " + id + " chế độ " + mode + ": " + r);
+                }
                 case INPUT_QL_POINT -> giveQlPoint(pl, text[0].trim(), num(text[1]), text.length > 2 ? num(text[2]) : 0);
             }
         } catch (NumberFormatException e) {

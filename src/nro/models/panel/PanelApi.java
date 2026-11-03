@@ -977,6 +977,12 @@ class PanelApi {
         try {
             l.addAll(new ArrayList<>(BossManager.gI().getBosses()));
             l.addAll(new ArrayList<>(BrolyManager.gI().getBosses()));
+            // boss sự kiện (Halloween, Trung Thu, Ngũ Hành Sơn, Giáng sinh, Hùng Vương, Tết)
+            for (BossManager m : new BossManager[]{nro.models.boss.Boss_Manager.TrungThuEventManager.gI(), nro.models.boss.Boss_Manager.HalloweenEventManager.gI(),
+                nro.models.boss.Boss_Manager.ChristmasEventManager.gI(), nro.models.boss.Boss_Manager.HungVuongEventManager.gI(),
+                nro.models.boss.Boss_Manager.LunarNewYearEventManager.gI()}) {
+                l.addAll(new ArrayList<>(m.getBosses()));
+            }
         } catch (Exception ignored) {
         }
         return l;

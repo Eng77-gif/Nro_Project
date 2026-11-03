@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -129,6 +130,7 @@ public class SeasonEventService implements Runnable {
         Map<Integer, Exchange> exMap = new LinkedHashMap<>();
         Map<Integer, Top> topMap = new LinkedHashMap<>();
         try (Connection con = LocalManager.getConnection()) {
+            loadForced(con); // bật / tắt tay đã lưu
             try (PreparedStatement ps = con.prepareStatement("select * from season_event order by id"); ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Season s = new Season();
@@ -1745,6 +1747,61 @@ public class SeasonEventService implements Runnable {
         return n;
     }
 
+    // ------------------------------------------------------------------ bật / tắt tay (lưu database)
+    private static void ensureForceTable(Connection con) throws Exception {
+        try (java.sql.Statement st = con.createStatement()) {
+            st.executeUpdate("create table if not exists season_event_force (event_id int primary key, force_on tinyint not null)");
+        }
+    }
+
+    private void loadForced(Connection con) {
+        try {
+            ensureForceTable(con);
+            Map<Integer, Boolean> m = new HashMap<>();
+            try (PreparedStatement ps = con.prepareStatement("select event_id, force_on from season_event_force"); ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    m.put(rs.getInt(1), rs.getInt(2) == 1);
+                }
+            }
+            forced.clear();
+            forced.putAll(m);
+        } catch (Exception e) {
+            Logger.error("Không đọc được bật / tắt tay sự kiện: " + e.getMessage() + "\n");
+        }
+    }
+
+    private void saveForced(int id) {
+        try (Connection con = LocalManager.getConnection()) {
+            ensureForceTable(con);
+            Boolean f = forced.get(id);
+            if (f == null) {
+                try (PreparedStatement ps = con.prepareStatement("delete from season_event_force where event_id = ?")) {
+                    ps.setInt(1, id);
+                    ps.executeUpdate();
+                }
+            } else {
+                try (PreparedStatement ps = con.prepareStatement("replace into season_event_force (event_id, force_on) values (?, ?)")) {
+                    ps.setInt(1, id);
+                    ps.setInt(2, f ? 1 : 0);
+                    ps.executeUpdate();
+                }
+            }
+        } catch (Exception e) {
+            Logger.error("Không lưu được bật / tắt tay sự kiện: " + e.getMessage() + "\n");
+        }
+    }
+
+    /** Danh sách sự kiện cho menu admin trong game. */
+    public synchronized String adminList() {
+        StringBuilder sb = new StringBuilder("|7|Sự kiện\n|1|");
+        for (Season s : seasons.values()) {
+            Boolean f = forced.get(s.id);
+            sb.append(s.id).append(". ").append(s.name).append(": ").append(s.active ? "ĐANG CHẠY" : "tắt")
+                    .append(f == null ? (s.enabled ? " (tự động theo lịch)" : " (chỉ bật tay)") : f ? " (bật tay)" : " (tắt tay)").append('\n');
+        }
+        return sb.toString();
+    }
+
     // ------------------------------------------------------------------ admin
     public synchronized String admin(String args) {
         String[] a = args.trim().split("\\s+");
@@ -1763,6 +1820,7 @@ public class SeasonEventService implements Runnable {
                     } else {
                         forced.remove(id);
                     }
+                    saveForced(id); // giữ lại sau khi khởi động lại server
                     update();
                     return seasons.get(id).name + ": " + (seasons.get(id).active ? "đang chạy" : "đã tắt");
                 }

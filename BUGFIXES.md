@@ -1546,3 +1546,11 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Bộ nhớ đệm file (Đợt 80) giảm còn tối đa 48 MB (1/10 RAM Java), không giữ file > 512 KB.
 - Menu admin (gõ "a"): dòng RAM tách "Máy" (RAM cả máy, gồm Windows / MySQL) và "Server" (dữ liệu game / phần Java đang giữ / tối đa) để biết server dùng bao nhiêu thật.
 - Công cụ admin: thêm "Tặng điểm Quy Lão" (tên, điểm sự kiện đổi thưởng, điểm đua top ngọc rồng; nhập số âm để trừ, không cho âm).
+
+## Đợt 85
+- Dọn NPC không hợp bản đồ: bỏ Bò Mộng trong 3 nhà (Gôhan / Moori / Broly; vẫn còn ở Rừng Karin, Siêu Thị). Sự kiện không thả thêm Chi Chi, Santa, Bà Hạt Mít ra các làng nữa (đã có sẵn ở Đảo Kamê, Đảo Guru, Vách núi đen, các vách núi).
+- Bật / tắt sự kiện tự ý: bật tay / tắt tay / tự động giờ lưu vào database (bảng season_event_force), khởi động lại server vẫn giữ. Menu admin trong game ("a" → Công cụ admin → "Bật / tắt sự kiện") hiện danh sách sự kiện, trạng thái và đổi theo mã; panel → Sự kiện vẫn dùng được.
+- Sự kiện mới:
+  - Ngũ Hành Sơn (12, tự chạy 1/5 - 26/5): quái rơi Quả Hồng Đào (150/ngày); boss mới Tề Thiên Đại Thánh (3 con, đồi núi 3 hành tinh, nghỉ 15 phút) rơi Vòng Kim Cô + Quả Hồng Đào Chín; Chi Chi nhóm "Tây Du" đổi Như Ý Kim Cô Bổng, Cửu Xỉ Đinh Ba, Nguyệt Nha Sản, Cửu Hoàn Thiên Tích Trượng, CT Urôn Trư Bát Giới, Bồ cào 9 răng, Quạt ba tiêu (có tỉ lệ ra vĩnh viễn); đua top Ngũ Hành Sơn (top 1 CT Trư Bát Giới + Kim Cô Bổng vĩnh viễn).
+  - Chỉ bật tay: Mưa vàng (13, quái rơi thỏi vàng, 20/ngày), Lễ hội Ngọc Rồng (14, ngọc rồng 4 - 7 sao, 3 viên mỗi loại / ngày), Đá Ngũ Sắc (15, đá nâng cấp 5 loại, 30 viên mỗi loại / ngày).
+- Panel → Boss: hiện cả boss sự kiện (Halloween, Trung Thu, Ngũ Hành Sơn, Giáng sinh, Hùng Vương, Tết).
