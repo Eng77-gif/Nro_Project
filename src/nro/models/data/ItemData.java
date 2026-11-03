@@ -283,6 +283,28 @@ public class ItemData {
             }
             session.doSendMessage(msg);
             msg.cleanup();
+
+            // Gói lớn (lệnh 12, độ dài 3 byte) như bản chính thức: đủ tên có dấu và mô tả item. Client J2ME bản mới
+            // (Dragonboy247 v7.0) nhận gói này và thay danh sách ở trên; client không hiểu lệnh 12 thì bỏ qua, giữ danh sách rút gọn.
+            msg = new Message(12);
+            msg.writer().writeByte(0);
+            msg.writer().writeByte(DataGame.vsItem);
+            msg.writer().writeByte(1);
+            msg.writer().writeShort(count);
+            for (int i = 0; i < count; i++) {
+                Template.ItemTemplate it = Manager.ITEM_TEMPLATES.get(i);
+                msg.writer().writeByte(it.type);
+                msg.writer().writeByte(it.gender);
+                msg.writer().writeUTF(it.name == null ? "" : it.name);
+                msg.writer().writeUTF(it.description == null ? "" : it.description);
+                msg.writer().writeByte(it.level);
+                msg.writer().writeInt(it.strRequire);
+                msg.writer().writeShort(it.iconID);
+                msg.writer().writeShort(it.part);
+                msg.writer().writeBoolean(it.isUpToUp);
+            }
+            session.doSendMessage(msg);
+            msg.cleanup();
         } catch (Exception e) {
             e.printStackTrace();
         }

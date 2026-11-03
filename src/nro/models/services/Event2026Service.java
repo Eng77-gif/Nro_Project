@@ -59,7 +59,7 @@ public class Event2026Service {
      * đường từ vị trí cũ tới vị trí mới, vật nằm dưới chân; điểm đi qua lâu hơn dùng bản đã mờ hơn (1221 + 12k + 0..11).
      */
     private static final int[] TRAIL_BASE = {508, 509, 513, 514, 518, 519};
-    private static final int FOOT_STEP = 16, FOOT_MAX = 16, FOOT_VARIANTS = 12;
+    private static final int FOOT_STEP = 12, FOOT_MAX = 24, FOOT_VARIANTS = 12; // dày hơn cho vệt liền, không khựng
     private static final long FRAME_MS = 33 * 3; // client chạy khoảng 30 nhịp / giây, mỗi bản bỏ 3 nhịp
 
     private static int footBase(int eff) {
@@ -87,7 +87,7 @@ public class Event2026Service {
         int base = footBase(footEffectId(pl));
         long now = System.currentTimeMillis();
         long dt = now - pl.trailLastMove;
-        dt = dt > 700 || dt < 0 ? 250 : dt; // vừa đứng im rồi đi tiếp: coi như đoạn đường mới đi
+        dt = dt > 500 || dt < 0 ? 200 : dt; // vừa đứng im rồi đi tiếp: coi như đoạn đường mới đi
         pl.trailLastMove = now;
         if (base < 0) {
             return;
@@ -108,6 +108,11 @@ public class Event2026Service {
             n++;
         }
         pl.footAcc = n == FOOT_MAX ? 0 : (int) (len - (d - FOOT_STEP));
+        // luôn có 1 điểm ngay dưới chân (mới nhất) để vệt bám sát người chơi, không bị tụt lại phía sau
+        if (pts.isEmpty() || pts.get(pts.size() - 1)[2] < len - FOOT_STEP / 2.0) {
+            pts.add(new int[]{x, y, (int) Math.round(len)});
+            pl.footAcc = 0;
+        }
         for (int[] p : pts) {
             long age = (long) (dt * (1 - p[2] / len)); // điểm gần chỗ cũ đã đi qua lâu hơn
             int v = (int) Math.min(FOOT_VARIANTS - 1, age / FRAME_MS);
@@ -283,7 +288,7 @@ public class Event2026Service {
                 // hiệu ứng mở giống Capsule kì bí: icon hộp -> icon quà
                 nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, icon[0]);
             }
-            Service.gI().sendThongBao(pl, "Mở " + boxName + " nhận được " + got);
+            // không báo "Mở ... nhận được ..." nữa: hiệu ứng mở hộp đã hiện món nhận được
         }
     }
 

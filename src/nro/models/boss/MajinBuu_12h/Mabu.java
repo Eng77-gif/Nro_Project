@@ -107,10 +107,10 @@ public class Mabu extends Boss {
     private void petrifyPlayersInTheMap() {
         for (Player pl : this.zone.getNotBosses()) {
             if (Util.isTrue(1, 10)) {
-                ; // bỏ khống chế của boss: EffectSkillService.gI().setIsStone(pl, 22000)
+                EffectSkillService.gI().setIsStone(pl, 22000);
             } else if (Util.isTrue(1, 5)) {
                 this.chat("Úm ba la xì bùa");
-                ; // bỏ khống chế của boss: EffectSkillService.gI().setSocola(pl, System.currentTimeMillis(), 30000)
+                EffectSkillService.gI().setSocola(pl, System.currentTimeMillis(), 30000);
                 Service.gI().Send_Caitrang(pl);
                 ItemTimeService.gI().sendItemTime(pl, 4133, 30);
             }

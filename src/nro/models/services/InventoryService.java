@@ -601,6 +601,7 @@ public class InventoryService {
 
     public void sendItemBags(Player player) {
         sortItems(player.inventory.itemsBag);
+        nro.models.item.SetColor.refresh(player); // dòng "5 món ..." xanh khi mặc đủ bộ, đen khi chưa
         Message msg;
         try {
             msg = new Message(-36);
@@ -656,6 +657,7 @@ public class InventoryService {
     }
 
     public void sendItemBody(Player player) {
+        nro.models.item.SetColor.refresh(player); // dòng "5 món ..." xanh khi mặc đủ bộ, đen khi chưa
         Message msg;
         try {
             msg = new Message(-37);
@@ -699,6 +701,7 @@ public class InventoryService {
     }
 
     public void sendItemBox(Player player) {
+        nro.models.item.SetColor.refresh(player); // dòng "5 món ..." xanh khi mặc đủ bộ, đen khi chưa
         Message msg;
         try {
             msg = new Message(-35);

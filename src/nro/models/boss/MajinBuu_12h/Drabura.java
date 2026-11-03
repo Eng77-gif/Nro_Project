@@ -74,7 +74,7 @@ public class Drabura extends Boss {
         for (Player pl : this.zone.getNotBosses()) {
             if (Util.isTrue(1, 10)) {
                 this.chat("phẹt");
-                ; // bỏ khống chế của boss: EffectSkillService.gI().setIsStone(pl, 22000)
+                EffectSkillService.gI().setIsStone(pl, 22000);
             }
         }
     }

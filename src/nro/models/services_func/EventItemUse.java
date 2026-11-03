@@ -79,7 +79,7 @@ public final class EventItemUse {
             Service.gI().sendThongBao(pl, "Cần " + need + " ô trống trong hành trang");
             return true;
         }
-        String boxName = item.template.name;
+        short boxIcon = item.template.iconID;
         int skh = ItemService.gI().randomSKHId((byte) g);
         int stars = id == 1537 ? 3 : id == 1538 ? 5 : 0;
         StringBuilder got = new StringBuilder();
@@ -100,7 +100,18 @@ public final class EventItemUse {
         }
         InventoryService.gI().subQuantityItemsBag(pl, item, 1);
         InventoryService.gI().sendItemBags(pl);
-        Service.gI().sendThongBao(pl, "Mở " + boxName + " nhận được " + got);
+        if (got.length() > 0) { // hiệu ứng mở hộp như các hộp quà khác, không báo bằng chữ
+            Item first = null;
+            for (Item x : pl.inventory.itemsBag) {
+                if (x != null && x.isNotNullItem() && got.toString().startsWith(x.template.name)) {
+                    first = x;
+                    break;
+                }
+            }
+            if (first != null) {
+                nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, first.template.iconID);
+            }
+        }
         return true;
     }
 

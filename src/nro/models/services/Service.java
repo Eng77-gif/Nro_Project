@@ -824,6 +824,7 @@ public class Service {
         if (pl == null) {
             return;
         }
+        nro.models.item.SetColor.refresh(pl); // dòng "5 món ..." xanh / đen theo số món đang mặc
         Message msg;
         try {
             msg = messageSubCommand((byte) 0);
