@@ -33,6 +33,12 @@ public class Dot89Migration {
             changed += update(con, "update map_template set waypoints = replace(waypoints, '\"Ngũ Hành Sơn\",0,263', '\"Ngũ Hành Sơn 2\",0,263') where id = 122");
             changed += update(con, "update map_template set waypoints = replace(waypoints, '\"Ngũ Hành Sơn\",1512', '\"Ngũ Hành Sơn 2\",1512') where id = 123");
             changed += update(con, "update map_template set waypoints = replace(replace(waypoints, '\"Ngũ Hành Sơn\",0,336', '\"Ngũ Hành Sơn 3\",0,336'), '\"Ngũ Hành Sơn\",1224', '\"Ngũ Hành Sơn 1\",1224') where id = 124");
+            // Yêu quái núi Lãng Lãng (1988): SĐ 21%, HP / KI 17%, TNSM ngẫu nhiên 50 - 120%
+            if (!exists(con, "select 1 from item_template_option where template_id = 1988 and option_id = 101 and param = 50 and param_max = 120")) {
+                changed += update(con, "delete from item_template_option where template_id = 1988 and option_id in (50, 77, 103, 101)");
+                changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values "
+                        + "(1988, 50, 21, 21, 100, 0), (1988, 77, 17, 17, 100, 0), (1988, 103, 17, 17, 100, 0), (1988, 101, 50, 120, 100, 0)");
+            }
             if (!exists(con, "select 1 from server_migration where name = 'dot89'")) {
                 changed += event(con, EV_PHO, "Quán phở Anh 2", 0, 1, 1, 0, 0, 0,
                         "Quán phở Anh 2 mở cửa! Đánh quái nhặt Bột gạo, Thịt tươi, Cục xương rồi mang tới Chi Chi nấu phở: "

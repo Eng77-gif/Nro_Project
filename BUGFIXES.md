@@ -1586,3 +1586,4 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Đua top tặng bộ ngọc rồng 1 - 7 sao cho Quy Lão tách khỏi Trung Thu thành sự kiện riêng (id 17): tự chạy cùng lịch Trung Thu, admin bật / tắt / tự động trên web panel; tắt thì Quy Lão ẩn nút "Đua top ngọc rồng" (điểm đã có vẫn giữ, chốt top bằng lệnh chottopql như cũ).
 - Tab cửa hàng sự kiện hiện nguyên chữ "Shop<>sự kiện" / "Đổi<>thưởng": sửa thành xuống dòng đúng.
 - Ngũ Hành Sơn đủ 3 vùng: map 122 / 124 / 123 đặt tên Ngũ Hành Sơn 1 / 2 / 3 (cả tên cổng dịch chuyển). Đường Tăng ở làng có 3 nút chọn thẳng vùng 1 / 2 / 3, trong map vẫn đi bộ qua cổng 1 <-> 2 <-> 3. Nhiệm vụ hộ tống: đi qua đủ Ngũ Hành Sơn 2 và 3 (thứ tự nào cũng được) rồi về gặp Ngộ Không ở Ngũ Hành Sơn 1.
+- Yêu quái núi Lãng Lãng (1988): chỉ số mới sức đánh 21%, HP 17%, KI 17%, tiềm năng sức mạnh ngẫu nhiên 50 - 120% (áp cho món nhận mới: đổi công đức ở Đường Tăng, Sơn Tinh / Thủy Tinh rơi, admin tặng).
