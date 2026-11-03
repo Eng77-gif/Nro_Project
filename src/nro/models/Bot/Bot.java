@@ -53,7 +53,7 @@ public class Bot extends Player {
         Random random = new Random();
         long power = this.nPoint.power;
         // chết nhiều ở vùng map hiện tại: xuống vùng dễ hơn (mỗi bậc giảm ngưỡng sức mạnh)
-        for (int i = 0; i < this.tierDrop; i++) {
+        for (int i = 0, n = TIER_DROP.getOrDefault(this.id, 0); i < n; i++) {
             power = power >= 40_000_000_000L ? 39_000_000_000L : power >= 2_000_000_000L ? 1_900_000_000L : 90_000_000L;
         }
         int mapId = 21;
@@ -191,8 +191,9 @@ public class Bot extends Player {
                     this.deathWindow = now;
                     this.deaths = 0;
                 }
-                if (++this.deaths >= 3 && this.tierDrop < 3) {
-                    this.tierDrop++; // chết 3 lần / 5 phút: đổi sang vùng map dễ hơn
+                int td = TIER_DROP.getOrDefault(this.id, 0);
+                if (++this.deaths >= 3 && td < 3) {
+                    TIER_DROP.put(this.id, td + 1); // chết 3 lần / 5 phút: đổi sang vùng map dễ hơn (nhớ cả khi bot vào lại)
                     this.deaths = 0;
                     Service.gI().hsChar(this, nPoint.hpMax, nPoint.mpMax);
                     this.joinMap();
@@ -203,7 +204,7 @@ public class Bot extends Player {
         }
     }
 
-    public int tierDrop;
+    private static final java.util.Map<Long, Integer> TIER_DROP = new java.util.concurrent.ConcurrentHashMap<>();
     private int deaths;
     private long deathWindow;
 
