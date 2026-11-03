@@ -26,6 +26,13 @@ public class Dot89Migration {
     public static void run(Connection con) {
         int changed = 0;
         try {
+            // 3 vùng Ngũ Hành Sơn: đặt tên 1 / 2 / 3 cho map và cổng dịch chuyển (đi bộ 122 <-> 124 <-> 123)
+            changed += update(con, "update map_template set name = 'Ngũ Hành Sơn 1' where id = 122 and name = 'Ngũ Hành Sơn'");
+            changed += update(con, "update map_template set name = 'Ngũ Hành Sơn 2' where id = 124 and name = 'Ngũ Hành Sơn'");
+            changed += update(con, "update map_template set name = 'Ngũ Hành Sơn 3' where id = 123 and name = 'Ngũ Hành Sơn'");
+            changed += update(con, "update map_template set waypoints = replace(waypoints, '\"Ngũ Hành Sơn\",0,263', '\"Ngũ Hành Sơn 2\",0,263') where id = 122");
+            changed += update(con, "update map_template set waypoints = replace(waypoints, '\"Ngũ Hành Sơn\",1512', '\"Ngũ Hành Sơn 2\",1512') where id = 123");
+            changed += update(con, "update map_template set waypoints = replace(replace(waypoints, '\"Ngũ Hành Sơn\",0,336', '\"Ngũ Hành Sơn 3\",0,336'), '\"Ngũ Hành Sơn\",1224', '\"Ngũ Hành Sơn 1\",1224') where id = 124");
             if (!exists(con, "select 1 from server_migration where name = 'dot89'")) {
                 changed += event(con, EV_PHO, "Quán phở Anh 2", 0, 1, 1, 0, 0, 0,
                         "Quán phở Anh 2 mở cửa! Đánh quái nhặt Bột gạo, Thịt tươi, Cục xương rồi mang tới Chi Chi nấu phở: "

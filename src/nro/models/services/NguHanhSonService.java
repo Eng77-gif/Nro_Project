@@ -20,6 +20,8 @@ public class NguHanhSonService {
 
     public static final int EVENT_ID = 12;
     public static final int MAP_NGU_HANH_SON = 122;
+    /** 3 vùng Ngũ Hành Sơn {map, x}: 1 = 122 (Ngộ Không), 2 = 124 (giữa), 3 = 123 (trong cùng) */
+    private static final int[][] NHS_GATES = {{122, 560}, {124, 600}, {123, 400}};
     public static final int HONG_DAO = 541, HONG_DAO_CHIN = 542;
     public static final int VONG_KIM_CO = 543;
     /** Cải trang chỉ dành cho đệ tử */
@@ -83,22 +85,29 @@ public class NguHanhSonService {
                     "Nhận\nthưởng", "Từ chối");
             return;
         }
-        npc.createOtherMenu(pl, MENU_DUONG_TANG, say, inMap ? "Về\nlàng" : "Đồng ý", "Nhiệm vụ\nhộ tống", "Đổi CT\nTôn Ngộ Không", "Nhận\nthưởng", "Từ chối");
+        if (inMap) {
+            npc.createOtherMenu(pl, MENU_DUONG_TANG, say, "Về\nlàng", "Nhiệm vụ\nhộ tống", "Đổi CT\nTôn Ngộ Không", "Nhận\nthưởng", "Từ chối");
+        } else {
+            npc.createOtherMenu(pl, MENU_DUONG_TANG, say, "Ngũ Hành\nSơn 1", "Ngũ Hành\nSơn 2", "Ngũ Hành\nSơn 3",
+                    "Nhiệm vụ\nhộ tống", "Đổi CT\nTôn Ngộ Không", "Nhận\nthưởng", "Từ chối");
+        }
     }
 
     public void selectDuongTang(Npc npc, Player pl, int menu, int select) {
         if (menu == MENU_DUONG_TANG) {
             boolean inMap = inNhs(pl);
             boolean open = active() || inMap;
+            if (open && !inMap) { // ở làng: 3 nút chọn vùng Ngũ Hành Sơn đứng đầu
+                if (select <= 2) {
+                    int[] g = NHS_GATES[select];
+                    ChangeMapService.gI().changeMapBySpaceShip(pl, g[0], -1, g[1]);
+                    return;
+                }
+                select -= 2;
+            }
             int s = open ? select : (select == 0 ? 3 : 4); // khi đóng chỉ có "Nhận thưởng", "Từ chối"
             switch (s) {
-                case 0 -> {
-                    if (inMap) {
-                        ChangeMapService.gI().changeMapBySpaceShip(pl, 21 + pl.gender, -1, 250);
-                    } else {
-                        ChangeMapService.gI().changeMapBySpaceShip(pl, MAP_NGU_HANH_SON, -1, 560);
-                    }
-                }
+                case 0 -> ChangeMapService.gI().changeMapBySpaceShip(pl, 21 + pl.gender, -1, 250);
                 case 1 -> startEscort(pl);
                 case 2 -> exchangeCt(pl);
                 case 3 -> openRewards(npc, pl);
@@ -212,8 +221,9 @@ public class NguHanhSonService {
         }
         pl.escortUntil = System.currentTimeMillis() + ESCORT_MS;
         pl.escortStep = 1;
-        Service.gI().sendThongBaoOK(pl, "Hộ tống bần tăng qua Ngũ Hành Sơn: đi bộ qua 3 vùng Ngũ Hành Sơn (vào sâu tới vùng thứ 3) "
-                + "rồi quay lại gặp Ngộ Không trong 15 phút. Hoàn thành nhận 20 - 40 điểm công đức.");
+        pl.escortMask = 0;
+        Service.gI().sendThongBaoOK(pl, "Hộ tống bần tăng qua Ngũ Hành Sơn: đi bộ qua đủ 2 vùng Ngũ Hành Sơn 2 và 3 "
+                + "rồi quay lại gặp Ngộ Không (Ngũ Hành Sơn 1) trong 15 phút. Hoàn thành nhận 20 - 40 điểm công đức.");
         if (!inNhs(pl)) {
             ChangeMapService.gI().changeMapBySpaceShip(pl, MAP_NGU_HANH_SON, -1, 560);
         }
@@ -231,12 +241,16 @@ public class NguHanhSonService {
             return;
         }
         int map = pl.zone == null ? -1 : pl.zone.map.mapId;
-        if (pl.escortStep == 1 && map == 123) {
-            pl.escortStep = 2;
-            Service.gI().sendThongBao(pl, "Hộ tống: đã tới vùng thứ 2, đi tiếp vào sâu");
-        } else if (pl.escortStep == 2 && map == 124) {
-            pl.escortStep = 3;
-            Service.gI().sendThongBao(pl, "Hộ tống: đã tới vùng thứ 3, quay lại gặp Ngộ Không để hoàn thành");
+        int bit = map == 124 ? 1 : map == 123 ? 2 : 0;
+        if (pl.escortStep < 3 && bit != 0 && (pl.escortMask & bit) == 0) {
+            pl.escortMask |= bit;
+            if (pl.escortMask == 3) {
+                pl.escortStep = 3;
+                Service.gI().sendThongBao(pl, "Hộ tống: đã qua đủ 2 vùng, quay lại gặp Ngộ Không (Ngũ Hành Sơn 1) để hoàn thành");
+            } else {
+                pl.escortStep = 2;
+                Service.gI().sendThongBao(pl, "Hộ tống: đã tới Ngũ Hành Sơn " + (bit == 1 ? 2 : 3) + ", còn Ngũ Hành Sơn " + (bit == 1 ? 3 : 2));
+            }
         }
     }
 

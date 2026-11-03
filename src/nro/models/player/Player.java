@@ -265,6 +265,7 @@ public class Player implements Runnable {
     public int congDuc; // điểm công đức sự kiện Ngũ Hành Sơn
     public long escortUntil; // hạn nhiệm vụ hộ tống Đường Tăng
     public int escortStep;
+    public int escortMask; // vùng Ngũ Hành Sơn đã đi qua khi hộ tống (bit 0: 123, bit 1: 124)
     public int auraReward = -1; // aura thưởng top
     public long auraRewardUntil;
     public int qlRewardRank; // hạng đua top đang chờ nhận thưởng (0 = không có)

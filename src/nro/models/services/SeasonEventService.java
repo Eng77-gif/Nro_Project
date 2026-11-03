@@ -1508,7 +1508,7 @@ public class SeasonEventService implements Runnable {
         nro.models.shop.TabShop tab = new nro.models.shop.TabShop();
         tab.shop = shop;
         tab.id = -1;
-        tab.name = quyLao ? "Đổi<>thưởng" : "Shop<>sự kiện";
+        tab.name = quyLao ? "Đổi\nthưởng" : "Shop\nsự kiện";
         Map<Integer, Exchange> map = new LinkedHashMap<>();
         for (Exchange e : s.exchanges) {
             boolean ok = quyLao ? isPointGroup(e.group) && e.costPoint > 0 : isShopGroup(e.group);
