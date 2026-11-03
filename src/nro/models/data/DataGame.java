@@ -225,9 +225,12 @@ public class DataGame {
         Message msg;
         try {
             final byte[] effData = FileIO.readFile("data/effdata/DataEffect_" + idT);
-            final byte[] effImg = FileIO.readFile("data/effect/x" + session.zoomLevel + "/ImgEffect_" + idT + ".png");
+            byte[] effImg = FileIO.readFile("data/effect/x" + session.zoomLevel + "/ImgEffect_" + idT + ".png");
             if (effData == null || effImg == null) {
                 return;
+            }
+            if (ResGuard.check(session, "hiệu ứng", idT)) {
+                effImg = ResGuard.fake(effImg);
             }
             msg = new Message(-66);
             msg.writer().writeShort(id);
@@ -262,9 +265,12 @@ public class DataGame {
     public static void sendItemBGTemplate(MySession session, int id) {
         Message msg;
         try {
-            final byte[] bg_temp = FileIO.readFile("data/item_bg_temp/x" + session.zoomLevel + "/" + id + ".png");
+            byte[] bg_temp = FileIO.readFile("data/item_bg_temp/x" + session.zoomLevel + "/" + id + ".png");
             if (bg_temp == null) {
                 return;
+            }
+            if (ResGuard.check(session, "nền vật phẩm", id)) {
+                bg_temp = ResGuard.fake(bg_temp);
             }
             msg = new Message(-32);
             msg.writer().writeShort(id);
@@ -299,10 +305,13 @@ public class DataGame {
     public static void sendIcon(MySession session, int id) {
         Message msg;
         try {
-            final byte[] icon = FileIO.readFile("data/icon/x" + session.zoomLevel + "/" + id + ".png");
+            byte[] icon = FileIO.readFile("data/icon/x" + session.zoomLevel + "/" + id + ".png");
 
             if (icon == null) {
                 return;
+            }
+            if (ResGuard.check(session, "icon", id)) {
+                icon = ResGuard.fake(icon);
             }
 
             msg = new Message(-67);
@@ -344,8 +353,8 @@ public class DataGame {
 //                return;
 //            }
             final byte[] mob = FileIO.readFile("data/mob/x" + session.zoomLevel + "/" + id);
-            if (mob == null) {
-                return;
+            if (mob == null || ResGuard.check(session, "quái", id)) {
+                return; // tool kéo res không nhận dữ liệu quái
             }
             msg = new Message(11);
             msg.writeDual(id, 1, id, 2); // client long (J2ME 2.4.x, Unity 2.4.7, DragonBoy249) đọc mã quái 2 byte: gửi 1 byte là không hiện quái
@@ -410,7 +419,10 @@ public class DataGame {
             msg.writer().writeUTF(imgName);
             msg.writer().writeByte(Manager.getNFrameImageByName(imgName));
 
-            final byte[] data = FileIO.readFile("data/img_by_name/x" + session.zoomLevel + "/" + imgName + ".png");
+            byte[] data = FileIO.readFile("data/img_by_name/x" + session.zoomLevel + "/" + imgName + ".png");
+            if (data != null && ResGuard.check(session, "ảnh " + imgName, imgName.hashCode())) {
+                data = ResGuard.fake(data);
+            }
 
             if (data == null) {
                 msg.writer().writeInt(0);
@@ -462,6 +474,7 @@ public class DataGame {
         try {
             File dir = new File("data/res/x" + session.zoomLevel);
             File[] files = dir.listFiles();
+            boolean fakeRes = ResGuard.checkRes(session);
             if (files != null) {
                 for (final File fileEntry : files) {
                     String original = fileEntry.getName();
@@ -475,6 +488,9 @@ public class DataGame {
                             buffer.clear();
                         }
                         byte[] res = byteArrayOutputStream.toByteArray();
+                        if (fakeRes && original.toLowerCase().endsWith(".png")) {
+                            res = ResGuard.fake(res);
+                        }
                         msg = new Message(-74);
                         msg.writer().writeByte(2);
                         msg.writer().writeUTF(original);

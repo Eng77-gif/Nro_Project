@@ -67,9 +67,19 @@ public class MySession extends Session {
 
     public boolean finishUpdate;
 
+    /** chống kéo res (ResGuard) */
+    public boolean scraper;
+    public long resWindowStart;
+    public int resCount, resSeq, resLastId = -2;
+
     public MySession(Socket socket) {
         super(socket);
         ipAddress = socket.getInetAddress().getHostAddress();
+    }
+
+    public MySession(io.netty.channel.Channel channel) {
+        super(channel);
+        ipAddress = getIP();
     }
 
     @Override

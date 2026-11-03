@@ -87,7 +87,8 @@ public class SystemMetrics {
         String string = ("Máy: " + formatMemory(usedMemory, totalMemory) + " (" + formatPercentage(ramUsagePercentage) + ")\n"
                 + "Server: " + (heap.getUsed() / mb) + " MB dữ liệu, giữ " + ((heap.getCommitted() + nonHeap.getCommitted()) / mb)
                 + " MB, tối đa " + (heap.getMax() / mb) + " MB\n"
-                + "CPU: " + formatPercentage(cpuUsagePercentage) + "\n");
+                + "CPU: " + formatPercentage(cpuUsagePercentage) + "\n"
+                + nro.models.network.netty.AntiDdos.stats() + "\n");
         return string;
     }
 }

@@ -207,8 +207,15 @@ public class ServerManager {
     }
 
     public void activeServerSocket() {
+        java.util.Properties cfg = new java.util.Properties();
+        try (java.io.InputStreamReader in = new java.io.InputStreamReader(new java.io.FileInputStream("Config.properties"), java.nio.charset.StandardCharsets.UTF_8)) {
+            cfg.load(in);
+        } catch (Exception ignored) {
+        }
+        boolean netty = !"false".equalsIgnoreCase(cfg.getProperty("server.netty", "true").trim());
+        nro.models.network.netty.AntiDdos.loadConfig(cfg);
         try {
-            Network.gI().init().setAcceptHandler(new ISessionAcceptHandler() {
+            ISessionAcceptHandler handler = new ISessionAcceptHandler() {
                 @Override
                 public void sessionInit(ISession is) {
                     if (!canConnectWithIp(is.getIP())) {
@@ -226,7 +233,14 @@ public class ServerManager {
                     Client.gI().kickSession((MySession) session);
                     disconnect((MySession) session);
                 }
-            }).setTypeSessioClone(MySession.class)
+            };
+            if (netty) {
+                // Netty + chống DDoS (server.netty=false trong Config.properties để quay về kiểu cũ)
+                Network.gI().setAcceptHandler(handler);
+                nro.models.network.netty.NettyNetwork.start(PORT, MySession.class);
+                return;
+            }
+            Network.gI().init().setAcceptHandler(handler).setTypeSessioClone(MySession.class)
                     .setDoSomeThingWhenClose(() -> {
                         Logger.error("SERVER CLOSE\n");
                         System.exit(0);

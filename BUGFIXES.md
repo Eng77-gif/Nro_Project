@@ -1563,3 +1563,9 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - Đường Tăng "Nhận thưởng": 500 cộng 7 ngày cải trang đang dùng, 600 cộng 9 ngày cải trang đệ tử, 700 CT Bát Giới (Đệ), 1.000 CT Tôn Ngộ Không (Đệ), 1.300 CT Sa Tăng (Đệ), 800 Yêu quái núi Lãng Lãng (30 ngày).
   - 3 cải trang mới chỉ dành cho đệ tử (2128 - 2130), người chơi không mặc được.
 - Chỉ số tạm (sửa trên panel khi có chỉ số thật): CT Bát Giới / Ngộ Không / Sa Tăng (Đệ), Như Ý Kim Cô Bổng, Cửu Xỉ Đinh Ba, Nguyệt Nha Sản, Cửu Hoàn Thiên Tích Trượng, Quạt ba tiêu, Bồ cào 9 răng.
+
+## Đợt 87
+- Cổng game chuyển sang Netty (thư viện Netty 4.1.114 trong lib/, mã SHA-1 khớp Maven Central): vài luồng mạng phục vụ mọi kết nối thay vì 2 luồng / người chơi (kiểu cũ dễ sập khi bị mở hàng nghìn kết nối rác). Gói tin mỗi phiên vẫn xử lý tuần tự như cũ. Muốn quay về kiểu cũ: `server.netty=false` trong Config.properties.
+- Chống DDoS tầng ứng dụng (AntiDdos): giới hạn tổng kết nối (3000), kết nối / IP, kết nối mới / IP trong 10 giây (20), phải bắt tay trong 10 giây, gói tin tối đa 16 KB, tối đa 120 gói / giây mỗi kết nối, chưa vào game mà im lặng 120 giây thì ngắt, máy khách không nhận dữ liệu (dồn > 32 MB) thì ngắt. Vi phạm bị chặn IP 2 phút, tái phạm gấp đôi (tối đa 1 ngày). Chỉnh bằng server.ddos.maxconn / maxperip / newconn10s / msgpersec. Menu admin hiện số kết nối, IP đang bị chặn.
+  - Tấn công băng thông lớn (UDP / SYN flood vài Gbps) phải chặn ở nhà mạng / VPS (tường lửa nhà cung cấp, Cloudflare Spectrum...), phần mềm trên máy chủ không chặn được lưu lượng chưa tới máy.
+- Chống kéo res (ResGuard): tool kéo res vẫn nhận đủ file nhưng mọi ảnh là ảnh cùng kích thước ghi "Good, but not today." (icon, ảnh theo tên, nền vật phẩm, hiệu ứng, ảnh trong gói res; dữ liệu quái không gửi). Bị coi là tool khi xin ảnh lúc chưa đăng nhập tài khoản, xin quá 900 ảnh trong 2 phút, quét icon theo dãy số liên tiếp (150 mã), hoặc 1 IP tải gói res của từ 2 cỡ màn hình trở lên trong 6 giờ.
