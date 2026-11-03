@@ -172,6 +172,11 @@ public class ShopService {
         openShopType0(player, shop);
     }
 
+    /** Cửa hàng dựng sẵn trả bằng thứ khác vàng / ngọc: giá hiện kèm icon iconSpec của từng món (vd điểm sự kiện). */
+    public void openCustomSpecShop(Player player, Shop shop) {
+        openShopType3(player, shop);
+    }
+
     private void openShopType0(Player player, Shop shop) {
         if (shop != null) {
             player.idMark.setShopOpen(shop);

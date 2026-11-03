@@ -1610,9 +1610,12 @@ public class Service {
                 msg.writer().writeByte(pl.pet.nPoint.crit); //crit
                 msg.writeDual(pl.pet.nPoint.def, 2, pl.pet.nPoint.def, 8); //def: J2ME đọc long
                 int sizeSkill = pl.pet.playerSkill.skills.size();
-                msg.writer().writeByte(5); //count pet skill
-                for (int i = 0; i < sizeSkill; i++) {
-                    if (pl.pet.playerSkill.skills.get(i).skillId != -1) {
+                // đệ thường (săn Broly) không mở được kỹ năng 5: bỏ hẳn ô "Không thể mở kỹ năng này", chỉ hiện 4 ô
+                boolean vip = pl.pet.typePet == 2 || pl.pet.typePet == 3 || pl.pet.typePet == 4;
+                int count = vip ? 5 : 4;
+                msg.writer().writeByte(count); //count pet skill
+                for (int i = 0; i < count; i++) {
+                    if (i < sizeSkill && pl.pet.playerSkill.skills.get(i).skillId != -1) {
                         msg.writer().writeShort(pl.pet.playerSkill.skills.get(i).skillId);
                     } else {
                         switch (i) {
@@ -1630,11 +1633,7 @@ public class Service {
                                 break;
                             case 4:
                                 msg.writer().writeShort(-1);
-                                if (pl.pet.typePet == 2 || pl.pet.typePet == 3 || pl.pet.typePet == 4) {
-                                    msg.writer().writeUTF("Cần đạt sức mạnh 40tỷ để mở");
-                                } else {
-                                    msg.writer().writeUTF("Không thể mở kỹ năng này");
-                                }
+                                msg.writer().writeUTF("Cần đạt sức mạnh 40tỷ để mở");
                                 break;
                             default:
                                 msg.writer().writeShort(-1);

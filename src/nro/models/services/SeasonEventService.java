@@ -1517,7 +1517,8 @@ public class SeasonEventService implements Runnable {
             is.id = e.id;
             is.temp = ItemService.gI().getTemplate(e.rewardItem);
             if (quyLao) {
-                is.typeSell = 0; // hiện ở cột vàng (icon đồng xu), trừ điểm sự kiện
+                is.typeSell = 0; // trừ điểm sự kiện
+                is.iconSpec = ICON_EVENT_POINT; // giá hiện kèm icon ngôi sao (điểm), không phải đồng vàng
                 is.cost = e.costPoint;
             } else if (e.gem > 0) {
                 is.typeSell = 1;
@@ -1542,8 +1543,15 @@ public class SeasonEventService implements Runnable {
         }
         shop.tabShops.add(tab);
         shopOpen.put(pl.id, map);
-        nro.models.shop.ShopService.gI().openCustomShop(pl, shop);
+        if (quyLao) {
+            nro.models.shop.ShopService.gI().openCustomSpecShop(pl, shop);
+        } else {
+            nro.models.shop.ShopService.gI().openCustomShop(pl, shop);
+        }
     }
+
+    /** Icon "điểm sự kiện" hiện cạnh giá ở cửa hàng đổi điểm Quy Lão (icon vật phẩm Ngôi sao). */
+    public static final int ICON_EVENT_POINT = 12323;
 
     /** Mua 1 món trong cửa hàng sự kiện: đi qua công thức đổi (trừ tiền / điểm, hạn dùng, điểm top, điểm sự kiện). */
     public void buyFromEventShop(Player pl, int tempId) {

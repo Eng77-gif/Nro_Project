@@ -1525,3 +1525,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Vào game không thấy quái (client long: DragonBoy249, Unity 2.4.7, J2ME 2.4.x): gói dữ liệu quái (lệnh 11) gửi mã quái 1 byte trong khi client đọc 2 byte, client đọc lệch nên không dựng được quái. Nay gửi 2 byte cho client long, client cũ vẫn 1 byte.
 - Tăng tốc tải khi vào game: file dữ liệu gửi cho client (icon, quái, hiệu ứng, map, ảnh theo tên) giữ trong bộ nhớ đệm (tối đa 192 MB, file sửa trên đĩa thì tự đọc lại), không đọc đĩa mỗi lần; đọc file đủ toàn bộ (trước đây đọc một lần có thể thiếu).
 - Đứa bé (#78, nhiệm vụ phi thuyền) cõng sau lưng: cờ 193 dùng icon 736, hết cảnh báo trên panel.
+
+## Đợt 81
+- Bảng kỹ năng đệ tử: đệ thường (săn Broly) không mở được kỹ năng 5 nên bỏ hẳn ô "Không thể mở kỹ năng này", chỉ hiện 4 ô; đệ VIP (Uub, Kid Beer, Jiren) vẫn 5 ô ("Cần đạt sức mạnh 40tỷ để mở").
+- Cửa hàng Đổi thưởng của Quy Lão trừ điểm sự kiện nhưng giá hiện kèm icon đồng vàng: chuyển sang kiểu cửa hàng có icon riêng, giá hiện kèm icon ngôi sao (điểm sự kiện).
