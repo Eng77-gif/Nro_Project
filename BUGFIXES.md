@@ -1540,3 +1540,9 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Bóng mờ về lại dưới chân (đáy vật chạm đất), mượt hơn: điểm cách nhau 16 px, 12 bản theo thời gian đi qua, 10 mức nhỏ dần + trong dần; bỏ chấm lẻ cạnh bông tuyết làm vật lơ lửng (hiệu ứng 1221 - 1292).
 - Lên cấp thẻ radar: bỏ cả dòng thông báo.
 - NroRepoDownloader 1.1: nhớ mã hash từng file trong .nro_manifest.json (file trên máy không đổi thì khỏi tính lại, kiểm tra gần như tức thì); kiểm tra song song; chỉ tải file mới / đã đổi, báo rõ bao nhiêu file mới và bao nhiêu file đã đổi; chỉ tải file zip cả nhánh khi máy gần như chưa có gì (trước đây thiếu hơn 3000 file là tải lại cả zip); tham số -force để tính lại mã từ đầu.
+
+## Đợt 84
+- Giảm RAM cho máy 2 GB: dữ liệu thật của server chỉ khoảng 40 - 60 MB, trước đây chạy không giới hạn nên Java giữ heap tới ~420 MB và không trả lại. run.bat / run_vps_yeu.* giờ đặt RAM tối đa (mặc định 448m / 384m, sửa RAM_MAX), G1 tự trả RAM thừa cho máy khi rảnh (G1PeriodicGCInterval), giới hạn metaspace / code cache / stack luồng. Đo thử: ~420 MB còn ~180 MB.
+- Bộ nhớ đệm file (Đợt 80) giảm còn tối đa 48 MB (1/10 RAM Java), không giữ file > 512 KB.
+- Menu admin (gõ "a"): dòng RAM tách "Máy" (RAM cả máy, gồm Windows / MySQL) và "Server" (dữ liệu game / phần Java đang giữ / tối đa) để biết server dùng bao nhiêu thật.
+- Công cụ admin: thêm "Tặng điểm Quy Lão" (tên, điểm sự kiện đổi thưởng, điểm đua top ngọc rồng; nhập số âm để trừ, không cho âm).

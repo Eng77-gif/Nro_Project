@@ -21,8 +21,8 @@ Mở file và sửa `RAM_MAX` cho hợp với máy:
 
 | RAM của VPS | RAM_MAX |
 |---|---|
-| 1 GB | 512m |
-| 2 GB | 768m |
+| 1 GB | 320m |
+| 2 GB | 448m (server thực tế chỉ dùng khoảng 150 - 300 MB, phần thừa tự trả lại máy khi rảnh) |
 | 4 GB trở lên | 1g – 2g, hoặc dùng `run.bat` bình thường |
 
 Ý nghĩa các cờ:

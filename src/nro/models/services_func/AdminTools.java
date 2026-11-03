@@ -30,6 +30,7 @@ public class AdminTools {
     public static final int INPUT_MONEY = 77_102;
     public static final int INPUT_TELEPORT = 77_103;
     public static final int INPUT_BAN = 77_104;
+    public static final int INPUT_QL_POINT = 77_105;
 
     private static final int[] EXP_RATES = {1, 2, 3, 5, 10};
 
@@ -49,7 +50,7 @@ public class AdminTools {
         NpcService.gI().createMenuConMeo(pl, MENU_MAIN, -1, "|7|Công cụ admin\n|1|Online: " + Client.gI().getPlayers().size()
                 + " · EXP server x" + Manager.RATE_EXP_SERVER,
                 "Thông báo\ntoàn server", "Tặng vàng\nngọc", "Hồi đầy\nHP KI", "Dịch chuyển\nmap", "Người chơi\nonline",
-                "EXP\nserver", "Nạp lại\ndữ liệu", "Khóa / mở\ntài khoản");
+                "EXP\nserver", "Nạp lại\ndữ liệu", "Khóa / mở\ntài khoản", "Tặng điểm\nQuy Lão");
     }
 
     /** Trả về true nếu menu thuộc công cụ admin (đã xử lý). */
@@ -84,6 +85,8 @@ public class AdminTools {
                     }
                     case 6 -> NpcService.gI().createMenuConMeo(pl, MENU_RELOAD, -1, "Nạp lại dữ liệu từ database (không cần khởi động lại)",
                             "Cửa hàng", "Chỉ số\nvật phẩm", "Thưởng boss", "Hộp quà", "Sự kiện", "Tất cả");
+                    case 8 -> Input.gI().createForm(pl, INPUT_QL_POINT, "Tặng điểm Quy Lão (số âm để trừ)", new Input.SubInput("Tên người chơi", Input.ANY),
+                            new Input.SubInput("Điểm sự kiện (đổi thưởng)", Input.ANY), new Input.SubInput("Điểm đua top ngọc rồng", Input.ANY));
                     case 7 -> Input.gI().createForm(pl, INPUT_BAN, "Khóa / mở khóa tài khoản", new Input.SubInput("Tên nhân vật", Input.ANY),
                             new Input.SubInput("1 = khóa, 0 = mở", Input.NUMERIC));
                 }
@@ -102,7 +105,7 @@ public class AdminTools {
 
     /** Trả về true nếu form thuộc công cụ admin (đã xử lý). */
     public boolean doInput(Player pl, int type, String[] text) {
-        if (type < INPUT_ANNOUNCE || type > INPUT_BAN) {
+        if (type < INPUT_ANNOUNCE || type > INPUT_QL_POINT) {
             return false;
         }
         if (!pl.isAdmin()) {
@@ -124,6 +127,7 @@ public class AdminTools {
                     ChangeMapService.gI().changeMapInYard(pl, map, zone, -1);
                 }
                 case INPUT_BAN -> ban(pl, text[0].trim(), num(text[1]) != 0);
+                case INPUT_QL_POINT -> giveQlPoint(pl, text[0].trim(), num(text[1]), text.length > 2 ? num(text[2]) : 0);
             }
         } catch (NumberFormatException e) {
             Service.gI().sendThongBao(pl, "Sai định dạng số");
@@ -132,7 +136,7 @@ public class AdminTools {
     }
 
     private static long num(String s) {
-        s = s == null ? "" : s.trim().replaceAll("[.,\\s]", "");
+        s = s == null ? "" : s.trim().replaceAll("[.,\\s+]", "");
         return s.isEmpty() ? 0 : Long.parseLong(s);
     }
 
@@ -153,6 +157,27 @@ public class AdminTools {
         Service.gI().sendThongBao(p, "Bạn nhận được quà từ admin: " + gold + " vàng, " + gem + " ngọc, " + ruby + " hồng ngọc");
         Service.gI().sendThongBao(pl, "Đã tặng " + p.name);
         log(pl, "tặng " + p.name + " vàng " + gold + ", ngọc " + gem + ", hồng ngọc " + ruby);
+    }
+
+    /** Tặng / trừ điểm Quy Lão: điểm sự kiện (đổi thưởng ở Quy Lão) và điểm đua top tặng ngọc rồng. */
+    private void giveQlPoint(Player pl, String name, long event, long top) {
+        Player p = Client.gI().getPlayer(name);
+        if (p == null) {
+            Service.gI().sendThongBao(pl, "Người chơi không online");
+            return;
+        }
+        int ev = (int) Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, event));
+        if (ev != 0) {
+            int cur = p.event.getEventPoint();
+            p.event.addEventPoint(Math.max(-cur, ev)); // không cho âm
+        }
+        if (top != 0) {
+            p.qlPoints = (int) Math.max(0, Math.min(Integer.MAX_VALUE, (long) p.qlPoints + top));
+        }
+        Service.gI().sendThongBao(p, "Admin " + (event >= 0 && top >= 0 ? "tặng" : "điều chỉnh") + " điểm Quy Lão: điểm sự kiện "
+                + p.event.getEventPoint() + ", điểm đua top " + p.qlPoints);
+        Service.gI().sendThongBao(pl, p.name + ": điểm sự kiện " + p.event.getEventPoint() + ", điểm đua top " + p.qlPoints);
+        log(pl, "điểm Quy Lão " + p.name + " sự kiện " + event + ", đua top " + top);
     }
 
     private void showOnline(Player pl) {

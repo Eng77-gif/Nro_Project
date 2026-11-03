@@ -18,10 +18,10 @@ public class FileIO {
 
     /**
      * Bộ nhớ đệm file dữ liệu gửi cho client (icon, quái, hiệu ứng, map, ảnh theo tên): lúc vào game client xin hàng trăm
-     * file, trước đây lần nào cũng đọc đĩa. Giữ tối đa CACHE_MAX byte, bỏ file dùng lâu nhất; file sửa trên đĩa (đổi
-     * thời gian sửa / kích thước) thì đọc lại.
+     * file, trước đây lần nào cũng đọc đĩa. Giữ tối đa CACHE_MAX byte (1/10 RAM Java, không quá 48 MB - đủ cho file hay
+     * dùng, máy 2 GB không bị chiếm RAM), bỏ file dùng lâu nhất; file sửa trên đĩa (đổi thời gian sửa / kích thước) thì đọc lại.
      */
-    private static final long CACHE_MAX = 192L * 1024 * 1024;
+    private static final long CACHE_MAX = Math.min(48L * 1024 * 1024, Runtime.getRuntime().maxMemory() / 10);
     private static long cacheSize;
     private static final java.util.LinkedHashMap<String, Object[]> CACHE = new java.util.LinkedHashMap<>(4096, 0.75f, true);
 
@@ -39,7 +39,7 @@ public class FileIO {
         }
         try {
             byte[] ab = java.nio.file.Files.readAllBytes(f.toPath()); // đọc đủ cả file (read() một lần có thể thiếu)
-            if (ab.length <= 4 * 1024 * 1024) {
+            if (ab.length <= 512 * 1024) { // file lớn (ảnh nhiều khung) không giữ
                 synchronized (CACHE) {
                     Object[] old = CACHE.put(url, new Object[]{ab, mod});
                     cacheSize += ab.length - (old == null ? 0 : ((byte[]) old[0]).length);
