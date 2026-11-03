@@ -1426,11 +1426,43 @@ public class SeasonEventService implements Runnable {
         return out;
     }
 
-    /** Lời Chi Chi cho đua top đã kết thúc. */
+    /** Lời Chi Chi cho đua top đã kết thúc (như bản chính thức). */
     public String endedTopIntro(Top t, Player pl) {
-        int[] p = myPoint(t, pl);
-        return "Sự kiện đua Top " + topName(t) + " đã kết thúc\nHạn chót nhận giải: " + CLAIM_DAYS + " ngày sau khi chốt\n"
-                + (hasPendingReward(pl) ? "Bạn có quà đua top chưa nhận, bấm Nhận quà đua top nhé" : "Bạn không có quà đua top" + (p[0] > 0 ? " (điểm: " + p[0] + ")" : ""));
+        long left = CLAIM_DAYS;
+        try (Connection con = LocalManager.getConnection();
+                PreparedStatement ps = con.prepareStatement("select greatest(0, " + CLAIM_DAYS + " - datediff(now(), closed_at)) from season_event_top_closed where top_id = ?")) {
+            ps.setInt(1, t.id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    left = rs.getLong(1);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return "Sự kiện đua Top " + topName(t) + " nhận quà khủng\nKết thúc và trao giải sau: Đã kết thúc.\nHạn chót nhận giải: (" + left
+                + " ngày nữa)\nĐến gặp Chi Chi để nhận giải nhé";
+    }
+
+    /** "Xem điểm" của đua top đã chốt: hạng / điểm lúc chốt. */
+    public String endedViewPoint(Top t, Player pl) {
+        try (Connection con = LocalManager.getConnection()) {
+            ensureRewardItemTable(con);
+            for (String sql : new String[]{"select rank_no, points from season_event_reward_pending where top_id = ? and player_id = ? limit 1",
+                "select rank_no, 0 from season_event_reward_item where top_id = ? and player_id = ? limit 1"}) {
+                try (PreparedStatement ps = con.prepareStatement(sql)) {
+                    ps.setInt(1, t.id);
+                    ps.setLong(2, pl.id);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            return "Bạn đạt hạng " + rs.getInt(1) + (rs.getLong(2) > 0 ? " với " + rs.getLong(2) + " điểm" : "")
+                                    + "\nHãy bấm Nhận thưởng Sự kiện Đua Top để nhận quà";
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return "Bạn không có trong bảng xếp hạng " + topName(t);
     }
 
     public synchronized int closeTop(Top t) {
@@ -1473,7 +1505,7 @@ public class SeasonEventService implements Runnable {
             for (long[] r : ranks) {
                 Player pl = Client.gI().getPlayer(r[0]);
                 if (pl != null) {
-                    deliverTopRewards(pl);
+                    Service.gI().sendThongBao(pl, "Bạn đạt Top " + r[1] + " " + t.name.replace("\n", " ") + ", hãy gặp Chi Chi chọn Nhận thưởng Sự kiện Đua Top");
                 }
             }
         } catch (Exception e) {
@@ -1484,7 +1516,16 @@ public class SeasonEventService implements Runnable {
     }
 
     /** Phát quà top đang chờ khi người chơi vào game. */
+    /** Nhận quà đua top: mở bảng quà (Nhận / Xoá / Nhận tất) thay vì tự phát. */
     public void deliverTopRewards(Player pl) {
+        if (pl == null || !pl.isPl()) {
+            return;
+        }
+        openTopRewardBox(pl);
+    }
+
+    /** Cách cũ: phát thẳng quà vào hành trang (không còn dùng). */
+    public void deliverTopRewardsDirect(Player pl) {
         if (pl == null || !pl.isPl()) {
             return;
         }
@@ -1538,6 +1579,214 @@ public class SeasonEventService implements Runnable {
                 Logger.error("Lỗi phát quà top: " + e.getMessage() + "\n");
             }
         }
+    }
+
+    // ------------------------------------------------------------------ bảng "Nhận thưởng Sự kiện Đua Top" (shop loại 4: Nhận / Xoá / Nhận tất)
+    public static final String SHOP_TOP_REWARD = "SK_TOPREWARD";
+    /** playerId -> id dòng season_event_reward_item theo đúng thứ tự đang hiện */
+    private final Map<Long, List<Long>> rewardBoxOpen = new ConcurrentHashMap<>();
+
+    private static void ensureRewardItemTable(Connection con) throws Exception {
+        try (java.sql.Statement st = con.createStatement()) {
+            st.executeUpdate("create table if not exists season_event_reward_item (id bigint primary key auto_increment, player_id bigint not null,"
+                    + " top_id int not null, rank_no int not null, item_id int not null, qty int not null, days int not null default 0,"
+                    + " created_at timestamp not null default current_timestamp, key (player_id))");
+        }
+    }
+
+    /** Tách quà chờ nhận (theo hạng) thành từng món trong bảng season_event_reward_item. */
+    private void expandPending(Connection con, Player pl) throws Exception {
+        ensureRewardItemTable(con);
+        List<long[]> pend = new ArrayList<>();
+        try (PreparedStatement ps = con.prepareStatement("select id, top_id, rank_no, points from season_event_reward_pending where player_id = ? and (created_at is null or created_at > now() - interval " + CLAIM_DAYS + " day)")) {
+            ps.setLong(1, pl.id);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    pend.add(new long[]{rs.getInt("id"), rs.getInt("top_id"), rs.getInt("rank_no"), rs.getLong("points")});
+                }
+            }
+        }
+        for (long[] p : pend) {
+            Top t = tops.get((int) p[1]);
+            if (t != null) {
+                try (PreparedStatement ins = con.prepareStatement("insert into season_event_reward_item (player_id, top_id, rank_no, item_id, qty, days) values (?, ?, ?, ?, ?, ?)")) {
+                    for (int i = 0; i < t.rewards.size(); i++) {
+                        int[] r = t.rewards.get(i);
+                        if (p[2] >= r[0] && p[2] <= r[1] && p[3] >= r[4]) {
+                            int[] days = t.rewardDays.get(i);
+                            ins.setLong(1, pl.id);
+                            ins.setInt(2, t.id);
+                            ins.setInt(3, (int) p[2]);
+                            ins.setInt(4, r[2]);
+                            ins.setInt(5, r[3]);
+                            ins.setInt(6, days.length > 0 ? days[0] : 0);
+                            ins.addBatch();
+                        }
+                    }
+                    ins.executeBatch();
+                }
+            }
+            try (PreparedStatement del = con.prepareStatement("delete from season_event_reward_pending where id = ?")) {
+                del.setLong(1, p[0]);
+                del.executeUpdate();
+            }
+        }
+    }
+
+    /** Có quà đua top chưa nhận (cả quà chờ tách lẫn món trong bảng). */
+    public boolean hasTopRewardBox(Player pl) {
+        if (hasPendingReward(pl)) {
+            return true;
+        }
+        try (Connection con = LocalManager.getConnection()) {
+            ensureRewardItemTable(con);
+            try (PreparedStatement ps = con.prepareStatement("select 1 from season_event_reward_item where player_id = ? and created_at > now() - interval " + CLAIM_DAYS + " day limit 1")) {
+                ps.setLong(1, pl.id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next();
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** Mở bảng quà đua top (như bản chính thức: "N Vật phẩm", mỗi món ghi "Cách nhận: Đua Top nhận", "TOP #hạng tên đua top (xSL)"). */
+    public void openTopRewardBox(Player pl) {
+        List<long[]> rows = new ArrayList<>(); // {id, top, rank, item, qty, days}
+        try (Connection con = LocalManager.getConnection()) {
+            synchronized (pl) {
+                expandPending(con, pl);
+            }
+            try (PreparedStatement ps = con.prepareStatement("select id, top_id, rank_no, item_id, qty, days from season_event_reward_item where player_id = ? and created_at > now() - interval "
+                    + CLAIM_DAYS + " day order by id limit 120")) {
+                ps.setLong(1, pl.id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        rows.add(new long[]{rs.getLong(1), rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), rs.getInt(6)});
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Logger.error("Lỗi mở quà đua top: " + e.getMessage() + "\n");
+            return;
+        }
+        if (rows.isEmpty()) {
+            rewardBoxOpen.remove(pl.id);
+            Service.gI().sendThongBao(pl, "Bạn không có phần thưởng đua top nào");
+            return;
+        }
+        List<Long> ids = new ArrayList<>();
+        nro.models.network.Message msg = null;
+        try {
+            msg = new nro.models.network.Message(-44);
+            msg.writer().writeByte(4);
+            msg.writer().writeByte(1);
+            msg.writer().writeUTF(rows.size() + " Vật\nphẩm");
+            msg.writer().writeByte(rows.size());
+            for (long[] r : rows) {
+                ids.add(r[0]);
+                int item = (int) r[3];
+                int tempId = item == -1 ? 190 : item == -2 ? 77 : item == -3 ? 861 : item;
+                Top t = tops.get((int) r[1]);
+                String topName = t == null ? "EVENT " + r[1] : t.name.replace("\n", " ");
+                Item it = item >= 0 ? Event2026Service.gI().createItem(item, 1, (int) r[5]) : null;
+                msg.writer().writeShort(tempId);
+                msg.writer().writeUTF("Cách nhận: Đua Top nhận\n|1|TOP #" + r[2] + " " + topName + (r[4] > 1 ? " (x" + Util.numberToMoney(r[4]) + ")" : ""));
+                List<Item.ItemOption> opts = it != null ? it.itemOptions : new ArrayList<>();
+                if (it != null && r[5] <= 0 && !ItemService.gI().getTemplate(item).isUpToUp) {
+                    opts.add(new Item.ItemOption(OPT_VINH_VIEN, 0));
+                }
+                msg.writer().writeByte(opts.size());
+                for (Item.ItemOption io : opts) {
+                    msg.writeItemOption(io.optionTemplate.id, io.param);
+                }
+                msg.writer().writeByte(1); // mới
+                if (it != null && it.template.type == 5) {
+                    msg.writer().writeByte(1);
+                    msg.writer().writeShort(it.template.head);
+                    msg.writer().writeShort(it.template.body);
+                    msg.writer().writeShort(it.template.leg);
+                    msg.writer().writeShort(-1);
+                } else {
+                    msg.writer().writeByte(0);
+                }
+            }
+            rewardBoxOpen.put(pl.id, ids);
+            pl.idMark.setTagNameShop(SHOP_TOP_REWARD);
+            pl.sendMessage(msg);
+        } catch (Exception e) {
+            Logger.error("Lỗi gửi quà đua top: " + e.getMessage() + "\n");
+        } finally {
+            if (msg != null) {
+                msg.cleanup();
+            }
+        }
+    }
+
+    /** Nút trong bảng quà: 0 Nhận, 1 Xoá, 2 Nhận tất. */
+    public void topRewardAction(Player pl, int type, int index) {
+        List<Long> ids = rewardBoxOpen.get(pl.id);
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        List<Long> todo = new ArrayList<>();
+        if (type == 2) {
+            todo.addAll(ids);
+        } else if (index >= 0 && index < ids.size()) {
+            todo.add(ids.get(index));
+        } else {
+            return;
+        }
+        int got = 0;
+        synchronized (pl) {
+            try (Connection con = LocalManager.getConnection()) {
+                for (long id : todo) {
+                    long[] r = null;
+                    try (PreparedStatement ps = con.prepareStatement("select item_id, qty, days from season_event_reward_item where id = ? and player_id = ?")) {
+                        ps.setLong(1, id);
+                        ps.setLong(2, pl.id);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            if (rs.next()) {
+                                r = new long[]{rs.getInt(1), rs.getInt(2), rs.getInt(3)};
+                            }
+                        }
+                    }
+                    if (r == null) {
+                        continue;
+                    }
+                    if (type != 1) {
+                        int item = (int) r[0];
+                        if (item < 0) {
+                            Event2026Service.gI().giveCurrency(pl, item, (int) r[1]);
+                        } else {
+                            Item it = Event2026Service.gI().createItem(item, (int) r[1], (int) r[2]);
+                            boolean stack = it.template.isUpToUp && InventoryService.gI().findItemBag(pl, item) != null;
+                            if (!stack && InventoryService.gI().getCountEmptyBag(pl) <= 0) {
+                                Service.gI().sendThongBao(pl, "Hành trang đã đầy");
+                                break;
+                            }
+                            InventoryService.gI().addItemBag(pl, it);
+                        }
+                        got++;
+                    }
+                    try (PreparedStatement del = con.prepareStatement("delete from season_event_reward_item where id = ?")) {
+                        del.setLong(1, id);
+                        del.executeUpdate();
+                    }
+                }
+            } catch (Exception e) {
+                Logger.error("Lỗi nhận quà đua top: " + e.getMessage() + "\n");
+            }
+        }
+        InventoryService.gI().sendItemBags(pl);
+        Service.gI().sendMoney(pl);
+        if (type == 1) {
+            Service.gI().sendThongBao(pl, "Xóa vật phẩm thành công");
+        } else if (got > 0) {
+            Service.gI().sendThongBao(pl, "Bạn đã nhận " + got + " phần thưởng đua top");
+        }
+        openTopRewardBox(pl);
     }
 
     // ------------------------------------------------------------------ Chi Chi / Quy Lão theo sự kiện (giống video)

@@ -1603,3 +1603,8 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **CT Android 21 Evil gây lỗi hành trang:** thiếu ảnh đại diện (head_avatar). Bổ sung ảnh đại diện cho 13 cải trang còn thiếu (Android 21 Evil / Thân Thiện, Bunma Rider, Kochiro, Musashi, Ác Ma Pico, Janemba, Trâu Nâu, Bản Cô Nương, Broly, Đặng Văn Chiến, Kirin chú cuội).
 - **Shop đổi điểm Quy Lão:** giá hiện kèm icon đồng xu NRO như bản chính thức (trước là ngôi sao).
 - **Đua top kết thúc:** Chi Chi vẫn hiện mục đua top đó trong 7 ngày, nút "Xem điểm" đổi thành "Nhận quà đua top"; Top 100 vẫn xem được (lấy bảng xếp hạng lúc chốt).
+
+## Đợt 91
+- **Dùng Mảnh Khỉ Oozaru làm rađa nhảy lung tung / trống:** mỗi mảnh dùng server gửi lại cả bảng rađa (vì Thẻ Oozaru đổi hình theo cấp), client dựng lại rađa nên nhảy về thẻ đầu (Thẻ Quỷ đất) hoặc hiện trống. Giờ chỉ gửi lại cả bảng khi thẻ lên cấp (đúng lúc đổi hình), các mảnh khác chỉ cập nhật số mảnh của thẻ.
+- **Rađa dùng cùng lúc tối đa 5 thẻ** (trước chỉ 1, phải tắt thẻ này mới bật được thẻ khác). Chỉ số "Sử dụng Lv.x" của từng thẻ đang bật đều cộng; aura lấy theo thẻ mạnh nhất.
+- **Nhận quà đua top như bản chính thức (video):** Chi Chi → chọn đua top → 3 nút "Top 100", "Xem điểm", "Nhận thưởng Sự kiện Đua Top" (cả khi đang đua lẫn sau khi kết thúc, giữ 7 ngày). "Nhận thưởng" mở bảng "N Vật phẩm": mỗi món ghi "Cách nhận: Đua Top nhận" và "TOP #hạng tên đua top (xSL)", có nút Nhận / Xoá / Nhận tất (vàng, ngọc, hồng ngọc cũng là 1 món). Không còn tự phát quà khi đăng nhập / khi chốt top; đăng nhập chỉ nhắc ra Chi Chi nhận. "Xem điểm" sau khi chốt hiện hạng / điểm lúc chốt.

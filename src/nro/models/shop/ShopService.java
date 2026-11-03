@@ -484,6 +484,9 @@ public class ShopService {
         } else if (tagName.equals("BILL")) {
             buyItemHD(player, tempId);
             return;
+        } else if (tagName.equals(nro.models.services.SeasonEventService.SHOP_TOP_REWARD)) {
+            nro.models.services.SeasonEventService.gI().topRewardAction(player, type, tempId);
+            return;
         } else if (tagName.equals(nro.models.services.SeasonEventService.SHOP_CHICHI) || tagName.equals(nro.models.services.SeasonEventService.SHOP_QUYLAO)) {
             nro.models.services.SeasonEventService.gI().buyFromEventShop(player, tempId);
             return;

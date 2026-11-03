@@ -131,6 +131,8 @@ public class RadarService {
      * Dòng chỉ số activeCard 0 có tác dụng từ Lv.1, activeCard k (1, 2) khi đang dùng thẻ ở Lv.(k + 1).
      */
     public static final int MAX_LEVEL = 3;
+    /** số thẻ được bật "Sử dụng" cùng lúc */
+    public static final int MAX_USED = 5;
 
     public static int displayLevel(Card card) {
         return card.Level >= 1 ? Math.min(MAX_LEVEL, card.Level) : 0;

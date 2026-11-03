@@ -152,8 +152,8 @@ public class Controller implements IMessageHandler {
                                     }
                                     short auraTruoc = player.getAura();
                                     if (card.Used == 0) {
-                                        if (player.Cards.stream().anyMatch(c -> c != null && c.Used == 1)) {
-                                            Service.gI().sendThongBao(player, "Số thẻ sử dụng đã đạt tối đa");
+                                        if (player.Cards.stream().filter(c -> c != null && c.Used == 1).count() >= RadarService.MAX_USED) {
+                                            Service.gI().sendThongBao(player, "Chỉ dùng được tối đa " + RadarService.MAX_USED + " thẻ cùng lúc, hãy tắt bớt 1 thẻ");
                                             return;
                                         }
                                         card.Used = 1;
@@ -817,7 +817,9 @@ public class Controller implements IMessageHandler {
                             nro.models.player_badges.BadgesService.checkPerfect(player);
                             nro.models.services.Event2026Service.gI().deliverRaceReward(player);
                             nro.models.services.Event2026Service.gI().deliverHopDenReward(player);
-                            nro.models.services.SeasonEventService.gI().deliverTopRewards(player);
+                            if (nro.models.services.SeasonEventService.gI().hasTopRewardBox(player)) {
+                                Service.gI().sendThongBao(player, "Bạn có phần thưởng đua top, hãy gặp Chi Chi chọn Nhận thưởng Sự kiện Đua Top");
+                            }
                             nro.models.services.shenron.RongXuong.sendBuffTimes(player);
                             if (player.getSession() != null && player.getSession().tongnap > 0) {
                                 AchievementService.gI().checkDoneTask(player, ConstAchievement.LAN_DAU_NAP_NGOC);
