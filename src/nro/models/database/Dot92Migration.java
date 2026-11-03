@@ -60,6 +60,17 @@ public class Dot92Migration {
                     }
                 }
             }
+            // ... và ván bay / thú cưỡi hình rồng (Ván Rồng 7 sao hiếm hơn)
+            int[] mounts = {1468, 1487, 1812, 1828, 1896, 1897, 1898, 1899, 2100};
+            for (int box : new int[]{1900, 1901}) {
+                if (!exists(con, "select 1 from item_box_reward where box_id = " + box + " and item_id = 1897")) {
+                    for (int m : mounts) {
+                        int w = m == 2100 ? 1 : (box == 1900 ? 3 : 5);
+                        changed += update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values ("
+                                + box + ", " + m + ", 1, 1, " + w + ", '7,15,30', " + (box == 1900 ? 2 : 10) + ", 0)");
+                    }
+                }
+            }
         } catch (Exception e) {
             Logger.error("Đợt 92: không cập nhật được Hộp Ngọc Rồng Bí / Rương Rồng Thần: " + e.getMessage() + "\n");
         }
