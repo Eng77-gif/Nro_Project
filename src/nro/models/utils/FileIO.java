@@ -16,13 +16,40 @@ import java.util.List;
 
 public class FileIO {
 
+    /**
+     * Bộ nhớ đệm file dữ liệu gửi cho client (icon, quái, hiệu ứng, map, ảnh theo tên): lúc vào game client xin hàng trăm
+     * file, trước đây lần nào cũng đọc đĩa. Giữ tối đa CACHE_MAX byte, bỏ file dùng lâu nhất; file sửa trên đĩa (đổi
+     * thời gian sửa / kích thước) thì đọc lại.
+     */
+    private static final long CACHE_MAX = 192L * 1024 * 1024;
+    private static long cacheSize;
+    private static final java.util.LinkedHashMap<String, Object[]> CACHE = new java.util.LinkedHashMap<>(4096, 0.75f, true);
+
     public static byte[] readFile(String url) {
+        File f = new File(url);
+        long mod = f.lastModified(), len = f.length();
+        if (mod == 0L) {
+            return null; // không có file
+        }
+        synchronized (CACHE) {
+            Object[] c = CACHE.get(url);
+            if (c != null && (long) c[1] == mod && ((byte[]) c[0]).length == len) {
+                return (byte[]) c[0];
+            }
+        }
         try {
-            byte[] ab = null;
-            FileInputStream fis = new FileInputStream(url);
-            ab = new byte[fis.available()];
-            fis.read(ab, 0, ab.length);
-            fis.close();
+            byte[] ab = java.nio.file.Files.readAllBytes(f.toPath()); // đọc đủ cả file (read() một lần có thể thiếu)
+            if (ab.length <= 4 * 1024 * 1024) {
+                synchronized (CACHE) {
+                    Object[] old = CACHE.put(url, new Object[]{ab, mod});
+                    cacheSize += ab.length - (old == null ? 0 : ((byte[]) old[0]).length);
+                    java.util.Iterator<Object[]> it = CACHE.values().iterator();
+                    while (cacheSize > CACHE_MAX && it.hasNext()) {
+                        cacheSize -= ((byte[]) it.next()[0]).length;
+                        it.remove();
+                    }
+                }
+            }
             return ab;
         } catch (IOException e) {
         }

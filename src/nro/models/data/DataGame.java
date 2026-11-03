@@ -344,8 +344,11 @@ public class DataGame {
 //                return;
 //            }
             final byte[] mob = FileIO.readFile("data/mob/x" + session.zoomLevel + "/" + id);
+            if (mob == null) {
+                return;
+            }
             msg = new Message(11);
-            msg.writer().writeByte(id);
+            msg.writeDual(id, 1, id, 2); // client long (J2ME 2.4.x, Unity 2.4.7, DragonBoy249) đọc mã quái 2 byte: gửi 1 byte là không hiện quái
             msg.writer().write(mob);
             session.sendMessage(msg);
             msg.cleanup();

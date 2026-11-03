@@ -36,6 +36,7 @@ public class Dot77Migration {
         {190, "14635, 14636, 14637, 14638", 1769, -1}, // Bóng sinh nhật NRO
         {191, "14652, 14653, 14654, 14655", 1772, -1}, // Đuôi rắn xanh
         {192, "14647, 14648, 14649, 14650", 1773, -1}, // Đuôi rắn rực lửa
+        {193, "736", 78, 736}, // Đứa bé (nhiệm vụ phi thuyền): cõng sau lưng, part 736 vốn là mã icon
         {164, null, 1841, -1}, // Bạch tuộc Xanh cáu kỉnh: dùng hình bạch tuộc xanh
         {111, null, 1932, -1}, // Cánh thiên thần 3 (Đệ): cùng hình bản thường
     };
