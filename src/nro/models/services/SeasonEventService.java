@@ -1291,6 +1291,52 @@ public class SeasonEventService implements Runnable {
     }
 
     // ------------------------------------------------------------------ đua top
+    /**
+     * Bot đua top bám sát người chơi thật: mỗi bot có "sức đua" riêng (50% - 140% điểm của người chơi thật đứng đầu), cứ 2 phút
+     * cộng dần về phía mức đó; chưa có người chơi nào thì cộng chậm. Bot hiện trong bảng xếp hạng nhưng không nhận quà.
+     */
+    public void botRace(List<? extends Player> bots) {
+        if (bots.isEmpty()) {
+            return;
+        }
+        for (Top t : currentTops()) {
+            long topReal = 0;
+            Map<Long, Long> cur = new HashMap<>();
+            try (Connection con = LocalManager.getConnection()) {
+                try (PreparedStatement ps = con.prepareStatement("select max(points) from season_event_point where top_id = ? and player_id < " + nro.models.Bot.BotWorld.ID_BASE)) {
+                    ps.setInt(1, t.id);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        topReal = rs.next() ? rs.getLong(1) : 0;
+                    }
+                }
+                try (PreparedStatement ps = con.prepareStatement("select player_id, points from season_event_point where top_id = ? and player_id >= " + nro.models.Bot.BotWorld.ID_BASE)) {
+                    ps.setInt(1, t.id);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            cur.put(rs.getLong(1), rs.getLong(2));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                continue;
+            }
+            for (Player b : bots) {
+                int pts;
+                if (topReal <= 0) {
+                    pts = Util.isTrue(35, 100) ? Util.nextInt(1, 3) : 0;
+                } else {
+                    double f = 0.5 + (b.id % 10) / 10.0; // 0.5 - 1.4: vài bot vượt người chơi đứng đầu, đua kịch liệt
+                    long target = (long) (topReal * f);
+                    long now = cur.getOrDefault(b.id, 0L);
+                    pts = target > now ? (int) Math.min(500, Math.max(1, (target - now) / 6 + Util.nextInt(0, 3))) : (Util.isTrue(20, 100) ? 1 : 0);
+                }
+                if (pts > 0) {
+                    addTopPoint(t, b, pts);
+                }
+            }
+        }
+    }
+
     /** Bot cộng điểm đua top của sự kiện đang chạy (hiện trong bảng xếp hạng, không nhận quà). */
     public void addBotTopPoint(Player bot, int pts) {
         for (Top t : currentTops()) {

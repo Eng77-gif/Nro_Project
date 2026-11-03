@@ -90,6 +90,7 @@ public class BotSanBoss {
         if (this.bot.worldBot) {
             this.prefer = null;
             this.bot.setMode(0);
+            this.bot.activity = "Luyện tập";
             this.bot.joinMap();
         } else {
             BotManager.gI().bot.remove(this.bot);

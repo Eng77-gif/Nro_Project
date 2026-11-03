@@ -37,7 +37,7 @@ public final class BotWorld {
     private final Map<Long, long[]> nextSwitch = new HashMap<>(); // id -> {lúc đổi hoạt động}
     private volatile int target;
     private ScheduledExecutorService exec;
-    private long lastSave, lastTop;
+    private long lastSave, lastTop, lastUp, lastConsign;
 
     public static BotWorld gI() {
         return I;
@@ -130,6 +130,16 @@ public final class BotWorld {
         }
         long now = System.currentTimeMillis();
         for (Bot b : bots()) {
+            if (b.awayUntil > 0) {
+                if (now >= b.awayUntil) {
+                    comeBack(b);
+                }
+                continue;
+            }
+            if ("PK".equals(b.activity) && now > b.pkUntil) {
+                endPk(b);
+                train(b);
+            }
             grow(b);
             long[] ns = nextSwitch.computeIfAbsent(b.id, k -> new long[]{now + Util.nextInt(120, 420) * 1000L});
             if (now >= ns[0]) {
@@ -139,11 +149,15 @@ public final class BotWorld {
         }
         if (now - lastTop > 120_000) {
             lastTop = now;
-            for (Bot b : bots()) {
-                if (Util.isTrue(35, 100)) {
-                    nro.models.services.SeasonEventService.gI().addBotTopPoint(b, Util.nextInt(1, 3));
-                }
-            }
+            nro.models.services.SeasonEventService.gI().botRace(bots()); // đua top bám sát người chơi thật
+        }
+        if (now - lastUp > Util.nextInt(4, 8) * 60_000L) {
+            lastUp = now;
+            upgradeAndFarm();
+        }
+        if (now - lastConsign > 10 * 60_000L) {
+            lastConsign = now;
+            consign();
         }
         if (now - lastSave > 300_000) {
             lastSave = now;
@@ -160,20 +174,159 @@ public final class BotWorld {
     }
 
     private void switchActivity(Bot b) {
+        endPk(b);
         int r = Util.nextInt(1, 100);
-        if (r <= 70) { // luyện tập
-            b.boss.prefer = null;
-            b.setMode(0);
-            b.joinMap();
-        } else if (r <= 88) { // săn boss
+        if (r <= 40) { // luyện tập
+            train(b);
+        } else if (r <= 55) { // săn boss
             b.boss.prefer = null;
             b.boss.bossAttack = null;
             b.setMode(2);
-        } else { // săn đệ: đi đánh Broly
+            b.activity = "Săn boss";
+        } else if (r <= 63) { // săn đệ: đi đánh Broly
             b.boss.prefer = "Broly";
             b.boss.bossAttack = null;
             b.setMode(2);
+            b.activity = "Săn đệ (Broly)";
+        } else if (r <= 73 && nro.models.utils.TimeUtil.isBlackBallWarOpen()) { // Ngọc Rồng Sao Đen đang mở
+            goNrsd(b);
+        } else if (r <= 81) {
+            goAway(b, Util.isTrue(50, 100) ? "Doanh trại" : "Đại hội võ thuật");
+        } else if (r <= 90) {
+            startPk(b);
+        } else {
+            train(b);
         }
+    }
+
+    private void train(Bot b) {
+        b.boss.prefer = null;
+        b.setMode(0);
+        b.activity = "Luyện tập";
+        b.joinMap();
+    }
+
+    /** Vào NRSD: cắm cờ ngẫu nhiên, đánh quái / bị người chơi đánh như thường, không nhặt ngọc rồng sao đen. */
+    private void goNrsd(Bot b) {
+        nro.models.map.Map m = nro.models.map.service.MapService.gI().getMapById(Util.nextInt(85, 91));
+        if (m == null || m.zones.isEmpty()) {
+            train(b);
+            return;
+        }
+        nro.models.map.Zone z = m.zones.get(Util.nextInt(0, m.zones.size() - 1));
+        if (z.isFullPlayer()) {
+            train(b);
+            return;
+        }
+        b.setMode(0);
+        b.activity = "NRSD";
+        ChangeMapService.gI().goToMap(b, z);
+        z.load_Me_To_Another(b);
+        nro.models.services.Service.gI().changeFlag(b, Util.nextInt(1, 7));
+    }
+
+    /** Doanh trại / ĐHVT là phó bản / giải đấu riêng: bot rời map một lúc, về thì mạnh lên và kể lại. */
+    private void goAway(Bot b, String where) {
+        b.activity = where;
+        b.awayUntil = System.currentTimeMillis() + Util.nextInt(5, 10) * 60_000L;
+        try {
+            ChangeMapService.gI().exitMap(b);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private static final String[] BACK_CHAT = {"vừa đi doanh trại về, mệt ghê", "đánh doanh trại xong rồi ae", "ĐHVT vào tới vòng trong rồi",
+        "đấu ĐHVT thua tiếc quá", "doanh trại hôm nay nhiều đồ ghê"};
+
+    private void comeBack(Bot b) {
+        b.awayUntil = 0;
+        long bonus = Math.max(50_000, b.nPoint.power / 100);
+        b.nPoint.power += bonus;
+        b.nPoint.tiemNang += bonus;
+        train(b);
+        if (b.zone != null && Util.isTrue(60, 100)) {
+            nro.models.services.Service.gI().chat(b, BACK_CHAT[rnd.nextInt(BACK_CHAT.length)]);
+        }
+    }
+
+    /** PK với 1 bot khác (đưa 2 bot về cùng khu, bật PK, đánh nhau ~3 phút). Không đánh người chơi thật. */
+    private void startPk(Bot b) {
+        List<Bot> others = new ArrayList<>();
+        for (Bot o : bots()) {
+            if (o != b && o.zone != null && o.awayUntil == 0 && o.pkTarget == null && !"NRSD".equals(o.activity)) {
+                others.add(o);
+            }
+        }
+        if (others.isEmpty() || b.zone == null) {
+            train(b);
+            return;
+        }
+        Bot o = others.get(rnd.nextInt(others.size()));
+        if (o.zone != b.zone) {
+            ChangeMapService.gI().goToMap(b, o.zone);
+            o.zone.load_Me_To_Another(b);
+        }
+        long until = System.currentTimeMillis() + 180_000;
+        for (Bot x : new Bot[]{b, o}) {
+            x.setMode(0);
+            x.activity = "PK";
+            x.pkUntil = until;
+            nro.models.services.PlayerService.gI().changeAndSendTypePK(x, nro.models.consts.ConstPlayer.PK_ALL);
+        }
+        b.pkTarget = o;
+        o.pkTarget = b;
+        nro.models.services.Service.gI().chat(b, Util.isTrue(50, 100) ? "solo không " + o.name : "lại đây PK nào");
+    }
+
+    private void endPk(Bot b) {
+        if (b.pkTarget != null || "PK".equals(b.activity)) {
+            b.pkTarget = null;
+            try {
+                nro.models.services.PlayerService.gI().changeAndSendTypePK(b, 0);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------ đập đồ, úp vàng, ký gửi
+    private static final String[] UP_CHAT = {"đập đồ +%d thành công rồi ae", "đập +%d tạch, buồn quá", "up vàng mỏi tay ghê", "vừa úp được mấy trăm triệu vàng",
+        "đập lên +%d rồi, mạnh hẳn"};
+    /** vật phẩm bot đem ký gửi: {id, giá vàng thấp, giá vàng cao} */
+    private static final int[][] SELL = {{441, 2_000_000, 8_000_000}, {442, 2_000_000, 8_000_000}, {443, 2_000_000, 8_000_000}, {444, 2_000_000, 8_000_000},
+        {445, 2_000_000, 8_000_000}, {446, 2_000_000, 8_000_000}, {447, 2_000_000, 8_000_000}, {220, 1_000_000, 5_000_000}, {221, 1_000_000, 5_000_000},
+        {222, 1_000_000, 5_000_000}, {223, 1_000_000, 5_000_000}, {224, 1_000_000, 5_000_000}, {1909, 3_000_000, 15_000_000}, {457, 40_000_000, 60_000_000}};
+    private static final int MAX_LISTINGS = 20;
+
+    private void upgradeAndFarm() {
+        List<Bot> on = bots();
+        if (on.isEmpty()) {
+            return;
+        }
+        Bot b = on.get(rnd.nextInt(on.size()));
+        if (b.zone == null || b.awayUntil > 0) {
+            return;
+        }
+        String c = UP_CHAT[rnd.nextInt(UP_CHAT.length)];
+        nro.models.services.Service.gI().chat(b, c.contains("%d") ? String.format(c, Util.nextInt(3, 8)) : c);
+        b.nPoint.power += Math.max(20_000, b.nPoint.power / 300); // đồ mạnh hơn
+    }
+
+    /** Bot đem vật phẩm thường lên ký gửi (tối đa 20 món của bot cùng lúc), món đã bán thì bot "nhận tiền" (gỡ khỏi danh sách). */
+    private void consign() {
+        List<nro.models.shop_ky_gui.ConsignItem> list = nro.models.shop_ky_gui.ConsignShopManager.gI().listItem;
+        list.removeIf(it -> it != null && isBotId(it.player_sell) && it.isBuy);
+        long mine = list.stream().filter(it -> it != null && isBotId(it.player_sell)).count();
+        List<Bot> on = bots();
+        if (mine >= MAX_LISTINGS || on.isEmpty()) {
+            return;
+        }
+        Bot b = on.get(rnd.nextInt(on.size()));
+        int[] s = SELL[rnd.nextInt(SELL.length)];
+        nro.models.item.Item it = ItemService.gI().createNewItem((short) s[0], Util.nextInt(1, 5));
+        it.itemOptions.addAll(ItemService.gI().getListOptionItemShop((short) s[0]));
+        int price = Util.nextInt(s[1], s[2]) / 100_000 * 100_000;
+        list.add(new nro.models.shop_ky_gui.ConsignItem(nro.models.shop_ky_gui.ConsignShopService.gI().getMaxId() + 1, it.template.id, (int) b.id,
+                nro.models.shop_ky_gui.ConsignShopService.gI().getTabKiGui(it), price, -1, it.quantity, (byte) 0, it.itemOptions, false));
     }
 
     // ------------------------------------------------------------------ tạo / bỏ bot
@@ -350,10 +503,7 @@ public final class BotWorld {
     }
 
     private static String modeName(Bot b) {
-        return switch (b.getMode()) {
-            case 2 -> b.boss != null && b.boss.prefer != null ? "Săn đệ (" + b.boss.prefer + ")" : "Săn boss";
-            default -> "Luyện tập";
-        };
+        return b.activity == null ? "Luyện tập" : b.activity + (b.awayUntil > 0 ? " (vắng)" : "");
     }
 
     /** Cho web panel: danh sách bot đang online. */

@@ -153,6 +153,9 @@ public class Bot extends Player {
 
     @Override
     public void update() {
+        if (this.awayUntil > System.currentTimeMillis()) {
+            return; // đang ở doanh trại / ĐHVT (không có mặt trên map)
+        }
         super.update();
         this.increasePoint();
         switch (this.type) {
@@ -274,5 +277,12 @@ public class Bot extends Player {
 
     /** bot của BotWorld (tự duy trì, lưu tiến độ) */
     public boolean worldBot;
+    /** hoạt động đang làm (hiện trên panel) */
+    public String activity = "Luyện tập";
+    /** đang đi vắng (doanh trại / ĐHVT) tới lúc này */
+    public long awayUntil;
+    /** bot đang PK (chỉ đánh bot khác) */
+    public Bot pkTarget;
+    public long pkUntil;
 
 }

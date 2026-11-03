@@ -53,9 +53,36 @@ public class BotPemQuai {
             Logger.logException(BotPemQuai.class, e);
         }
 
+        if (attackPkTarget()) {
+            return;
+        }
         Attack();
-        chanGeMap();
-        NhatItem();
+        if (!this.bot.worldBot || !"NRSD".equals(this.bot.activity)) {
+            chanGeMap(); // đang đánh NRSD thì ở lại map NRSD
+        }
+        if (this.bot.zone == null || !nro.models.map.service.MapService.gI().isMapBlackBallWar(this.bot.zone.map.mapId)) {
+            NhatItem(); // không nhặt đồ trong NRSD (không cướp ngọc rồng sao đen của người chơi)
+        }
+    }
+
+    /** PK với bot khác (không đánh người chơi thật). */
+    private boolean attackPkTarget() {
+        Bot t = this.bot.pkTarget;
+        if (t == null) {
+            return false;
+        }
+        if (t.isDie() || t.zone == null || t.zone != this.bot.zone || System.currentTimeMillis() > this.bot.pkUntil) {
+            this.bot.pkTarget = null;
+            return false;
+        }
+        if (!bot.playerSkill.skills.isEmpty()) {
+            bot.playerSkill.skillSelect = bot.playerSkill.skills.get(new Random().nextInt(Math.min(2, bot.playerSkill.skills.size())));
+        }
+        if (this.bot.UseLastTimeSkill()) {
+            PlayerService.gI().playerMove(this.bot, t.location.x + Util.nextInt(-30, 30), t.location.y);
+            SkillService.gI().useSkillAttack(bot, t, null);
+        }
+        return true;
     }
 
     public void GetMobAttack() {
