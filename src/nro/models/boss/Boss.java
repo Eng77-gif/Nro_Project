@@ -647,7 +647,7 @@ public class Boss extends Player implements IBoss {
 
     @Override
     public void die(Player plKill) {
-        if (plKill != null && !plKill.isBot) {
+        if (plKill != null && nro.models.Bot.BotWorld.counts(plKill)) {
             nro.models.services.SeasonEventService.gI().onBossKilled(this, plKill);
             nro.models.services.SaoPhaLe10Service.gI().onBossKilled(this, plKill);
             nro.models.services.BossRewardService.gI().reward(this, plKill); // vàng, điểm, quà theo độ mạnh boss
@@ -657,7 +657,7 @@ public class Boss extends Player implements IBoss {
                 && (this.zone.map.mapId != 140 || !MapService.gI().isMapMaBu(this.zone.map.mapId)
                 || !MapService.gI().isMapDoanhTrai(this.zone.map.mapId)
                 || !MapService.gI().isMapBanDoKhoBau(this.zone.map.mapId))) {
-            if (!plKill.isBot) {
+            if (nro.models.Bot.BotWorld.counts(plKill)) {
                 reward(plKill);
             }
             ServerNotify.gI().notify(plKill.name + ": Đã tiêu diệt được " + this.name + " mọi người đều ngưỡng mộ.");

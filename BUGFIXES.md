@@ -1645,3 +1645,12 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Chỉ số cờ:** Pháo hoa NRO thêm chí mạng 10 - 20%, sức đánh chí mạng 10 - 20%; Đeo lưng bông tuyết thêm giảm sát thương 10 - 15%, né đòn 20 - 25%, không ảnh hưởng bởi cái lạnh (ngẫu nhiên trong khoảng khi nhận món mới).
 - **Mở hộp quà / capsule:** bỏ dòng thông báo "Mở ... nhận được ...", chỉ còn hiệu ứng mở hộp hiện món nhận được (cả Capsule 1 món kích hoạt, Hộp quà Set kích hoạt).
 - **Bóng mờ:** điểm dày hơn (12 px), luôn có 1 điểm ngay dưới chân nên vệt bám sát người chơi, bớt khựng khi chạy nhanh.
+
+## Đợt 95
+- **Bot là tài khoản thật do admin chọn:** panel → Người chơi → nút "🤖 Đặt làm bot" (hoặc trang Bot → thêm theo tên / id). Khi chủ tài khoản không online, server nạp chính nhân vật đó vào game và cho tự chơi: đánh quái theo sức mạnh, săn boss, săn đệ, vào NRSD, PK. Bot dùng đúng đồ đang mặc, hành trang, vàng ngọc của nhân vật và lưu lại vào nhân vật như người chơi thật.
+- Bot tài khoản không được cộng sức mạnh / điểm đua top / đồ ký gửi "ảo" như bot giả lập: chỉ có những gì tự đánh, tự nhặt được. Nhận thưởng boss, đua top như người chơi thật.
+- **NRSD:** bot tài khoản nhặt ngọc rồng sao đen và thủ ngọc (đánh người chơi khác cờ ở gần), không phân biệt người thật hay bot.
+- Chủ tài khoản đăng nhập: bot thoát ngay, lưu nhân vật rồi mới nạp cho chủ. Chủ thoát game: sau khoảng 30 giây bot vào lại.
+- Panel → Bot: bảng tài khoản bot (trạng thái, đang làm gì, map), nút "Xem hành trang" (đồ đang mặc, hành trang, rương: lấy dữ liệu trực tiếp khi bot đang chơi), "Bỏ bot".
+- Bot giả lập mặc định 0 con (chỉ bật khi admin đặt số lượng trên panel).
+- Sửa chọn map luyện tập theo sức mạnh của bot: trước đây ngưỡng sức mạnh bị trùng nên bot từ 100 triệu trở lên phần lớn đứng ở Nhà Gôhan (không có quái); nay < 2 tỷ đi map Fide / Nappa, < 40 tỷ đi map tương lai, trên 40 tỷ đi map Cold.

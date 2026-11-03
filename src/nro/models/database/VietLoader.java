@@ -67,6 +67,7 @@ public class VietLoader {
                 session.userId = rs.getInt("account.id");
                 session.isAdmin = rs.getBoolean("is_admin");
                 nro.models.data.ResGuard.onLogin(session);
+                nro.models.Bot.BotWorld.gI().releaseAccount(session.userId); // chủ tài khoản bot vào game: bot thoát và lưu trước
                 session.lastTimeLogout = rs.getTimestamp("last_time_logout").getTime();
                 session.actived = rs.getBoolean("active");
                 session.goldBar = rs.getInt("account.thoi_vang");
@@ -150,6 +151,19 @@ public class VietLoader {
         return player;
     }
 
+    /** Tạo đối tượng nhân vật khi nạp (tài khoản bot nạp vào lớp Bot). */
+    private static final ThreadLocal<java.util.function.Supplier<Player>> PLAYER_FACTORY = new ThreadLocal<>();
+
+    /** Nạp nhân vật id vào đối tượng do factory tạo (vd Bot), giống hệt người chơi thật đăng nhập. */
+    public static Player loadInto(long id, java.util.function.Supplier<Player> factory) {
+        PLAYER_FACTORY.set(factory);
+        try {
+            return loadById(id);
+        } finally {
+            PLAYER_FACTORY.remove();
+        }
+    }
+
     public static Player loadById(long id) {
         Player player = null;
         LocalResultSet rs = null;
@@ -180,7 +194,8 @@ public class VietLoader {
             long plMp;
             JSONArray dataArray;
 
-            player = new Player();
+            java.util.function.Supplier<Player> f = PLAYER_FACTORY.get();
+            player = f != null ? f.get() : new Player(); // tài khoản bot: nạp vào đối tượng Bot
 
             //base info
             player.id = rs.getInt("id");

@@ -74,6 +74,19 @@ class PanelApi {
             case "player/delete" -> playerDelete(b);
             case "tasks" -> taskList();
             case "bots" -> Map.of("target", nro.models.Bot.BotWorld.gI().target(), "list", nro.models.Bot.BotWorld.gI().panelList(), "errors", nro.models.Bot.BotWorld.gI().recentErrors());
+            case "bot/accounts" -> botAccounts();
+            case "bot/account" -> {
+                long pid = lng(b.get("id"));
+                if (pid <= 0 && b.get("name") != null) {
+                    List<Map<String, Object>> f = rows("select id from player where name=?", str(b.get("name")).trim());
+                    if (f.isEmpty()) {
+                        throw new IllegalArgumentException("Không có nhân vật tên " + b.get("name"));
+                    }
+                    pid = ((Number) f.get(0).get("id")).longValue();
+                }
+                nro.models.Bot.BotWorld.gI().setAccountBot(pid, lng(b.getOrDefault("on", 1)) != 0);
+                yield Map.of("ok", true);
+            }
             case "bot/set" -> {
                 nro.models.Bot.BotWorld.gI().setTarget(intv(b.get("count")));
                 yield Map.of("ok", true);
@@ -260,6 +273,10 @@ class PanelApi {
     private Object player(long id) throws Exception {
         Map<String, Object> o = new LinkedHashMap<>();
         Player on = Client.gI().getPlayerByID((int) id);
+        if (on == null) {
+            on = nro.models.Bot.BotWorld.gI().find(id); // tài khoản bot đang chơi: xem hành trang thật lúc này
+        }
+        o.put("botAccount", nro.models.Bot.BotWorld.gI().accountBots().containsKey(id));
         List<Map<String, Object>> rs = rows("select p.id, p.name, p.gender, p.account_id, a.username, a.ban, a.is_admin, a.vnd, a.tongnap, a.last_time_login, a.ip_address, p.data_point, p.data_inventory, p.data_location, p.items_bag, p.items_body, p.items_box from player p left join account a on a.id=p.account_id where p.id=?", id);
         if (rs.isEmpty()) {
             throw new IllegalArgumentException("Không có nhân vật " + id);
@@ -548,6 +565,27 @@ class PanelApi {
         }
         update("update player set data_task=? where id=?", "[" + taskId + "," + index + "," + count + "," + System.currentTimeMillis() + "]", id);
         return Map.of("ok", true, "online", false);
+    }
+
+    private Object botAccounts() throws Exception {
+        List<Map<String, Object>> out = new ArrayList<>();
+        Map<Long, Integer> acc = nro.models.Bot.BotWorld.gI().accountBots();
+        for (Map.Entry<Long, Integer> e : acc.entrySet()) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            long pid = e.getKey();
+            List<Map<String, Object>> r = rows("select p.name, a.username from player p left join account a on a.id = p.account_id where p.id=?", pid);
+            m.put("id", pid);
+            m.put("name", r.isEmpty() ? "?" : r.get(0).get("name"));
+            m.put("username", r.isEmpty() ? "" : r.get(0).get("username"));
+            nro.models.Bot.Bot bot = nro.models.Bot.BotWorld.gI().find(pid);
+            boolean owner = Client.gI().getPlayerByID((int) pid) != null;
+            m.put("state", owner ? "Chủ tài khoản đang chơi" : bot != null ? "Bot đang chơi" : "Chờ vào game");
+            m.put("activity", bot != null ? bot.activity : "");
+            m.put("power", bot != null ? bot.nPoint.power : null);
+            m.put("map", bot != null && bot.zone != null ? bot.zone.map.mapName + " khu " + bot.zone.zoneId : "");
+            out.add(m);
+        }
+        return out;
     }
 
     private Object taskList() {

@@ -60,6 +60,7 @@ public final class BotWorld {
                     + " head smallint not null, body smallint not null, leg smallint not null, flag smallint not null, power bigint not null,"
                     + " tiem_nang bigint not null, hpg bigint not null, mpg bigint not null, dameg bigint not null)");
             st.executeUpdate("create table if not exists bot_setting (k varchar(32) primary key, v varchar(64) not null)");
+            st.executeUpdate("create table if not exists bot_account (player_id bigint primary key, account_id int not null default 0)");
             try (ResultSet rs = st.executeQuery("select v from bot_setting where k = 'count'")) {
                 target = rs.next() ? Integer.parseInt(rs.getString(1)) : defaultTarget;
             }
@@ -113,7 +114,13 @@ public final class BotWorld {
     }
 
     private void tick() {
-        List<Bot> on = bots();
+        syncAccounts();
+        List<Bot> on = new ArrayList<>();
+        for (Bot b : bots()) {
+            if (!b.accountBot) {
+                on.add(b); // số bot giả lập (hồ sơ bot_profile) tính riêng
+            }
+        }
         if (on.size() < target) {
             int add = Math.min(5, target - on.size()); // vào dần, không dồn một lúc
             java.util.Set<Long> taken = new java.util.HashSet<>();
@@ -140,7 +147,9 @@ public final class BotWorld {
                 endPk(b);
                 train(b);
             }
-            grow(b);
+            if (!b.accountBot) {
+                grow(b); // bot tài khoản lên sức mạnh thật bằng đánh quái, không cộng ảo
+            }
             long[] ns = nextSwitch.computeIfAbsent(b.id, k -> new long[]{now + Util.nextInt(120, 420) * 1000L});
             if (now >= ns[0]) {
                 switchActivity(b);
@@ -149,7 +158,7 @@ public final class BotWorld {
         }
         if (now - lastTop > 120_000) {
             lastTop = now;
-            nro.models.services.SeasonEventService.gI().botRace(bots()); // đua top bám sát người chơi thật
+            nro.models.services.SeasonEventService.gI().botRace(simBots()); // đua top bám sát người chơi thật
         }
         if (now - lastUp > Util.nextInt(4, 8) * 60_000L) {
             lastUp = now;
@@ -162,6 +171,105 @@ public final class BotWorld {
         if (now - lastSave > 300_000) {
             lastSave = now;
             saveAll();
+        }
+    }
+
+    // ------------------------------------------------------------------ tài khoản bot (nhân vật thật do admin chọn)
+    private long lastAccSync;
+
+    /** Tài khoản đang đặt làm bot: {player id -> account id}. */
+    public Map<Long, Integer> accountBots() {
+        Map<Long, Integer> m = new java.util.LinkedHashMap<>();
+        try (Connection con = LocalManager.getConnection();
+                PreparedStatement ps = con.prepareStatement("select b.player_id, p.account_id from bot_account b join player p on p.id = b.player_id");
+                ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                m.put(rs.getLong(1), rs.getInt(2));
+            }
+        } catch (Exception e) {
+            Logger.error("Bot: không đọc được bot_account: " + e.getMessage() + "\n");
+        }
+        return m;
+    }
+
+    /** Admin đặt / bỏ 1 nhân vật làm bot. */
+    public void setAccountBot(long playerId, boolean on) throws Exception {
+        if (on) {
+            LocalManager.executeUpdate("insert ignore into bot_account (player_id) values (?)", playerId);
+        } else {
+            LocalManager.executeUpdate("delete from bot_account where player_id = ?", playerId);
+            Bot b = find(playerId);
+            if (b != null) {
+                remove(b);
+            }
+        }
+        lastAccSync = 0;
+    }
+
+    /** Giữ mỗi tài khoản bot 1 nhân vật trong game khi chủ tài khoản không online (cứ 30 giây kiểm tra). */
+    private void syncAccounts() {
+        long now = System.currentTimeMillis();
+        if (now - lastAccSync < 30_000) {
+            return;
+        }
+        lastAccSync = now;
+        Map<Long, Integer> want = accountBots();
+        for (Bot b : bots()) {
+            if (b.accountBot && !want.containsKey(b.id)) {
+                remove(b);
+            }
+        }
+        int added = 0;
+        for (Map.Entry<Long, Integer> e : want.entrySet()) {
+            if (added >= 5) {
+                break; // vào dần
+            }
+            long pid = e.getKey();
+            if (find(pid) != null || nro.models.server.Client.gI().getPlayerByID((int) pid) != null) {
+                continue; // đã có bot hoặc chủ tài khoản đang online
+            }
+            if (spawnAccount(pid, e.getValue())) {
+                added++;
+            }
+        }
+    }
+
+    private boolean spawnAccount(long pid, int accountId) {
+        Player p = nro.models.database.VietLoader.loadInto(pid, () -> new Bot((short) 0, (short) 0, (short) 0, 0, "", null, (short) -1));
+        if (!(p instanceof Bot)) {
+            return false;
+        }
+        Bot b = (Bot) p;
+        b.isOffline = false; // nạp kiểu offline sẽ bị PlayerDAO.updatePlayer dispose sau khi lưu
+        b.isBot = true;
+        b.worldBot = true;
+        b.accountBot = true;
+        b.accountId = accountId;
+        b.activity = "Luyện tập";
+        b.mo1 = new BotPemQuai(b);
+        b.boss = new BotSanBoss(b);
+        b.charms.tdThuHut = Math.max(b.charms.tdThuHut, System.currentTimeMillis() + 24L * 3600_000); // tự nhặt đồ như người treo máy
+        if (b.playerSkill.skills.isEmpty()) {
+            b.leakSkill();
+        }
+        if (b.pet != null) {
+            b.pet.status = nro.models.player.Pet.GOHOME; // đệ ở nhà (bot không điều khiển đệ)
+        }
+        BotManager.gI().bot.add(b);
+        b.joinMap();
+        if (b.zone == null) {
+            BotManager.gI().bot.remove(b);
+            return false;
+        }
+        return true;
+    }
+
+    /** Chủ tài khoản bot đăng nhập: bot thoát ngay và lưu nhân vật trước khi server nạp nhân vật cho chủ. */
+    public void releaseAccount(int accountId) {
+        for (Bot b : bots()) {
+            if (b.accountBot && b.accountId == accountId) {
+                remove(b);
+            }
         }
     }
 
@@ -298,7 +406,7 @@ public final class BotWorld {
     private static final int MAX_LISTINGS = 20;
 
     private void upgradeAndFarm() {
-        List<Bot> on = bots();
+        List<Bot> on = simBots();
         if (on.isEmpty()) {
             return;
         }
@@ -316,7 +424,7 @@ public final class BotWorld {
         List<nro.models.shop_ky_gui.ConsignItem> list = nro.models.shop_ky_gui.ConsignShopManager.gI().listItem;
         list.removeIf(it -> it != null && isBotId(it.player_sell) && it.isBuy);
         long mine = list.stream().filter(it -> it != null && isBotId(it.player_sell)).count();
-        List<Bot> on = bots();
+        List<Bot> on = simBots();
         if (mine >= MAX_LISTINGS || on.isEmpty()) {
             return;
         }
@@ -438,6 +546,13 @@ public final class BotWorld {
         return new long[]{id, gender, head, body, leg, flag, power, power / 10, hp, mp, dame};
     }
 
+    /** Bot giả lập (không phải tài khoản thật): chỉ những bot này mới được cộng điểm / đồ ảo. */
+    private List<Bot> simBots() {
+        List<Bot> l = new ArrayList<>(bots());
+        l.removeIf(x -> x.accountBot);
+        return l;
+    }
+
     private void remove(Bot b) {
         save(b);
         BotManager.gI().bot.remove(b);
@@ -449,6 +564,16 @@ public final class BotWorld {
     }
 
     private void save(Bot b) {
+        if (b.accountBot) {
+            if (b.idMark == null || b.nPoint == null || b.inventory == null) {
+                return; // đã bị huỷ
+            }
+            if (b.zone != null) {
+                b.mapIdBeforeLogout = b.zone.map.mapId;
+            }
+            nro.models.database.PlayerDAO.updatePlayer(b); // lưu vào chính nhân vật thật
+            return;
+        }
         try {
             LocalManager.executeUpdate("update bot_profile set power = ?, tiem_nang = ?, hpg = ?, mpg = ?, dameg = ? where id = ?",
                     b.nPoint.power, b.nPoint.tiemNang, b.nPoint.hpg, b.nPoint.mpg, b.nPoint.dameg, b.id);
@@ -517,9 +642,20 @@ public final class BotWorld {
             m.put("power", b.nPoint.power);
             m.put("map", b.zone != null ? b.zone.map.mapName + " [" + b.zone.map.mapId + "] khu " + b.zone.zoneId : "-");
             m.put("activity", modeName(b));
+            m.put("account", b.accountBot);
             out.add(m);
         }
         return out;
+    }
+
+    /** Tài khoản bot (nhân vật thật): tính thưởng / nhặt đồ như người chơi. */
+    public static boolean isAccountBot(Player p) {
+        return p instanceof Bot && ((Bot) p).accountBot;
+    }
+
+    /** Người chơi thật hoặc tài khoản bot: được thưởng boss, thông báo hạ boss... */
+    public static boolean counts(Player p) {
+        return p != null && (!p.isBot || isAccountBot(p));
     }
 
     public static boolean isWorldBot(Player p) {

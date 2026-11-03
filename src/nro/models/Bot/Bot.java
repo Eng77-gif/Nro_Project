@@ -61,20 +61,16 @@ public class Bot extends Player {
             } else {
                 mapId = XayDa[random.nextInt(XayDa.length)];
             }
-        } else if (power < 100000000) {
+        } else if (power < 2_000_000_000L) {
             mapId = 62 + random.nextInt(15);
-        } else if (power < 100000000) {
-            if (Util.isTrue(30, 100)) {
-                mapId = 91 + random.nextInt(3);
-            } else if (Util.isTrue(30, 100)) {
-                mapId = 95 + random.nextInt(5);
+        } else if (power < 40_000_000_000L) {
+            if (Util.isTrue(40, 100)) {
+                mapId = 92 + random.nextInt(3); // 92-94 tương lai
             } else {
-                mapId = 103 + random.nextInt(2);
+                mapId = 96 + random.nextInt(5); // 96-100 (bỏ 91 NRSD, 95/103/104 không có quái)
             }
         } else {
-            if (Util.isTrue(30, 100)) {
-                mapId = 104 + random.nextInt(6);
-            }
+            mapId = 105 + random.nextInt(6); // trên 40 tỷ: map Cold (trước đây 70% rơi về Nhà Gôhan không có quái)
         }
         return mapId;
     }
@@ -121,6 +117,9 @@ public class Bot extends Player {
 
     @Override
     public short getHead() {
+        if (this.accountBot) {
+            return super.getHead(); // nhân vật thật: hình theo đồ đang mặc
+        }
         if (effectSkill.isMonkey) {
             return (short) ConstPlayer.HEADMONKEY[effectSkill.levelMonkey - 1];
         } else {
@@ -130,6 +129,9 @@ public class Bot extends Player {
 
     @Override
     public short getBody() {
+        if (this.accountBot) {
+            return super.getBody(); // nhân vật thật: hình theo đồ đang mặc
+        }
         if (effectSkill.isMonkey) {
             return 193;
         } else {
@@ -139,6 +141,9 @@ public class Bot extends Player {
 
     @Override
     public short getLeg() {
+        if (this.accountBot) {
+            return super.getLeg(); // nhân vật thật: hình theo đồ đang mặc
+        }
         if (effectSkill.isMonkey) {
             return 194;
         } else {
@@ -148,6 +153,9 @@ public class Bot extends Player {
 
     @Override
     public short getFlagBag() {
+        if (this.accountBot) {
+            return super.getFlagBag(); // nhân vật thật: hình theo đồ đang mặc
+        }
         return this.flag_;
     }
 
@@ -155,6 +163,9 @@ public class Bot extends Player {
     public void update() {
         if (this.awayUntil > System.currentTimeMillis()) {
             return; // đang ở doanh trại / ĐHVT (không có mặt trên map)
+        }
+        if (this.nPoint == null || this.zone == null) {
+            return; // đã bị huỷ hoặc chưa vào map
         }
         super.update();
         this.increasePoint();
@@ -277,6 +288,9 @@ public class Bot extends Player {
 
     /** bot của BotWorld (tự duy trì, lưu tiến độ) */
     public boolean worldBot;
+    /** tài khoản thật do admin đặt làm bot: nhân vật thật, chơi và nhận thưởng như người chơi */
+    public boolean accountBot;
+    public int accountId;
     /** hoạt động đang làm (hiện trên panel) */
     public String activity = "Luyện tập";
     /** đang đi vắng (doanh trại / ĐHVT) tới lúc này */

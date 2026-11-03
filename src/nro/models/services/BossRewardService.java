@@ -100,7 +100,7 @@ public class BossRewardService {
 
     /** Gọi khi boss chết (sau reward() riêng của boss). */
     public void reward(Boss boss, Player pl) {
-        if (pl == null || boss.zone == null || !pl.isPl() || pl.isBot) {
+        if (pl == null || boss.zone == null || !(pl.isPl() || nro.models.Bot.BotWorld.isAccountBot(pl))) {
             return;
         }
         if (boss.id == nro.models.boss.BossID.BROLY_SUPER) {

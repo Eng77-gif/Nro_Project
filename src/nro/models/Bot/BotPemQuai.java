@@ -56,13 +56,47 @@ public class BotPemQuai {
         if (attackPkTarget()) {
             return;
         }
+        if (this.bot.accountBot && defendNrsd()) {
+            return;
+        }
         Attack();
         if (!this.bot.worldBot || !"NRSD".equals(this.bot.activity)) {
             chanGeMap(); // đang đánh NRSD thì ở lại map NRSD
         }
-        if (this.bot.zone == null || !nro.models.map.service.MapService.gI().isMapBlackBallWar(this.bot.zone.map.mapId)) {
-            NhatItem(); // không nhặt đồ trong NRSD (không cướp ngọc rồng sao đen của người chơi)
+        if (this.bot.accountBot || this.bot.zone == null || !nro.models.map.service.MapService.gI().isMapBlackBallWar(this.bot.zone.map.mapId)) {
+            NhatItem(); // bot giả lập không nhặt trong NRSD; tài khoản bot nhặt cả ngọc rồng sao đen như người chơi
         }
+    }
+
+    /** Tài khoản bot trong NRSD: đánh người khác cờ ở gần (thủ / cướp ngọc rồng sao đen như người chơi thật). */
+    private boolean defendNrsd() {
+        if (this.bot.zone == null || !nro.models.map.service.MapService.gI().isMapBlackBallWar(this.bot.zone.map.mapId) || this.bot.cFlag == 0) {
+            return false;
+        }
+        nro.models.player.Player best = null;
+        int bestD = 400;
+        for (nro.models.player.Player p : this.bot.zone.getPlayers()) {
+            if (p == null || p == this.bot || p.isDie() || p.isPet || p.isBoss || p.cFlag == 0 || p.cFlag == this.bot.cFlag) {
+                continue;
+            }
+            int d = Util.getDistance(this.bot, p);
+            if (d < bestD) {
+                best = p;
+                bestD = d;
+            }
+        }
+        if (best == null) {
+            return false;
+        }
+        if (!bot.playerSkill.skills.isEmpty()) {
+            bot.playerSkill.skillSelect = bot.playerSkill.skills.get(new Random().nextInt(Math.min(2, bot.playerSkill.skills.size())));
+        }
+        if (this.bot.UseLastTimeSkill()) {
+            PlayerService.gI().playerMove(this.bot, best.location.x + Util.nextInt(-30, 30), best.location.y);
+            SkillService.gI().useSkillAttack(bot, best, null);
+        }
+        NhatItem();
+        return true;
     }
 
     /** PK với bot khác (không đánh người chơi thật). */

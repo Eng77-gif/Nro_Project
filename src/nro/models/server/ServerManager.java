@@ -147,7 +147,7 @@ public class ServerManager {
 
             new Thread(BotManager.gI(), "Thread Bot Game").start();
             nro.models.services.DrMyuuService.gI().start(); // Dr. Myuu xuất hiện ngẫu nhiên, Baby ở Phòng thí nghiệm Myuu
-            nro.models.Bot.BotWorld.gI().start(15); // bot tự duy trì cho đỡ trống server (số lượng đổi trên web panel)
+            nro.models.Bot.BotWorld.gI().start(0); // bot tự duy trì cho đỡ trống server (số lượng đổi trên web panel)
             new Thread(ChonAiDay_Gem.gI(), "Thread MiniGame").start();
             new Thread(ChonAiDay_Gold.gI(), "Thread MiniGame").start();
             new Thread(ConSoMayManGold.gI(), "ConSoMayManGoldThread").start();
