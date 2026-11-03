@@ -45,6 +45,9 @@ public final class EventItemUse {
             Service.gI().sendThongBao(pl, "Bạn nhận được 30 " + beans.template.name);
             return true;
         }
+        if (id == 1559 || id == 1536 || id == 1537 || id == 1538) {
+            return openSkh(pl, item, id);
+        }
         if (MEALS.contains(id)) {
             pl.itemTime.lastTimeEatMeal = System.currentTimeMillis();
             pl.itemTime.isEatMeal = true;
@@ -59,6 +62,46 @@ public final class EventItemUse {
             return true;
         }
         return false;
+    }
+
+    /** đồ thường (2 mức) theo {loại: áo, quần, găng, giày, rađa}{hành tinh} - giống ItemService.randTempItemKichHoat */
+    private static final int[][][] SKH_BASE = {{{0, 33}, {1, 41}, {2, 49}}, {{6, 35}, {7, 43}, {8, 51}},
+        {{21, 24}, {22, 46}, {23, 53}}, {{27, 30}, {28, 47}, {29, 55}}, {{12, 57}, {12, 57}, {12, 57}}};
+
+    /**
+     * Capsule 1 món kích hoạt (1559): 1 món set kích hoạt ngẫu nhiên đúng hành tinh.
+     * Hộp quà Set kích hoạt (1536) / 3 sao (1537) / 5 sao (1538): đủ 5 món cùng 1 set kích hoạt, bản 3 / 5 sao có sẵn 3 / 5 lỗ sao pha lê.
+     */
+    private static boolean openSkh(Player pl, Item item, int id) {
+        int g = Math.max(0, Math.min(2, pl.gender));
+        int need = id == 1559 ? 1 : 5;
+        if (InventoryService.gI().getCountEmptyBag(pl) < need) {
+            Service.gI().sendThongBao(pl, "Cần " + need + " ô trống trong hành trang");
+            return true;
+        }
+        String boxName = item.template.name;
+        int skh = ItemService.gI().randomSKHId((byte) g);
+        int stars = id == 1537 ? 3 : id == 1538 ? 5 : 0;
+        StringBuilder got = new StringBuilder();
+        if (id == 1559) {
+            Item it = ItemService.gI().createItemSKH(ItemService.gI().randTempItemKichHoat(g), skh);
+            InventoryService.gI().addItemBag(pl, it);
+            got.append(it.template.name);
+        } else {
+            for (int[][] type : SKH_BASE) {
+                int[] pair = type[g];
+                Item it = ItemService.gI().createItemSKH(pair[nro.models.utils.Util.nextInt(0, 1)], skh);
+                if (stars > 0) {
+                    it.itemOptions.add(new Item.ItemOption(107, stars));
+                }
+                InventoryService.gI().addItemBag(pl, it);
+                got.append(got.length() > 0 ? ", " : "").append(it.template.name);
+            }
+        }
+        InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+        InventoryService.gI().sendItemBags(pl);
+        Service.gI().sendThongBao(pl, "Mở " + boxName + " nhận được " + got);
+        return true;
     }
 
     /** Vật phẩm không dùng trực tiếp: báo công dụng thay vì im lặng. */
