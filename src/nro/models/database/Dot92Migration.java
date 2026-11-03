@@ -74,6 +74,17 @@ public class Dot92Migration {
         } catch (Exception e) {
             Logger.error("Đợt 92: không cập nhật được Hộp Ngọc Rồng Bí / Rương Rồng Thần: " + e.getMessage() + "\n");
         }
+        try {
+            // Đổi điểm Quy Lão như bản chính thức: trang bị / pet / ván bay / cải trang đổi bằng điểm sự kiện là "Hạn sử dụng hoặc vĩnh viễn"
+            // (hạn 30 ngày, 10% ra vĩnh viễn) thay vì luôn vĩnh viễn
+            if (!exists(con, "select 1 from server_migration where name = 'dot92_point_hsd'")) {
+                changed += update(con, "update season_event_exchange e join item_template t on t.id = e.reward_item set e.reward_days = '30', e.perm_rate = 10"
+                        + " where e.cost_point > 0 and e.reward_days = '' and t.is_up_to_up = 0");
+                changed += update(con, "insert into server_migration (name) values ('dot92_point_hsd')");
+            }
+        } catch (Exception e) {
+            Logger.error("Đợt 92: không cập nhật được hạn đổi điểm: " + e.getMessage() + "\n");
+        }
         if (changed > 0) {
             Logger.success("Đợt 92: thêm quà cho hộp / capsule / rương chưa có quà (" + changed + " dòng)\n");
         }

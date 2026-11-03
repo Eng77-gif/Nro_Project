@@ -1694,9 +1694,6 @@ public class SeasonEventService implements Runnable {
                 msg.writer().writeShort(tempId);
                 msg.writer().writeUTF("Cách nhận: Đua Top nhận\n|1|TOP #" + r[2] + " " + topName + (r[4] > 1 ? " (x" + Util.numberToMoney(r[4]) + ")" : ""));
                 List<Item.ItemOption> opts = it != null ? it.itemOptions : new ArrayList<>();
-                if (it != null && r[5] <= 0 && !ItemService.gI().getTemplate(item).isUpToUp) {
-                    opts.add(new Item.ItemOption(OPT_VINH_VIEN, 0));
-                }
                 msg.writer().writeByte(opts.size());
                 for (Item.ItemOption io : opts) {
                     msg.writeItemOption(io.optionTemplate.id, io.param);
@@ -1864,14 +1861,11 @@ public class SeasonEventService implements Runnable {
             }
             // dòng hạn dùng: "Hạn sử dụng X ngày", "Hạn sử dụng hoặc vĩnh viễn" (có tỉ lệ vĩnh viễn / nhiều mức ngày) hoặc "Vĩnh viễn"
             is.options.removeIf(o -> o.optionTemplate != null && (o.optionTemplate.id == 93 || o.optionTemplate.id == 231 || o.optionTemplate.id == OPT_VINH_VIEN));
-            boolean expirable = !ItemService.gI().getTemplate(e.rewardItem).isUpToUp || e.rewardDays.length > 0;
             if (e.rewardDays.length == 1 && e.permRate <= 0) {
                 is.options.add(new Item.ItemOption(93, e.rewardDays[0]));
             } else if (e.rewardDays.length > 0) {
                 is.options.add(new Item.ItemOption(231, 0));
-            } else if (expirable) {
-                is.options.add(new Item.ItemOption(OPT_VINH_VIEN, 0));
-            }
+            } // vĩnh viễn: không hiện dòng nào (như bản chính thức)
             tab.itemShops.add(is);
             map.put(e.rewardItem, e);
         }
