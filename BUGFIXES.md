@@ -1621,3 +1621,12 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Thẻ rađa theo bản chính thức:** Đội trưởng Vàng: Mở khóa SĐ +1%, Sử dụng Lv.1 SĐ +2%, Lv.2 SĐ +3%. Rồng thần Namếc: Mở khóa HP +1%, Lv.1 chí mạng +1%, Lv.2 chí mạng +2%. Oozaru: Mở khóa chí mạng +1%, Lv.1 chí mạng +4%, Lv.2 SĐ +5%, Lv.3 HP +10%, KI +5%, giảm 3% sát thương. Dòng "Sử dụng Lv.k" giờ có tác dụng đúng khi bật thẻ ở Lv.k (trước lệch 1 cấp) và chỉ số luôn lấy theo bảng rađa hiện tại (sửa trên panel là có tác dụng).
 - **Bật nhiều thẻ rađa:** thẻ bật sau cùng được ưu tiên hiện aura (vd đang bật Đội trưởng Vàng, bật thêm Rồng thần Namếc thì hiện Rồng thần); vừa vào game thì ưu tiên thẻ số lớn hơn.
 - **Bộ sao may mắn như bản chính thức:** Pet Mèo thần tài, Ván bay sao băng, Bóng mờ sao may mắn dùng dòng "+#% vàng rơi" (option 268, tác dụng như vàng từ quái); Ván bay sao băng bỏ dòng "Dùng để bay và phục hồi KI".
+
+## Đợt 93
+- **Web panel → Người chơi → mở 1 nhân vật:** thêm
+  - sửa chỉ số gốc: sức mạnh, tiềm năng, HP / KI / sức đánh / giáp / chí mạng gốc, thể lực, giới hạn sức mạnh;
+  - sửa nhiệm vụ: chọn nhiệm vụ, bước, số đã làm (danh sách lấy từ bảng nhiệm vụ của server);
+  - đổi tên nhân vật (kiểm tra trùng tên);
+  - nút ✕ xoá từng vật phẩm ở Đang mặc / Hành trang / Rương;
+  - xoá nhân vật (phải gõ XOA để xác nhận; đang online thì kick, đợi lưu xong mới xoá; tài khoản giữ lại).
+  Người chơi đang online được sửa trực tiếp và lưu ngay, offline thì sửa trong database.

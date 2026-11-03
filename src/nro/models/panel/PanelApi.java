@@ -67,6 +67,12 @@ class PanelApi {
             case "player/money" -> playerMoney(b);
             case "player/give" -> playerGive(b);
             case "player/kick" -> playerKick(b);
+            case "player/stats" -> playerStats(b);
+            case "player/task" -> playerTask(b);
+            case "player/rename" -> playerRename(b);
+            case "player/removeitem" -> playerRemoveItem(b);
+            case "player/delete" -> playerDelete(b);
+            case "tasks" -> taskList();
             case "player/save" -> playerSave(b);
             case "accounts" -> accounts(q.getOrDefault("q", ""));
             case "account/update" -> accountUpdate(b);
@@ -258,6 +264,42 @@ class PanelApi {
         for (String k : new String[]{"account_id", "username", "ban", "is_admin", "vnd", "tongnap", "last_time_login", "ip_address"}) {
             o.put(k, r.get(k));
         }
+        // chỉ số gốc + nhiệm vụ (để sửa trên panel)
+        Map<String, Object> st = new LinkedHashMap<>();
+        Map<String, Object> tk = new LinkedHashMap<>();
+        if (on != null) {
+            nro.models.player.NPoint n = on.nPoint;
+            st.put("limitPower", n.limitPower);
+            st.put("power", n.power);
+            st.put("tiemNang", n.tiemNang);
+            st.put("stamina", n.stamina);
+            st.put("maxStamina", n.maxStamina);
+            st.put("hpg", n.hpg);
+            st.put("mpg", n.mpg);
+            st.put("dameg", n.dameg);
+            st.put("defg", n.defg);
+            st.put("critg", n.critg);
+            if (on.playerTask != null && on.playerTask.taskMain != null) {
+                tk.put("id", on.playerTask.taskMain.id);
+                tk.put("index", on.playerTask.taskMain.index);
+                tk.put("count", on.playerTask.taskMain.subTasks.get(on.playerTask.taskMain.index).count);
+            }
+        } else {
+            JsonArray dp = arr(rows("select data_point from player where id=?", id).get(0).get("data_point"));
+            if (dp != null) {
+                for (Object[] f : STAT_FIELDS) {
+                    st.put((String) f[0], dp.get((int) f[1]).getAsLong());
+                }
+            }
+            JsonArray dt = arr(rows("select data_task from player where id=?", id).get(0).get("data_task"));
+            if (dt != null && dt.size() >= 3) {
+                tk.put("id", dt.get(0).getAsInt());
+                tk.put("index", dt.get(1).getAsInt());
+                tk.put("count", dt.get(2).getAsInt());
+            }
+        }
+        o.put("stats", st);
+        o.put("task", tk);
         if (on != null) {
             o.put("body", items(on.inventory.itemsBody));
             o.put("bag", items(on.inventory.itemsBag));
@@ -424,6 +466,175 @@ class PanelApi {
             }
         }
         throw new IllegalStateException("Hành trang người chơi đã đầy");
+    }
+
+    // ------------------------------------------------------------------ sửa nhân vật (online sửa thẳng, offline sửa database)
+    /** Chỉ số gốc: {khóa, vị trí trong data_point} */
+    private static final Object[][] STAT_FIELDS = {{"limitPower", 0}, {"power", 1}, {"tiemNang", 2}, {"stamina", 3}, {"maxStamina", 4},
+        {"hpg", 5}, {"mpg", 6}, {"dameg", 7}, {"defg", 8}, {"critg", 9}};
+
+    private Object playerStats(Map<String, Object> b) throws Exception {
+        long id = lng(b.get("id"));
+        Player on = Client.gI().getPlayerByID((int) id);
+        if (on != null) {
+            nro.models.player.NPoint n = on.nPoint;
+            for (Object[] f : STAT_FIELDS) {
+                Object v = b.get((String) f[0]);
+                if (v == null || String.valueOf(v).isBlank()) {
+                    continue;
+                }
+                long x = lng(v);
+                switch ((String) f[0]) {
+                    case "limitPower" -> n.limitPower = (byte) Math.max(0, Math.min(127, x));
+                    case "power" -> n.power = Math.max(0, x);
+                    case "tiemNang" -> n.tiemNang = Math.max(0, x);
+                    case "stamina" -> n.stamina = (short) Math.max(0, Math.min(Short.MAX_VALUE, x));
+                    case "maxStamina" -> n.maxStamina = (short) Math.max(0, Math.min(Short.MAX_VALUE, x));
+                    case "hpg" -> n.hpg = Math.max(1, x);
+                    case "mpg" -> n.mpg = Math.max(1, x);
+                    case "dameg" -> n.dameg = Math.max(1, x);
+                    case "defg" -> n.defg = (int) Math.max(0, Math.min(Integer.MAX_VALUE, x));
+                    case "critg" -> n.critg = (byte) Math.max(0, Math.min(127, x));
+                }
+            }
+            n.calPoint();
+            Service.gI().point(on);
+            PlayerDAO.updatePlayer(on);
+            return Map.of("ok", true, "online", true);
+        }
+        List<Map<String, Object>> rs = rows("select data_point from player where id=?", id);
+        if (rs.isEmpty()) {
+            throw new IllegalArgumentException("Không có nhân vật");
+        }
+        JsonArray dp = arr(rs.get(0).get("data_point"));
+        for (Object[] f : STAT_FIELDS) {
+            Object v = b.get((String) f[0]);
+            if (v != null && !String.valueOf(v).isBlank()) {
+                dp.set((int) f[1], new com.google.gson.JsonPrimitive(Math.max(0, lng(v))));
+            }
+        }
+        update("update player set data_point=? where id=?", dp.toString(), id);
+        return Map.of("ok", true, "online", false);
+    }
+
+    private Object playerTask(Map<String, Object> b) throws Exception {
+        long id = lng(b.get("id"));
+        int taskId = intv(b.get("taskId")), index = intv(b.getOrDefault("index", 0)), count = intv(b.getOrDefault("count", 0));
+        nro.models.task.TaskMain tpl = null;
+        for (nro.models.task.TaskMain tm : Manager.TASKS) {
+            if (tm.id == taskId) {
+                tpl = tm;
+            }
+        }
+        if (tpl == null) {
+            throw new IllegalArgumentException("Không có nhiệm vụ " + taskId);
+        }
+        index = Math.max(0, Math.min(tpl.subTasks.size() - 1, index));
+        Player on = Client.gI().getPlayerByID((int) id);
+        if (on != null) {
+            nro.models.task.TaskMain t = nro.models.services.TaskService.gI().getTaskMainById(on, taskId);
+            t.index = index;
+            t.subTasks.get(index).count = (short) count;
+            t.lastTime = System.currentTimeMillis();
+            on.playerTask.taskMain = t;
+            nro.models.services.TaskService.gI().sendTaskMain(on);
+            PlayerDAO.updatePlayer(on);
+            return Map.of("ok", true, "online", true);
+        }
+        update("update player set data_task=? where id=?", "[" + taskId + "," + index + "," + count + "," + System.currentTimeMillis() + "]", id);
+        return Map.of("ok", true, "online", false);
+    }
+
+    private Object taskList() {
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (nro.models.task.TaskMain tm : Manager.TASKS) {
+            List<String> subs = new ArrayList<>();
+            for (nro.models.task.SubTaskMain st : tm.subTasks) {
+                subs.add(st.name + " (" + st.maxCount + ")");
+            }
+            out.add(Map.of("id", tm.id, "name", tm.name == null ? "" : tm.name, "subs", subs));
+        }
+        return out;
+    }
+
+    private Object playerRename(Map<String, Object> b) throws Exception {
+        long id = lng(b.get("id"));
+        String name = str(b.get("name")).trim();
+        if (name.length() < 3 || name.length() > 20) {
+            throw new IllegalArgumentException("Tên dài 3 - 20 ký tự");
+        }
+        if (!rows("select id from player where name=? and id<>?", name, id).isEmpty()) {
+            throw new IllegalArgumentException("Tên đã có người dùng");
+        }
+        update("update player set name=? where id=?", name, id);
+        Player on = Client.gI().getPlayerByID((int) id);
+        if (on != null) {
+            on.name = name;
+            Service.gI().sendThongBao(on, "Quản trị đã đổi tên nhân vật thành " + name + ", thoát ra vào lại để thấy tên mới");
+        }
+        return Map.of("ok", true);
+    }
+
+    /** Xoá 1 vật phẩm: where = body / bag / box, index = vị trí ô. */
+    private Object playerRemoveItem(Map<String, Object> b) throws Exception {
+        long id = lng(b.get("id"));
+        String where = str(b.get("where"));
+        int index = intv(b.get("index"));
+        String col = switch (where) {
+            case "body" -> "items_body";
+            case "box" -> "items_box";
+            default -> "items_bag";
+        };
+        Player on = Client.gI().getPlayerByID((int) id);
+        if (on != null) {
+            List<Item> list = where.equals("body") ? on.inventory.itemsBody : where.equals("box") ? on.inventory.itemsBox : on.inventory.itemsBag;
+            if (index < 0 || index >= list.size()) {
+                throw new IllegalArgumentException("Sai ô");
+            }
+            list.set(index, ItemService.gI().createItemNull());
+            InventoryService.gI().sendItemBags(on);
+            InventoryService.gI().sendItemBody(on);
+            nro.models.services.InventoryService.gI().sendItemBox(on);
+            Service.gI().point(on);
+            PlayerDAO.updatePlayer(on);
+            return Map.of("ok", true, "online", true);
+        }
+        List<Map<String, Object>> rs = rows("select " + col + " from player where id=?", id);
+        if (rs.isEmpty()) {
+            throw new IllegalArgumentException("Không có nhân vật");
+        }
+        JsonArray a = arr(rs.get(0).get(col));
+        if (a == null || index < 0 || index >= a.size()) {
+            throw new IllegalArgumentException("Sai ô");
+        }
+        a.set(index, new com.google.gson.JsonPrimitive("[-1,0,\"[]\",0]"));
+        update("update player set " + col + "=? where id=?", a.toString(), id);
+        return Map.of("ok", true, "online", false);
+    }
+
+    /** Xoá hẳn nhân vật (đang online thì kick, đợi lưu xong rồi xoá). Tài khoản giữ lại, đăng nhập sẽ tạo nhân vật mới. */
+    private Object playerDelete(Map<String, Object> b) throws Exception {
+        long id = lng(b.get("id"));
+        if (!"XOA".equals(str(b.get("confirm")))) {
+            throw new IllegalArgumentException("Thiếu xác nhận");
+        }
+        Player on = Client.gI().getPlayerByID((int) id);
+        if (on != null && on.session != null) {
+            Client.gI().kickSession(on.session);
+            for (int i = 0; i < 50 && Client.gI().getPlayerByID((int) id) != null; i++) {
+                Thread.sleep(200);
+            }
+            Thread.sleep(1500); // đợi lưu dữ liệu khi thoát xong
+        }
+        int n = update("delete from player where id=?", id);
+        try {
+            update("delete from player_extra where player_id=?", id);
+        } catch (Exception ignored) {
+        }
+        if (n == 0) {
+            throw new IllegalArgumentException("Không có nhân vật");
+        }
+        return Map.of("ok", true);
     }
 
     private Object playerKick(Map<String, Object> b) {

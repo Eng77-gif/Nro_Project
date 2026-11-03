@@ -235,7 +235,9 @@ async function page_players(){
 async function loadPlayers(){$('#pt').innerHTML=playerTable(await api(`players?q=${encodeURIComponent($('#q').value)}&online=${$('#oo').checked?1:''}`))}
 async function openPlayer(id){
   const p=await api('player?id='+id);
-  const inv=list=>list&&list.length?`<div class="tw" style="max-height:260px"><table>${list.map(i=>`<tr><td>${icon(i.icon)}</td><td class="w"><b>${esc(i.name)}</b> <span class="mute">#${i.id} ×${fmt(i.qty)}</span><br><span class="mute">${i.options.map(esc).join(' · ')}</span></td></tr>`).join('')}</table></div>`:'<span class="mute">trống</span>';
+  const inv=(list,where)=>list&&list.length?`<div class="tw" style="max-height:260px"><table>${list.map(i=>`<tr><td>${icon(i.icon)}</td><td class="w"><b>${esc(i.name)}</b> <span class="mute">#${i.id} ×${fmt(i.qty)}</span><br><span class="mute">${i.options.map(esc).join(' · ')}</span></td><td><button class="d" title="Xoá vật phẩm này" data-rm="${where}:${i.slot}">✕</button></td></tr>`).join('')}</table></div>`:'<span class="mute">trống</span>';
+  const st=p.stats||{},tk=p.task||{};
+  const SF=[['power','Sức mạnh'],['tiemNang','Tiềm năng'],['hpg','HP gốc'],['mpg','KI gốc'],['dameg','Sức đánh gốc'],['defg','Giáp gốc'],['critg','Chí mạng gốc'],['stamina','Thể lực'],['maxStamina','Thể lực tối đa'],['limitPower','Giới hạn sức mạnh']];
   const m=modal(`<h3>${esc(p.name)} <span class="mute">#${p.id} · ${esc(p.username||'')}</span> ${p.online?'<span class="tag on1">online</span>':'<span class="tag off1">offline</span>'}</h3>
   <div class="mute">Sức mạnh ${fmt(p.power)} · Vàng ${fmt(p.gold)} · Ngọc ${fmt(p.gem)} · Hồng ngọc ${fmt(p.ruby)} · ${esc(p.map)} · IP ${esc(p.ip||p.ip_address||'')} · Nạp ${fmt(p.tongnap)} · Đăng nhập ${esc(p.last_time_login||'')}</div>
   <div class="grid2" style="margin-top:12px">
@@ -243,13 +245,26 @@ async function openPlayer(id){
    <div class="card"><b>Gửi vật phẩm</b>${itemField('gi')}<div class="row" style="margin-top:6px"><input id="gq" type="number" value="1" style="width:80px" title="Số lượng"><input id="go" class="grow" placeholder="Chỉ số thêm: 50:10; 77:15"><label class="row"><input type="checkbox" id="gs" checked> chỉ số mặc định</label><button class="p" id="bg">Gửi</button></div></div>
    <div class="card"><b>Thao tác</b><div class="row" style="margin-top:6px">${p.online?`<button id="bk">Kick</button><input id="tm" type="number" placeholder="Map ID" style="width:90px"><button id="bt">Dịch chuyển</button>`:''}<button class="${p.ban==1?'':'d'}" id="bb">${p.ban==1?'Mở khóa':'Khóa tài khoản'}</button><button id="ba">${p.is_admin==1?'Bỏ admin':'Cấp admin'}</button></div></div>
   </div>
-  <div class="grid2"><div><h3>Đang mặc</h3>${inv(p.body)}</div><div><h3>Hành trang</h3>${inv(p.bag)}</div><div><h3>Rương</h3>${inv(p.box)}</div></div>
+  <div class="grid2">
+   <div class="card"><b>Chỉ số nhân vật</b> <span class="mute">(chỉ số gốc, chưa cộng đồ)</span><div class="grid2" style="margin-top:6px">${SF.map(([k,l])=>`<label>${l}<input id="st_${k}" type="number" value="${st[k]??''}"></label>`).join('')}</div><div class="row" style="margin-top:6px"><button class="p" id="bst">Lưu chỉ số</button></div></div>
+   <div class="card"><b>Nhiệm vụ</b><div class="row" style="margin-top:6px"><select id="tk_id" class="grow"><option value="${tk.id??0}">Nhiệm vụ ${tk.id??'?'}</option></select></div><div class="row" style="margin-top:6px"><label>Bước <select id="tk_idx"></select></label><label>Đã làm <input id="tk_cnt" type="number" value="${tk.count??0}" style="width:90px"></label><button class="p" id="btk">Lưu nhiệm vụ</button></div>
+    <div style="margin-top:12px"><b>Đổi tên</b><div class="row" style="margin-top:6px"><input id="rn" class="grow" value="${esc(p.name)}"><button class="p" id="brn">Đổi tên</button></div></div>
+    <div style="margin-top:12px"><b>Xoá nhân vật</b> <span class="mute">(không lấy lại được; tài khoản giữ lại, đăng nhập sẽ tạo nhân vật mới)</span><div class="row" style="margin-top:6px"><button class="d" id="bdel">Xoá nhân vật ${esc(p.name)}</button></div></div></div>
+  </div>
+  <div class="grid2"><div><h3>Đang mặc</h3>${inv(p.body,'body')}</div><div><h3>Hành trang</h3>${inv(p.bag,'bag')}</div><div><h3>Rương</h3>${inv(p.box,'box')}</div></div>
   <div class="row" style="margin-top:12px;justify-content:flex-end"><button onclick="this.closest('.modal').remove()">Đóng</button></div>`);
   const re=()=>{m.remove();openPlayer(id)};
   m.querySelector('#bm').onclick=()=>act(()=>api('player/money',{id,gold:+$('#mg').value||0,gem:+$('#mn').value||0,ruby:+$('#mr').value||0})).then(re);
   m.querySelector('#bg').onclick=()=>act(()=>api('player/give',{id,itemId:+$('#giid').value,qty:+$('#gq').value||1,shopOptions:$('#gs').checked,options:parseOps($('#go').value)})).then(re);
   m.querySelector('#bb').onclick=()=>act(()=>api('account/update',{id:p.account_id,ban:p.ban==1?0:1})).then(re);
   m.querySelector('#ba').onclick=()=>act(()=>api('account/update',{id:p.account_id,is_admin:p.is_admin==1?0:1})).then(re);
+  m.querySelector('#bst').onclick=()=>{const o={id};SF.forEach(([k])=>{const v=m.querySelector('#st_'+k).value;if(v!=='')o[k]=+v});act(()=>api('player/stats',o),'Đã lưu chỉ số').then(re)};
+  api('tasks').then(ts=>{const sel=m.querySelector('#tk_id'),idx=m.querySelector('#tk_idx');sel.innerHTML=ts.map(t=>`<option value="${t.id}" ${t.id==tk.id?'selected':''}>${t.id}. ${esc(t.name)}</option>`).join('');
+    const fill=()=>{const t=ts.find(x=>x.id==sel.value);idx.innerHTML=(t?t.subs:[]).map((n,i)=>`<option value="${i}" ${(sel.value==tk.id&&i==tk.index)?'selected':''}>${i}. ${esc(n)}</option>`).join('')};sel.onchange=fill;fill()}).catch(()=>{});
+  m.querySelector('#btk').onclick=()=>act(()=>api('player/task',{id,taskId:+m.querySelector('#tk_id').value,index:+m.querySelector('#tk_idx').value,count:+m.querySelector('#tk_cnt').value||0}),'Đã lưu nhiệm vụ').then(re);
+  m.querySelector('#brn').onclick=()=>act(()=>api('player/rename',{id,name:m.querySelector('#rn').value}),'Đã đổi tên').then(re);
+  m.querySelector('#bdel').onclick=()=>{if(prompt('Gõ XOA để xoá vĩnh viễn nhân vật '+p.name)!=='XOA')return;act(()=>api('player/delete',{id,confirm:'XOA'}),'Đã xoá nhân vật').then(()=>{m.remove();if($('#pt'))loadPlayers()})};
+  m.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{const [where,index]=b.dataset.rm.split(':');if(!confirm('Xoá vật phẩm này?'))return;act(()=>api('player/removeitem',{id,where,index:+index}),'Đã xoá vật phẩm').then(re)});
   if(p.online){m.querySelector('#bk').onclick=()=>act(()=>api('player/kick',{id})).then(()=>m.remove());m.querySelector('#bt').onclick=()=>act(()=>api('player/teleport',{id,mapId:+$('#tm').value}))}}
 
 /* ---------- tài khoản ---------- */
