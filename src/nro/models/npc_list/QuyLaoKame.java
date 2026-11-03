@@ -103,10 +103,13 @@ public class QuyLaoKame extends Npc {
                 act.add(2);
                 menu.add("Nhận quà\nKOL VIP");
                 act.add(3);
-                if (nro.models.services.SeasonEventService.gI().isActive(TRUNG_THU)) {
-                    // nội dung riêng của sự kiện Trung Thu
+                if (nro.models.services.SeasonEventService.gI().isActive(nro.models.database.Dot89Migration.EV_QUY_LAO)) {
+                    // đua top tặng bộ ngọc rồng: sự kiện riêng, bật / tắt trên web panel
                     menu.add("Đua top\nngọc rồng\n[" + player.qlPoints + "]");
                     act.add(4);
+                }
+                if (nro.models.services.SeasonEventService.gI().isActive(TRUNG_THU)) {
+                    // nội dung riêng của sự kiện Trung Thu
                     menu.add("Quà\nTrung Thu");
                     act.add(5);
                 }
@@ -175,6 +178,10 @@ public class QuyLaoKame extends Npc {
                 handleKOLQuestRewardConfirm(player, select, true);
                 break;
             case MENU_DUA_TOP:
+                if (select <= 1 && !nro.models.services.SeasonEventService.gI().isActive(nro.models.database.Dot89Migration.EV_QUY_LAO)) {
+                    Service.gI().sendThongBao(player, "Đua top tặng ngọc rồng đã kết thúc");
+                    break;
+                }
                 switch (select) {
                     case 0 -> Event2026Service.gI().giveDragonBallSet(player, false);
                     case 1 -> Event2026Service.gI().giveDragonBallSet(player, true);

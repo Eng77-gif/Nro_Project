@@ -37,15 +37,12 @@ public class SaoPhaLe10Service {
     /** Dòng đánh dấu đồ đập lên 10 sao trong thời gian sự kiện (có hào quang chân, hiệu ứng 515). */
     public static final int OPT_HAO_QUANG = nro.models.database.Dot56Migration.OPT_HAO_QUANG_SPL10;
     public static final int EFF_HAO_QUANG = 515;
-    /** Thời gian sự kiện Nâng cấp trang bị lên Sao Pha Lê 10 (giờ Việt Nam) */
-    public static final java.time.LocalDateTime EVENT_START = java.time.LocalDateTime.of(2026, 10, 31, 0, 0);
-    public static final java.time.LocalDateTime EVENT_END = java.time.LocalDateTime.of(2026, 11, 21, 0, 0);
     /** Chỉ số hào quang (không cộng dồn dù mặc nhiều món): SĐ, HP, KI, sát thương cuối */
     public static final int BONUS_SD = 6, BONUS_HP = 6, BONUS_KI = 6, BONUS_ST_CUOI = 2;
 
+    /** Theo sự kiện "Nâng cấp Sao Pha Lê 10" (season_event 18): tự chạy 31/10 - 20/11, admin bật / tắt trên web panel. */
     public static boolean isEventTime() {
-        java.time.LocalDateTime now = java.time.LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
-        return !now.isBefore(EVENT_START) && now.isBefore(EVENT_END);
+        return SeasonEventService.gI().isActive(nro.models.database.Dot89Migration.EV_SPL10);
     }
 
     public static boolean hasMark(Item it) {
@@ -223,9 +220,7 @@ public class SaoPhaLe10Service {
 
     public void showQuest(Player pl, nro.models.npc.Npc npc) {
         int n = countFull(pl);
-        java.time.format.DateTimeFormatter f = java.time.format.DateTimeFormatter.ofPattern("dd/MM");
-        StringBuilder sb = new StringBuilder("|1|Sự kiện Nâng cấp trang bị lên Sao Pha Lê 10\n|2|Thời gian từ " + EVENT_START.format(f)
-                + " đến hết " + EVENT_END.minusDays(1).format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        StringBuilder sb = new StringBuilder("|1|Sự kiện Nâng cấp trang bị lên Sao Pha Lê 10\n|2|" + (isEventTime() ? "Sự kiện đang diễn ra" : "Sự kiện chưa mở / đã kết thúc")
                 + "\nChỉ tính trang bị đập lên 10 sao trong thời gian sự kiện\n(có dòng Hào quang chân Sao Pha Lê 10).\nBạn đang có: " + n + " món\n");
         for (int i = 0; i < MOC.length; i++) {
             boolean got = (pl.spl10Reward & (1 << i)) != 0;

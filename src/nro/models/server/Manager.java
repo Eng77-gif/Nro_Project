@@ -328,6 +328,7 @@ public final class Manager {
             nro.models.database.Dot85Migration.run(ConnectionDatabase);
             nro.models.database.Dot86Migration.run(ConnectionDatabase);
             nro.models.database.Dot87Migration.run(ConnectionDatabase);
+            nro.models.database.Dot89Migration.run(ConnectionDatabase);
             //load part
             ps = ConnectionDatabase.prepareStatement("select * from part");
             rs = ps.executeQuery();
