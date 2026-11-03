@@ -47,6 +47,22 @@ public class Dot92Migration {
         } catch (Exception e) {
             Logger.error("Đợt 92: không thêm được quà hộp: " + e.getMessage() + "\n");
         }
+        try {
+            // Hộp Ngọc Rồng Bí dùng trùng icon Hộp ngọc rồng xanh: đổi sang icon hộp bí ẩn
+            changed += update(con, "update item_template set icon_id = 16895 where id = 2118 and icon_id = 17442");
+            // Rương Rồng Thần / VIP có thêm pet hình rồng (thường có hạn, ít khi vĩnh viễn)
+            int[] pets = {1482, 1497, 1712, 1729, 1814, 1815, 1816, 1817, 1818, 1819};
+            for (int box : new int[]{1900, 1901}) {
+                if (!exists(con, "select 1 from item_box_reward where box_id = " + box + " and item_id = 1729")) {
+                    for (int pet : pets) {
+                        changed += update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values ("
+                                + box + ", " + pet + ", 1, 1, " + (box == 1900 ? 4 : 6) + ", '7,15,30', " + (box == 1900 ? 2 : 10) + ", 0)");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Logger.error("Đợt 92: không cập nhật được Hộp Ngọc Rồng Bí / Rương Rồng Thần: " + e.getMessage() + "\n");
+        }
         if (changed > 0) {
             Logger.success("Đợt 92: thêm quà cho hộp / capsule / rương chưa có quà (" + changed + " dòng)\n");
         }
