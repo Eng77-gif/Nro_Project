@@ -174,6 +174,10 @@ public class NpcFactory {
                     new Babiday(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.LY_TIEU_NUONG ->
                     new LyTieuNuong(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.DUONG_TANG ->
+                    new nro.models.npc_list.DuongTang(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.NGO_KHONG ->
+                    new nro.models.npc_list.NgoKhong(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.LINH_CANH ->
                     new LinhCanh(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.QUA_TRUNG ->

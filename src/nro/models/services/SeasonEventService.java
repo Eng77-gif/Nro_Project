@@ -625,6 +625,7 @@ public class SeasonEventService implements Runnable {
                 int y = n[3] > 0 ? n[3] : groundY(m, x);
                 Npc npc = n[0] == nro.models.consts.ConstNpc.SANTA || n[0] == nro.models.consts.ConstNpc.HUNG_VUONG
                         || n[0] == nro.models.consts.ConstNpc.HOA_HONG
+                        || n[0] == nro.models.consts.ConstNpc.DUONG_TANG
                         ? nro.models.npc.NpcFactory.createNPC(m.mapId, 1, x, y, n[0])
                         : new EventNpc(m.mapId, x, y, n[0]);
                 if (npc != null) {

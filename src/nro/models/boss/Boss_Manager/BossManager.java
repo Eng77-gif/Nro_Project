@@ -316,8 +316,6 @@ public class BossManager implements Runnable {
                     new Cooler();
                 case BossID.KHIDOT ->
                     new KhiDot();
-                case BossID.TE_THIEN_DAI_THANH ->
-                    new nro.models.boss.event_ngu_hanh_son.TeThienDaiThanh();
                 case BossID.NGUYETTHAN ->
                     new NguyetThan();
                 case BossID.NHATTHAN ->

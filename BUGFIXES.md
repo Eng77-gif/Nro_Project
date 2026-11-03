@@ -1554,3 +1554,12 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - Ngũ Hành Sơn (12, tự chạy 1/5 - 26/5): quái rơi Quả Hồng Đào (150/ngày); boss mới Tề Thiên Đại Thánh (3 con, đồi núi 3 hành tinh, nghỉ 15 phút) rơi Vòng Kim Cô + Quả Hồng Đào Chín; Chi Chi nhóm "Tây Du" đổi Như Ý Kim Cô Bổng, Cửu Xỉ Đinh Ba, Nguyệt Nha Sản, Cửu Hoàn Thiên Tích Trượng, CT Urôn Trư Bát Giới, Bồ cào 9 răng, Quạt ba tiêu (có tỉ lệ ra vĩnh viễn); đua top Ngũ Hành Sơn (top 1 CT Trư Bát Giới + Kim Cô Bổng vĩnh viễn).
   - Chỉ bật tay: Mưa vàng (13, quái rơi thỏi vàng, 20/ngày), Lễ hội Ngọc Rồng (14, ngọc rồng 4 - 7 sao, 3 viên mỗi loại / ngày), Đá Ngũ Sắc (15, đá nâng cấp 5 loại, 30 viên mỗi loại / ngày).
 - Panel → Boss: hiện cả boss sự kiện (Halloween, Trung Thu, Ngũ Hành Sơn, Giáng sinh, Hùng Vương, Tết).
+
+## Đợt 86
+- Ngũ Hành Sơn làm lại theo bản chính thức (video), bỏ boss Tề Thiên Đại Thánh:
+  - Trong sự kiện, Đường Tăng xuất hiện ở Làng Aru / Làng Mori / Làng Kakarot: "Đồng ý" đưa vào bản đồ Ngũ Hành Sơn (122 - 124, có sẵn Đường Tăng và Ngộ Không bị phong ấn), trong Ngũ Hành Sơn bấm "Về làng" để về nhà.
+  - Quái ở Ngũ Hành Sơn rơi Quả Hồng Đào (300/ngày); Chi Chi bán Quả Hồng Đào (1 triệu vàng) và Quả Hồng Đào Chín (5 ngọc).
+  - Ngộ Không: "Tặng quả Hồng Đào" (1 điểm công đức / quả), "Tặng quả Hồng Đào Chín" (5 điểm / quả). Điểm công đức lưu ở player_extra.cong_duc.
+  - Đường Tăng "Nhận thưởng": 500 cộng 7 ngày cải trang đang dùng, 600 cộng 9 ngày cải trang đệ tử, 700 CT Bát Giới (Đệ), 1.000 CT Tôn Ngộ Không (Đệ), 1.300 CT Sa Tăng (Đệ), 800 Yêu quái núi Lãng Lãng (30 ngày).
+  - 3 cải trang mới chỉ dành cho đệ tử (2128 - 2130), người chơi không mặc được.
+- Chỉ số tạm (sửa trên panel khi có chỉ số thật): CT Bát Giới / Ngộ Không / Sa Tăng (Đệ), Như Ý Kim Cô Bổng, Cửu Xỉ Đinh Ba, Nguyệt Nha Sản, Cửu Hoàn Thiên Tích Trượng, Quạt ba tiêu, Bồ cào 9 răng.

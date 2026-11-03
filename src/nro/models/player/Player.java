@@ -262,6 +262,7 @@ public class Player implements Runnable {
     public java.util.List<Item> itemsCollection; // Rương sưu tập (NPC Rương Sưu Tầm)
     public boolean collectionOpen; // đang mở Rương sưu tập: thao tác rương áp lên itemsCollection
     public int qlPoints; // điểm đua top tặng bộ ngọc rồng cho Quy Lão
+    public int congDuc; // điểm công đức sự kiện Ngũ Hành Sơn
     public int auraReward = -1; // aura thưởng top
     public long auraRewardUntil;
     public int qlRewardRank; // hạng đua top đang chờ nhận thưởng (0 = không có)

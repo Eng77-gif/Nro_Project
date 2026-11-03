@@ -153,7 +153,7 @@ public class Dot85Migration {
     private static int events(Connection con) throws Exception {
         int n = 0;
         // ---------------- Ngũ Hành Sơn (Tây Du): 1/5 - 26/5 hằng năm
-        if (event(con, EV_NGU_HANH_SON, "Ngũ Hành Sơn", 5, 1, 25, 1, "-378:3",
+        if (event(con, EV_NGU_HANH_SON, "Ngũ Hành Sơn", 5, 1, 25, 1, "", // nội dung làm lại ở Đợt 86 (theo bản chính thức, không boss)
                 "Tề Thiên Đại Thánh thoát khỏi núi Ngũ Hành! Đánh quái nhặt Quả Hồng Đào (150/ngày), hạ Tề Thiên Đại Thánh lấy Vòng Kim Cô và Quả Hồng Đào Chín. "
                 + "Mang đến Chi Chi đổi binh khí Tây Du (Như Ý Kim Cô Bổng, Cửu Xỉ Đinh Ba, Nguyệt Nha Sản, Cửu Hoàn Thiên Tích Trượng), CT Urôn Trư Bát Giới, Bồ cào 9 răng; mỗi lần đổi được điểm đua top.") > 0) {
             n++;

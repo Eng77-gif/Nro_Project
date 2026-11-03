@@ -185,7 +185,6 @@ public class BossID {
     public static final int BE_NA = -373;
     public static final int THO_DAI_CA = -374;
     public static final int MEOWTH = -377;
-    public static final int TE_THIEN_DAI_THANH = -378; // sự kiện Ngũ Hành Sơn
     public static final int RONG_NHI_1_SAO = -390; // -390 .. -396: rồng nhí 1 - 7 sao
     public static final int RONG_NHI_7_SAO = -396;
     // sự kiện theo mùa: Ngựa ăn cỏ (Tết), Đại chiến Zombie (Halloween)
