@@ -1654,3 +1654,4 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Panel → Bot: bảng tài khoản bot (trạng thái, đang làm gì, map), nút "Xem hành trang" (đồ đang mặc, hành trang, rương: lấy dữ liệu trực tiếp khi bot đang chơi), "Bỏ bot".
 - Bot giả lập mặc định 0 con (chỉ bật khi admin đặt số lượng trên panel).
 - Sửa chọn map luyện tập theo sức mạnh của bot: trước đây ngưỡng sức mạnh bị trùng nên bot từ 100 triệu trở lên phần lớn đứng ở Nhà Gôhan (không có quái); nay < 2 tỷ đi map Fide / Nappa, < 40 tỷ đi map tương lai, trên 40 tỷ đi map Cold.
+- Bot tài khoản chết 3 lần trong 5 phút (map Cold / tương lai bị trừ sức mạnh khi chết như người thật) thì tự chuyển xuống vùng map dễ hơn.
