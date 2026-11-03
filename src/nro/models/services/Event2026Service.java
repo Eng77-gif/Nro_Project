@@ -287,6 +287,35 @@ public class Event2026Service {
         }
     }
 
+    /** Đồ theo hành tinh (vd Nón Tết Trái Đất / Namếc / Xayda cùng tên): đổi sang bản đúng hành tinh của người mở. */
+    private static int genderVariant(int itemId, Player pl) {
+        nro.models.player_system.Template.ItemTemplate t = ItemService.gI().getTemplate(itemId);
+        if (t == null || pl == null || t.gender == 3 || t.gender == pl.gender) {
+            return itemId;
+        }
+        for (nro.models.player_system.Template.ItemTemplate o : nro.models.server.Manager.ITEM_TEMPLATES) {
+            if (o.type == t.type && o.gender == pl.gender && o.name.equals(t.name) && Math.abs(o.id - t.id) <= 6) {
+                return o.id;
+            }
+        }
+        return itemId;
+    }
+
+    /**
+     * Quà "ngẫu nhiên theo loại" (item_id trong item_box_reward = -100 - loại): -100 áo, -101 quần, -102 găng, -103 giày, -104 rada,
+     * -107 sách kỹ năng; lấy đồ đúng hành tinh, cấp 1 - 10 (đồ thường, không phải đồ thần / đồ sự kiện).
+     */
+    private static int randomByType(int type, Player pl) {
+        List<Integer> c = new ArrayList<>();
+        for (nro.models.player_system.Template.ItemTemplate t : nro.models.server.Manager.ITEM_TEMPLATES) {
+            if (t.type == type && (pl == null || t.gender == pl.gender || t.gender == 3) && t.level >= 1 && t.level <= 10
+                    && !t.name.toLowerCase().contains("thần") && !t.name.toLowerCase().contains("thiên sứ")) {
+                c.add((int) t.id);
+            }
+        }
+        return c.isEmpty() ? -1 : c.get(Util.nextInt(0, c.size() - 1));
+    }
+
     /** Rút 1 phần quà của hộp boxId và cho vào hành trang; trả về tên quà (null nếu hộp không có quà). */
     public String openBoxById(Player pl, int boxId) {
         return openBoxById(pl, boxId, null);
@@ -321,7 +350,11 @@ public class Event2026Service {
         }
         int qty = Util.nextInt(pick.qtyMin, pick.qtyMax);
         String got;
-        if (pick.itemId < 0) {
+        int rewardId = pick.itemId <= -100 ? randomByType(-100 - pick.itemId, pl) : genderVariant(pick.itemId, pl);
+        if (pick.itemId <= -100 && rewardId < 0) {
+            return null;
+        }
+        if (pick.itemId < 0 && pick.itemId > -100) {
             got = giveCurrency(pl, pick.itemId, qty);
             if (iconOut != null) {
                 iconOut[0] = (short) (pick.itemId == -1 ? 930 : pick.itemId == -2 ? 932 : 7743);
@@ -331,10 +364,10 @@ public class Event2026Service {
             if (pick.days.length > 0 && !Util.isTrue(pick.permRate, 100)) {
                 days = pick.days[Util.nextInt(0, pick.days.length - 1)];
             }
-            Item it = createItem(pick.itemId, qty, days);
+            Item it = createItem(rewardId, qty, days);
             if (MAX_STAT_BOXES.contains(boxId)) { // Trứng Xên Vàng: pet chỉ số tối đa
                 it.itemOptions.removeIf(io -> io.optionTemplate == null || io.optionTemplate.id != 93);
-                it.itemOptions.addAll(0, ItemService.gI().getMaxOptions((short) pick.itemId));
+                it.itemOptions.addAll(0, ItemService.gI().getMaxOptions((short) rewardId));
             }
             if (iconOut != null) {
                 iconOut[0] = it.template.iconID;
