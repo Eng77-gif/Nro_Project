@@ -2934,7 +2934,6 @@ public class UseItem {
         }
         int[] th = RadarService.thresholds(cardId, radarTemplate.Max);
         int stage = card.Level >= 1 ? card.Level : 0; // 0: lên Lv.1, 1: lên Lv.2, 2: lên Lv.3
-        byte levelBefore = card.Level;
         card.Amount++;
         if (card.Amount >= th[stage]) {
             card.Amount = 0;
@@ -2944,11 +2943,8 @@ public class UseItem {
         RadarService.fixMax(card, radarTemplate.Max);
         RadarService.gI().RadarSetAmount(pl, card.Id, card.Amount, card.MaxAmount);
         RadarService.gI().RadarSetLevel(pl, card.Id, card.Level);
-        if (card.Level != levelBefore && RadarService.levelLook(card.Id, card.Level) != null) {
-            // chỉ khi lên cấp mới gửi lại cả bảng radar (thẻ đổi icon / hình): gửi mỗi mảnh làm client dựng lại radar,
-            // nhảy về thẻ đầu (Quỷ đất) hoặc hiện trống
-            RadarService.gI().sendRadar(pl, pl.Cards);
-        }
+        // không gửi lại cả bảng radar (gói 127 loại 0): client nhận là bật bảng radar lên ngay khi bấm "Sử dụng" mảnh thẻ
+        // và nhảy về thẻ đầu. Hình thẻ theo cấp được cập nhật khi người chơi tự mở radar.
         InventoryService.gI().subQuantityItemsBag(pl, item, 1);
         InventoryService.gI().sendItemBags(pl);
         refreshAura(pl, auraTruoc);
