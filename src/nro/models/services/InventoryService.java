@@ -362,6 +362,10 @@ public class InventoryService {
                 index = player.isPet ? 8 : 10;
                 break;
         }
+        if (NguHanhSonService.EVENT_CT.contains((int) item.template.id) && player.zone != null && NguHanhSonService.isNrsdMap(player.zone.map.mapId)) {
+            Service.gI().sendThongBaoOK(player, "Không thể mặc cải trang sự kiện Ngũ Hành Sơn trong Ngọc Rồng Sao Đen");
+            return sItem;
+        }
         if (NguHanhSonService.PET_ONLY.contains((int) item.template.id) && !player.isPet) {
             Service.gI().sendThongBaoOK(player, "Cải trang này chỉ dành cho đệ tử");
             return sItem;

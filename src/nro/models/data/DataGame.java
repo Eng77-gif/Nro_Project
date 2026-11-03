@@ -308,6 +308,7 @@ public class DataGame {
             byte[] icon = FileIO.readFile("data/icon/x" + session.zoomLevel + "/" + id + ".png");
 
             if (icon == null) {
+                ResGuard.miss(session, "icon", id);
                 return;
             }
             if (ResGuard.check(session, "icon", id)) {

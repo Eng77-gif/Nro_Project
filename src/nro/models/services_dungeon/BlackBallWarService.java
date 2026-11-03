@@ -72,6 +72,7 @@ public class BlackBallWarService {
     }
 
     public void joinMapBlackBallWar(Player player) {
+        nro.models.services.NguHanhSonService.onJoinNrsd(player);
         boolean changed = false;
         if (player.clan != null) {
             List<Player> players = player.zone.getPlayers();

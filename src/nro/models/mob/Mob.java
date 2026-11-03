@@ -1077,6 +1077,7 @@ public class Mob {
         }
 
         nro.models.services.SeasonEventService.gI().addMobDrops(list, player, zone, x, yEnd, this.tempId);
+        nro.models.services.NguHanhSonService.gI().onMobKilled(player);
         return list;
 
     }

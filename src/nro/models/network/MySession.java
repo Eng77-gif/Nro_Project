@@ -70,7 +70,7 @@ public class MySession extends Session {
     /** chống kéo res (ResGuard) */
     public boolean scraper;
     public long resWindowStart;
-    public int resCount, resSeq, resLastId = -2;
+    public int resCount, resSeq, resLastId = -2, resBeforeChar, resMiss;
 
     public MySession(Socket socket) {
         super(socket);

@@ -21,8 +21,11 @@ import nro.models.utils.Logger;
  * - xin ảnh (icon, ảnh theo tên, nền vật phẩm, quái) khi chưa đăng nhập tài khoản;
  * - xin quá nhiều ảnh trong thời gian ngắn (client thật chỉ xin ảnh đang thấy);
  * - xin icon theo dãy số liên tiếp tăng dần (quét toàn bộ mã);
- * - một IP tải gói res của từ 2 cỡ màn hình (x1 - x4) trở lên trong 6 giờ (client thật chỉ dùng 1 cỡ).
- * Đã bị đánh dấu thì giữ tới hết phiên.
+ * - một IP tải gói res của từ 2 cỡ màn hình (x1 - x4) trở lên trong 6 giờ (client thật chỉ dùng 1 cỡ), hoặc quá 8 lần / ngày;
+ * - xin quá 200 ảnh khi chưa vào nhân vật, xin quá 60 mã ảnh không tồn tại (dò mã);
+ * - tài khoản xin quá 6.000 ảnh / ngày, IP quá 12.000 ảnh / ngày.
+ * Tài khoản bị đánh dấu được lưu vào bảng res_guard_flag và tiếp tục nhận ảnh giả 7 ngày (kể cả đăng nhập lại).
+ * Admin không bị giới hạn.
  *
  * @author Việt
  */
@@ -33,6 +36,16 @@ public final class ResGuard {
     private static final long BURST_WINDOW = 120_000;
     private static final int SEQ_LIMIT = 150;            // số icon liên tiếp tăng dần (bộ đồ có thể ~30 icon liền nhau)
     private static final long RES_ZOOM_WINDOW = 6 * 3600_000L;
+    private static final int PRE_CHAR_LIMIT = 200;        // ảnh xin được trước khi vào nhân vật (màn tạo nhân vật)
+    private static final int MISS_LIMIT = 60;             // số lần xin mã ảnh không tồn tại
+    private static final int DAILY_ACCOUNT_LIMIT = 6000;  // ảnh / tài khoản / ngày (client lưu cache nên chỉ xin 1 lần)
+    private static final int DAILY_IP_LIMIT = 12000;      // ảnh / IP / ngày
+    private static final int RES_PACK_DAILY = 8;          // số lần tải gói res / IP / ngày
+    private static final int FLAG_DAYS = 7;               // tài khoản bị đánh dấu giữ 7 ngày
+
+    private static final Map<String, int[]> dailyByAccount = new ConcurrentHashMap<>();
+    private static final Map<String, int[]> dailyByIp = new ConcurrentHashMap<>();
+    private static final Map<String, int[]> resPackByIp = new ConcurrentHashMap<>();
 
     private static final Map<String, Map<Integer, Long>> resZoomByIp = new ConcurrentHashMap<>();
     private static final Map<Long, BufferedImageHolder> cache = new LinkedHashMap<>(256, 0.75f, true) {
@@ -59,6 +72,12 @@ public final class ResGuard {
         if (s.userId <= 0) {
             return flag(s, "xin " + kind + " khi chưa đăng nhập");
         }
+        if (s.isAdmin) {
+            return false;
+        }
+        if (s.player == null && ++s.resBeforeChar > PRE_CHAR_LIMIT) {
+            return flag(s, "xin " + s.resBeforeChar + " ảnh khi chưa vào nhân vật");
+        }
         long now = System.currentTimeMillis();
         if (now - s.resWindowStart > BURST_WINDOW) {
             s.resWindowStart = now;
@@ -74,10 +93,43 @@ public final class ResGuard {
                 return flag(s, "quét icon liên tiếp tới mã " + id);
             }
         }
+        int day = java.time.LocalDate.now().getDayOfYear();
+        int acc = daily(dailyByAccount, String.valueOf(s.userId), day);
+        if (acc > DAILY_ACCOUNT_LIMIT) {
+            return flag(s, "tài khoản xin " + acc + " ảnh trong ngày");
+        }
+        if (!nro.models.network.netty.AntiDdos.isLocal(s.getIP())) {
+            int ip = daily(dailyByIp, s.getIP(), day);
+            if (ip > DAILY_IP_LIMIT) {
+                return flag(s, "IP xin " + ip + " ảnh trong ngày");
+            }
+        }
         return false;
     }
 
-    /** Gói res: true nếu IP này đã tải gói res của cỡ màn hình khác gần đây (tool kéo đủ x1 - x4). */
+    private static int daily(Map<String, int[]> m, String key, int day) {
+        if (m.size() > 200_000) {
+            m.clear();
+        }
+        int[] d = m.compute(key, (k, v) -> v == null || v[0] != day ? new int[]{day, 0} : v);
+        synchronized (d) {
+            return ++d[1];
+        }
+    }
+
+    /** Xin mã ảnh không tồn tại: tool dò mã sẽ xin rất nhiều mã trống, client thật gần như không. */
+    public static void miss(MySession s, String kind, int id) {
+        if (s == null || s.scraper || s.isAdmin) {
+            return;
+        }
+        if (s.userId <= 0) {
+            flag(s, "dò " + kind + " " + id + " khi chưa đăng nhập");
+        } else if (++s.resMiss > MISS_LIMIT) {
+            flag(s, "xin " + s.resMiss + " " + kind + " không tồn tại");
+        }
+    }
+
+    /** Gói res: true nếu IP này đã tải gói res của cỡ màn hình khác gần đây (tool kéo đủ x1 - x4) hoặc tải quá nhiều lần. */
     public static boolean checkRes(MySession s) {
         if (s == null) {
             return false;
@@ -85,20 +137,69 @@ public final class ResGuard {
         if (s.scraper) {
             return true;
         }
+        if (nro.models.network.netty.AntiDdos.isLocal(s.getIP())) {
+            return false;
+        }
         long now = System.currentTimeMillis();
         Map<Integer, Long> m = resZoomByIp.computeIfAbsent(s.getIP(), k -> new ConcurrentHashMap<>());
         m.values().removeIf(t -> now - t > RES_ZOOM_WINDOW);
         m.put((int) s.zoomLevel, now);
-        if (m.size() >= 2 && !nro.models.network.netty.AntiDdos.isLocal(s.getIP())) {
+        if (m.size() >= 2) {
             return flag(s, "tải gói res nhiều cỡ màn hình " + m.keySet());
         }
+        int n = daily(resPackByIp, s.getIP(), java.time.LocalDate.now().getDayOfYear());
+        if (n > RES_PACK_DAILY) {
+            return flag(s, "tải gói res " + n + " lần trong ngày");
+        }
         return false;
+    }
+
+    /** Khi đăng nhập: tài khoản đã bị đánh dấu trong FLAG_DAYS ngày gần đây thì tiếp tục chỉ nhận ảnh giả. */
+    public static void onLogin(MySession s) {
+        if (s == null || s.userId <= 0 || s.isAdmin) {
+            return;
+        }
+        try (java.sql.Connection con = LocalManager.getConnection();
+                java.sql.PreparedStatement ps = con.prepareStatement("select reason from res_guard_flag where account_id = ? and created_at > now() - interval " + FLAG_DAYS + " day")) {
+            ps.setInt(1, s.userId);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    s.scraper = true;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Bỏ đánh dấu (admin): trả về true nếu có dòng bị xoá. */
+    public static boolean unflag(int accountId) {
+        try (java.sql.Connection con = LocalManager.getConnection();
+                java.sql.PreparedStatement ps = con.prepareStatement("delete from res_guard_flag where account_id = ?")) {
+            ps.setInt(1, accountId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private static boolean flag(MySession s, String why) {
         if (!s.scraper) {
             s.scraper = true;
-            Logger.warning("[CHỐNG KÉO RES] " + s.getIP() + " bị coi là tool kéo res (" + why + "), từ giờ chỉ nhận ảnh giả\n");
+            Logger.warning("[CHỐNG KÉO RES] " + s.getIP() + " (tài khoản " + s.userId + ") bị coi là tool kéo res (" + why + "), từ giờ chỉ nhận ảnh giả\n");
+            if (s.userId > 0) {
+                final int acc = s.userId;
+                final String ip = s.getIP();
+                nro.models.utils.Util.POOL.submit(() -> {
+                    try (java.sql.Connection con = LocalManager.getConnection();
+                            java.sql.PreparedStatement ps = con.prepareStatement("replace into res_guard_flag (account_id, reason, ip) values (?, ?, ?)")) {
+                        ps.setInt(1, acc);
+                        ps.setString(2, why.length() > 250 ? why.substring(0, 250) : why);
+                        ps.setString(3, ip);
+                        ps.executeUpdate();
+                    } catch (Exception ignored) {
+                    }
+                });
+            }
         }
         return true;
     }
