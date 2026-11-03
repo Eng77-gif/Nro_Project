@@ -2758,7 +2758,7 @@ public class BossesData {
             new short[]{1715, 1716, 1717, -1, -1, -1},
             200000,
             new int[]{2000000000},
-            new int[]{14},
+            new int[]{166},
             new int[][]{
                 {Skill.GALICK, 7, 100},
                 {Skill.DRAGON, 7, 100},
@@ -2799,7 +2799,7 @@ public class BossesData {
             new short[]{1718, 1719, 1720, -1, -1, -1},
             250000,
             new int[]{2000000000},
-            new int[]{14},
+            new int[]{166},
             new int[][]{
                 {Skill.GALICK, 7, 100},
                 {Skill.DRAGON, 7, 100},
@@ -2831,7 +2831,7 @@ public class BossesData {
             new short[]{1721, 1722, 1723, -1, -1, -1},
             30000,
             new int[]{2000000000},
-            new int[]{14},
+            new int[]{166},
             new int[][]{
                 {Skill.GALICK, 7, 100},
                 {Skill.DRAGON, 7, 100},
