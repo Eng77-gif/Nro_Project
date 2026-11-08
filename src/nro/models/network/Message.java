@@ -35,12 +35,15 @@ public class Message implements IMessage {
      * trường ghi riêng (writeNum, writeItemOption...); các lệnh ghi khác đi vào cả hai bản.
      */
     private ByteArrayOutputStream osLong;
+    /** Bản riêng cho client J2ME thật (loại 1): như osLong + dòng mô tả item (client Unity / APK số lớn đã đọc mô tả qua lệnh 12). */
+    private ByteArrayOutputStream osJ2me;
     private Tee tee;
 
     private static final class Tee extends java.io.OutputStream {
 
         private final java.io.OutputStream a;
         private java.io.OutputStream b;
+        private java.io.OutputStream c;
 
         Tee(java.io.OutputStream a) {
             this.a = a;
@@ -52,6 +55,9 @@ public class Message implements IMessage {
             if (b != null) {
                 b.write(v);
             }
+            if (c != null) {
+                c.write(v);
+            }
         }
 
         @Override
@@ -59,6 +65,9 @@ public class Message implements IMessage {
             a.write(buf, off, len);
             if (b != null) {
                 b.write(buf, off, len);
+            }
+            if (c != null) {
+                c.write(buf, off, len);
             }
         }
     }
@@ -72,6 +81,16 @@ public class Message implements IMessage {
         return this.osLong;
     }
 
+    private ByteArrayOutputStream j2meStream() throws IOException {
+        ByteArrayOutputStream l = longStream();
+        if (this.osJ2me == null) {
+            this.osJ2me = new ByteArrayOutputStream();
+            this.osJ2me.write(l.toByteArray());
+            this.tee.c = this.osJ2me;
+        }
+        return this.osJ2me;
+    }
+
     private static void put(ByteArrayOutputStream o, long v, int size) {
         for (int s = (size - 1) * 8; s >= 0; s -= 8) {
             o.write((byte) (v >>> s));
@@ -83,21 +102,52 @@ public class Message implements IMessage {
         ByteArrayOutputStream l = longStream();
         put(this.os, oldV, oldSize);
         put(l, newV, newSize);
+        if (this.osJ2me != null) {
+            put(this.osJ2me, newV, newSize);
+        }
     }
 
     /** Chỉ ghi cho client J2ME (client cũ không có trường này). */
     public void writeOnlyLong(long v, int size) throws IOException {
         put(longStream(), v, size);
+        if (this.osJ2me != null) {
+            put(this.osJ2me, v, size);
+        }
     }
 
     /** Chỉ ghi chuỗi cho client J2ME. */
     public void writeUTFOnlyLong(String s) throws IOException {
         new DataOutputStream(longStream()).writeUTF(s);
+        if (this.osJ2me != null) {
+            new DataOutputStream(this.osJ2me).writeUTF(s);
+        }
     }
 
     /** Số lớn: client cũ nhận int (4 byte), client J2ME nhận long (8 byte). */
     public void writeNum(long v) throws IOException {
         writeDual(Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, v)), 4, v, 8);
+    }
+
+    /** Số dòng chỉ số của món đồ; client J2ME có thêm 1 dòng mô tả item (ghi bằng writeDescOption sau các dòng). */
+    public void writeOptionCount(int n, int templateId) throws IOException {
+        if (nro.models.data.ItemData.descOption(templateId) < 0) {
+            writeDual(n, 1, n, 1);
+            return;
+        }
+        ByteArrayOutputStream j = j2meStream();
+        put(this.os, n, 1);
+        put(this.osLong, n, 1);
+        put(j, n + 1, 1);
+    }
+
+    /** Dòng mô tả item cho client J2ME (gọi sau vòng ghi các dòng chỉ số, đi cặp với writeOptionCount). */
+    public void writeDescOption(int templateId) throws IOException {
+        int d = nro.models.data.ItemData.descOption(templateId);
+        if (d >= 0) {
+            ByteArrayOutputStream j = j2meStream();
+            put(j, d, 2);
+            put(j, 0, 4);
+        }
     }
 
     /** 1 dòng chỉ số món đồ: (byte id, short param) cho client cũ, (short id, int param) cho J2ME 2.4.x. */
@@ -115,6 +165,13 @@ public class Message implements IMessage {
 
     /** Dữ liệu gửi cho phiên: client J2ME lấy bản riêng (nếu gói có trường ghi riêng). */
     public byte[] getData(boolean longNumbers) {
+        return getData(longNumbers, false);
+    }
+
+    public byte[] getData(boolean longNumbers, boolean j2me) {
+        if (j2me && this.osJ2me != null) {
+            return this.osJ2me.toByteArray();
+        }
         return longNumbers && this.osLong != null ? this.osLong.toByteArray() : this.os.toByteArray();
     }
 

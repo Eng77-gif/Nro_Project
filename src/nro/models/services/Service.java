@@ -864,10 +864,11 @@ public class Service {
                     msg.writer().writeUTF(item.getInfo());
                     msg.writer().writeUTF(item.getContent());
                     List<ItemOption> itemOptions = item.itemOptions;
-                    msg.writer().writeByte(itemOptions.size());
+                    msg.writeOptionCount(itemOptions.size(), item.template.id);
                     for (ItemOption itemOption : itemOptions) {
                         msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
                     }
+                    msg.writeDescOption(item.template.id); // client J2ME: thêm dòng mô tả item
                 }
 
             }
@@ -883,10 +884,11 @@ public class Service {
                     msg.writer().writeUTF(item.getInfo());
                     msg.writer().writeUTF(item.getContent());
                     List<ItemOption> itemOptions = item.itemOptions;
-                    msg.writer().writeByte(itemOptions.size());
+                    msg.writeOptionCount(itemOptions.size(), item.template.id);
                     for (ItemOption itemOption : itemOptions) {
                         msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
                     }
+                    msg.writeDescOption(item.template.id); // client J2ME: thêm dòng mô tả item
                 }
 
             }
@@ -902,10 +904,11 @@ public class Service {
                     msg.writer().writeUTF(item.getInfo());
                     msg.writer().writeUTF(item.getContent());
                     List<ItemOption> itemOptions = item.itemOptions;
-                    msg.writer().writeByte(itemOptions.size());
+                    msg.writeOptionCount(itemOptions.size(), item.template.id);
                     for (ItemOption itemOption : itemOptions) {
                         msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
                     }
+                    msg.writeDescOption(item.template.id); // client J2ME: thêm dòng mô tả item
                 }
             }
             DataGame.sendHeadAvatar(msg);

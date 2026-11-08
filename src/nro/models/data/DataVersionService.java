@@ -73,7 +73,7 @@ public class DataVersionService {
 
     private static String itemHash() throws Exception {
         MessageDigest md = MessageDigest.getInstance("SHA-1");
-        md.update("j2me-names-v2".getBytes(StandardCharsets.UTF_8)); // đổi cách nén tên item J2ME: tăng phiên bản để client tải lại
+        md.update("j2me-names-v2|j2me-desc-v1".getBytes(StandardCharsets.UTF_8)); // j2me-desc: thêm dòng mô tả item // đổi cách nén tên item J2ME: tăng phiên bản để client tải lại
         StringBuilder sb = new StringBuilder();
         for (ItemTemplate t : Manager.ITEM_TEMPLATES) {
             sb.setLength(0);

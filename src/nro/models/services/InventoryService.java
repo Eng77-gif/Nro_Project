@@ -617,7 +617,7 @@ public class InventoryService {
                 msg.writer().writeInt(item.quantity);
                 msg.writer().writeUTF(item.getInfo());
                 msg.writer().writeUTF(item.getContent());
-                msg.writer().writeByte(item.itemOptions.size()); //options
+                msg.writeOptionCount(item.itemOptions.size(), item.template.id);
                 for (int j = 0; j < item.itemOptions.size(); j++) {
                     if (item.itemOptions.get(j).optionTemplate.id == 213) {
                         int opId = 213;
@@ -634,6 +634,7 @@ public class InventoryService {
                         msg.writeItemOption(item.itemOptions.get(j).optionTemplate.id, item.itemOptions.get(j).param);
                     }
                 }
+                msg.writeDescOption(item.template.id); // client J2ME: thêm dòng mô tả item
             }
 
             player.sendMessage(msg);
@@ -674,7 +675,7 @@ public class InventoryService {
                     msg.writer().writeUTF(item.getInfo());
                     msg.writer().writeUTF(item.getContent());
                     List<Item.ItemOption> itemOptions = item.itemOptions;
-                    msg.writer().writeByte(itemOptions.size());
+                    msg.writeOptionCount(itemOptions.size(), item.template.id);
                     for (Item.ItemOption itemOption : itemOptions) {
                         if (itemOption.optionTemplate.id == 213) {
                             int opId = 213;
@@ -691,6 +692,7 @@ public class InventoryService {
                             msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
                         }
                     }
+                    msg.writeDescOption(item.template.id); // client J2ME: thêm dòng mô tả item
                 }
             }
             player.sendMessage(msg);
@@ -714,7 +716,7 @@ public class InventoryService {
                     msg.writer().writeInt(it.quantity);
                     msg.writer().writeUTF(it.getInfo());
                     msg.writer().writeUTF(it.getContent());
-                    msg.writer().writeByte(it.itemOptions.size());
+                    msg.writeOptionCount(it.itemOptions.size(), it.template.id);
                     for (Item.ItemOption io : it.itemOptions) {
                         if (io.optionTemplate.id == 213) {
                             int opId = 213;
@@ -731,6 +733,7 @@ public class InventoryService {
                             msg.writeItemOption(io.optionTemplate.id, io.param);
                         }
                     }
+                    msg.writeDescOption(it.template.id); // client J2ME: thêm dòng mô tả item
                 }
             }
             player.sendMessage(msg);

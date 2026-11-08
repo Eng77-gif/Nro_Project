@@ -246,16 +246,22 @@ public class ItemData {
             msg.writer().writeByte(8);
             msg.writer().writeByte(DataGame.vsItem);
             msg.writer().writeByte(0);
-            int n = Manager.ITEM_OPTION_TEMPLATES.size();
+            int base = Manager.ITEM_OPTION_TEMPLATES.size();
+            java.util.List<String> descs = descList();
+            int n = base + descs.size(); // sau các dòng chỉ số thật là các dòng "mô tả item" (descOption)
             msg.writer().writeShort(n);
             for (ItemOptionTemplate io : Manager.ITEM_OPTION_TEMPLATES) {
                 msg.writer().writeUTF(io.name);
                 msg.writer().writeByte(io.type);
             }
+            for (String d : descs) {
+                msg.writer().writeUTF(d);
+                msg.writer().writeByte(0);
+            }
             msg.writer().writeShort(n);
             for (int i = 0; i < n; i++) {
                 msg.writer().writeShort(i);
-                msg.writer().writeByte(Manager.ITEM_OPTION_TEMPLATES.get(i).type);
+                msg.writer().writeByte(i < base ? Manager.ITEM_OPTION_TEMPLATES.get(i).type : 0);
             }
             session.doSendMessage(msg);
             msg.cleanup();
@@ -310,12 +316,48 @@ public class ItemData {
         }
     }
 
+    private static java.util.List<String> descs;
+    private static java.util.Map<String, Integer> descIndex;
+
+    /**
+     * Client J2ME không hiện mô tả item (gói danh sách item 64 KB không chứa nổi mô tả): mỗi mô tả khác nhau thành 1 dòng chỉ số
+     * riêng (id sau các dòng thật), gắn vào cuối dòng chỉ số của món đồ khi gửi cho client J2ME. Client APK / PC không nhận dòng này.
+     */
+    private static synchronized java.util.List<String> descList() {
+        if (descs == null) {
+            java.util.List<String> l = new java.util.ArrayList<>();
+            java.util.Map<String, Integer> m = new java.util.HashMap<>();
+            for (Template.ItemTemplate t : Manager.ITEM_TEMPLATES) {
+                String d = t.description == null ? "" : t.description.replace('#', ' ').trim(); // '#' là chỗ client thay bằng số
+                if (!d.isEmpty() && !m.containsKey(d)) {
+                    m.put(d, l.size());
+                    l.add(d);
+                }
+            }
+            descIndex = m;
+            descs = l;
+        }
+        return descs;
+    }
+
+    /** Id dòng "mô tả" của item cho client J2ME, -1 nếu item không có mô tả. */
+    public static int descOption(int templateId) {
+        if (templateId < 0 || templateId >= Manager.ITEM_TEMPLATES.size()) {
+            return -1;
+        }
+        descList();
+        String d = Manager.ITEM_TEMPLATES.get(templateId).description;
+        Integer i = d == null ? null : descIndex.get(d.replace('#', ' ').trim());
+        return i == null ? -1 : Manager.ITEM_OPTION_TEMPLATES.size() + i;
+    }
+
     private static String[] cachedNames;
     private static int cachedCount = -1;
 
     /** Xoá bộ nhớ đệm tên (khi bảng item / shop / sự kiện đổi). */
     public static synchronized void resetNames() {
         cachedNames = null;
+        descs = null;
     }
 
     /**

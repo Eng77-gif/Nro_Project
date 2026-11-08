@@ -341,10 +341,11 @@ public class Trade {
                     } else {
                         msg.writer().writeInt(item.quantity);
                     }
-                    msg.writer().writeByte(item.itemOptions.size());
+                    msg.writeOptionCount(item.itemOptions.size(), item.template.id);
                     for (Item.ItemOption io : item.itemOptions) {
                         msg.writeItemOption(io.optionTemplate.id, io.param);
                     }
+                    msg.writeDescOption(item.template.id); // client J2ME: thêm dòng mô tả item
                 }
                 player2.sendMessage(msg);
             } else {
@@ -357,10 +358,11 @@ public class Trade {
                     } else {
                         msg.writer().writeInt(item.quantity);
                     }
-                    msg.writer().writeByte(item.itemOptions.size());
+                    msg.writeOptionCount(item.itemOptions.size(), item.template.id);
                     for (Item.ItemOption io : item.itemOptions) {
                         msg.writeItemOption(io.optionTemplate.id, io.param);
                     }
+                    msg.writeDescOption(item.template.id); // client J2ME: thêm dòng mô tả item
                 }
                 player1.sendMessage(msg);
             }

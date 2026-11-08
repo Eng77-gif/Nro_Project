@@ -51,7 +51,7 @@ public class MessageSendCollect implements IMessageSendCollect {
     @Override
     public void doSendMessage(ISession session, DataOutputStream dos, Message msg) throws Exception {
         try {
-            byte[] data = msg.getData(session instanceof MySession ms && ms.longNumbers);
+            byte[] data = session instanceof MySession ms ? msg.getData(ms.longNumbers, ms.longNumbers && ms.typeClient == 1) : msg.getData(false);
             if (session.sentKey()) {
                 byte b = this.writeKey(session, msg.command);
                 dos.writeByte(b);

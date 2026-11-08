@@ -443,10 +443,11 @@ public class ShopService {
                 msg.writer().writeInt(giamualaivang);
                 msg.writer().writeInt(giamualaingoc);
                 msg.writer().writeInt(item.quantity);
-                msg.writer().writeByte(item.itemOptions.size());
+                msg.writeOptionCount(item.itemOptions.size(), item.template.id);
                 for (Item.ItemOption io : item.itemOptions) {
                     msg.writeItemOption(io.optionTemplate.id, io.param);
                 }
+                msg.writeDescOption(item.template.id); // client J2ME: thêm dòng mô tả item
                 msg.writer().writeByte(0);
                 if (item.template.type == 5) {
                     msg.writer().writeByte(1);

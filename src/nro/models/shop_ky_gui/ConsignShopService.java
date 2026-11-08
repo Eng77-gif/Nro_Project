@@ -224,10 +224,11 @@ public class ConsignShopService {
                     msg.writer().writeByte(itk.quantity);
                 }
                 msg.writer().writeByte(itk.player_sell == pl.id ? 1 : 0); // isMe
-                msg.writer().writeByte(it.itemOptions.size());
+                msg.writeOptionCount(it.itemOptions.size(), itk.itemId);
                 for (int a = 0; a < it.itemOptions.size(); a++) {
                     msg.writeItemOption(it.itemOptions.get(a).optionTemplate.id, it.itemOptions.get(a).param);
                 }
+                msg.writeDescOption(itk.itemId); // client J2ME: thêm dòng mô tả item
                 msg.writer().writeByte(0);
             }
             pl.sendMessage(msg);
@@ -522,10 +523,11 @@ public class ConsignShopService {
                         }
                         msg.writer().writeInt(itk.quantity);
                         msg.writer().writeByte(1); // isMe
-                        msg.writer().writeByte(it.itemOptions.size());
+                        msg.writeOptionCount(it.itemOptions.size(), itk.itemId);
                         for (int a = 0; a < it.itemOptions.size(); a++) {
                             msg.writeItemOption(it.itemOptions.get(a).optionTemplate.id, it.itemOptions.get(a).param);
                         }
+                        msg.writeDescOption(itk.itemId); // client J2ME: thêm dòng mô tả item
                         msg.writer().writeByte(0);
                         msg.writer().writeByte(0);
                     }
@@ -552,10 +554,11 @@ public class ConsignShopService {
                         msg.writer().writeByte(0); // buy type
                         msg.writer().writeInt(itk.quantity);
                         msg.writer().writeByte(itk.player_sell == pl.id ? 1 : 0); // isMe     
-                        msg.writer().writeByte(it.itemOptions.size());
+                        msg.writeOptionCount(it.itemOptions.size(), itk.itemId);
                         for (int a = 0; a < it.itemOptions.size(); a++) {
                             msg.writeItemOption(it.itemOptions.get(a).optionTemplate.id, it.itemOptions.get(a).param);
                         }
+                        msg.writeDescOption(itk.itemId); // client J2ME: thêm dòng mô tả item
                         msg.writer().writeByte(0);
                         msg.writer().writeByte(0);
                     }
