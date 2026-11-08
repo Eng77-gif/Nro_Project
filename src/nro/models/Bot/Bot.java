@@ -185,6 +185,9 @@ public class Bot extends Player {
         if (this.nPoint == null || this.zone == null) {
             return; // đã bị huỷ hoặc chưa vào map
         }
+        if (this.accountBot && nro.models.services_func.TransactionService.gI().check(this)) {
+            return; // đang giao dịch: đứng yên như người chơi mở bảng giao dịch (nhặt đồ sẽ làm huỷ giao dịch)
+        }
         super.update();
         this.increasePoint();
         switch (this.type) {

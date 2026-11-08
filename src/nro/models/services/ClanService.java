@@ -289,7 +289,7 @@ public class ClanService {
         Player pl = Client.gI().getPlayer(playerId);
         if (pl == null) {
             pl = nro.models.Bot.BotWorld.gI().find(playerId); // mời tài khoản bot: bot tự cân nhắc như người chơi
-            if (pl == null) {
+            if (!(pl instanceof nro.models.Bot.Bot) || !((nro.models.Bot.Bot) pl).accountBot) { // bot giả lập không vào bang
                 return;
             }
         }

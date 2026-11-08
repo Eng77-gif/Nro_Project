@@ -49,7 +49,8 @@ public class BotTrade {
                 }
             }
         }
-        return best > 0 ? best : basePrice(it);
+        double base = basePrice(it);
+        return best > 0 ? Math.max(base * 0.5, Math.min(best, base * 2)) : base; // giá chợ trong khoảng 0.5x - 2x giá thường, người chơi không ép giá được
     }
 
     static double basePrice(Item it) {
@@ -91,8 +92,8 @@ public class BotTrade {
     public void tick(List<Bot> accountBots) {
         long now = System.currentTimeMillis();
         for (Bot b : accountBots) {
-            if (b.zone == null || b.isDie() || BotClan.inDungeon(b)) {
-                continue;
+            if (b.zone == null || b.isDie() || BotClan.inDungeon(b) || nro.models.services_func.TransactionService.gI().check(b)) {
+                continue; // đang giao dịch: không động vào hành trang (tránh nhân bản đồ)
             }
             try {
                 claim(b);
@@ -190,8 +191,9 @@ public class BotTrade {
                     }
                     val += unitPrice(it) * it.quantity;
                 }
-                long pay = Math.min((long) (val * GOLD_PER_TV * 0.8), Math.min(bot.inventory.gold, Trade.MAX_GOLD_TRADE_PER_TIME));
-                if (pay < 1_000_000 || InventoryService.gI().getCountEmptyBag(bot) < theirItems.size()) {
+                long fair = (long) (val * GOLD_PER_TV * 0.8);
+                long pay = Math.min(fair, Trade.MAX_GOLD_TRADE_PER_TIME);
+                if (pay > bot.inventory.gold || pay < 1_000_000 || InventoryService.gI().getCountEmptyBag(bot) < theirItems.size()) { // không đủ vàng thì từ chối, không vét sạch túi
                     decline(t, bot, "mình không đủ vàng / hết chỗ rồi");
                     return;
                 }

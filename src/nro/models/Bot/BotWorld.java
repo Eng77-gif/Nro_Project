@@ -125,12 +125,23 @@ public final class BotWorld {
         clan.onInvite(bot, c);
     }
 
-    private void tick() {
-        syncAccounts();
+    private long lastSocial;
+
+    /** Bang hội, doanh trại, buôn bán: chạy trên luồng cập nhật bot (BotManager) để không đụng hành trang / map cùng lúc với bot. */
+    void socialTick() {
+        long now = System.currentTimeMillis();
+        if (now - lastSocial < 10_000) {
+            return;
+        }
+        lastSocial = now;
         List<Bot> acc = new ArrayList<>(bots());
         acc.removeIf(x -> !x.accountBot);
         clan.tick(acc);
         BotTrade.gI().tick(acc);
+    }
+
+    private void tick() {
+        syncAccounts();
         List<Bot> on = new ArrayList<>();
         for (Bot b : bots()) {
             if (!b.accountBot) {
@@ -328,8 +339,16 @@ public final class BotWorld {
         if (acc == null) {
             throw new IllegalArgumentException("Không phải tài khoản bot");
         }
-        LocalManager.executeUpdate("delete from bot_account where player_id = ?", playerId);
         Bot b = find(playerId);
+        if (b != null && b.clan != null) {
+            if (b.clan.isLeader(b)) {
+                throw new IllegalStateException("Bot đang là bang chủ, tắt bot hoặc chờ bot nhường chức rồi xoá");
+            }
+            nro.models.services.ClanService.gI().leaveClan(b);
+        } else if (b == null && clanOf(playerId)) {
+            throw new IllegalStateException("Bot đang ở trong bang, bật bot cho vào game rồi xoá (để rời bang)");
+        }
+        LocalManager.executeUpdate("delete from bot_account where player_id = ?", playerId);
         if (b != null) {
             BotManager.gI().bot.remove(b);
             nextSwitch.remove(b.id);
@@ -341,6 +360,15 @@ public final class BotWorld {
         LocalManager.executeUpdate("delete from player where id = ?", playerId);
         LocalManager.executeUpdate("delete from account where id = ?", acc);
         accountBots(false);
+    }
+
+    private static boolean clanOf(long playerId) throws Exception {
+        nro.models.data.LocalResultSet rs = LocalManager.executeQuery("select clan_id from player where id = ?", playerId);
+        try {
+            return rs.first() && rs.getInt("clan_id") != -1;
+        } finally {
+            rs.dispose();
+        }
     }
 
     /** Bật / tắt 1 tài khoản bot (tắt: bot thoát game, nhân vật vẫn giữ). */

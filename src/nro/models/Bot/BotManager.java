@@ -33,6 +33,11 @@ public class BotManager implements Runnable {
                     }
                 }
 
+                try {
+                    BotWorld.gI().socialTick();
+                } catch (Throwable t) {
+                    nro.models.utils.Logger.error("Bot: lỗi bang hội / buôn bán " + t + "\n");
+                }
                 long timeLeft = 150 - (System.currentTimeMillis() - st);
                 if (timeLeft > 0) {
                     Thread.sleep(timeLeft);

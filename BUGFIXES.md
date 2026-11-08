@@ -1655,3 +1655,12 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Bot giả lập mặc định 0 con (chỉ bật khi admin đặt số lượng trên panel).
 - Sửa chọn map luyện tập theo sức mạnh của bot: trước đây ngưỡng sức mạnh bị trùng nên bot từ 100 triệu trở lên phần lớn đứng ở Nhà Gôhan (không có quái); nay < 2 tỷ đi map Fide / Nappa, < 40 tỷ đi map tương lai, trên 40 tỷ đi map Cold.
 - Bot tài khoản chết 3 lần trong 5 phút (map Cold / tương lai bị trừ sức mạnh khi chết như người thật) thì tự chuyển xuống vùng map dễ hơn.
+
+## Đợt 96
+- **Tài khoản bot tách biệt với người chơi:** panel → Bot → "Tạo bot" (tên, hành tinh, sức mạnh / nhiệm vụ ban đầu, số lượng). Mỗi bot là 1 tài khoản + nhân vật riêng với mật khẩu ngẫu nhiên; đăng nhập bằng tài khoản bot bị từ chối. Nút Bật / Tắt / Xoá (bot đang làm bang chủ thì không xoá được, bot thành viên bị xoá sẽ rời bang). Không còn kiểu đặt nhân vật của người chơi làm bot.
+- **Bang hội:** bot đủ nhiệm vụ vào bang thì xin vào bang có bang chủ đang online (bang của bot được duyệt ngay, bang của người chơi do bang chủ duyệt), không có thì tự lập bang (trả vàng mua cờ như người chơi). Bot làm bang chủ tự duyệt đơn xin vào, kể cả của người chơi thật. Người chơi mời bot vào bang thì bot đồng ý.
+- **Doanh trại:** bang đủ 5 người, thành viên vào bang trên 1 ngày: bang chủ bot gom bot cùng bang tới Lính canh (Rừng Bamboo) rồi mở doanh trại; trong trại bot đánh hết quái, đánh boss, sang map tiếp theo, nhặt ngọc. Bang (kể cả người chơi thật) đang đánh doanh trại thì bot cùng bang vào đánh cùng.
+- **Buôn bán:** bot đem đồ thật trong hành trang lên ký gửi (phí 1 thỏi vàng như người chơi), đồ bán được tự nhận tiền, săn đồ ký gửi rẻ. Giá theo chợ nhưng giới hạn 0.5 - 2 lần giá thường (người chơi không ép giá được).
+- **Giao dịch với bot:** người chơi mời giao dịch → bot nhận (đang bận thì từ chối). Đưa đồ: bot trả vàng 80% giá; chỉ đưa vàng: bot bán lại đồ vừa giá. Bot không đủ vàng thì từ chối, không vét sạch túi. Trong lúc giao dịch bot đứng yên (không nhặt đồ làm huỷ giao dịch); bang hội / ký gửi của bot không chạy khi bot đang giao dịch (tránh nhân bản đồ). Đã kiểm tra bằng client thật: 10 lần giao dịch, vàng và đồ 2 bên khớp.
+- Bot chọn map luyện tập theo chỉ số thật (HP, sức đánh), cộng tiềm năng nhanh khi còn nhiều, chỉ dùng chiêu đã học.
+- Panel → dịch chuyển: thêm "tới chỗ người chơi / bot" (cùng khu).

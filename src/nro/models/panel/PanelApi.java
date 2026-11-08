@@ -1538,6 +1538,18 @@ class PanelApi {
         if (on == null) {
             throw new IllegalStateException("Người chơi không online");
         }
+        long to = lng(b.getOrDefault("to", 0));
+        if (to > 0) { // tới chỗ 1 người chơi / bot (cùng khu)
+            Player t = Client.gI().getPlayerByID((int) to);
+            if (t == null) {
+                t = nro.models.Bot.BotWorld.gI().find(to);
+            }
+            if (t == null || t.zone == null) {
+                throw new IllegalStateException("Người cần tới không online");
+            }
+            nro.models.map.service.ChangeMapService.gI().changeMap(on, t.zone, t.location.x, t.location.y);
+            return Map.of("ok", true, "map", t.zone.map.mapId, "zone", t.zone.zoneId);
+        }
         int mapId = intv(b.get("mapId"));
         nro.models.map.Map m = nro.models.map.service.MapService.gI().getMapById(mapId);
         if (m == null) {

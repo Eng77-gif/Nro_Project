@@ -41,7 +41,7 @@ public class BotClan {
     public void tick(List<Bot> accountBots) {
         long now = System.currentTimeMillis();
         for (Bot b : accountBots) {
-            if (b.zone == null || b.awayUntil > now || b.isDie()) {
+            if (b.zone == null || b.awayUntil > now || b.isDie() || nro.models.services_func.TransactionService.gI().check(b)) {
                 continue;
             }
             try {
