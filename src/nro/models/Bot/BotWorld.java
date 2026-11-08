@@ -285,29 +285,35 @@ public final class BotWorld {
         } finally {
             ra.dispose();
         }
-        int[][] hairs = {{64, 30, 31}, {9, 29, 32}, {6, 27, 28}};
-        if (!nro.models.database.PlayerDAO.createNewPlayer(accId, name, (byte) gender, hairs[gender][rnd.nextInt(3)])) {
-            LocalManager.executeUpdate("delete from account where id = ?", accId);
-            throw new IllegalStateException("Không tạo được nhân vật");
-        }
         long pid;
-        nro.models.data.LocalResultSet rs = LocalManager.executeQuery("select id, data_point from player where account_id = ? limit 1", accId);
         try {
-            if (!rs.first()) {
+            int[][] hairs = {{64, 30, 31}, {9, 29, 32}, {6, 27, 28}};
+            if (!nro.models.database.PlayerDAO.createNewPlayer(accId, name, (byte) gender, hairs[gender][rnd.nextInt(3)])) {
+                LocalManager.executeUpdate("delete from account where id = ?", accId);
                 throw new IllegalStateException("Không tạo được nhân vật");
             }
-            pid = rs.getLong("id");
-            if (power > 2000) {
-                org.json.simple.JSONArray pt = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(rs.getString("data_point"));
-                pt.set(1, Math.min(power, 120_000_000_000L));
-                pt.set(2, Math.min(power, 120_000_000_000L));
-                LocalManager.executeUpdate("update player set data_point = ? where id = ?", pt.toJSONString(), pid);
+            nro.models.data.LocalResultSet rs = LocalManager.executeQuery("select id, data_point from player where account_id = ? limit 1", accId);
+            try {
+                if (!rs.first()) {
+                    throw new IllegalStateException("Không tạo được nhân vật");
+                }
+                pid = rs.getInt("id");
+                if (power > 2000) {
+                    org.json.simple.JSONArray pt = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(rs.getString("data_point"));
+                    pt.set(1, Math.min(power, 120_000_000_000L));
+                    pt.set(2, Math.min(power, 120_000_000_000L));
+                    LocalManager.executeUpdate("update player set data_point = ? where id = ?", pt.toJSONString(), pid);
+                }
+            } finally {
+                rs.dispose();
             }
-        } finally {
-            rs.dispose();
-        }
-        if (task > 0) {
-            LocalManager.executeUpdate("update player set data_task = ? where id = ?", "[" + Math.min(task, 40) + ",0,0," + System.currentTimeMillis() + "]", pid);
+            if (task > 0) {
+                LocalManager.executeUpdate("update player set data_task = ? where id = ?", "[" + Math.min(task, 40) + ",0,0," + System.currentTimeMillis() + "]", pid);
+            }
+        } catch (Exception e) {
+            LocalManager.executeUpdate("delete from player where account_id = ?", accId); // tạo dở thì xoá, không để tài khoản thừa
+            LocalManager.executeUpdate("delete from account where id = ?", accId);
+            throw e;
         }
         LocalManager.executeUpdate("insert into bot_account (player_id, account_id, dedicated, enabled, created) values (?, ?, 1, 1, ?)", pid, accId, System.currentTimeMillis());
         accountBots(false);

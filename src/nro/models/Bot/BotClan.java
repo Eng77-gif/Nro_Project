@@ -81,13 +81,13 @@ public class BotClan {
             }
             Clan want = pickClan(b);
             int asked = askCount.getOrDefault(b.id, 0);
-            if (want != null && asked < 3) {
+            if (want != null && asked < 2) {
                 ClanService.gI().botAskJoin(b, want.id);
                 lastAsk.put(b.id, now);
                 askCount.put(b.id, asked + 1);
                 return;
             }
-            if (Util.isTrue(35, 100)) {
+            if (want == null || Util.isTrue(50, 100)) {
                 createClan(b);
             }
             askCount.put(b.id, 0);
@@ -111,8 +111,8 @@ public class BotClan {
             ClanMember lead = c.getLeader();
             if (lead != null && BotWorld.gI().find(lead.id) != null) {
                 botLed.add(c);
-            } else if (lead != null && lead.id > 0) {
-                others.add(c);
+            } else if (lead != null && lead.id > 0 && nro.models.server.Client.gI().getPlayer(lead.id) != null) {
+                others.add(c); // bang của người chơi thật: chỉ xin khi bang chủ đang online (có người duyệt)
             }
         }
         if (!others.isEmpty() && Util.isTrue(30, 100)) {

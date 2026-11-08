@@ -99,10 +99,9 @@ public class BotSanBoss {
     }
 
     public void GetSkil() {
-        if (Util.isTrue(50, 100)) {
-            this.bot.playerSkill.skillSelect = this.bot.playerSkill.skills.get(0);
-        } else {
-            this.bot.playerSkill.skillSelect = this.bot.playerSkill.skills.get(1);
+        nro.models.skill.Skill pick = this.bot.pickSkill(2);
+        if (pick != null) {
+            this.bot.playerSkill.skillSelect = pick;
         }
         if (this.lastTimeSkill1 < System.currentTimeMillis() - 50000) {
             switch (this.bot.gender) {

@@ -52,12 +52,26 @@ public class Bot extends Player {
     public int MapToPow() {
         Random random = new Random();
         long power = this.nPoint.power;
+        if (this.accountBot) {
+            // chọn vùng map theo chỉ số thật (HP, sức đánh) như người chơi tự lượng sức, không chỉ theo sức mạnh
+            long hp = this.nPoint.hpMax, dm = this.nPoint.dame;
+            long byStat = hp >= 3_000_000 && dm >= 150_000 ? Long.MAX_VALUE
+                    : hp >= 500_000 && dm >= 30_000 ? 39_000_000_000L
+                    : hp >= 20_000 ? 1_900_000_000L : 90_000_000L;
+            power = Math.min(power, byStat);
+        }
         // chết nhiều ở vùng map hiện tại: xuống vùng dễ hơn (mỗi bậc giảm ngưỡng sức mạnh)
         for (int i = 0, n = TIER_DROP.getOrDefault(this.id, 0); i < n; i++) {
             power = power >= 40_000_000_000L ? 39_000_000_000L : power >= 2_000_000_000L ? 1_900_000_000L : 90_000_000L;
         }
         int mapId = 21;
-        if (power < 100000000) {
+        if (power < 100000000 && this.accountBot) {
+            // tài khoản bot: dưới 100 triệu chỉ luyện ở các map của hành tinh mình như người mới chơi
+            int[] home = this.gender == 0 ? new int[]{1, 2, 3, 4, 6, 29, 30, 28, 27, 42}
+                    : this.gender == 1 ? new int[]{8, 9, 10, 11, 12, 13, 33, 34, 32, 31} : new int[]{15, 16, 17, 18, 19, 20, 37, 36, 35, 44, 52};
+            int lim = power < 2_000_000 ? Math.min(5, home.length) : home.length;
+            mapId = home[random.nextInt(lim)];
+        } else if (power < 100000000) {
             if (this.gender == 0) {
                 mapId = TraiDat[random.nextInt(TraiDat.length)];
             } else if (this.gender == 1) {
@@ -208,6 +222,21 @@ public class Bot extends Player {
     private int deaths;
     private long deathWindow;
 
+    /** Chọn ngẫu nhiên 1 chiêu đã học (point > 0) trong n chiêu đầu (n <= 0: tất cả); không có thì null. */
+    public Skill pickSkill(int n) {
+        java.util.List<Skill> ok = new java.util.ArrayList<>();
+        for (Skill sk : this.playerSkill.skills) {
+            if (sk != null && sk.point > 0) {
+                ok.add(sk);
+            }
+        }
+        if (ok.isEmpty()) {
+            return null;
+        }
+        int lim = n <= 0 ? ok.size() : Math.min(n, ok.size());
+        return ok.get(new java.util.Random().nextInt(lim));
+    }
+
     public void leakSkill() {
         for (NClass n : Manager.gI().NCLASS) {
             if (n.classId == this.gender) {
@@ -234,26 +263,35 @@ public class Bot extends Player {
     }
 
     private void increasePoint() {
-        long tiemNangUse = 0;
-        int point = 0;
-        if (this.nPoint != null) {
+        if (this.nPoint == null) {
+            return;
+        }
+        // tài khoản bot cộng tiềm năng như người chơi bấm cộng nhanh (nhiều lần mỗi lượt) khi còn nhiều tiềm năng
+        int times = this.accountBot && this.nPoint.tiemNang > 1_000_000_000L ? 30 : 1;
+        boolean changed = false;
+        for (int t = 0; t < times; t++) {
+            long tiemNangUse;
             if (Util.isTrue(50, 100)) {
-                point = 100;
+                int point = 100;
                 int pointHp = point * 20;
                 tiemNangUse = point * (2 * (this.nPoint.hpg + 1000) + pointHp - 20) / 2;
-                if (doUseTiemNang(tiemNangUse)) {
-                    this.nPoint.hpMax += point;
-                    this.nPoint.hpg += point;
-                    Service.gI().point(this);
+                if (!doUseTiemNang(tiemNangUse)) {
+                    break;
                 }
+                this.nPoint.hpMax += point;
+                this.nPoint.hpg += point;
             } else {
-                point = 10;
+                int point = 10;
                 tiemNangUse = (long) point * (2L * this.nPoint.dameg + point - 1) / 2 * 100;
-                if (doUseTiemNang(tiemNangUse)) {
-                    this.nPoint.dameg += point;
-                    Service.gI().point(this);
+                if (!doUseTiemNang(tiemNangUse)) {
+                    break;
                 }
+                this.nPoint.dameg += point;
             }
+            changed = true;
+        }
+        if (changed) {
+            Service.gI().point(this);
         }
     }
 

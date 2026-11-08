@@ -91,9 +91,11 @@ public class BotPemQuai {
         if (best == null) {
             return false;
         }
-        if (!bot.playerSkill.skills.isEmpty()) {
-            bot.playerSkill.skillSelect = bot.playerSkill.skills.get(new Random().nextInt(Math.min(2, bot.playerSkill.skills.size())));
+        Skill pick = bot.pickSkill(2);
+        if (pick == null) {
+            return true;
         }
+        bot.playerSkill.skillSelect = pick;
         if (this.bot.UseLastTimeSkill()) {
             PlayerService.gI().playerMove(this.bot, best.location.x + Util.nextInt(-30, 30), best.location.y);
             SkillService.gI().useSkillAttack(bot, best, null);
@@ -127,8 +129,9 @@ public class BotPemQuai {
             }
             Attack();
         } else if (boss != null) {
-            if (!bot.playerSkill.skills.isEmpty()) {
-                bot.playerSkill.skillSelect = bot.playerSkill.skills.get(new Random().nextInt(Math.min(2, bot.playerSkill.skills.size())));
+            Skill pick = bot.pickSkill(2);
+            if (pick != null) {
+                bot.playerSkill.skillSelect = pick;
             }
             if (this.bot.UseLastTimeSkill()) {
                 PlayerService.gI().playerMove(this.bot, boss.location.x + Util.nextInt(-30, 30), boss.location.y);
@@ -166,9 +169,11 @@ public class BotPemQuai {
             this.bot.pkTarget = null;
             return false;
         }
-        if (!bot.playerSkill.skills.isEmpty()) {
-            bot.playerSkill.skillSelect = bot.playerSkill.skills.get(new Random().nextInt(Math.min(2, bot.playerSkill.skills.size())));
+        Skill pick = bot.pickSkill(2);
+        if (pick == null) {
+            return true;
         }
+        bot.playerSkill.skillSelect = pick;
         if (this.bot.UseLastTimeSkill()) {
             PlayerService.gI().playerMove(this.bot, t.location.x + Util.nextInt(-30, 30), t.location.y);
             SkillService.gI().useSkillAttack(bot, t, null);
@@ -190,10 +195,11 @@ public class BotPemQuai {
             return;
         }
 
-        if (!bot.playerSkill.skills.isEmpty()) {
-            Skill skill = bot.playerSkill.skills.get(new Random().nextInt(bot.playerSkill.skills.size()));
-            bot.playerSkill.skillSelect = skill;
+        Skill skill = bot.pickSkill(0);
+        if (skill == null) {
+            return; // chưa học chiêu nào
         }
+        bot.playerSkill.skillSelect = skill;
 
         long now = System.currentTimeMillis();
         boolean isSpecialSkill = false;
