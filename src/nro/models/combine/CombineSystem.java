@@ -155,19 +155,19 @@ public class CombineSystem {
             case 2:
                 return 20000000;
             case 3:
-                return 40000000;
+                return 37000000; // 1 thỏi vàng
             case 4:
-                return 60000000;
+                return 37000000; // 1 thỏi vàng
             case 5:
-                return 90000000;
+                return 37000000; // 1 thỏi vàng
             case 6:
-                return 120000000;
+                return 74000000; // 2 thỏi vàng
             case 7:
-                return 200000000;
+                return 74000000; // 2 thỏi vàng
             case 8:
-                return 300000000;
+                return 111000000; // 3 thỏi vàng
             case 9:
-                return 500000000;
+                return 185000000; // 5 thỏi vàng
         }
         return 0;
     }
@@ -322,19 +322,19 @@ public class CombineSystem {
             case 5:
                 return 23000000;
             case 6:
-                return 100000000;
+                return 37000000; // 1 thỏi vàng
             case 7:
-                return 250000000;
+                return 111000000; // 3 thỏi vàng
             case 8:
-                return 300000000;
+                return 111000000; // 3 thỏi vàng
             case 9:
-                return 400000000;
+                return 148000000; // 4 thỏi vàng
             case 10:
-                return 500000000;
+                return 185000000; // 5 thỏi vàng
             case 11:
-                return 700000000;
+                return 259000000; // 7 thỏi vàng
             case 12:
-                return 900000000;
+                return 333000000; // 9 thỏi vàng
         }
         return 0;
     }

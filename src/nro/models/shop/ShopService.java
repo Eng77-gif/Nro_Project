@@ -1101,9 +1101,9 @@ public class ShopService {
             }
             int quantity = item.quantity;
             int cost = item.template.gold;
-            if (item.template.id == 457) {
+            if (isGoldBar(item.template.id)) {
                 if (quantity >= 1) {
-                    Input.gI().createFormBanSLL(pl);
+                    Input.gI().createFormBanSLL(pl, item.template.id);
                     return;
                 }
                 quantity = 1;
@@ -1132,6 +1132,11 @@ public class ShopService {
                 }
             }
         }
+    }
+
+    /** Thỏi vàng (457) / thỏi vàng NRJ (2032): bán đủ giá item_template.gold, không chia 4. */
+    public static boolean isGoldBar(int id) {
+        return id == 457 || id == 2032;
     }
 
     public void sellItem(Player pl, int where, int index) {
@@ -1165,7 +1170,7 @@ public class ShopService {
             }
             int quantity = item.quantity;
             long cost = item.template.gold;
-            if (item.template.id == 457) {
+            if (isGoldBar(item.template.id)) {
                 quantity = 1;
             } else {
                 cost /= 4;
@@ -1185,7 +1190,7 @@ public class ShopService {
                     + " thu được " + Util.numberToMoney(cost) + " vàng");
 
             //Add vật phẩm đã bán
-            if (item.template.id != 457) {
+            if (!isGoldBar(item.template.id)) {
                 BuyBackService.gI().addItem(pl, item);
             }
             if (where == 0) {

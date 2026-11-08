@@ -29,7 +29,7 @@ public class BotTrade {
     }
 
     /** 1 thỏi vàng quy ra vàng khi bot giao dịch bằng vàng. */
-    static final long GOLD_PER_TV = 500_000_000L;
+    static final long GOLD_PER_TV = 37_000_000L; // giá bán thỏi vàng cho cửa hàng (Đợt 96)
     private static final int THOI_VANG = 457;
     private static final int MAX_LISTING = 3;
 

@@ -149,6 +149,7 @@ public class Player implements Runnable {
     public long timeChangeMap144;
     public Date firstTimeLogin;
     public long lastTimeJoinDT;
+    public int sellGoldBarId = 457; // loại thỏi vàng đang bán trong ô nhập số lượng
 
     public int typeChibi;
     public long lastTimeChibi;

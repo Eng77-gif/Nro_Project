@@ -533,14 +533,15 @@ public class Input {
                         Service.gI().sendThongBao(player, "Số lượng không hợp lệ");
                         break;
                     }
-                    long cost = (long) sltv * 37000000;
-                    Item ThoiVang = InventoryService.gI().findItemBag(player, 457);
+                    Item ThoiVang = InventoryService.gI().findItemBag(player, player.sellGoldBarId);
                     if (ThoiVang != null) {
+                        long each = ThoiVang.template.gold; // 457: 37 triệu, 2032 (NRJ): 150 triệu
+                        long cost = (long) sltv * each;
                         if (ThoiVang.quantity < sltv) {
-                            Service.gI().sendThongBao(player, "Bạn chỉ có " + ThoiVang.quantity + " Thỏi vàng");
+                            Service.gI().sendThongBao(player, "Bạn chỉ có " + ThoiVang.quantity + " " + ThoiVang.template.name);
                         } else {
                             if (player.inventory.gold + cost > Inventory.LIMIT_GOLD) {
-                                int slban = (int) ((Inventory.LIMIT_GOLD - player.inventory.gold) / 37000000);
+                                int slban = (int) Math.min(Integer.MAX_VALUE, (Inventory.LIMIT_GOLD - player.inventory.gold) / each);
                                 if (slban < 1) {
                                     Service.gI().sendThongBao(player, "Vàng sau khi bán vượt quá giới hạn");
                                 } else if (slban < 2) {
@@ -553,7 +554,7 @@ public class Input {
                                 InventoryService.gI().sendItemBags(player);
                                 player.inventory.gold += cost;
                                 Service.gI().sendMoney(player);
-                                Service.gI().sendThongBao(player, "Đã bán " + sltv + " Thỏi vàng thu được " + Util.numberToMoney(cost) + " vàng");
+                                Service.gI().sendThongBao(player, "Đã bán " + sltv + " " + ThoiVang.template.name + " thu được " + Util.numberToMoney(cost) + " vàng");
                             }
                         }
                     }
@@ -740,8 +741,9 @@ public class Input {
                 new SubInput("Số lượng", NUMERIC));
     }
 
-    public void createFormBanSLL(Player pl) {
-        createForm(pl, BANSLL, "Bạn muốn bán bao nhiêu [Thỏi vàng] ?", new SubInput("Số lượng", NUMERIC));
+    public void createFormBanSLL(Player pl, int itemId) {
+        pl.sellGoldBarId = itemId;
+        createForm(pl, BANSLL, "Bạn muốn bán bao nhiêu [" + ItemService.gI().getTemplate(itemId).name + "] ?", new SubInput("Số lượng", NUMERIC));
     }
 
     public void createFormGiaiTanBangHoi(Player pl) {
