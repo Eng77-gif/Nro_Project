@@ -34,6 +34,14 @@ public class ItemMap {
     public boolean fromMob; // rơi từ quái (thông báo nhặt set kích hoạt riêng)
     public String id;
 
+    /** Vàng rơi (76, 188, 189, 190): ngoài map tối đa 9.999 / cục, trong khu riêng tư vào bằng vé vàng (map 164) tối đa 500.000 / cục. */
+    static int goldCap(Zone zone, int tempId, int quantity) {
+        if (tempId == 76 || tempId == 188 || tempId == 189 || tempId == 190) {
+            return Math.min(quantity, zone != null && zone.map != null && zone.map.mapId == 164 ? 500_000 : 9_999);
+        }
+        return quantity;
+    }
+
     public ItemMap(Zone zone, int tempId, int quantity, int x, int y, long playerId) {
         this.zone = zone;
         this.itemMapId = zone.countItemAppeaerd++;
@@ -41,7 +49,7 @@ public class ItemMap {
             zone.countItemAppeaerd = 0;
         }
         this.itemTemplate = ItemService.gI().getTemplate((short) tempId);
-        this.quantity = quantity;
+        this.quantity = goldCap(zone, tempId, quantity);
         this.x = x;
         this.y = y;
         this.playerId = playerId != -1 ? Math.abs(playerId) : playerId;
@@ -60,7 +68,7 @@ public class ItemMap {
             zone.countItemAppeaerd = 0;
         }
         this.itemTemplate = temp;
-        this.quantity = quantity;
+        this.quantity = goldCap(zone, temp.id, quantity);
         this.x = x;
         this.y = y;
         this.playerId = playerId != -1 ? Math.abs(playerId) : playerId;
