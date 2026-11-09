@@ -32,7 +32,7 @@ import nro.models.player_system.Template.BgItem;
 public class DataGame {
 
     public static byte vsData = 24; // tăng khi thêm part/vật phẩm mới để client tải lại
-    public static byte vsMap = 3; // tăng khi thêm map (186 Rừng nguyên sinh - bản đồ truyền thuyết)
+    public static byte vsMap = 4; // tăng khi thêm map / đổi mẫu NPC (4: King Furry)
     public static byte vsSkill = 1;
     public static byte vsItem = 25; // tăng khi đổi item / bảng option để client tải lại (16: bảng option tối đa 255 dòng)
     public static int vsRes = 2; // tăng khi thêm file res để client tải lại
