@@ -61,6 +61,7 @@ public class Event2026Service {
     private static final int[] TRAIL_BASE = {508, 509, 513, 514, 518, 519};
     private static final int FOOT_STEP = 12, FOOT_MAX = 24, FOOT_VARIANTS = 12; // dày hơn cho vệt liền, không khựng
     private static final long FRAME_MS = 33 * 3; // client chạy khoảng 30 nhịp / giây, mỗi bản bỏ 3 nhịp
+    private static final double LEAD_MS = 150, LEAD_MAX = 60;
 
     private static int footBase(int eff) {
         for (int k = 0; k < TRAIL_BASE.length; k++) {
@@ -113,10 +114,18 @@ public class Event2026Service {
             pts.add(new int[]{x, y, (int) Math.round(len)});
             pl.footAcc = 0;
         }
+        // gói vị trí tới server rồi lệnh vẽ về client mất ~100 - 200 ms, nhân vật đã chạy tiếp: đặt vật lên trước theo tốc độ
+        // (đón trước LEAD_MS, tối đa LEAD_MAX px) để vật rơi đúng dưới chân thay vì tụt lại sau lưng
+        double lead = Math.min(LEAD_MAX, len / dt * LEAD_MS) / len;
+        int lx = (int) Math.round(dx * lead), ly = (int) Math.round(dy * lead);
         for (int[] p : pts) {
             long age = (long) (dt * (1 - p[2] / len)); // điểm gần chỗ cũ đã đi qua lâu hơn
             int v = (int) Math.min(FOOT_VARIANTS - 1, age / FRAME_MS);
-            nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, base + v, 2, 1, p[0], p[1], 1);
+            int fx = p[0] + lx, fy = pl.zone.map.yPhysicInTop(p[0] + lx, p[1] + ly - 24) ; // bám mặt đất ở chỗ mới
+            if (Math.abs(fy - (p[1] + ly)) > 48) {
+                fy = p[1] + ly; // đang bay / không có đất gần: giữ độ cao của chân
+            }
+            nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, base + v, 2, 1, fx, fy, 1);
         }
     }
 
@@ -177,8 +186,6 @@ public class Event2026Service {
         Service.gI().point(pl);
         refreshFootEffect(pl, effTruoc);
         Service.gI().refreshEffect(pl, spl10Truoc, SaoPhaLe10Service.effectId(pl));
-        Service.gI().sendThongBao(pl, "Đã mang " + item.template.name + (old != null ? ", tháo " + old.template.name + " về hành trang" : "")
-                + ". Bấm vào ô bóng mờ (ô cuối trang bị) để tháo ra");
     }
 
     public void unequipFoot(Player pl) {
@@ -200,7 +207,6 @@ public class Event2026Service {
         Service.gI().point(pl);
         refreshFootEffect(pl, effTruoc);
         Service.gI().refreshEffect(pl, spl10Truoc, SaoPhaLe10Service.effectId(pl));
-        Service.gI().sendThongBao(pl, "Đã tháo " + foot.template.name);
     }
 
     // ------------------------------------------------------------------ hộp quà
