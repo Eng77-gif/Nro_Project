@@ -149,7 +149,7 @@ function modal(html){const m=document.createElement('div');m.className='modal';m
 
 const PAGES=[
  ['g','Máy chủ'],['dash','Tổng quan','📊'],['notify','Thông báo & quà','📣'],['maint','Bảo trì & lưu','🛠'],['logs','Nhật ký console','🖥'],['audit','Nhật ký thao tác','📝'],['config','Cấu hình','⚙'],
- ['g','Người chơi'],['players','Người chơi','👤'],['bots','Bot','🤖'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],
+ ['g','Người chơi'],['players','Người chơi','👤'],['bots','Bot','🤖'],['ai','AI huấn luyện bot','🧠'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],
  ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],['looks','Đeo lưng & thú cưỡi','🪽'],['admin','Lệnh admin trong game','🧙'],
  ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['bossrw','Thưởng boss','💰'],['mobs','Quái','🐗'],
  ['g','Khác'],['db','Database','🗄'],['health','Kiểm tra dữ liệu','🩺'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
@@ -305,6 +305,38 @@ async function page_bots(){
   $('#ba_add').onclick=()=>act(()=>api('bot/create',{name:+$('#ba_c').value>1?'':$('#ba_n').value.trim(),gender:+$('#ba_g').value,power:+($('#ba_p').value||0),task:+($('#ba_t').value||0),count:+($('#ba_c').value||1)}),'Đã tạo bot, vào game dần (20 bot / 30 giây)').then(pull);
   $('#ba_on').onclick=()=>act(()=>api('bot/all',{on:1}),'Đã bật tất cả bot').then(pull);
   $('#ba_off').onclick=()=>{if(confirm('Tắt tất cả bot?'))act(()=>api('bot/all',{on:0}),'Đã tắt tất cả bot').then(pull)};
+  await pull();logTimer=setInterval(pull,10000)}
+
+async function page_ai(){
+  $('#main').innerHTML=`<h2>AI huấn luyện bot</h2>
+  <div class="card mute">Bộ não tự học của bot, viết riêng, không dùng model AI nào. Mỗi lần bot đổi việc, AI chấm điểm việc vừa làm: sức mạnh tăng mỗi phút (‰ so với sức mạnh lúc bắt đầu), mỗi lần chết bị trừ 2 điểm. Điểm được học riêng cho từng bậc sức mạnh, tất cả bot dùng chung một bảng nên học rất nhanh. Bot sẽ chọn việc điểm cao nhất; một phần số lần (ε) thử việc khác để khám phá. Trang tự làm mới 10 giây.</div>
+  <div class="stats" id="ais"></div>
+  <div class="grid2" style="margin-top:12px">
+   <div class="card"><b>Điều khiển</b>
+    <div class="row" style="margin-top:8px"><label><input type="checkbox" id="ai_on"> Bật AI (tắt: bot chọn việc ngẫu nhiên như cũ)</label></div>
+    <div class="row" style="margin-top:8px"><label style="flex:1">Khám phá ε: <b id="ai_ev"></b><input type="range" id="ai_e" min="0" max="0.5" step="0.01" style="width:100%"></label></div>
+    <div class="row" style="margin-top:8px"><label style="flex:1">Tốc độ học α: <b id="ai_av"></b><input type="range" id="ai_a" min="0.02" max="0.8" step="0.01" style="width:100%"></label></div>
+    <div class="row" style="margin-top:8px"><button class="p" id="ai_save">Lưu</button><button class="d" id="ai_reset">Học lại từ đầu</button></div>
+    <div class="mute" style="margin-top:6px">ε cao: thử nhiều việc mới hơn (học rộng). α cao: tin kết quả mới hơn (đổi nhanh, dễ dao động).</div></div>
+   <div class="card"><b>Phần thưởng gần đây</b> <span class="mute">(mỗi cột 1 lượt, xanh: tốt, đỏ: chết / không lên)</span><div id="ai_rc" style="display:flex;align-items:flex-end;gap:2px;height:130px;margin-top:10px"></div></div></div>
+  <h3>Bảng giá trị đã học</h3><div class="mute">Mỗi ô: điểm trung bình (số lượt). Ô viền vàng là việc AI đang chọn cho bậc đó.</div><div class="tw" id="ai_t"></div>
+  <h3>Map luyện tập tốt nhất (bot tự chấm)</h3><div class="tw" id="ai_m"></div>`;
+  let first=true;
+  const pull=async()=>{const d=await api('ai');
+    const best=d.table.length?d.table.reduce((s,r)=>s+(r.n.reduce((a,b)=>a+b,0)),0):0;
+    const avg=d.recent.length?d.recent.reduce((s,r)=>s+r[3],0)/d.recent.length:0;
+    $('#ais').innerHTML=[['Trạng thái',d.enabled?'Đang học':'Đã tắt'],['Lượt đã học',fmt(d.episodes)],['Bậc sức mạnh đã gặp',d.table.length],['Thưởng TB gần đây',avg.toFixed(2)],['ε (khám phá)',d.epsilon.toFixed(2)],['α (tốc độ học)',d.alpha.toFixed(2)]].map(([k,v])=>`<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
+    if(first){first=false;$('#ai_on').checked=d.enabled;$('#ai_e').value=d.epsilon;$('#ai_a').value=d.alpha}
+    $('#ai_ev').textContent=(+$('#ai_e').value).toFixed(2);$('#ai_av').textContent=(+$('#ai_a').value).toFixed(2);
+    const mx=Math.max(1,...d.recent.map(r=>Math.abs(r[3])));
+    $('#ai_rc').innerHTML=d.recent.map(r=>`<div title="${esc(d.actions[r[2]])}: ${r[3].toFixed(2)}" style="flex:1;min-width:2px;height:${Math.max(3,100*Math.abs(r[3])/mx)}%;background:${r[3]>0?'var(--ok)':'var(--bad,#e5534b)'};border-radius:2px"></div>`).join('')||'<span class="mute">Chưa có lượt nào (mỗi lượt cần bot làm 1 việc ít nhất 1 phút)</span>';
+    $('#ai_t').innerHTML=`<table><tr><th>Bậc sức mạnh</th>${d.actions.map(a=>`<th>${esc(a)}</th>`).join('')}</tr>${d.table.map(r=>{const m=Math.max(1e-9,...r.q.map((q,i)=>r.n[i]?Math.abs(q):0));
+      return `<tr><td><b>${esc(r.tier)}</b></td>${r.q.map((q,i)=>r.n[i]?`<td style="background:${q>=0?`rgba(46,160,67,${.12+.5*q/m})`:`rgba(229,83,75,${.12+.5*-q/m})`};${i===r.best?'outline:2px solid var(--acc);outline-offset:-2px;':''}">${q.toFixed(2)} <span class="mute">(${r.n[i]})</span></td>`:'<td class="mute">—</td>').join('')}</tr>`}).join('')||`<tr><td colspan="${d.actions.length+1}" class="mute">Chưa học được gì</td></tr>`}</table>`;
+    $('#ai_m').innerHTML=`<table><tr><th>Bản đồ</th><th>Điểm (sức mạnh / phút)</th><th>Số lượt</th></tr>${d.maps.map(m=>`<tr><td>${esc(m.map)}</td><td>${fmt(m.score)}</td><td>${m.n}</td></tr>`).join('')||'<tr><td colspan=3 class="mute">Chưa có</td></tr>'}</table>`};
+  $('#ai_e').oninput=()=>$('#ai_ev').textContent=(+$('#ai_e').value).toFixed(2);
+  $('#ai_a').oninput=()=>$('#ai_av').textContent=(+$('#ai_a').value).toFixed(2);
+  $('#ai_save').onclick=()=>act(()=>api('ai/set',{enabled:$('#ai_on').checked,epsilon:+$('#ai_e').value,alpha:+$('#ai_a').value}),'Đã lưu').then(pull);
+  $('#ai_reset').onclick=()=>{if(confirm('Xoá hết kinh nghiệm AI đã học?'))act(()=>api('ai/reset',{}),'Đã xoá, AI học lại từ đầu').then(pull)};
   await pull();logTimer=setInterval(pull,10000)}
 
 /* ---------- tài khoản ---------- */

@@ -90,6 +90,12 @@ public class Bot extends Player {
     }
 
     private int learnMap = -1, learnDeaths, deathTotal;
+    int brainAction = -1, brainTier, brainDeaths; // lượt đang chạy của BotBrain
+    long brainPower, brainAt;
+
+    int deaths() {
+        return deathTotal;
+    }
     private long learnPower, learnSince;
 
     private int pickTierMap() {
