@@ -20,7 +20,7 @@ import nro.models.server.ServerManager;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -28,7 +28,7 @@ public class TransactionService implements Runnable {
 
     private static final int TIME_DELAY_TRADE = 10000;
 
-    static final Map<Player, Trade> PLAYER_TRADE = new HashMap<>();
+    static final Map<Player, Trade> PLAYER_TRADE = new java.util.concurrent.ConcurrentHashMap<>();
 
     private static final byte SEND_INVITE_TRADE = 0;
     private static final byte ACCEPT_TRADE = 1;
@@ -45,7 +45,7 @@ public class TransactionService implements Runnable {
     public static TransactionService gI() {
         if (i == null) {
             i = new TransactionService();
-            Executors.newSingleThreadExecutor().submit(i);
+            nro.models.utils.Util.POOL.submit(i);
         }
         return i;
     }
@@ -73,8 +73,12 @@ public class TransactionService implements Runnable {
                         return;
                     }
                     playerId = msg.reader().readInt();
+                    if (pl.zone == null || playerId == pl.id) {
+                        return;
+                    }
                     plMap = pl.zone.getPlayerInMap(playerId);
-                    if (plMap != null && plMap.isPl()) {
+                    boolean accBot = plMap instanceof Bot && ((Bot) plMap).accountBot;
+                    if (plMap != null && (plMap.isPl() || accBot)) {
                         if (plMap.tradeWVP) {
                             return;
                         }
@@ -90,7 +94,7 @@ public class TransactionService implements Runnable {
                                     boolean checkLogout2 = false;
                                     try (Connection con = LocalManager.getConnection()) {
                                         checkLogout1 = PlayerDAO.checkLogout(con, pl);
-                                        checkLogout2 = PlayerDAO.checkLogout(con, plMap);
+                                        checkLogout2 = !accBot && PlayerDAO.checkLogout(con, plMap);
                                     } catch (Exception e) {
                                     }
                                     if (checkLogout1) {
@@ -146,7 +150,7 @@ public class TransactionService implements Runnable {
                     }
                     break;
                 case LOCK_TRADE:
-                    if (Maintenance.isRunning) {
+                    if (trade != null && Maintenance.isRunning) {
                         trade.cancelTrade();
                         break;
                     }
@@ -155,12 +159,12 @@ public class TransactionService implements Runnable {
                     }
                     break;
                 case ACCEPT:
-                    if (Maintenance.isRunning) {
+                    if (trade != null && Maintenance.isRunning) {
                         trade.cancelTrade();
                         break;
                     }
                     if (trade != null) {
-                        trade.acceptTrade();
+                        trade.acceptTrade(pl);
                         if (trade.accept == 1) {
                             Service.gI().sendThongBao(pl, "Xin chờ đối phương đồng ý");
                         } else if (trade.accept == 2) {
@@ -178,6 +182,10 @@ public class TransactionService implements Runnable {
      * Mời giao dịch
      */
     private void sendInviteTrade(Player plInvite, Player plReceive) {
+        if (plReceive instanceof Bot && ((Bot) plReceive).accountBot) {
+            nro.models.Bot.BotTrade.gI().onInvite(plInvite, (Bot) plReceive); // tài khoản bot tự nhận giao dịch như người chơi
+            return;
+        }
         if(plReceive.isBot){
               ((Bot) plReceive).shop.activeTraDe(plInvite);
         }

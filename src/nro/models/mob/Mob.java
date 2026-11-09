@@ -164,7 +164,7 @@ public class Mob {
                 this.setDie();
                 this.temporaryEnemies.clear();
                 if (plAtt != null) {
-                    this.sendMobDieAffterAttacked(plAtt, (int) damage);
+                    this.sendMobDieAffterAttacked(plAtt, damage);
                     TaskService.gI().checkDoneTaskKillMob(plAtt, this);
                     TaskService.gI().checkDoneSideTaskKillMob(plAtt, this);
                     TaskService.gI().checkDoneClanTaskKillMob(plAtt, this);
@@ -177,7 +177,7 @@ public class Mob {
                     this.zone.isbulon2Alive = false;
                 }
             } else {
-                this.sendMobStillAliveAffterAttacked((int) damage, plAtt != null ? (plAtt.nPoint != null && plAtt.nPoint.isCrit) : false);
+                this.sendMobStillAliveAffterAttacked(damage, plAtt != null ? (plAtt.nPoint != null && plAtt.nPoint.isCrit) : false);
             }
             if (plAtt != null) {
                 if (plAtt.isPl() && plAtt.satellite != null && plAtt.satellite.isDefend) {
@@ -198,7 +198,7 @@ public class Mob {
 
             if (Util.isTrue(successRate, 333)) {
                 if (plAtt != null) {
-                    Item item = InventoryService.gI().findItemBag(plAtt, 1795);
+                    Item item = InventoryService.gI().findItemBag(plAtt, 1852);
                     if (item != null) {
                         boolean updated = false;
                         Item.ItemOption kilisOption = item.getOptionById(250);
@@ -297,7 +297,7 @@ public class Mob {
                     }
                     if (Util.canDoWithTime(lastTimePhucHoi, 30000) && !isDie()) {
                         lastTimePhucHoi = System.currentTimeMillis();
-                        int hpMax = this.point.maxHp;
+                        long hpMax = this.point.maxHp;
                         if (this.point.hp < hpMax) {
                             hoi_hp(hpMax / 10);
                         } else {
@@ -396,7 +396,7 @@ public class Mob {
             return;
         }
 
-        int dameMob = this.point.getDameAttack();
+        long dameMob = this.point.getDameAttack();
 
         if (player.charms != null && player.charms.tdDaTrau > System.currentTimeMillis()) {
             dameMob /= 2;
@@ -410,7 +410,7 @@ public class Mob {
         }
 
         if (this.lvMob > 0 && !MapService.gI().isMapPhoBan(this.zone.map.mapId)) {
-            dameMob = (int) (player.nPoint.hpMax * 0.1);
+            dameMob = (player.nPoint.hpMax / 10);
         }
 
         if (player.satellite != null && player.satellite.isDefend) {
@@ -425,19 +425,20 @@ public class Mob {
             // giữ nguyên dameMob
         }
 
-        int dame = player.injured(null, dameMob, false, true);
+        long dame = player.injured(null, dameMob, false, true);
         this.sendMobAttackMe(player, dame);
         this.sendMobAttackPlayer(player);
         this.phanSatThuong(player, dame);
     }
 
-    private void sendMobAttackMe(Player player, int dame) {
+    private void sendMobAttackMe(Player player, long dame) {
         if (!player.isPet && !player.isBot && !player.isNewPet) {
             Message msg;
             try {
                 msg = new Message(-11);
                 msg.writer().writeByte(this.id);
-                msg.writer().writeInt(dame); //dame
+                msg.writeNum(dame); //dame
+                msg.writeOnlyLong(0, 8); // J2ME đọc thêm sát thương KI
                 player.sendMessage(msg);
                 msg.cleanup();
             } catch (Exception e) {
@@ -452,7 +453,8 @@ public class Mob {
             msg = new Message(-10);
             msg.writer().writeByte(this.id);
             msg.writer().writeInt((int) player.id);
-            msg.writer().writeInt(player.nPoint.hp);
+            msg.writeNum(player.nPoint.hp);
+            msg.writeOnlyLong(0, 8); // J2ME đọc thêm 1 long
             Service.gI().sendMessAnotherNotMeInMap(player, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -484,7 +486,7 @@ public class Mob {
             msg.writer().writeByte(this.id);
             msg.writer().writeByte(this.tempId);
             msg.writer().writeByte(lvMob());
-            msg.writer().writeInt(this.point.hp);
+            msg.writeNum(this.point.hp);
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             this.sendMobMaxHp(this.point.hp);
         } catch (Exception e) {
@@ -496,15 +498,15 @@ public class Mob {
         }
     }
 
-    public void hoi_hp(int hp) {
+    public void hoi_hp(long hp) {
         Message msg = null;
         try {
             this.point.sethp(this.point.gethp() + hp);
-            int HP = hp > 0 ? 1 : Math.abs(hp);
+            long HP = hp > 0 ? 1 : Math.abs(hp);
             msg = new Message(-9);
             msg.writer().writeByte(this.id);
-            msg.writer().writeInt(this.point.gethp());
-            msg.writer().writeInt(HP);
+            msg.writeNum(this.point.gethp());
+            msg.writeNum(HP);
             msg.writer().writeBoolean(false);
             msg.writer().writeByte(-1);
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
@@ -523,8 +525,8 @@ public class Mob {
         try {
             msg = new Message(-9);
             msg.writer().writeByte(this.id);
-            msg.writer().writeInt(this.point.gethp());
-            msg.writer().writeInt(this.point.gethp());
+            msg.writeNum(this.point.gethp());
+            msg.writeNum(this.point.gethp());
             msg.writer().writeBoolean(false);
             msg.writer().writeByte(Effect);
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
@@ -538,14 +540,22 @@ public class Mob {
         }
     }
 
-    private void sendMobDieAffterAttacked(Player plKill, int dameHit) {
+    private void sendMobDieAffterAttacked(Player plKill, long dameHit) {
         Message msg;
         try {
             msg = new Message(-12);
             msg.writer().writeByte(this.id);
-            msg.writer().writeInt(dameHit);
+            msg.writeNum(dameHit);
             msg.writer().writeBoolean(plKill.nPoint.isCrit); // crit
             List<ItemMap> items = mobReward(plKill, this.dropItemTask(plKill), msg);
+            // option 161: thêm # ngọc mỗi ngày khi đánh quái (lần hạ quái đầu tiên trong ngày)
+            if (plKill.nPoint != null && plKill.nPoint.ngocMoiNgay > 0 && plKill.isPl()
+                    && nro.models.daily_Giftcode.DailyGiftService.checkOrAdd(plKill, nro.models.consts.ConstDailyGift.NGOC_KHI_DANH_QUAI)) {
+                nro.models.daily_Giftcode.DailyGiftService.updateDailyGift(plKill, nro.models.consts.ConstDailyGift.NGOC_KHI_DANH_QUAI);
+                plKill.inventory.gem += plKill.nPoint.ngocMoiNgay;
+                Service.gI().sendMoney(plKill);
+                Service.gI().sendThongBao(plKill, "Nhận " + plKill.nPoint.ngocMoiNgay + " ngọc mỗi ngày khi đánh quái");
+            }
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             msg.cleanup();
             hutItem(plKill, items);
@@ -586,6 +596,19 @@ public class Mob {
             if (itemTask != null) {
                 itemReward.add(itemTask);
             }
+            // +% vàng từ quái: option 100 / 155 và nội tại 23
+            int goldBonus = player.nPoint != null ? player.nPoint.tlGold : 0;
+            if (player.playerIntrinsic != null && player.playerIntrinsic.intrinsic != null && player.playerIntrinsic.intrinsic.id == 23) {
+                goldBonus += player.playerIntrinsic.intrinsic.param1;
+            }
+            if (goldBonus > 0) {
+                for (ItemMap it : itemReward) {
+                    int tid = it.itemTemplate.id;
+                    if (tid == 76 || tid == 188 || tid == 189 || tid == 190) {
+                        it.quantity = (int) Math.min(Integer.MAX_VALUE, it.quantity + (long) it.quantity * goldBonus / 100);
+                    }
+                }
+            }
             msg.writer().writeByte(itemReward.size());
             for (ItemMap itemMap : itemReward) {
                 msg.writer().writeShort(itemMap.itemMapId);
@@ -600,6 +623,15 @@ public class Mob {
         return itemReward;
     }
 
+    /**
+     * Hệ số may mắn (option 236) cho tỉ lệ rơi đồ hiếm: +1% may mắn = +1% tỉ lệ, tối đa +200%.
+     * Trước đây chỉ đếm đồ đang mặc (bỏ sót bóng mờ, danh hiệu, thẻ) và công thức (p/100)^1.5*20 làm 10% may mắn chỉ còn +0,6%.
+     */
+    public static double luckFactor(Player player) {
+        int luck = player.nPoint == null ? 0 : Math.max(0, Math.min(200, player.nPoint.tlMayMan));
+        return 1 + luck / 100.0;
+    }
+
     public List<ItemMap> getItemMobReward(Player player, int x, int yEnd) {
         List<ItemMap> list = new ArrayList<>();
         if (player.isBoss) {
@@ -607,6 +639,8 @@ public class Mob {
         }
 
         if (this.tempId == 0) {
+            // Mộc nhân: chỉ rơi vật phẩm sự kiện (vd Hoa hồng giấy 8/3)
+            nro.models.services.SeasonEventService.gI().addMobDrops(list, player, zone, x, yEnd, this.tempId);
             return list;
         }
         int mapid = player.zone.map.mapId;
@@ -618,7 +652,7 @@ public class Mob {
         }
 
         //========================TASK========================
-        if (player.isPl() && TaskService.gI().getIdTask(player) == ConstTask.TASK_8_1) {
+        if ((player.isPl() || nro.models.Bot.BotWorld.isAccountBot(player)) && TaskService.gI().getIdTask(player) == ConstTask.TASK_8_1) {
             if (player.gender == 0 && this.tempId == 11 || player.gender == 1 && this.tempId == 12 || player.gender == 2 && this.tempId == 10) {
                 list.add(new ItemMap(zone, 20, 1, x, yEnd, player.id));
                 TaskService.gI().checkDoneTaskFind7Stars(player);
@@ -682,7 +716,7 @@ public class Mob {
                 player.monsterKillCountAutoTrain++;
             }
 
-            if (player.event.luotNhanNgocMienPhi == 1) {
+            if (player.event.luotNhanNgocMienPhi == 1) { // ngọc miễn phí mỗi ngày (con quái đầu tiên)
                 ItemMap item1 = new ItemMap(zone, 77, 1, x, yEnd, player.id);
                 ItemMap item2 = new ItemMap(zone, 77, 1, x + 10, yEnd, player.id);
                 list.add(item1);
@@ -690,17 +724,17 @@ public class Mob {
                 player.event.luotNhanNgocMienPhi = 0;
             }
         }
-        if (MapService.gI().AllMap(mapid)) {
+        if (MapService.gI().AllMap(mapid) && nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.SUMMER)) {
             if (Util.isTrue(5, 100)) {
-                ItemMap it = new ItemMap(zone, 1798, 1, x, yEnd, player.id);
+                ItemMap it = new ItemMap(zone, 1857, 1, x, yEnd, player.id);
                 list.add(it);
             }
             if (Util.isTrue(5, 100)) {
-                ItemMap it = new ItemMap(zone, 1799, 1, x, yEnd, player.id);
+                ItemMap it = new ItemMap(zone, 1858, 1, x, yEnd, player.id);
                 list.add(it);
             }
             if (Util.isTrue(5, 100)) {
-                ItemMap it = new ItemMap(zone, 1800, 1, x, yEnd, player.id);
+                ItemMap it = new ItemMap(zone, 1859, 1, x, yEnd, player.id);
                 list.add(it);
             }
             if (Util.isTrue(5, 100)) {
@@ -708,11 +742,11 @@ public class Mob {
                 list.add(it);
             }
             if (Util.isTrue(1, 100)) {
-                ItemMap it = new ItemMap(zone, 1801, 1, x, yEnd, player.id);
+                ItemMap it = new ItemMap(zone, 1860, 1, x, yEnd, player.id);
                 list.add(it);
             }
             if (Util.isTrue(1, 130)) {
-                ItemMap it = new ItemMap(zone, 1802, 1, x, yEnd, player.id);
+                ItemMap it = new ItemMap(zone, 1862, 1, x, yEnd, player.id);
                 list.add(it);
             }
         }
@@ -756,10 +790,7 @@ public class Mob {
                 }
             }
         }
-        if (Util.isTrue(1, 1000000)) {
-            int ngoc = Util.nextInt(1, 1);
-            list.add(new ItemMap(zone, 77, ngoc, x, yEnd, player.id));
-        }
+        // (quái không rơi ngọc)
         if (MapService.gI().isMapUpSKH(mapid)) {
             int baseTileDrop = 1;
             int tileDrop = baseTileDrop;
@@ -781,7 +812,7 @@ public class Mob {
 
             if (Util.isTrue(tileDrop, 100)) {
                 int soLuong = 1;
-                list.add(new ItemMap(zone, 1778, soLuong, x, yEnd, player.id));
+                list.add(new ItemMap(zone, 1836, soLuong, x, yEnd, player.id));
             }
         }
         if (MapService.gI().isMapRiengTu(mapid)) {
@@ -800,23 +831,8 @@ public class Mob {
             int baseTileDrop = 2;
             double tileDrop = baseTileDrop;
 
-            int totalOption236Param = 0;
-            for (Item item : player.inventory.itemsBody) {
-                if (item != null && item.itemOptions != null) {
-                    for (Item.ItemOption op : item.itemOptions) {
-                        if (op.optionTemplate.id == 236) {
-                            totalOption236Param += op.param;
-                        }
-                    }
-                }
-            }
-
-            if (totalOption236Param > 100) {
-                totalOption236Param = 100;
-            }
-
-            double percentFromOption236 = Math.pow(totalOption236Param / 100.0, 1.5) * 20.0; // max 20%
-            tileDrop *= (1 + percentFromOption236 / 100.0);
+            tileDrop *= luckFactor(player); // option 236: may mắn từ mọi nguồn
+            tileDrop *= (1 + player.nPoint.tlRareMob / 100.0); // option 206: vật phẩm hiếm rơi từ quái
 
             if (player.itemTime.isUseCoBonLa) {
                 tileDrop *= 1.5;
@@ -838,6 +854,7 @@ public class Mob {
                     }
                 }
                 it.options.add(new Item.ItemOption(30, 0));
+                it.fromMob = true;
                 list.add(it);
 
                 //  ChatGlobalService.gI().ThongBaoRoiDo(player, player.name + " vừa nhặt được " + it.itemTemplate.name + " sét kích hoạt tại " + this.zone.map.mapName + " khu " + this.zone.zoneId);
@@ -847,23 +864,8 @@ public class Mob {
             int baseTileDrop = 2;
             double tileDrop = baseTileDrop;
 
-            int totalOption236Param = 0;
-            for (Item item : player.inventory.itemsBody) {
-                if (item != null && item.itemOptions != null) {
-                    for (Item.ItemOption op : item.itemOptions) {
-                        if (op.optionTemplate.id == 236) {
-                            totalOption236Param += op.param;
-                        }
-                    }
-                }
-            }
-
-            if (totalOption236Param > 100) {
-                totalOption236Param = 100;
-            }
-
-            double percentFromOption236 = Math.pow(totalOption236Param / 100.0, 1.5) * 20.0; // max 20%
-            tileDrop *= (1 + percentFromOption236 / 100.0);
+            tileDrop *= luckFactor(player); // option 236: may mắn từ mọi nguồn
+            tileDrop *= (1 + player.nPoint.tlRareMob / 100.0); // option 206: vật phẩm hiếm rơi từ quái
 
             if (player.itemTime.isUseCoBonLa) {
                 tileDrop *= 1.5;
@@ -885,6 +887,7 @@ public class Mob {
                     }
                 }
                 it.options.add(new Item.ItemOption(30, 0));
+                it.fromMob = true;
                 list.add(it);
 
                 //  ChatGlobalService.gI().ThongBaoRoiDo(player, player.name + " vừa nhặt được " + it.itemTemplate.name + " sét kích hoạt tại " + this.zone.map.mapName + " khu " + this.zone.zoneId);
@@ -1031,12 +1034,18 @@ public class Mob {
                 list.add(it);
             }
         }
+        //======================== Ngục tù may mắn (Phiếu sao vàng may mắn) ========================
+        if (MapService.gI().isMapNgucTuMayMan(mapid) && Util.isTrue(50, 100)) {
+            int vang = Util.nextInt(300_000, 600_000);
+            vang = (int) Math.min(Integer.MAX_VALUE, vang * luckFactor(player));
+            list.add(new ItemMap(zone, 190, vang, x, yEnd, player.id));
+        }
         if (player.setClothes.checkSetDes() && MapService.gI().isMapNgucTu(mapid)) {
-            if ((player.isActive() && Util.isTrue(2, 555)) || Util.isTrue(10, 100)) {
+            if ((player.isActive() && Util.isTrue(2, 555)) || Util.isTrue((int) Math.round(10 * luckFactor(player)), 100)) {
                 list.add(new ItemMap(zone, Util.nextInt(1066, 1070), 1, x, yEnd, player.id));
             }
         }
-        if ((Util.isTrue(10, 100) || (player.isActive() && player.setClothes.checkSetDes() && Util.isTrue(20, 100))) && MapService.gI().isMapNgucTu(mapid)) {
+        if ((Util.isTrue((int) Math.round(10 * luckFactor(player)), 100) || (player.isActive() && player.setClothes.checkSetDes() && Util.isTrue(20, 100))) && MapService.gI().isMapNgucTu(mapid)) {
             list.add(new ItemMap(zone, 1229, 1, x, yEnd, player.id));
         }
 
@@ -1055,7 +1064,8 @@ public class Mob {
             }
         }
 
-        if (this.zone.map.mapId >= 0) {
+        // sao pha lê chỉ rơi khi mặc cải trang có dòng "Dò pha lê" (option 110)
+        if (this.zone.map.mapId >= 0 && player.nPoint != null && player.nPoint.isDoSPL) {
             int dropRate = 10;
             if (player.itemTime.isUseCoBonLa) {
                 dropRate = (int) (dropRate * 1.15);
@@ -1066,12 +1076,17 @@ public class Mob {
             }
         }
 
+        nro.models.services.SeasonEventService.gI().addMobDrops(list, player, zone, x, yEnd, this.tempId);
+        nro.models.services.NguHanhSonService.gI().onMobKilled(player);
         return list;
 
     }
 
     private ItemMap dropItemTask(Player player) {
         ItemMap itemMap = null;
+        if ((tempId == 80 || tempId == 81) && zone.map.mapId == 161 && TaskService.gI().getIdTask(player) == ConstTask.TASK_29_7) {
+            return new ItemMap(zone, 73, 1, location.x, location.y, player.id); // thức ăn cho Bardock (đùi gà) ở bìa rừng
+        }
         switch (tempId) {
             case ConstMob.KHUNG_LONG:
             case ConstMob.LON_LOI:
@@ -1097,15 +1112,15 @@ public class Mob {
         return null;
     }
 
-    private void sendMobStillAliveAffterAttacked(int dameHit, boolean crit) {
+    private void sendMobStillAliveAffterAttacked(long dameHit, boolean crit) {
         Message msg;
         try {
             msg = new Message(-9);
             msg.writer().writeByte(this.id);
-            msg.writer().writeInt(this.point.gethp());
-            msg.writer().writeInt(dameHit);
+            msg.writeNum(this.point.gethp());
+            msg.writeNum(dameHit);
             msg.writer().writeBoolean(crit); // chí mạng
-            msg.writer().writeInt(-1);
+            msg.writeDual(-1, 4, -1, 1); // hiệu ứng: J2ME đọc byte
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -1122,7 +1137,7 @@ public class Mob {
             msg.writer().writeByte(this.id);
             msg.writer().writeByte(this.tempId);
             msg.writer().writeByte(this.lvMob); //level mob
-            msg.writer().writeInt(this.point.hp);
+            msg.writeNum(this.point.hp);
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -1139,7 +1154,7 @@ public class Mob {
             msg.writer().writeByte(this.id);
             msg.writer().writeByte(this.tempId);
             msg.writer().writeByte(this.lvMob); //level mob
-            msg.writer().writeInt(this.point.hp);
+            msg.writeNum(this.point.hp);
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             msg.cleanup();
         } catch (IOException e) {
@@ -1218,12 +1233,12 @@ public class Mob {
         }
     }
 
-    public void sendMobMaxHp(int maxHp) {
+    public void sendMobMaxHp(long maxHp) {
         Message msg;
         try {
             msg = new Message(87);
             msg.writer().writeByte(this.id);
-            msg.writer().writeInt(maxHp);
+            msg.writeDual(Math.min(Integer.MAX_VALUE, maxHp), 4, 0, 1); // J2ME: gói 87 là cờ boolean, không phải HP
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             msg.cleanup();
         } catch (IOException e) {
@@ -1239,7 +1254,7 @@ public class Mob {
         }
         int percentPST = plTarget.nPoint.tlPST;
         if (percentPST != 0) {
-            int damePST = (int) (long) (dame * percentPST / 100L);
+            long damePST = dame * percentPST / 100L;
             Message msg;
             try {
                 msg = new Message(-9);
@@ -1247,11 +1262,11 @@ public class Mob {
                 if (damePST >= this.point.hp) {
                     damePST = this.point.hp - 1;
                 }
-                int hpMob = this.point.hp;
+                long hpMob = this.point.hp;
                 injured(null, damePST, true);
                 damePST = hpMob - this.point.hp;
-                msg.writer().writeInt(this.point.hp);
-                msg.writer().writeInt(damePST);
+                msg.writeNum(this.point.hp);
+                msg.writeNum(damePST);
                 msg.writer().writeBoolean(false);
                 msg.writer().writeByte(36);
                 Service.gI().sendMessAllPlayerInMap(this.zone, msg);

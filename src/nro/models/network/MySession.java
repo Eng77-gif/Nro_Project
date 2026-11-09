@@ -5,7 +5,7 @@ import java.net.Socket;
 import nro.models.player.Player;
 import nro.models.server.Controller;
 import nro.models.data.DataGame;
-import nro.models.database.MrBlue;
+import nro.models.database.VietLoader;
 import nro.models.item.Item;
 import java.io.IOException;
 import nro.models.network.Message;
@@ -38,6 +38,8 @@ public class MySession extends Session {
     public String pp;
 
     public int typeClient;
+    /** Client J2ME 2.4.x (vd Dragonboy247): đọc HP / KI / sát thương dạng long, option (short, int). Xem Message.writeNum. */
+    public boolean longNumbers;
     public byte zoomLevel;
 
     public long lastTimeLogout;
@@ -65,9 +67,19 @@ public class MySession extends Session {
 
     public boolean finishUpdate;
 
+    /** chống kéo res (ResGuard) */
+    public boolean scraper;
+    public long resWindowStart;
+    public int resCount, resSeq, resLastId = -2, resBeforeChar, resMiss;
+
     public MySession(Socket socket) {
         super(socket);
         ipAddress = socket.getInetAddress().getHostAddress();
+    }
+
+    public MySession(io.netty.channel.Channel channel) {
+        super(channel);
+        ipAddress = getIP();
     }
 
     @Override
@@ -121,7 +133,7 @@ public class MySession extends Session {
                 long st = System.currentTimeMillis();
                 this.uu = username;
                 this.pp = password;
-                pl = MrBlue.login(this, al);
+                pl = VietLoader.login(this, al);
                 if (pl != null) {
                     DataGame.sendSmallVersion(this);
                     DataGame.sendBgItemVersion(this);
@@ -141,6 +153,7 @@ public class MySession extends Session {
                     pl.setSession(this);
                     Client.gI().put(pl);
                     this.player = pl;
+                    nro.models.network.netty.AntiDdos.markTrusted(this.getIP());
                     DataGame.sendVersionGame(this);
                     DataGame.sendDataItemBG(this);
                     Controller.gI().sendInfo(this);

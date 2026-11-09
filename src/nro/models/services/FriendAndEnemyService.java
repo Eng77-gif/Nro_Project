@@ -18,7 +18,7 @@ import java.io.IOException;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -146,7 +146,7 @@ public class FriendAndEnemyService {
                 msg.writer().writeShort(-1);
                 msg.writer().writeShort(f.body);
                 msg.writer().writeShort(f.leg);
-                msg.writer().writeByte(f.bag);
+                msg.writeDual(f.bag, 1, f.bag, 2); // J2ME: short
                 msg.writer().writeUTF(f.name);
                 msg.writer().writeBoolean(Client.gI().getPlayer((int) f.id) != null);
                 msg.writer().writeUTF(Util.numberToMoney(f.power));
@@ -297,7 +297,7 @@ public class FriendAndEnemyService {
     public void addEnemy(Player player, Player enemy) {
         boolean hadEnemy = false;
         for (Enemy ene : player.enemies) {
-            if (ene.id == ene.id) {
+            if (ene.id == enemy.id) {
                 hadEnemy = true;
             }
         }

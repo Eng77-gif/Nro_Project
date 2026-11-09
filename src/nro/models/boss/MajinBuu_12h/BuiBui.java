@@ -31,13 +31,11 @@ public class BuiBui extends Boss {
     }
     @Override
     public void reward(Player plKill) {
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         int x = this.location.x; // đâyyyy
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
         int drop = 190; // 100% rơi item ID 190
-        int quantity = Util.nextInt(20000, 30000);
+        int quantity = 0; // vàng theo độ mạnh boss: BossRewardService
         // Tạo itemMap cho item ID 190
         if (Util.isTrue(1, 100)) {
         ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
@@ -47,7 +45,7 @@ public class BuiBui extends Boss {
         }
         ItemMap itemMap = new ItemMap(this.zone, drop, quantity, x, y, plKill.id);
         Item item = ItemService.gI().createNewItem((short) drop);
-        Service.gI().dropItemMap(zone, itemMap);
+        // (vàng rơi theo độ mạnh boss ở BossRewardService)
         // 30% xác suất để rơi đồ
         if (Util.isTrue(1, 100)) {
             int group = Util.nextInt(1, 100) <= 70 ? 0 : 1;  // 70% chọn Áo Quần Giày (group = 0), 30% chọn Găng Rada (group = 1)
@@ -92,7 +90,7 @@ public class BuiBui extends Boss {
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
     }
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(200, 1000)) {
                 this.chat("Xí hụt");
@@ -109,7 +107,7 @@ public class BuiBui extends Boss {
                 }
             }
 
-            if (plAtt.isPl() && Util.isTrue(1, 5)) {
+            if (plAtt != null && plAtt.isPl() && Util.isTrue(1, 5)) {
                 plAtt.fightMabu.changePercentPoint((byte) 1);
             }
             this.nPoint.subHP(damage);
@@ -119,7 +117,7 @@ public class BuiBui extends Boss {
                 die(plAtt);
             }
 
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

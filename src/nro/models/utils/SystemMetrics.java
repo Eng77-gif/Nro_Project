@@ -7,7 +7,7 @@ import java.lang.management.MemoryUsage;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -80,9 +80,15 @@ public class SystemMetrics {
         double heapMaxMemory = getHeapMaxMemoryGB();
         double heapUsagePercentage = getHeapUsagePercentage();
 
-        String string = ("Memory: " + formatMemory(usedMemory, totalMemory) + "\n"
-                + "RAM: " + formatPercentage(ramUsagePercentage) + "\n"
-                + "CPU: " + formatPercentage(cpuUsagePercentage) + "\n");
+        // "Máy" là RAM cả máy (gồm Windows / MySQL...), "Server" là phần Java của game thật sự dùng
+        MemoryUsage heap = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+        MemoryUsage nonHeap = ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
+        long mb = 1024 * 1024;
+        String string = ("Máy: " + formatMemory(usedMemory, totalMemory) + " (" + formatPercentage(ramUsagePercentage) + ")\n"
+                + "Server: " + (heap.getUsed() / mb) + " MB dữ liệu, giữ " + ((heap.getCommitted() + nonHeap.getCommitted()) / mb)
+                + " MB, tối đa " + (heap.getMax() / mb) + " MB\n"
+                + "CPU: " + formatPercentage(cpuUsagePercentage) + "\n"
+                + nro.models.network.netty.AntiDdos.stats() + "\n");
         return string;
     }
 }

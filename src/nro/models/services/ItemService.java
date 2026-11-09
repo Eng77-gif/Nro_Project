@@ -17,7 +17,7 @@ import nro.models.map.Zone;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class ItemService {
@@ -349,16 +349,27 @@ public class ItemService {
 
     public Item createItemFromItemMap(ItemMap itemMap) {
         Item item = createNewItem(itemMap.itemTemplate.id, itemMap.quantity);
-        item.itemOptions = itemMap.options;
+        item.itemOptions = Item.ItemOption.copyAll(itemMap.options);
         return item;
     }
 
     public ItemOptionTemplate getItemOptionTemplate(int id) {
-        return Manager.ITEM_OPTION_TEMPLATES.get(id);
+        java.util.List<ItemOptionTemplate> list = Manager.ITEM_OPTION_TEMPLATES;
+        // bảng item_option_template có thể thiếu id (bị xóa tay): không lấy theo vị trí mà lấy đúng id
+        if (id >= 0 && id < list.size() && list.get(id).id == id) {
+            return list.get(id);
+        }
+        for (ItemOptionTemplate t : list) {
+            if (t.id == id) {
+                return t;
+            }
+        }
+        return null;
     }
 
     public Template.ItemTemplate getTemplate(int id) {
-        return Manager.ITEM_TEMPLATES.get(id);
+        // vật phẩm đã xóa (vd. thú cưỡi 2124 - 2127) không làm lỗi cả hành trang khi tải nhân vật
+        return id >= 0 && id < Manager.ITEM_TEMPLATES.size() ? Manager.ITEM_TEMPLATES.get(id) : null;
     }
 
     public int getPercentTrainArmor(Item item) {
@@ -657,11 +668,52 @@ public class ItemService {
         return lt;
     }
 
+    /**
+     * Chỉ số mặc định theo vật phẩm (bảng item_template_option):
+     * {option_id, param_min, param_max, chance %, group_id}. Các dòng cùng group_id > 0 chỉ chọn ngẫu nhiên 1.
+     */
+    public static final java.util.Map<Integer, List<int[]>> TEMPLATE_OPTIONS = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * Ưu tiên chỉ số mặc định của vật phẩm (tung ngẫu nhiên trong khoảng), nếu không có thì lấy theo shop.
+     */
+    /** Chỉ số mặc định ở mức cao nhất (mọi dòng, không tung ngẫu nhiên). */
+    public List<Item.ItemOption> getMaxOptions(short id) {
+        List<int[]> defaults = TEMPLATE_OPTIONS.get((int) id);
+        if (defaults == null || defaults.isEmpty()) {
+            return getListOptionItemShop(id);
+        }
+        List<Item.ItemOption> list = new ArrayList<>();
+        for (int[] d : defaults) {
+            list.add(new Item.ItemOption(d[0], Math.max(d[1], d[2])));
+        }
+        return list;
+    }
+
     public List<Item.ItemOption> getListOptionItemShop(short id) {
+        List<int[]> defaults = TEMPLATE_OPTIONS.get((int) id);
+        if (defaults != null && !defaults.isEmpty()) {
+            List<Item.ItemOption> rolled = new ArrayList<>();
+            java.util.Map<Integer, List<int[]>> groups = new java.util.LinkedHashMap<>();
+            for (int[] d : defaults) {
+                if (d[4] > 0) {
+                    groups.computeIfAbsent(d[4], k -> new ArrayList<>()).add(d);
+                } else if (d[3] >= 100 || Util.isTrue(d[3], 100)) {
+                    rolled.add(new Item.ItemOption(d[0], d[2] > d[1] ? Util.nextInt(d[1], d[2]) : d[1]));
+                }
+            }
+            for (List<int[]> g : groups.values()) {
+                int[] d = g.get(Util.nextInt(0, g.size() - 1));
+                if (d[3] >= 100 || Util.isTrue(d[3], 100)) {
+                    rolled.add(new Item.ItemOption(d[0], d[2] > d[1] ? Util.nextInt(d[1], d[2]) : d[1]));
+                }
+            }
+            return rolled;
+        }
         List<Item.ItemOption> list = new ArrayList<>();
         Manager.SHOPS.forEach(shop -> shop.tabShops.forEach(tabShop -> tabShop.itemShops.forEach(itemShop -> {
             if (itemShop.temp.id == id && list.isEmpty()) {
-                list.addAll(itemShop.options);
+                list.addAll(Item.ItemOption.copyAll(itemShop.options));
             }
         })));
         return list;

@@ -32,7 +32,7 @@ import nro.models.task.ClanTaskTemplate;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class TaskService {
@@ -154,6 +154,11 @@ public class TaskService {
                 + player.playerTask.taskMain.subTasks.get(player.playerTask.taskMain.index).name);
     }
 
+    /** Người chơi hoặc tài khoản bot làm nhiệm vụ (boss, đệ, bot giả lập thì không). */
+    private static boolean doesTask(Player p) {
+        return p != null && !p.isBoss && !p.isPet && (!p.isBot || p instanceof nro.models.Bot.Bot b && b.accountBot);
+    }
+
     public boolean checkDoneTaskTalkNpc(Player player, Npc npc) {
         switch (npc.tempId) {
             case ConstNpc.QUY_LAO_KAME -> {
@@ -244,6 +249,13 @@ public class TaskService {
             case ConstNpc.THAN_MEO_KARIN -> {
                 return doneTask(player, ConstTask.TASK_27_0);
             }
+            case ConstNpc.BARDOCK -> { // chuỗi Bardock (nhiệm vụ 29, theo source V10)
+                return doneTask(player, ConstTask.TASK_29_2) || doneTask(player, ConstTask.TASK_29_4)
+                        || doneTask(player, ConstTask.TASK_29_6) || doneTask(player, ConstTask.TASK_29_9);
+            }
+            case 71 -> { // Berry
+                return doneTask(player, ConstTask.TASK_29_5);
+            }
             case ConstNpc.OSIN -> {
                 return doneTask(player, ConstTask.TASK_28_0)
                         || doneTask(player, ConstTask.TASK_28_7);
@@ -252,20 +264,27 @@ public class TaskService {
         return false;
     }
 
+    /** Tài khoản bot hái đậu thần (nhiệm vụ đầu tiên) như người chơi chọn "thu hoạch" ở cây đậu. */
+    public void botHarvest(Player bot) {
+        if (doesTask(bot)) {
+            doneTask(bot, ConstTask.TASK_0_4);
+        }
+    }
+
     public void checkDoneTaskJoinClan(Player player) {
-        if (!player.isBoss && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             doneTask(player, ConstTask.TASK_13_0);
         }
     }
 
     public void checkDoneTaskGetItemBox(Player player) {
-        if (!player.isBoss && !player.isBot && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             doneTask(player, ConstTask.TASK_0_3);
         }
     }
 
     public void checkDoneTaskPower(Player player, long power) {
-        if (!player.isBoss && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             if (power >= 16000) {
                 doneTask(player, ConstTask.TASK_7_0);
             }
@@ -297,20 +316,22 @@ public class TaskService {
     }
 
     public void checkDoneTaskUseTiemNang(Player player) {
-        if (!player.isBoss && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             doneTask(player, ConstTask.TASK_3_0);
         }
     }
 
     public void checkDoneTaskUseItem(Player player, Item item) {
-        if (player.isPl() && item.isNotNullItem()) {
+        if (doesTask(player) && item.isNotNullItem()) {
             switch (item.template.id) {
+                case 992 -> // dùng nhẫn thời không: tới hành tinh thực vật quá khứ
+                    doneTask(player, ConstTask.TASK_29_1);
             }
         }
     }
 
     public void checkDoneTaskGoToMap(Player player, Zone zoneJoin) {
-        if (player.isPl()) {
+        if (doesTask(player)) {
             switch (zoneJoin.map.mapId) {
                 case 39, 40, 41 -> {
                     if (player.location.x >= 635) {
@@ -342,10 +363,16 @@ public class TaskService {
     }
 
     public void checkDoneTaskPickItem(Player player, ItemMap item) {
-        if (!player.isBoss && !player.isBot && !player.isPet && item != null && item.itemTemplate != null) {
+        if (doesTask(player) && item != null && item.itemTemplate != null) {
             switch (item.itemTemplate.id) {
                 case 73: //đùi gà
                     doneTask(player, ConstTask.TASK_2_0);
+                    if (player.zone != null && player.zone.map.mapId == 161) {
+                        doneTask(player, ConstTask.TASK_29_7); // thức ăn cho Bardock ở bìa rừng
+                    }
+                    break;
+                case 992: // nhẫn thời không sai lệch (Black Goku)
+                    doneTask(player, ConstTask.TASK_29_0);
                     break;
                 case 78: //em bé
                     doneTask(player, ConstTask.TASK_3_1);
@@ -367,7 +394,7 @@ public class TaskService {
     }
 
     public void checkDoneTaskNangCS(Player player) {
-        if (!player.isBoss && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             if (player.nPoint.dameg < 35000) {
                 return;
             }
@@ -376,7 +403,7 @@ public class TaskService {
     }
 
     public void checkDoneTaskConfirmMenuNpc(Player player, Npc npc, byte select) {
-        if (!player.isBoss && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             switch (npc.tempId) {
                 case ConstNpc.DAU_THAN -> {
                     switch (player.idMark.getIndexMenu()) {
@@ -392,7 +419,7 @@ public class TaskService {
     }
 
     public void checkDoneTaskKillBoss(Player player, Boss boss) {
-        if (player != null && !player.isBot && !player.isBoss && !player.isPet) {
+        if (doesTask(player)) {
             AchievementService.gI().checkDoneTask(player, ConstAchievement.TRUM_KET_LIEU_BOSS);
             switch ((int) boss.id) {
                 case BossID.KUKU ->
@@ -474,7 +501,7 @@ public class TaskService {
     }
 
     public void checkDoneTaskKillMob(Player player, Mob mob) {
-        if (!player.isBoss && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             switch (mob.tempId) {
                 case ConstMob.MOC_NHAN ->
                     doneTask(player, ConstTask.TASK_1_0);
@@ -515,7 +542,7 @@ public class TaskService {
                         List<Player> list = new ArrayList<>();
                         List<Player> playersMap = player.zone.getPlayers();
                         for (Player pl : playersMap) {
-                            if (pl != null && pl.isPl() && pl.clan != null && pl.clan.equals(player.clan)) {
+                            if (pl != null && doesTask(pl) && pl.clan != null && pl.clan.equals(player.clan)) {
                                 list.add(pl);
                             }
                         }
@@ -552,7 +579,7 @@ public class TaskService {
                         List<Player> list = new ArrayList<>();
                         List<Player> playersMap = player.zone.getPlayers();
                         for (Player pl : playersMap) {
-                            if (pl != null && pl.isPl() && pl.clan != null && pl.clan.equals(player.clan)) {
+                            if (pl != null && doesTask(pl) && pl.clan != null && pl.clan.equals(player.clan)) {
                                 list.add(pl);
                             }
                         }
@@ -598,6 +625,10 @@ public class TaskService {
                     doneTask(player, ConstTask.TASK_18_2);
                 case ConstMob.RASPBERRY ->
                     doneTask(player, ConstTask.TASK_18_3);
+                case 80, 81 -> { // Cabira, Tobi (hành tinh thực vật quá khứ)
+                    doneTask(player, ConstTask.TASK_29_3);
+                    doneTask(player, ConstTask.TASK_29_8);
+                }
                 case ConstMob.THAN_LAN_XANH ->
                     doneTask(player, ConstTask.TASK_18_4);
                 case ConstMob.XEN_CON_CAP_1 ->
@@ -1054,6 +1085,9 @@ public class TaskService {
                     break;
                 case ConstTask.TASK_28_7:
                     break;
+                case ConstTask.TASK_29_9: // hết chuỗi Bardock: thưởng 10 Tr sức mạnh, 10 Tr tiềm năng (như mô tả nhiệm vụ)
+                    Service.gI().addSMTN(player, (byte) 2, 10_000_000, false);
+                    break;
             }
             InventoryService.gI().sendItemBags(player);
             return true;
@@ -1276,32 +1310,38 @@ public class TaskService {
         if (player.playerTask.sideTask.template != null) {
             if (player.playerTask.sideTask.isDone()) {
                 int goldReward = 0;
+                int gemReward = 0; // ngọc xanh: nguồn ngọc thay cho quái rơi
                 int ngocBi = 708;
                 int cayThong = -1;
                 switch (player.playerTask.sideTask.level) {
                     case ConstTask.EASY:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_EASY;
+                        gemReward = 2;
                         ngocBi = 708;
                         break;
                     case ConstTask.NORMAL:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_NORMAL;
+                        gemReward = 4;
                         ngocBi = 707;
                         break;
                     case ConstTask.HARD:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_HARD;
+                        gemReward = 6;
                         ngocBi = 706;
                         break;
                     case ConstTask.VERY_HARD:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_VERY_HARD;
+                        gemReward = 10;
                         ngocBi = 705;
                         break;
                     case ConstTask.HELL:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_HELL;
+                        gemReward = 15;
                         ngocBi = 704;
                         if (player.playerTask.sideTask.leftTask < 15) {
                             cayThong = 822;
@@ -1332,10 +1372,11 @@ public class TaskService {
                     }
                     InventoryService.gI().sendItemBags(player);
                     player.inventory.addGold(goldReward);
+                    player.inventory.gem += gemReward;
                     BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                     Service.gI().sendMoney(player);
                     Service.gI().sendThongBao(player, "Bạn nhận được "
-                            + Util.numberToMoney(goldReward) + " vàng");
+                            + Util.numberToMoney(goldReward) + " vàng và " + gemReward + " ngọc xanh");
                     player.playerTask.sideTask.reset();
                 } else {
                     Service.gI().sendThongBao(player, "Hành trang không đủ chỗ trống.");

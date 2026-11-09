@@ -171,7 +171,7 @@ public class SoiHecQuyn extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         return 0;
     }
 
@@ -187,9 +187,7 @@ public class SoiHecQuyn extends Boss {
                 Service.gI().dropItemMap(this.zone, itemMap);
             }
             BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.KE_THAO_TUNG_SOI, 1);
-            int diem = 5;
-            plKill.event.addEventPoint(diem);
-            Service.gI().sendThongBao(plKill, "+5 Point");
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
 
         } catch (Exception e) {
             e.printStackTrace();

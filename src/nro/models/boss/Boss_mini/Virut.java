@@ -33,7 +33,7 @@ public class Virut extends Boss {
                 ConstPlayer.TRAI_DAT,
                 new short[]{651, 778, 779, -1, -1, -1},
                 10,
-                new int[]{100},
+                new long[]{100},
                 new int[]{5, 7, 0, 14},
                 new int[][]{{Skill.DRAGON, 7, 1000}},
                 new String[]{}, // Text chat 1
@@ -134,9 +134,7 @@ public class Virut extends Boss {
             Service.gI().dropItemMap(this.zone, itemDrop);
         }
 
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point sự kiện từ Virut");
+        // boss không cộng điểm sự kiện
     }
 
     @Override
@@ -195,7 +193,7 @@ public class Virut extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             int actualDamage = 1;
             this.nPoint.subHP(actualDamage);

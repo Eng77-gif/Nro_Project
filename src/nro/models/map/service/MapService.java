@@ -43,7 +43,7 @@ public class MapService {
     public int[][] readTileIndexTileType(int tileTypeFocus) {
         int[][] tileIndexTileType = null;
         try {
-            DataInputStream dis = new DataInputStream(new FileInputStream("data/map/tile_set_info"));
+            DataInputStream dis = new DataInputStream(new FileInputStream("data/map/tile_set_Info"));
             int numTileMap = dis.readByte();
             tileIndexTileType = new int[numTileMap][];
             for (int i = 0; i < numTileMap; i++) {
@@ -289,7 +289,7 @@ public class MapService {
     }
     
     public List<Map> getAllMaps() {
-        return this.getAllMaps();
+        return Manager.MAPS;
     }
 
     public Zone getZone(int mapId) {
@@ -466,8 +466,9 @@ public class MapService {
         return mapId >= 131 && mapId <= 133;
     }
     
+    /** Sa mạc hoang vu: map hút năng lượng tà ác của Cadic (tích Kilis vào Bình hút năng lượng). */
     public boolean isMapCadic(int mapId) {
-        return mapId >= 165;
+        return mapId == 165;
     }
 
     public boolean isMapBossFinal(int mapId) {
@@ -500,8 +501,15 @@ public class MapService {
         return mapId == 164;
     }
 
+    /** Ngục tù may mắn: bản sao Hành tinh ngục tù, vào bằng Phiếu sao vàng may mắn */
+    public static final int MAP_NGUC_TU_MAY_MAN = 187;
+
     public boolean isMapNgucTu(int mapId) {
-        return mapId == 155;
+        return mapId == 155 || mapId == MAP_NGUC_TU_MAY_MAN;
+    }
+
+    public boolean isMapNgucTuMayMan(int mapId) {
+        return mapId == MAP_NGUC_TU_MAY_MAN;
     }
 
     public boolean isMapHuyDiet(int mapId) {

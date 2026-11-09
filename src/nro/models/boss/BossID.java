@@ -64,6 +64,7 @@ public class BossID {
 
     public static final int BROLY = -1822;
     public static final int SUPER_BROLY = -82282;
+    public static final int BROLY_SUPER = -82283; // SSJ Broly (vùng tuyết của Cooler), khác Super Broly cho đệ tử
 
     //================MINIBOSSS=============
     public static final int SOI_HEC_QUYN1 = -77;
@@ -170,6 +171,7 @@ public class BossID {
     public static final int MATROI = -349;
     public static final int DOI = -350;
     public static final int BIMA = -351;
+    public static final int BOXUONG = -352;
 
     //========================CHRISTMAS EVENT========================
     public static final int ONG_GIA_NOEL = -353;
@@ -179,6 +181,17 @@ public class BossID {
     public static final int THUY_TINH = -355;
     //========================TET EVENT========================
     public static final int LAN_CON = -371;
+    public static final int TUAN_LOC = -372;
+    public static final int BE_NA = -373;
+    public static final int THO_DAI_CA = -374;
+    public static final int MEOWTH = -377;
+    public static final int RONG_NHI_1_SAO = -390; // -390 .. -396: rồng nhí 1 - 7 sao
+    public static final int RONG_NHI_7_SAO = -396;
+    // sự kiện theo mùa: Ngựa ăn cỏ (Tết), Đại chiến Zombie (Halloween)
+    public static final int NGUA_DO = -9101000;
+    public static final int NGUA_BE = -9201000;
+    public static final int NGUA_TRANG = -9301000;
+    public static final int ZOMBIE = -9401000;
 
     public static final int KARIN = -357;
     public static final int YAJIRO = -358;

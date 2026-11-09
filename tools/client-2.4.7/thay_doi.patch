@@ -1,0 +1,56 @@
+diff --git a/Assets/Scripts/ModFunc.cs b/Assets/Scripts/ModFunc.cs
+index 54966ab..e532979 100644
+--- a/Assets/Scripts/ModFunc.cs
++++ b/Assets/Scripts/ModFunc.cs
+@@ -1444,10 +1444,7 @@ public class ModFunc : IActionListener
+                 }
+             }
+         }
+-        if (TileMap.mapID != 51 && TileMap.mapID != 52 && TileMap.mapID != 113 && TileMap.mapID != 112 && TileMap.mapID != 129 && TileMap.mapID != 165)
+-        {
+-            PaintLogoGif(g, GameCanvas.hw, GameCanvas.hh / 4, 3);
+-        }
++        // (đã bỏ logo "Thời Đại Ngọc Rồng" vẽ trên màn hình trong game)
+         if (isMenuVisible)
+         {
+             menuX += (targetMenuX - menuX) * ANIMATION_SPEED;
+diff --git a/Assets/Scripts/ServerListScreen.cs b/Assets/Scripts/ServerListScreen.cs
+index fd852ab..20e2330 100644
+--- a/Assets/Scripts/ServerListScreen.cs
++++ b/Assets/Scripts/ServerListScreen.cs
+@@ -48,11 +48,11 @@ public class ServerListScreen : mScreen, IActionListener
+ 
+      public static int ipEncryptKey = 0;
+ 
+-    public static string ListIP = "NRO:103.77.173.145:14445:0,Local:127.0.0.1:14445:0,0,0";
++    public static string ListIP = "NRO:160.191.243.165:14445:0,0,0";
+ 
+ 
+ 
+-    public static string linkDefault = (Rms.loadRMSString("ipserver") == null) ? ListIP : Rms.loadRMSString("ipserver");
++    public static string linkDefault = ListIP; // luôn dùng IP mới (bỏ IP cũ đã lưu trong máy)
+     public const sbyte languageVersion = 2;
+ 
+     public new int keyTouch = -1;
+diff --git a/Assets/Scripts/Service.cs b/Assets/Scripts/Service.cs
+index c570948..1459ab5 100644
+--- a/Assets/Scripts/Service.cs
++++ b/Assets/Scripts/Service.cs
+@@ -669,7 +669,7 @@ public class Service
+             message.writer().writeInt(GameCanvas.h);
+             message.writer().writeBoolean(TField.isQwerty);
+             message.writer().writeBoolean(GameCanvas.isTouch);
+-            message.writer().writeUTF(GameCanvas.getPlatformName() + "|" + GameMidlet.VERSION);
++            message.writer().writeUTF(GameCanvas.getPlatformName() + "|" + GameMidlet.VERSION + "|long"); // báo server: client đọc số lớn (option short/int)
+             DataInputStream dataInputStream = MyStream.readFile("/info");
+             if (dataInputStream != null)
+             {
+@@ -711,7 +711,7 @@ public class Service
+             message.writer().writeInt(GameCanvas.h);
+             message.writer().writeBoolean(TField.isQwerty);
+             message.writer().writeBoolean(GameCanvas.isTouch);
+-            message.writer().writeUTF(GameCanvas.getPlatformName() + "|" + GameMidlet.VERSION);
++            message.writer().writeUTF(GameCanvas.getPlatformName() + "|" + GameMidlet.VERSION + "|long"); // báo server: client đọc số lớn (option short/int)
+             DataInputStream dataInputStream = MyStream.readFile("/info");
+             if (dataInputStream != null)
+             {

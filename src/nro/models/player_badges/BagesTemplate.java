@@ -10,7 +10,7 @@ import java.util.Set;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class BagesTemplate {
@@ -20,6 +20,32 @@ public class BagesTemplate {
     public int idItem;
     public String NAME;
     public List<Item.ItemOption> options = new ArrayList<>();
+
+    /** Nạp lại bảng danh hiệu từ database (panel). */
+    public static void reload(java.sql.Connection con) throws Exception {
+        List<BagesTemplate> list = new ArrayList<>();
+        try (java.sql.PreparedStatement ps = con.prepareStatement("select * from data_badges"); java.sql.ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                BagesTemplate t = new BagesTemplate();
+                t.id = rs.getInt("id");
+                t.idEffect = rs.getInt("idEffect");
+                t.idItem = rs.getInt("idItem");
+                t.NAME = rs.getString("NAME");
+                org.json.simple.JSONArray op = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(rs.getString("Options"));
+                if (op != null) {
+                    for (Object o : op) {
+                        org.json.simple.JSONObject j = (org.json.simple.JSONObject) o;
+                        t.options.add(new Item.ItemOption(Integer.parseInt(j.get("id").toString()), Integer.parseInt(j.get("param").toString())));
+                    }
+                }
+                list.add(t);
+            }
+        }
+        synchronized (Manager.BAGES_TEMPLATES) {
+            Manager.BAGES_TEMPLATES.clear();
+            Manager.BAGES_TEMPLATES.addAll(list);
+        }
+    }
 
     public static int findIdItemByIdIdEffect(int idEffect) {
         for (BagesTemplate data : Manager.BAGES_TEMPLATES) {

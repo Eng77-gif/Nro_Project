@@ -22,7 +22,7 @@ import nro.models.services_func.UseItem;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class Pet extends Player {

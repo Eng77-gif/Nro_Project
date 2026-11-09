@@ -30,7 +30,7 @@ public class DrLychee extends Boss {
                 ConstPlayer.TRAI_DAT,
                 new short[]{742, 743, 744, -1, -1, -1},
                 ((10000 + dame)),
-                new int[]{((1000000 + hp))},
+                new long[]{((1000000 + hp))},
                 new int[]{148},
                 (int[][]) Util.addArray(FULL_DEMON),
                 new String[]{"|-1|Ta đợi các ngươi mãi",
@@ -47,7 +47,7 @@ public class DrLychee extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(this.level, 1000)) {
                 this.chat("Xí hụt");
@@ -76,7 +76,7 @@ public class DrLychee extends Boss {
                 die(plAtt);
             }
 
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

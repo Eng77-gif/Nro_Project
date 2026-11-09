@@ -9,7 +9,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 public class PhaLeHoaTrangBi {
 
@@ -62,6 +62,18 @@ public class PhaLeHoaTrangBi {
         }
     }
 
+    private static int star(Player player) {
+        if (player.combineNew.itemsCombine.isEmpty()) {
+            return 0;
+        }
+        for (Item.ItemOption io : player.combineNew.itemsCombine.get(0).itemOptions) {
+            if (io.optionTemplate.id == 107) {
+                return io.param;
+            }
+        }
+        return 0;
+    }
+
     public static float getRatio(int star) {
         switch (star) {
             case 0:
@@ -82,6 +94,8 @@ public class PhaLeHoaTrangBi {
                 return 0.1f;
             case 8:
                 return 0.1f;
+            case 9:
+                return 0.05f;
         }
 
         return 0;
@@ -105,7 +119,7 @@ public class PhaLeHoaTrangBi {
                 3;
             case 7 ->
                 2;
-            case 8 ->
+            case 8, 9 ->
                 1;
             default ->
                 0;
@@ -125,7 +139,7 @@ public class PhaLeHoaTrangBi {
             if (player.inventory.gold < gold) {
                 Service.gI().sendThongBao(player, "Không đủ vàng để thực hiện");
                 return;
-            } else if (player.inventory.gem < gem) {
+            } else if (star(player) == 9 ? !CombineSystem.hasNgocBatKy(player, gem) : player.inventory.gem < gem) {
                 Service.gI().sendThongBao(player, "Không đủ ngọc để thực hiện");
                 return;
             }
@@ -141,7 +155,7 @@ public class PhaLeHoaTrangBi {
                 num = i;
                 gold = player.combineNew.goldCombine;
                 gem = player.combineNew.gemCombine;
-                if (player.inventory.gem < gem || player.inventory.gold < gold) {
+                if ((star(player) == 9 ? !CombineSystem.hasNgocBatKy(player, gem) : player.inventory.gem < gem) || player.inventory.gold < gold) {
                     break;
                 }
 
@@ -162,7 +176,11 @@ public class PhaLeHoaTrangBi {
 
                         float baseRatio = getRatio(star);
                         player.inventory.gold -= gold;
-                        player.inventory.gem -= gem;
+                        if (star == 9) {
+                            CombineSystem.subNgocBatKy(player, gem);
+                        } else {
+                            player.inventory.gem -= gem;
+                        }
 
                         boolean succ = Util.isTrue(baseRatio, 100);
 

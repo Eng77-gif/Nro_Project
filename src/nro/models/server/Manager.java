@@ -34,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
+import nro.models.services.ItemService;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -63,7 +64,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public final class Manager {
@@ -103,7 +104,7 @@ public final class Manager {
     public static final List<NClass> NCLASS = new ArrayList<>();
     public static final List<Npc> NPCS = new ArrayList<>();
     public static List<Shop> SHOPS = new ArrayList<>();
-    public static final List<Clan> CLANS = new ArrayList<>();
+    public static final List<Clan> CLANS = new java.util.concurrent.CopyOnWriteArrayList<>();
     public static final List<String> NOTIFY = new ArrayList<>();
     public static final List<BadgesTaskTemplate> TASKS_BADGES_TEMPLATE = new ArrayList<>();
     public static final List<BagesTemplate> BAGES_TEMPLATES = new ArrayList<>();
@@ -117,6 +118,9 @@ public final class Manager {
     public static final String queryTopsukien1 = "SELECT id, point_sukien1 FROM player ORDER BY point_sukien1 DESC LIMIT 100";
     public static final String queryTopsukien2 = "SELECT id, point_sukien2 FROM player ORDER BY point_sukien2 DESC LIMIT 100";
     public static final String queryTopwhis = "SELECT id, thachdauwhis FROM player ORDER BY thachdauwhis DESC LIMIT 100";
+    // Võ đài sinh tử: lệ phí thỏi vàng tăng 10 sau mỗi lần thách đấu trong ngày => số lượt = phí / 10
+    public static final String queryTopVDST = "SELECT id, CAST(JSON_EXTRACT(vodaisinhtu, '$[1]') AS INT) DIV 10 AS luot FROM player"
+            + " WHERE JSON_VALID(vodaisinhtu) AND CAST(JSON_EXTRACT(vodaisinhtu, '$[1]') AS INT) > 0 ORDER BY luot DESC LIMIT 100";
     public static final String queryTopsukien = "SELECT id, point_sukien FROM player ORDER BY point_sukien DESC LIMIT 100";
     public static boolean isTopMaydamChanged = false;
     public static boolean isTopSukienChanged = false;
@@ -285,6 +289,31 @@ public final class Manager {
         }
     }
 
+    /** Nạp lại bảng item_template_option (panel sửa chỉ số mặc định). */
+    public void reloadTemplateOptions() {
+        try (Connection con = LocalManager.getConnection()) {
+            loadTemplateOptions(con);
+        } catch (Exception e) {
+            Logger.error("Không nạp lại được item_template_option: " + e.getMessage() + "\n");
+        }
+    }
+
+    private void loadTemplateOptions(Connection con) {
+        ItemService.TEMPLATE_OPTIONS.clear();
+        try (PreparedStatement p = con.prepareStatement("select template_id, option_id, param, param_max, chance, group_id from item_template_option order by id");
+                ResultSet r = p.executeQuery()) {
+            int n = 0;
+            while (r.next()) {
+                ItemService.TEMPLATE_OPTIONS.computeIfAbsent(r.getInt("template_id"), k -> new ArrayList<>())
+                        .add(new int[]{r.getInt("option_id"), r.getInt("param"), Math.max(r.getInt("param"), r.getInt("param_max")), r.getInt("chance"), r.getInt("group_id")});
+                n++;
+            }
+            Logger.success("Successfully loaded item template option (" + n + ")\n");
+        } catch (Exception e) {
+            Logger.error("Không tải được item_template_option: " + e.getMessage() + "\n");
+        }
+    }
+
     private void loadDatabase() {
         long st = System.currentTimeMillis();
         JSONArray dataArray;
@@ -292,6 +321,18 @@ public final class Manager {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try (Connection ConnectionDatabase = LocalManager.getConnection()) {
+            nro.models.database.Dot48Migration.run(ConnectionDatabase);
+            nro.models.database.Dot52Migration.run(ConnectionDatabase);
+            nro.models.database.Dot56Migration.run(ConnectionDatabase);
+            nro.models.database.Dot77Migration.run(ConnectionDatabase);
+            nro.models.database.Dot85Migration.run(ConnectionDatabase);
+            nro.models.database.Dot86Migration.run(ConnectionDatabase);
+            nro.models.database.Dot87Migration.run(ConnectionDatabase);
+            nro.models.database.Dot92Migration.run(ConnectionDatabase);
+            nro.models.database.Dot89Migration.run(ConnectionDatabase);
+            nro.models.database.Dot96Migration.run(ConnectionDatabase);
+            nro.models.database.Dot98Migration.run(ConnectionDatabase);
+            nro.models.database.Dot101Migration.run(ConnectionDatabase);
             //load part
             ps = ConnectionDatabase.prepareStatement("select * from part");
             rs = ps.executeQuery();
@@ -352,7 +393,7 @@ public final class Manager {
             Logger.success(Logger.PURPLE + "Successfully loaded arr head 2 frames (" + ARR_HEAD_2_FRAMES.size() + ")\n");
 
             //load clan
-            ps = ConnectionDatabase.prepareStatement("select * from clan");
+            ps = ConnectionDatabase.prepareStatement("select * from clan order by id");
             rs = ps.executeQuery();
             while (rs.next()) {
                 Clan clan = new Clan();
@@ -490,10 +531,14 @@ public final class Manager {
             }
             Logger.success(Logger.PURPLE + "Successfully loaded flag bag (" + FLAGS_BAGS.size() + ")\n");
 
-            //load intrinsic
+            //load intrinsic (bảng có dòng lặp lại: mỗi id chỉ nạp 1 lần, nếu không mở nội tại có thể ra "Chưa kích hoạt")
             ps = ConnectionDatabase.prepareStatement("select * from intrinsic");
             rs = ps.executeQuery();
+            java.util.Set<Integer> loadedIntrinsic = new java.util.HashSet<>();
             while (rs.next()) {
+                if (!loadedIntrinsic.add(rs.getInt("id"))) {
+                    continue;
+                }
                 Intrinsic intrinsic = new Intrinsic();
                 intrinsic.id = rs.getByte("id");
                 intrinsic.name = rs.getString("name");
@@ -518,6 +563,11 @@ public final class Manager {
                 }
                 INTRINSICS.add(intrinsic);
             }
+            // vị trí 0 phải là "Chưa kích hoạt" (mở nội tại bốc ngẫu nhiên từ vị trí 1)
+            java.util.Comparator<Intrinsic> byId = java.util.Comparator.comparingInt(i -> i.id);
+            INTRINSIC_TD.sort(byId);
+            INTRINSIC_NM.sort(byId);
+            INTRINSIC_XD.sort(byId);
             Logger.success(Logger.RED + "Successfully loaded intrinsic (" + INTRINSICS.size() + ")\n");
 
             //load task
@@ -626,7 +676,7 @@ public final class Manager {
 
             try {
                 while (true) {
-                    ps = ConnectionDatabase.prepareStatement("SELECT * FROM item_template LIMIT ? OFFSET ?");
+                    ps = ConnectionDatabase.prepareStatement("SELECT * FROM item_template ORDER BY id LIMIT ? OFFSET ?");
                     ps.setInt(1, batchSize);
                     ps.setInt(2, offset);
                     rs = ps.executeQuery();
@@ -657,6 +707,10 @@ public final class Manager {
                 }
 
                 Logger.success(Logger.RED + "Successfully loaded map item template (" + ITEM_TEMPLATES.size() + " items)\n");
+                loadTemplateOptions(ConnectionDatabase);
+                nro.models.services.Event2026Service.gI().loadBoxes(ConnectionDatabase);
+                nro.models.services.BossRewardService.gI().load(ConnectionDatabase);
+                nro.models.services.SeasonEventService.gI().load();
 
             } catch (SQLException e) {
                 Logger.error("Error loading item templates: " + e.getMessage());
@@ -682,6 +736,8 @@ public final class Manager {
                 optionTemp.name = rs.getString("name");
                 ITEM_OPTION_TEMPLATES.add(optionTemp);
             }
+            nro.models.item.OptionIdMap.build(ITEM_OPTION_TEMPLATES);
+            nro.models.data.DataVersionService.syncItemVersion(ConnectionDatabase);
             Logger.success(Logger.PURPLE + "Successfully loaded map item option template (" + ITEM_OPTION_TEMPLATES.size() + ")\n");
 
             //load shop
@@ -870,41 +926,7 @@ public final class Manager {
                 Logger.success(Logger.RED + "Successfully loaded map template (" + MAP_TEMPLATES.length + ")\n");
             }
 
-            ps = ConnectionDatabase.prepareStatement("select * from radar");
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                RadarCard rd = new RadarCard();
-                rd.Id = rs.getShort("id");
-                rd.IconId = rs.getShort("iconId");
-                rd.Rank = rs.getByte("rank");
-                rd.Max = rs.getByte("max");
-                rd.Type = rs.getByte("type");
-                rd.Template = rs.getShort("mob_id");
-                rd.Name = rs.getString("name");
-                rd.Info = rs.getString("info");
-                JSONArray arr = (JSONArray) JSONValue.parse(rs.getString("body"));
-                for (int i = 0; i < arr.size(); i++) {
-                    JSONObject ob = (JSONObject) arr.get(i);
-                    if (ob != null) {
-                        rd.Head = Short.parseShort(ob.get("head").toString());
-                        rd.Body = Short.parseShort(ob.get("body").toString());
-                        rd.Leg = Short.parseShort(ob.get("leg").toString());
-                        rd.Bag = Short.parseShort(ob.get("bag").toString());
-                    }
-                }
-                rd.Options.clear();
-                arr = (JSONArray) JSONValue.parse(rs.getString("options"));
-                for (int i = 0; i < arr.size(); i++) {
-                    JSONObject ob = (JSONObject) arr.get(i);
-                    if (ob != null) {
-                        rd.Options.add(new OptionCard(Integer.parseInt(ob.get("id").toString()), Short.parseShort(ob.get("param").toString()), Byte.parseByte(ob.get("activeCard").toString())));
-                    }
-                }
-                rd.Require = rs.getShort("require");
-                rd.RequireLevel = rs.getShort("require_level");
-                rd.AuraId = rs.getShort("aura_id");
-                RadarService.gI().RADAR_TEMPLATE.add(rd);
-            }
+            RadarService.load(ConnectionDatabase);
             Logger.success(Logger.PURPLE + "Successfully loaded radar template (" + RadarService.gI().RADAR_TEMPLATE.size() + ")\n");
 
             //Load giftcode
@@ -1005,6 +1027,10 @@ public final class Manager {
                     top.setInfo1(whis + " Level");
                     top.setInfo2(whis + " Level");
 
+                } else if (query.equals(Manager.queryTopVDST)) {
+                    int luot = rs.getInt("luot");
+                    top.setInfo1(luot + " lượt thách đấu hôm nay");
+                    top.setInfo2(luot + " lượt");
                 } else if (query.equals(Manager.queryTopmaydam)) {
                     int maydam = rs.getInt("point_maydam");
                     long totalDame = rs.getLong("total_damage_maydam");
@@ -1081,7 +1107,7 @@ public final class Manager {
     private int[][] readTileIndexTileType(int tileTypeFocus) {
         int[][] tileIndexTileType = null;
         try {
-            DataInputStream dis = new DataInputStream(new FileInputStream("data/map/tile_set_info"));
+            DataInputStream dis = new DataInputStream(new FileInputStream("data/map/tile_set_Info"));
             int numTileMap = dis.readByte();
             tileIndexTileType = new int[numTileMap][];
             for (int i = 0; i < numTileMap; i++) {

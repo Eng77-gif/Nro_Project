@@ -12,7 +12,7 @@ import nro.models.boss.BossData;
 import nro.models.boss.nhan_ban.NhanBan;
 import nro.models.boss.luyen_tap_tu_dong.TrainingBoss;
 import nro.models.consts.ConstAchievement;
-import nro.models.database.MrBlue;
+import nro.models.database.VietLoader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ import nro.models.server.Manager;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class Service {
@@ -235,7 +235,7 @@ public class Service {
 
             for (int i = 0; i < tops.size(); i++) {
                 TOP top = tops.get(i);
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
 
                 if (pl == null) {
                     continue;
@@ -266,7 +266,7 @@ public class Service {
         try {
             List<TOP> filteredTops = new ArrayList<>();
             for (TOP top : tops) {
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
                 if (pl != null && pl.gender == 0) {
                     filteredTops.add(top);
                 }
@@ -278,7 +278,7 @@ public class Service {
             msg.writer().writeByte(filteredTops.size());
             for (int i = 0; i < filteredTops.size(); i++) {
                 TOP top = filteredTops.get(i);
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
                 msg.writer().writeInt(i + 1);
                 msg.writer().writeInt((int) pl.id);
                 msg.writer().writeShort(pl.getHead());
@@ -303,7 +303,7 @@ public class Service {
         try {
             List<TOP> filteredTops = new ArrayList<>();
             for (TOP top : tops) {
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
                 if (pl != null && pl.gender == 1) {
                     filteredTops.add(top);
                 }
@@ -315,7 +315,7 @@ public class Service {
             msg.writer().writeByte(filteredTops.size());
             for (int i = 0; i < filteredTops.size(); i++) {
                 TOP top = filteredTops.get(i);
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
                 msg.writer().writeInt(i + 1);
                 msg.writer().writeInt((int) pl.id);
                 msg.writer().writeShort(pl.getHead());
@@ -340,7 +340,7 @@ public class Service {
         try {
             List<TOP> filteredTops = new ArrayList<>();
             for (TOP top : tops) {
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
                 if (pl != null && pl.gender == 2) {
                     filteredTops.add(top);
                 }
@@ -352,7 +352,7 @@ public class Service {
             msg.writer().writeByte(filteredTops.size());
             for (int i = 0; i < filteredTops.size(); i++) {
                 TOP top = filteredTops.get(i);
-                Player pl = MrBlue.loadById(top.getId_player());
+                Player pl = VietLoader.loadById(top.getId_player());
                 msg.writer().writeInt(i + 1);
                 msg.writer().writeInt((int) pl.id);
                 msg.writer().writeShort(pl.getHead());
@@ -592,9 +592,9 @@ public class Service {
         try {
             msg = Service.gI().messageSubCommand((byte) 14);//Cập nhật máu
             msg.writer().writeInt((int) pl.id);
-            msg.writer().writeInt(pl.nPoint.hp);
+            msg.writeNum(pl.nPoint.hp);
             msg.writer().writeByte(0);//Hiệu ứng Ăn Đậu
-            msg.writer().writeInt(pl.nPoint.hpMax);
+            msg.writeNum(pl.nPoint.hpMax);
             sendMessAnotherNotMeInMap(pl, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -608,9 +608,9 @@ public class Service {
         try {
             msg = Service.gI().messageSubCommand((byte) 14);//Cập nhật máu
             msg.writer().writeInt((int) pl.id);
-            msg.writer().writeInt(pl.nPoint.hp);
+            msg.writeNum(pl.nPoint.hp);
             msg.writer().writeByte(2);
-            msg.writer().writeInt(pl.nPoint.hpMax);
+            msg.writeNum(pl.nPoint.hpMax);
             sendMessAnotherNotMeInMap(pl, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -624,9 +624,9 @@ public class Service {
         try {
             msg = Service.gI().messageSubCommand((byte) 14);
             msg.writer().writeInt((int) pl.id);
-            msg.writer().writeInt(pl.nPoint.hp);
+            msg.writeNum(pl.nPoint.hp);
             msg.writer().writeByte(1);
-            msg.writer().writeInt(pl.nPoint.hpMax);
+            msg.writeNum(pl.nPoint.hpMax);
             sendMessAnotherNotMeInMap(pl, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -640,8 +640,8 @@ public class Service {
         try {
             msg = messageSubCommand((byte) 9);
             msg.writer().writeInt((int) pl.id);
-            msg.writer().writeInt(pl.nPoint.hp);
-            msg.writer().writeInt(pl.nPoint.hpMax);
+            msg.writeNum(pl.nPoint.hp);
+            msg.writeNum(pl.nPoint.hpMax);
             sendMessAnotherNotMeInMap(pl, msg);
         } catch (Exception e) {
             e.printStackTrace();
@@ -702,6 +702,9 @@ public class Service {
                 msg.cleanup();
             } catch (Exception e) {
                 Logger.logException(Service.class, e);
+            }
+            if (!player.isBot) {
+                nro.models.Bot.BotWorld.gI().onPlayerChat(player, text);
             }
         }
     }
@@ -773,24 +776,26 @@ public class Service {
             Message msg;
             try {
                 msg = new Message(-42);
-                msg.writer().writeInt(player.nPoint.hpg);
-                msg.writer().writeInt(player.nPoint.mpg);
-                msg.writer().writeInt(player.nPoint.dameg);
-                msg.writer().writeInt(player.nPoint.hpMax);
-                msg.writer().writeInt(player.nPoint.mpMax);
-                msg.writer().writeInt(player.nPoint.hp);
-                msg.writer().writeInt(player.nPoint.mp);
+                msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, player.nPoint.hpg));
+                msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, player.nPoint.mpg));
+                msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, player.nPoint.dameg));
+                msg.writeNum(player.nPoint.hpMax);
+                msg.writeNum(player.nPoint.mpMax);
+                msg.writeNum(player.nPoint.hp);
+                msg.writeNum(player.nPoint.mp);
                 msg.writer().writeByte(player.nPoint.speed);
                 msg.writer().writeByte(20);
                 msg.writer().writeByte(20);
                 msg.writer().writeByte(1);
-                msg.writer().writeInt(player.nPoint.dame);
-                msg.writer().writeInt(player.nPoint.def);
+                msg.writeNum(player.nPoint.dame);
+                msg.writeNum(player.nPoint.def);
                 msg.writer().writeByte(player.nPoint.crit);
                 msg.writer().writeLong(player.nPoint.tiemNang);
                 msg.writer().writeShort(100);
-                msg.writer().writeShort(player.nPoint.defg);
+                msg.writeDual(player.nPoint.defg, 2, player.nPoint.defg, 4); // J2ME: int
                 msg.writer().writeByte(player.nPoint.critg);
+                msg.writeOnlyLong(0, 1); // J2ME đọc thêm 1 byte + 1 short
+                msg.writeOnlyLong(0, 2);
                 player.sendMessage(msg);
                 msg.cleanup();
             } catch (Exception e) {
@@ -822,6 +827,7 @@ public class Service {
         if (pl == null) {
             return;
         }
+        nro.models.item.SetColor.refresh(pl); // dòng "5 món ..." xanh / đen theo số món đang mặc
         Message msg;
         try {
             msg = messageSubCommand((byte) 0);
@@ -848,9 +854,9 @@ public class Service {
             } else {
                 msg.writer().writeInt((int) pl.inventory.gold);
             }
-            msg.writer().writeInt(pl.inventory.ruby);
-            msg.writer().writeInt(pl.inventory.gem);
-            ArrayList<Item> itemsBody = (ArrayList<Item>) pl.inventory.itemsBody;
+            msg.writer().writeInt(Util.toInt(pl.inventory.ruby));
+            msg.writer().writeInt(Util.toInt(pl.inventory.gem));
+            List<Item> itemsBody = InventoryService.gI().bodyForClient(pl); // + ô bóng mờ cuối
             msg.writer().writeByte(itemsBody.size());
             for (Item item : itemsBody) {
                 if (!item.isNotNullItem()) {
@@ -861,11 +867,11 @@ public class Service {
                     msg.writer().writeUTF(item.getInfo());
                     msg.writer().writeUTF(item.getContent());
                     List<ItemOption> itemOptions = item.itemOptions;
-                    msg.writer().writeByte(itemOptions.size());
+                    msg.writeOptionCount(itemOptions.size(), item.template.id);
                     for (ItemOption itemOption : itemOptions) {
-                        msg.writer().writeByte(itemOption.optionTemplate.id);
-                        msg.writer().writeShort(itemOption.param);
+                        msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
                     }
+                    msg.writeDescOption(item.template.id); // client J2ME: thêm dòng mô tả item
                 }
 
             }
@@ -881,11 +887,11 @@ public class Service {
                     msg.writer().writeUTF(item.getInfo());
                     msg.writer().writeUTF(item.getContent());
                     List<ItemOption> itemOptions = item.itemOptions;
-                    msg.writer().writeByte(itemOptions.size());
+                    msg.writeOptionCount(itemOptions.size(), item.template.id);
                     for (ItemOption itemOption : itemOptions) {
-                        msg.writer().writeByte(itemOption.optionTemplate.id);
-                        msg.writer().writeShort(itemOption.param);
+                        msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
                     }
+                    msg.writeDescOption(item.template.id); // client J2ME: thêm dòng mô tả item
                 }
 
             }
@@ -901,11 +907,11 @@ public class Service {
                     msg.writer().writeUTF(item.getInfo());
                     msg.writer().writeUTF(item.getContent());
                     List<ItemOption> itemOptions = item.itemOptions;
-                    msg.writer().writeByte(itemOptions.size());
+                    msg.writeOptionCount(itemOptions.size(), item.template.id);
                     for (ItemOption itemOption : itemOptions) {
-                        msg.writer().writeByte(itemOption.optionTemplate.id);
-                        msg.writer().writeShort(itemOption.param);
+                        msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
                     }
+                    msg.writeDescOption(item.template.id); // client J2ME: thêm dòng mô tả item
                 }
             }
             DataGame.sendHeadAvatar(msg);
@@ -949,10 +955,12 @@ public class Service {
         }
 
         if (player.isPet) {
+            Player master = ((Pet) player).master;
+            if (master != null && master.nPoint != null && master.nPoint.tlTNSMDeTu > 0) {
+                param += param * master.nPoint.tlTNSMDeTu / 100; // Ván bay Trung Thu 2026: +% TN, SM cho đệ tử
+            }
             player.nPoint.powerUp(param);
             player.nPoint.tiemNangUp(param);
-
-            Player master = ((Pet) player).master;
 
             long masterParam = (long) (param * 0.5);
             masterParam = master.nPoint.calSubTNSM(masterParam);
@@ -970,7 +978,7 @@ public class Service {
 
             addSMTN(master, type, masterParam, true);
 
-        } else if (player.isBot) {
+        } else if (player.isBot && !(player instanceof nro.models.Bot.Bot b && b.accountBot)) { // tài khoản bot lên như người chơi (giới hạn sức mạnh, nhiệm vụ, điểm bang)
             player.nPoint.power += param;
             player.nPoint.tiemNang += param;
 
@@ -1099,7 +1107,7 @@ public class Service {
         return 19;
     }
 
-    public void hsChar(Player pl, int hp, int mp) {
+    public void hsChar(Player pl, long hp, long mp) {
         Message msg;
         try {
             if (pl.isPl() && pl.effectSkill != null && pl.effectSkill.isBodyChangeTechnique) {
@@ -1117,8 +1125,8 @@ public class Service {
 
             msg = messageSubCommand((byte) 15);
             msg.writer().writeInt((int) pl.id);
-            msg.writer().writeInt(hp);
-            msg.writer().writeInt(mp);
+            msg.writeNum(hp);
+            msg.writeNum(mp);
             msg.writer().writeShort(pl.location.x);
             msg.writer().writeShort(pl.location.y);
             sendMessAllPlayerInMap(pl, msg);
@@ -1149,7 +1157,7 @@ public class Service {
                 ((Pet) pl).lastTimeDie = System.currentTimeMillis();
             }
             msg = new Message(-8);
-            msg.writer().writeShort((int) pl.id);
+            msg.writer().writeInt((int) pl.id); // trước ghi short: lệch với các chỗ gửi -8 khác
             int cPk = 0;
             msg.writer().writeByte(cPk); //cpk
             msg.writer().writeShort(pl.location.x);
@@ -1225,7 +1233,7 @@ public class Service {
         try {
             msg = new Message(-64);
             msg.writer().writeInt((int) pl.id);
-            msg.writer().writeByte(pl.getFlagBag());
+            msg.writeDual(pl.getFlagBag(), 1, pl.getFlagBag(), 2); // túi/cờ: J2ME đọc short
             sendMessAllPlayerInMap(pl, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -1322,6 +1330,9 @@ public class Service {
     }
 
     public void sendMoney(Player pl) {
+        if (pl == null || pl.getSession() == null) {
+            return; // bot / boss không có kết nối
+        }
         Message msg;
         try {
             msg = new Message(6);
@@ -1330,8 +1341,8 @@ public class Service {
             } else {
                 msg.writer().writeInt((int) pl.inventory.gold);
             }
-            msg.writer().writeInt(pl.inventory.gem);
-            msg.writer().writeInt(pl.inventory.ruby);
+            msg.writer().writeInt(Util.toInt(pl.inventory.gem));
+            msg.writer().writeInt(Util.toInt(pl.inventory.ruby));
             pl.sendMessage(msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -1589,17 +1600,16 @@ public class Service {
                         int countOption = item.itemOptions.size();
                         msg.writer().writeByte(countOption);
                         for (ItemOption iop : item.itemOptions) {
-                            msg.writer().writeByte(iop.optionTemplate.id);
-                            msg.writer().writeShort(iop.param);
+                            msg.writeItemOption(iop.optionTemplate.id, iop.param);
                         }
                     }
                 }
 
-                msg.writer().writeInt(pl.pet.nPoint.hp); //hp
-                msg.writer().writeInt(pl.pet.nPoint.hpMax); //hpfull
-                msg.writer().writeInt(pl.pet.nPoint.mp); //mp
-                msg.writer().writeInt(pl.pet.nPoint.mpMax); //mpfull
-                msg.writer().writeInt(pl.pet.nPoint.dame); //damefull
+                msg.writeNum(pl.pet.nPoint.hp); //hp
+                msg.writeNum(pl.pet.nPoint.hpMax); //hpfull
+                msg.writeNum(pl.pet.nPoint.mp); //mp
+                msg.writeNum(pl.pet.nPoint.mpMax); //mpfull
+                msg.writeNum(pl.pet.nPoint.dame); //damefull
                 msg.writer().writeUTF(pl.pet.name); //name
                 msg.writer().writeUTF(getCurrStrLevel(pl.pet)); //curr level
                 msg.writer().writeLong(pl.pet.nPoint.power); //power
@@ -1608,11 +1618,14 @@ public class Service {
                 msg.writer().writeShort(pl.pet.nPoint.stamina); //stamina
                 msg.writer().writeShort(pl.pet.nPoint.maxStamina); //stamina full
                 msg.writer().writeByte(pl.pet.nPoint.crit); //crit
-                msg.writer().writeShort(pl.pet.nPoint.def); //def
+                msg.writeDual(pl.pet.nPoint.def, 2, pl.pet.nPoint.def, 8); //def: J2ME đọc long
                 int sizeSkill = pl.pet.playerSkill.skills.size();
-                msg.writer().writeByte(5); //count pet skill
-                for (int i = 0; i < sizeSkill; i++) {
-                    if (pl.pet.playerSkill.skills.get(i).skillId != -1) {
+                // đệ thường (săn Broly) không mở được kỹ năng 5: bỏ hẳn ô "Không thể mở kỹ năng này", chỉ hiện 4 ô
+                boolean vip = pl.pet.typePet == 2 || pl.pet.typePet == 3 || pl.pet.typePet == 4;
+                int count = vip ? 5 : 4;
+                msg.writer().writeByte(count); //count pet skill
+                for (int i = 0; i < count; i++) {
+                    if (i < sizeSkill && pl.pet.playerSkill.skills.get(i).skillId != -1) {
                         msg.writer().writeShort(pl.pet.playerSkill.skills.get(i).skillId);
                     } else {
                         switch (i) {
@@ -1630,11 +1643,7 @@ public class Service {
                                 break;
                             case 4:
                                 msg.writer().writeShort(-1);
-                                if (pl.pet.typePet == 2 || pl.pet.typePet == 3 || pl.pet.typePet == 4) {
-                                    msg.writer().writeUTF("Cần đạt sức mạnh 40tỷ để mở");
-                                } else {
-                                    msg.writer().writeUTF("Không thể mở kỹ năng này");
-                                }
+                                msg.writer().writeUTF("Cần đạt sức mạnh 40tỷ để mở");
                                 break;
                             default:
                                 msg.writer().writeShort(-1);
@@ -1643,6 +1652,8 @@ public class Service {
                         }
                     }
                 }
+                msg.writeOnlyLong(0, 1); // J2ME đọc thêm 1 byte + 1 short
+                msg.writeOnlyLong(-1, 2);
                 pl.sendMessage(msg);
                 msg.cleanup();
 
@@ -1903,6 +1914,11 @@ public class Service {
             String platform = msg.reader().readUTF();
             String[] arrPlatform = platform.split("\\|");
             session.version = Integer.parseInt(arrPlatform[1].replaceAll("\\.", ""));
+            // client J2ME (loại 1) từ 2.4.0 dùng giao thức số lớn
+            // client Unity 2.4.7 (Thời Đại Ngọc Rồng, sửa) gửi thêm "|long" vì loại client là 4 / 6 nhưng đọc giao thức số lớn
+            boolean markLong = arrPlatform.length > 2 && "long".equalsIgnoreCase(arrPlatform[2].trim());
+            // client Android chính thức 2.4.8 sửa IP (DragonBoy249) gửi phiên bản 2.4.9: giao thức số lớn như J2ME 2.4.x
+            session.longNumbers = (session.typeClient == 1 && session.version >= 240) || markLong || session.version == 249;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -1939,14 +1955,26 @@ public class Service {
     }
 
     public void mabaove(Player player, int mbv) {
-        if (Integer.toString(mbv).length() != 6) {
+        // chống dò mã: sai 5 lần thì khóa 10 phút
+        if (player.idMark.getWrongMbvCount() >= 5) {
+            if (!Util.canDoWithTime(player.idMark.getLastTimeWrongMbv(), 600000)) {
+                Service.gI().sendThongBaoOK(player, "Bạn đã nhập sai quá nhiều lần, vui lòng thử lại sau "
+                        + TimeUtil.getTimeLeft(player.idMark.getLastTimeWrongMbv(), 600));
+                return;
+            }
+            player.idMark.setWrongMbvCount(0);
+        }
+        if (mbv < 100000 || mbv > 999999) {
             Service.gI().sendThongBaoOK(player, "Mã bảo vệ phải có độ dài là 6 số.");
         } else if (player.mbv == 0) {
             player.idMark.setMbv(mbv);
             NpcService.gI().createMenuConMeo(player, ConstNpc.MA_BAO_VE, -1, "Bạn chưa từng kích hoạt chức năng mã bảo vệ để kích hoạt bạn cần có 30K vàng, mật khẩu của bạn là: " + mbv, "Đồng ý", "Từ chối");
         } else if (player.mbv != mbv) {
+            player.idMark.setWrongMbvCount(player.idMark.getWrongMbvCount() + 1);
+            player.idMark.setLastTimeWrongMbv(System.currentTimeMillis());
             Service.gI().sendThongBao(player, "Mật khẩu không đúng. Vui lòng kiểm tra lại");
         } else {
+            player.idMark.setWrongMbvCount(0);
             if (player.baovetaikhoan) {
                 NpcService.gI().createMenuConMeo(player, ConstNpc.MA_BAO_VE, -1, "Tài khoản đang được bảo vệ\nBạn có muốn tắt bảo vệ không?", "Đồng ý", "Từ chối");
             } else {
@@ -1956,6 +1984,10 @@ public class Service {
     }
 
     public void sendEffPlayer(Player pl, Player plReceive, int idEff, int layer, int loop, int loopCount) {
+        sendEffPlayerStand(pl, plReceive, idEff, layer, loop, loopCount, 0);
+    }
+
+    public void sendEffPlayerStand(Player pl, Player plReceive, int idEff, int layer, int loop, int loopCount, int isStand) {
         Message msg = null;
         try {
             msg = new Message(-128);
@@ -1965,7 +1997,7 @@ public class Service {
             msg.writer().writeByte(layer);
             msg.writer().writeByte(loop);
             msg.writer().writeShort(loopCount);
-            msg.writer().writeByte(0);
+            msg.writer().writeByte(isStand);
             plReceive.sendMessage(msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -1981,6 +2013,11 @@ public class Service {
     }
 
     public void sendEffAllPlayer(Player pl, int idEff, int layer, int loop, int loopCount) {
+        sendEffAllPlayer(pl, idEff, layer, loop, loopCount, 0);
+    }
+
+    /** isStand 0: client chỉ vẽ khi đứng im; 1: vẽ cả khi chạy / bay. */
+    public void sendEffAllPlayer(Player pl, int idEff, int layer, int loop, int loopCount, int isStand) {
         try {
             Message msg = new Message(-128);
             msg.writer().writeByte(0);
@@ -1989,7 +2026,7 @@ public class Service {
             msg.writer().writeByte(layer);
             msg.writer().writeByte(loop);
             msg.writer().writeShort(loopCount);
-            msg.writer().writeByte(0);
+            msg.writer().writeByte(isStand);
             sendMessAllPlayerInMap(pl.zone, msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -2003,7 +2040,7 @@ public class Service {
         int legEffId = -1;
 
         switch (costumeId) {
-            case 1794:
+            case 1851:
                 headEffId = 281;
                 bodyEffId = 282;
                 legEffId = 283;
@@ -2062,36 +2099,82 @@ public class Service {
         }
     }
 
+    /** Hiệu ứng quanh nhân vật khi mặc đủ 5 món: mọi Set kích hoạt (kể cả Champa) và Set Beerus (data/effdata). */
+    public static final int EFF_SET_KICH_HOAT = 504;
+    public static final int EFF_SET_BEERUS = 512;
+
+    /** Mã hiệu ứng set của người chơi, -1 nếu không đủ set. */
+    public int setEffectId(Player pl) {
+        if (pl == null || !pl.isPl() || pl.setClothes == null) {
+            return -1;
+        }
+        if (pl.setClothes.beerus >= 5) {
+            return EFF_SET_BEERUS;
+        }
+        return pl.setClothes.fullSetKichHoat() ? EFF_SET_KICH_HOAT : -1;
+    }
+
+    /** Gửi hiệu ứng set của mình cho cả map (vào map). */
     public void sendEffPlayer(Player pl) {
-        if (pl.isPl()) {
-            if (pl.setClothes.songoku >= 5
-                    || pl.setClothes.kaioken >= 5
-                    || pl.setClothes.kirin >= 5
-                    || pl.setClothes.thienXinHang >= 5) {
-                Service.gI().sendEffAllPlayer(pl, 1200, 1, -1, 1);
-            } else if (pl.setClothes.ocTieu >= 5
-                    || pl.setClothes.pikkoroDaimao >= 5
-                    || pl.setClothes.picolo >= 5) {
-                Service.gI().sendEffAllPlayer(pl, 10277, 1, -1, 1);
-            } else if (pl.setClothes.thanVuTruKaio >= 5) {
-                Service.gI().sendEffAllPlayer(pl, 10277, 1, -1, 1);
-                Service.gI().sendEffAllPlayer(pl, 5017, 1, -1, 1);
-            } else if (pl.setClothes.kakarot >= 5
-                    || pl.setClothes.nappa >= 5
-                    || pl.setClothes.cadic >= 5) {
-                Service.gI().sendEffAllPlayer(pl, 1202, 1, -1, 1);
-            }
+        int eff = setEffectId(pl);
+        if (eff >= 0) {
+            sendEffAllPlayer(pl, eff, 1, -1, 1);
+        }
+        // bóng mờ: chỉ hiện vệt khi chạy / bay (Event2026Service.onMove)
+        int spl10 = SaoPhaLe10Service.effectId(pl); // hào quang chân Sao Pha Lê 10
+        if (spl10 >= 0) {
+            sendEffAllPlayer(pl, spl10, 1, -1, 1);
         }
     }
 
+    /** Gửi hiệu ứng set của người khác trong map cho mình (vào map). */
     public void sendEffAllPlayerMapToMe(Player pl) {
         try {
             for (Player plM : pl.zone.getPlayers()) {
-                if (plM.isPl() && plM.inventory.itemsBody.size() >= 10) {
+                if (plM != pl) {
+                    int eff = setEffectId(plM);
+                    if (eff >= 0) {
+                        sendEffPlayer(plM, pl, eff, 1, -1, 1);
+                    }
+                    int trail = Event2026Service.currentTrail(plM); // vệt bóng mờ của người đang chạy
+                    if (trail >= 0) {
+                        sendEffPlayerStand(plM, pl, trail, 0, -1, 1, 1);
+                    }
+                    int spl10 = SaoPhaLe10Service.effectId(plM);
+                    if (spl10 >= 0) {
+                        sendEffPlayer(plM, pl, spl10, 1, -1, 1);
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /** Hiệu ứng đổi từ before sang now: gỡ cái cũ, bật cái mới cho cả map. */
+    public void refreshEffect(Player pl, int before, int now) {
+        if (now == before || pl.zone == null) {
+            return;
+        }
+        if (before >= 0) {
+            removeEffPlayer(pl, before);
+        }
+        if (now >= 0) {
+            sendEffAllPlayer(pl, now, 1, -1, 1);
+        }
+    }
+
+    /** Mặc / tháo đồ làm đổi hiệu ứng set: gỡ cái cũ, bật cái mới cho cả map. */
+    public void refreshSetEffect(Player pl, int before) {
+        int now = setEffectId(pl);
+        if (now == before || pl.zone == null) {
+            return;
+        }
+        if (before >= 0) {
+            removeEffPlayer(pl, before);
+        }
+        if (now >= 0) {
+            sendEffAllPlayer(pl, now, 1, -1, 1);
         }
     }
 
@@ -2259,7 +2342,7 @@ public class Service {
                 player.gender,
                 new short[]{player.getHead(), player.getBody(), player.getLeg(), player.getFlagBag(), player.getAura(), player.getEffFront()},
                 Functions.maxint(player.nPoint.dame * 10L),
-                new int[]{Functions.maxint(player.nPoint.hpMax * 10L)},
+                new long[]{Functions.maxint(player.nPoint.hpMax * 10L)},
                 new int[]{140},
                 skillTemp,
                 new String[]{"|-2|Boss nhân bản đã xuất hiện rồi"}, //text chat 1
@@ -2397,7 +2480,7 @@ public class Service {
         if (plTarget.isPl() && plTarget.maBuHold == null) {
             MaBuHold mabuHold = player.zone.getMaBuHold();
             if (mabuHold != null) {
-                Executors.newSingleThreadExecutor().submit(() -> {
+                nro.models.utils.Util.POOL.submit(() -> {
                     int zoneId = player.zone.zoneId;
                     player.zone.setMaBuHold(mabuHold.slot, zoneId, plTarget);
                     sendEffMabuEat(player, plTarget);
@@ -2437,8 +2520,8 @@ public class Service {
             msg.writer().writeByte(player.zone.getNotBosses().size()); // số player
             for (Player plM : player.zone.getNotBosses()) {
                 msg.writer().writeInt((int) plM.id);
-                int damage = plM.injured(player, player.nPoint.dame + plM.nPoint.hp / 10, true, false);
-                msg.writer().writeInt(damage);
+                long damage = plM.injured(player, player.nPoint.dame + plM.nPoint.hp / 10, true, false);
+                msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, damage));
             }
             sendMessAllPlayerInMap(player, msg);
             msg.cleanup();
@@ -2558,8 +2641,8 @@ public class Service {
             msg.writer().writeByte(pl.gender);
             msg.writer().writeShort(plHead);
             msg.writer().writeUTF(plName);
-            msg.writer().writeInt(pl.nPoint.hp);
-            msg.writer().writeInt(pl.nPoint.hpMax);
+            msg.writeNum(pl.nPoint.hp);
+            msg.writeNum(pl.nPoint.hpMax);
             msg.writer().writeShort(plBody);
             msg.writer().writeShort(plLeg);
             int flagbag = pl.getFlagBag();
@@ -2569,7 +2652,7 @@ public class Service {
                         flagbag = 205;
                 }
             }
-            msg.writer().writeByte(flagbag); //bag
+            msg.writeDual(flagbag, 1, flagbag, 2); // túi/cờ: J2ME đọc short //bag
             msg.writer().writeByte(-1);
             msg.writer().writeShort(pl.location.x);
             msg.writer().writeShort(pl.location.y);
@@ -2626,8 +2709,7 @@ public class Service {
             msg.writer().writeByte(stand);
 
             sendMessAllPlayerInMap(pl.zone, msg);
-            ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-            scheduler.schedule(() -> removeEffectChar(pl, id), times, TimeUnit.MILLISECONDS);
+            nro.models.utils.Util.TIMER.schedule(() -> removeEffectChar(pl, id), times, TimeUnit.MILLISECONDS);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -2708,23 +2790,19 @@ public class Service {
     }
 
     public void updatePlayerTotalDamage(Player pl) {
-        java.sql.PreparedStatement ps = null;
-        try (java.sql.Connection con = LocalManager.getConnection();) {
-            ps = con.prepareStatement("update player SET total_damage_maydam = ? WHERE id = ?");
+        try (java.sql.Connection con = LocalManager.getConnection();
+                java.sql.PreparedStatement ps = con.prepareStatement("update player SET total_damage_maydam = ? WHERE id = ?")) {
             ps.setLong(1, pl.total_damage_maydam);
             ps.setLong(2, pl.id);
-
             ps.executeUpdate();
-
         } catch (Exception e) {
             Logger.logException(PlayerDAO.class, e, "Lỗi update Total dame");
         }
     }
 
     public void updatePlayerPointMayDam(Player pl) {
-        java.sql.PreparedStatement ps = null;
-        try (java.sql.Connection con = LocalManager.getConnection()) {
-            ps = con.prepareStatement("UPDATE player SET point_maydam = ? WHERE id = ?");
+        try (java.sql.Connection con = LocalManager.getConnection();
+                java.sql.PreparedStatement ps = con.prepareStatement("UPDATE player SET point_maydam = ? WHERE id = ?")) {
             ps.setInt(1, pl.point_maydam);
             ps.setLong(2, pl.id);
             ps.executeUpdate();
@@ -2777,13 +2855,13 @@ public class Service {
 
             msg.writer().writeShort(bot.head);
             msg.writer().writeUTF(bot.name);
-            msg.writer().writeInt(bot.nPoint.hp);
-            msg.writer().writeInt(bot.nPoint.hpMax);
+            msg.writeNum(bot.nPoint.hp);
+            msg.writeNum(bot.nPoint.hpMax);
             msg.writer().writeShort(bot.body);
             msg.writer().writeShort(bot.leg);
 
             int flagbag = bot.getFlagBag();
-            msg.writer().writeByte(flagbag);
+            msg.writeDual(flagbag, 1, flagbag, 2); // túi/cờ: J2ME đọc short
             msg.writer().writeByte(-1);
 
             msg.writer().writeShort(bot.location.x);
@@ -2869,21 +2947,28 @@ public class Service {
             msg = messageSubCommand((byte) 7);
             msg.writer().writeInt((int) player.id);
             msg.writer().writeInt(player.clan != null ? player.clan.id : -1);
+            // cùng định dạng thông tin nhân vật với infoPlayer (trước thiếu cấp, cờ ẩn và 1 byte giới tính)
+            msg.writer().writeByte(Service.gI().getCurrLevel(player));
+            msg.writer().writeBoolean(false);
             msg.writer().writeByte(player.typePk);
+            msg.writer().writeByte(player.gender);
             msg.writer().writeByte(player.gender);
             msg.writer().writeShort(player.getHead());
             msg.writer().writeUTF(player.name);
-            msg.writer().writeInt(player.nPoint.hp);
-            msg.writer().writeInt(player.nPoint.hpMax);
+            msg.writeNum(player.nPoint.hp);
+            msg.writeNum(player.nPoint.hpMax);
             msg.writer().writeShort(player.getBody());
             msg.writer().writeShort(player.getLeg());
-            msg.writer().writeByte(player.getFlagBag());
+            msg.writeDual(player.getFlagBag(), 1, player.getFlagBag(), 2); // túi/cờ: J2ME đọc short
             msg.writer().writeByte(-1);
             msg.writer().writeShort(player.location.x);
             msg.writer().writeShort(player.location.y);
             msg.writer().writeShort(0);
             msg.writer().writeShort(0);
             msg.writer().writeByte(0);
+            msg.writer().writeShort(player.getAura());
+            msg.writer().writeByte(player.getEffFront());
+            msg.writer().writeShort(player.getHat());
             sendMessAllPlayer(msg);
         } catch (Exception e) {
             Logger.logException(Service.class, e);
@@ -2895,6 +2980,9 @@ public class Service {
     }
 
     public void loadMob(Player p, GauTuongCuop gauTuong) {
+        if (p.session != null && p.session.longNumbers) {
+            return; // client J2ME hiểu -13 là hồi sinh quái thường -> bỏ qua để không làm hỏng quái
+        }
         try {
             Message msg = new Message(-13);
             msg.writer().writeByte(5);
@@ -2904,8 +2992,8 @@ public class Service {
             msg.writer().writeByte(gauTuong.status);
             msg.writer().writeShort(gauTuong.location.x);
             msg.writer().writeShort(gauTuong.location.y);
-            msg.writer().writeInt(gauTuong.point.gethp());
-            msg.writer().writeInt(gauTuong.point.getHpFull());
+            msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, gauTuong.point.gethp()));
+            msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, gauTuong.point.getHpFull()));
             msg.writer().writeByte(0);
             msg.writer().writeInt(gauTuong.level);
             msg.writer().writeBoolean(true);

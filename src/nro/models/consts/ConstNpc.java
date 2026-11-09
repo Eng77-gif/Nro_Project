@@ -104,6 +104,7 @@ public class ConstNpc {
     public static final byte DOC_NHAN = 26;
     public static final byte RONG_THIENG_NAMEC = 27;
     public static final byte CUA_HANG_KY_GUI = 28;
+    public static final byte KY_GUI_SU_KIEN = 68; // King Furry ở Siêu thị: chợ ký gửi riêng cho đồ sự kiện
     public static final byte RONG_OMEGA = 29;
     public static final byte RONG_2S = 30;
     public static final byte RONG_3S = 31;
@@ -153,6 +154,7 @@ public class ConstNpc {
     public static final byte RUONG_SUU_TAM = 82;
     public static final byte DR_MYUU = 83;
     public static final byte XE_NUOC_MIA = 84;
+    public static final byte HOA_HONG = 111; // cây hoa hồng sự kiện 20/11 (npc_template 111)
     //----------------------index menu------------------------------------------
     //menu o len tang map mabu
     public static final int GO_UPSTAIRS_MENU = 10000;

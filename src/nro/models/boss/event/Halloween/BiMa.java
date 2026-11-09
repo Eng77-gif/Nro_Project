@@ -34,7 +34,7 @@ public class BiMa extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(10, 1000)) {
                 this.chat("Xí hụt");
@@ -55,7 +55,7 @@ public class BiMa extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

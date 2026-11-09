@@ -33,7 +33,7 @@ public class AnTrom extends Boss {
                 ConstPlayer.TRAI_DAT,
                 new short[]{201, 202, 203, -1, -1, -1},
                 1,
-                new int[]{100},
+                new long[]{100},
                 new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 79, 80, 81, 82, 83, 84, 92, 93, 94, 96, 97, 98, 99, 100, 102, 103, 104, 105, 106, 107, 108, 109, 110}, //map join
                 new int[][]{
                     {Skill.THAI_DUONG_HA_SAN, 3, 50000}},
@@ -56,7 +56,7 @@ public class AnTrom extends Boss {
     }
 
     @Override
-    public int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             damage = 1;
             this.nPoint.subHP(damage);
@@ -66,7 +66,7 @@ public class AnTrom extends Boss {
             }
             this.playerSkill.skillSelect = this.playerSkill.skills.get(Util.nextInt(0, this.playerSkill.skills.size() - 1));
             SkillService.gI().useSkill(this, plAtt, null, -1, null);
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }
@@ -156,8 +156,6 @@ public class AnTrom extends Boss {
             Service.gI().dropItemMap(this.zone, item1594);
             
             BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.BI_MOC_SACH_TUI, 1);
-            plKill.event.addEventPoint(5);
-            Service.gI().sendThongBao(plKill, "+5 Point");
         }
     }
 

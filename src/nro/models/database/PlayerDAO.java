@@ -352,6 +352,7 @@ public class PlayerDAO {
     public static void updatePlayer(Player player) {
         if (player != null && player.idMark.isLoadedAllDataPlayer()) {
             long st = System.currentTimeMillis();
+            PlayerExtraDAO.save(player);
             try {
                 JSONArray dataArray = new JSONArray();
 
@@ -622,7 +623,7 @@ public class PlayerDAO {
                 dataArray.add((player.itemTime.isUseNuocMia1 ? (ItemTime.TIME_NUOC_MIA1 - (System.currentTimeMillis() - player.itemTime.lastTimeUseNuocMia1)) : 0));
                 dataArray.add((player.itemTime.isUseNuocMia2 ? (ItemTime.TIME_NUOC_MIA2 - (System.currentTimeMillis() - player.itemTime.lastTimeUseNuocMia2)) : 0));
                 dataArray.add((player.itemTime.isUseNuocMia3 ? (ItemTime.TIME_NUOC_MIA3 - (System.currentTimeMillis() - player.itemTime.lastTimeUseNuocMia3)) : 0));
-                dataArray.add((player.itemTime.isUseKilis ? (ItemTime.TIME_KILIS - (System.currentTimeMillis() - player.itemTime.lastTimeUseKilis)) : 0));
+                dataArray.add((player.itemTime.isUseKilis ? Math.max(0, player.itemTime.lastTimeUseKilis + player.itemTime.timeLengthKilis - System.currentTimeMillis()) : 0));
                 dataArray.add(0);
                 dataArray.add(0);
                 String itemTime = dataArray.toJSONString();
@@ -1088,17 +1089,22 @@ public class PlayerDAO {
         return lastTimeLogout > lastTimeLogin;
     }
 
-    public static boolean subvnd(Player player, int num) {
-        PreparedStatement ps = null;
-        try (Connection con = LocalManager.getConnection();) {
-            if (player.getSession().vnd >= num) {
-            } else {
+    public static synchronized boolean subvnd(Player player, int num) {
+        if (num <= 0) {
+            return false;
+        }
+        try (Connection con = LocalManager.getConnection();
+                PreparedStatement ps = con.prepareStatement("update account set vnd = vnd - ? where id = ? and vnd >= ?")) {
+            if (player.getSession().vnd < num) {
                 return false;
             }
-            ps = con.prepareStatement("update account set vnd = vnd - ? where id = ?");
             ps.setInt(1, num);
             ps.setInt(2, player.getSession().userId);
-            ps.executeUpdate();
+            ps.setInt(3, num);
+            // kiểm tra số dư ngay trong DB để tránh trừ âm khi số dư bị thay đổi từ web
+            if (ps.executeUpdate() <= 0) {
+                return false;
+            }
             player.getSession().vnd -= num;
 
         } catch (Exception e) {
@@ -1108,18 +1114,22 @@ public class PlayerDAO {
         return true;
     }
 
-    public static boolean MuaThanhVien(Player player, int num) {
-        PreparedStatement ps = null;
-        try (Connection con = LocalManager.getConnection();) {
-            if (player.getSession().vnd >= num) {
-            } else {
+    public static synchronized boolean MuaThanhVien(Player player, int num) {
+        if (num < 0) {
+            return false;
+        }
+        try (Connection con = LocalManager.getConnection();
+                PreparedStatement ps = con.prepareStatement("update account set vnd = (vnd - ?), active = ? where id = ? and vnd >= ?")) {
+            if (player.getSession().vnd < num) {
                 return false;
             }
-            ps = con.prepareStatement("update account set vnd = (vnd - ?), active = ? where id = ?");
             ps.setInt(1, num);
             ps.setInt(2, player.getSession().actived ? 1 : 0);
             ps.setInt(3, player.getSession().userId);
-            ps.executeUpdate();
+            ps.setInt(4, num);
+            if (ps.executeUpdate() <= 0) {
+                return false;
+            }
             player.getSession().vnd -= num;
         } catch (Exception e) {
             Logger.logException(PlayerDAO.class, e, "Lỗi update mua thành viên " + player.name);

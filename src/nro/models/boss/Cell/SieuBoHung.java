@@ -81,7 +81,7 @@ public class SieuBoHung extends Boss {
         int x = this.location.x; // đâyyyy
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
         int drop = 190; // 100% rơi item ID 190
-        int quantity = Util.nextInt(20000, 30000);
+        int quantity = 0; // vàng theo độ mạnh boss: BossRewardService
         // Tạo itemMap cho item ID 190
         if (Util.isTrue(5, 100)) {
             ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
@@ -91,7 +91,7 @@ public class SieuBoHung extends Boss {
         }
         ItemMap itemMap = new ItemMap(this.zone, drop, quantity, x, y, plKill.id);
         Item item = ItemService.gI().createNewItem((short) drop);
-        Service.gI().dropItemMap(zone, itemMap);
+        // (vàng rơi theo độ mạnh boss ở BossRewardService)
         // 30% xác suất để rơi đồ
         if (Util.isTrue(30, 100)) {
             int group = Util.nextInt(1, 100) <= 70 ? 0 : 1;  // 70% chọn Áo Quần Giày (group = 0), 30% chọn Găng Rada (group = 1)
@@ -131,9 +131,7 @@ public class SieuBoHung extends Boss {
             ItemMap optionalItemMap = new ItemMap(this.zone, dropOptional, Util.nextInt(1, 3), x, y, plKill.id);
             Item optionalItem = ItemService.gI().createNewItem((short) dropOptional);
             Service.gI().dropItemMap(zone, optionalItemMap);
-            int diem = 5;
-            plKill.event.addEventPoint(diem);
-            Service.gI().sendThongBao(plKill, "+5 Point");
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         }
 
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
@@ -148,7 +146,7 @@ public class SieuBoHung extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (prepareBom) {
             return 0;
         }
@@ -180,7 +178,7 @@ public class SieuBoHung extends Boss {
                 return 0;
             }
 
-            return (int) damage;
+            return damage;
         }
         return 0;
     }

@@ -27,7 +27,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class PlayerService {
@@ -80,7 +80,7 @@ public class PlayerService {
         Message msg;
         try {
             msg = Service.gI().messageSubCommand((byte) 5);
-            msg.writer().writeInt(player.nPoint.hp);
+            msg.writeNum(player.nPoint.hp);
             player.sendMessage(msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -92,7 +92,7 @@ public class PlayerService {
         Message msg;
         try {
             msg = Service.gI().messageSubCommand((byte) 6);
-            msg.writer().writeInt(player.nPoint.mp);
+            msg.writeNum(player.nPoint.mp);
             player.sendMessage(msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -135,10 +135,10 @@ public class PlayerService {
             } catch (Exception e) {
                 msg.writer().writeInt((int) player.inventory.gold);
             }
-            msg.writer().writeInt(player.inventory.gem);//luong
-            msg.writer().writeInt(player.nPoint.hp);//chp
-            msg.writer().writeInt(player.nPoint.mp);//cmp
-            msg.writer().writeInt(player.inventory.ruby);//ruby
+            msg.writer().writeInt(Util.toInt(player.inventory.gem));//luong
+            msg.writeNum(player.nPoint.hp);//chp
+            msg.writeNum(player.nPoint.mp);//cmp
+            msg.writer().writeInt(Util.toInt(player.inventory.ruby));//ruby
             player.sendMessage(msg);
         } catch (Exception e) {
             Logger.logException(PlayerService.class, e);
@@ -156,9 +156,11 @@ public class PlayerService {
             if (player.effectSkill.useTroi) {
                 EffectSkillService.gI().removeUseTroi(player);
             }
+            int oldX = player.location.x, oldY = player.location.y;
             player.location.x = x;
             player.location.y = y;
             player.location.lastTimeplayerMove = System.currentTimeMillis();
+            Event2026Service.onMove(player, oldX, oldY, x, y); // vệt bóng mờ khi chạy / bay
             switch (player.zone.map.mapId) {
                 case 85:
                 case 86:
@@ -195,7 +197,7 @@ public class PlayerService {
                 } catch (Exception e) {
                 }
                 if (player.isFly && player.getMount() == -1) {
-                    int mp = player.nPoint.mpg / (100 * (player.effectSkill.isMonkey ? 2 : 1));
+                    long mp = (player.nPoint.mpg / (100 * (player.effectSkill.isMonkey ? 2 : 1)));
                     hoiPhuc(player, 0, -mp);
                 }
             }
@@ -251,7 +253,7 @@ public class PlayerService {
 
     public void banPlayer(Player playerBaned) {
         try {
-            LocalManager.executeUpdate("update account set ban = 0 where id = ? and username = ?",
+            LocalManager.executeUpdate("update account set ban = 1 where id = ? and username = ?", // 1 = khóa (VietLoader chặn đăng nhập khi ban = 1)
                     playerBaned.getSession().userId, playerBaned.getSession().uu);
         } catch (Exception e) {
         }

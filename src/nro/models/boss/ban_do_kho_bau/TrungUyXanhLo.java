@@ -27,7 +27,7 @@ public class TrungUyXanhLo extends Boss {
                 ConstPlayer.TRAI_DAT,
                 new short[]{135, 136, 137, -1, -1, -1},
                 (dame),
-                new int[]{hp},
+                new long[]{hp},
                 new int[]{103},
                 (int[][]) Util.addArray(FULL_DEMON),
                 new String[]{},
@@ -42,9 +42,7 @@ public class TrungUyXanhLo extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         if (Util.isTrue(100, 100)) {
             ItemMap it = new ItemMap(this.zone, 705, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x,
                     this.location.y - 24), plKill.id);

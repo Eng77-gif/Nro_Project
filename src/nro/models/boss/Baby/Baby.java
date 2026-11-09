@@ -35,7 +35,7 @@ public class Baby extends Boss {
         }
         plKill.bossBabyDefeatParticipationCount++;
         if (Util.isTrue(1, 100)) {
-            int[] costumes = {1785, 1786, 1788};
+            int[] costumes = {1762, 1763, 1764};
             int costumeId = costumes[Util.nextInt(costumes.length)];
 
             ItemMap itemMap = new ItemMap(this.zone, costumeId, 1, x, y, plKill.id);
@@ -85,6 +85,21 @@ public class Baby extends Boss {
             // Drop vật phẩm tùy chọn xuống bản đồ
             Service.gI().dropItemMap(zone, optionalItemMap);
         }
+        // Set Thần hủy diệt Champa: hành tinh / loại đồ ngẫu nhiên
+        if (Util.isTrue(10, 100)) {
+            int gear = nro.models.services.Event2026Service.randomSkhChampaGear();
+            ItemMap champa = new ItemMap(this.zone, gear, 1, x + Util.nextInt(-30, 30), y, plKill.id);
+            champa.options.addAll(ItemService.gI().getListOptionItemShop((short) gear));
+            nro.models.services.Event2026Service.addSkhChampaOptions(champa.options);
+            Service.gI().dropItemMap(zone, champa);
+        }
+        // Sao pha lê rơi nhiều: 3 - 6 viên mỗi lần, 30% thêm sao pha lê cấp 2
+        for (int i = Util.nextInt(3, 6); i > 0; i--) {
+            Service.gI().dropItemMap(zone, new ItemMap(this.zone, Util.nextInt(441, 447), 1, x + Util.nextInt(-60, 60), y, plKill.id));
+        }
+        if (Util.isTrue(30, 100)) {
+            Service.gI().dropItemMap(zone, new ItemMap(this.zone, Util.nextInt(1416, 1422), Util.nextInt(1, 3), x + Util.nextInt(-60, 60), y, plKill.id));
+        }
         // 80% xác suất rơi ngọc rồng
         if (Util.isTrue(10, 100)) {
             int[] dropItems = {15, 16, 17, 18, 19, 20, 992};
@@ -105,7 +120,7 @@ public class Baby extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack
     ) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(this.nPoint.tlNeDon, 1000)) {
@@ -130,7 +145,7 @@ public class Baby extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

@@ -51,7 +51,7 @@ public class Odo extends Boss {
                 ConstPlayer.TRAI_DAT,
                 new short[]{400, 401, 402, -1, -1, -1},
                 1000,
-                new int[]{500000},
+                new long[]{500000},
                 new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 79, 80, 81, 82, 83, 84, 92, 93, 94, 96, 97, 98, 99, 100, 102, 103, 104, 105, 106, 107, 108, 109, 110}, //map join
                 new int[][]{
                     {Skill.TAI_TAO_NANG_LUONG, 1}},
@@ -62,7 +62,7 @@ public class Odo extends Boss {
     }
 
     @Override
-    public int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             damage = 50000;
             this.nPoint.subHP(damage);
@@ -70,7 +70,7 @@ public class Odo extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }
@@ -86,9 +86,9 @@ public class Odo extends Boss {
                     Player pl = playersMap.get(i);
                     if (pl != null && pl.nPoint != null && !this.equals(pl) && !pl.isBoss && !pl.isDie()
                             && Util.getDistance(this, pl) <= 200) {
-                        int subHp = (int) ((long) pl.nPoint.hpMax * param / 100);
+                        long subHp = pl.nPoint.hpMax * param / 100;
                         if (subHp >= pl.nPoint.hp) {
-                            subHp = pl.nPoint.hp - 1;
+                            subHp = (pl.nPoint.hp - 1);
                         }
                         this.chat("Bùm Bùm");
                         Service.gI().chat(pl, textOdo[Util.nextInt(0, textOdo.length - 1)]);
@@ -107,7 +107,7 @@ public class Odo extends Boss {
         try {
             if (Util.canDoWithTime(lastTimeHpRegen, 30000)) {
                 int regenPercentage = Util.nextInt(10, 20);
-                int regenAmount = (this.nPoint.hpMax * regenPercentage / 100);
+                long regenAmount = ((this.nPoint.hpMax * regenPercentage / 100));
                 PlayerService.gI().hoiPhuc(this, regenAmount, 0);
                 this.chat("Mùi Của Các Ngươi Thơm Quá!! HAHA");
                 this.lastTimeHpRegen = System.currentTimeMillis();
@@ -182,9 +182,7 @@ public class Odo extends Boss {
             }
 
             BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.O_DO, 1);
-            int diem = 5;
-            plKill.event.addEventPoint(diem);
-            Service.gI().sendThongBao(plKill, "+5 Point");
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
 
         } catch (Exception e) {
             e.printStackTrace();

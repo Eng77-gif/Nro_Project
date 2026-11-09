@@ -25,7 +25,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class BaHatMit extends Npc {
@@ -45,7 +45,8 @@ public class BaHatMit extends Npc {
                             "Chuyển hóa\nTrang bị",
                             "Võ đài\nSinh tử",
                             "Phân rã\nTrang bị\nKích hoạt",
-                            "Tái tạo\nCapsule\nKích hoạt"
+                            "Tái tạo\nCapsule\nKích hoạt",
+                            "Nhiệm vụ\nSao pha lê\n10"
                     );
 
                 case 112 -> {
@@ -87,7 +88,7 @@ public class BaHatMit extends Npc {
                     // Cờ kiểm tra BT
                     final boolean hasBt1or2 = InventoryService.gI().findItem(player, 454) || InventoryService.gI().findItem(player, 921);
                     final boolean hasBt2 = InventoryService.gI().findItemBongTaiCap2(player) || InventoryService.gI().findItem(player, 921);
-                    final boolean hasBt3 = InventoryService.gI().findItem(player, 1819); // BT Porata cấp 3
+                    final boolean hasBt3 = InventoryService.gI().findItem(player, 1884); // BT Porata cấp 3
 
                     // Base menu
                     List<String> menu = new ArrayList<>(Arrays.asList(
@@ -155,6 +156,13 @@ public class BaHatMit extends Npc {
                                 CombineService.gI().openTabCombine(player, CombineService.PHAN_RA_TRANG_BI_KH);
                             case 4 ->
                                 CombineService.gI().openTabCombine(player, CombineService.TAI_TAO_CAPSULE_KH);
+                            case 5 ->
+                                nro.models.services.SaoPhaLe10Service.gI().showQuest(player, this);
+                        }
+                    } else if (player.idMark.getIndexMenu() == nro.models.services.SaoPhaLe10Service.MENU_NHIEM_VU) {
+                        if (select == 0) {
+                            nro.models.services.SaoPhaLe10Service.gI().claim(player);
+                            nro.models.services.SaoPhaLe10Service.gI().showQuest(player, this);
                         }
                     } else if (player.idMark.getIndexMenu() == 3) {
                         switch (select) {
@@ -224,8 +232,8 @@ public class BaHatMit extends Npc {
                         if (DeathOrAliveArenaManager.gI().getVDST(player.zone) != null) {
                             if (DeathOrAliveArenaManager.gI().getVDST(player.zone).getPlayer().equals(player)) {
                                 switch (select) {
-                                    case 0 -> {
-                                    }
+                                    case 0 ->
+                                        showTopVDST(player);
                                     case 1 ->
                                         this.npcChat("Không thể thực hiện");
                                     case 2 -> {
@@ -236,8 +244,8 @@ public class BaHatMit extends Npc {
                                 return;
                             }
                             switch (select) {
-                                case 0 -> {
-                                }
+                                case 0 ->
+                                    showTopVDST(player);
                                 case 1 ->
                                     this.createOtherMenu(player, ConstNpc.DAT_CUOC_HAT_MIT,
                                             "Phí bình chọn là 1 triệu vàng\nkhi trận đấu kết thúc\n90% tổng tiền bình chọn sẽ chia đều cho phe bình chọn chính xác",
@@ -253,8 +261,8 @@ public class BaHatMit extends Npc {
                             return;
                         }
                         switch (select) {
-                            case 0 -> {
-                            }
+                            case 0 ->
+                                showTopVDST(player);
                             case 1 ->
                                 DeathOrAliveArenaService.gI().startChallenge(player);
                             case 2 -> {
@@ -366,7 +374,7 @@ public class BaHatMit extends Npc {
                                 CombineService.gI().openTabCombine(player, CombineService.NHAP_NGOC_RONG);
                                 break;
                             case 7: {
-                                boolean hasBt3 = InventoryService.gI().findItem(player, 1819);
+                                boolean hasBt3 = InventoryService.gI().findItem(player, 1884);
                                 boolean hasBt2 = InventoryService.gI().findItemBongTaiCap2(player) || InventoryService.gI().findItem(player, 921);
                                 if (hasBt3) {
                                     // Mở tab "Mở chỉ số BT3"
@@ -404,7 +412,7 @@ public class BaHatMit extends Npc {
                                 CombineService.gI().openTabCombine(player, CombineService.PHAN_RA_SACH);
                                 break;
                             case 7: {                                
-                                boolean hasBt3 = InventoryService.gI().findItem(player, 1819); // Bông tai Porata cấp 3
+                                boolean hasBt3 = InventoryService.gI().findItem(player, 1884); // Bông tai Porata cấp 3
                                 boolean hasBt2 = InventoryService.gI().findItemBongTaiCap2(player) || InventoryService.gI().findItem(player, 921); // Porata 2
 
                                 if (hasBt3) {
@@ -422,7 +430,7 @@ public class BaHatMit extends Npc {
                     } else if (player.idMark.getIndexMenu() == ConstNpc.DOI_SACH_TUYET_KY) {
                         if (select == 0) {
                             DoiSachTuyetKy.doiSachTuyetKy(player, false);
-                        } else if (select == 1 && InventoryService.gI().findItemBag(player, 1794) != null) {
+                        } else if (select == 1 && InventoryService.gI().findItemBag(player, 1851) != null) {
                             DoiSachTuyetKy.doiSachTuyetKy(player, true);
                         }
                     } else if (player.idMark.getIndexMenu() == ConstNpc.MENU_OPTION_SHOP_BUA) {
@@ -453,5 +461,25 @@ public class BaHatMit extends Npc {
                 }
             }
         }
+    }
+
+    private static java.util.List<nro.models.matches.TOP> topVDST;
+    private static long lastTopVDST;
+
+    /** Top 100 võ đài sinh tử (trước đây nút "Top 100" không làm gì). Làm mới tối đa mỗi phút. */
+    private void showTopVDST(Player player) {
+        if (topVDST == null || System.currentTimeMillis() - lastTopVDST > 60_000) {
+            try (java.sql.Connection con = nro.models.data.LocalManager.gI().getConnection()) {
+                topVDST = nro.models.server.Manager.realTop(nro.models.server.Manager.queryTopVDST, con);
+                lastTopVDST = System.currentTimeMillis();
+            } catch (Exception e) {
+                nro.models.utils.Logger.logException(BaHatMit.class, e);
+            }
+        }
+        if (topVDST == null || topVDST.isEmpty()) {
+            Service.gI().sendThongBao(player, "Hôm nay chưa có ai thách đấu võ đài");
+            return;
+        }
+        Service.gI().showListTop(player, topVDST);
     }
 }

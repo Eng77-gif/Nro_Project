@@ -55,7 +55,7 @@ import nro.models.shop_ky_gui.ConsignShopService;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -146,20 +146,27 @@ public class Controller implements IMessageHandler {
                                 short idC = _msg.reader().readShort();
                                 Card card = player.Cards.stream().filter(r -> r != null && r.Id == idC).findFirst().orElse(null);
                                 if (card != null) {
-                                    if (card.Level == 0) {
+                                    if (card.Level < 1) {
+                                        Service.gI().sendThongBao(player, "Thẻ chưa đạt Lv.1, hãy sưu tầm thêm mảnh");
                                         return;
                                     }
+                                    short auraTruoc = player.getAura();
                                     if (card.Used == 0) {
-                                        if (player.Cards.stream().anyMatch(c -> c != null && c.Used == 1)) {
-                                            Service.gI().sendThongBao(player, "Số thẻ sử dụng đã đạt tối đa");
+                                        if (player.Cards.stream().filter(c -> c != null && c.Used == 1).count() >= RadarService.MAX_USED) {
+                                            Service.gI().sendThongBao(player, "Chỉ dùng được tối đa " + RadarService.MAX_USED + " thẻ cùng lúc, hãy tắt bớt 1 thẻ");
                                             return;
                                         }
                                         card.Used = 1;
+                                        card.usedAt = System.currentTimeMillis();
                                     } else {
                                         card.Used = 0;
                                     }
                                     RadarService.gI().Radar1(player, idC, card.Used);
                                     Service.gI().point(player);
+                                    if (player.getAura() != auraTruoc && player.zone != null) { // bật / tắt thẻ: hiện / ẩn aura ngay
+                                        Service.gI().player(player);
+                                        player.zone.load_Me_To_Another(player);
+                                    }
                                 }
                                 break;
                         }
@@ -445,8 +452,8 @@ public class Controller implements IMessageHandler {
                     break;
                 case -63:
                     if (player != null) {
-                        byte fbid = _msg.reader().readByte();
-                        int fbidz = fbid & 0xFF; //Chuyển sang byte không dấu
+                        // client J2ME gửi id cờ/túi dạng short
+                        int fbidz = _session.longNumbers ? _msg.reader().readShort() : (_msg.reader().readByte() & 0xFF); //Chuyển sang byte không dấu
                         FlagBagService.gI().sendIconEffectFlag(player, fbidz);
                     }
                     break;
@@ -565,7 +572,8 @@ public class Controller implements IMessageHandler {
                     }
                     break;
                 case 11:
-                    byte modId = _msg.reader().readByte();
+                    // client J2ME gửi id quái dạng short
+                    int modId = _session.longNumbers ? _msg.reader().readShort() : _msg.reader().readByte();
                     DataGame.requestMobTemplate(_session, modId);
                     break;
                 case 44:
@@ -638,7 +646,7 @@ public class Controller implements IMessageHandler {
                     messageSubCommand(_session, _msg);
                     break;
                 case -15: // về nhà
-                    if (player != null) {
+                    if (player != null && player.zone != null) {
                         int mapId = MapService.gI().isMapMaBu(player.zone.map.mapId) ? 114 : player.gender + 21;
                         ChangeMapService.gI().changeMapBySpaceShip(player, mapId, 0, -1);
                     }
@@ -690,7 +698,9 @@ public class Controller implements IMessageHandler {
 //                    short menuid
                     break;
                 case -76:
-                    AchievementService.gI().confirmAchievement(player, _msg.reader().readByte());
+                    if (player != null) {
+                        AchievementService.gI().confirmAchievement(player, _msg.reader().readByte());
+                    }
                     break;
                 default:
                     //Logger.log(Logger.YELLOW, "CMD: " + cmd + "\n");
@@ -778,6 +788,7 @@ public class Controller implements IMessageHandler {
 
                             // -70 thông báo bigmessage
                             sendThongBaoServer(player);
+                            nro.models.services.AnnounceService.gI().onLogin(player);
 
                             if (TaskService.gI().getIdTask(player) == ConstTask.TASK_0_0) {
                                 NpcService.gI().createTutorial(player, -1,
@@ -804,6 +815,13 @@ public class Controller implements IMessageHandler {
                             Service.gI().sendTimeSkill(player);
                             TrainingService.gI().tnsmLuyenTapUp(player);
                             player.sendNewPet();
+                            nro.models.player_badges.BadgesService.checkPerfect(player);
+                            nro.models.services.Event2026Service.gI().deliverRaceReward(player);
+                            nro.models.services.Event2026Service.gI().deliverHopDenReward(player);
+                            if (nro.models.services.SeasonEventService.gI().hasTopRewardBox(player)) {
+                                Service.gI().sendThongBao(player, "Bạn có phần thưởng đua top, hãy gặp Chi Chi chọn Nhận thưởng Sự kiện Đua Top");
+                            }
+                            nro.models.services.shenron.RongXuong.sendBuffTimes(player);
                             if (player.getSession() != null && player.getSession().tongnap > 0) {
                                 AchievementService.gI().checkDoneTask(player, ConstAchievement.LAN_DAU_NAP_NGOC);
                             }
@@ -862,6 +880,16 @@ public class Controller implements IMessageHandler {
                 String name = msg.reader().readUTF();
                 int gender = msg.reader().readByte();
                 int hair = msg.reader().readByte();
+                if (session.userId <= 0 || session.player != null || gender < 0 || gender > 2) {
+                    return;
+                }
+                rs = LocalManager.executeQuery("select id from player where account_id = ? limit 1", session.userId);
+                boolean hasChar = rs.first();
+                rs.dispose();
+                rs = null;
+                if (hasChar) {
+                    return; // mỗi tài khoản chỉ được 1 nhân vật
+                }
                 if (name.length() >= 5 && name.length() <= 10) {
                     rs = LocalManager.executeQuery("select * from player where name = ?", name);
                     if (rs.first()) {

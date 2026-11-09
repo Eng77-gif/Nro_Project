@@ -13,7 +13,7 @@ import nro.models.services.ItemService;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -39,8 +39,12 @@ public class LuckyRound {
         return instance;
     }
 
+    /** người đang mở giao diện "Vòng quay đặc biệt" (quay bằng vàng nhưng có vật phẩm đặc biệt / mùa sự kiện) */
+    private final java.util.Set<Long> vipUi = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
     public void openCrackBallUI(Player pl, byte type) {
         pl.idMark.setTypeLuckyRound(type);
+        vipUi.remove(pl.id);
         Message msg = null;
         try {
             msg = new Message(-127);
@@ -63,6 +67,7 @@ public class LuckyRound {
 
     public void openCrackBallVipUI(Player pl, byte type) {
         pl.idMark.setTypeLuckyRound(type);
+        vipUi.add(pl.id);
         Message msg = null;
         try {
             msg = new Message(-127);
@@ -87,6 +92,9 @@ public class LuckyRound {
         try {
             msg.reader().readByte();
             byte count = msg.reader().readByte();
+            if (count <= 0 || count > 10) {
+                return; // số lần âm sẽ thành giá âm (cộng ngọc/vàng)
+            }
             switch (player.idMark.getTypeLuckyRound()) {
                 case USING_GEM:
                     openBallByGem(player, count);
@@ -104,7 +112,11 @@ public class LuckyRound {
                     openCrackBallVipUI(player, player.idMark.getTypeLuckyRound());
                     break;
                 default:
-                    openCrackBallUI(player, player.idMark.getTypeLuckyRound());
+                    if (vipUi.contains(player.id)) {
+                        openCrackBallVipUI(player, player.idMark.getTypeLuckyRound());
+                    } else {
+                        openCrackBallUI(player, player.idMark.getTypeLuckyRound());
+                    }
                     break;
             }
         }
@@ -121,6 +133,7 @@ public class LuckyRound {
                 addItemToBox(player, list);
                 sendReward(player, list);
                 Service.gI().sendMoney(player);
+                gioToInfo(player);
             } else {
                 Service.gI().sendThongBao(player, "Rương phụ đã đầy");
             }
@@ -134,10 +147,14 @@ public class LuckyRound {
         } else {
             if (count + player.inventory.itemsBoxCrackBall.size() <= MAX_ITEM_IN_BOX) {
                 player.inventory.gold -= goldNeed;
-                List<Item> list = RewardService.gI().getListItemLuckyRound(player, count, false);
+                boolean vip = vipUi.contains(player.id);
+                List<Item> list = RewardService.gI().getListItemLuckyRound(player, count, vip);
                 addItemToBox(player, list);
                 sendReward(player, list);
                 Service.gI().sendMoney(player);
+                if (vip) {
+                    gioToInfo(player);
+                }
             } else {
                 Service.gI().sendThongBao(player, "Rương phụ đã đầy");
             }
@@ -158,9 +175,18 @@ public class LuckyRound {
                 addItemToBox(player, list);
                 sendReward(player, list);
                 Service.gI().sendMoney(player);
+                gioToInfo(player);
             } else {
                 Service.gI().sendThongBao(player, "Rương phụ đã đầy");
             }
+        }
+    }
+
+    /** Mùa Giỗ tổ: báo số lần đã quay (cộng dồn cả mùa) và tỉ lệ ra đồ vĩnh viễn hiện tại. */
+    private void gioToInfo(Player player) {
+        if (RewardService.gioToWheelActive()) {
+            Service.gI().sendThongBao(player, "Vòng quay Thượng Đế mùa Giỗ tổ: đã quay " + RewardService.eventSpins(player)
+                    + " lần trong sự kiện, tỉ lệ ra đồ vĩnh viễn " + RewardService.gioToPermRate(player) + "% (quay càng nhiều càng cao)");
         }
     }
 

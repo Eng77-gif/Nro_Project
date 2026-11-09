@@ -29,7 +29,7 @@ import nro.models.utils.TimeUtil;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class NPoint {
@@ -57,7 +57,7 @@ public class NPoint {
 
     private Intrinsic intrinsic;
     private int percentDameIntrinsic;
-    public int dameAfter;
+    public long dameAfter;
 
     /*-----------------------Chỉ số cơ bản------------------------------------*/
     public byte numAttack;
@@ -67,10 +67,10 @@ public class NPoint {
     public long power;
     public long tiemNang;
 
-    public int hp, hpMax, hpg;
-    public int mp, mpMax, mpg;
-    public int dame, dameg;
-    public int def, defg;
+    public long hp, hpMax, hpg;
+    public long mp, mpMax, mpg;
+    public long dame, dameg;
+    public long def, defg;
     public int crit, critg, critdragon;
     public byte speed = 8;
 
@@ -81,7 +81,8 @@ public class NPoint {
     /**
      * Chỉ số cộng thêm
      */
-    public int hpAdd, mpAdd, dameAdd, defAdd, critAdd, hpHoiAdd, mpHoiAdd;
+    public long hpAdd, mpAdd, dameAdd, defAdd, hpHoiAdd, mpHoiAdd;
+    public int critAdd;
 
     /**
      * //+#% sức đánh chí mạng
@@ -107,7 +108,10 @@ public class NPoint {
     /**
      * Lượng hp, mp hồi mỗi 30s, mp hồi cho người khác
      */
-    public int hpHoi, mpHoi, mpHoiCute;
+    /** Trần HP / KI / SĐ (client 2.4.7 đọc số 8 byte): 900 nghìn tỷ */
+    public static final long MAX_STAT = 900_000_000_000_000L;
+    public long hpHoi, mpHoi;
+    public int mpHoiCute;
 
     /**
      * Tỉ lệ hp, mp hồi cộng thêm
@@ -177,6 +181,7 @@ public class NPoint {
      * Tỉ lệ giảm sức đánh
      */
     public short tlSubSD;
+    public short tlSubHpKi; // option 155: giảm % HP, KI
 
     public int voHieuChuong;
 
@@ -198,6 +203,43 @@ public class NPoint {
 
     public short tlHpGiamODo;
 
+    public int tlSTChuan; // option 10: % sát thương bỏ qua giáp/né/giảm sát thương
+    public int tlDameBoss; // option 204: +% sát thương lên boss
+    public int tlSTCuoi; // option 251: +% sát thương cuối
+    public boolean isChongNLX; // option 252: chống năng lượng xấu (miễn hiệu ứng hôi/giảm HP xung quanh)
+    public int tlTNSMDeTu; // option 253: +% TN, SM cho đệ tử khi sư phụ mặc
+    public int tlAkazaRage; // option 254: % sức đánh khi HP dưới 50%
+    public int tlAoThuat; // option 90: % sức đánh của Ảo Thuật
+    public long rageUntil, lastTimeRage; // hiệu ứng Akaza
+    public long aoThuatUntil, lastTimeAoThuat; // hiệu ứng Ảo Thuật
+    private int setHpWithPet, setSTCuoiWithFlag, setCritWithFlag; // option 172, 39, 91
+    private int setCritWithSkhBeerus, setSDCMWithXenHT, setGiapWithXenMax; // option 92, 169, 42
+    private int setAllWithBlackGoku; // option 264: đi cùng CT Black Goku tăng #% SĐ, HP, KI
+    public int giamSDXungQuanh; // option 265: giảm #% sức đánh người xung quanh (tối đa 10 người)
+    private static final int[] BLACK_GOKU = {1732, 1731, 1454, 904};
+    private int setSDCMWithLuoiHaiHong; // option 255
+    public int tlNeCrit; // option 191: né chí mạng
+    public int tlGiamHoiKhien; // option 183: giảm % thời gian hồi Khiên năng lượng
+    public int tlGiamKhongChe; // option 227: giảm % thời gian bị khống chế khi đang dùng khiên
+    public int tlRareMob, tlRareBoss; // option 206 / 207: +#% vật phẩm hiếm rơi từ quái / boss
+    public int tlMayMan; // option 236: +#% may mắn (từ mọi nguồn: đồ mặc, bóng mờ, danh hiệu, thẻ...)
+    public int giamSTTD, giamSTNM, giamSTXD; // option 198 / 199 / 200: giảm #% sát thương từ tộc Trái Đất / Namếc / Xayda
+    public int kiHoiKhiBiDanh; // option 4: hồi #% KI khi bị đánh
+    public int phanDonCanChien; // option 15: phản # sát thương khi bị đánh cận chiến
+    public boolean isSocolaXq; // option 29 / 186: biến sôcôla (kẹo) người xung quanh mỗi 30 giây
+    public int halloweenXq = -1; // option 262 / 263: biến người xung quanh thành Zombi (0) / Bí Ngô (2) mỗi 30 giây
+    public boolean khongHoaXuong; // option 32: không bị hóa Xương
+    public int tlHoiDongBang; // option 221: phục hồi #% HP và KI mỗi 30 giây cho bản thân và đồng bang
+    public int ngocMoiNgay; // option 161: thêm # ngọc mỗi ngày khi đánh quái
+    public int punchStackMax; // option 156: cộng dồn 1% SĐ mỗi đòn đấm liên tiếp, tối đa #%
+    private int punchStack;
+    public int giamSTKhiItKi; // option 157: giảm #% mọi sát thương khi KI dưới 20%
+    private int flyMobCotNha, flyMobGheBay; // option 166 / 170: +#% SĐ lên quái khi bay cùng cải trang
+    // hiệu ứng "ở gần cải trang khác loại" (145, 146, 150, 177, 179, 193, 196, 256), cập nhật mỗi 3 giây
+    public int nearDame, nearHp, nearKi, nearSpeed, nearCrit;
+    public int skhBeerus; // số món SKH Thần hủy diệt Beerus đang mặc (option 115)
+    public int skhChampa; // số món SKH Thần hủy diệt Champa đang mặc (option 257)
+
     public boolean isGogeta;
 
     public int tlSpeed;
@@ -211,6 +253,11 @@ public class NPoint {
      * Tính toán mọi chỉ số sau khi có thay đổi
      */
     public void calPoint() {
+        // đếm lại set kích hoạt mỗi lần tính chỉ số (trước đây chỉ đếm khi vào game nên thay đồ phải thoát ra vào lại)
+        if ((this.player.isPl() || this.player.isPet) && this.player.setClothes != null && this.player.inventory != null
+                && this.player.inventory.itemsBody != null && this.player.inventory.itemsBody.size() >= 6) {
+            this.player.setClothes.setup();
+        }
         if (this.player.pet != null) {
             this.player.pet.nPoint.setPointWhenWearClothes();
         }
@@ -248,11 +295,26 @@ public class NPoint {
                 tlNeDon += (tlNeDon * opt.param / 100L);
             }
         }
+        // các option khác của danh hiệu (chí mạng, sát thương chuẩn...) trước đây bị bỏ qua
+        for (Item.ItemOption opt : options) {
+            switch (opt.optionTemplate.id) {
+                case 50, 77, 103, 108, 93 -> {
+                }
+                default ->
+                    addOption(opt);
+            }
+        }
 
-        Card card = player.Cards.stream().filter(r -> r != null && r.Used == 1).findFirst().orElse(null);
-        if (card != null) {
-            for (OptionCard io : card.Options) {
-                if (io.active == card.Level || (card.Level == -1 && io.active == 0)) {
+        // thẻ radar: dòng "Mở khóa" (active 0) có tác dụng khi đã sưu tầm thẻ,
+        // dòng "Sử dụng Lv.x" chỉ khi đang dùng thẻ ở đúng cấp x
+        for (Card card : player.Cards) {
+            if (card == null || card.Level < 1) {
+                continue; // chưa đạt Lv.1
+            }
+            // chỉ số lấy theo bảng radar hiện tại (sửa trên panel là có tác dụng ngay, không theo bản sao cũ trong dữ liệu người chơi);
+            // dòng "Mở khóa" (active 0) khi đã đạt Lv.1, dòng "Sử dụng Lv.k" (active k) khi đang bật thẻ ở đúng Lv.k
+            for (OptionCard io : nro.models.services.RadarService.optionsOf(card)) {
+                if (io.active == 0 || (card.Used == 1 && io.active == card.Level)) {
                     switch (io.id) {
                         case 0: //Tấn công +#
                             this.dameAdd += io.param;
@@ -357,6 +419,7 @@ public class NPoint {
                             this.tlxgcc += io.param;
                             break;
                         case 100: //+#% vàng từ quái
+                        case 268: //+#% vàng rơi
                             this.tlGold += io.param;
                             break;
                         case 101: //+#% TN,SM
@@ -393,8 +456,9 @@ public class NPoint {
                         case 147: //+#% sức đánh
                             this.tlDame.add(io.param);
                             break;
-                        case 156: //Giảm 50% sức đánh, HP, KI và +#% SM, TN, vàng từ quái
+                        case 155: //Giảm 50% sức đánh, HP, KI và +#% SM, TN, vàng từ quái (id theo item_option_template)
                             this.tlSubSD += 50;
+                            this.tlSubHpKi += 50;
                             this.tlTNSM.add(io.param);
                             this.tlGold += io.param;
                             break;
@@ -411,11 +475,15 @@ public class NPoint {
                         case 153: //% phát nổ sau khi chết
                             this.tlBom += io.param;
                             break;
+                        default:
+                            addOption(new ItemOption(io.id, io.param));
+                            break;
                     }
                 }
             }
         }
 
+        this.levelBT = 0;
         // Bông tai cấp 2
         if (this.player.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2) {
             this.player.inventory.itemsBag.stream()
@@ -432,7 +500,7 @@ public class NPoint {
         }
         if (this.player.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3) {
             this.player.inventory.itemsBag.stream()
-                    .filter(it -> it.isNotNullItem() && it.template.id == 1819)
+                    .filter(it -> it.isNotNullItem() && it.template.id == 1884)
                     .findFirst()
                     .ifPresent(btc3 -> {
                         for (ItemOption io : btc3.itemOptions) {
@@ -459,20 +527,524 @@ public class NPoint {
                     teleport = true;
                 }
                 for (ItemOption io : item.itemOptions) {
+                    if ((io.optionTemplate.id == 115 || io.optionTemplate.id == 257) && (this.player.inventory.itemsBody.indexOf(item) > 4)) {
+                        continue; // set kích hoạt chỉ tính trên 5 món trang bị
+                    }
                     addOption(io);
                 }
             }
         }
+        // ô bóng bước chân (lưu riêng ở server)
+        if (!this.player.isPet && this.player.itemFoot != null && this.player.itemFoot.isNotNullItem()) {
+            for (ItemOption io : this.player.itemFoot.itemOptions) {
+                addOption(io);
+            }
+        }
+        applySetBonus();
         setDameTrainArmor();
         setBasePoint();
         setOutfitFusion();
         setSpeed();
     }
 
+    public static final int PET_KUMA = 2019;
+    public static final int CO_VAN_HOA_DONG = 2030;
+    public static final int CO_WORLD_CUP_2026 = 2031;
+
+    private boolean isWearing(int templateId) {
+        for (Item it : this.player.inventory.itemsBody) {
+            if (it != null && it.isNotNullItem() && it.template.id == templateId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Hiệu ứng đi cùng: Naruto + Pet Kuma, Sasuke + Cờ Vạn Hoa Đồng, Ván bay WC 2026 + Cờ World Cup 2026.
+     */
+    private void applySetBonus() {
+        if (setHpWithPet > 0 && isWearing(PET_KUMA)) {
+            this.tlHp.add(setHpWithPet);
+        }
+        if (setSTCuoiWithFlag > 0 && isWearing(CO_VAN_HOA_DONG)) {
+            this.tlSTCuoi += setSTCuoiWithFlag;
+        }
+        if (setCritWithFlag > 0 && isWearing(CO_WORLD_CUP_2026)) {
+            this.critAdd += setCritWithFlag;
+        }
+        // SKH Thần hủy diệt Beerus: 2 món +10% SĐ +10% STCM, 4 món +15%/+20%, 5 món +30%/+30%
+        int skhDame = skhBeerus >= 5 ? 30 : skhBeerus >= 4 ? 15 : skhBeerus >= 2 ? 10 : 0;
+        int skhSDCM = skhBeerus >= 5 ? 30 : skhBeerus >= 4 ? 20 : skhBeerus >= 2 ? 10 : 0;
+        if (skhDame > 0) {
+            this.tlDame.add(skhDame);
+            this.tlDameCrit.add(skhSDCM);
+            this.tlSDCM += skhSDCM;
+        }
+        // SKH Thần hủy diệt Champa: 2 món +10% sát thương lên boss, 4 món +20%, 5 món +35% và +20% sức đánh chí mạng
+        int champaBoss = skhChampa >= 5 ? 35 : skhChampa >= 4 ? 20 : skhChampa >= 2 ? 10 : 0;
+        this.tlDameBoss += champaBoss;
+        if (skhChampa >= 5) {
+            this.tlDameCrit.add(20);
+            this.tlSDCM += 20;
+        }
+        if (setCritWithSkhBeerus > 0 && skhBeerus >= 2) {
+            this.critAdd += setCritWithSkhBeerus;
+        }
+        if (setSDCMWithXenHT > 0 && isWearing(PET_XEN_HOAN_THIEN)) {
+            this.tlDameCrit.add(setSDCMWithXenHT);
+            this.tlSDCM += setSDCMWithXenHT;
+        }
+        applyCompanionBonus();
+        if (setAllWithBlackGoku > 0 && in(BLACK_GOKU, costumeId(player))) {
+            this.tlDame.add(setAllWithBlackGoku);
+            this.tlHp.add(setAllWithBlackGoku);
+            this.tlMp.add(setAllWithBlackGoku);
+        }
+        if (setGiapWithXenMax > 0 && isWearing(PET_XEN_MAX)) {
+            this.tlGiap += setGiapWithXenMax;
+        }
+        if (nearDame != 0) { // có thể âm (bị Poc Bikini giảm SĐ)
+            this.tlDame.add(nearDame);
+        }
+        if (nearHp > 0) {
+            this.tlHp.add(nearHp);
+        }
+        if (nearKi > 0) {
+            this.tlMp.add(nearKi);
+        }
+        this.tlSpeed += nearSpeed;
+        // Hào quang chân Sao Pha Lê 10 (đồ đập 10 sao trong sự kiện hoặc vật phẩm hào quang): cộng 1 lần, không cộng dồn
+        if (!this.player.isPet && nro.models.services.SaoPhaLe10Service.hasHaoQuang(this.player)) {
+            this.tlDame.add(nro.models.services.SaoPhaLe10Service.BONUS_SD);
+            this.tlHp.add(nro.models.services.SaoPhaLe10Service.BONUS_HP);
+            this.tlMp.add(nro.models.services.SaoPhaLe10Service.BONUS_KI);
+            this.tlSTCuoi += nro.models.services.SaoPhaLe10Service.BONUS_ST_CUOI;
+        }
+        if (setSDCMWithLuoiHaiHong > 0 && isWearing(LUOI_HAI_HONG)) {
+            this.tlDameCrit.add(setSDCMWithLuoiHaiHong);
+            this.tlSDCM += setSDCMWithLuoiHaiHong;
+        }
+    }
+
+    public static final int LUOI_HAI_HONG = 1702;
+
+    /** Thời gian bị khống chế sau khi trừ option 227 (chỉ khi đang bật khiên năng lượng). */
+    public int controlTime(int ms) {
+        if (tlGiamKhongChe > 0 && player.effectSkill != null && player.effectSkill.isShielding) {
+            return ms * (100 - Math.min(90, tlGiamKhongChe)) / 100;
+        }
+        return ms;
+    }
+    /** Bộ Lý Tiểu Nương: hầu gái xanh, hầu gái hồng, bikini */
+    public static final int[] LTN_HAU_GAI = {1503, 1504, 1512};
+
+    private static int costumeId(Player p) {
+        Item ct = p.inventory != null && p.inventory.itemsBody.size() > 5 ? p.inventory.itemsBody.get(5) : null;
+        return ct != null && ct.isNotNullItem() ? ct.template.id : -1;
+    }
+
+    // các nhóm cải trang "khác loại" (mỗi mảng con là 1 loại, gồm các bản biến thể)
+    private static final int[][] DR_SLUM = {{612, 914, 1982}, {613}, {614}};
+    private static final int[][] POC_PIC_KONG = {{583, 913, 1235, 1886, 1952, 2086}, {633, 1234, 1396}, {634, 1236}};
+    private static final int[] MABU_MAP = {937, 974, 1601};
+    private static final int[] DEMONS_FROST = {629, 630, 631, 632, 878, 879, 1205, 1599, 1839, 1913};
+    private static final int[][] CAU_THU = {{968}, {969}, {970}, {971}, {972}, {973}, {974}, {975}, {976}, {977}, {978}};
+    private static final int[][] THO = {{1041}, {1042}, {1043}};
+    private static final int[][] HAU_GAI = {{1503}, {1504}, {1512}};
+    private static final int CT_TAU_PAY_PAY = 284, COT_NHA = 744, GHE_BAY = 795;
+    private static final int[] NHA_FIDE = {629, 630, 631, 632, 878, 879, 1599, 1839, 1913};
+
+    private static boolean in(int[] arr, int v) {
+        for (int x : arr) {
+            if (x == v) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static int kindOf(int[][] groups, int ct) {
+        for (int i = 0; i < groups.length; i++) {
+            if (in(groups[i], ct)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int optParam(Item it, int opt) {
+        if (it != null && it.isNotNullItem()) {
+            for (ItemOption io : it.itemOptions) {
+                if (io.optionTemplate.id == opt) {
+                    return Math.max(1, io.param);
+                }
+            }
+        }
+        return 0;
+    }
+
+    /** Số loại khác loại của mình (theo nhóm) đang đứng gần trong 300px. */
+    private int otherKindsNear(int[][] groups, java.util.List<Player> near) {
+        int mine = kindOf(groups, costumeId(player));
+        java.util.Set<Integer> kinds = new java.util.HashSet<>();
+        for (Player o : near) {
+            int k = kindOf(groups, costumeId(o));
+            if (k >= 0 && k != mine) {
+                kinds.add(k);
+            }
+        }
+        return kinds.size();
+    }
+
+    /**
+     * Cập nhật hiệu ứng "ở gần cải trang khác loại" (gọi định kỳ từ EffectSkin). Trả về true nếu chỉ số thay đổi.
+     */
+    public boolean updateNearSets() {
+        int d = 0, h = 0, k = 0, sp = 0;
+        Item ct = player.inventory != null && player.inventory.itemsBody.size() > 5 ? player.inventory.itemsBody.get(5) : null;
+        if (ct != null && ct.isNotNullItem() && player.zone != null && !player.isPet) {
+            java.util.List<Player> near = new java.util.ArrayList<>();
+            for (Player o : player.zone.getNotBosses()) {
+                if (o != player && !o.isPet && !o.isNewPet && !o.isDie() && Util.getDistance(player, o) <= 300) {
+                    near.add(o);
+                }
+            }
+            if (optParam(ct, 145) > 0 || optParam(ct, 146) > 0) { // Dr Slum: gần 1 loại +20% SĐ +66% tốc độ, gần 2 loại +30% +100%
+                int n = otherKindsNear(DR_SLUM, near);
+                d += n >= 2 ? 30 : n == 1 ? 20 : 0;
+                sp += n >= 2 ? 100 : n == 1 ? 66 : 0;
+            }
+            if (optParam(ct, 150) > 0) { // Póc - Píc - King Kong: +10% SĐ, HP, KI mỗi loại khác ở gần
+                int n = otherKindsNear(POC_PIC_KONG, near);
+                d += 10 * n; h += 10 * n; k += 10 * n;
+            }
+            if (optParam(ct, 177) > 0) { // Gohan Bư: +2% tất cả khi ở gần Mabư mập
+                for (Player o : near) {
+                    if (in(MABU_MAP, costumeId(o))) {
+                        d += 2; h += 2; k += 2;
+                        break;
+                    }
+                }
+            }
+            if (optParam(ct, 179) > 0) { // tộc Demons Frost: +2% SĐ mỗi người, tối đa 10%
+                int n = 0;
+                for (Player o : near) {
+                    if (in(DEMONS_FROST, costumeId(o))) {
+                        n++;
+                    }
+                }
+                d += Math.min(10, 2 * n);
+            }
+            int p193 = optParam(ct, 193);
+            if (p193 > 0) {
+                d += Math.min(11, p193 * otherKindsNear(CAU_THU, near));
+            }
+            int p196 = optParam(ct, 196);
+            if (p196 > 0) {
+                d += Math.min(18, p196 * otherKindsNear(THO, near));
+            }
+            int p256 = optParam(ct, 256);
+            if (p256 > 0) {
+                d += Math.min(12, p256 * otherKindsNear(HAU_GAI, near));
+            }
+        }
+        // option 265 (Poc Bikini): người mặc làm giảm SĐ 10 người gần nhất; mặc CT hè Pic, Poc, King Kong thì không bị ảnh hưởng
+        if (player.zone != null && !player.isPet && !player.isNewPet && !player.isBoss) {
+            boolean mien = false;
+            for (int[] g : POC_PIC_KONG) {
+                mien |= in(g, costumeId(player));
+            }
+            int giam = 0;
+            if (!mien) {
+                java.util.List<Player> all = new java.util.ArrayList<>(player.zone.getNotBosses());
+                for (Player o : all) {
+                    if (o == player || o.isPet || o.isNewPet || o.isDie() || o.nPoint == null || o.nPoint.giamSDXungQuanh <= 0 || Util.getDistance(player, o) > 300) {
+                        continue;
+                    }
+                    long closer = all.stream().filter(x -> x != o && !x.isPet && !x.isNewPet && !x.isDie()
+                            && Util.getDistance(o, x) < Util.getDistance(o, player)).count();
+                    if (closer < 10) {
+                        giam = Math.max(giam, o.nPoint.giamSDXungQuanh);
+                    }
+                }
+            }
+            d -= giam;
+        }
+        int cr = 0;
+        if (player.zone != null && !player.isPet && costumeId(player) == 1709) {
+            for (Player o : new java.util.ArrayList<>(player.zone.getNotBosses())) {
+                if (o != player && !o.isPet && !o.isNewPet && !o.isDie() && costumeId(o) == 1708 && Util.getDistance(player, o) <= 300) {
+                    cr = 10;
+                    break;
+                }
+            }
+        }
+        if (cr != nearCrit) {
+            nearCrit = cr;
+            nearDame = Integer.MIN_VALUE; // buộc tính lại
+        }
+        if (d == nearDame && h == nearHp && k == nearKi && sp == nearSpeed) {
+            return false;
+        }
+        nearDame = d; nearHp = h; nearKi = k; nearSpeed = sp;
+        return true;
+    }
+
+    /** +% SĐ lên quái khi bay cùng cải trang (option 166 / 170): đang dùng ván bay đó và mặc đúng cải trang. */
+    private int flyMobBonus() {
+        int b = 0;
+        int ct = costumeId(player);
+        if (flyMobCotNha > 0 && ct == CT_TAU_PAY_PAY && isWearing(COT_NHA)) {
+            b += flyMobCotNha;
+        }
+        if (flyMobGheBay > 0 && in(NHA_FIDE, ct) && isWearing(GHE_BAY)) {
+            b += flyMobGheBay;
+        }
+        return b;
+    }
+
+    public static final int PET_XEN_HOAN_THIEN = 2036;
+    public static final int PET_XEN_MAX = 2038;
+    public static final int PET_MA_TOC_DO = 1929;
+
+    public boolean hasBatTuMaTocDo() {
+        return !this.player.isPet && isWearing(PET_MA_TOC_DO);
+    }
+
+    private boolean isWearingAny(int... ids) {
+        for (int id : ids) {
+            if (isWearing(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isFoot(int id) {
+        return this.player.itemFoot != null && this.player.itemFoot.isNotNullItem() && this.player.itemFoot.template.id == id;
+    }
+
+    /** Có đủ các vật phẩm (đang mặc, hành trang, rương, rương sưu tầm). */
+    private boolean ownsAll(int... ids) {
+        java.util.Set<Integer> have = new java.util.HashSet<>();
+        java.util.List<java.util.List<Item>> all = new java.util.ArrayList<>();
+        all.add(this.player.inventory.itemsBody);
+        all.add(this.player.inventory.itemsBag);
+        all.add(this.player.inventory.itemsBox);
+        if (this.player.itemsCollection != null) {
+            all.add(this.player.itemsCollection);
+        }
+        for (java.util.List<Item> l : all) {
+            for (Item it : l) {
+                if (it != null && it.isNotNullItem()) {
+                    have.add((int) it.template.id);
+                }
+            }
+        }
+        for (int id : ids) {
+            if (!have.contains(id)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Các dòng "Đi cùng ...", "Đủ 4 món ...", "Sưu tập đủ ..." và Năng lượng E10. */
+    private void applyCompanionBonus() {
+        if (this.player.isPet || this.player.inventory == null) {
+            return;
+        }
+        // Đủ 4 món Mèo thần tài, ván sao băng, bóng mờ sao may mắn, cờ sao may mắn: +10% vàng rơi
+        if (isWearing(2025) && isWearing(2022) && isWearing(2024) && isFoot(2023)) {
+            this.tlGold += 10;
+        }
+        // Cân Đẩu Vân Thơ Mộng đi cùng CT Chi Chi Võ Đài: +5% giảm sát thương
+        if (isWearing(1711) && isWearing(1705)) {
+            this.tlGiap += 5;
+        }
+        // Khủng Long Thơ Mộng đi cùng Cân Đẩu Vân Thơ Mộng: +5% giảm sát thương
+        if (isWearing(1713) && isWearing(1711)) {
+            this.tlGiap += 5;
+        }
+        // CT Urôn Trư Bát Giới đi cùng Bồ cào 9 răng: +5% SĐ, +10% SĐ chí mạng
+        if (isWearing(1698) && isWearing(1699)) {
+            this.tlDame.add(5);
+            this.tlDameCrit.add(10);
+            this.tlSDCM += 10;
+        }
+        // Ván bay Sọ Dừa + Cánh Thiên thần - Ác quỷ: +3% SĐ chí mạng và +10% HP
+        if (isWearing(1724) && isWearing(1722)) {
+            this.tlDameCrit.add(3);
+            this.tlSDCM += 3;
+            this.tlHp.add(10);
+        }
+        // Thú cưỡi rồng Đen đi cùng Pet Rồng nhí: +5% né, +5% chí mạng
+        if (isWearing(1898) && isWearingAny(1813, 1814, 1815, 1816, 1817, 1818, 1819)) {
+            this.tlNeDon += 5;
+            this.critAdd += 5;
+        }
+        // Sưu tập đủ 4 thú cưỡi rồng (Thiêng, Băng, Đen, Vô Cực): +2% SĐ, HP, KI
+        if (isWearingAny(1896, 1897, 1898, 1899) && ownsAll(1896, 1897, 1898, 1899)) {
+            this.tlDame.add(2);
+            this.tlHp.add(2);
+            this.tlMp.add(2);
+        }
+        // CT Android 21 Evil ở gần người mặc CT Android 21 Thân Thiện: +10% chí mạng
+        this.critAdd += nearCrit;
+        // Năng lượng E10 (10 phút): KI +10%, SĐ +5%, giảm 5% HP
+        if (this.player.e10Until > System.currentTimeMillis()) {
+            this.tlMp.add(10);
+            this.tlDame.add(5);
+            this.tlHp.add(-5);
+        }
+    }
+
+    /**
+     * Gọi khi bị đánh: kích hoạt Akaza (HP dưới 50%, hồi 180s) và Ảo Thuật (hồi 120s), mỗi hiệu ứng kéo dài 3 giây.
+     */
+    public void onInjured() {
+        long now = System.currentTimeMillis();
+        if (tlAkazaRage > 0 && this.hp < this.hpMax / 2 && now - lastTimeRage >= 180_000) {
+            lastTimeRage = now;
+            rageUntil = now + 3000;
+            Service.gI().sendThongBao(this.player, "Nộ Akaza: +" + tlAkazaRage + "% sức đánh trong 3 giây");
+        }
+        if (tlAoThuat > 0 && now - lastTimeAoThuat >= 120_000) {
+            lastTimeAoThuat = now;
+            aoThuatUntil = now + 3000;
+            Service.gI().sendThongBao(this.player, "Ảo Thuật: +" + tlAoThuat + "% sức đánh, giảm 50% sát thương nhận vào trong 3 giây");
+        }
+    }
+
+    public boolean isAoThuat() {
+        return System.currentTimeMillis() < aoThuatUntil;
+    }
+
     private void addOption(ItemOption io) {
         switch (io.optionTemplate.id) {
             case 0: //Tấn công +#
                 this.dameAdd += io.param;
+                break;
+            case 10: //Sát thương chuẩn #%
+                this.tlSTChuan += io.param;
+                break;
+            case 204: //Tấn công+#% lên Boss
+                this.tlDameBoss += io.param;
+                break;
+            case 251: //Sát thương cuối +#%
+                this.tlSTCuoi += io.param;
+                break;
+            case 252: //Chống năng lượng xấu
+                this.isChongNLX = true;
+                break;
+            case 253: //+#% TN, SM cho đệ tử khi sư phụ mặc
+                this.tlTNSMDeTu += io.param;
+                break;
+            case 254: //Khi HP dưới 50% tăng #% sức đánh trong 3 giây
+                this.tlAkazaRage = Math.max(this.tlAkazaRage, io.param);
+                break;
+            case 172: //Đi cùng Pet Cửu Vĩ Hồ tăng #% HP
+                this.setHpWithPet += io.param;
+                break;
+            case 39: //Đi cùng Cờ Vạn Hoa Đồng tăng #% sát thương cuối
+                this.setSTCuoiWithFlag += io.param;
+                break;
+            case 90: //Ảo Thuật
+                this.tlAoThuat = Math.max(this.tlAoThuat, io.param);
+                break;
+            case 91: //Đi cùng Cờ World Cup 2026 tăng #% chí mạng
+                this.setCritWithFlag += io.param;
+                break;
+            case 92: //Đi cùng SKH Beerus tăng #% chí mạng
+                this.setCritWithSkhBeerus += io.param;
+                break;
+            case 115: //Set Thần hủy diệt Beerus
+                this.skhBeerus++;
+                break;
+            case 257: //Set Thần hủy diệt Champa
+                this.skhChampa++;
+                break;
+            case 169: //Đi cùng Pet Xên hoàn thiện tăng #% sát thương chí mạng
+                this.setSDCMWithXenHT += io.param;
+                break;
+            case 236: //+#% May mắn
+                this.tlMayMan += io.param;
+                break;
+            case 206: //Vật phẩm hiếm rơi từ quái (+#%)
+                this.tlRareMob += io.param;
+                break;
+            case 207: //Vật phẩm hiếm rơi từ boss (+#%)
+                this.tlRareBoss += io.param;
+                break;
+            case 198: //Giảm #% sát thương từ tộc Trái Đất
+                this.giamSTTD += io.param;
+                break;
+            case 199: //Giảm #% sát thương từ tộc Namếc
+                this.giamSTNM += io.param;
+                break;
+            case 200: //Giảm #% sát thương từ tộc Xayda
+                this.giamSTXD += io.param;
+                break;
+            case 4: //Hồi phục #% KI khi bị đánh
+                this.kiHoiKhiBiDanh += Math.min(100, io.param);
+                break;
+            case 15: //Phản đòn cận chiến+#
+                this.phanDonCanChien += io.param;
+                break;
+            case 29: //Biến Sôcôla mọi người xung quanh mỗi 30 giây
+            case 186: //Biến kẹo 30 giây
+                this.isSocolaXq = true;
+                break;
+            case 262: //Biến người xung quanh thành Zombi mỗi 30 giây
+                this.halloweenXq = 0;
+                break;
+            case 263: //Biến người xung quanh thành Bí Ngô mỗi 30 giây
+                this.halloweenXq = 2;
+                break;
+            case 32: //Không bị hóa Xương
+                this.khongHoaXuong = true;
+                break;
+            case 221: //Phục hồi #% HP và KI mỗi 30 giây cho bản thân và đồng bang
+                this.tlHoiDongBang += io.param;
+                break;
+            case 161: //Thêm # ngọc mỗi ngày khi đánh quái
+                this.ngocMoiNgay += io.param;
+                break;
+            case 156: //Cộng dồn 1% sức đánh khi chỉ dùng chiêu đấm, tối đa #%
+                this.punchStackMax = Math.max(this.punchStackMax, io.param);
+                break;
+            case 157: //Giảm #% mọi sát thương khi KI dưới 20%
+                this.giamSTKhiItKi += io.param;
+                break;
+            case 166: //Ngầu +#% sức đánh lên quái khi bay với Cải Trang Tàu Pảy Pảy
+                this.flyMobCotNha += io.param;
+                break;
+            case 170: //Ngầu +#% sức đánh lên quái khi bay với Cải Trang nhà Fide
+                this.flyMobGheBay += io.param;
+                break;
+            case 191: //Né chí mạng+#%
+                this.tlNeCrit += io.param;
+                break;
+            case 183: //Giảm #% thời gian hồi Khiên
+                this.tlGiamHoiKhien += io.param;
+                break;
+            case 227: //Giảm #% tác dụng của các đòn khống chế khi dùng khiên năng lượng
+                this.tlGiamKhongChe += io.param;
+                break;
+            case 255: //Đi cùng Lưỡi hái hồng tăng #% sát thương chí mạng
+                this.setSDCMWithLuoiHaiHong += io.param;
+                break;
+            case 256: //+#% sức đánh, tối đa 12% khi ở gần Lý Tiểu Nương : Hầu Gái xanh, hồng, bikini (tính trong updateNearSets)
+                break;
+            case 264: //Đi cùng CT Black Goku tăng #% SĐ, HP, KI
+                this.setAllWithBlackGoku += io.param;
+                break;
+            case 265: //Giảm #% sức đánh người xung quanh
+                this.giamSDXungQuanh = Math.max(this.giamSDXungQuanh, io.param);
+                break;
+            case 42: //Đi cùng Pet Xên Max tăng #% giảm sát thương
+                this.setGiapWithXenMax += io.param;
                 break;
             case 2: //HP, KI+#000
                 this.hpAdd += io.param * 1000;
@@ -583,6 +1155,7 @@ public class NPoint {
                 this.tlxgcc += io.param;
                 break;
             case 100: //+#% vàng từ quái
+            case 268: //+#% vàng rơi
                 this.tlGold += io.param;
                 break;
             case 101: //+#% TN,SM
@@ -622,8 +1195,9 @@ public class NPoint {
             case 147: //+#% sức đánh
                 this.tlDame.add(io.param);
                 break;
-            case 156: //Giảm 50% sức đánh, HP, KI và +#% SM, TN, vàng từ quái
+            case 155: //Giảm 50% sức đánh, HP, KI và +#% SM, TN, vàng từ quái (id theo item_option_template)
                 this.tlSubSD += 50;
+                this.tlSubHpKi += 50;
                 this.tlTNSM.add(io.param);
                 this.tlGold += io.param;
                 break;
@@ -651,7 +1225,7 @@ public class NPoint {
 
     private void setSpeed() {
         if (player.isPl()) {
-            speed = (byte) (8 + 8 * (tlSpeed / 100));
+            speed = (byte) Math.min(127, 8 + 8 * tlSpeed / 100); // trước đây chia nguyên trước nên +% dưới 100 không có tác dụng
         }
     }
 
@@ -861,8 +1435,12 @@ public class NPoint {
         }
 
         // Xử lý +hp đệ
-        if (this.player.fusion.typeFusion != ConstPlayer.NON_FUSION) {
+        if (this.player.fusion.typeFusion != ConstPlayer.NON_FUSION && this.player.pet != null) {
             hpMax += this.player.pet.nPoint.hpMax;
+        }
+        // điều ước Rồng Xương: +15% HP khi hợp thể bông tai Porata
+        if (this.player.hlwHpUntil > System.currentTimeMillis() && nro.models.services.shenron.RongXuong.isPorata(this.player)) {
+            hpMax += hpMax * 15 / 100;
         }
 
         // Xử lý bổ huyết
@@ -913,11 +1491,12 @@ public class NPoint {
             }
         }
 
-        if (hpMax > 2_147_483_647) {
-            hpMax = 2_147_483_647;
+        hpMax -= hpMax * Math.min(100, tlSubHpKi) / 100L;
+        if (hpMax > MAX_STAT) {
+            hpMax = MAX_STAT;
         }
 
-        this.hpMax = (int) hpMax;
+        this.hpMax = Math.max(1, hpMax); // không ép int: boss HP > 2,1 tỷ (SSJ Broly 15 tỷ); gửi client qua writeNum (tự xử lý client đọc int)
     }
 
     private void setHp() {
@@ -995,8 +1574,12 @@ public class NPoint {
 
         // Xử lý hợp thể
         if (this.player.fusion.typeFusion
-                != 0) {
+                != 0 && this.player.pet != null) {
             mpMax += this.player.pet.nPoint.mpMax;
+        }
+        // điều ước Rồng Xương: +15% KI khi hợp thể bông tai Porata
+        if (this.player.hlwKiUntil > System.currentTimeMillis() && nro.models.services.shenron.RongXuong.isPorata(this.player)) {
+            mpMax += mpMax * 15 / 100;
         }
 
         // Xử lý bổ khí
@@ -1018,19 +1601,20 @@ public class NPoint {
             }
         }
 
+        mpMax -= mpMax * Math.min(100, tlSubHpKi) / 100L;
         if (mpMax
-                > 2_147_483_647) {
-            mpMax = 2_147_483_647;
+                > MAX_STAT) {
+            mpMax = MAX_STAT;
         }
 
-        this.mpMax = (int) mpMax;
+        this.mpMax = (int) Math.max(1, mpMax);
     }
 
     private void setMp() {
         this.mp = Math.min(this.mp, this.mpMax);
     }
 
-    public int getHP() {
+    public long getHP() {
         return Math.min(this.hp, this.hpMax);
     }
 
@@ -1042,7 +1626,7 @@ public class NPoint {
         }
     }
 
-    public int getMP() {
+    public long getMP() {
         return Math.min(this.mp, this.mpMax);
     }
 
@@ -1064,10 +1648,7 @@ public class NPoint {
                 }
             }
         }
-        // Xử lý pet pic
-        if (this.player.isPet && ((Pet) this.player).typePet == 3 && (((Pet) this.player).master.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA || ((Pet) this.player).master.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2 || ((Pet) this.player).master.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3)) {
-            dame += (dame * 20 / 100L);
-        }
+        // (đã bỏ khối "pet pic" trùng với "pet beer": đệ Vegeta / Kid Beer được cộng 20% SĐ hai lần)
 
         // Xử lý pet mabư
         if (this.player.isPet && ((Pet) this.player).typePet == 1 && (((Pet) this.player).master.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA || ((Pet) this.player).master.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2 || ((Pet) this.player).master.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3)) {
@@ -1158,8 +1739,12 @@ public class NPoint {
         }
 
         // Xử lý hợp thể
-        if (this.player.fusion.typeFusion != 0) {
+        if (this.player.fusion.typeFusion != 0 && this.player.pet != null) {
             dame += this.player.pet.nPoint.dame;
+        }
+        // điều ước Rồng Xương: +15% sức đánh khi hợp thể bông tai Porata
+        if (this.player.hlwDameUntil > System.currentTimeMillis() && nro.models.services.shenron.RongXuong.isPorata(this.player)) {
+            dame += dame * 15 / 100;
         }
 
         // Lấy tất cả option danh hiệu
@@ -1185,9 +1770,7 @@ public class NPoint {
             }
         }
 
-        dame += (dame * tlSexyDame / 100L);
-
-        //Sức đánh đẹp
+        //Sức đánh đẹp (trước bị cộng 2 lần)
         dame += (dame * tlSexyDame / 100L);
 
         // Xử lý giảm dame
@@ -1198,11 +1781,11 @@ public class NPoint {
             dame /= 2;
         }
 
-        if (dame > 2_147_483_647) {
-            dame = 2_147_483_647;
+        if (dame > MAX_STAT) {
+            dame = MAX_STAT;
         }
 
-        this.dame = (int) dame;
+        this.dame = dame;
     }
 
     public void setDame(long dame) {
@@ -1283,7 +1866,47 @@ public class NPoint {
         this.setNguyetAn = 0;
         this.tlSexyDame = 0;
         this.tlSubSD = 0;
+        this.tlSubHpKi = 0;
         this.tlHpGiamODo = 0;
+        this.tlSTChuan = 0;
+        this.tlDameBoss = 0;
+        this.tlSTCuoi = 0;
+        this.isChongNLX = false;
+        this.tlTNSMDeTu = 0;
+        this.tlAkazaRage = 0;
+        this.tlAoThuat = 0;
+        this.setHpWithPet = 0;
+        this.setSTCuoiWithFlag = 0;
+        this.setCritWithFlag = 0;
+        this.setCritWithSkhBeerus = 0;
+        this.setSDCMWithXenHT = 0;
+        this.setSDCMWithLuoiHaiHong = 0;
+        this.tlNeCrit = 0;
+        this.kiHoiKhiBiDanh = 0;
+        this.tlRareMob = 0;
+        this.tlMayMan = 0;
+        this.tlRareBoss = 0;
+        this.giamSTTD = 0;
+        this.giamSTNM = 0;
+        this.giamSTXD = 0;
+        this.phanDonCanChien = 0;
+        this.isSocolaXq = false;
+        this.halloweenXq = -1;
+        this.khongHoaXuong = false;
+        this.tlHoiDongBang = 0;
+        this.ngocMoiNgay = 0;
+        this.punchStackMax = 0;
+        this.giamSTKhiItKi = 0;
+        this.flyMobCotNha = 0;
+        this.flyMobGheBay = 0;
+        this.tlGiamHoiKhien = 0;
+        this.tlGiamKhongChe = 0;
+
+        this.setGiapWithXenMax = 0;
+        this.setAllWithBlackGoku = 0;
+        this.giamSDXungQuanh = 0;
+        this.skhBeerus = 0;
+        this.skhChampa = 0;
         this.tlSpeed = 0;
         this.teleport = false;
         this.wearingVoHinh = false;
@@ -1302,7 +1925,7 @@ public class NPoint {
             if (potentialHp > this.hpMax) {
                 this.hp = this.hpMax;
             } else {
-                this.hp = (int) Math.min(potentialHp, 2_147_483_647);
+                this.hp = Math.min(potentialHp, MAX_STAT);
             }
         }
     }
@@ -1323,7 +1946,7 @@ public class NPoint {
         if (hp < 0) {
             this.hp = 0;
         } else {
-            this.hp = (int) Math.min(hp, 2_147_483_647);
+            this.hp = Math.min(hp, MAX_STAT);
         }
     }
 
@@ -1331,11 +1954,13 @@ public class NPoint {
         if (mp < 0) {
             this.mp = 0;
         } else {
-            this.mp = (int) Math.min(mp, 2_147_483_647);
+            this.mp = Math.min(mp, MAX_STAT);
         }
     }
 
     private void setIsCrit() {
+        // lấy nội tại hiện tại (trước dùng bản của đòn đánh trước, đòn đầu tiên / vừa đổi nội tại bị sai)
+        intrinsic = this.player.playerIntrinsic != null ? this.player.playerIntrinsic.intrinsic : null;
         if (intrinsic != null && intrinsic.id == 25
                 && this.getCurrPercentHP() <= intrinsic.param1) {
             isCrit = true;
@@ -1347,7 +1972,7 @@ public class NPoint {
         }
     }
 
-    public int getDameAttack(boolean isAttackMob) {
+    public long getDameAttack(boolean isAttackMob) {
         setIsCrit();
         long dameAttack = this.dame;
         intrinsic = this.player.playerIntrinsic.intrinsic;
@@ -1405,14 +2030,14 @@ public class NPoint {
                 percentDameSkill = skillSelect.damage;
                 break;
             case Skill.MASENKO:
+                // trước đây cộng % nội tại / set Nail vào % chiêu rồi lại nhân thêm lần nữa ở dưới (tính 2 lần)
                 if (intrinsic != null && intrinsic.id == 9) {
-                    percentXDame += intrinsic.param1;
+                    percentDameIntrinsic = intrinsic.param1;
                 }
                 if (this.player.setClothes.nail == 5) {
-                    percentXDame += 80;
+                    percentXDame = 80;
                 }
-
-                percentDameSkill = skillSelect.damage + percentXDame;
+                percentDameSkill = skillSelect.damage;
                 break;
 
             case Skill.LIEN_HOAN:
@@ -1433,14 +2058,13 @@ public class NPoint {
             case Skill.DICH_CHUYEN_TUC_THOI:
                 isCrit = true;
                 isCritTele = true;
-                dameAttack = Util.nextInt((int) (int) Math.min(2_147_483_647L, (dameAttack - (dameAttack / 100 * 5))),
-                        (int) (int) Math.min(2_147_483_647L, (dameAttack + (dameAttack / 100 * 5))));
+                dameAttack = Util.nextLong(dameAttack - dameAttack / 100 * 5, dameAttack + dameAttack / 100 * 5);
                 break;
             case Skill.MAKANKOSAPPO:
                 percentDameSkill = skillSelect.damage;
-                int dameSkill = (int) Math.min(2_147_483_647L, (long) this.mpMax * percentDameSkill / 100);
+                long dameSkill = this.mpMax * percentDameSkill / 100;
                 if (this.player.setClothes.picolo == 5) {
-                    dameSkill *= 3 / 2;
+                    dameSkill = dameSkill * 3 / 2; // trước là *= 3 / 2 = nhân 1
                 }
                 return dameSkill;
             case Skill.QUA_CAU_KENH_KHI:
@@ -1460,7 +2084,7 @@ public class NPoint {
                     }
                 }
 
-                long dameqckk = (hpmob * 10 / 100) + (hppl * 10 / 100) + this.dame * 10;
+                long dameqckk = (hpmob * 10 / 100) + (hppl * 10 / 100) + this.dame * 10L;
 
                 if (this.player.setClothes.kirin == 5) {
                     dameqckk *= 2;
@@ -1475,10 +2099,7 @@ public class NPoint {
                 if (player.setClothes.pikkoroDaimao == 5) {
                     dameAttack *= 4;
                 }
-                if (dameAttack > 2_147_483_647) {
-                    dameAttack = 2_147_483_647;
-                }
-                return (int) dameAttack;
+                return dameAttack;
         }
 
         if (intrinsic.id == 18 && this.player.effectSkill.isMonkey) {
@@ -1514,6 +2135,23 @@ public class NPoint {
         }
 
         dameAttack += ((long) dameAttack * percentXDame / 100);
+        // option 156: chỉ dùng chiêu đấm thì mỗi đòn cộng dồn 1% sức đánh, tối đa #%
+        if (punchStackMax > 0) {
+            int sk = skillSelect.template.id;
+            if (sk == Skill.DRAGON || sk == Skill.DEMON || sk == Skill.GALICK) {
+                punchStack = Math.min(punchStackMax, punchStack + 1);
+                dameAttack += dameAttack * punchStack / 100;
+            } else {
+                punchStack = 0;
+            }
+        }
+        // option 166 / 170: bay cùng cải trang thì +% sức đánh lên quái
+        if (isAttackMob) {
+            int fly = flyMobBonus();
+            if (fly > 0) {
+                dameAttack += dameAttack * fly / 100;
+            }
+        }
 
         long tempDameAttack = (long) (dameAttack / 100L * 5L);
         if (tempDameAttack
@@ -1531,11 +2169,18 @@ public class NPoint {
             player.effectSkin.lastTimeXChuong = System.currentTimeMillis();
         }
 
-        if (dameAttack
-                > 2_147_483_647) {
-            dameAttack = 2_147_483_647;
+        if (tlSTCuoi > 0) {
+            dameAttack += (long) dameAttack * tlSTCuoi / 100;
         }
-        return (int) dameAttack;
+        long nowBuff = System.currentTimeMillis();
+        if (tlAkazaRage > 0 && nowBuff < rageUntil) {
+            dameAttack += (long) dameAttack * tlAkazaRage / 100;
+        }
+        if (tlAoThuat > 0 && nowBuff < aoThuatUntil) {
+            dameAttack += (long) dameAttack * tlAoThuat / 100;
+        }
+
+        return dameAttack;
     }
 
     public int getCurrPercentHP() {
@@ -1568,8 +2213,8 @@ public class NPoint {
             this.mp = 0;
         }
 
-        if (this.mp > 2_147_483_647) {
-            this.mp = 2_147_483_647;
+        if (this.mp > MAX_STAT) {
+            this.mp = MAX_STAT;
         }
     }
 
@@ -1592,9 +2237,6 @@ public class NPoint {
             if (this.player.charms.tdTriTue4 > System.currentTimeMillis()) {
                 tiemNang += tn * 4;
             }
-            if (this.player.charms.tdTriTue4 > System.currentTimeMillis()) {
-                tiemNang += tn * 4;
-            }
             if (this.player.timevip > System.currentTimeMillis()) {
                 tiemNang += tn * 3;
             }
@@ -1608,6 +2250,12 @@ public class NPoint {
             if (this.player.itemTime != null && this.player.itemTime.isUseDK) {
                 tiemNang += tn * 2;
             }
+            // điều ước Rồng Xương: x3 tiềm năng sức mạnh 30 phút (bản thân / đệ tử)
+            long now = System.currentTimeMillis();
+            if (!this.player.isPet && this.player.hlwSelfX3Until > now
+                    || this.player.isPet && ((Pet) this.player).master != null && ((Pet) this.player).master.hlwPetX3Until > now) {
+                tiemNang += tn * 2;
+            }
             if (player.zone.map.mapId >= 135 && player.zone.map.mapId <= 138) {
                 if (this.player.itemTime != null && this.player.itemTime.isUseKhoBauX2) {
                     tiemNang += tn * 2;
@@ -1616,6 +2264,7 @@ public class NPoint {
             if (this.player.satellite != null && this.player.satellite.isIntelligent) {
                 tiemNang += tn / 5;
             }
+            this.intrinsic = this.player.playerIntrinsic != null ? this.player.playerIntrinsic.intrinsic : null;
             if (this.intrinsic != null && this.intrinsic.id == 24) {
                 tiemNang += ((long) tiemNang * this.intrinsic.param1 / 100);
             }
@@ -1684,13 +2333,13 @@ public class NPoint {
         return this.tlHutMp;
     }
 
-    public int subDameInjureWithDeff(long dame) {
+    public long subDameInjureWithDeff(long dame) {
         long def = this.def;
         dame -= def;
         if (dame < 0) {
             dame = 1;
         }
-        return (int) dame;
+        return dame; // long: trước đây ép int, sát thương > 2,1 tỷ (sức đánh 1,4 tỷ chí mạng) tràn số âm -> báo hụt
     }
 
     /*------------------------------------------------------------------------*/
@@ -1876,7 +2525,7 @@ public class NPoint {
         long tiemNangUse;
         if (type == 0) {
             int pointHp = point * 20;
-            tiemNangUse = point * (2 * (this.hpg + 1000) + pointHp - 20) / 2;
+            tiemNangUse = (long) point * (2L * (this.hpg + 1000L) + pointHp - 20) / 2; // long: tránh tràn số int
             if ((this.hpg + pointHp) <= getHpMpLimit()) {
                 if (doUseTiemNang(tiemNangUse)) {
                     hpg += pointHp;
@@ -1888,7 +2537,7 @@ public class NPoint {
         }
         if (type == 1) {
             int pointMp = point * 20;
-            tiemNangUse = point * (2 * (this.mpg + 1000) + pointMp - 20) / 2;
+            tiemNangUse = (long) point * (2L * (this.mpg + 1000L) + pointMp - 20) / 2;
             if ((this.mpg + pointMp) <= getHpMpLimit()) {
                 if (doUseTiemNang(tiemNangUse)) {
                     mpg += pointMp;
@@ -1900,7 +2549,7 @@ public class NPoint {
         }
         if (type == 2) {
             TaskService.gI().checkDoneTaskNangCS(player);
-            tiemNangUse = point * (2 * this.dameg + point - 1) / 2 * 100;
+            tiemNangUse = (long) point * (2L * this.dameg + point - 1) / 2 * 100;
             if ((this.dameg + point) <= getDameLimit()) {
                 if (doUseTiemNang(tiemNangUse)) {
                     dameg += point;
@@ -1912,7 +2561,8 @@ public class NPoint {
             }
         }
         if (type == 3) {
-            tiemNangUse = 2 * (this.defg + 5) / 2 * 100000;
+            point = 1; // giá chỉ tính cho 1 điểm giáp
+            tiemNangUse = 2L * (this.defg + 5) / 2 * 100000;
             if ((this.defg + point) <= getDefLimit()) {
                 if (doUseTiemNang(tiemNangUse)) {
                     defg += point;
@@ -1923,6 +2573,7 @@ public class NPoint {
             }
         }
         if (type == 4) {
+            point = 1; // giá chỉ tính cho 1 điểm chí mạng
             tiemNangUse = 50000000L;
             for (int i = 0; i < this.critg; i++) {
                 tiemNangUse *= 5L;
@@ -1986,11 +2637,11 @@ public class NPoint {
                     long hpRecovered = hpMax / 100 * tiLeHoiPhuc;
                     long mpRecovered = mpMax / 100 * tiLeHoiPhuc;
 
-                    if (hp + hpRecovered > 2_147_483_647) {
-                        hpRecovered = 2_147_483_647 - hp;
+                    if (hp + hpRecovered > MAX_STAT) {
+                        hpRecovered = MAX_STAT - hp;
                     }
-                    if (mp + mpRecovered > 2_147_483_647) {
-                        mpRecovered = 2_147_483_647 - mp;
+                    if (mp + mpRecovered > MAX_STAT) {
+                        mpRecovered = MAX_STAT - mp;
                     }
 
                     PlayerService.gI().hoiPhuc(player, hpRecovered, mpRecovered);

@@ -14,6 +14,10 @@ public class SessionFactory {
         return instance;
     }
 
+    public ISession cloneSession(Class clazz, io.netty.channel.Channel channel) throws Exception {
+        return (ISession) clazz.getConstructor(io.netty.channel.Channel.class).newInstance(channel);
+    }
+
     public ISession cloneSession(Class clazz, Socket socket) throws Exception {
         return (ISession) clazz.getConstructor(Socket.class).newInstance(socket);
     }

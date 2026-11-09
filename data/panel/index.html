@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel quản lý NRO</title>
+<style>
+:root{--bg:#0f1420;--panel:#171e2e;--panel2:#1e2739;--line:#2a3550;--text:#e6ebf5;--mute:#93a0bb;--acc:#f5a524;--acc2:#3b82f6;--ok:#22c55e;--bad:#ef4444;--r:10px}
+:root[data-theme="light"]{--bg:#f3f5f9;--panel:#fff;--panel2:#f7f8fb;--line:#dde3ee;--text:#18202f;--mute:#5d6b85}
+[hidden]{display:none!important}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
+a{color:var(--acc2)}button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+textarea{width:100%;min-height:90px;font-family:ui-monospace,Consolas,monospace;font-size:13px}
+button{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--acc)}button.p{background:var(--acc);border-color:var(--acc);color:#1b1300;font-weight:600}
+button.d{background:transparent;border-color:var(--bad);color:var(--bad)}button.s{padding:4px 8px;font-size:12px}
+#app{display:flex;min-height:100vh}
+nav{width:220px;flex:none;background:var(--panel);border-right:1px solid var(--line);padding:14px 10px;position:sticky;top:0;height:100vh;overflow:auto}
+nav h1{font-size:16px;margin:4px 8px 14px;color:var(--acc)}
+nav a{display:block;padding:8px 10px;border-radius:8px;color:var(--text);text-decoration:none;margin:1px 0}
+nav a.on,nav a:hover{background:var(--panel2)}nav .g{color:var(--mute);font-size:11px;text-transform:uppercase;margin:12px 10px 4px;letter-spacing:.05em}
+main{flex:1;min-width:0;padding:20px 24px}
+h2{margin:0 0 14px;font-size:20px}h3{margin:18px 0 8px;font-size:15px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:none}.grow{flex:1 1 180px!important}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px}.stat b{display:block;font-size:22px}.stat span{color:var(--mute);font-size:12px}
+.tw{overflow:auto;border:1px solid var(--line);border-radius:var(--r);max-height:70vh}
+table{border-collapse:collapse;width:100%;background:var(--panel)}th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;white-space:nowrap}
+th{position:sticky;top:0;background:var(--panel2);font-weight:600;font-size:12px;color:var(--mute);z-index:1}td.w{white-space:normal;min-width:220px}
+tr:hover td{background:var(--panel2)}
+.ic{width:28px;height:28px;object-fit:contain;vertical-align:middle;image-rendering:pixelated}
+.tag{display:inline-block;padding:1px 7px;border-radius:99px;font-size:11px;border:1px solid var(--line)}
+.on1{color:var(--ok);border-color:var(--ok)}.off1{color:var(--mute)}.bad1{color:var(--bad);border-color:var(--bad)}
+.mute{color:var(--mute)}.mono{font-family:ui-monospace,Consolas,monospace;font-size:12px}
+#toast{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:6px;z-index:99}
+#toast div{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ok);padding:9px 12px;border-radius:8px;max-width:420px}
+#toast div.e{border-left-color:var(--bad)}
+.modal{position:fixed;inset:0;background:#0009;display:flex;align-items:flex-start;justify-content:center;padding:40px 12px;z-index:50;overflow:auto}
+.modal .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;width:min(860px,100%)}
+.modal .box h3{margin-top:0}
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh}
+#login form{width:min(340px,92vw);display:flex;flex-direction:column;gap:10px}
+.log{background:#05070c;color:#cfe3c8;height:60vh;overflow:auto;padding:10px;border-radius:var(--r);white-space:pre-wrap;font:12px/1.4 ui-monospace,Consolas,monospace}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute)}label.f>*{color:var(--text)}
+.pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px;max-height:55vh;overflow:auto;margin-top:10px}
+.pick div{display:flex;gap:8px;align-items:center;padding:6px;border:1px solid var(--line);border-radius:8px;cursor:pointer}.pick div:hover{border-color:var(--acc)}
+/* ---- giao diện v2 ---- */
+:root{--acc3:#a855f7;--grad:linear-gradient(135deg,#f5a524 0%,#ef4444 55%,#a855f7 100%)}
+nav{padding:0 10px 14px}nav h1{display:flex;align-items:center;gap:10px;margin:0 -10px 10px;padding:16px 18px;background:var(--grad);color:#1b1300;font-size:17px;letter-spacing:.02em}
+nav h1 small{display:block;font-size:11px;font-weight:500;opacity:.8}
+nav a{display:flex;align-items:center;gap:9px}nav a i{font-style:normal;width:20px;text-align:center;opacity:.9}
+nav a.on{background:linear-gradient(90deg,rgba(245,165,36,.18),transparent);box-shadow:inset 3px 0 0 var(--acc)}
+#top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 24px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+#top .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);background:var(--panel);font-size:12px}
+#top .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(34,197,94,.2)}
+#top .sp{flex:1}#menu{display:none}
+.stat{position:relative;overflow:hidden}.stat::after{content:"";position:absolute;inset:auto -20px -30px auto;width:90px;height:90px;border-radius:50%;background:var(--grad);opacity:.08}
+.stat .ico{font-size:20px;float:right;opacity:.85}
+.qa{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.qa button{padding:12px;text-align:left;border-radius:10px;background:var(--panel2)}.qa button b{display:block}.qa button span{font-size:12px;color:var(--mute)}
+.chart{width:100%;height:120px;display:block}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.gal div{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:6px;text-align:center}
+.gal img{width:100%;height:86px;object-fit:contain;image-rendering:pixelated}
+.fx{width:64px;height:40px;object-fit:contain;vertical-align:middle;image-rendering:pixelated}.gal b{display:block;font-size:12px;color:var(--acc)}
+.chip{display:inline-block;padding:2px 8px;margin:2px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);font-size:12px}
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}.tabs button.on{border-color:var(--acc);color:var(--acc)}
+#tabbar,#ptitle,#mstat{display:none}
+/* ---- giao diện riêng cho điện thoại ---- */
+@media(max-width:760px){
+ body{font-size:15px;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+ input,select,textarea{font-size:16px;padding:10px 12px;border-radius:10px}button{padding:10px 14px;border-radius:10px;min-height:42px}button.s{min-height:34px;padding:6px 10px;font-size:13px}
+ #app{display:block}main{padding:12px 12px 20px}h2{font-size:18px;margin-bottom:10px}main>h2:first-child{display:none}
+ /* thanh trên: tên trang + trạng thái gọn, các nút thông tin cuộn ngang */
+ #top{padding:10px 12px 8px;gap:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}#top::-webkit-scrollbar{display:none}
+ #top>b,#top .sp,#top>.mute,#menu{display:none!important}#top .pill{flex:none}
+ #ptitle{display:block;font-weight:700;font-size:17px;flex:none;margin-right:4px}
+ #mstat{display:inline-flex}
+ /* menu: trang toàn màn hình dạng lưới ô */
+ nav{display:block!important;position:fixed;inset:0 0 calc(64px + env(safe-area-inset-bottom)) 0;width:auto;height:auto;z-index:40;border:0;padding:0 12px 16px;overflow:auto;transform:translateY(0);transition:transform .22s ease,opacity .22s;opacity:1}
+ nav.hide{transform:translateY(100%);opacity:0;pointer-events:none}
+ nav h1{margin:0 -12px 8px;padding:14px 16px;position:sticky;top:0;z-index:1}
+ nav .g{display:block;margin:14px 2px 6px}
+ nav{--cols:3}nav .tiles{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:8px}
+ nav a{flex-direction:column;justify-content:center;gap:4px;text-align:center;padding:12px 4px;margin:0;background:var(--panel2);border:1px solid var(--line);border-radius:12px;font-size:12.5px;line-height:1.2;min-height:76px}
+ nav a i{font-size:22px;width:auto}nav a.on{box-shadow:inset 0 0 0 2px var(--acc);background:var(--panel2)}
+ /* thanh dưới */
+ #tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:45;background:var(--panel);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+ #tabbar a{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0;color:var(--mute);text-decoration:none;font-size:11px;border-radius:10px}
+ #tabbar a i{font-style:normal;font-size:21px;line-height:1.1}#tabbar a.on{color:var(--acc);background:var(--panel2)}
+ /* bảng -> thẻ */
+ .tw{border:0;max-height:none;overflow:visible}.tw table,.tw tbody{display:block;background:none}.tw thead{display:none}
+ .tw tr{display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 12px;margin-bottom:8px}
+ .tw tr:hover td{background:none}
+ .tw td{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line);white-space:normal;text-align:right;min-width:0!important;word-break:break-word}
+ .tw td:last-child{border-bottom:0}.tw td::before{content:attr(data-l);color:var(--mute);font-size:12px;text-align:left;flex:none;max-width:45%}
+ .tw td[data-l=""]::before{display:none}.tw td[data-l=""]{justify-content:flex-start;text-align:left}
+ .tw td.act{justify-content:flex-end;flex-wrap:wrap;gap:6px}.tw td.act::before{display:none}
+ .stats{grid-template-columns:1fr 1fr;gap:8px}.stat{padding:10px}.stat b{font-size:17px}
+ .qa{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}
+ .row>input,.row>select{flex:1 1 140px}.row .grow{flex:1 1 100%!important}
+ .card{padding:12px;border-radius:12px}
+ .modal{padding:0;align-items:flex-end}.modal .box{width:100%;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
+ .pick{grid-template-columns:1fr}.gal{grid-template-columns:repeat(3,1fr)}
+ #toast{left:12px;right:12px;bottom:calc(72px + env(safe-area-inset-bottom))}#toast div{max-width:none}
+ .log{height:55vh}
+}
+@media(max-width:380px){nav{--cols:2}.stats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="login" hidden>
+  <form class="card" onsubmit="doLogin(event)">
+    <h2>Panel quản lý NRO</h2>
+    <input id="lu" placeholder="Tài khoản" autocomplete="username" required>
+    <input id="lp" type="password" placeholder="Mật khẩu" autocomplete="current-password" required>
+    <button class="p">Đăng nhập</button><div id="lerr" class="mute"></div>
+  </form>
+</div>
+<div id="app" hidden>
+  <nav id="nav"></nav>
+  <div style="flex:1;min-width:0"><div id="top"></div><main id="main"></main></div>
+</div>
+<div id="tabbar"></div>
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>n==null?'':Number(n).toLocaleString('vi-VN');
+const icon=id=>id>=0?`<img class="ic" loading="lazy" src="/icon/${id}" onerror="this.style.visibility='hidden'">`:'';
+let routeGen=0;
+async function api(path,body){
+  const o=body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json','X-Panel':'panel'},body:JSON.stringify(body)};
+  const gen=routeGen;const r=await fetch('/api/'+path,o);
+  // đã chuyển trang trong lúc chờ: bỏ dữ liệu đọc của trang cũ để không ghi đè trang mới
+  if(body===undefined&&gen!==routeGen&&!['stats','server'].includes(path)){const e=new Error('stale');e.stale=1;throw e}let j;try{j=await r.json()}catch(e){j={error:'Lỗi '+r.status}}
+  if(r.status===401&&path!=='login'){showLogin();throw new Error('Chưa đăng nhập')}
+  if(!r.ok||j.error){throw new Error(j.error||('Lỗi '+r.status))}return j}
+function toast(m,err){const d=document.createElement('div');d.textContent=m;if(err)d.className='e';$('#toast').append(d);setTimeout(()=>d.remove(),4500)}
+async function act(fn,ok){try{const r=await fn();toast(ok||(r&&r.note)||'Đã xong');return r}catch(e){toast(e.message,1)}}
+function table(rows,cols,actions){
+  if(!rows||!rows.length)return '<div class="mute">Không có dữ liệu</div>';
+  cols=cols||Object.keys(rows[0]).map(k=>[k,k]);
+  return `<div class="tw"><table><thead><tr>${cols.map(c=>`<th>${esc(c[1])}</th>`).join('')}${actions?'<th></th>':''}</tr></thead><tbody>${rows.map((r,i)=>`<tr>${cols.map(c=>`<td class="${c[3]||''}" data-l="${esc(c[1])}">${c[2]?c[2](r[c[0]],r):esc(r[c[0]])}</td>`).join('')}${actions?`<td class="act" data-l="">${actions(r,i)}</td>`:''}</tr>`).join('')}</tbody></table></div>`}
+function modal(html){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class="box">${html}</div>`;m.onclick=e=>{if(e.target===m)m.remove()};document.body.append(m);return m}
+
+const PAGES=[
+ ['g','Máy chủ'],['dash','Tổng quan','📊'],['notify','Thông báo & quà','📣'],['maint','Bảo trì & lưu','🛠'],['logs','Nhật ký console','🖥'],['audit','Nhật ký thao tác','📝'],['config','Cấu hình','⚙'],
+ ['g','Người chơi'],['players','Người chơi','👤'],['bots','Bot','🤖'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],
+ ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],['looks','Đeo lưng & thú cưỡi','🪽'],['admin','Lệnh admin trong game','🧙'],
+ ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['bossrw','Thưởng boss','💰'],['mobs','Quái','🐗'],
+ ['g','Khác'],['db','Database','🗄'],['health','Kiểm tra dữ liệu','🩺'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
+function buildNav(){if(innerWidth<760)$('#nav').classList.add('hide');let h='<h1>🐉<span>Panel NRO<small>chữ ký: Việt</small></span></h1>',open=false;
+  for(const p of PAGES){if(p[0]==='g'){if(open)h+='</div>';h+=`<div class="g">${p[1]}</div><div class="tiles">`;open=true}else h+=`<a href="#${p[0]}" data-p="${p[0]}"><i>${p[2]||'•'}</i>${p[1]}</a>`}
+  h+='</div><div class="g">Tài khoản</div><div class="tiles"><a href="#" onclick="toggleTheme();return false"><i>🌓</i>Đổi sáng / tối</a><a href="#" onclick="logout();return false"><i>🚪</i>Đăng xuất</a></div>';
+  $('#nav').innerHTML=h;buildTabbar();
+  document.querySelectorAll('#nav a[data-p]').forEach(a=>a.addEventListener('click',()=>{if(innerWidth<760)$('#nav').classList.add('hide')}));refreshTop();clearInterval(window._topT);window._topT=setInterval(refreshTop,15000)}
+/* thanh dưới cho điện thoại: 4 trang hay dùng + "Thêm" mở lưới tất cả trang */
+const TABS=[['dash','📊','Tổng quan'],['players','👤','Người chơi'],['items','🎒','Vật phẩm'],['events','🎉','Sự kiện']];
+function buildTabbar(){$('#tabbar').innerHTML=TABS.map(t=>`<a href="#${t[0]}" data-t="${t[0]}"><i>${t[1]}</i>${t[2]}</a>`).join('')+'<a href="#" id="more" onclick="$(\'#nav\').classList.toggle(\'hide\');markTab();return false"><i>☰</i>Thêm</a>';
+  $('#tabbar').querySelectorAll('a[data-t]').forEach(a=>a.addEventListener('click',()=>$('#nav').classList.add('hide')));markTab()}
+function markTab(){const p=(location.hash||'#dash').slice(1),navOpen=!$('#nav').classList.contains('hide');
+  document.querySelectorAll('#tabbar a').forEach(a=>a.classList.toggle('on',a.id==='more'?navOpen||!TABS.some(t=>t[0]===p):!navOpen&&a.dataset.t===p))}
+function pageName(p){const x=PAGES.find(x=>x[0]===p);return x?x[1]:'Tổng quan'}
+async function refreshTop(){try{const [s,v]=await Promise.all([api('stats'),api('server')]);
+  $('#top').innerHTML=`<button id="menu" onclick="$('#nav').classList.toggle('hide')">☰</button><span id="ptitle">${esc(pageName((location.hash||'#dash').slice(1)))}</span><b>${esc(s.server)}</b><span class="pill"><span class="dot"></span>${fmt(s.online)} online</span>
+  <span class="pill">🎉 ${v.event?esc(v.event):'<span class="mute">không có sự kiện</span>'}</span><span class="pill" title="Kiểm tra chữ ký khi khởi động">🔏 ${esc(v.signature)}</span>
+  <span class="pill">RAM ${fmt(s.memUsedMb)}/${fmt(s.memMaxMb)} MB</span>${s.maintenance?'<span class="pill tag bad1">đang bảo trì</span>':''}<span class="sp"></span><span class="mute" style="font-size:12px">Java ${esc(v.java)} · data v${v.vsData} · item v${v.vsItem}</span>`;
+  window._online=(window._online||[]).concat([{t:Date.now(),n:s.online}]).slice(-120);drawChart()}catch(e){}}
+function drawChart(){const c=document.getElementById('chart');if(!c)return;const d=window._online||[];if(d.length<2){c.innerHTML='<text x="10" y="60" fill="currentColor" opacity=".5">Đang thu thập số liệu…</text>';return}
+  const W=c.clientWidth||600,H=120,mx=Math.max(1,...d.map(x=>x.n)),st=W/(d.length-1);
+  const pts=d.map((x,i)=>`${(i*st).toFixed(1)},${(H-8-(x.n/mx)*(H-24)).toFixed(1)}`).join(' ');
+  c.setAttribute('viewBox',`0 0 ${W} ${H}`);c.innerHTML=`<defs><linearGradient id="gg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f5a524" stop-opacity=".45"/><stop offset="1" stop-color="#f5a524" stop-opacity="0"/></linearGradient></defs><polygon fill="url(#gg)" points="0,${H} ${pts} ${W},${H}"/><polyline fill="none" stroke="#f5a524" stroke-width="2" points="${pts}"/><text x="6" y="14" font-size="11" fill="currentColor" opacity=".6">cao nhất ${mx} người</text>`}
+function toggleTheme(){const t=document.documentElement.dataset.theme==='light'?'dark':'light';document.documentElement.dataset.theme=t;try{localStorage.setItem('theme',t)}catch(e){}}
+try{document.documentElement.dataset.theme=localStorage.getItem('theme')||'dark'}catch(e){}
+let logTimer=null;
+async function route(){
+  clearInterval(logTimer);routeGen++;const p=(location.hash||'#dash').slice(1);
+  document.querySelectorAll('nav a[data-p]').forEach(a=>a.classList.toggle('on',a.dataset.p===p));
+  $('#nav').classList.toggle('hide',innerWidth<760||$('#nav').classList.contains('hide'));markTab();const pt=document.getElementById('ptitle');if(pt)pt.textContent=pageName(p);scrollTo(0,0);
+  const f=window['page_'+p]||page_dash;$('#main').innerHTML='<div class="mute">Đang tải…</div>';
+  try{await f()}catch(e){if(!e.stale)$('#main').innerHTML=`<div class="card">${esc(e.message)}</div>`}}
+window.onhashchange=route;
+function showLogin(){$('#app').hidden=true;$('#login').hidden=false}
+async function doLogin(e){e.preventDefault();try{await api('login',{user:$('#lu').value,pass:$('#lp').value});$('#login').hidden=true;$('#app').hidden=false;buildNav();route()}catch(x){$('#lerr').textContent=x.message}}
+async function logout(){await api('logout',{}).catch(()=>{});showLogin()}
+
+/* ---------- chọn vật phẩm ---------- */
+function pickItem(cb){
+  const m=modal(`<h3>Chọn vật phẩm</h3><div class="row"><input class="grow" id="pq" placeholder="Tên hoặc ID"><select id="pt"><option value="">Mọi loại</option>${[[0,'Áo'],[1,'Quần'],[2,'Găng'],[3,'Giày'],[4,'Rada'],[5,'Cải trang'],[11,'Đeo lưng'],[12,'Ngọc rồng'],[14,'Đá'],[23,'Thú cưỡi'],[27,'Vật phẩm/Pet'],[29,'Item thời gian'],[30,'Sao pha lê'],[33,'Thẻ/mảnh'],[72,'Hào quang']].map(t=>`<option value="${t[0]}">${t[1]}</option>`).join('')}</select><button onclick="this.closest('.modal').remove()">Đóng</button></div><div class="pick" id="pl"></div>`);
+  const load=async()=>{const r=await api(`items?q=${encodeURIComponent(m.querySelector('#pq').value)}&type=${m.querySelector('#pt').value}`);
+    m.querySelector('#pl').innerHTML=r.map(i=>`<div data-id="${i.id}" data-name="${esc(i.name)}" data-icon="${i.icon}">${icon(i.icon)}<span><b>${esc(i.name)}</b><br><span class="mute">#${i.id} · loại ${i.type}</span></span></div>`).join('')||'<span class="mute">Không thấy</span>'};
+  let t;m.querySelector('#pq').oninput=()=>{clearTimeout(t);t=setTimeout(load,250)};m.querySelector('#pt').onchange=load;
+  m.querySelector('#pl').onclick=e=>{const d=e.target.closest('[data-id]');if(d){m.remove();cb({id:+d.dataset.id,name:d.dataset.name,icon:+d.dataset.icon})}};
+  load();m.querySelector('#pq').focus()}
+function itemField(prefix){return `<div class="row"><input id="${prefix}id" type="number" placeholder="ID vật phẩm" style="width:120px"><span id="${prefix}nm" class="mute"></span><button type="button" onclick="pickItem(i=>{$('#${prefix}id').value=i.id;$('#${prefix}nm').innerHTML=icon(i.icon)+' '+esc(i.name)})">Chọn…</button></div>`}
+function parseOps(s){return (s||'').split(/[;\n]/).map(x=>x.trim()).filter(Boolean).map(x=>x.split(/[:,\s]+/).map(Number)).filter(a=>a.length>=2&&!isNaN(a[0]))}
+
+/* ---------- tổng quan ---------- */
+async function page_dash(){
+  const s=await api('stats');const up=s.uptimeSec;
+  $('#main').innerHTML=`<h2>Tổng quan — ${esc(s.server)}</h2><div class="stats">
+  ${[['🟢','Đang online',fmt(s.online)+' / '+fmt(s.maxPlayer)],['🔑','Tài khoản',fmt(s.accounts)],['👤','Nhân vật',fmt(s.players)],['👹','Boss đang có mặt',fmt(s.bosses)],
+     ['💾','RAM',fmt(s.memUsedMb)+' / '+fmt(s.memMaxMb)+' MB'],['🧠','CPU (tải TB)',s.cpuLoad<0?'—':s.cpuLoad.toFixed(2)+' / '+s.cpus+' nhân'],['🧵','Luồng',fmt(s.threads)],
+     ['⏱','Chạy được',Math.floor(up/86400)+'n '+Math.floor(up%86400/3600)+'g '+Math.floor(up%3600/60)+'p'],['🛠','Bảo trì',s.maintenance?'Đang bảo trì':'Không']]
+    .map(x=>`<div class="stat"><span class="ico">${x[0]}</span><span>${x[1]}</span><b>${esc(x[2])}</b></div>`).join('')}</div>
+  <div class="grid2" style="margin-top:14px">
+   <div class="card"><b>Người online (cập nhật 15 giây)</b><svg id="chart" class="chart"></svg></div>
+   <div class="card"><b>🎉 Sự kiện</b><div style="margin:6px 0">${s.seasons.length?s.seasons.map(n=>`<span class="tag on1">${esc(n)}</span>`).join(' '):'<span class="mute">không có sự kiện nào đang chạy</span>'}</div>
+    <div class="mute">Khởi động lúc ${esc(s.startedAt)}</div><div class="row" style="margin-top:8px"><a href="#eventtops">Xem đua top →</a><a href="#events">Quản lý sự kiện →</a></div></div>
+  </div>
+  <div class="card"><b>⚡ Thao tác nhanh</b><div class="qa" style="margin-top:8px">
+   <button onclick="act(()=>api('player/save',{}).then(r=>{toast('Đã lưu '+r.saved+' người chơi');return r}))"><b>💾 Lưu tất cả</b><span>Lưu dữ liệu người online</span></button>
+   <button onclick="act(()=>api('season/cmd',{cmd:'reload'}).then(r=>{toast(r.result);return r}))"><b>🔄 Nạp lại sự kiện</b><span>Đọc lại bảng season_event</span></button>
+   <button onclick="act(()=>api('ddos/unban',{}).then(r=>{toast(r.result);return r}))"><b>🛡️ Gỡ chặn IP</b><span>Gỡ mọi IP đang bị chống DDoS chặn</span></button>
+   <button onclick="act(()=>api('shop/reload',{}),'Đã nạp lại cửa hàng')"><b>🏪 Nạp lại shop</b><span>Áp dụng sửa cửa hàng</span></button>
+   <button onclick="quickNotify()"><b>📣 Thông báo nhanh</b><span>Dòng chữ chạy cho cả server</span></button>
+   <button onclick="location.hash='#maint'"><b>🛠 Bảo trì</b><span>Đếm ngược và tắt server</span></button>
+  </div></div>
+  <div class="grid2"><div><h3>🏆 Top 10 sức mạnh</h3><div id="tp"></div></div><div><h3>🟢 Người chơi đang online</h3><div id="onl"></div></div></div>`;
+  drawChart();
+  api('tops?kind=power').then(r=>$('#tp').innerHTML=table(r.slice(0,10).map((x,i)=>({...x,rank:i+1})),[['rank','#'],['name','Tên',(v,x)=>`<a href="#" onclick="openPlayer(${x.id});return false">${esc(v)}</a>`],['point','Sức mạnh',fmt]])).catch(()=>{});
+  const p=await api('players?online=1');$('#onl').innerHTML=playerTable(p)}
+function quickNotify(){const t=prompt('Nội dung thông báo (dòng chữ chạy):');if(t)act(()=>api('notify',{type:'ticker',text:t}),'Đã gửi thông báo')}
+
+/* ---------- người chơi ---------- */
+const GENDER=['Trái Đất','Namếc','Xayda'];
+function playerTable(rows){return table(rows,[['id','ID'],['name','Tên',(v,r)=>`<a href="#" onclick="openPlayer(${r.id});return false">${esc(v)}</a>`],['username','Tài khoản'],['gender','Hành tinh',v=>GENDER[v]||v],['power','Sức mạnh',fmt],['gold','Vàng',fmt],['gem','Ngọc',fmt],['ruby','Hồng ngọc',fmt],['map','Đang ở'],['online','Trạng thái',v=>v?'<span class="tag on1">online</span>':'<span class="tag off1">offline</span>'],['ban','Khóa',v=>v==1?'<span class="tag bad1">bị khóa</span>':'']])}
+async function page_players(){
+  $('#main').innerHTML=`<h2>Người chơi</h2><div class="card row"><input class="grow" id="q" placeholder="Tên nhân vật, tài khoản hoặc ID"><label class="row"><input type="checkbox" id="oo"> Chỉ online</label><button class="p" onclick="loadPlayers()">Tìm</button><button onclick="act(()=>api('player/save',{}),'Đã lưu toàn bộ người chơi online')">Lưu tất cả</button></div><div id="pt"></div>`;
+  $('#q').onkeydown=e=>{if(e.key==='Enter')loadPlayers()};loadPlayers()}
+async function loadPlayers(){$('#pt').innerHTML=playerTable(await api(`players?q=${encodeURIComponent($('#q').value)}&online=${$('#oo').checked?1:''}`))}
+async function openPlayer(id){
+  const p=await api('player?id='+id);
+  const inv=(list,where)=>list&&list.length?`<div class="tw" style="max-height:260px"><table>${list.map(i=>`<tr><td>${icon(i.icon)}</td><td class="w"><b>${esc(i.name)}</b> <span class="mute">#${i.id} ×${fmt(i.qty)}</span><br><span class="mute">${i.options.map(esc).join(' · ')}</span></td><td><button class="d" title="Xoá vật phẩm này" data-rm="${where}:${i.slot}">✕</button></td></tr>`).join('')}</table></div>`:'<span class="mute">trống</span>';
+  const st=p.stats||{},tk=p.task||{};
+  const SF=[['power','Sức mạnh'],['tiemNang','Tiềm năng'],['hpg','HP gốc'],['mpg','KI gốc'],['dameg','Sức đánh gốc'],['defg','Giáp gốc'],['critg','Chí mạng gốc'],['stamina','Thể lực'],['maxStamina','Thể lực tối đa'],['limitPower','Giới hạn sức mạnh']];
+  const m=modal(`<h3>${esc(p.name)} <span class="mute">#${p.id} · ${esc(p.username||'')}</span> ${p.online?'<span class="tag on1">online</span>':'<span class="tag off1">offline</span>'}</h3>
+  <div class="mute">Sức mạnh ${fmt(p.power)} · Vàng ${fmt(p.gold)} · Ngọc ${fmt(p.gem)} · Hồng ngọc ${fmt(p.ruby)} · ${esc(p.map)} · IP ${esc(p.ip||p.ip_address||'')} · Nạp ${fmt(p.tongnap)} · Đăng nhập ${esc(p.last_time_login||'')}</div>
+  <div class="grid2" style="margin-top:12px">
+   <div class="card"><b>Cộng / trừ tiền</b> <span class="mute">(số âm để trừ)</span><div class="row" style="margin-top:6px"><input id="mg" type="number" placeholder="Vàng" style="width:120px"><input id="mn" type="number" placeholder="Ngọc" style="width:90px"><input id="mr" type="number" placeholder="Hồng ngọc" style="width:100px"><button class="p" id="bm">Gửi</button></div></div>
+   <div class="card"><b>Gửi vật phẩm</b>${itemField('gi')}<div class="row" style="margin-top:6px"><input id="gq" type="number" value="1" style="width:80px" title="Số lượng"><input id="go" class="grow" placeholder="Chỉ số thêm: 50:10; 77:15"><label class="row"><input type="checkbox" id="gs" checked> chỉ số mặc định</label><button class="p" id="bg">Gửi</button></div></div>
+   <div class="card"><b>Thao tác</b><div class="row" style="margin-top:6px">${p.botAccount?'<span class="mute">🤖 Tài khoản bot</span>':''}${p.online?`<button id="bk">Kick</button><input id="tm" type="number" placeholder="Map ID" style="width:90px"><button id="bt">Dịch chuyển</button>`:''}<button class="${p.ban==1?'':'d'}" id="bb">${p.ban==1?'Mở khóa':'Khóa tài khoản'}</button><button id="ba">${p.is_admin==1?'Bỏ admin':'Cấp admin'}</button></div></div>
+  </div>
+  <div class="grid2">
+   <div class="card"><b>Chỉ số nhân vật</b> <span class="mute">(chỉ số gốc, chưa cộng đồ)</span><div class="grid2" style="margin-top:6px">${SF.map(([k,l])=>`<label>${l}<input id="st_${k}" type="number" value="${st[k]??''}"></label>`).join('')}</div><div class="row" style="margin-top:6px"><button class="p" id="bst">Lưu chỉ số</button></div></div>
+   <div class="card"><b>Nhiệm vụ</b><div class="row" style="margin-top:6px"><select id="tk_id" class="grow"><option value="${tk.id??0}">Nhiệm vụ ${tk.id??'?'}</option></select></div><div class="row" style="margin-top:6px"><label>Bước <select id="tk_idx"></select></label><label>Đã làm <input id="tk_cnt" type="number" value="${tk.count??0}" style="width:90px"></label><button class="p" id="btk">Lưu nhiệm vụ</button></div>
+    <div style="margin-top:12px"><b>Đổi tên</b><div class="row" style="margin-top:6px"><input id="rn" class="grow" value="${esc(p.name)}"><button class="p" id="brn">Đổi tên</button></div></div>
+    <div style="margin-top:12px"><b>Xoá nhân vật</b> <span class="mute">(không lấy lại được; tài khoản giữ lại, đăng nhập sẽ tạo nhân vật mới)</span><div class="row" style="margin-top:6px"><button class="d" id="bdel">Xoá nhân vật ${esc(p.name)}</button></div></div></div>
+  </div>
+  <div class="grid2"><div><h3>Đang mặc</h3>${inv(p.body,'body')}</div><div><h3>Hành trang</h3>${inv(p.bag,'bag')}</div><div><h3>Rương</h3>${inv(p.box,'box')}</div></div>
+  <div class="row" style="margin-top:12px;justify-content:flex-end"><button onclick="this.closest('.modal').remove()">Đóng</button></div>`);
+  const re=()=>{m.remove();openPlayer(id)};
+  m.querySelector('#bm').onclick=()=>act(()=>api('player/money',{id,gold:+$('#mg').value||0,gem:+$('#mn').value||0,ruby:+$('#mr').value||0})).then(re);
+  m.querySelector('#bg').onclick=()=>act(()=>api('player/give',{id,itemId:+$('#giid').value,qty:+$('#gq').value||1,shopOptions:$('#gs').checked,options:parseOps($('#go').value)})).then(re);
+  m.querySelector('#bb').onclick=()=>act(()=>api('account/update',{id:p.account_id,ban:p.ban==1?0:1})).then(re);
+  m.querySelector('#ba').onclick=()=>act(()=>api('account/update',{id:p.account_id,is_admin:p.is_admin==1?0:1})).then(re);
+  m.querySelector('#bst').onclick=()=>{const o={id};SF.forEach(([k])=>{const v=m.querySelector('#st_'+k).value;if(v!=='')o[k]=+v});act(()=>api('player/stats',o),'Đã lưu chỉ số').then(re)};
+  api('tasks').then(ts=>{const sel=m.querySelector('#tk_id'),idx=m.querySelector('#tk_idx');sel.innerHTML=ts.map(t=>`<option value="${t.id}" ${t.id==tk.id?'selected':''}>${t.id}. ${esc(t.name)}</option>`).join('');
+    const fill=()=>{const t=ts.find(x=>x.id==sel.value);idx.innerHTML=(t?t.subs:[]).map((n,i)=>`<option value="${i}" ${(sel.value==tk.id&&i==tk.index)?'selected':''}>${i}. ${esc(n)}</option>`).join('')};sel.onchange=fill;fill()}).catch(()=>{});
+  m.querySelector('#btk').onclick=()=>act(()=>api('player/task',{id,taskId:+m.querySelector('#tk_id').value,index:+m.querySelector('#tk_idx').value,count:+m.querySelector('#tk_cnt').value||0}),'Đã lưu nhiệm vụ').then(re);
+  m.querySelector('#brn').onclick=()=>act(()=>api('player/rename',{id,name:m.querySelector('#rn').value}),'Đã đổi tên').then(re);
+  m.querySelector('#bdel').onclick=()=>{if(prompt('Gõ XOA để xoá vĩnh viễn nhân vật '+p.name)!=='XOA')return;act(()=>api('player/delete',{id,confirm:'XOA'}),'Đã xoá nhân vật').then(()=>{m.remove();if($('#pt'))loadPlayers()})};
+  m.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{const [where,index]=b.dataset.rm.split(':');if(!confirm('Xoá vật phẩm này?'))return;act(()=>api('player/removeitem',{id,where,index:+index}),'Đã xoá vật phẩm').then(re)});
+  if(p.online){m.querySelector('#bk').onclick=()=>act(()=>api('player/kick',{id})).then(()=>m.remove());m.querySelector('#bt').onclick=()=>act(()=>api('player/teleport',{id,mapId:+$('#tm').value}))}}
+
+/* ---------- bot ---------- */
+async function page_bots(){
+  $('#main').innerHTML=`<h2>Bot</h2>
+  <div class="card mute">Tài khoản bot: tài khoản riêng của máy chủ (không ai đăng nhập được), chơi thật như người: làm nhiệm vụ từ đầu, luyện tập theo sức, săn boss, NRSD, bang hội, doanh trại, ký gửi / giao dịch, học chiêu, ép sao, đệ tử. Lỗi của bot ghi ở logs/bot.log. Trang tự làm mới 10 giây.</div>
+  <div class="stats" id="bs"></div>
+  <div class="grid2" style="margin-top:12px"><div class="card"><b>Đang làm gì</b><div id="bact" style="margin-top:8px"></div></div>
+  <div class="card"><b>Tạo bot</b><div class="row" style="margin-top:8px"><input id="ba_n" class="grow" placeholder="Tên (bỏ trống: tên ngẫu nhiên như người chơi)"><select id="ba_g"><option value="-1">Hành tinh ngẫu nhiên</option><option value="0">Trái Đất</option><option value="1">Namếc</option><option value="2">Xayda</option></select></div>
+   <div class="row" style="margin-top:8px"><input id="ba_p" type="number" min="0" placeholder="Sức mạnh ban đầu" style="width:150px"><input id="ba_t" type="number" min="0" max="40" placeholder="Nhiệm vụ (0: từ đầu)" style="width:150px"><label>Số lượng <input id="ba_c" type="number" min="1" max="1000" value="10" style="width:90px"></label><button class="p" id="ba_add">Tạo bot</button></div>
+   <div class="row" style="margin-top:8px"><button id="ba_on">Bật tất cả</button><button class="d" id="ba_off">Tắt tất cả</button></div></div></div>
+  <div class="card row"><input id="bf" class="grow" placeholder="Tìm tên, bản đồ, bang, hoạt động..."><select id="bst"><option value="">Mọi trạng thái</option><option>Đang chơi</option><option>Chờ vào game</option><option>Đã tắt</option></select><select id="bso"><option value="p">Sức mạnh cao trước</option><option value="n">Tên A-Z</option><option value="t">Nhiệm vụ cao trước</option></select><span class="mute" id="bcnt"></span></div>
+  <div class="tw" id="btb"></div>
+  <h3>Lỗi bot gần đây</h3><div id="berr"></div>`;
+  let acc=[];const G=['Trái Đất','Namếc','Xayda'],col={'Đang chơi':'var(--ok)','Chờ vào game':'var(--acc)','Đã tắt':'var(--mute)'};
+  const draw=()=>{const q=$('#bf').value.trim().toLowerCase(),st=$('#bst').value,so=$('#bso').value;
+    let l=acc.filter(a=>(!st||a.state===st)&&(!q||[a.name,a.map,a.clan,a.activity,a.username].join(' ').toLowerCase().includes(q)));
+    l.sort(so==='n'?(x,y)=>x.name.localeCompare(y.name):so==='t'?(x,y)=>(parseFloat(y.task)||0)-(parseFloat(x.task)||0):(x,y)=>(y.power||0)-(x.power||0));
+    const maxP=Math.max(1,...acc.map(a=>a.power||0));$('#bcnt').textContent=l.length+' / '+acc.length+' bot';
+    $('#btb').innerHTML=`<table><tr><th>Nhân vật</th><th>Trạng thái</th><th>Đang làm</th><th>Sức mạnh</th><th>Nhiệm vụ</th><th>Bản đồ</th><th>Bang</th><th>Vàng</th><th></th></tr>${l.slice(0,500).map(a=>`<tr>
+      <td><b>${esc(a.name)}</b> <span class="mute">${a.gender>=0?G[a.gender]:''} #${a.id}</span></td>
+      <td><span class="tag" style="border-color:${col[a.state]||'var(--line)'};color:${col[a.state]||'inherit'}">${esc(a.state)}</span></td>
+      <td>${esc(a.activity||'')}</td>
+      <td style="min-width:140px">${a.power!=null?`<div style="background:var(--panel2);border-radius:6px;height:6px;margin-bottom:3px"><div style="width:${Math.max(2,100*a.power/maxP)}%;height:6px;border-radius:6px;background:var(--acc)"></div></div>${fmt(a.power)}`:'<span class="mute">—</span>'}</td>
+      <td>${esc(a.task||'')}</td><td>${esc(a.map||'')}</td><td>${esc(a.clan||'')}</td><td>${a.gold!=null?fmt(a.gold):''}</td>
+      <td><button class="s" data-v="${a.id}">Hành trang</button> <button class="s" data-e="${a.id}" data-on="${a.enabled?0:1}">${a.enabled?'Tắt':'Bật'}</button> <button class="s d" data-x="${a.id}">Xoá</button></td></tr>`).join('')||'<tr><td colspan=9 class="mute">Chưa có bot</td></tr>'}</table>${l.length>500?'<div class="mute" style="padding:8px">Hiện 500 bot đầu, dùng ô tìm để lọc.</div>':''}`;
+    document.querySelectorAll('#btb [data-e]').forEach(b=>b.onclick=()=>act(()=>api('bot/account',{id:+b.dataset.e,on:+b.dataset.on}),'Đã lưu').then(pull));
+    document.querySelectorAll('#btb [data-v]').forEach(b=>b.onclick=()=>openPlayer(+b.dataset.v));
+    document.querySelectorAll('#btb [data-x]').forEach(b=>b.onclick=()=>{if(confirm('Xoá hẳn tài khoản bot này (nhân vật, hành trang)?'))act(()=>api('bot/delete',{id:+b.dataset.x,confirm:'XOA'}),'Đã xoá').then(pull)})};
+  const pull=async()=>{const [a,d]=await Promise.all([api('bot/accounts'),api('bots')]);acc=a;
+    const on=acc.filter(x=>x.state==='Đang chơi'),wait=acc.filter(x=>x.state==='Chờ vào game').length,off=acc.filter(x=>x.state==='Đã tắt').length;
+    const pw=on.reduce((s,x)=>s+(x.power||0),0),clans=new Set(on.map(x=>x.clan).filter(Boolean)).size;
+    $('#bs').innerHTML=[['Tổng bot',acc.length],['Đang chơi',on.length],['Chờ vào game',wait],['Đã tắt',off],['Tổng sức mạnh',fmt(pw)],['Bang có bot',clans]].map(([k,v])=>`<div class="stat"><b>${typeof v==='number'?fmt(v):v}</b><span>${k}</span></div>`).join('');
+    const ac={};on.forEach(x=>{const k=x.activity||'Luyện tập';ac[k]=(ac[k]||0)+1});const mx=Math.max(1,...Object.values(ac));
+    $('#bact').innerHTML=Object.entries(ac).sort((x,y)=>y[1]-x[1]).map(([k,v])=>`<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><span style="width:120px">${esc(k)}</span><div style="flex:1;background:var(--panel2);border-radius:6px;height:10px"><div style="width:${100*v/mx}%;height:10px;border-radius:6px;background:var(--acc2)"></div></div><b style="width:36px;text-align:right">${v}</b></div>`).join('')||'<span class="mute">Chưa có bot đang chơi</span>';
+    $('#berr').innerHTML=d.errors&&d.errors.length?`<pre style="white-space:pre-wrap;max-height:260px;overflow:auto">${esc(d.errors.join('\n'))}</pre>`:'<span class="mute">Không có lỗi</span>';draw()};
+  $('#bf').oninput=draw;$('#bst').onchange=draw;$('#bso').onchange=draw;
+  $('#ba_add').onclick=()=>act(()=>api('bot/create',{name:+$('#ba_c').value>1?'':$('#ba_n').value.trim(),gender:+$('#ba_g').value,power:+($('#ba_p').value||0),task:+($('#ba_t').value||0),count:+($('#ba_c').value||1)}),'Đã tạo bot, vào game dần (20 bot / 30 giây)').then(pull);
+  $('#ba_on').onclick=()=>act(()=>api('bot/all',{on:1}),'Đã bật tất cả bot').then(pull);
+  $('#ba_off').onclick=()=>{if(confirm('Tắt tất cả bot?'))act(()=>api('bot/all',{on:0}),'Đã tắt tất cả bot').then(pull)};
+  await pull();logTimer=setInterval(pull,10000)}
+
+/* ---------- tài khoản ---------- */
+async function page_accounts(){
+  $('#main').innerHTML=`<h2>Tài khoản</h2><div class="card row"><input class="grow" id="q" placeholder="Tài khoản, tên nhân vật hoặc ID"><button class="p" onclick="loadAcc()">Tìm</button></div><div id="at"></div>`;
+  $('#q').onkeydown=e=>{if(e.key==='Enter')loadAcc()};loadAcc()}
+async function loadAcc(){const r=await api('accounts?q='+encodeURIComponent($('#q').value));
+  $('#at').innerHTML=table(r,[['id','ID'],['username','Tài khoản'],['players','Nhân vật'],['vnd','Số dư',fmt],['tongnap','Tổng nạp',fmt],['ban','Khóa',v=>v==1?'<span class="tag bad1">khóa</span>':''],['is_admin','Admin',v=>v==1?'<span class="tag on1">admin</span>':''],['last_time_login','Đăng nhập cuối'],['ip_address','IP']],
+  r2=>`<button class="s" onclick="editAcc(${r2.id})">Sửa</button>`);window._acc=r}
+function editAcc(id){const a=_acc.find(x=>x.id===id);const m=modal(`<h3>Tài khoản ${esc(a.username)}</h3><div class="grid2">
+ <label class="f">Mật khẩu mới (để trống nếu không đổi)<input id="ap"></label><label class="f">Số dư<input id="av" type="number" value="${a.vnd||0}"></label><label class="f">Tổng nạp<input id="an" type="number" value="${a.tongnap||0}"></label>
+ <label class="f">Khóa<select id="ab"><option value="0">Không</option><option value="1" ${a.ban==1?'selected':''}>Khóa</option></select></label><label class="f">Admin<select id="aa"><option value="0">Không</option><option value="1" ${a.is_admin==1?'selected':''}>Có</option></select></label></div>
+ <div class="row" style="margin-top:12px;justify-content:flex-end"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="as">Lưu</button></div>`);
+ m.querySelector('#as').onclick=()=>act(()=>api('account/update',{id,password:$('#ap').value,vnd:+$('#av').value,tongnap:+$('#an').value,ban:+$('#ab').value,is_admin:+$('#aa').value})).then(()=>{m.remove();loadAcc()})}
+
+/* ---------- top, bang hội, ký gửi, nạp thẻ ---------- */
+async function page_tops(){$('#main').innerHTML=`<h2>Bảng xếp hạng</h2><div class="card row"><select id="tk">${[['power','Sức mạnh'],['sukien','Hộp quà thiếu nhi'],['sukien1','Nước mía'],['sukien2','Kem trái cây'],['hopden','Hộp đen bí ẩn'],['naptien','Tổng nạp']].map(x=>`<option value="${x[0]}">${x[1]}</option>`).join('')}</select><button class="p" onclick="loadTop()">Xem</button></div><div id="tt"></div>`;loadTop()}
+async function loadTop(){const r=await api('tops?kind='+$('#tk').value);$('#tt').innerHTML=table(r.map((x,i)=>({...x,rank:i+1})),[['rank','Hạng'],['id','ID'],['name','Tên'],['point','Điểm',fmt]])}
+async function page_clans(){$('#main').innerHTML='<h2>Bang hội</h2>'+table(await api('clans'),[['id','ID'],['name','Tên'],['slogan','Khẩu hiệu','','w'],['level','Cấp'],['power_point','Sức mạnh',fmt],['clan_point','Điểm',fmt],['max_member','Tối đa'],['create_time','Ngày lập']])}
+async function page_kygui(){$('#main').innerHTML='<h2>Ký gửi</h2>'+table(await api('kygui'),[['id','ID'],['icon_id','',v=>icon(v)],['name','Vật phẩm'],['quantity','SL',fmt],['player','Người bán'],['gold','Giá vàng',fmt],['gem','Giá ngọc',fmt],['isBuy','Đã bán',v=>v==1?'<span class="tag on1">đã bán</span>':'']])}
+async function page_napthe(){$('#main').innerHTML='<h2>Lịch sử nạp thẻ</h2>'+table(await api('napthe'))}
+
+/* ---------- vật phẩm ---------- */
+async function page_items(){$('#main').innerHTML=`<h2>Vật phẩm</h2><div class="card row"><input class="grow" id="q" placeholder="Tên hoặc ID"><input id="ty" type="number" placeholder="Loại" style="width:90px"><button class="p" onclick="loadItems()">Tìm</button><input class="grow" id="oq" placeholder="Tìm chỉ số (option)"><button onclick="loadOps()">Tìm chỉ số</button></div><div id="it"></div>`;
+  $('#q').onkeydown=e=>{if(e.key==='Enter')loadItems()};loadItems()}
+async function loadItems(){const r=await api(`items?q=${encodeURIComponent($('#q').value)}&type=${$('#ty').value}`);$('#it').innerHTML=table(r,[['icon','',v=>icon(v)],['id','ID'],['name','Tên'],['type','Loại'],['gender','Hành tinh'],['level','Cấp'],['desc','Mô tả','','w']],x=>`<button class="s" onclick="itemInfo(${x.id})">Chi tiết</button>`)}
+async function loadOps(){const r=await api('options?q='+encodeURIComponent($('#oq').value));$('#it').innerHTML=table(r,[['id','ID'],['name','Chỉ số']])}
+async function itemInfo(id){const i=await api('item?id='+id);modal(`<h3>${icon(i.icon)} ${esc(i.name)} <span class="mute">#${i.id}</span></h3><div class="mute">Loại ${i.type} · hành tinh ${i.gender} · cấp ${i.level} · part ${i.part} · sức mạnh ${fmt(i.strRequire)}</div><p>${esc(i.desc)}</p><b>Chỉ số khi tạo vật phẩm</b>${table(i.options,[['id','ID'],['param','Giá trị'],['text','Hiển thị']])}<div class="row" style="justify-content:flex-end;margin-top:10px"><button class="p" onclick="this.closest('.modal').remove();editItemOptions(${i.id})">✏ Sửa chỉ số mặc định</button><button onclick="this.closest('.modal').remove()">Đóng</button></div>`)}
+/* sửa bảng item_template_option của 1 vật phẩm */
+let OPT_NAMES=null;async function optNames(){if(!OPT_NAMES){OPT_NAMES={};(await api('options?q=')).forEach(o=>OPT_NAMES[o.id]=o.name)}return OPT_NAMES}
+async function editItemOptions(id){const [i,rows,names]=await Promise.all([api('item?id='+id),api('item/options?id='+id),optNames()]);
+  const row=o=>`<tr><td data-l="Chỉ số"><input class="oi" type="number" value="${o.option_id??''}" style="width:80px" oninput="this.nextElementSibling.textContent=OPT_NAMES[this.value]||'(không có)'"><span class="mute" style="margin-left:6px">${esc(names[o.option_id]||'')}</span></td><td data-l="Từ"><input class="op" type="number" value="${o.param??0}" style="width:80px"></td><td data-l="Đến"><input class="oq" type="number" value="${o.param_max??o.param??0}" style="width:80px"></td><td data-l="% có"><input class="oc" type="number" value="${o.chance??100}" style="width:70px"></td><td data-l="Nhóm"><input class="og" type="number" value="${o.group_id??0}" style="width:60px"></td><td class="act" data-l=""><button class="s d" onclick="this.closest('tr').remove()">Xóa</button></td></tr>`;
+  const m=modal(`<h3>Chỉ số mặc định: ${icon(i.icon)} ${esc(i.name)} <span class="mute">#${id}</span></h3><div class="mute">Mỗi dòng: mã chỉ số, giá trị từ / đến (ngẫu nhiên trong khoảng), % xuất hiện, nhóm (cùng nhóm &gt; 0 chỉ chọn 1). Áp dụng cho vật phẩm tạo mới (shop, hộp quà, sự kiện).</div>
+   <div class="tw" style="margin-top:8px"><table><thead><tr><th>Chỉ số</th><th>Từ</th><th>Đến</th><th>% có</th><th>Nhóm</th><th></th></tr></thead><tbody id="eo">${rows.map(row).join('')}</tbody></table></div>
+   <div class="row" style="margin-top:8px"><button id="ea">+ Thêm dòng</button><input id="es" class="grow" placeholder="Tìm tên chỉ số để lấy mã…"><span id="er" class="mute"></span></div>
+   <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="ev">Lưu</button></div>`);
+  m.querySelector('#ea').onclick=()=>m.querySelector('#eo').insertAdjacentHTML('beforeend',row({}));
+  m.querySelector('#es').oninput=e=>{const k=e.target.value.toLowerCase();m.querySelector('#er').textContent=k?Object.entries(OPT_NAMES).filter(([a,b])=>b.toLowerCase().includes(k)).slice(0,6).map(([a,b])=>a+': '+b).join(' · '):''};
+  m.querySelector('#ev').onclick=()=>{const options=[...m.querySelectorAll('#eo tr')].filter(tr=>tr.querySelector('.oi').value!=='').map(tr=>({option_id:+tr.querySelector('.oi').value,param:+tr.querySelector('.op').value,param_max:+tr.querySelector('.oq').value,chance:+tr.querySelector('.oc').value,group_id:+tr.querySelector('.og').value})).filter(o=>!isNaN(o.option_id));
+    act(()=>api('item/options/save',{id,options})).then(r=>{if(r)m.remove()})}}
+
+/* ---------- hộp quà ---------- */
+async function page_boxes(){const r=await api('boxes');
+  $('#main').innerHTML=`<h2>Hộp quà</h2><div class="card"><div class="row"><b>Hộp:</b><select id="bx" class="grow">${r.map(b=>`<option value="${b.box_id}">#${b.box_id} ${esc(b.name)} (${b.n} quà)</option>`).join('')}</select><button onclick="loadBox()">Mở</button><span class="mute">hoặc tạo hộp mới cho vật phẩm bất kỳ:</span>${itemField('nb')}<button onclick="if(+$('#nbid').value>=0){const o=document.createElement('option');o.value=$('#nbid').value;o.textContent='#'+o.value+' (mới)';$('#bx').prepend(o);$('#bx').value=o.value;loadBox()}">Dùng làm hộp</button></div></div><div id="bt"></div>`;
+  $('#bx').onchange=loadBox;loadBox()}
+async function loadBox(){const id=+$('#bx').value;const r=await api('box?id='+id);const tw=r.reduce((a,x)=>a+x.weight,0);
+  $('#bt').innerHTML=`<div class="card"><b>Thêm vật phẩm vào hộp #${id}</b> <span class="mute">(id âm: -1 vàng, -2 ngọc, -3 hồng ngọc)</span>${itemField('bi')}<div class="row" style="margin-top:6px"><label class="f">SL từ<input id="b1" type="number" value="1" style="width:80px"></label><label class="f">đến<input id="b2" type="number" value="1" style="width:80px"></label><label class="f">Trọng số<input id="bw" type="number" value="10" style="width:90px"></label><label class="f">Hạn dùng (ngày, nhiều mức: 3,7,15)<input id="bd" style="width:170px"></label><label class="f">% vĩnh viễn<input id="bp" type="number" value="0" style="width:90px"></label><label class="f">Bảo hiểm (số lần mở, 0 = không)<input id="bph" type="number" value="0" style="width:120px"></label><button class="p" onclick="saveBox(${id})">Thêm</button></div></div>`+
+  table(r,[['icon_id','',v=>icon(v)],['item_id','ID'],['name','Vật phẩm',(v,x)=>esc(v||({'-1':'Vàng','-2':'Ngọc xanh','-3':'Hồng ngọc'})[x.item_id]||'')],['qty_min','SL',(v,x)=>x.qty_min===x.qty_max?v:v+' – '+x.qty_max],['weight','Trọng số'],['weight','Tỉ lệ',v=>(v*100/tw).toFixed(2)+'%'],['hsd_days','Hạn (ngày)'],['perm_rate','% vĩnh viễn'],['pity','Bảo hiểm',v=>v>0?v+' lần':'']],
+   x=>`<button class="s" onclick='editBox(${JSON.stringify(x)})'>Sửa</button> <button class="s d" onclick="delBox(${x.id})">Xóa</button>`)}
+function saveBox(boxId,id){return act(()=>api('box/save',{id,box_id:boxId,item_id:+$('#biid').value,qty_min:+$('#b1').value,qty_max:+$('#b2').value,weight:+$('#bw').value,hsd_days:$('#bd').value,perm_rate:+$('#bp').value,pity:+$('#bph').value}),'Đã lưu, hộp quà đã nạp lại').then(loadBox)}
+function editBox(x){$('#biid').value=x.item_id;$('#binm').innerHTML=icon(x.icon_id)+' '+esc(x.name||'');$('#b1').value=x.qty_min;$('#b2').value=x.qty_max;$('#bw').value=x.weight;$('#bd').value=x.hsd_days||'';$('#bp').value=x.perm_rate;$('#bph').value=x.pity||0;
+  const b=document.querySelector('#bt .card button.p');b.textContent='Lưu dòng #'+x.id;b.onclick=()=>saveBox(x.box_id,x.id);window.scrollTo(0,0)}
+function delBox(id){if(confirm('Xóa dòng quà này?'))act(()=>api('box/delete',{id})).then(loadBox)}
+
+/* ---------- giftcode ---------- */
+async function page_giftcode(){const r=await api('giftcodes');
+  $('#main').innerHTML=`<h2>Giftcode</h2><div class="card"><div class="grid2"><label class="f">Mã<input id="gc"></label><label class="f">Số lượt (-1 = không giới hạn)<input id="gn" type="number" value="100"></label><label class="f">Hết hạn<input id="ge" type="datetime-local"></label></div>
+  <h3>Quà trong code</h3>${itemField('gi')}<div class="row" style="margin-top:6px"><input id="gq" type="number" value="1" style="width:80px" title="Số lượng"><input id="go" class="grow" placeholder="Chỉ số: 30:0; 93:7"><button onclick="addGcItem()">Thêm vào danh sách</button></div>
+  <textarea id="gd" style="margin-top:8px">[]</textarea><div class="row" style="justify-content:flex-end"><input type="hidden" id="gid"><button onclick="gcReset()">Làm mới</button><button class="p" onclick="saveGc()">Lưu giftcode</button></div></div>`+
+  table(r,[['id','ID'],['code','Mã'],['count_left','Còn lại',fmt],['detail','Quà','','w mono'],['datecreate','Tạo'],['expired','Hết hạn']],x=>`<button class="s" onclick='editGc(${JSON.stringify(x).replace(/'/g,"&#39;")})'>Sửa</button> <button class="s d" onclick="delGc(${x.id})">Xóa</button>`);
+  const d=new Date(Date.now()+30*864e5);$('#ge').value=d.toISOString().slice(0,16)}
+function addGcItem(){let a=[];try{a=JSON.parse($('#gd').value)}catch(e){}a.push({id:+$('#giid').value,quantity:+$('#gq').value||1,options:parseOps($('#go').value).map(o=>({id:o[0],param:o[1]}))});$('#gd').value=JSON.stringify(a,null,1)}
+function gcReset(){$('#gid').value='';$('#gc').value='';$('#gd').value='[]'}
+function editGc(x){$('#gid').value=x.id;$('#gc').value=x.code;$('#gn').value=x.count_left;$('#gd').value=x.detail;const e=new Date(x.expired);if(!isNaN(e))$('#ge').value=new Date(e-e.getTimezoneOffset()*6e4).toISOString().slice(0,16);window.scrollTo(0,0)}
+function saveGc(){act(()=>api('giftcode/save',{id:+$('#gid').value||0,code:$('#gc').value,count:+$('#gn').value,expired:$('#ge').value,detail:$('#gd').value}),'Đã lưu, giftcode đã nạp lại').then(page_giftcode)}
+function delGc(id){if(confirm('Xóa giftcode?'))act(()=>api('giftcode/delete',{id})).then(page_giftcode)}
+
+/* ---------- cửa hàng ---------- */
+async function page_shop(){const r=await api('shops');
+  $('#main').innerHTML=`<h2>Cửa hàng</h2><div class="card row"><select id="st" class="grow">${r.map(t=>`<option value="${t.tab_id}">${esc(t.tag_name)} (NPC ${t.npc_id}) › ${esc(t.tab_name)} — ${t.n} món</option>`).join('')}</select><button onclick="loadShop()">Xem</button><button onclick="act(()=>api('shop/reload',{}),'Đã nạp lại cửa hàng')">Nạp lại shop</button></div><div id="sh"></div>`;
+  $('#st').onchange=loadShop;loadShop()}
+const SELL=['Vàng','Ngọc','Hồng ngọc','Thỏi vàng','Item'];
+async function loadShop(){const tab=+$('#st').value;const r=await api('shop/items?tab='+tab);
+  $('#sh').innerHTML=`<div class="card"><b>Thêm / sửa món</b>${itemField('si')}<div class="row" style="margin-top:6px"><label class="f">Giá<input id="sc" type="number" value="1" style="width:120px"></label><label class="f">Loại tiền<select id="sy">${SELL.map((s,i)=>`<option value="${i}">${s}</option>`).join('')}</select></label><label class="f">Đang bán<select id="ss"><option value="1">Có</option><option value="0">Không</option></select></label><label class="f">Mới<select id="sn"><option value="0">Không</option><option value="1">Có</option></select></label><input type="hidden" id="sid"><button class="p" onclick="saveShop(${tab})">Lưu</button></div></div>`+
+  table(r,[['icon_id','',v=>icon(v)],['id','ID'],['temp_id','Item'],['name','Tên'],['cost','Giá',fmt],['type_sell','Tiền',v=>SELL[v]??v],['is_sell','Bán',v=>v==1?'<span class="tag on1">bán</span>':'<span class="tag off1">ẩn</span>'],['is_new','Mới',v=>v==1?'mới':'']],
+   x=>`<button class="s" onclick='editShop(${JSON.stringify(x)})'>Sửa</button> <button class="s d" onclick="delShop(${x.id})">Xóa</button>`)}
+function editShop(x){$('#sid').value=x.id;$('#siid').value=x.temp_id;$('#sinm').innerHTML=icon(x.icon_id)+' '+esc(x.name);$('#sc').value=x.cost;$('#sy').value=x.type_sell;$('#ss').value=x.is_sell;$('#sn').value=x.is_new;window.scrollTo(0,0)}
+function saveShop(tab){act(()=>api('shop/save',{id:+$('#sid').value||0,tab_id:tab,temp_id:+$('#siid').value,cost:+$('#sc').value,type_sell:+$('#sy').value,is_sell:+$('#ss').value,is_new:+$('#sn').value}),'Đã lưu và nạp lại shop').then(loadShop)}
+function delShop(id){if(confirm('Xóa món này khỏi shop?'))act(()=>api('shop/delete',{id})).then(loadShop)}
+
+/* ---------- bản đồ & NPC ---------- */
+let NPCS=null;
+async function page_maps(){const r=await api('maps');NPCS=NPCS||await api('npcs');
+  $('#main').innerHTML=`<h2>Bản đồ & NPC</h2><div class="card row"><input id="mq" class="grow" placeholder="Lọc tên / ID bản đồ"></div><div id="ml"></div>`;
+  const draw=()=>{const k=$('#mq').value.toLowerCase();$('#ml').innerHTML=table(r.filter(m=>!k||String(m.id)===k||String(m.name).toLowerCase().includes(k)),[['id','ID'],['name','Tên'],['planet_id','Hành tinh'],['zones','Khu'],['online','Đang có',fmt],['npcCount','NPC'],['loaded','Đã tải',v=>v?'':'<span class="tag off1">chưa tải</span>']],m=>m.loaded?`<button class="s" onclick="openMap(${m.id})">Quản lý NPC</button>`:'')};
+  $('#mq').oninput=draw;draw()}
+async function openMap(id){const m=await api('map?id='+id);
+  const md=modal(`<h3>${esc(m.name)} <span class="mute">#${m.id} · rộng ${m.width}px · ${m.zones} khu</span></h3>
+  <div class="card"><b>Đặt NPC vào bản đồ</b><div class="row" style="margin-top:6px"><select id="nt" class="grow">${NPCS.map(n=>`<option value="${n.id}">#${n.id} ${esc(n.name)}</option>`).join('')}</select><input id="nx" type="number" placeholder="X (trống = giữa)" style="width:130px"><input id="ny" type="number" placeholder="Y (trống = mặt đất)" style="width:140px"><label class="row"><input type="checkbox" id="np" checked> lưu vào database</label><button class="p" id="na">Đặt NPC</button></div></div>
+  <b>NPC đang có</b>${table(m.npcs,[['tempId','ID'],['name','Tên'],['x','X'],['y','Y']],n=>`<button class="s d" data-t="${n.tempId}" data-x="${n.x}">Xóa</button>`)}
+  <div class="mute" style="margin-top:8px">NPC lưu trong database: <span class="mono">${esc(m.dbNpcs)}</span><br>Người chơi đang ở bản đồ cần vào lại bản đồ để thấy thay đổi.</div>
+  <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Đóng</button></div>`);
+  md.querySelector('#na').onclick=()=>act(()=>api('map/npc/add',{mapId:id,tempId:+$('#nt').value,x:+$('#nx').value||0,y:+$('#ny').value||0,persist:$('#np').checked})).then(()=>{md.remove();openMap(id)});
+  md.querySelectorAll('button[data-t]').forEach(b=>b.onclick=()=>{if(confirm('Xóa NPC này khỏi bản đồ?'))act(()=>api('map/npc/remove',{mapId:id,tempId:+b.dataset.t,x:+b.dataset.x,persist:$('#np').checked})).then(()=>{md.remove();openMap(id)})})}
+
+/* ---------- sự kiện ---------- */
+async function page_events(){const r=await api('seasons');
+  $('#main').innerHTML=`<h2>Sự kiện theo mùa</h2><div class="card row"><button onclick="sev('reload')">Nạp lại dữ liệu sự kiện</button><input id="sd" type="date"><button onclick="sev('ngay '+$('#sd').value)">Giả lập ngày</button><button onclick="sev('ngay')">Về ngày thật</button><span class="mute">Bật tay: chạy ngay bất kể lịch · Tắt tay: dừng ngay · Tự động: theo lịch âm/dương</span></div>`+
+  table(r,[['id','ID'],['name','Sự kiện'],['active','Trạng thái',v=>v?'<span class="tag on1">đang chạy</span>':'<span class="tag off1">không chạy</span>'],['mode','Chế độ'],['anchor','Mốc'],['window','Lần diễn ra'],['drops','Rơi đồ'],['exchanges','Đổi quà'],['tops','Đua top']],
+  x=>`<button class="s p" onclick="sev('bat ${x.id}')">Bật</button> <button class="s d" onclick="sev('tat ${x.id}')">Tắt</button> <button class="s" onclick="sev('tudong ${x.id}')">Tự động</button> <button class="s" onclick="sev('chottop ${x.id}')">Chốt top</button>`)}
+async function sev(cmd){const r=await act(()=>api('season/cmd',{cmd}));if(r)toast(r.result);page_events()}
+
+/* ---------- boss ---------- */
+async function page_bosses(){const r=await api('bosses');
+  $('#main').innerHTML=`<h2>Boss</h2><div class="card row"><select id="bi" class="grow">${r.ids.map(b=>`<option value="${b.id}">${esc(b.key)} (${b.id})</option>`).join('')}</select><button class="p" onclick="act(()=>api('boss/spawn',{bossId:+$('#bi').value})).then(page_bosses)">Gọi boss</button><button onclick="page_bosses()">Làm mới</button></div>`+
+  table(r.bosses.filter(b=>b.alive),[['id','ID'],['name','Tên'],['map','Đang ở'],['hp','HP',(v,b)=>fmt(v)+' / '+fmt(b.hpMax)]],b=>`<button class="s d" onclick="act(()=>api('boss/remove',{id:${b.id}})).then(page_bosses)">Cho rời bản đồ</button>`)+
+  `<h3>Boss đang nghỉ / chờ xuất hiện</h3>`+table(r.bosses.filter(b=>!b.alive),[['id','ID'],['name','Tên'],['hpMax','HP tối đa',fmt]])}
+async function page_mobs(){$('#main').innerHTML='<h2>Quái</h2>'+table(await api('mobs'),[['id','ID'],['name','Tên'],['type','Loại'],['hp','HP',fmt]])}
+
+/* ---------- thông báo & quà toàn server ---------- */
+async function page_notify(){const e=await api('exprate',{});
+  $('#main').innerHTML=`<h2>Thông báo & quà toàn server</h2><div class="grid2">
+  <div class="card"><b>Gửi thông báo</b><textarea id="nt" placeholder="Nội dung"></textarea><div class="row"><select id="ny"><option value="ticker">Dòng chữ chạy (thông báo server)</option><option value="popup">Hộp thông báo cho mọi người</option><option value="world">Chat thế giới</option></select><button class="p" onclick="act(()=>api('notify',{type:$('#ny').value,text:$('#nt').value}),'Đã gửi')">Gửi</button></div></div>
+  <div class="card"><b>Tặng quà cho mọi người đang online</b>${itemField('ga')}<div class="row" style="margin-top:6px"><input id="gaq" type="number" value="1" style="width:80px" title="Số lượng"><input id="gag" type="number" placeholder="Vàng" style="width:110px"><input id="gan" type="number" placeholder="Ngọc" style="width:90px"><input id="gar" type="number" placeholder="Hồng ngọc" style="width:100px"><button class="p" onclick="giveAll()">Tặng</button></div></div>
+  <div class="card"><b>Tỉ lệ EXP server</b><div class="row" style="margin-top:6px"><input id="er" type="number" min="1" max="100" value="${e.rate}" style="width:90px"><button class="p" onclick="act(()=>api('exprate',{rate:+$('#er').value}),'Đã đổi tỉ lệ EXP (áp dụng ngay, khởi động lại về giá trị trong cấu hình)')">Áp dụng</button></div></div></div>`}
+function giveAll(){if(!confirm('Tặng cho mọi người đang online?'))return;const id=$('#gaid').value;
+  act(()=>api('giveall',{itemId:id===''?-1:+id,qty:+$('#gaq').value||1,gold:+$('#gag').value||0,gem:+$('#gan').value||0,ruby:+$('#gar').value||0}).then(r=>{toast(`Đã tặng ${r.given} người, ${r.bagFull} người đầy hành trang`);return r}))}
+
+/* ---------- bảo trì, nhật ký, cấu hình, SQL ---------- */
+async function page_maint(){$('#main').innerHTML=`<h2>Bảo trì & lưu dữ liệu</h2><div class="card"><div class="row"><button onclick="act(()=>api('player/save',{}).then(r=>{toast('Đã lưu '+r.saved+' người chơi');return r}))">Lưu toàn bộ người chơi online</button></div></div>
+  <div class="card"><b>Bảo trì server</b><p class="mute">Lưu dữ liệu, đếm ngược báo cho người chơi, rồi tắt server. Dùng bat/sh khởi động lại để chạy lại.</p><div class="row"><input id="ms" type="number" value="60" style="width:100px"> giây <button class="d" onclick="if(confirm('Bảo trì server?'))act(()=>api('maintenance',{seconds:+$('#ms').value}),'Đã bắt đầu đếm ngược bảo trì')">Bảo trì</button></div></div>`}
+let logNext=0;
+async function page_logs(){$('#main').innerHTML=`<h2>Nhật ký console</h2><div class="row" style="margin-bottom:8px"><input id="lf" class="grow" placeholder="Lọc (vd: Exception)"><label class="row"><input type="checkbox" id="la" checked> tự cuộn</label></div><div class="log" id="lg"></div>`;
+  logNext=0;const lines=[];const draw=()=>{const k=$('#lf').value.toLowerCase();$('#lg').textContent=lines.filter(l=>!k||l.toLowerCase().includes(k)).join('\n');if($('#la').checked)$('#lg').scrollTop=1e9};
+  const pull=async()=>{try{const r=await api('logs?since='+logNext);logNext=r.next;lines.push(...r.lines);if(lines.length>3000)lines.splice(0,lines.length-3000);draw()}catch(e){}};
+  $('#lf').oninput=draw;await pull();logTimer=setInterval(pull,2000)}
+async function page_audit(){const r=await api('audit');$('#main').innerHTML='<h2>Nhật ký thao tác panel</h2><div class="log">'+r.map(esc).join('\n')+'</div>'}
+async function page_config(){const c=await api('config');
+  $('#main').innerHTML=`<h2>Cấu hình (Config.properties)</h2><div class="card"><p class="mute">Chỉ sửa được các mục an toàn; mật khẩu hiện dạng ******. Khởi động lại server để áp dụng.</p><div class="grid2">${Object.entries(c.values).map(([k,v])=>`<label class="f">${esc(k)}<input data-k="${esc(k)}" value="${esc(v)}" ${c.editable.includes(k)?'':'disabled'}></label>`).join('')}${c.editable.filter(k=>!(k in c.values)).map(k=>`<label class="f">${esc(k)} <span>(chưa có)</span><input data-k="${esc(k)}" value=""></label>`).join('')}</div><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="p" onclick="saveCfg()">Lưu</button></div></div>`}
+function saveCfg(){const values={};document.querySelectorAll('input[data-k]:not([disabled])').forEach(i=>{if(i.value!=='')values[i.dataset.k]=i.value});act(()=>api('config/save',{values}))}
+async function page_sql(){$('#main').innerHTML=`<h2>Truy vấn SQL (chỉ đọc)</h2><div class="card"><textarea id="sq">select id, name from player order by id desc limit 50</textarea><div class="row" style="justify-content:flex-end"><button class="p" onclick="runSql()">Chạy</button></div></div><div id="sr"></div>`}
+async function runSql(){try{$('#sr').innerHTML=table(await api('sql',{query:$('#sq').value}))}catch(e){toast(e.message,1)}}
+
+/* ---------- đua top sự kiện ---------- */
+async function page_eventtops(){const r=await api('eventtops');
+  $('#main').innerHTML=`<h2>Đua top sự kiện</h2><div class="card mute">Top chốt tự động khi hết sự kiện (cần ít nhất 10 điểm, quà nhận tại Chi Chi trong 7 ngày). Nút <b>Chốt top</b> chốt ngay và phát quà.</div>`+
+  table(r,[['id','ID'],['season','Sự kiện'],['name','Đua top'],['active','Trạng thái',v=>v?'<span class="tag on1">đang chạy</span>':'<span class="tag off1">không chạy</span>'],['end','Kết thúc'],['rewards','Dòng quà']],
+   x=>`<button class="s" onclick="openTop(${x.id},'${esc(x.name).replace(/'/g,'')}')">Top 100</button> <button class="s d" onclick="if(confirm('Chốt top và phát quà ngay?'))sev2('chottop ${x.id}')">Chốt top</button>`)+'<div id="tdet"></div>'}
+async function openTop(id,name){const r=await api('eventtop?id='+id);$('#tdet').innerHTML=`<h3>Top 100 — ${esc(name)}</h3>`+table(r.map((x,i)=>({...x,rank:i+1})),[['rank','Hạng'],['name','Tên',(v,x)=>`<a href="#" onclick="openPlayer(${x.id});return false">${esc(v)}</a>`],['points','Điểm',fmt],['points','Đủ điều kiện',v=>v>=10?'<span class="tag on1">≥ 10</span>':'<span class="tag off1">chưa đủ</span>']]);$('#tdet').scrollIntoView({behavior:'smooth'})}
+async function sev2(cmd){const r=await act(()=>api('season/cmd',{cmd}));if(r)toast(r.result);page_eventtops()}
+
+/* ---------- thẻ radar ---------- */
+async function page_radar(){const r=await api('radar');window._radar=r;
+  $('#main').innerHTML=`<h2>Thẻ radar</h2><div class="card mute">Lv.1 / Lv.2 / Lv.3: số mảnh cần cho từng cấp và aura ở từng cấp. Sửa tên / mô tả / dòng chỉ số rồi lưu là áp dụng ngay.</div>`+
+  table(r,[['icon','',v=>icon(v)],['id','ID'],['name','Tên'],['rank','Hạng'],['thresholds','Mảnh lên Lv.1 / 2 / 3',v=>v.join(' / ')],['require','Cần thẻ'],['aura','Aura Lv.1 / 2 / 3',v=>v.map(a=>a<0?'—':`<img class="fx" onerror="this.remove()" src="/fx/aura/${a}" title="aura ${a}"> ${a}`).join(' · ')],
+   ['options','Chỉ số',v=>v.map(o=>`<span class="chip">Lv.${o.activeCard+1}: ${esc(o.text)}</span>`).join(''),'w']],x=>`<button class="s" onclick="editRadar(${x.id})">Sửa</button>`)}
+function editRadar(id){const x=_radar.find(r=>r.id===id);const m=modal(`<h3>${icon(x.icon)} ${esc(x.name)} <span class="mute">#${x.id}</span></h3><div class="grid2"><label class="f">Tên<input id="rn" value="${esc(x.name)}"></label><label class="f">Mô tả<input id="ri" value="${esc(x.info)}"></label></div>
+  <label class="f" style="margin-top:8px">Dòng chỉ số (JSON: id = mã chỉ số, param = giá trị, activeCard 0/1/2 = Lv.1/2/3)<textarea id="ro" style="min-height:160px">${esc(JSON.stringify(x.options.map(o=>({id:o.id,param:o.param,activeCard:o.activeCard})),null,1))}</textarea></label>
+  <div class="row" style="margin-top:8px"><span class="mute">Aura:</span>${[1,2,3].map(l=>`<button onclick="pickAura(${x.id},${l},'${esc(x.name)}')">Lv.${l}: ${x.aura[l-1]<0?'—':x.aura[l-1]} · chọn…</button>`).join('')}</div>
+  <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="rs">Lưu</button></div>`);
+  m.querySelector('#rs').onclick=()=>act(()=>api('radar/save',{id,name:$('#rn').value,info:$('#ri').value,options:$('#ro').value})).then(r=>{if(r){m.remove();page_radar()}})}
+
+/* ---------- danh hiệu ---------- */
+async function page_badges(){const r=await api('badges');window._bdg=r;
+  const ops=s=>{try{return JSON.parse(s).map(o=>`<span class="chip">${o.id}: ${o.param}</span>`).join('')}catch(e){return esc(s)}};
+  $('#main').innerHTML=`<h2>Danh hiệu</h2><div class="card mute">Hiệu ứng là ảnh danh hiệu trên đầu nhân vật. Chỉ số dạng [{"id":50,"param":10}] (mã chỉ số xem ở trang Vật phẩm → Tìm chỉ số).</div><div class="row" style="margin:6px 0"><button onclick="showBadgeGallery()">✨ Xem hiệu ứng động</button></div><div id="bgal"></div>`+
+  table(r,[['icon','',v=>icon(v)],['id','ID'],['name','Tên'],['effect','Hiệu ứng',v=>`<img class="fx" onerror="this.remove()" src="/fx/eff/${v}"> ${v}`],['item','Vật phẩm'],['options','Chỉ số',ops,'w'],['descr','Cách nhận','','w']],x=>`<button class="s" onclick="editBadge(${x.id})">Sửa</button>`)}
+function showBadgeGallery(){animGallery($('#bgal'),_bdg.map(x=>titleCard(x.effect,x.name+' · hiệu ứng '+x.effect,`${x.item>=0?'vật phẩm #'+x.item:''}`)),null,200)}
+function editBadge(id){const x=_bdg.find(r=>r.id===id);const m=modal(`<h3>${icon(x.icon)} ${esc(x.name)} <span class="mute">#${x.id}</span></h3><label class="f">Tên<input id="bn" value="${esc(x.name)}"></label>
+  <label class="f" style="margin-top:8px">Chỉ số (JSON)<textarea id="bo">${esc(x.options)}</textarea></label><div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="bs">Lưu</button></div>`);
+  m.querySelector('#bs').onclick=()=>act(()=>api('badge/save',{id,name:$('#bn').value,options:$('#bo').value})).then(r=>{if(r){m.remove();page_badges()}})}
+
+/* ---------- hiệu ứng & aura ---------- */
+async function page_fx(){const r=await api('fx');
+  $('#main').innerHTML=`<h2>Hiệu ứng & aura</h2><div class="card"><b>Đang dùng</b>${table(r.used,[['what','Dùng cho'],['kind','Loại'],['id','Mã',(v,x)=>`<img class="fx" onerror="this.remove()" src="/fx/${x.kind==='aura'?'aura':'eff'}/${v}"> ${v}`]])}</div>
+  <div class="tabs"><button class="on" id="t1">✨ Hiệu ứng (${r.effects.length})</button><button id="t2">🔥 Aura (${r.auras.length})</button><input id="fq" placeholder="Tìm mã" style="width:110px"><button id="t3">🎞 Aura động</button></div><div id="fg"></div>`;
+  let kind='eff';const draw=()=>{const k=$('#fq').value.trim();const ids=(kind==='eff'?r.effects:r.auras).filter(i=>!k||String(i).includes(k));
+   $('#fg').innerHTML='<div class="gal">'+ids.map(i=>`<div><b>${kind==='eff'?'hiệu ứng':'aura'} ${i}</b><img loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'mute',textContent:'(chưa có ảnh)'}))" src="/fx/${kind}/${i}"></div>`).join('')+'</div>'};
+  $('#t1').onclick=()=>{kind='eff';$('#t1').classList.add('on');$('#t2').classList.remove('on');draw()};$('#t3').onclick=async()=>{$('#t3').classList.add('on');$('#t1').classList.remove('on');$('#t2').classList.remove('on');animGallery($('#fg'),await auraCards(),null,200)};$('#t2').onclick=()=>{kind='aura';$('#t2').classList.add('on');$('#t1').classList.remove('on');draw()};$('#fq').oninput=draw;draw()}
+
+/* ---------- đeo lưng & thú cưỡi ---------- */
+async function page_looks(){const [f,m,v]=await Promise.all([api('flags'),api('mounts'),api('dataver')]);
+  const bad=f.filter(x=>x.warn&&x.items.length).length,mbad=m.filter(x=>x.warn).length;
+  $('#main').innerHTML=`<h2>Đeo lưng & thú cưỡi</h2>
+  <div class="card row" style="flex-wrap:wrap"><span>Phiên bản dữ liệu item: <b>${v.vsItem}</b> (${fmt(v.items)} vật phẩm) · tự tăng khi vật phẩm đổi</span><span class="sp"></span><button onclick="act(()=>api('dataver/bump',{}))">Buộc client tải lại item</button></div>
+  <div class="tabs"><button class="on" id="lt1">🪽 Đeo lưng (${f.length}${bad?`, <span class="tag bad1">${bad} cảnh báo</span>`:''})</button><button id="lt2">🐉 Thú cưỡi (${m.length}${mbad?`, ${mbad} cảnh báo`:''})</button><button id="lt3">✨ Đeo lưng hiệu ứng</button><input id="lq" placeholder="Tìm tên / mã" style="width:150px"><label><input type="checkbox" id="lw"> chỉ cảnh báo</label></div><div id="lg"></div>`;
+  let tab=1;const draw=()=>{const k=$('#lq').value.trim().toLowerCase(),w=$('#lw').checked;
+   if(tab===1){const rows=f.filter(x=>(!w||x.warn)&&(!k||String(x.id).includes(k)||x.items.some(i=>i.name.toLowerCase().includes(k)||String(i.id).includes(k))));
+    $('#lg').innerHTML=table(rows,[['id','Cờ'],['frames','Khung hình',v=>v?v.split(',').slice(0,8).map(i=>icon(+i)).join(''):'<span class="mute">—</span>'],['items','Vật phẩm dùng',v=>v.map(i=>`${icon(i.icon)} ${esc(i.name)} <span class="mute">#${i.id}</span>`).join('<br>')||'<span class="mute">không có</span>'],['warn','Cảnh báo',v=>v?`<span class="tag bad1">${esc(v)}</span>`:'']],
+     r=>`<button onclick="editFlag(${r.id},'${esc(r.frames)}')">Sửa khung</button>${r.items.length?`<button onclick="assignFlag(${r.items[0].id},${r.id})">Gán cờ khác</button><button onclick="pickFlag(${r.items[0].id},'${esc(r.items[0].name)}')">Chọn hình</button><button onclick="pickFx(${r.items[0].id},'${esc(r.items[0].name)}')">Chọn hiệu ứng</button>`:''}`)}
+   else if(tab===3){fxGallery($('#lg'),null)}
+   else{const rows=m.filter(x=>(!w||x.warn)&&(!k||String(x.id).includes(k)||x.name.toLowerCase().includes(k)));
+    $('#lg').innerHTML=table(rows,[['id','Mã'],['name','Tên',(v,r)=>`${icon(r.icon)} ${esc(v)}`],['part','Ảnh',(v,r)=>v>=0?`<img style="height:70px" loading="lazy" src="/mount/${v}/0" onerror="this.remove()"><img style="height:70px" loading="lazy" src="/mount/${v}/1" onerror="this.remove()"> <span class="mute">${v} · khung ${esc(r.frames)}</span>`:'<span class="mute">—</span>'],['warn','Cảnh báo',v=>v?`<span class="tag bad1">${esc(v)}</span>`:'']],r=>`<button onclick="pickMount(${r.id},'${esc(r.name)}')">Chọn hình</button>`)}};
+  const sel=n=>{tab=n;['lt1','lt2','lt3'].forEach((x,i)=>$('#'+x).classList.toggle('on',i+1===n));draw()};$('#lt1').onclick=()=>sel(1);$('#lt2').onclick=()=>sel(2);$('#lt3').onclick=()=>sel(3);$('#lq').oninput=()=>tab!==3&&draw();$('#lw').onchange=draw;draw()}
+/* xem trước đeo lưng hiệu ứng: vẽ khung theo trạng thái nhân vật (1 đứng, 2 chạy, 10 bay) giống client (cách lưng 15, cao 25) */
+const FXC={};async function fxLoad(id){if(!FXC[id]){const d=await api('fxdata?id='+id);d.img=await new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src='/fx/eff/'+id});FXC[id]=d}return FXC[id]}
+function fxDraw(cv,d,st,t){const g=cv.getContext('2d'),Z=2,W=cv.width,H=cv.height;g.clearRect(0,0,W,H);const ax=W/2,ay=H-14;
+  g.fillStyle='#6b5a3a';g.fillRect(0,ay,W,3);const seq=d.anim[st]||d.anim['2']||d.anim['all']||d.anim[Object.keys(d.anim)[0]]||[];
+  const draw=()=>{if(!seq.length||!d.img)return;const fr=d.frames[seq[t%seq.length]];if(!fr)return;const ox=ax-15*Z,oy=ay-25*Z;
+    for(const [dx,dy,im] of fr){const ii=d.imgs.find(x=>x[0]===im);if(!ii)continue;g.drawImage(d.img,ii[1]*Z,ii[2]*Z,ii[3]*Z,ii[4]*Z,ox+dx*Z,oy+dy*Z,ii[3]*Z,ii[4]*Z)}};
+  g.strokeStyle='rgba(255,255,255,.55)';g.setLineDash([4,3]);g.strokeRect(ax-8*Z,ay-46*Z,16*Z,46*Z);g.setLineDash([]);draw();g.fillStyle='#fff';g.font='11px sans-serif';g.fillText('nhân vật, hướng →',ax-8*Z-6,ay-48*Z)}
+async function fxGallery(box,onPick){const L=(await api('fxbags')).filter(x=>x.byStatus);let st='2';const sm=i=>`<img loading="lazy" src="/icon/${i}" style="width:22px;height:22px;object-fit:contain;vertical-align:middle">`;
+  box.innerHTML=`<div class="row" style="margin:6px 0"><span class="mute">Xem khi:</span><button data-s="1">Đứng</button><button class="on" data-s="2">Chạy</button><button data-s="10">Bay</button><span class="mute">Cờ 201 - 254: client tự vẽ hiệu ứng theo trạng thái, không cần khung hình.</span></div><div class="gal" id="fxg">${L.map(x=>`<div data-id="${x.id}" style="cursor:${onPick?'pointer':'default'}"><b>Hiệu ứng ${x.id}</b><canvas width="220" height="170" style="background:#2a6a9a;border-radius:8px;width:100%"></canvas><div style="font-size:13px">${x.items.map(i=>`${sm(i.icon)} ${esc(i.name)}`).join('<br>')||'<span class="mute">chưa vật phẩm nào dùng</span>'}</div>${onPick?'':`<button onclick="event.stopPropagation();pickItem(i=>act(()=>api('flag/assign',{item:i.id,flag:${x.id}})))">Gán cho vật phẩm…</button>`}</div>`).join('')}</div>`;
+  box.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{st=b.dataset.s;box.querySelectorAll('[data-s]').forEach(x=>x.classList.toggle('on',x===b))});
+  if(onPick)box.querySelector('#fxg').onclick=e=>{const c=e.target.closest('[data-id]');if(c)onPick(+c.dataset.id)};
+  const cards=[...box.querySelectorAll('#fxg [data-id]')];await Promise.all(cards.map(async c=>{try{c._d=await fxLoad(+c.dataset.id)}catch(e){}}));
+  let t=0;const my=routeGen;const tick=()=>{if(!document.body.contains(box)||routeGen!==my)return;t++;for(const c of cards)if(c._d&&c.offsetParent)fxDraw(c.querySelector('canvas'),c._d,st,t);setTimeout(tick,70)};tick()}
+function pickFx(item,name){const m=modal(`<h3>Chọn hiệu ứng cho ${esc(name)} <span class="mute">#${item}</span></h3><p class="mute">Bấm vào một hiệu ứng để gán. Người chơi mặc lại đeo lưng để thấy.</p><div id="fxm"></div><div class="row"><button onclick="this.closest('.modal').remove()">Đóng</button></div>`);
+  fxGallery(m.querySelector('#fxm'),async id=>{if(await act(()=>api('flag/assign',{item,flag:id}))){m.remove();page_looks()}})}
+function editFlag(id,frames){const m=modal(`<h3>Khung hình cờ ${id}</h3><p class="mute">Mã icon cách nhau bởi dấu phẩy, theo thứ tự hoạt ảnh.</p><textarea id="ff" rows="3" style="width:100%">${esc(frames)}</textarea><div id="fp" class="row"></div><div class="row"><button class="p" id="fs">Lưu</button><button onclick="this.closest('.modal').remove()">Đóng</button></div>`);
+  const pv=()=>m.querySelector('#fp').innerHTML=m.querySelector('#ff').value.split(/[,\s]+/).filter(Boolean).map(i=>icon(+i)).join('');m.querySelector('#ff').oninput=pv;pv();
+  m.querySelector('#fs').onclick=async()=>{if(await act(()=>api('flag/save',{id,frames:m.querySelector('#ff').value}))){m.remove();page_looks()}}}
+function assignFlag(item,cur){const m=modal(`<h3>Gán cờ cho vật phẩm #${item}</h3><div class="row"><input id="fi" type="number" value="${item}" style="width:110px" placeholder="Mã vật phẩm"><input id="fl" type="number" value="${cur}" style="width:110px" placeholder="Mã cờ"><button class="p" id="fa">Gán</button><button onclick="this.closest('.modal').remove()">Đóng</button></div>`);
+  m.querySelector('#fa').onclick=async()=>{if(await act(()=>api('flag/assign',{item:+m.querySelector('#fi').value,flag:+m.querySelector('#fl').value}))){m.remove();page_looks()}}}
+
+/* ---------- thư viện hình động dùng chung (đeo lưng, thú cưỡi, aura, danh hiệu) ---------- */
+const IMGC={};function loadImg(src){return IMGC[src]||(IMGC[src]=new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src}))}
+/* vẽ 1 khung của dải ảnh (dọc nếu cao >= rộng), neo giữa-đáy tại (x, y) */
+function drawStrip(g,img,n,t,x,y,sc){if(!img||!n)return;const v=img.height>=img.width,fw=v?img.width:img.width/n,fh=v?img.height/n:img.height,k=t%n;
+  g.drawImage(img,v?0:k*fw,v?k*fh:0,fw,fh,x-fw*sc/2,y-fh*sc,fw*sc,fh*sc)}
+function charBox(g,x,y){g.strokeStyle='rgba(255,255,255,.5)';g.setLineDash([4,3]);g.strokeRect(x-16,y-92,32,92);g.setLineDash([])}
+/* list: [{key, title, html, draw(g, W, H, t)}]; onPick(key) khi bấm (bỏ trống = chỉ xem) */
+function animGallery(box,list,onPick,h){h=h||170;
+  box.innerHTML=`<div class="row" style="margin:6px 0"><input id="agq" placeholder="Tìm mã / tên" style="width:160px"><span class="mute">${list.length} mục${onPick?' · bấm vào hình để chọn':''}</span></div><div class="gal" id="agg">${list.map((x,i)=>`<div data-i="${i}" style="cursor:${onPick?'pointer':'default'}"><b>${esc(x.title)}</b><canvas width="220" height="${h}" style="background:#2a6a9a;border-radius:8px;width:100%"></canvas><div style="font-size:13px">${x.html||''}</div></div>`).join('')}</div>`;
+  const cards=[...box.querySelectorAll('#agg [data-i]')],vis=new Set();
+  const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?vis.add(e.target):vis.delete(e.target)));cards.forEach(c=>io.observe(c));
+  box.querySelector('#agq').oninput=e=>{const k=e.target.value.trim().toLowerCase();cards.forEach(c=>{const x=list[+c.dataset.i];c.style.display=!k||(x.title+' '+(x.html||'')).toLowerCase().includes(k)?'':'none'})};
+  if(onPick)box.querySelector('#agg').onclick=e=>{const c=e.target.closest('[data-i]');if(c)onPick(list[+c.dataset.i].key)};
+  let t=0;const my=routeGen;const tick=()=>{if(!document.body.contains(box)||routeGen!==my){io.disconnect();return}t++;
+    for(const c of vis){const cv=c.querySelector('canvas'),g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);try{list[+c.dataset.i].draw(g,cv.width,cv.height,t)}catch(e){}}setTimeout(tick,90)};tick()}
+function pickModal(title,note){const m=modal(`<h3>${title}</h3>${note?`<p class="mute">${note}</p>`:''}<div id="pkb"></div><div class="row"><button onclick="this.closest('.modal').remove()">Đóng</button></div>`);return [m,m.querySelector('#pkb')]}
+/* cờ đeo lưng thường: các khung icon chạy vòng */
+async function flagCards(){const L=await api('flaggallery');const imgs={};
+  return L.map(f=>{const fr=f.frames.split(',').map(Number);fr.forEach(i=>loadImg('/icon/'+i).then(m=>imgs[i]=m));
+   return {key:f.id,title:'Cờ '+f.id,html:'',draw:(g,W,H,t)=>{const ax=W/2,ay=H-12;const m=imgs[fr[Math.floor(t/2)%fr.length]];if(m){const sc=Math.min(1,90/Math.max(m.width,m.height));g.drawImage(m,ax-20-m.width*sc/2,ay-60-m.height*sc/2,m.width*sc,m.height*sc)}charBox(g,ax,ay)}}})}
+async function pickFlag(item,name){const [m,b]=pickModal(`Chọn hình đeo lưng cho ${esc(name)} <span class="mute">#${item}</span>`,'Bấm một cờ để gán. Người chơi mặc lại để thấy.');
+  animGallery(b,await flagCards(),async id=>{if(await act(()=>api('flag/assign',{item,flag:id}))){m.remove();page_looks()}})}
+/* thú cưỡi: lớp 0 sau lưng, lớp 1 trước */
+async function mountCards(){const L=await api('mountimgs');
+  return L.map(x=>{const a=x.n0?loadImg('/ibn/mount_'+x.id+'_0'):null,b=x.n1?loadImg('/ibn/mount_'+x.id+'_1'):null;let ia=null,ib=null;a&&a.then(v=>ia=v);b&&b.then(v=>ib=v);
+   return {key:x.id,title:'Thú cưỡi '+x.id,html:x.items.map(esc).join('<br>')||'<span class="mute">chưa vật phẩm nào dùng</span>',draw:(g,W,H,t)=>{const ax=W/2,ay=H-10,sc=.5;drawStrip(g,ia,x.n0,Math.floor(t/2),ax,ay,sc);charBox(g,ax,ay-30);drawStrip(g,ib,x.n1,Math.floor(t/2),ax,ay,sc)}}})}
+async function pickMount(item,name){const [m,b]=pickModal(`Chọn hình thú cưỡi cho ${esc(name)} <span class="mute">#${item}</span>`,'Bấm một hình để gán. Người chơi cưỡi lại để thấy.');
+  animGallery(b,await mountCards(),async part=>{if(await act(()=>api('mount/assign',{item,part}))){m.remove();page_looks()}},190)}
+/* aura: lớp 0 sau nhân vật, lớp 1 trước, neo dưới chân */
+async function auraCards(){const L=await api('auras');
+  return L.map(x=>{let ia=null,ib=null;x.n0&&loadImg('/ibn/aura_'+x.id+'_0').then(v=>ia=v);x.n1&&loadImg('/ibn/aura_'+x.id+'_1').then(v=>ib=v);
+   return {key:x.id,title:'Aura '+x.id,html:'',draw:(g,W,H,t)=>{const ax=W/2,ay=H-10,sc=.5;drawStrip(g,ia,x.n0,Math.floor(t/2),ax,ay,sc);charBox(g,ax,ay);drawStrip(g,ib,x.n1,Math.floor(t/2),ax,ay+2,sc)}}})}
+async function pickAura(card,lv,name){const [m,b]=pickModal(`Aura Lv.${lv} cho thẻ ${esc(name)}`,`<button id="pkd">Dùng mặc định</button> <button id="pkn">Không có aura</button>`);
+  const set=async a=>{if(await act(()=>api('radar/aura',{card,lv,aura:a}))){m.remove();page_radar()}};m.querySelector('#pkd').onclick=()=>set('');m.querySelector('#pkn').onclick=()=>set(-1);
+  animGallery(b,await auraCards(),set,200)}
+/* danh hiệu: hiệu ứng trên đầu nhân vật */
+function titleCard(id,title,html){let d=null;fxLoad(id).then(v=>d=v).catch(()=>{});
+  return {key:id,title,html,draw:(g,W,H,t)=>{const ax=W/2,ay=H-10;charBox(g,ax,ay);if(!d||!d.img)return;const seq=d.anim['all']||d.anim['1']||d.anim[Object.keys(d.anim)[0]]||[];if(!seq.length)return;
+    const fr=d.frames[seq[t%seq.length]],Z=2,hx=ax,hy=ay-96;for(const [dx,dy,im] of fr){const ii=d.imgs.find(x=>x[0]===im);if(ii)g.drawImage(d.img,ii[1]*Z,ii[2]*Z,ii[3]*Z,ii[4]*Z,hx+dx*Z,hy+dy*Z,ii[3]*Z,ii[4]*Z)}}}}
+
+/* ---------- lệnh admin trong game ---------- */
+async function page_admin(){const L=[['a','Menu admin: ngọc rồng, đệ tử, bảo trì, tìm người chơi, boss, công cụ admin'],['a → Công cụ admin','Thông báo toàn server, tặng vàng / ngọc / hồng ngọc, hồi đầy HP KI, dịch chuyển map, danh sách online, chỉnh EXP server, nạp lại dữ liệu, khóa / mở khóa tài khoản (cả khi offline)'],
+  ['item','Tặng vật phẩm cho người chơi (tên, id, option, param, số lượng)'],['getitem','Lấy vật phẩm cho bản thân'],['m [mã map]','Dịch chuyển tới map'],['goiboss [BossID]','Gọi boss'],['den boss [tên]','Tới chỗ boss'],['giet boss','Hạ mọi boss trong khu'],
+  ['hs','Hồi chiêu'],['sukien ...','Lệnh sự kiện mùa'],['chottopql / chottophdba','Chốt top đua sự kiện'],['toado','Xem tọa độ'],['brl','Danh sách Broly']];
+  $('#main').innerHTML=`<h2>Lệnh admin trong game</h2><div class="card">Gõ ở khung chat khi đăng nhập tài khoản admin (is_admin = 1).</div>`+table(L.map(x=>({c:x[0],d:x[1]})),[['c','Lệnh',v=>`<code>${esc(v)}</code>`],['d','Tác dụng']])}
+
+/* ---------- cửa hàng sự kiện (season_event_exchange) ---------- */
+async function page_evshop(){const ev=await api('seasons');
+  $('#main').innerHTML=`<h2>Cửa hàng sự kiện</h2><div class="card"><div class="row"><b>Sự kiện:</b><select id="evs" class="grow">${ev.map(e=>`<option value="${e.id}" ${e.active?'selected':''}>#${e.id} ${esc(e.name)}${e.active?' (đang chạy)':''}</option>`).join('')}</select><button class="p" onclick="editExchange({})">+ Thêm dòng</button></div>
+   <div class="mute" style="margin-top:6px">Nhóm "Cửa hàng" hiện ở shop Chi Chi; nhóm "Đổi điểm" (giá = điểm sự kiện) hiện ở Quy Lão; nhóm khác hiện trong menu NPC. Gõ \\n để xuống dòng ở tên nút.</div></div><div id="evt"></div>`;
+  $('#evs').onchange=loadExchanges;loadExchanges()}
+let EXCH=[];
+async function loadExchanges(){EXCH=await api('exchanges?event='+$('#evs').value);
+  const price=x=>[x.gold>0?fmt(x.gold)+' vàng':'',x.gem>0?fmt(x.gem)+' ngọc':'',x.ruby>0?fmt(x.ruby)+' hồng ngọc':'',x.cost_point>0?fmt(x.cost_point)+' điểm':'',x.need?'cần '+x.need:''].filter(Boolean).join(' + ')||'miễn phí';
+  $('#evt').innerHTML=table(EXCH,[['icon_id','',v=>icon(v)],['grp','Nhóm',v=>esc(String(v).replace(/\n/g,' '))],['name','Nút',v=>esc(String(v).replace(/\n/g,' '))],['item_name','Vật phẩm',(v,x)=>esc(v||'')+' <span class="mute">#'+x.reward_item+'</span>'+(x.reward_qty>1?' x'+x.reward_qty:'')],['gold','Giá',(v,x)=>price(x)],['reward_days','Hạn (ngày)',v=>v||'vĩnh viễn'],['perm_rate','% vĩnh viễn']],
+   (x,i)=>`<button class="s" onclick="editExchange(EXCH[${i}])">Sửa</button> <button class="s d" onclick="if(confirm('Xóa dòng này?'))act(()=>api('exchange/delete',{id:${x.id}})).then(loadExchanges)">Xóa</button>`)}
+function editExchange(x){const ev=+$('#evs').value;const n=s=>esc(String(s??'').replace(/\n/g,'\\n'));
+  const m=modal(`<h3>${x.id?'Sửa dòng #'+x.id:'Thêm dòng mới'}</h3><div class="grid2">
+   <label class="f">Nhóm<input id="xg" value="${n(x.grp??'Cửa\nhàng')}"></label><label class="f">Tên nút<input id="xn" value="${n(x.name)}"></label>
+   <label class="f">Vật phẩm thưởng<div class="row"><input id="xi" type="number" value="${x.reward_item??''}" style="width:110px"><span id="xin" class="mute">${esc(x.item_name||'')}</span><button type="button" onclick="pickItem(i=>{$('#xi').value=i.id;$('#xin').innerHTML=icon(i.icon)+' '+esc(i.name)})">Chọn…</button></div></label>
+   <label class="f">Số lượng<input id="xq" type="number" value="${x.reward_qty??1}"></label>
+   <label class="f">Giá vàng<input id="x1" type="number" value="${x.gold??0}"></label><label class="f">Giá ngọc<input id="x2" type="number" value="${x.gem??0}"></label>
+   <label class="f">Giá hồng ngọc<input id="x3" type="number" value="${x.ruby??0}"></label><label class="f">Giá điểm sự kiện (Quy Lão)<input id="x4" type="number" value="${x.cost_point??0}"></label>
+   <label class="f">Cần vật phẩm (id:sl, cách nhau dấu phẩy)<input id="xe" value="${esc(x.need||'')}"></label><label class="f">Hạn dùng (ngày, nhiều mức: 3,7,15; trống = vĩnh viễn)<input id="xd" value="${esc(x.reward_days||'')}"></label>
+   <label class="f">% ra vĩnh viễn<input id="xp" type="number" value="${x.perm_rate??0}"></label><label class="f">NPC (id, trống = mặc định)<input id="xc" value="${esc(x.npc||'')}"></label></div>
+   <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="xs">Lưu</button></div>`);
+  m.querySelector('#xs').onclick=()=>act(()=>api('exchange/save',{id:x.id,event_id:x.event_id??ev,grp:$('#xg').value,name:$('#xn').value,need:$('#xe').value,gold:+$('#x1').value,gem:+$('#x2').value,ruby:+$('#x3').value,cost_point:+$('#x4').value,reward_item:+$('#xi').value,reward_qty:+$('#xq').value,reward_days:$('#xd').value,perm_rate:+$('#xp').value,npc:$('#xc').value})).then(r=>{if(r){m.remove();loadExchanges()}})}
+
+/* ---------- kiểm tra dữ liệu ---------- */
+async function page_health(){$('#main').innerHTML='<h2>Kiểm tra dữ liệu</h2><div class="card mute">Đang kiểm tra…</div>';const r=await api('health');
+  const bad=r.filter(x=>x.level==='lỗi').length,warn=r.filter(x=>x.level==='cảnh báo').length;
+  $('#main').innerHTML=`<h2>Kiểm tra dữ liệu</h2><div class="stats" style="margin-bottom:12px"><div class="stat"><span class="ico">⛔</span><span>Lỗi</span><b>${bad}</b></div><div class="stat"><span class="ico">⚠</span><span>Cảnh báo</span><b>${warn}</b></div></div>
+  <div class="card mute">Tìm vật phẩm không tồn tại trong hộp quà / cửa hàng / quà top, chỉ số trỏ tới mã không có (gây lỗi mở shop), đồ mặc trong sự kiện không có dòng chỉ số nào, part / cờ đeo lưng thiếu (mặc không hiện), icon thiếu ảnh. Bấm "Sửa chỉ số" để thêm chỉ số ngay.</div>
+  <div class="row" style="margin-bottom:8px"><button onclick="page_health()">🔄 Kiểm tra lại</button></div>`+
+  table(r,[['level','Mức',v=>`<span class="tag ${v==='lỗi'?'bad1':v==='ok'?'on1':''}">${esc(v)}</span>`],['kind','Loại'],['msg','Chi tiết','','w']],x=>x.item?`<button class="s" onclick="editItemOptions(${x.item})">Sửa chỉ số</button>`:'')}
+
+/* ---------- database ---------- */
+let DB={table:'',page:0,size:50,q:'',sort:'',desc:false,data:null};
+async function page_db(){const t=await api('db/tables');
+  $('#main').innerHTML=`<h2>Database</h2><div class="card"><div class="row"><input id="dbf" class="grow" placeholder="Lọc tên bảng…"><span class="mute">${t.length} bảng</span></div>
+   <div id="dbl" class="row" style="margin-top:8px;max-height:200px;overflow:auto;align-items:flex-start"></div></div><div id="dbv"></div>`;
+  const draw=()=>{const k=$('#dbf').value.toLowerCase();$('#dbl').innerHTML=t.filter(x=>!k||x.name.toLowerCase().includes(k)).map(x=>`<button class="s ${x.name===DB.table?'p':''}" onclick="dbOpen('${esc(x.name)}')" title="${fmt(x.kb)} KB">${esc(x.name)} <span class="mute">${fmt(x.rows)}</span></button>`).join(' ')};
+  $('#dbf').oninput=draw;draw();if(DB.table)dbLoad()}
+function dbOpen(t){DB={table:t,page:0,size:50,q:'',sort:'',desc:false,data:null};document.querySelectorAll('#dbl button').forEach(b=>b.classList.toggle('p',b.textContent.startsWith(t+' ')));dbLoad()}
+async function dbLoad(){const d=await api(`db/rows?table=${encodeURIComponent(DB.table)}&page=${DB.page}&size=${DB.size}&q=${encodeURIComponent(DB.q)}&sort=${encodeURIComponent(DB.sort)}&desc=${DB.desc?1:0}`);DB.data=d;
+  const pages=Math.max(1,Math.ceil(d.total/d.size)),cut=v=>{if(v==null)return '<span class="mute">NULL</span>';const s=String(v);return esc(s.length>80?s.slice(0,80)+'…':s)};
+  $('#dbv').innerHTML=`<div class="card"><div class="row"><b>${esc(DB.table)}</b><span class="mute">${fmt(d.total)} dòng · khóa: ${esc(d.pk.join(', ')||'(không có)')}</span><span class="sp" style="flex:1"></span>
+    <input id="dbq" placeholder="Tìm trong mọi cột" value="${esc(DB.q)}" style="width:200px"><button onclick="DB.q=$('#dbq').value;DB.page=0;dbLoad()">Tìm</button>
+    <button class="p" onclick="dbEdit(null)">+ Thêm dòng</button><button onclick="dbExport('sql')">⬇ SQL</button><button onclick="dbExport('csv')">⬇ CSV</button><button onclick="dbSchema()">Cấu trúc</button></div></div>
+   <div class="tw"><table><thead><tr>${d.columns.map(c=>`<th style="cursor:pointer" onclick="DB.desc=DB.sort==='${c.name}'?!DB.desc:false;DB.sort='${c.name}';dbLoad()">${esc(c.name)}${DB.sort===c.name?(DB.desc?' ▼':' ▲'):''}</th>`).join('')}<th></th></tr></thead>
+   <tbody>${d.rows.map((r,i)=>`<tr>${d.columns.map(c=>`<td data-l="${esc(c.name)}">${cut(r[c.name])}</td>`).join('')}<td class="act" data-l=""><button class="s" onclick="dbEdit(${i})">Sửa</button> <button class="s d" onclick="dbDel(${i})">Xóa</button></td></tr>`).join('')}</tbody></table></div>
+   <div class="row" style="margin-top:8px"><button ${DB.page<=0?'disabled':''} onclick="DB.page--;dbLoad()">◀</button><span>Trang ${DB.page+1} / ${pages}</span><button ${DB.page+1>=pages?'disabled':''} onclick="DB.page++;dbLoad()">▶</button>
+   <select onchange="DB.size=+this.value;DB.page=0;dbLoad()">${[20,50,100,200,500].map(n=>`<option ${n===DB.size?'selected':''}>${n}</option>`).join('')}</select><span class="mute">dòng / trang</span></div>`;
+  $('#dbq').onkeydown=e=>{if(e.key==='Enter'){DB.q=e.target.value;DB.page=0;dbLoad()}}}
+function dbKey(r){const k={};(DB.data.pk.length?DB.data.pk:DB.data.columns.map(c=>c.name)).forEach(c=>k[c]=r[c]);return k}
+function dbEdit(i){const d=DB.data,r=i==null?null:d.rows[i];
+  const m=modal(`<h3>${r?'Sửa dòng':'Thêm dòng'} · ${esc(DB.table)}</h3><div class="mute">${r?'Chỉ lưu các ô đã đổi. Dòng cũ được ghi vào nhật ký thao tác để khôi phục khi cần.':'Để trống ô tự tăng / có giá trị mặc định.'}</div>
+   <div class="grid2" style="margin-top:8px">${d.columns.map(c=>{const v=r?r[c.name]:'';const long=String(v??'').length>60||/text|blob/.test(c.type);
+     return `<label class="f">${esc(c.name)} <span class="mute">${esc(c.type)}${c.key==='PRI'?' · khóa':''}${c.extra?' · '+esc(c.extra):''}</span>${long?`<textarea data-c="${esc(c.name)}">${esc(v??'')}</textarea>`:`<input data-c="${esc(c.name)}" value="${esc(v??'')}">`}${r?`<label style="font-size:11px"><input type="checkbox" data-n="${esc(c.name)}" ${v==null?'checked':''}> NULL</label>`:''}</label>`}).join('')}</div>
+   <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="dbs">Lưu</button></div>`);
+  m.querySelector('#dbs').onclick=()=>{const vals={};m.querySelectorAll('[data-c]').forEach(e=>{const c=e.dataset.c,nul=m.querySelector(`[data-n="${c}"]`);const nv=nul&&nul.checked?null:e.value;
+      if(!r){vals[c]=e.value}else{const ov=r[c]==null?null:String(r[c]);if(nv!==ov)vals[c]=nv}});
+    if(r&&!Object.keys(vals).length){m.remove();return}
+    act(()=>api(r?'db/update':'db/insert',r?{table:DB.table,key:dbKey(r),values:vals}:{table:DB.table,values:vals})).then(x=>{if(x){m.remove();dbLoad()}})}}
+function dbDel(i){const r=DB.data.rows[i];if(!confirm('Xóa dòng này khỏi '+DB.table+'? Dòng sẽ được ghi vào nhật ký thao tác.'))return;act(()=>api('db/delete',{table:DB.table,key:dbKey(r)})).then(()=>dbLoad())}
+async function dbExport(f){const r=await act(()=>api(`db/export?table=${encodeURIComponent(DB.table)}&format=${f}`),'Đã xuất');if(!r)return;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([(f==='csv'?'\ufeff':'')+r.content],{type:'text/plain;charset=utf-8'}));a.download=r.filename;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}
+function dbSchema(){modal(`<h3>Cấu trúc ${esc(DB.table)}</h3>${table(DB.data.columns,[['name','Cột'],['type','Kiểu'],['nullable','Null'],['key','Khóa'],['def','Mặc định'],['extra','Thêm']])}<div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Đóng</button></div>`)}
+
+/* ---------- thưởng boss ---------- */
+let BRW=null;
+async function page_bossrw(){BRW=await api('bossrewards');const T=BRW.tiers,nm=x=>x.item_id==-1?'Vàng':x.item_id==-4?'Điểm sự kiện':esc(x.item_name||'#'+x.item_id);
+  $('#main').innerHTML=`<h2>Thưởng boss</h2><div class="card mute">Boss rơi nguyên liệu theo bậc (máu tối đa), không rơi vàng, không cộng điểm, không rơi đồ đua top; mỗi dòng tung riêng. Dòng có "Boss" (một phần tên) chỉ áp dụng cho boss đó và thay dòng cùng vật phẩm của bậc. Vật phẩm -1 = vàng, -4 = điểm sự kiện. Tỉ lệ tính trên 10.000 (10000 = 100%). Quà riêng của từng boss vẫn rơi như cũ.</div>
+   <div class="row" style="margin-bottom:8px"><button class="p" onclick="editBrw({})">+ Thêm dòng</button></div>
+   ${[1,2,3,4,5].map(t=>`<h3>${esc(T[t])}</h3>`+table(BRW.rows.filter(x=>x.tier==t&&!x.boss),[['icon_id','',v=>v>=0?icon(v):''],['item_id','Vật phẩm',(v,x)=>nm(x)],['qty_min','Số lượng',(v,x)=>x.qty_min==x.qty_max?fmt(v):fmt(v)+' – '+fmt(x.qty_max)],['rate','Tỉ lệ',v=>(v/100).toFixed(2)+'%'],['hsd_days','Hạn (ngày)',v=>v||'']],(x)=>`<button class="s" onclick='editBrw(${JSON.stringify(x)})'>Sửa</button> <button class="s d" onclick="delBrw(${x.id})">Xóa</button>`)).join('')}
+   <h3>Riêng từng boss</h3>${table(BRW.rows.filter(x=>x.boss),[['boss','Boss'],['item_id','Vật phẩm',(v,x)=>nm(x)],['qty_min','Số lượng',(v,x)=>x.qty_min==x.qty_max?fmt(v):fmt(v)+' – '+fmt(x.qty_max)],['rate','Tỉ lệ',v=>(v/100).toFixed(2)+'%']],(x)=>`<button class="s" onclick='editBrw(${JSON.stringify(x)})'>Sửa</button> <button class="s d" onclick="delBrw(${x.id})">Xóa</button>`)}
+   <h3>Boss đang có và bậc</h3>${table(BRW.bosses,[['name','Boss'],['hp','HP tối đa',fmt],['tier','Bậc']])}`}
+function editBrw(x){const m=modal(`<h3>${x.id?'Sửa dòng #'+x.id:'Thêm dòng thưởng'}</h3><div class="grid2">
+   <label class="f">Bậc (1 - 5, 0 nếu chỉ dùng cho 1 boss)<input id="r0" type="number" value="${x.tier??1}"></label><label class="f">Boss (để trống = mọi boss của bậc)<input id="r1" value="${esc(x.boss||'')}"></label>
+   <label class="f">Vật phẩm (-1 vàng, -4 điểm sự kiện)<div class="row"><input id="r2" type="number" value="${x.item_id??-1}" style="width:110px"><span id="r2n" class="mute">${esc(x.item_name||'')}</span><button type="button" onclick="pickItem(i=>{$('#r2').value=i.id;$('#r2n').innerHTML=icon(i.icon)+' '+esc(i.name)})">Chọn…</button></div></label>
+   <label class="f">Tỉ lệ (/10.000)<input id="r5" type="number" value="${x.rate??10000}"></label><label class="f">Số lượng từ<input id="r3" type="number" value="${x.qty_min??1}"></label><label class="f">đến<input id="r4" type="number" value="${x.qty_max??1}"></label>
+   <label class="f">Hạn dùng (ngày, nhiều mức 3,7,15)<input id="r6" value="${esc(x.hsd_days||'')}"></label><label class="f">% vĩnh viễn<input id="r7" type="number" value="${x.perm_rate??0}"></label></div>
+   <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="this.closest('.modal').remove()">Hủy</button><button class="p" id="rs">Lưu</button></div>`);
+  m.querySelector('#rs').onclick=()=>act(()=>api('bossreward/save',{id:x.id,tier:+$('#r0').value,boss:$('#r1').value,item_id:+$('#r2').value,qty_min:+$('#r3').value,qty_max:+$('#r4').value,rate:+$('#r5').value,hsd_days:$('#r6').value,perm_rate:+$('#r7').value})).then(r=>{if(r){m.remove();page_bossrw()}})}
+function delBrw(id){if(confirm('Xóa dòng thưởng này?'))act(()=>api('bossreward/delete',{id})).then(page_bossrw)}
+
+/* ---------- khởi động ---------- */
+api('me').then(()=>{$('#app').hidden=false;buildNav();route()}).catch(()=>{});
+</script>
+</body>
+</html>

@@ -75,14 +75,12 @@ public class SuperBu extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         Boss boss = FinalBossManager.gI().getBossById(BossID.MABU, 127, this.zone.zoneId);
         if (boss != null) {
             boss.injured(plAtt, damage, piercing, isMobAttack);
@@ -103,7 +101,7 @@ public class SuperBu extends Boss {
                 die(plAtt);
             }
 
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

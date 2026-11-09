@@ -23,7 +23,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -39,6 +39,9 @@ public class TrainingService {
     }
 
     public Player getNonInteractiveNPC(Zone zone, int id) {
+        if (zone == null) {
+            return null;
+        }
         for (Player pl : zone.getNonInteractiveNPCs()) {
             if (pl != null && pl.id == id) {
                 return pl;
@@ -69,7 +72,7 @@ public class TrainingService {
     }
 
     public void luyenTapEnd(Player pl, int bossID) {
-        if (getNpc(bossID) != -1) {
+        if (pl != null && getNpc(bossID) != -1) {
             Service.gI().sendHideNpc(pl, getNpc(bossID), false);
         }
     }
@@ -151,7 +154,7 @@ public class TrainingService {
                 Service.gI().addSMTN(player, (byte) 2, tnsm, false);
             } else if (player.dangKyTapTuDong && time > 1800) {
                 if (player.inventory.getGem() > 1) {
-                    Executors.newSingleThreadExecutor().submit(() -> {
+                    nro.models.utils.Util.POOL.submit(() -> {
                         try {
                             player.inventory.subGem(1);
                             Thread.sleep(1000);

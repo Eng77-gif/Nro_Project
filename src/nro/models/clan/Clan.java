@@ -10,7 +10,7 @@ import nro.models.player.Player;
 import nro.models.server.Client;
 import nro.models.services.Service;
 import nro.models.network.Message;
-import nro.models.database.MrBlue;
+import nro.models.database.VietLoader;
 import nro.models.utils.Logger;
 import nro.models.utils.Util;
 import java.sql.Connection;
@@ -79,7 +79,9 @@ public class Clan {
     public long timeUpdateClan;
 
     public Clan() {
-        this.id = NEXT_ID++;
+        synchronized (Clan.class) {
+            this.id = NEXT_ID++; // tránh 2 bang tạo cùng lúc bị trùng id
+        }
         this.name = "";
         this.name2 = "";
         this.slogan = "";
@@ -257,7 +259,7 @@ public class Clan {
             }
         }
 
-        Player playeroffline = MrBlue.loadById(playerId);
+        Player playeroffline = VietLoader.loadById(playerId);
         if (playeroffline != null) {
             return playeroffline;
         }

@@ -45,6 +45,10 @@ public class NpcManager {
             if (npc.tempId == ConstNpc.DUA_HAU && player.DuaHauEgg == null && player.zone.map.mapId == (21 + player.gender)) {
                 continue;
             } 
+            // Xe nước mía chỉ có trong Sự kiện Hè
+            if (npc.tempId == ConstNpc.XE_NUOC_MIA && !nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.SUMMER)) {
+                continue;
+            }
             // Điều kiện loại trừ NPC CALICK dựa vào nhiệm vụ
             else if (npc.tempId == ConstNpc.CALICK && TaskService.gI().getIdTask(player) < ConstTask.TASK_21_0) {
                 continue;

@@ -90,7 +90,7 @@ public class TauPayPay extends TrainingBoss {
 
   
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(400, 1000)) {
                 this.chat("Xí hụt");
@@ -115,7 +115,7 @@ public class TauPayPay extends TrainingBoss {
                 die(plAtt);
             }
 
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

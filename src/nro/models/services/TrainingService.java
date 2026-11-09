@@ -22,7 +22,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -146,7 +146,7 @@ public class TrainingService {
                 Service.gI().addSMTN(player, (byte) 2, tnsm, false);
             } else if (player.dangKyTapTuDong && time > 1800) {
                 if (player.inventory.getGem() > 1) {
-                    Executors.newSingleThreadExecutor().submit(() -> {
+                    nro.models.utils.Util.POOL.submit(() -> {
                         try {
                             player.inventory.subGem(1);
                             Thread.sleep(1000);

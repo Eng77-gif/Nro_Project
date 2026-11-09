@@ -9,7 +9,7 @@ import nro.models.server.Manager;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -186,6 +186,9 @@ public class SkillUtil {
             if (skillss != null && level >= 1 && level <= skillss.size()) {
                 skill = skillss.get(level - 1);
             }
+        }
+        if (skill == null) {
+            return false;
         }
         skill = new Skill(skill);
         if (index == 1) {

@@ -5,7 +5,7 @@ import nro.models.minigame.ConSoMayManGold;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 public class MiniGame {
 

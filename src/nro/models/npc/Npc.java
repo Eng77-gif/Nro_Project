@@ -59,6 +59,10 @@ public abstract class Npc implements IAtionNpc {
     public void createOtherMenu(Player player, int indexMenu, String npcSay, String... menuSelect) {
         Message msg;
         try {
+            if (indexMenu == ConstNpc.BASE_MENU && this.tempId != ConstNpc.SANTA) {
+                // thêm nút sự kiện theo mùa vào cuối menu (nếu NPC này có mục sự kiện đang diễn ra)
+                menuSelect = nro.models.services.SeasonEventService.gI().withNpcOption(this, player, menuSelect);
+            }
             player.idMark.setIndexMenu(indexMenu);
             msg = new Message(32);
             msg.writer().writeShort(tempId);
@@ -101,14 +105,7 @@ public abstract class Npc implements IAtionNpc {
                 if (baseMenu != null) {
                     baseMenu.openMenu(player);
                 } else {
-                    Message msg;
-                    msg = new Message(32);
-                    msg.writer().writeShort(tempId);
-                    msg.writer().writeUTF("Ta có thể giúp gì cho ngươi ?");
-                    msg.writer().writeByte(1);
-                    msg.writer().writeUTF("Từ chối");
-                    player.sendMessage(msg);
-                    msg.cleanup();
+                    createOtherMenu(player, ConstNpc.BASE_MENU, "Ta có thể giúp gì cho ngươi ?", "Từ chối");
                 }
             } catch (Exception e) {
                 Logger.logException(Npc.class, e);

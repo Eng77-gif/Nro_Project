@@ -161,7 +161,7 @@ public class BanDoKhoBau implements Runnable {
         //Hồi sinh quái
         for (Zone zone : this.zones) {
             for (TrapMap trap : zone.trapMaps) {
-                trap.dame = this.level * 100000;
+                trap.dame = this.level * 100000L;
             }
 
             if (zone.map.mapId == 135 || zone.map.mapId == 136 || zone.map.mapId == 137) {
@@ -193,8 +193,8 @@ public class BanDoKhoBau implements Runnable {
 
             if (zone.map.mapId == 137) {
                 try {
-                    long bossDamage = (200000 * level);
-                    long bossMaxHealth = (20000000 * level);
+                    long bossDamage = (200000L * level);
+                    long bossMaxHealth = (20000000L * level);
                     bossDamage = Math.min(bossDamage, 200000000L);
                     bossMaxHealth = Math.min(bossMaxHealth, 2000000000L);
                     boss = new TrungUyXanhLo(
@@ -207,7 +207,7 @@ public class BanDoKhoBau implements Runnable {
                 }
             }
         }
-        Executors.newSingleThreadExecutor().submit(this, "Bản Đồ Kho Báu: " + this.clan.name);
+        nro.models.utils.Util.POOL.submit(this);
     }
 
     public void finish() {

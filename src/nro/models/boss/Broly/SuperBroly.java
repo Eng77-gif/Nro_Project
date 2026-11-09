@@ -26,7 +26,7 @@ public class SuperBroly extends Boss {
                 ConstPlayer.XAYDA, //gender
                 new short[]{294, 295, 296, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
                 100, //dame
-                new int[]{1000}, //hp
+                new long[]{1000}, //hp
                 new int[]{5, 13, 20, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38}, //map join
                 new int[][]{
                     {Skill.TAI_TAO_NANG_LUONG, 1, 1000}, {Skill.TAI_TAO_NANG_LUONG, 2, 1000}, {Skill.TAI_TAO_NANG_LUONG, 3, 1000}, {Skill.TAI_TAO_NANG_LUONG, 4, 1000}, {Skill.TAI_TAO_NANG_LUONG, 5, 1000}, {Skill.TAI_TAO_NANG_LUONG, 6, 1000}, {Skill.TAI_TAO_NANG_LUONG, 7, 1000},
@@ -91,7 +91,7 @@ public class SuperBroly extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(this.nPoint.tlNeDon, 1000)) {
                 this.chat("Xí hụt");
@@ -103,6 +103,9 @@ public class SuperBroly extends Boss {
                 SkillService.gI().useSkill(this, null, null, -1, null);
             }
             damage = this.nPoint.subDameInjureWithDeff(damage);
+            if (!piercing) {
+                damage = damage * 35 / 100; // giáp boss 65%
+            }
             if (!piercing && plAtt.playerSkill.skillSelect.template.id != Skill.TU_SAT && damage > this.nPoint.hpMax / 100) {
                 damage = this.nPoint.hpMax / 100;
             }
@@ -111,7 +114,7 @@ public class SuperBroly extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }
@@ -158,7 +161,7 @@ public class SuperBroly extends Boss {
     }
 
     private void tangChiSo() {
-        int hpMax = this.nPoint.hpMax;
+        long hpMax = (this.nPoint.hpMax);
         int rand = Util.nextInt(80, 100);
         hpMax = hpMax + hpMax / rand < 16_070_777 ? hpMax + hpMax / rand : 16_070_777;
         this.nPoint.hpMax = hpMax;

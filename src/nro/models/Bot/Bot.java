@@ -49,11 +49,72 @@ public class Bot extends Player {
         this.flag_ = flag;
     }
 
+    /** Map nhiệm vụ / úp SKH đang luyện (BotQuest), -1: chọn theo sức mạnh. */
+    public volatile int questMap = -1;
+    /** Loại quái nhiệm vụ cần đánh (BotQuest), -1: đánh quái bất kỳ. */
+    public volatile int questMob = -1;
+    /** Đang ở map vào qua NPC (Hirudegarn, Sa mạc hoang vu, Thánh địa): không tự đổi map / không chặn theo cổng. */
+    public volatile boolean stayMap;
+
     public int MapToPow() {
+        if (this.questMap >= 0) {
+            return this.questMap;
+        }
+        if (!this.accountBot || Util.isTrue(20, 100)) {
+            return pickTierMap(); // bot giả lập / 1/5 số lần: chọn ngẫu nhiên để còn khám phá map
+        }
+        int best = pickTierMap();
+        for (int t = 0; t < 2; t++) { // rút thêm 2 map hợp sức, lấy map bot đã thấy lên nhanh nhất (BotLearn)
+            int m = pickTierMap();
+            if (BotLearn.score(m) > BotLearn.score(best)) {
+                best = m;
+            }
+        }
+        return best;
+    }
+
+    /** Ghi nhận lượt ở map cũ trước khi đổi map (BotLearn chấm điểm map). */
+    private void learnLeave() {
+        if (this.accountBot && this.zone != null && this.zone.map.mapId == this.learnMap && this.nPoint != null) {
+            BotLearn.record(this.learnMap, this.nPoint.power - this.learnPower, System.currentTimeMillis() - this.learnSince, this.deathTotal - this.learnDeaths);
+        }
+    }
+
+    private void learnEnter() {
+        if (this.zone != null && this.nPoint != null) {
+            this.learnMap = this.zone.map.mapId;
+            this.learnPower = this.nPoint.power;
+            this.learnSince = System.currentTimeMillis();
+            this.learnDeaths = this.deathTotal;
+        }
+    }
+
+    private int learnMap = -1, learnDeaths, deathTotal;
+    private long learnPower, learnSince;
+
+    private int pickTierMap() {
         Random random = new Random();
         long power = this.nPoint.power;
+        if (this.accountBot) {
+            // chọn vùng map theo chỉ số thật (HP, sức đánh) như người chơi tự lượng sức, không chỉ theo sức mạnh
+            long hp = this.nPoint.hpMax, dm = this.nPoint.dame;
+            long byStat = hp >= 3_000_000 && dm >= 150_000 ? Long.MAX_VALUE
+                    : hp >= 500_000 && dm >= 30_000 ? 39_000_000_000L
+                    : hp >= 20_000 ? 1_900_000_000L : 90_000_000L;
+            power = Math.min(power, byStat);
+        }
+        // chết nhiều ở vùng map hiện tại: xuống vùng dễ hơn (mỗi bậc giảm ngưỡng sức mạnh)
+        for (int i = 0, n = TIER_DROP.getOrDefault(this.id, 0); i < n; i++) {
+            power = power >= 40_000_000_000L ? 39_000_000_000L : power >= 2_000_000_000L ? 1_900_000_000L : 90_000_000L;
+        }
         int mapId = 21;
-        if (power < 100000000) {
+        if (power < 100000000 && this.accountBot) {
+            // tài khoản bot: dưới 100 triệu chỉ luyện ở các map của hành tinh mình như người mới chơi
+            int[] home = this.gender == 0 ? new int[]{1, 2, 3, 4, 6, 29, 30, 28, 27, 42}
+                    : this.gender == 1 ? new int[]{8, 9, 10, 11, 12, 13, 33, 34, 32, 31} : new int[]{15, 16, 17, 18, 19, 20, 37, 36, 35, 44, 52};
+            int lim = power < 2_000_000 ? Math.min(5, home.length) : home.length;
+            mapId = home[random.nextInt(lim)];
+        } else if (power < 100000000) {
             if (this.gender == 0) {
                 mapId = TraiDat[random.nextInt(TraiDat.length)];
             } else if (this.gender == 1) {
@@ -61,29 +122,46 @@ public class Bot extends Player {
             } else {
                 mapId = XayDa[random.nextInt(XayDa.length)];
             }
-        } else if (power < 100000000) {
+        } else if (power < 2_000_000_000L) {
             mapId = 62 + random.nextInt(15);
-        } else if (power < 100000000) {
-            if (Util.isTrue(30, 100)) {
-                mapId = 91 + random.nextInt(3);
-            } else if (Util.isTrue(30, 100)) {
-                mapId = 95 + random.nextInt(5);
+        } else if (power < 40_000_000_000L) {
+            if (Util.isTrue(40, 100)) {
+                mapId = 92 + random.nextInt(3); // 92-94 tương lai
             } else {
-                mapId = 103 + random.nextInt(2);
+                mapId = 96 + random.nextInt(5); // 96-100 (bỏ 91 NRSD, 95/103/104 không có quái)
             }
         } else {
-            if (Util.isTrue(30, 100)) {
-                mapId = 104 + random.nextInt(6);
-            }
+            mapId = 105 + random.nextInt(6); // trên 40 tỷ: map Cold (trước đây 70% rơi về Nhà Gôhan không có quái)
         }
         return mapId;
     }
 
+    /** Tài khoản bot chỉ vào map người chơi cùng nhiệm vụ vào được (luật ChangeMapService.checkMapCanJoin: Namếc, tương lai, Cold...). */
+    public boolean canGo(int mapId) {
+        if (!this.accountBot || (this.stayMap && mapId == this.questMap)) {
+            return true;
+        }
+        Map m = MapService.gI().getMapById(mapId);
+        return m != null && !m.zones.isEmpty() && ChangeMapService.gI().checkMapCanJoin(this, m.zones.get(0)) != null;
+    }
+
     public void joinMap() {
-        Zone zone = getRandomZone(MapToPow());
+        int mapId = MapToPow();
+        for (int t = 0; t < 8 && !canGo(mapId); t++) {
+            mapId = this.questMap >= 0 ? -1 : MapToPow();
+        }
+        if (!canGo(mapId)) { // chưa tới nhiệm vụ mở map đó: luyện ở map đầu của hành tinh mình
+            mapId = new int[]{1, 8, 15}[Math.max(0, Math.min(2, this.gender))];
+            if (!canGo(mapId)) {
+                return;
+            }
+        }
+        Zone zone = getRandomZone(mapId);
         if (zone != null) {
+            learnLeave();
             ChangeMapService.gI().goToMap(this, zone);
             this.zone.load_Me_To_Another(this);
+            learnEnter();
             this.mo1.lastTimeChanM = System.currentTimeMillis();
         }
     }
@@ -92,7 +170,7 @@ public class Bot extends Player {
         Map map = MapService.gI().getMapById(mapId);
         Zone zone = null;
         try {
-            if (map != null) {
+            if (map != null && map.tileMap != null) { // map thiếu dữ liệu ô gạch: người chơi không vào được, bot cũng không
                 zone = map.zones.stream()
                         .filter(z -> z.getNumOfPlayers() == 0)
                         .findFirst()
@@ -109,7 +187,7 @@ public class Bot extends Player {
             return zone;
         } else {
             this.index_ += 1;
-            if (this.index_ >= 20) {
+            if (this.index_ >= 20 && !this.accountBot) { // tài khoản bot không bị gỡ ngang (mất dữ liệu chưa lưu)
                 BotManager.gI().bot.remove(this);
                 ChangeMapService.gI().exitMap(this);
                 return null;
@@ -121,6 +199,9 @@ public class Bot extends Player {
 
     @Override
     public short getHead() {
+        if (this.accountBot) {
+            return super.getHead(); // nhân vật thật: hình theo đồ đang mặc
+        }
         if (effectSkill.isMonkey) {
             return (short) ConstPlayer.HEADMONKEY[effectSkill.levelMonkey - 1];
         } else {
@@ -130,6 +211,9 @@ public class Bot extends Player {
 
     @Override
     public short getBody() {
+        if (this.accountBot) {
+            return super.getBody(); // nhân vật thật: hình theo đồ đang mặc
+        }
         if (effectSkill.isMonkey) {
             return 193;
         } else {
@@ -139,6 +223,9 @@ public class Bot extends Player {
 
     @Override
     public short getLeg() {
+        if (this.accountBot) {
+            return super.getLeg(); // nhân vật thật: hình theo đồ đang mặc
+        }
         if (effectSkill.isMonkey) {
             return 194;
         } else {
@@ -148,11 +235,23 @@ public class Bot extends Player {
 
     @Override
     public short getFlagBag() {
+        if (this.accountBot) {
+            return super.getFlagBag(); // nhân vật thật: hình theo đồ đang mặc
+        }
         return this.flag_;
     }
 
     @Override
     public void update() {
+        if (this.awayUntil > System.currentTimeMillis()) {
+            return; // đang ở doanh trại / ĐHVT (không có mặt trên map)
+        }
+        if (this.nPoint == null || this.zone == null) {
+            return; // đã bị huỷ hoặc chưa vào map
+        }
+        if (this.accountBot && nro.models.services_func.TransactionService.gI().check(this)) {
+            return; // đang giao dịch: đứng yên như người chơi mở bảng giao dịch (nhặt đồ sẽ làm huỷ giao dịch)
+        }
         super.update();
         this.increasePoint();
         switch (this.type) {
@@ -167,8 +266,43 @@ public class Bot extends Player {
                 break;
         }
         if (this.isDie()) {
+            this.deathTotal++;
+            if (this.accountBot) {
+                long now = System.currentTimeMillis();
+                if (now - this.deathWindow > 5 * 60_000L) {
+                    this.deathWindow = now;
+                    this.deaths = 0;
+                }
+                int td = TIER_DROP.getOrDefault(this.id, 0);
+                if (++this.deaths >= 3 && td < 3) {
+                    TIER_DROP.put(this.id, td + 1); // chết 3 lần / 5 phút: đổi sang vùng map dễ hơn (nhớ cả khi bot vào lại)
+                    this.deaths = 0;
+                    Service.gI().hsChar(this, nPoint.hpMax, nPoint.mpMax);
+                    this.joinMap();
+                    return;
+                }
+            }
             Service.gI().hsChar(this, nPoint.hpMax, nPoint.mpMax);
         }
+    }
+
+    private static final java.util.Map<Long, Integer> TIER_DROP = new java.util.concurrent.ConcurrentHashMap<>();
+    private int deaths;
+    private long deathWindow;
+
+    /** Chọn ngẫu nhiên 1 chiêu đã học (point > 0) trong n chiêu đầu (n <= 0: tất cả); không có thì null. */
+    public Skill pickSkill(int n) {
+        java.util.List<Skill> ok = new java.util.ArrayList<>();
+        for (Skill sk : this.playerSkill.skills) {
+            if (sk != null && sk.point > 0) {
+                ok.add(sk);
+            }
+        }
+        if (ok.isEmpty()) {
+            return null;
+        }
+        int lim = n <= 0 ? ok.size() : Math.min(n, ok.size());
+        return ok.get(new java.util.Random().nextInt(lim));
     }
 
     public void leakSkill() {
@@ -197,26 +331,36 @@ public class Bot extends Player {
     }
 
     private void increasePoint() {
-        long tiemNangUse = 0;
-        int point = 0;
-        if (this.nPoint != null) {
+        if (this.nPoint == null) {
+            return;
+        }
+        // tài khoản bot cộng tiềm năng như người chơi bấm cộng nhanh (nhiều lần mỗi lượt) khi còn nhiều tiềm năng
+        int times = this.accountBot && this.nPoint.tiemNang > 1_000_000_000L ? 30 : 1;
+        boolean changed = false;
+        for (int t = 0; t < times; t++) {
+            long tiemNangUse;
             if (Util.isTrue(50, 100)) {
-                point = 100;
+                int point = 100;
                 int pointHp = point * 20;
                 tiemNangUse = point * (2 * (this.nPoint.hpg + 1000) + pointHp - 20) / 2;
-                if (doUseTiemNang(tiemNangUse)) {
-                    this.nPoint.hpMax += point;
-                    this.nPoint.hpg += point;
-                    Service.gI().point(this);
+                if (!doUseTiemNang(tiemNangUse)) {
+                    break;
                 }
+                this.nPoint.hpMax += point;
+                this.nPoint.hpg += point;
             } else {
-                point = 10;
-                tiemNangUse = point * (2 * this.nPoint.dameg + point - 1) / 2 * 100;
-                if (doUseTiemNang(tiemNangUse)) {
-                    this.nPoint.dameg += point;
-                    Service.gI().point(this);
+                int point = 10;
+                tiemNangUse = (long) point * (2L * this.nPoint.dameg + point - 1) / 2 * 100;
+                if (!doUseTiemNang(tiemNangUse)) {
+                    break;
                 }
+                this.nPoint.dameg += point;
             }
+            changed = true;
+        }
+        if (changed) {
+            Service.gI().point(this);
+            nro.models.services.TaskService.gI().checkDoneTaskUseTiemNang(this); // nhiệm vụ "Sử dụng tiềm năng"
         }
     }
 
@@ -260,12 +404,31 @@ public class Bot extends Player {
     }
 
     public String getChat() {
-        String[] messages = {
-            "|1|Con chó tài tỏi súc vật cali",
-            "|2|bê ka tê địt mẹ tài tỏi tung lồn",
-            "|3|arriety địt nhau với mẹ tài tỏi"
-        };
-        return messages[new Random().nextInt(messages.length)];
+        return BotPemQuai.chatMessages[new Random().nextInt(BotPemQuai.chatMessages.length)];
     }
+
+    /** Đổi hoạt động: 0 luyện tập (đánh quái), 1 bán đồ, 2 săn boss. */
+    public void setMode(int type) {
+        this.type = type;
+    }
+
+    public int getMode() {
+        return this.type;
+    }
+
+    /** bot của BotWorld (tự duy trì, lưu tiến độ) */
+    public boolean worldBot;
+    /** tài khoản thật do admin đặt làm bot: nhân vật thật, chơi và nhận thưởng như người chơi */
+    public boolean accountBot;
+    public int accountId;
+    public long sessionEnd; // hết ca chơi thì thoát game như người thật (BotWorld.syncAccounts)
+    long lastReply;
+    /** hoạt động đang làm (hiện trên panel) */
+    public String activity = "Luyện tập";
+    /** đang đi vắng (doanh trại / ĐHVT) tới lúc này */
+    public long awayUntil;
+    /** bot đang PK (chỉ đánh bot khác) */
+    public Bot pkTarget;
+    public long pkUntil;
 
 }

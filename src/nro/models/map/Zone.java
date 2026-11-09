@@ -104,6 +104,13 @@ public class Zone {
         }
     }
 
+    /** Bản sao danh sách boss trong khu (lệnh admin). */
+    public List<Player> getBossesCopy() {
+        synchronized (bosses) {
+            return new ArrayList<>(bosses);
+        }
+    }
+
     public List<BotAttackplayer> getBots() {
         synchronized (bots) {
             return new ArrayList<>(bots);
@@ -378,18 +385,14 @@ public class Zone {
                                     player.sendMessage(msg);
                                     msg.cleanup();
                                     Service.gI().sendToAntherMePickItem(player, itemMapId);
-
-                                    // Mark item as picked up unless the item ID is 74
-                                    if (picked) {
-                                        if (itemMap.itemTemplate.id != 74) {
-                                            itemMap.isPickedUp = true;
-                                        }
-                                    }
+                                    nro.models.services.AnnounceService.gI().onPickItem(player, itemMap, item);
 
                                     if (!(this.map.mapId >= 21 && this.map.mapId <= 23
                                             && itemMap.itemTemplate != null && itemMap.itemTemplate.id == 74
                                             || this.map.mapId >= 42 && this.map.mapId <= 44
                                             && itemMap.itemTemplate != null && itemMap.itemTemplate.id == 78)) {
+                                        // đánh dấu đã nhặt để gói nhặt thứ 2 (đang chờ lock) không nhận thêm lần nữa
+                                        itemMap.isPickedUp = true;
                                         removeItemMap(itemMap);
                                     }
                                 } catch (Exception e) {
@@ -549,8 +552,8 @@ public class Zone {
             msg.writer().writeByte(plInfo.gender);
             msg.writer().writeShort(plInfo.getHead());
             msg.writer().writeUTF(Service.gI().name(plInfo));
-            msg.writer().writeInt(plInfo.nPoint.hp);
-            msg.writer().writeInt(plInfo.nPoint.hpMax);
+            msg.writeNum(plInfo.nPoint.hp);
+            msg.writeNum(plInfo.nPoint.hpMax);
             msg.writer().writeShort(plInfo.getBody());
             msg.writer().writeShort(plInfo.getLeg());
             int flagbag = plInfo.getFlagBag();
@@ -561,7 +564,7 @@ public class Zone {
                         break;
                 }
             }
-            msg.writer().writeByte(flagbag); //bag
+            msg.writeDual(flagbag, 1, flagbag, 2); // túi/cờ: J2ME đọc short //bag
             msg.writer().writeByte(-1);
             msg.writer().writeShort(plInfo.location.x);
             msg.writer().writeShort(plInfo.location.y);
@@ -660,11 +663,11 @@ public class Zone {
                     msg.writer().writeBoolean(false); //is fire
                     msg.writer().writeBoolean(false); //is ice
                     msg.writer().writeBoolean(false); //is wind
-                    msg.writer().writeByte(mob.tempId);
+                    msg.writeDual(mob.tempId, 1, mob.tempId, 2); // J2ME đọc short
                     msg.writer().writeByte(0); // sys
-                    msg.writer().writeInt(mob.point.gethp());
+                    msg.writeNum(mob.point.gethp());
                     msg.writer().writeByte(mob.level);
-                    msg.writer().writeInt((mob.point.getHpFull()));
+                    msg.writeNum((mob.point.getHpFull()));
                     msg.writer().writeShort(mob.location.x);
                     msg.writer().writeShort(mob.location.y);
                     msg.writer().writeByte(mob.status);

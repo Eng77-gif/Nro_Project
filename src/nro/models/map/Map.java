@@ -104,7 +104,7 @@ public class Map implements Runnable {
         this.tileTop = tileTop;
         this.zones = new ArrayList<>();
         this.wayPoints = wayPoints;
-        this.npcs = new ArrayList<>();
+        this.npcs = new java.util.concurrent.CopyOnWriteArrayList<>(); // NPC sự kiện được thêm/gỡ lúc đang chạy
         try {
             this.mapHeight = tileMap.length * SIZE;
             this.mapWidth = tileMap[0].length * SIZE;
@@ -366,6 +366,9 @@ public class Map implements Runnable {
 
     //--------------------------------------------------------------------------
     public int yPhysicInTop(int x, int y) {
+        if (tileMap == null || tileMap.length == 0) {
+            return y; // map thiếu dữ liệu ô gạch
+        }
         try {
             int rX = x / SIZE;
             int rY = 0;

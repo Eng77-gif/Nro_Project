@@ -5,7 +5,7 @@ import nro.models.services.ItemService;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -37,6 +37,8 @@ public class SetClothes {
 
     public byte worldcup;
     public byte setDHD;
+    public byte champa; // Set Thần hủy diệt Champa (option 257)
+    public byte beerus; // Set Thần hủy diệt Beerus (option 115)
 
     public boolean godClothes;
     public int ctHaiTac = -1;
@@ -170,6 +172,14 @@ public class SetClothes {
                         isActSet = true;
                         cadicM++;
                         break;
+                    case 257:
+                        isActSet = true;
+                        champa++;
+                        break;
+                    case 115:
+                        isActSet = true;
+                        beerus++;
+                        break;
                 }
 
                 if (isActSet) {
@@ -177,6 +187,17 @@ public class SetClothes {
                 }
             }
         }
+    }
+
+    /** Mặc đủ 5 món cùng một Set kích hoạt (không tính Beerus, Beerus có aura riêng). */
+    public boolean fullSetKichHoat() {
+        for (int n : new int[]{songoku, thienXinHang, kirin, kaioken, thanVuTruKaio, ocTieu, pikkoroDaimao, picolo, lienHoan,
+            nail, kakarot, cadic, nappa, giamSatThuong, cadicM, champa}) {
+            if (n >= 5) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void setDefault() {
@@ -196,6 +217,8 @@ public class SetClothes {
         this.nail = 0;
         this.cadicM = 0;
         this.setDHD = 0;
+        this.champa = 0;
+        this.beerus = 0;
         this.worldcup = 0;
         this.godClothes = false;
         this.ctHaiTac = -1;

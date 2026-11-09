@@ -18,8 +18,14 @@ public class Hirudegarn extends BigBoss {
         super(mob);
     }
 
+    /** Người đã đánh trong trận (nhận Trứng Mabư / Bình hút năng lượng theo điều kiện). */
+    private final java.util.Set<Long> attackers = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
     @Override
     public void injured(Player plAtt, long damage, boolean dieWhenHpFull) {
+        if (plAtt != null && plAtt.isPl()) {
+            attackers.add(plAtt.id);
+        }
         damage = this.point.hp / 100 > 0 ? this.point.hp / 100 : 1;
         super.injured(plAtt, damage, false);
     }
@@ -38,8 +44,8 @@ public class Hirudegarn extends BigBoss {
             try {
                 msg = new Message(-9);
                 msg.writer().writeByte(this.id);
-                msg.writer().writeInt(this.point.gethp());
-                msg.writer().writeInt(1);
+                msg.writeNum(this.point.gethp());
+                msg.writeNum(1);
                 Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             } catch (Exception e) {
             } finally {
@@ -89,19 +95,27 @@ public class Hirudegarn extends BigBoss {
                         new ItemMap(zone, 190, 32000, this.location.x + X, this.location.y, -1)
                 );
             }
+            // Quả trứng Mabư: 20%, ai cũng nhặt được
             if (Util.isTrue(20, 100)) {
-                ItemMap it = new ItemMap(this.zone, 568, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x,
-                        this.location.y - 24), -1);
-                Service.gI().dropItemMap(this.zone, it);
+                Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 568, 1, this.location.x,
+                        this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), -1));
             }
-            if (Util.isTrue(20, 100)) {
-                ItemMap it = new ItemMap(this.zone, 1795, 1, this.location.x,
-                        this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), -1);
-
-                it.options.add(new ItemOption(250, 0));
-
-                Service.gI().dropItemMap(this.zone, it);
+            // Đệ tử 2: trứng nở xong (về 0:00) hoặc đã có đệ Mabư -> có tỉ lệ rơi Bình hút năng lượng
+            for (Player pl : new java.util.ArrayList<>(this.zone.getPlayers())) {
+                if (pl == null || !attackers.contains(pl.id) || !pl.isPl()) {
+                    continue;
+                }
+                int x = this.location.x + Util.nextInt(-40, 40);
+                int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
+                if (((pl.mabuEgg != null && pl.mabuEgg.getSecondDone() <= 0) || (pl.pet != null && pl.pet.typePet == 1))
+                        && nro.models.services.InventoryService.gI().findItemBag(pl, 1852) == null && Util.isTrue(20, 100)) {
+                    ItemMap it = new ItemMap(this.zone, 1852, 1, x, y, pl.id);
+                    it.options.add(new ItemOption(250, 0));
+                    Service.gI().dropItemMap(this.zone, it);
+                    Service.gI().sendThongBao(pl, "Hirudegarn rơi Bình hút năng lượng cho bạn! Tích đủ 3000 Kilis ở Sa mạc hoang vu rồi dùng để đổi đệ tử 2");
+                }
             }
+            attackers.clear();
 
             if (Util.isTrue(1, 40)) {
                 short[] possibleIds = {555, 557, 559};
@@ -111,7 +125,7 @@ public class Hirudegarn extends BigBoss {
                 ItemMap itemWithOptions = ItemService.gI().randDoTL(this.zone, 1, this.location.x,
                         this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), -1);
                 it.options.clear();
-                it.options.addAll(itemWithOptions.options);
+                it.options.addAll(nro.models.item.Item.ItemOption.copyAll(itemWithOptions.options));
                 Service.gI().dropItemMap(this.zone, it);
 
             }
@@ -121,8 +135,8 @@ public class Hirudegarn extends BigBoss {
                 try {
                     msg = new Message(-9);
                     msg.writer().writeByte(this.id);
-                    msg.writer().writeInt(this.point.gethp());
-                    msg.writer().writeInt(1);
+                    msg.writeNum(this.point.gethp());
+                    msg.writeNum(1);
                     Service.gI().sendMessAllPlayerInMap(this.zone, msg);
                 } catch (Exception e) {
                 } finally {
@@ -146,8 +160,8 @@ public class Hirudegarn extends BigBoss {
             try {
                 msg = new Message(-9);
                 msg.writer().writeByte(this.id);
-                msg.writer().writeInt(this.point.gethp());
-                msg.writer().writeInt(1);
+                msg.writeNum(this.point.gethp());
+                msg.writeNum(1);
                 Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             } catch (Exception e) {
             } finally {
@@ -186,9 +200,9 @@ public class Hirudegarn extends BigBoss {
                     switch (action) {
                         case 1:
                             msg.writer().writeByte(1);
-                            int dame = player.injured(null, this.point.getDameAttack(), false, true);
+                            long dame = player.injured(null, this.point.getDameAttack(), false, true);
                             msg.writer().writeInt((int) player.id);
-                            msg.writer().writeInt(dame);
+                            msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, dame));
                             break;
                         case 3:
                             this.location.x = (short) player.location.x;
@@ -201,7 +215,7 @@ public class Hirudegarn extends BigBoss {
                                 Player pl = this.zone.getPlayers().get(i);
                                 dame = pl.injured(null, this.point.getDameAttack(), false, true);
                                 msg.writer().writeInt((int) pl.id);
-                                msg.writer().writeInt(dame);
+                                msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, dame));
                             }
                             break;
                     }

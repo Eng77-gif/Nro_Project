@@ -103,8 +103,24 @@ public class Item {
             return Util.replace(this.optionTemplate.name, "#", String.valueOf(this.param));
         }
 
+        /**
+         * Không xóa optionTemplate: mẫu chỉ số dùng chung cho cả server (chỉ đọc). Trước đây xóa ở đây làm
+         * chỉ số của shop / quà dùng chung đối tượng bị null theo và gây NullPointerException khi mở shop.
+         */
         public void dispose() {
-            this.optionTemplate = null;
+        }
+
+        /** Sao chép danh sách chỉ số (mỗi vật phẩm giữ đối tượng riêng, sửa param không ảnh hưởng nơi khác). */
+        public static java.util.List<ItemOption> copyAll(java.util.List<ItemOption> src) {
+            java.util.List<ItemOption> list = new java.util.ArrayList<>();
+            if (src != null) {
+                for (ItemOption io : src) {
+                    if (io != null && io.optionTemplate != null) {
+                        list.add(new ItemOption(io));
+                    }
+                }
+            }
+            return list;
         }
 
         @Override

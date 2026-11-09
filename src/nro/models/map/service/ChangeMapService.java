@@ -258,6 +258,10 @@ public class ChangeMapService {
      */
     public void changeMapInYard(Player pl, int mapId, int zoneId, int x) {
         Zone zoneJoin = MapService.gI().getMapCanJoin(pl, mapId, zoneId);
+        if (zoneJoin != null && zoneJoin.map.tileMap == null) {
+            Service.gI().sendThongBao(pl, "Bản đồ này chưa mở");
+            return;
+        }
         if (zoneJoin != null) {
             if (zoneJoin.map.mapWidth - 100 < 100) {
                 x = x != -1 ? x : Util.nextInt(100, 700);
@@ -317,6 +321,13 @@ public class ChangeMapService {
     }
 
     private void changeMap(Player pl, Zone zoneJoin, int mapId, int zoneId, int x, int y, byte typeSpace) {
+        pl.collectionOpen = false;
+        Map target = zoneJoin != null ? zoneJoin.map : (mapId >= 0 ? MapService.gI().getMapById(mapId) : null);
+        if (target != null && target.tileMap == null) { // map thiếu dữ liệu ô gạch: vào sẽ kẹt
+            resetPoint(pl);
+            Service.gI().sendThongBao(pl, "Bản đồ này chưa mở");
+            return;
+        }
         if (pl.idNRNM != -1 && !Util.canDoWithTime(pl.lastTimePickNRNM, 30000)) {
             resetPoint(pl);
             Service.gI().sendThongBao(pl, "Không thể chuyển map quá nhanh khi đeo Ngọc Rồng Namếc");
@@ -600,7 +611,7 @@ public class ChangeMapService {
                 msg.writer().writeByte(0);//type
                 msg.writer().writeInt((int) player.id);
                 msg.writer().writeShort(player.mobMe.tempId);
-                msg.writer().writeInt(player.mobMe.point.gethp());// hp mob
+                msg.writeNum(player.mobMe.point.gethp());// hp mob
                 Service.gI().sendMessAnotherNotMeInMap(player, msg);
                 msg.cleanup();
             }
@@ -609,7 +620,7 @@ public class ChangeMapService {
                 msg.writer().writeByte(0);//type
                 msg.writer().writeInt((int) player.pet.mobMe.id);
                 msg.writer().writeShort(player.pet.mobMe.tempId);
-                msg.writer().writeInt(player.pet.mobMe.point.gethp());// hp mob
+                msg.writeNum(player.pet.mobMe.point.gethp());// hp mob
                 Service.gI().sendMessAnotherNotMeInMap(player, msg);
                 msg.cleanup();
             }
@@ -724,7 +735,7 @@ public class ChangeMapService {
                         msg.writer().writeByte(0);//type
                         msg.writer().writeInt((int) pl.id);
                         msg.writer().writeShort(pl.mobMe.tempId);
-                        msg.writer().writeInt(pl.mobMe.point.gethp());// hp mob
+                        msg.writeNum(pl.mobMe.point.gethp());// hp mob
                         player.sendMessage(msg);
                         msg.cleanup();
                     }
@@ -916,6 +927,12 @@ public class ChangeMapService {
                 case 3: //rừng nấm
                 case 11: //thung lũng maima
                 case 17: //rừng nguyên sinh
+                case 4: //rừng xương (trước đây không chặn: đi capsule tới được khi chưa làm nhiệm vụ)
+                case 12: //vực maima
+                case 18: //rừng thông xayda
+                case 5: //đảo kamê
+                case 13: //đảo guru
+                case 20: //vách núi đen
                     if (TaskService.gI().getIdTask(player) < ConstTask.TASK_7_0) {
                         return null;
                     }
@@ -926,6 +943,12 @@ public class ChangeMapService {
                 case 32: //núi hoa tím
                 case 35: //rừng cọ
                 case 36: //rừng đá
+                case 29: //nam kamê
+                case 33: //nam guru
+                case 37: //thung lũng đen
+                case 39: //vách núi aru
+                case 40: //vách núi moori
+                case 41: //vực plant
                     if (TaskService.gI().getIdTask(player) < ConstTask.TASK_13_0) {
                         return null;
                     }
@@ -979,6 +1002,7 @@ public class ChangeMapService {
                     if (TaskService.gI().getIdTask(player) < ConstTask.TASK_20_0) {
                         return null;
                     }
+                    break;
 
                 case 102: //nhà bunma
                 case 92: //thành phố phía đông

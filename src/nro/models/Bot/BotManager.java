@@ -25,10 +25,19 @@ public class BotManager implements Runnable {
 
                 for (Bot bot : new ArrayList<>(this.bot)) {
                     if (bot != null) {
-                        bot.update();
+                        try {
+                            bot.update();
+                        } catch (Throwable t) {
+                            BotWorld.gI().logError(bot, t); // lỗi của 1 bot không làm dừng các bot khác
+                        }
                     }
                 }
 
+                try {
+                    BotWorld.gI().socialTick();
+                } catch (Throwable t) {
+                    nro.models.utils.Logger.error("Bot: lỗi bang hội / buôn bán " + t + "\n");
+                }
                 long timeLeft = 150 - (System.currentTimeMillis() - st);
                 if (timeLeft > 0) {
                     Thread.sleep(timeLeft);

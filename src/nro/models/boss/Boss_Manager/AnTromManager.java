@@ -2,7 +2,7 @@ package nro.models.boss.Boss_Manager;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 public class AnTromManager extends BossManager {
 

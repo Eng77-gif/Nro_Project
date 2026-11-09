@@ -30,7 +30,7 @@ public class Hatchiyack extends Boss {
                 ConstPlayer.TRAI_DAT,
                 new short[]{639, 640, 641, -1, -1, -1},
                 (dame),
-                new int[]{hp},
+                new long[]{hp},
                 new int[]{148},
                 (int[][]) Util.addArray(FULL_DEMON),
                 new String[]{"|-1|Các ngươi dám hạ sư phụ ta",
@@ -46,7 +46,7 @@ public class Hatchiyack extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(this.level + 10, 1000)) {
                 this.chat("Xí hụt");
@@ -75,7 +75,7 @@ public class Hatchiyack extends Boss {
                 die(plAtt);
             }
 
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

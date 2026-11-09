@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -44,13 +44,43 @@ public class FlagBagService {
         }
     }
 
+    /** Cờ đeo lưng thiếu trong flag_bag (mã cờ lấy từ part của vật phẩm loại 11): dùng icon vật phẩm làm hình. */
+    private final java.util.Map<Integer, FlagBag> fallback = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private FlagBag fallbackFlag(int id) {
+        return fallback.computeIfAbsent(id, k -> {
+            if (k >= 201 && k <= 254) { // đeo lưng hiệu ứng: client vẽ bằng DataEffect cùng mã, không vẽ thêm icon tĩnh
+                FlagBag f = new FlagBag();
+                f.id = k;
+                f.name = "effect";
+                f.iconEffect = new short[]{-1};
+                return f;
+            }
+            for (nro.models.player_system.Template.ItemTemplate t : Manager.ITEM_TEMPLATES) {
+                if (t != null && t.type == 11 && t.part == k) {
+                    FlagBag f = new FlagBag();
+                    f.id = k;
+                    f.name = t.name;
+                    f.iconId = t.iconID;
+                    f.iconEffect = new short[]{t.iconID};
+                    nro.models.utils.Logger.error("Cờ đeo lưng " + k + " (" + t.name + ") chưa có trong flag_bag, tạm dùng icon vật phẩm\n");
+                    return f;
+                }
+            }
+            return null;
+        });
+    }
+
     public void sendIconEffectFlag(Player player, int id) {
         FlagBag fb = getFlagBag(id);
+        if (fb == null && id > 0) {
+            fb = fallbackFlag(id);
+        }
         if (fb != null) {
             Message msg;
             try {
                 msg = new Message(-63);
-                msg.writer().writeByte(fb.id);
+                msg.writeDual(fb.id, 1, fb.id, 2); // J2ME đọc short
                 msg.writer().writeByte(fb.iconEffect.length);
                 for (Short iconId : fb.iconEffect) {
                     msg.writer().writeShort(iconId);
@@ -68,9 +98,9 @@ public class FlagBagService {
         try {
             msg = new Message(-46);
             msg.writer().writeByte(1); //type
-            msg.writer().writeByte(list.size());
+            msg.writeDual(list.size(), 1, list.size(), 2); // J2ME đọc short
             for (FlagBag fb : list) {
-                msg.writer().writeByte(fb.id);
+                msg.writeDual(fb.id, 1, fb.id, 2);
                 msg.writer().writeUTF(fb.name);
                 msg.writer().writeInt(fb.gold);
                 msg.writer().writeInt(fb.gem);

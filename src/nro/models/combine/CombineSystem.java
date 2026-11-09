@@ -6,7 +6,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 public class CombineSystem {
 
@@ -16,6 +16,18 @@ public class CombineSystem {
         } else {
             return false;
         }
+    }
+
+    /** Ngọc bất kỳ: tổng ngọc xanh + hồng ngọc. */
+    public static boolean hasNgocBatKy(Player player, int n) {
+        return (long) player.inventory.gem + player.inventory.ruby >= n;
+    }
+
+    /** Trừ ngọc bất kỳ: ngọc xanh trước, thiếu thì trừ hồng ngọc. */
+    public static void subNgocBatKy(Player player, int n) {
+        long g = (int) Math.min(Math.max(player.inventory.gem, 0), n);
+        player.inventory.gem -= g;
+        player.inventory.ruby -= n - g;
     }
 
     public static boolean isDaPhaLe(Item item) {
@@ -50,7 +62,7 @@ public class CombineSystem {
                 return 10;
 
             }
-            case 8 -> {
+            case 8, 9 -> { // ép vào lỗ thứ 9, 10
                 return 10;
 
             }
@@ -143,18 +155,19 @@ public class CombineSystem {
             case 2:
                 return 20000000;
             case 3:
-                return 40000000;
+                return 37000000; // 1 thỏi vàng
             case 4:
-                return 60000000;
+                return 37000000; // 1 thỏi vàng
             case 5:
-                return 90000000;
+                return 37000000; // 1 thỏi vàng
             case 6:
-                return 120000000;
+                return 74000000; // 2 thỏi vàng
             case 7:
-                return 200000000;
+                return 74000000; // 2 thỏi vàng
             case 8:
-                return 300000000;
-
+                return 111000000; // 3 thỏi vàng
+            case 9:
+                return 185000000; // 5 thỏi vàng
         }
         return 0;
     }
@@ -213,7 +226,7 @@ public class CombineSystem {
             case 8:
                 return 9;
             case 9:
-                return 280;
+                return 50; // sao 10: 50 ngọc bất kỳ
             case 10:
                 return 560;
             case 11:
@@ -224,8 +237,24 @@ public class CombineSystem {
         return 0;
     }
 
+    /** Đá cấp 9 cho từng loại đồ (áo, quần, găng, giày, rada) khi nâng từ +8 lên +9. */
+    public static final int[] DA_NANG_CAP_9 = {2001, 2003, 2002, 2004, 2000};
+
+    public static int getLevelNangCap(Item trangBi) {
+        for (Item.ItemOption io : trangBi.itemOptions) {
+            if (io.optionTemplate.id == 72) {
+                return io.param;
+            }
+        }
+        return 0;
+    }
+
     public static boolean isCoupleItemNangCapCheck(Item trangBi, Item daNangCap) {
-        if (trangBi != null && daNangCap != null) {
+        if (trangBi != null && daNangCap != null && trangBi.template.type < 5) {
+            // +8 -> +9 chỉ dùng đá cấp 9, các cấp khác dùng đá thường
+            if (getLevelNangCap(trangBi) == 8) {
+                return daNangCap.template.id == DA_NANG_CAP_9[trangBi.template.type];
+            }
             if (trangBi.template.type == 0 && daNangCap.template.id == 223) {
                 return true;
             } else if (trangBi.template.type == 1 && daNangCap.template.id == 222) {
@@ -260,6 +289,16 @@ public class CombineSystem {
                 return 50;
             case 7:
                 return 70;
+            case 8:
+                return 10; // +8 -> +9: 10 đá cấp 9
+            case 9:
+                return 110;
+            case 10:
+                return 130;
+            case 11:
+                return 160;
+            case 12:
+                return 200;
         }
         return 0;
     }
@@ -283,9 +322,19 @@ public class CombineSystem {
             case 5:
                 return 23000000;
             case 6:
-                return 100000000;
+                return 37000000; // 1 thỏi vàng
             case 7:
-                return 250000000;
+                return 111000000; // 3 thỏi vàng
+            case 8:
+                return 111000000; // 3 thỏi vàng
+            case 9:
+                return 148000000; // 4 thỏi vàng
+            case 10:
+                return 185000000; // 5 thỏi vàng
+            case 11:
+                return 259000000; // 7 thỏi vàng
+            case 12:
+                return 333000000; // 9 thỏi vàng
         }
         return 0;
     }
@@ -309,15 +358,15 @@ public class CombineSystem {
             case 7: // 7 sao
                 return 0.3;
             case 8:
-                return 5;
+                return 0.3;
             case 9:
-                return 1;
-            case 10: // 7 sao
-                return 0.3;
-            case 11: // 7 sao
-                return 0.3;
-            case 12: // 7 sao
-                return 0.3;
+                return 0.25;
+            case 10:
+                return 0.2;
+            case 11:
+                return 0.15;
+            case 12:
+                return 0.1;
         }
         return 0;
     }

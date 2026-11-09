@@ -24,13 +24,22 @@ public class LyTieuNuong extends Npc {
                     "Con số\nmay mắn\nthỏi vàng",
                     "Con số\nmay mắn\nngọc xanh",
                     "Chọn ai đây",
+                    "Điểm\nQuy Lão",
                     "Đóng");
             return;
         }
     }
 
+    private static final int MENU_QL_POINT = 54_401;
+
     @Override
     public void confirmMenu(Player player, int select) {
+        if (player.idMark.getIndexMenu() == MENU_QL_POINT) {
+            if (select == 0) {
+                nro.models.services.SeasonEventService.gI().openEventShop(player, true);
+            }
+            return;
+        }
         String time = ((ChonAiDay_Gold.gI().lastTimeEnd - System.currentTimeMillis()) / 1000) + " giây";
         if (((ChonAiDay_Gold.gI().lastTimeEnd - System.currentTimeMillis()) / 1000) < 0) {
             ChonAiDay_Gold.gI().lastTimeEnd = System.currentTimeMillis() + 300000;
@@ -41,7 +50,7 @@ public class LyTieuNuong extends Npc {
         }
 
         if (canOpenNpc(player)) {
-            if (this.mapId == 5) {
+            if (this.mapId == 5 || this.mapId == -1) { // -1: mở từ Menu game
                 if (player.idMark.isBaseMenu()) {
                     switch (select) {
                         case 0: // Kéo, Búa, Bao
@@ -55,6 +64,12 @@ public class LyTieuNuong extends Npc {
                             break;
                         case 2: // Con số may mắn ngọc xanh
                             xửLýLựaChọnMiniGame_Gem(player);
+                            break;
+                        case 4: // Điểm Quy Lão: điểm sự kiện (đổi quà) + điểm đua top tặng ngọc rồng
+                            createOtherMenu(player, MENU_QL_POINT, "|7|Điểm Quy Lão\n|1|Điểm sự kiện (đổi thưởng): "
+                                    + nro.models.utils.Util.numberToMoney(player.event.getEventPoint())
+                                    + "\nĐiểm đua top tặng ngọc rồng: " + nro.models.utils.Util.numberToMoney(player.qlPoints)
+                                    + "\n|2|Đổi thưởng bằng điểm sự kiện ở Quy Lão hoặc bấm nút dưới", "Đổi\nthưởng", "Đóng");
                             break;
                         case 3: // Chọn ai đây
                             createOtherMenu(player, ConstNpc.CHON_AI_DAY, "Trò chơi Chọn Ai Đây đang được diễn ra, nếu bạn tin tưởng mình đang tràn đầy "
@@ -276,7 +291,7 @@ public class LyTieuNuong extends Npc {
                         + "Thời gian còn lại: " + time, "Cập nhập", "Thường\n1 triệu\nvàng", "VIP\n10 triệu\nvàng", "Đóng");
                 break;
             case 2:
-                createOtherMenu(player, ConstNpc.CHON_AI_DAY_NGOC, "Tổng giải thường: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemNormar) + " hồng ngọc, cơ hội trúng của bạn là: " + player.percentGem(0) + "%\nTổng giải VIP: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemVip) + " hồng ngọc, cơ hội trúng của bạn là: " + player.percentGem(1) + "%\n Thời gian còn lại: " + time, "Cập nhập", "Thường\n10 ngọc\nxanh", "VIP\n100 ngọc\nxanh", "Đóng");
+                createOtherMenu(player, ConstNpc.CHON_AI_DAY_NGOC, "Tổng giải thường: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemNormar) + " ngọc xanh, cơ hội trúng của bạn là: " + player.percentGem(0) + "%\nTổng giải VIP: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemVip) + " ngọc xanh, cơ hội trúng của bạn là: " + player.percentGem(1) + "%\n Thời gian còn lại: " + time, "Cập nhập", "Thường\n10 ngọc\nxanh", "VIP\n100 ngọc\nxanh", "Đóng");
                 break;
         }
     }
@@ -298,7 +313,7 @@ public class LyTieuNuong extends Npc {
     private void xửLýChonAiDayGem(Player player, int select, String time) {
         switch (select) {
             case 0:
-                createOtherMenu(player, ConstNpc.CHON_AI_DAY_NGOC, "Tổng giải thường: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemNormar) + " hồng ngọc, cơ hội trúng của bạn là: " + player.percentGem(0) + "%\nTổng giải VIP: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemVip) + " hồng ngọc, cơ hội trúng của bạn là: " + player.percentGem(1) + "%\n Thời gian còn lại: " + time, "Cập nhập", "Thường\n10 ngọc\nxanh", "VIP\n100 ngọc\nxanh", "Đóng");
+                createOtherMenu(player, ConstNpc.CHON_AI_DAY_NGOC, "Tổng giải thường: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemNormar) + " ngọc xanh, cơ hội trúng của bạn là: " + player.percentGem(0) + "%\nTổng giải VIP: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemVip) + " ngọc xanh, cơ hội trúng của bạn là: " + player.percentGem(1) + "%\n Thời gian còn lại: " + time, "Cập nhập", "Thường\n10 ngọc\nxanh", "VIP\n100 ngọc\nxanh", "Đóng");
                 break;
             case 1:
                 xửLýThuong10NgocXanh(player);
@@ -361,7 +376,7 @@ public class LyTieuNuong extends Npc {
                 player.gemNormar += 10;
                 ChonAiDay_Gem.gI().gemNormar += 10;
                 ChonAiDay_Gem.gI().addPlayerNormar(player);
-                createOtherMenu(player, ConstNpc.CHON_AI_DAY_NGOC, "Tổng giải thường: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemNormar) + " hồng ngọc, cơ hội trúng của bạn là: " + player.percentGem(0) + "%\nTổng giải VIP: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemVip) + " hồng ngọc, cơ hội trúng của bạn là: " + player.percentGem(1) + "%\n Thời gian còn lại: " + time, "Cập nhập", "Thường\n10 ngọc\nxanh", "VIP\n100 ngọc\nxanh", "Đóng");
+                createOtherMenu(player, ConstNpc.CHON_AI_DAY_NGOC, "Tổng giải thường: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemNormar) + " ngọc xanh, cơ hội trúng của bạn là: " + player.percentGem(0) + "%\nTổng giải VIP: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemVip) + " ngọc xanh, cơ hội trúng của bạn là: " + player.percentGem(1) + "%\n Thời gian còn lại: " + time, "Cập nhập", "Thường\n10 ngọc\nxanh", "VIP\n100 ngọc\nxanh", "Đóng");
             } else {
                 Service.gI().sendThongBao(player, "Bạn không đủ ngọc xanh");
             }
@@ -381,7 +396,7 @@ public class LyTieuNuong extends Npc {
                 player.gemVIP += 100;
                 ChonAiDay_Gem.gI().gemVip += 100;
                 ChonAiDay_Gem.gI().addPlayerVIP(player);
-                createOtherMenu(player, ConstNpc.CHON_AI_DAY_NGOC, "Tổng giải thường: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemNormar) + " hồng ngọc, cơ hội trúng của bạn là: " + player.percentGem(0) + "%\nTổng giải VIP: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemVip) + " hồng ngọc, cơ hội trúng của bạn là: " + player.percentGem(1) + "%\n Thời gian còn lại: " + time, "Cập nhập", "Thường\n10 ngọc\nxanh", "VIP\n100 ngọc\nxanh", "Đóng");
+                createOtherMenu(player, ConstNpc.CHON_AI_DAY_NGOC, "Tổng giải thường: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemNormar) + " ngọc xanh, cơ hội trúng của bạn là: " + player.percentGem(0) + "%\nTổng giải VIP: " + Util.numberToMoney(ChonAiDay_Gem.gI().gemVip) + " ngọc xanh, cơ hội trúng của bạn là: " + player.percentGem(1) + "%\n Thời gian còn lại: " + time, "Cập nhập", "Thường\n10 ngọc\nxanh", "VIP\n100 ngọc\nxanh", "Đóng");
             } else {
                 Service.gI().sendThongBao(player, "Bạn không đủ ngọc xanh");
             }

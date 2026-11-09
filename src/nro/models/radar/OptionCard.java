@@ -2,7 +2,7 @@ package nro.models.radar;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 

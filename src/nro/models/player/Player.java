@@ -74,7 +74,7 @@ import nro.models.task.BadgesTaskService;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class Player implements Runnable {
@@ -97,6 +97,7 @@ public class Player implements Runnable {
     public boolean haveTennisSpaceShip;
     public Badges badges;
     public boolean isBot;
+    public boolean kyGuiEvent; // đang mở chợ đồ sự kiện (NPC KY_GUI_SU_KIEN) thay vì cửa hàng ký gửi thường
     public PlayerEvent event;
     public boolean isCopy;
     public int point_sukien;
@@ -149,6 +150,7 @@ public class Player implements Runnable {
     public long timeChangeMap144;
     public Date firstTimeLogin;
     public long lastTimeJoinDT;
+    public int sellGoldBarId = 457; // loại thỏi vàng đang bán trong ô nhập số lượng
 
     public int typeChibi;
     public long lastTimeChibi;
@@ -251,6 +253,36 @@ public class Player implements Runnable {
     public long lastTimePKVoDaiSinhTu;
     public boolean haveRewardVDST;
     public int thoiVangVoDaiSinhTu;
+
+    // dữ liệu bảng player_extra
+    public Item itemFoot; // ô bóng bước chân (hiện ở ô cuối của trang bị)
+    public int trailEff = -1; // vệt bóng mờ đang hiện (chỉ khi chạy / bay)
+    public int trailDir = 1;
+    public long trailLastMove;
+    public Object trailZone;
+    public int footAcc; // quãng đường đã đi từ điểm bóng mờ gần nhất
+    public java.util.List<Item> itemsCollection; // Rương sưu tập (NPC Rương Sưu Tầm)
+    public boolean collectionOpen; // đang mở Rương sưu tập: thao tác rương áp lên itemsCollection
+    public int qlPoints; // điểm đua top tặng bộ ngọc rồng cho Quy Lão
+    public int congDuc; // điểm công đức sự kiện Ngũ Hành Sơn
+    public long escortUntil; // hạn nhiệm vụ hộ tống Đường Tăng
+    public int escortStep;
+    public int escortMask; // vùng Ngũ Hành Sơn đã đi qua khi hộ tống (bit 0: 123, bit 1: 124)
+    public int auraReward = -1; // aura thưởng top
+    public long auraRewardUntil;
+    public int qlRewardRank; // hạng đua top đang chờ nhận thưởng (0 = không có)
+    public int hdbaCount; // số Hộp đen bí ẩn đã mua (đua top)
+    public Object loginAnnounced; // phiên đăng nhập đã thông báo top (đăng nhập lại là phiên mới)
+    public int spl10Reward; // bit các mốc nhiệm vụ Sao pha lê 10 đã nhận
+    public int hdbaRewardRank; // hạng top mua Hộp đen bí ẩn đang chờ nhận quà
+    // điều ước Rồng Xương (Halloween): hết hạn lúc (ms)
+    public long hlwPetX3Until, hlwSelfX3Until, hlwHpUntil, hlwKiUntil, hlwDameUntil;
+    /** Pet Ma tốc độ: hết bất tử lúc này; Năng lượng E10: hết hiệu lực lúc này */
+    public long batTuUntil, e10Until;
+    private boolean e10Active;
+    /** Hạn vào Ngục tù may mắn (Phiếu sao vàng may mắn) */
+    public long luckyMapUntil;
+    private long lastLuckyMapCheck;
     public long timePKVDST;
 
     public int binhChonHatMit;
@@ -290,6 +322,8 @@ public class Player implements Runnable {
     public long timemamcay;
 
     public boolean canReward;
+    /** Con vật đang dẫn về Quy Lão: 0 Lân con, 1 Tuần Lộc, 2 Bé Na. */
+    public int escortType;
     public boolean changeMapVIP;
     public boolean haveReward;
 
@@ -426,13 +460,19 @@ public class Player implements Runnable {
     }
 
     public void start() {
-        Executors.newSingleThreadExecutor().submit(this, "Update player " + this.name);
+        nro.models.utils.Util.POOL.submit(this);
     }
 
     public void update() {
         if (!this.beforeDispose) {
             try {
                 if (this.zone != null || (!this.isPl() && this.zone == null)) {
+                    if (this.trailEff >= 0) {
+                        nro.models.services.Event2026Service.updateTrail(this);
+                    }
+                    if (this.escortUntil > 0) {
+                        nro.models.services.NguHanhSonService.updateEscort(this);
+                    }
                     if (itemTime != null) {
                         itemTime.update();
                     }
@@ -458,6 +498,15 @@ public class Player implements Runnable {
                     }
                     if (fusion != null) {
                         fusion.update();
+                    }
+                    if (isPl() && Util.canDoWithTime(lastLuckyMapCheck, 5000)) {
+                        lastLuckyMapCheck = System.currentTimeMillis();
+                        nro.models.services_func.UseItem.gI().checkLuckyMap(this);
+                        boolean e10 = e10Until > System.currentTimeMillis();
+                        if (e10 != e10Active) { // Năng lượng E10 hết hạn: tính lại chỉ số
+                            e10Active = e10;
+                            Service.gI().point(this);
+                        }
                     }
                     if (effectSkill != null) {
                         effectSkill.update();
@@ -643,7 +692,7 @@ public class Player implements Runnable {
         {870, 871, 872},
         {873, 874, 875},
         {867, 868, 869},
-        {1866, 1859, 1860}, //td btc3
+        {2170, 2173, 2174}, //td btc3: Goku Blue cầm kiếm (đầu động: array_head_2_frames 53)
         {1861, 1864, 1865}, //nm btc3
         {1856, 1859, 1860} 
     };
@@ -667,6 +716,9 @@ public class Player implements Runnable {
         },
         {
             {651, 652, 653}, {651, 652, 653}, {651, 652, 653}
+        },
+        {
+            {406, 407, 408}, {406, 407, 408}, {406, 407, 408} // củ cà rốt (Thỏ đại ca)
         }};
 
     public static final short[][] idOutfitMafuba = {
@@ -729,17 +781,35 @@ public class Player implements Runnable {
         return -1;
     }
 
-    public byte getAura() {
-        if (!isPl() || this.Cards.isEmpty()) {
+    public short getAura() {
+        if (!isPl()) {
             return -1;
         }
+        // aura thẻ radar: bật nhiều thẻ thì ưu tiên thẻ bật sau cùng (vd bật Đội trưởng Vàng rồi bật Rồng thần Namếc -> Rồng thần);
+        // vừa vào game chưa biết thứ tự bật thì ưu tiên thẻ số (no.) lớn hơn
+        short best = -1;
+        long bestKey = Long.MIN_VALUE;
         for (Card card : this.Cards) {
-            if (card != null && (card.Id == 956 || card.Id == 1792 || card.Id == 1793 || card.Id == 1791 || card.Id == 1204 || card.Id == 1142) && card.Level > 1) {
-                RadarCard radarTemplate = RadarService.gI().RADAR_TEMPLATE.stream().filter(r -> r.Id == card.Id).findFirst().orElse(null);
-                if (radarTemplate != null) {
-                    return (byte) radarTemplate.AuraId;
-                }
+            if (card == null || card.Level < 1 || card.Used != 1) {
+                continue; // chưa đạt Lv.1 hoặc chưa bấm "Sử dụng" thẻ
             }
+            int lv = RadarService.displayLevel(card);
+            short aura = RadarService.auraFor(card.Id, lv);
+            if (aura < 0) {
+                continue;
+            }
+            long key = card.usedAt * 1000 + RadarService.orderOf(card.Id);
+            if (key > bestKey) {
+                best = aura;
+                bestKey = key;
+            }
+        }
+        if (best >= 0) {
+            return best;
+        }
+        // aura thưởng đua top Quy Lão
+        if (this.auraReward >= 0 && this.auraRewardUntil > System.currentTimeMillis()) {
+            return (short) this.auraReward;
         }
         return -1;
     }
@@ -822,7 +892,7 @@ public class Player implements Runnable {
     }
 
     public short getHead() {
-        if (this.isPl() && this.pet != null && this.fusion.typeFusion == ConstPlayer.HOP_THE_GOGETA || this.fusion.typeFusion == ConstPlayer.LUONG_LONG_NHAT_THE || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2 || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3) {
+        if (this.isPl() && this.pet != null && this.fusion.typeFusion != ConstPlayer.NON_FUSION) { // trước đây thiếu ngoặc: không có đệ mà đang hợp thể thì NullPointerException
             Item item = inventory.itemsBody.get(5);
             Item petItem = pet.inventory.itemsBody.get(5);
             boolean hasItem1 = item.isNotNullItem() && (item.template.id == 1693 || item.template.id == 1553);
@@ -876,7 +946,7 @@ public class Player implements Runnable {
     }
 
     public short getBody() {
-        if (this.isPl() && this.pet != null && this.fusion.typeFusion == ConstPlayer.HOP_THE_GOGETA || this.fusion.typeFusion == ConstPlayer.LUONG_LONG_NHAT_THE || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2 || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3) {
+        if (this.isPl() && this.pet != null && this.fusion.typeFusion != ConstPlayer.NON_FUSION) { // trước đây thiếu ngoặc: không có đệ mà đang hợp thể thì NullPointerException
             Item item = inventory.itemsBody.get(5);
             Item petItem = pet.inventory.itemsBody.get(5);
 
@@ -936,7 +1006,7 @@ public class Player implements Runnable {
     }
 
     public short getLeg() {
-        if (this.isPl() && this.pet != null && this.fusion.typeFusion == ConstPlayer.HOP_THE_GOGETA || this.fusion.typeFusion == ConstPlayer.LUONG_LONG_NHAT_THE || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2 || this.fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3) {
+        if (this.isPl() && this.pet != null && this.fusion.typeFusion != ConstPlayer.NON_FUSION) { // trước đây thiếu ngoặc: không có đệ mà đang hợp thể thì NullPointerException
             Item item = inventory.itemsBody.get(5);
             Item petItem = pet.inventory.itemsBody.get(5);
 
@@ -1044,8 +1114,43 @@ public class Player implements Runnable {
         }
     }
 
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
+            // option 191 Né chí mạng: có tỉ lệ biến đòn chí mạng của người đánh thành đòn thường
+            if (plAtt != null && plAtt.nPoint != null && plAtt.nPoint.isCrit && this.nPoint != null && this.nPoint.tlNeCrit > 0
+                    && Util.isTrue(this.nPoint.tlNeCrit, 100)) {
+                damage = damage * 100 / (100 + Math.max(0, plAtt.nPoint.tlSDCM)) / 2;
+                plAtt.nPoint.isCrit = false; // hiện đòn thường thay vì chí mạng
+            }
+            if (this.nPoint != null) {
+                // option 198 / 199 / 200: giảm #% sát thương từ tộc Trái Đất / Namếc / Xayda
+                if (plAtt != null && plAtt.isPl()) {
+                    int g = plAtt.gender == 0 ? this.nPoint.giamSTTD : plAtt.gender == 1 ? this.nPoint.giamSTNM : this.nPoint.giamSTXD;
+                    if (g > 0) {
+                        damage -= damage * Math.min(90, g) / 100;
+                    }
+                }
+                // option 157: giảm #% mọi sát thương khi KI dưới 20%
+                if (this.nPoint.giamSTKhiItKi > 0 && this.nPoint.mp < this.nPoint.mpMax / 5) {
+                    damage -= damage * Math.min(90, this.nPoint.giamSTKhiItKi) / 100;
+                }
+                // option 4: hồi #% KI khi bị đánh
+                if (this.nPoint.kiHoiKhiBiDanh > 0 && damage > 0) {
+                    this.nPoint.addMp(((long) this.nPoint.mpMax * this.nPoint.kiHoiKhiBiDanh / 100));
+                }
+                // option 15: phản # sát thương khi bị đánh bằng chiêu cận chiến
+                if (this.nPoint.phanDonCanChien > 0 && plAtt != null && plAtt != this && !plAtt.isDie()
+                        && plAtt.playerSkill != null && plAtt.playerSkill.skillSelect != null) {
+                    int sk = plAtt.playerSkill.skillSelect.template.id;
+                    if (sk == Skill.DRAGON || sk == Skill.DEMON || sk == Skill.GALICK || sk == Skill.KAIOKEN || sk == Skill.LIEN_HOAN) {
+                        long hit = Math.min(this.nPoint.phanDonCanChien, Math.max(0, plAtt.nPoint.hp - 1));
+                        if (hit > 0) {
+                            plAtt.nPoint.subHP(hit);
+                            nro.models.services.PlayerService.gI().sendInfoHpMpMoney(plAtt);
+                        }
+                    }
+                }
+            }
             if (plAtt != null && !plAtt.equals(this)) {
                 setTemporaryEnemies(plAtt);
             }
@@ -1088,6 +1193,13 @@ public class Player implements Runnable {
                         }
                     }
                 }
+            }
+
+            // sát thương chuẩn: phần này không bị né, giáp % hay giáp trừ
+            long trueDamage = 0;
+            if (plAtt != null && !isMobAttack && plAtt.nPoint != null && plAtt.nPoint.tlSTChuan > 0 && damage > 0) {
+                trueDamage = damage * Math.min(plAtt.nPoint.tlSTChuan, 100) / 100;
+                damage -= trueDamage;
             }
 
             int tlGiap = this.nPoint.tlGiap;
@@ -1134,23 +1246,34 @@ public class Player implements Runnable {
                 tlGiap = 86;
             }
 
+            boolean dodged = false;
             if (Util.isTrue(tlNeDon, 100)) {
-                return 0;
+                if (trueDamage <= 0) {
+                    return 0;
+                }
+                dodged = true;
             }
             boolean hasXinbato = this.effectSkill != null && this.effectSkill.isXinbato;
-            if (hasXinbato) {
+            if (hasXinbato && !dodged) {
                 if (tlNeDonXinbato > 90) {
                     tlNeDonXinbato = 90;
                 }
                 if (Util.isTrue(tlNeDonXinbato, 100)) {
-                    return 0; // né thành công với Xinbato
+                    if (trueDamage <= 0) {
+                        return 0; // né thành công với Xinbato
+                    }
+                    dodged = true;
                 }
             }
 
-            damage -= ((damage / 100) * tlGiap);
+            if (dodged) {
+                damage = 0;
+            } else {
+                damage -= ((damage / 100) * tlGiap);
 
-            if (!piercing) {
-                damage = this.nPoint.subDameInjureWithDeff(damage);
+                if (!piercing) {
+                    damage = this.nPoint.subDameInjureWithDeff(damage);
+                }
             }
 
             boolean isUseGX = false;
@@ -1168,6 +1291,10 @@ public class Player implements Runnable {
                     damage = damage / 100 * 40;
                 }
             }
+            damage += trueDamage;
+            if (this.nPoint.isAoThuat()) {
+                damage /= 2; // Ảo Thuật: giảm 50% sát thương nhận vào
+            }
 
             if (!piercing && effectSkill.isShielding && !isMobAttack) {
                 if (this.idMark != null) {
@@ -1182,6 +1309,18 @@ public class Player implements Runnable {
                 }
             }
             damage = Math.min(damage, 2_147_483_647);
+            // Pet Ma tốc độ: HP xuống dưới 5% thì bất tử 3 giây, hồi 120 giây
+            if (this.nPoint != null && this.nPoint.hasBatTuMaTocDo()) {
+                long now = System.currentTimeMillis();
+                if (now >= this.batTuUntil && now - this.batTuUntil >= 117_000
+                        && this.nPoint.hp - damage < (long) this.nPoint.hpMax * 5 / 100) {
+                    this.batTuUntil = now + 3000;
+                    Service.gI().sendThongBao(this, "Bất tử 3 giây (Pet Ma tốc độ)");
+                }
+                if (now < this.batTuUntil && damage >= this.nPoint.hp) {
+                    damage = Math.max(0, this.nPoint.hp - 1);
+                }
+            }
             if (isMobAttack && this.charms.tdBatTu > System.currentTimeMillis() && damage >= this.nPoint.hp) {
                 damage = this.nPoint.hp - 1;
             }
@@ -1200,6 +1339,9 @@ public class Player implements Runnable {
                 this.totalDamageTaken += damage;
             }
             this.nPoint.subHP(damage);
+            if (!isDie() && damage > 0) {
+                this.nPoint.onInjured();
+            }
             if ((plAtt != null || isMobAttack) && isDie() && !isBoss && !isNewPet && !isNewPet1) {
                 if (plAtt != null && this.isPl()) {
                     //TaskService.gI().checkDoneTaskPK(plAtt);
@@ -1214,7 +1356,7 @@ public class Player implements Runnable {
                 }
             }
 
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }
@@ -1546,6 +1688,10 @@ public class Player implements Runnable {
                         PetService.Pet2(this, 1526, 1529, 1530);
                         Service.gI().point(this);
                     }
+                    case 2114 -> { // Pet Đầu Quỷ
+                        PetService.Pet2(this, 2382, 2383, 2384);
+                        Service.gI().point(this);
+                    }
                     case 1668 -> {
                         PetService.Pet2(this, 1550, 1551, 1552);
                         Service.gI().point(this);
@@ -1566,7 +1712,7 @@ public class Player implements Runnable {
                         PetService.Pet2(this, 1464, 1465, 1466);
                         Service.gI().point(this);
                     }
-                    case 1765 -> {
+                    case 1819 -> {
                         PetService.Pet2(this, 1662, 1663, 1764);
                         Service.gI().point(this);
                     }
@@ -1578,33 +1724,40 @@ public class Player implements Runnable {
                         PetService.Pet2(this, 1616, 1617, 1618);
                         Service.gI().point(this);
                     }
-                    case 1789 -> {
+                    case 1830 -> {
                         PetService.Pet2(this, 1724, 1725, 1726);
                         Service.gI().point(this);
                     }
-                    case 1766 -> {
+                    case 1818 -> {
                         PetService.Pet2(this, 1665, 1666, 1667);
                         Service.gI().point(this);
                     }
-                    case 1767 -> {
+                    case 1817 -> {
                         PetService.Pet2(this, 1668, 1669, 1670);
                         Service.gI().point(this);
                     }
-                    case 1768 -> {
+                    case 1816 -> {
                         PetService.Pet2(this, 1671, 1672, 1673);
                         Service.gI().point(this);
                     }
-                    case 1769 -> {
+                    case 1815 -> {
                         PetService.Pet2(this, 1674, 1675, 1676);
                         Service.gI().point(this);
                     }
-                    case 1770 -> {
+                    case 1814 -> {
                         PetService.Pet2(this, 1677, 1678, 1679);
                         Service.gI().point(this);
                     }
-                    case 1771 -> {
+                    case 1929 -> {
                         PetService.Pet2(this, 1680, 1681, 1682);
                         Service.gI().point(this);
+                    }
+                    default -> {
+                        // pet (type 27) lấy part đầu/thân/chân từ item_template, không cần thêm case cho từng id
+                        if (it.template.type == 27 && it.template.head >= 0 && it.template.body >= 0 && it.template.leg >= 0) {
+                            PetService.Pet2(this, it.template.head, it.template.body, it.template.leg);
+                            Service.gI().point(this);
+                        }
                     }
                 }
             }

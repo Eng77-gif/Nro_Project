@@ -9,13 +9,14 @@ import nro.models.player.Player;
 import nro.models.server.ServerNotify;
 import nro.models.services.ChatGlobalService;
 import nro.models.services.InventoryService;
+import nro.models.services.ItemService;
 import nro.models.services.Service;
 import nro.models.task.BadgesTaskService;
 import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 public class NangCapVatPham {
 
@@ -84,7 +85,7 @@ public class NangCapVatPham {
                         }
                     }
                     npcSay += "|2|Sau khi nâng cấp (+" + (level + 1) + ")\n|7|"
-                            + option.replaceAll("#", String.valueOf(param))
+                            + (option != null ? option.replaceAll("#", String.valueOf(param)) : "")
                             + "\n|7|Tỉ lệ thành công: " + player.combineNew.ratioCombine + "%\n"
                             + (player.combineNew.countDaNangCap > itemDNC.quantity ? "|7|" : "|1|")
                             + "Cần " + player.combineNew.countDaNangCap + " " + itemDNC.template.name
@@ -92,7 +93,7 @@ public class NangCapVatPham {
                             + "Cần " + Util.numberToMoney(player.combineNew.goldCombine) + " vàng";
 
                     String daNPC = player.combineNew.itemsCombine.size() == 3 && itemDBV != null ? String.format("\nCần tốn %s đá bảo vệ", player.combineNew.countDaBaoVe) : "";
-                    if ((level == 2 || level == 4 || level == 6) && !(player.combineNew.itemsCombine.size() == 3 && itemDBV != null)) {
+                    if (level >= 2 && level % 2 == 0 && !(player.combineNew.itemsCombine.size() == 3 && itemDBV != null)) { // +2, +4, ... +12 thất bại rớt cấp
                         npcSay += "\nNếu thất bại sẽ rớt xuống (+" + (level - 1) + ")";
                     }
                     if (player.combineNew.countDaNangCap > itemDNC.quantity) {
@@ -111,6 +112,9 @@ public class NangCapVatPham {
                 } else {
                     CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Trang bị của ngươi đã đạt cấp tối đa", "Đóng");
                 }
+            } else if (itemDo != null && CombineSystem.getLevelNangCap(itemDo) == 8) {
+                CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Nâng cấp " + itemDo.template.name + " từ +8 lên +9 cần "
+                        + ItemService.gI().getTemplate(CombineSystem.DA_NANG_CAP_9[itemDo.template.type]).name, "Đóng");
             } else {
                 CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Hãy chọn 1 trang bị và 1 loại đá nâng cấp", "Đóng");
             }
@@ -217,7 +221,7 @@ public class NangCapVatPham {
                             BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.THANH_DAP_DO_7, 1);
                         }
                     } else {
-                        if ((level == 2 || level == 4 || level == 6) && (player.combineNew.itemsCombine.size() != 3)) {
+                        if (level >= 2 && level % 2 == 0 && (player.combineNew.itemsCombine.size() != 3)) {
                             option.param -= (option.param * 11 / 100) < 1 ? 1 : (option.param * 11 / 100);
                             if (option2 != null) {
                                 option2.param -= (option2.param * 11 / 100) < 1 ? 1 : (option2.param * 11 / 100);

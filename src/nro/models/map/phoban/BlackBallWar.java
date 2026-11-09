@@ -3,7 +3,7 @@ package nro.models.map.phoban;
 
 
 import nro.models.utils.Functions;
-import nro.models.database.MrBlue;
+import nro.models.database.VietLoader;
 import nro.models.database.PlayerDAO;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -49,7 +49,7 @@ public class BlackBallWar implements Runnable {
     }
 
     private void start() {
-    Executors.newSingleThreadExecutor().submit(this, "Zone " + zone.zoneId);
+        nro.models.utils.Util.POOL.submit(this);
     }
 
     @Override
@@ -58,7 +58,9 @@ public class BlackBallWar implements Runnable {
             try {
                 long startTime = System.currentTimeMillis();
                 update();
-                Functions.sleep(Math.max(150 - (System.currentTimeMillis() - startTime), 10));
+                // khu không có ai thì 1 giây mới kiểm tra 1 lần (đỡ CPU cho VPS yếu)
+                int tick = zone.getPlayers().isEmpty() ? 1000 : 150;
+                Functions.sleep(Math.max(tick - (System.currentTimeMillis() - startTime), 10));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -103,12 +105,22 @@ public class BlackBallWar implements Runnable {
         }
     }
 
+    /** Hiệu ứng danh hiệu Chiến binh sao đen (data_badges.idEffect). */
+    public static final int CHIEN_BINH_SAO_DEN = 506;
+
     private synchronized void win(Player player) {
         player.zone.finishBlackBallWar = true;
         int star = player.idMark.getTempIdBlackBallHold() - 371;
         player.rewardBlackBall.reward((byte) star);
         Service.gI().sendThongBao(player, "Chúc mừng bạn đã "
                 + "dành được Ngọc rồng " + star + " sao đen cho bang");
+        // Danh hiệu "Chiến binh sao đen" (7 ngày): thắng Ngọc rồng 1 sao đen ở khu 1 vào ngày chủ nhật
+        if (star == 1 && player.zone.zoneId == 0 && java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")).getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+            nro.models.player_badges.BadgesService.giveBadge(player, CHIEN_BINH_SAO_DEN, 7);
+            Service.gI().point(player);
+            Service.gI().sendThongBao(player, "Bạn nhận được danh hiệu Chiến binh sao đen (7 ngày)");
+            nro.models.server.ServerNotify.gI().notify(player.name + " đã thắng Ngọc rồng 1 sao đen khu 1 và nhận danh hiệu Chiến binh sao đen!");
+        }
 
         if (player.clan != null) {
             player.clan.members.forEach(m -> {
@@ -116,7 +128,7 @@ public class BlackBallWar implements Runnable {
                 if (p != null) {
                     p.rewardBlackBall.reward((byte) star);
                 } else {
-                    Player pFromDb = MrBlue.loadById(m.id);
+                    Player pFromDb = VietLoader.loadById(m.id);
                     if (pFromDb != null) {
                         pFromDb.rewardBlackBall.reward((byte) star);
                         PlayerDAO.updatePlayer(pFromDb);

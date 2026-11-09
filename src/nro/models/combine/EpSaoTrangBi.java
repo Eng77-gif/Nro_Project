@@ -6,14 +6,22 @@ import nro.models.item.Item.ItemOption;
 import nro.models.player.Player;
 import nro.models.services.InventoryService;
 import nro.models.services.ItemService;
+import nro.models.services.SaoPhaLe10Service;
 import nro.models.services.Service;
 import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 public class EpSaoTrangBi {
+
+    private static String wrongStone(int slot) {
+        return switch (slot) {
+            case 10 -> "Lỗ sao pha lê thứ 10 chỉ khảm được Ngọc rồng xanh";
+            default -> "Ngọc rồng xanh chỉ khảm được vào lỗ sao pha lê thứ 10";
+        };
+    }
 
     public static void showInfoCombine(Player player) {
         if (player.combineNew.itemsCombine.size() == 2) {
@@ -37,13 +45,17 @@ public class EpSaoTrangBi {
                     }
                 }
 
-                if (starEmpty <= 9) {
+                if (starEmpty <= CombineService.MAX_STAR_ITEM) {
                     if (star >= 7 && starEmpty >= 8 && !CombineService.gI().CheckSlot(trangBi, starEmpty)) {
                         CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
                                 "Cần cường hóa lỗ sao pha lê này trước", "Đóng");
                         return;
                     }
 
+                    if (star < starEmpty && !SaoPhaLe10Service.canSocket(daPhaLe, star + 1)) {
+                        CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU, wrongStone(star + 1), "Đóng");
+                        return;
+                    }
                     player.combineNew.gemCombine = CombineSystem.getGemEpSao(star);
                     String npcSay = trangBi.template.name + "\n|2|";
                     for (ItemOption io : trangBi.itemOptions) {
@@ -52,7 +64,9 @@ public class EpSaoTrangBi {
                         }
                     }
 
-                    if (daPhaLe.template.type == 30) {
+                    if (SaoPhaLe10Service.isNgocRongXanh(daPhaLe)) {
+                        npcSay += "|7|" + SaoPhaLe10Service.describe(daPhaLe) + "\n";
+                    } else if (daPhaLe.template.type == 30) {
                         for (ItemOption io : daPhaLe.itemOptions) {
                             npcSay += "|7|" + io.getOptionString() + "\n";
                         }
@@ -65,7 +79,7 @@ public class EpSaoTrangBi {
                             "Nâng cấp\ncần " + player.combineNew.gemCombine + " ngọc");
                 } else {
                     CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                            "Cần 1 trang bị có lỗ sao pha lê và 1 loại đá pha lê để ép vào, và lỗ sao tối đa là 9", "Đóng");
+                            "Cần 1 trang bị có lỗ sao pha lê và 1 loại đá pha lê để ép vào, và lỗ sao tối đa là " + CombineService.MAX_STAR_ITEM, "Đóng");
                 }
             } else {
                 CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
@@ -123,14 +137,35 @@ public class EpSaoTrangBi {
                 return;
             }
 
+            int currentSlot = star + 1;
+            if (!SaoPhaLe10Service.canSocket(daPhaLe, currentSlot)) {
+                Service.gI().sendThongBao(player, wrongStone(currentSlot));
+                return;
+            }
+
             player.inventory.subGem(gem);
+
+            if (SaoPhaLe10Service.isNgocRongXanh(daPhaLe)) {
+                trangBi.itemOptions.addAll(SaoPhaLe10Service.rollOptions(daPhaLe));
+                if (optionStar != null) {
+                    optionStar.param += 1;
+                } else {
+                    trangBi.itemOptions.add(new ItemOption(102, 1));
+                }
+                SaoPhaLe10Service.markIfEvent(trangBi, optionStar != null ? optionStar.param : 1);
+                InventoryService.gI().subQuantityItemsBag(player, daPhaLe, 1);
+                CombineService.gI().sendEffectSuccessCombine(player);
+                InventoryService.gI().sendItemBags(player);
+                Service.gI().sendMoney(player);
+                CombineService.gI().reOpenItemCombine(player);
+                return;
+            }
 
             int optionId = CombineSystem.getOptionDaPhaLe(daPhaLe);
             int param = CombineSystem.getParamDaPhaLe(daPhaLe);
-            int currentSlot = star + 1;
             boolean shouldSplitOption;
 
-            if (currentSlot == 8 || currentSlot == 9) {
+            if (currentSlot >= 8) { // lỗ 8, 9, 10 cộng thành dòng riêng
                 shouldSplitOption = true;
             } else {
                 shouldSplitOption = false;

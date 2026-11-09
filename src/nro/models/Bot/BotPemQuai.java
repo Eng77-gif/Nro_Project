@@ -24,32 +24,24 @@ public class BotPemQuai {
     private boolean isPickingItem = false;
     private long lastSpecialSkillTime;
     private long lastChatTime = 0;
-    private final long chatInterval = 3000;
+    private final long chatInterval = 90_000;
 
     public BotPemQuai(Bot b) {
         this.bot = b;
     }
 
-    private static final String[] chatMessages = {
-        "|1|Con chó tài tỏi súc vật cali",
-        "|2|bê ka tê địt mẹ tài tỏi tung lồn",
-        "|3|arriety địt nhau với mẹ tài tỏi"
-    };
+    /** câu chat bình thường như người chơi thật (thỉnh thoảng mới chat) */
+    static final String[] chatMessages = {
+        "up sm mệt ghê", "ai đi săn boss không", "map này đông quá", "cày xong lên map khác", "đệ mình sắp đánh được Broly rồi",
+        "hôm nay sự kiện vui ghê", "có ai pt không", "lag quá ae", "sắp lên cấp rồi", "cày đua top thôi", "gg", "ae ở đâu đấy",
+        "hello mọi người", "ai bán thỏi vàng không", "săn đệ mãi chưa ra", "đi ngọc rồng sao đen không ae"};
 
     private void autoChat() {
         long now = System.currentTimeMillis();
-        if (now - lastChatTime >= chatInterval) {
-            String message;
-
-            if (new Random().nextBoolean()) {
-                message = chatMessages[new Random().nextInt(chatMessages.length)];
-            } else if (this.bot != null) {
-                message = this.bot.getChat();
-            } else {
-                return;
-            }
-
-            Service.gI().chat(this.bot, message);
+        if (now - lastChatTime >= chatInterval && Util.isTrue(15, 100)) {
+            Service.gI().chat(this.bot, chatMessages[new Random().nextInt(chatMessages.length)]);
+            lastChatTime = now;
+        } else if (now - lastChatTime >= chatInterval) {
             lastChatTime = now;
         }
     }
@@ -61,12 +53,143 @@ public class BotPemQuai {
             Logger.logException(BotPemQuai.class, e);
         }
 
+        if (attackPkTarget()) {
+            return;
+        }
+        if (this.bot.accountBot && defendNrsd()) {
+            return;
+        }
+        if (this.bot.accountBot && doanhTrai()) {
+            return;
+        }
         Attack();
-        chanGeMap();
+        if ((!this.bot.worldBot || !"NRSD".equals(this.bot.activity)) && !this.bot.stayMap) {
+            chanGeMap(); // đang đánh NRSD / Hirudegarn / Kilis / Thánh địa thì ở lại map
+        }
+        if (this.bot.accountBot || this.bot.zone == null || !nro.models.map.service.MapService.gI().isMapBlackBallWar(this.bot.zone.map.mapId)) {
+            NhatItem(); // bot giả lập không nhặt trong NRSD; tài khoản bot nhặt cả ngọc rồng sao đen như người chơi
+        }
+    }
+
+    /** Tài khoản bot trong NRSD: đánh người khác cờ ở gần (thủ / cướp ngọc rồng sao đen như người chơi thật). */
+    private boolean defendNrsd() {
+        if (this.bot.zone == null || !nro.models.map.service.MapService.gI().isMapBlackBallWar(this.bot.zone.map.mapId) || this.bot.cFlag == 0) {
+            return false;
+        }
+        nro.models.player.Player best = null;
+        int bestD = 400;
+        for (nro.models.player.Player p : this.bot.zone.getPlayers()) {
+            if (p == null || p == this.bot || p.isDie() || p.isPet || p.isBoss || p.cFlag == 0 || p.cFlag == this.bot.cFlag) {
+                continue;
+            }
+            int d = Util.getDistance(this.bot, p);
+            if (d < bestD) {
+                best = p;
+                bestD = d;
+            }
+        }
+        if (best == null) {
+            return false;
+        }
+        Skill pick = bot.pickSkill(2);
+        if (pick == null) {
+            return true;
+        }
+        bot.playerSkill.skillSelect = pick;
+        if (this.bot.UseLastTimeSkill()) {
+            PlayerService.gI().playerMove(this.bot, best.location.x + Util.nextInt(-30, 30), best.location.y);
+            SkillService.gI().useSkillAttack(bot, best, null);
+        }
         NhatItem();
+        return true;
+    }
+
+    /** Trong doanh trại: đánh hết quái, đánh boss của map, xong thì sang map tiếp theo của doanh trại; nhặt ngọc rồng rơi ra. */
+    private boolean doanhTrai() {
+        if (this.bot.zone == null || !nro.models.map.service.MapService.gI().isMapDoanhTrai(this.bot.zone.map.mapId)) {
+            return false;
+        }
+        nro.models.player.Player boss = null;
+        for (nro.models.player.Player p : this.bot.zone.getBosses()) {
+            if (p != null && !p.isDie()) {
+                boss = p;
+                break;
+            }
+        }
+        Mob alive = null;
+        for (Mob m : this.bot.zone.mobs) {
+            if (!m.isDie()) {
+                alive = m;
+                break;
+            }
+        }
+        if (alive != null) {
+            if (this.mAttack == null || this.mAttack.isDie() || this.mAttack.zone != this.bot.zone) {
+                this.mAttack = alive;
+            }
+            Attack();
+        } else if (boss != null) {
+            Skill pick = bot.pickSkill(2);
+            if (pick != null) {
+                bot.playerSkill.skillSelect = pick;
+            }
+            if (this.bot.UseLastTimeSkill()) {
+                PlayerService.gI().playerMove(this.bot, boss.location.x + Util.nextInt(-30, 30), boss.location.y);
+                SkillService.gI().useSkillAttack(bot, boss, null);
+            }
+        } else if (this.bot.clan != null && this.bot.clan.doanhTrai != null && this.bot.zone.items.isEmpty()
+                && System.currentTimeMillis() - this.lastTimeChanM > 5_000) {
+            for (nro.models.map.Zone z : this.bot.clan.doanhTrai.zones) {
+                if (z == this.bot.zone) {
+                    continue;
+                }
+                boolean left = !z.getBosses().stream().allMatch(p -> p == null || p.isDie());
+                for (Mob m : z.mobs) {
+                    left |= !m.isDie();
+                }
+                if (left) {
+                    nro.models.map.service.ChangeMapService.gI().goToMap(this.bot, z);
+                    this.bot.zone.load_Me_To_Another(this.bot);
+                    this.lastTimeChanM = System.currentTimeMillis();
+                    break;
+                }
+            }
+        }
+        NhatItem();
+        return true;
+    }
+
+    /** PK với bot khác (không đánh người chơi thật). */
+    private boolean attackPkTarget() {
+        Bot t = this.bot.pkTarget;
+        if (t == null) {
+            return false;
+        }
+        if (t.isDie() || t.zone == null || t.zone != this.bot.zone || System.currentTimeMillis() > this.bot.pkUntil) {
+            this.bot.pkTarget = null;
+            return false;
+        }
+        Skill pick = bot.pickSkill(2);
+        if (pick == null) {
+            return true;
+        }
+        bot.playerSkill.skillSelect = pick;
+        if (this.bot.UseLastTimeSkill()) {
+            PlayerService.gI().playerMove(this.bot, t.location.x + Util.nextInt(-30, 30), t.location.y);
+            SkillService.gI().useSkillAttack(bot, t, null);
+        }
+        return true;
     }
 
     public void GetMobAttack() {
+        if (this.bot.questMob >= 0 && (this.mAttack == null || this.mAttack.isDie() || this.mAttack.tempId != this.bot.questMob)) {
+            for (Mob m : this.bot.zone.mobs) {
+                if (m.tempId == this.bot.questMob && !m.isDie()) { // ưu tiên quái nhiệm vụ cần đánh
+                    this.mAttack = m;
+                    return;
+                }
+            }
+        }
         if (this.bot.zone.mobs.size() >= 1) {
             if (this.mAttack == null || this.mAttack.isDie()) {
                 mAttack = this.bot.zone.mobs.get(new Random().nextInt(this.bot.zone.mobs.size()));
@@ -80,10 +203,11 @@ public class BotPemQuai {
             return;
         }
 
-        if (!bot.playerSkill.skills.isEmpty()) {
-            Skill skill = bot.playerSkill.skills.get(new Random().nextInt(bot.playerSkill.skills.size()));
-            bot.playerSkill.skillSelect = skill;
+        Skill skill = bot.pickSkill(0);
+        if (skill == null) {
+            return; // chưa học chiêu nào
         }
+        bot.playerSkill.skillSelect = skill;
 
         long now = System.currentTimeMillis();
         boolean isSpecialSkill = false;
@@ -149,7 +273,7 @@ public class BotPemQuai {
         if (this.bot.charms != null && this.bot.charms.tdThuHut > System.currentTimeMillis()) {
             List<ItemMap> itemsToPick = new ArrayList<>();
 
-            for (ItemMap item : new ArrayList<>(this.bot.zone.items)) {
+            for (ItemMap item : this.bot.zone.getItemMapsForPlayer(this.bot)) { // như người chơi: không thấy vật phẩm nhiệm vụ của bước khác
                 if (!item.isPickedUp
                         && Util.getDistance(this.bot.location.x, this.bot.location.y, item.x, item.y) < 500) {
                     itemsToPick.add(item);
@@ -167,9 +291,7 @@ public class BotPemQuai {
 
             for (ItemMap item : itemsToPick) {
                 try {
-                    ItemMapService.gI().pickItem(bot, item.itemMapId, true);
-                    item.isPickedUp = true;
-                    this.bot.zone.items.remove(item);
+                    ItemMapService.gI().pickItem(bot, item.itemMapId, true); // tự xoá khỏi map (trừ vật phẩm nhiệm vụ cố định như em bé)
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

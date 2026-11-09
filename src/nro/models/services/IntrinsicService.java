@@ -14,7 +14,7 @@ import nro.models.server.Manager;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class IntrinsicService {

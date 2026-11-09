@@ -25,7 +25,7 @@ public class Dracula extends DeathOrAliveArena {
     public void hutMau() {
         try {
             if (Util.canDoWithTime(lastTimeHutMau, 15000) && this.nPoint.hp > this.nPoint.hpMax / 30) {
-                int hp = playerAtt.nPoint.hpMax / 10;
+                long hp = (playerAtt.nPoint.hpMax / 10);
                 playerAtt.nPoint.subHP(hp);
                 this.nPoint.addHp(hp);
                 Service.gI().Send_Info_NV(this);
@@ -68,7 +68,7 @@ public class Dracula extends DeathOrAliveArena {
         goToXY(pl.location.x, pl.location.y, isTeleport);
     }
      @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(100, 1000)) {
                 this.chat("Xí hụt");
@@ -89,7 +89,7 @@ public class Dracula extends DeathOrAliveArena {
                 die(plAtt);
             }
 
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

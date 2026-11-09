@@ -152,7 +152,7 @@ public class BotAttackplayer extends Bot {
         }
 
         boolean isMiss = false;
-        int realDame = targetPlayer.injured(this, isMiss ? 0 : damage, false, false);
+        long realDame = targetPlayer.injured(this, isMiss ? 0 : damage, false, false);
 
         Skill skill = playerSkill.skillSelect;
 
@@ -164,7 +164,7 @@ public class BotAttackplayer extends Bot {
             msg.writer().writeInt((int) targetPlayer.id);
             msg.writer().writeByte(1);
             msg.writer().writeByte(0);
-            msg.writer().writeInt(realDame);
+            msg.writeNum(realDame);
             msg.writer().writeBoolean(targetPlayer.isDie());
             msg.writer().writeBoolean(nPoint.isCrit);
             Service.gI().sendMessAllPlayerInMap(this, msg);
@@ -222,7 +222,7 @@ public class BotAttackplayer extends Bot {
             return;
         }
 
-        int damePST = (int) (dame * percentPST / 100L);
+        long damePST = dame * percentPST / 100L;
         if (damePST >= attacker.nPoint.hp) {
             damePST = attacker.nPoint.hp - 1;
         }
@@ -232,8 +232,8 @@ public class BotAttackplayer extends Bot {
             msg = new Message(56);
             msg.writer().writeInt((int) attacker.id);
             damePST = attacker.injured(attacker, damePST, true, false);
-            msg.writer().writeInt(attacker.nPoint.hp);
-            msg.writer().writeInt(damePST);
+            msg.writeNum(attacker.nPoint.hp);
+            msg.writeNum(damePST);
             msg.writer().writeBoolean(false);
             msg.writer().writeByte(36);
             Service.gI().sendMessAllPlayerInMap(attacker, msg);

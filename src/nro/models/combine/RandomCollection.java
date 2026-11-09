@@ -7,7 +7,7 @@ import java.util.TreeMap;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 public class RandomCollection<E> {
 

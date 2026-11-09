@@ -48,7 +48,7 @@ import nro.models.shop_ky_gui.ConsignShopManager;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class ServerManager {
@@ -80,6 +80,10 @@ public class ServerManager {
     }
 
     public static void main(String[] args) {
+        if (!JarSignatureCheck.verify()) {
+            System.exit(1);
+            return;
+        }
         try {
             timeStart = TimeUtil.getTimeNow("dd/MM/yyyy HH:mm:ss");
             //ShopTab.loadItem();
@@ -106,6 +110,7 @@ public class ServerManager {
         try {
             isRunning = true;
             activeServerSocket();
+            nro.models.panel.PanelServer.gI().start();
 
             // Gửi các nhiệm vụ cập nhật theo từng dịch vụ
             new Thread(NgocRongNamecService.gI(), "Update NRNM").start();
@@ -132,8 +137,17 @@ public class ServerManager {
             new Thread(TreasureUnderSeaManager.gI(), "Update treasure under sea boss").start();
             new Thread(SnakeWayManager.gI(), "Update snake way boss").start();
             new Thread(GasDestroyManager.gI(), "Update gas destroy boss").start();
+            // boss sự kiện theo mùa (trước đây các luồng này không được chạy nên boss sự kiện đứng im)
+            new Thread(nro.models.boss.Boss_Manager.LunarNewYearEventManager.gI(), "Update tet boss").start();
+            new Thread(nro.models.boss.Boss_Manager.HungVuongEventManager.gI(), "Update hung vuong boss").start();
+            new Thread(nro.models.boss.Boss_Manager.TrungThuEventManager.gI(), "Update trung thu boss").start();
+            new Thread(nro.models.boss.Boss_Manager.HalloweenEventManager.gI(), "Update halloween boss").start();
+            new Thread(nro.models.boss.Boss_Manager.ChristmasEventManager.gI(), "Update christmas boss").start();
+            new Thread(nro.models.services.SeasonEventService.gI(), "Update season event").start();
 
             new Thread(BotManager.gI(), "Thread Bot Game").start();
+            nro.models.services.DrMyuuService.gI().start(); // Dr. Myuu xuất hiện ngẫu nhiên, Baby ở Phòng thí nghiệm Myuu
+            nro.models.Bot.BotWorld.gI().start(0); // bot tự duy trì cho đỡ trống server (số lượng đổi trên web panel)
             new Thread(ChonAiDay_Gem.gI(), "Thread MiniGame").start();
             new Thread(ChonAiDay_Gold.gI(), "Thread MiniGame").start();
             new Thread(ConSoMayManGold.gI(), "ConSoMayManGoldThread").start();
@@ -195,8 +209,15 @@ public class ServerManager {
     }
 
     public void activeServerSocket() {
+        java.util.Properties cfg = new java.util.Properties();
+        try (java.io.InputStreamReader in = new java.io.InputStreamReader(new java.io.FileInputStream("Config.properties"), java.nio.charset.StandardCharsets.UTF_8)) {
+            cfg.load(in);
+        } catch (Exception ignored) {
+        }
+        boolean netty = !"false".equalsIgnoreCase(cfg.getProperty("server.netty", "true").trim());
+        nro.models.network.netty.AntiDdos.loadConfig(cfg);
         try {
-            Network.gI().init().setAcceptHandler(new ISessionAcceptHandler() {
+            ISessionAcceptHandler handler = new ISessionAcceptHandler() {
                 @Override
                 public void sessionInit(ISession is) {
                     if (!canConnectWithIp(is.getIP())) {
@@ -214,7 +235,14 @@ public class ServerManager {
                     Client.gI().kickSession((MySession) session);
                     disconnect((MySession) session);
                 }
-            }).setTypeSessioClone(MySession.class)
+            };
+            if (netty) {
+                // Netty + chống DDoS (server.netty=false trong Config.properties để quay về kiểu cũ)
+                Network.gI().setAcceptHandler(handler);
+                nro.models.network.netty.NettyNetwork.start(PORT, MySession.class);
+                return;
+            }
+            Network.gI().init().setAcceptHandler(handler).setTypeSessioClone(MySession.class)
                     .setDoSomeThingWhenClose(() -> {
                         Logger.error("SERVER CLOSE\n");
                         System.exit(0);
@@ -255,22 +283,13 @@ public class ServerManager {
     }
 
     public void resetNhanQuaHangNgay() {
-        String url = "jdbc:mysql://localhost:3306/ngocrong";
-        String username = "root";
-        String password = "";
         String resetJson = "[1,1,\"1970-01-01T00:00:00\"]";
-
-        try (Connection conn = DriverManager.getConnection(url, username, password)) {
-            String sql = "UPDATE player SET checkNhanQua = ? WHERE checkNhanQua != ?";
-            PreparedStatement statement = conn.prepareStatement(sql);
-
-            statement.setString(1, resetJson);
-            statement.setString(2, resetJson);
-
-            int rowsUpdated = statement.executeUpdate();
+        // dùng pool kết nối của server (trước đây kết nối cứng tới DB "ngocrong" nên không bao giờ reset đúng DB)
+        try {
+            int rowsUpdated = LocalManager.executeUpdate("UPDATE player SET checkNhanQua = ? WHERE checkNhanQua != ?", resetJson, resetJson);
             Logger.success("Đã reset nhận quà hằng ngày cho " + rowsUpdated + " người chơi với dữ liệu: " + resetJson);
-        } catch (SQLException e) {
-            System.err.println("Lỗi reset nhận quà hằng ngày: " + e.getMessage());
+        } catch (Exception e) {
+            Logger.logException(ServerManager.class, e, "Lỗi reset nhận quà hằng ngày");
         }
     }
 
@@ -299,8 +318,8 @@ public class ServerManager {
 
     private static void activeCommandLine() {
         Scanner sc = new Scanner(System.in);
-        while (true) {
-            String line = sc.nextLine();
+        while (sc.hasNextLine()) { // không có console (chạy nền) thì thoát thay vì ném NoSuchElementException
+            String line = sc.nextLine().trim();
             switch (line) {
                 case "bt":
                     Maintenance.gI().startSeconds(5);

@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class RewardService {
@@ -34,9 +34,89 @@ public class RewardService {
     }
 
     //========================LUCKY ROUND========================
+    /**
+     * Vòng quay đặc biệt (Trung Thu / World Cup 2026): các vật phẩm này rơi từ vòng quay ngọc,
+     * tỷ lệ vĩnh viễn x3 so với vật phẩm thường (3% thay vì 1%).
+     */
+    public static final int[] SPECIAL_WHEEL_ITEMS = {
+        2053, 2026, 2027, 2039, 2082, 2075, 2043, // Akaza (Thượng Tam), Naruto, Sasuke, Akatsuki, Beerus, Nappa Aura, Pan Trung Thu
+        2019, 2072, 2059, 2037, 2036, 2038, // Pet Kuma, Ngựa Thành Troy, Minion 2026, 3 Pet Xên
+        2054, 2061, 2030, 2041, 2058, 2044, 2031, 2060, 2017 // Bóng Mờ, Lồng Đèn, Cờ Vạn Hoa Đồng, Đại Bàng (+VIP), Ván bay WC, Cờ WC, Ván bay TT, Bóng WC
+        // Danh hiệu Phá Cổ Trung Thu (1885) chỉ nhận qua đua top Trung Thu
+    };
+    public static final int SPECIAL_WHEEL_RATE = 3; // % mỗi ô quay
+    public static final int SPECIAL_WHEEL_PERMANENT = 3; // % vĩnh viễn (x3)
+
+    public Item createSpecialWheelItem() {
+        int id = SPECIAL_WHEEL_ITEMS[Util.nextInt(0, SPECIAL_WHEEL_ITEMS.length - 1)];
+        Item it = ItemService.gI().createNewItem((short) id);
+        it.itemOptions.clear();
+        it.itemOptions.addAll(ItemService.gI().getListOptionItemShop((short) id));
+        if (!Util.isTrue(SPECIAL_WHEEL_PERMANENT, 100)) {
+            it.itemOptions.add(new Item.ItemOption(93, Util.nextInt(3, 15))); // HSD
+        }
+        it.quantity = 1;
+        return it;
+    }
+
+    /**
+     * Vòng quay Thượng Đế mùa Giỗ tổ Hùng Vương: khi sự kiện đang diễn ra, mỗi ô quay ngọc có cơ hội ra
+     * 1 trong các món dưới đây. Quay càng nhiều, tỉ lệ ra đồ vĩnh viễn càng cao (cộng dồn đến hết sự kiện).
+     */
+    public static final int[] GIO_TO_WHEEL_ITEMS = {
+        860, 1022, 1013, 1207, 1213, 1112, 1205, 1230, 1557 // Mị Nương, Búa Stormbreaker, Kiếm ánh sáng, Pet Minion, Mèo Hoàng Thượng, Cây nắp ấm, Drabura hóa băng, Hào quang rực rỡ, Hắc Mị Nương
+    };
+    public static final int GIO_TO_SEASON = 4;
+    public static final int GIO_TO_WHEEL_RATE = 5; // % mỗi ô quay
+    private static final int SPIN_COUNTER = 1; // bộ đếm số lần quay của mùa Giỗ tổ (lưu đến hết sự kiện)
+
+    /** Số lần quay vòng quay đặc biệt trong mùa Giỗ tổ hiện tại. */
+    public static int eventSpins(Player pl) {
+        return SeasonEventService.gI().getCounter(GIO_TO_SEASON, SPIN_COUNTER, pl);
+    }
+
+    private static void addSpins(Player pl, int n) {
+        SeasonEventService.gI().addCounter(GIO_TO_SEASON, SPIN_COUNTER, pl, n);
+    }
+
+    /** Tỉ lệ (%) ra đồ vĩnh viễn: 1% + 1% mỗi 20 lần quay trong mùa sự kiện, tối đa 10%. */
+    public static int gioToPermRate(Player pl) {
+        return Math.min(10, 1 + eventSpins(pl) / 20);
+    }
+
+    public static boolean gioToWheelActive() {
+        return SeasonEventService.gI().isActive(GIO_TO_SEASON);
+    }
+
+    public Item createGioToWheelItem(Player pl) {
+        int id = GIO_TO_WHEEL_ITEMS[Util.nextInt(0, GIO_TO_WHEEL_ITEMS.length - 1)];
+        Item it = ItemService.gI().createNewItem((short) id);
+        it.itemOptions.clear();
+        it.itemOptions.addAll(ItemService.gI().getListOptionItemShop((short) id));
+        if (!Util.isTrue(gioToPermRate(pl), 100)) {
+            it.itemOptions.add(new Item.ItemOption(93, Util.nextInt(3, 15))); // HSD
+        }
+        it.quantity = 1;
+        return it;
+    }
+
     public List<Item> getListItemLuckyRound(Player player, int num, boolean vip) {
         List<Item> list = new ArrayList<>();
+        boolean gioTo = vip && gioToWheelActive();
+        if (gioTo) {
+            addSpins(player, num);
+        }
         for (int i = 0; i < num; i++) {
+            if (gioTo) {
+                if (Util.isTrue(GIO_TO_WHEEL_RATE, 100)) {
+                    list.add(createGioToWheelItem(player));
+                    continue;
+                }
+            }
+            if (vip && Util.isTrue(SPECIAL_WHEEL_RATE, 100)) {
+                list.add(createSpecialWheelItem());
+                continue;
+            }
             Item it = ItemService.gI().createNewItem((short) 189); // Vàng mặc định
             it.quantity = Util.nextInt(5, 50) * 1000;
             boolean success = Util.isTrue(1, 2);
@@ -179,6 +259,24 @@ public class RewardService {
             item = ItemService.gI().createNewItem((short) 189, Util.nextInt(5, 12) * 1000);
         }
         return item;
+    }
+
+    /** Giao con vật đang dẫn cho Quy Lão: Lân con / Tuần Lộc (thú cưỡi ngẫu nhiên), Bé Na (Capsule Tết 2026). */
+    public void rewardEscort(Player player) {
+        if (player.escortType == 2) {
+            if (InventoryService.gI().getCountEmptyBag(player) <= 0) {
+                Service.gI().sendThongBao(player, "Cần 1 ô hành trang trống");
+                return;
+            }
+            player.canReward = false;
+            player.haveReward = true;
+            Item item = ItemService.gI().createNewItem((short) 758); // Capsule Tết 2026
+            InventoryService.gI().addItemBag(player, item);
+            InventoryService.gI().sendItemBags(player);
+            Service.gI().sendThongBao(player, "Bạn vừa nhận được " + item.template.name);
+            return;
+        }
+        rewardLancon(player);
     }
 
     public void rewardLancon(Player player) {

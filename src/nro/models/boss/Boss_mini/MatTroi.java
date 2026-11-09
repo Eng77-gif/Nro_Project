@@ -23,7 +23,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 public class MatTroi extends Boss {
 
@@ -36,7 +36,7 @@ public class MatTroi extends Boss {
                 ConstPlayer.TRAI_DAT,
                 new short[]{1501, 1502, 1503, -1, -1, -1},
                 10,
-                new int[]{100},
+                new long[]{100},
                 new int[]{5, 7, 0, 14},
                 new int[][]{{Skill.DRAGON, 7, 1000}},
                 new String[]{}, // Text chat 1
@@ -198,7 +198,7 @@ public class MatTroi extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             int actualDamage = 1;
             this.nPoint.subHP(actualDamage);

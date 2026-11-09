@@ -179,7 +179,7 @@ public class LanCon extends Boss {
     }
 
     @Override
-public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
     if (!this.isDie()) {
         if (!piercing && Util.isTrue(100, 1000)) {
             this.chat("Xí hụt");
@@ -200,13 +200,14 @@ public synchronized int injured(Player plAtt, long damage, boolean piercing, boo
         if (damage >= this.nPoint.hp || isPlayerChatThang(plAtt)) {
             this.changeToTypeNonPK();
             this.playerId = Math.abs(plAtt.id);
+            plAtt.escortType = 0;
             Service.gI().chat(plAtt, "Đi thôi lân con!");
             this.nPoint.hp = this.nPoint.hpMax;
             this.changeStatus(BossStatus.AFK);
             return 0;
         }
         this.nPoint.subHP(damage);
-        return (int) damage;
+        return damage;
     } else {
         return 0;
     }

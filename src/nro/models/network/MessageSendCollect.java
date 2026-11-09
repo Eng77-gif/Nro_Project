@@ -51,7 +51,7 @@ public class MessageSendCollect implements IMessageSendCollect {
     @Override
     public void doSendMessage(ISession session, DataOutputStream dos, Message msg) throws Exception {
         try {
-            byte[] data = msg.getData();
+            byte[] data = session instanceof MySession ms ? msg.getData(ms.longNumbers, ms.longNumbers && ms.typeClient == 1) : msg.getData(false);
             if (session.sentKey()) {
                 byte b = this.writeKey(session, msg.command);
                 dos.writeByte(b);
@@ -60,7 +60,7 @@ public class MessageSendCollect implements IMessageSendCollect {
             }
             if (data != null) {
                 int size = data.length;
-                if (msg.command == -32 || msg.command == -66 || msg.command == -74 || msg.command == 11 || msg.command == -67 || msg.command == -87 || msg.command == 66) {
+                if (msg.command == -32 || msg.command == -66 || msg.command == -74 || msg.command == 11 || msg.command == -67 || msg.command == -87 || msg.command == 66 || msg.command == 12) { // 12: danh sách item đầy đủ (gói lớn)
                     byte b2 = this.writeKey(session, (byte) size);
                     dos.writeByte(b2 - 128);
                     byte b3 = this.writeKey(session, (byte) (size >> 8));
@@ -68,6 +68,10 @@ public class MessageSendCollect implements IMessageSendCollect {
                     byte b4 = this.writeKey(session, (byte) (size >> 16));
                     dos.writeByte(b4 - 128);
                 } else if (session.sentKey()) {
+                    if (size > 65535) {
+                        // độ dài 2 byte bị cắt -> client đọc lệch toàn bộ gói sau
+                        System.err.println("Gói " + msg.command + " dài " + size + " byte, vượt 65535: client sẽ đọc lỗi");
+                    }
                     byte byte1 = this.writeKey(session, (byte) (size >> 8));
                     dos.writeByte(byte1);
                     byte byte2 = this.writeKey(session, (byte) (size & 0xFF));

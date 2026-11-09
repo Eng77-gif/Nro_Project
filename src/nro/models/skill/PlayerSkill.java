@@ -8,7 +8,7 @@ import nro.models.network.Message;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 

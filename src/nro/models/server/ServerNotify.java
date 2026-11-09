@@ -10,7 +10,7 @@ import nro.models.utils.Functions;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -30,7 +30,7 @@ public class ServerNotify extends Thread {
     private static ServerNotify i;
 
     private ServerNotify() {
-        this.notifies = new ArrayList<>();
+        this.notifies = java.util.Collections.synchronizedList(new ArrayList<>());
         this.start();
     }
 

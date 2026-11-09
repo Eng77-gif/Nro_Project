@@ -12,12 +12,12 @@ import nro.models.task.BadgesTaskService;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class Inventory {
 
-    public static final long LIMIT_GOLD = 200_000_000_000L;
+    public static final long LIMIT_GOLD = 999_999_999_999_999L; // client 2.4.7 hiện vàng 8 byte
     public static final int MAX_ITEMS_BAG = 80;
     public static final int MAX_ITEMS_BOX = 100;
     public Item trainArmor;
@@ -30,8 +30,8 @@ public class Inventory {
     public List<Item> itemsDaBan;
 
     public long gold;
-    public int gem;
-    public int ruby;
+    public long gem;
+    public long ruby;
     public int coupon;
     public int event;
     public Iterable<Item> items;
@@ -45,7 +45,7 @@ public class Inventory {
         giftCode = new ArrayList<>();
     }
 
-    public int getGem() {
+    public long getGem() {
         return this.gem;
     }
 
@@ -66,15 +66,15 @@ public class Inventory {
         return false;
     }
 
-    public void subGem(int num) {
+    public void subGem(long num) {
         this.gem -= num;
     }
 
-    public void subGold(int num) {
+    public void subGold(long num) {
         this.gold -= num;
     }
 
-    public void addGold(int gold) {
+    public void addGold(long gold) {
         this.gold += gold;
         if (this.gold > LIMIT_GOLD) {
             this.gold = LIMIT_GOLD;
@@ -136,7 +136,7 @@ public class Inventory {
             for (Item item : inventory) {
                 if (item != null && isPermanent(item)) {
                     int itemId = item.template.id;
-                    if (itemId >= 1765 && itemId <= 1771 && !checkedItemIds.contains(itemId)) {
+                    if (((itemId >= 1814 && itemId <= 1819) || itemId == 1929) && !checkedItemIds.contains(itemId)) {
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.ME_RONG, 1);
                         checkedItemIds.add(itemId);
                     }

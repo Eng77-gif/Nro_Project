@@ -10,7 +10,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author Mr Blue
+ * @author Việt
  */
 public class ChonAiDay_Gem implements Runnable {
 
@@ -18,8 +18,8 @@ public class ChonAiDay_Gem implements Runnable {
     public int gemVip;
     public long lastTimeEnd;
     public static final int TIME_CHONAIDAY = 300000;
-    public List<Player> PlayersNormar = new ArrayList<>();
-    public List<Player> PlayersVIP = new ArrayList<>();
+    public List<Player> PlayersNormar = new java.util.concurrent.CopyOnWriteArrayList<>();
+    public List<Player> PlayersVIP = new java.util.concurrent.CopyOnWriteArrayList<>();
     private static ChonAiDay_Gem instance;
 
     public static ChonAiDay_Gem gI() {
@@ -64,7 +64,7 @@ public class ChonAiDay_Gem implements Runnable {
                         if (listN.size() == 1) {
                             Player pl = listN.get(0);
                             if (pl != null && pl.inventory != null) {
-                                int refund = pl.gemNormar * 90 / 100;
+                                long refund = (long) pl.gemNormar * 90 / 100;
                                 pl.inventory.gem += refund;
                                 Service.gI().sendThongBao(pl, "Bạn là người duy nhất tham gia và bị hoàn lại 90% gem đã đặt (" + Util.mumberToBlue(refund) + ")");
                                 Service.gI().sendMoney(pl);
@@ -74,11 +74,11 @@ public class ChonAiDay_Gem implements Runnable {
                             Player pl = listN.get(Util.nextInt(0, numWinners - 1));
                             if (pl != null && pl.inventory != null) {
                                 String chatMessage = pl.name + " đã chiến thắng Chọn ai đây giải thưởng";
-                                int goldC = gemNormar * 80 / 100;
+                                long goldC = (long) gemNormar * 80 / 100;
                                 pl.inventory.gem += goldC;
-                                Service.gI().sendThongBao(pl, "Chúc mừng bạn đã giành chiến thắng và nhận được " + Util.mumberToBlue(goldC) + " hồng ngọc");
+                                Service.gI().sendThongBao(pl, "Chúc mừng bạn đã giành chiến thắng và nhận được " + Util.mumberToBlue(goldC) + " ngọc xanh");
                                 Service.gI().sendMoney(pl);
-                                ChatGlobalService.gI().chat(pl, chatMessage);
+                                ChatGlobalService.gI().chatVip(pl, chatMessage); // không đi qua chat người chơi (bị trừ ngọc/giới hạn)
                             }
                         }
                     }
@@ -93,7 +93,7 @@ public class ChonAiDay_Gem implements Runnable {
                         if (listN.size() == 1) {
                             Player pl = listN.get(0);
                             if (pl != null && pl.inventory != null) {
-                                int refund = pl.gemVIP * 90 / 100;
+                                long refund = (long) pl.gemVIP * 90 / 100;
                                 pl.inventory.gem += refund;
                                 Service.gI().sendThongBao(pl, "Bạn là người duy nhất tham gia và bị hoàn lại 90% gem đã đặt (" + Util.mumberToBlue(refund) + ")");
                                 Service.gI().sendMoney(pl);
@@ -103,11 +103,11 @@ public class ChonAiDay_Gem implements Runnable {
                             Player pl = listN.get(Util.nextInt(0, numWinners - 1));
                             if (pl != null && pl.inventory != null) {
                                 String chatMessage = pl.name + " đã chiến thắng Chọn Ai Đây ngọc xanh giải VIP";
-                                int goldC = gemVip * 90 / 100;
+                                long goldC = (long) gemVip * 90 / 100;
                                 pl.inventory.gem += goldC;
-                                Service.gI().sendThongBao(pl, "Chúc mừng bạn đã giành chiến thắng và nhận được " + Util.mumberToBlue(goldC) + " hồng ngọc");
+                                Service.gI().sendThongBao(pl, "Chúc mừng bạn đã giành chiến thắng và nhận được " + Util.mumberToBlue(goldC) + " ngọc xanh");
                                 Service.gI().sendMoney(pl);
-                                ChatGlobalService.gI().chat(pl, chatMessage);
+                                ChatGlobalService.gI().chatVip(pl, chatMessage); // không đi qua chat người chơi (bị trừ ngọc/giới hạn)
                             }
                         }
                     }

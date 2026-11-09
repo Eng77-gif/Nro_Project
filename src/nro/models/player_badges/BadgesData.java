@@ -4,7 +4,7 @@ import nro.models.player.Player;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -35,7 +35,6 @@ public class BadgesData {
             }
         }
         isUse = true;
-        player.dataBadges.add(this);
     }
 
     @Override

@@ -121,7 +121,7 @@ public class BossManager implements Runnable {
     }
 
     public BossManager() {
-        this.bosses = new ArrayList<>();
+        this.bosses = new java.util.concurrent.CopyOnWriteArrayList<>();
     }
 
     protected final List<Boss> bosses;
@@ -160,6 +160,7 @@ public class BossManager implements Runnable {
         this.createBoss(BossID.AN_TROM, 5);
         this.createBoss(BossID.O_DO1, 5);
         this.createBoss(BossID.BABY, 2);
+        this.createBoss(BossID.BROLY_SUPER, 1);
         this.createBoss(BossID.MAT_TROI, 20);
 
     }
@@ -175,6 +176,8 @@ public class BossManager implements Runnable {
             return switch (bossID) {               
                 case BossID.BROLY ->
                     new Broly();
+                case BossID.BROLY_SUPER ->
+                    new nro.models.boss.Broly.BrolySuper();
                 case BossID.TAP_SU_0 ->
                     new TAPSU0();
                 case BossID.TAP_SU_1 ->
@@ -331,6 +334,8 @@ public class BossManager implements Runnable {
                     new DeathBeam5();
                 case BossID.BIMA ->
                     new BiMa();
+                case BossID.BOXUONG ->
+                    new nro.models.boss.event.Halloween.BoXuong();
                 case BossID.MATROI ->
                     new MaTroi();
                 case BossID.DOI ->
@@ -341,8 +346,22 @@ public class BossManager implements Runnable {
                     new SonTinh();
                 case BossID.THUY_TINH ->
                     new ThuyTinh();
+                case BossID.THO_DAI_CA ->
+                    new nro.models.boss.event.TrungThu.ThoDaiCa();
+                case BossID.MEOWTH ->
+                    new nro.models.boss.event.TrungThu.Meowth();
+                case -390, -391, -392, -393, -394, -395, -396 ->
+                    new nro.models.boss.event.HungVuong.RongNhi(BossID.RONG_NHI_1_SAO - bossID + 1);
+                case BossID.TUAN_LOC ->
+                    new nro.models.boss.event_tet.TuanLoc();
+                case BossID.BE_NA ->
+                    new nro.models.boss.event_tet.BeNa();
                 case BossID.LAN_CON ->
                     new LanCon();
+                case BossID.NGUA_DO, BossID.NGUA_BE, BossID.NGUA_TRANG ->
+                    new nro.models.boss.event_tet.NguaCon(bossID, nro.models.boss.event_tet.NguaCon.data(bossID));
+                case BossID.ZOMBIE ->
+                    new nro.models.boss.event.Halloween.Zombie();
                 case BossID.SOI_HEC_QUYN1 ->
                     new SoiHecQuyn();
                 case BossID.O_DO1 ->

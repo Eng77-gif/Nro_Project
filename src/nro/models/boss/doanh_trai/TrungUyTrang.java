@@ -29,7 +29,7 @@ public class TrungUyTrang extends Boss {
                 ConstPlayer.TRAI_DAT, //gender
                 new short[]{141, 142, 143, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
                 (dame), //dame
-                new int[]{(hp)}, //hp
+                new long[]{(hp)}, //hp
                 new int[]{59}, //map join
                 new int[][]{
                     {Skill.DEMON, 3, 1}, {Skill.DEMON, 6, 2}, {Skill.DRAGON, 7, 3}, {Skill.DRAGON, 1, 4}, {Skill.GALICK, 5, 5},
@@ -50,9 +50,7 @@ public class TrungUyTrang extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         if (Util.isTrue(50, 100)) {
             ItemMap it = new ItemMap(this.zone, 17, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x,
                     this.location.y - 24), plKill.id);
@@ -62,7 +60,7 @@ public class TrungUyTrang extends Boss {
         // 100% rơi item 1824
         ItemMap it = new ItemMap(
                 this.zone,
-                1824,
+                1935,
                 1,
                 this.location.x,
                 this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24),
@@ -132,7 +130,7 @@ public class TrungUyTrang extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie() && !this.zone.isbulon1Alive && !this.zone.isbulon2Alive) {
             if (!piercing && Util.isTrue(20, 100)) {
                 this.chat("Xí hụt");
@@ -150,7 +148,7 @@ public class TrungUyTrang extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

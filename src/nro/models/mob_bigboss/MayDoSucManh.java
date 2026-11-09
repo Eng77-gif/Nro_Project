@@ -18,7 +18,7 @@ import nro.models.utils.Util;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  */
 public class MayDoSucManh extends BigBoss {
 
@@ -49,6 +49,7 @@ public class MayDoSucManh extends BigBoss {
             return;
         }
 
+        faceTo(plAtt);
         long hpBefore = this.point.hp;
         super.injured(plAtt, damage, dieWhenHpFull);
         long hpAfter = Math.max(this.point.hp, 0);
@@ -56,6 +57,35 @@ public class MayDoSucManh extends BigBoss {
 
         if (realDamage > 0) {
             updateMilestone(plAtt, realDamage);
+        }
+    }
+
+    private int dir = 1;
+
+    /**
+     * Máy đứng yên một chỗ; bị đấm từ phía bên kia thì quay mặt về người đấm: gửi lệnh đi (102, hành động 10) lệch 1 px về phía
+     * người đấm, client quay mặt theo hướng đi nhưng máy gần như không di chuyển.
+     */
+    private void faceTo(Player pl) {
+        int want = pl.location.x < this.location.x ? -1 : 1;
+        if (want == dir || this.zone == null) {
+            return;
+        }
+        dir = want;
+        this.location.x += want;
+        Message msg = null;
+        try {
+            msg = new Message(102);
+            msg.writer().writeByte(10);
+            msg.writer().writeByte(this.id);
+            msg.writer().writeShort(this.location.x);
+            msg.writer().writeShort(this.location.y);
+            Service.gI().sendMessAllPlayerInMap(this.zone, msg);
+        } catch (Exception ignored) {
+        } finally {
+            if (msg != null) {
+                msg.cleanup();
+            }
         }
     }
 

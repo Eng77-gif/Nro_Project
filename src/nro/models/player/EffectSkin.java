@@ -17,7 +17,7 @@ import nro.models.skill.Skill;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class EffectSkin {
@@ -90,6 +90,10 @@ public class EffectSkin {
             updateXenHutXungQuanh();
             updateTanHinh();
             updateHoaDa();
+            updateSocolaXq();
+            updateZombieXq();
+            updateHoiDongBang();
+            updateNearSets();
             updateLamCham();
             updateXChuong();
 //            updateHalloween();
@@ -171,7 +175,7 @@ public class EffectSkin {
                         for (Mob mob : this.player.zone.mobs) {
                             if (mob.point.gethp() > 1) {
                                 if (Util.getDistance(this.player, mob) <= 200) {
-                                    int subHp = mob.point.getHpFull() * param / 100;
+                                    long subHp = mob.point.getHpFull() * param / 100;
                                     if (subHp >= mob.point.gethp()) {
                                         subHp = mob.point.gethp() - 1;
                                     }
@@ -181,13 +185,13 @@ public class EffectSkin {
                             }
                         }
                         for (Player pl : players) {
-                            int subHp = (int) ((long) pl.nPoint.hpMax * param / 100);
-                            int subMp = (int) ((long) pl.nPoint.mpMax * param / 100);
+                            long subHp = pl.nPoint.hpMax * param / 100;
+                            long subMp = pl.nPoint.mpMax * param / 100;
                             if (subHp >= pl.nPoint.hp) {
-                                subHp = pl.nPoint.hp - 1;
+                                subHp = (pl.nPoint.hp - 1);
                             }
                             if (subMp >= pl.nPoint.mp) {
-                                subMp = pl.nPoint.mp - 1;
+                                subMp = (pl.nPoint.mp - 1);
                             }
                             hpHut += subHp;
                             mpHut += subMp;
@@ -217,11 +221,11 @@ public class EffectSkin {
                         List<Player> playersMap = this.player.zone.getNotBosses();
                         for (int i = playersMap.size() - 1; i >= 0; i--) {
                             Player pl = playersMap.get(i);
-                            if (pl != null && pl.nPoint != null && !this.player.equals(pl) && !pl.isBoss && !pl.isDie()
+                            if (pl != null && pl.nPoint != null && !this.player.equals(pl) && !pl.isBoss && !pl.isDie() && !pl.nPoint.isChongNLX
                                     && Util.getDistance(this.player, pl) <= 200) {
-                                int subHp = (int) ((long) pl.nPoint.hpMax * param / 100);
+                                long subHp = pl.nPoint.hpMax * param / 100;
                                 if (subHp >= pl.nPoint.hp) {
-                                    subHp = pl.nPoint.hp - 1;
+                                    subHp = (pl.nPoint.hp - 1);
                                 }
                                 Service.gI().chat(pl, textOdo[Util.nextInt(0, textOdo.length - 1)]);
                                 PlayerService.gI().sendInfoHpMpMoney(pl);
@@ -367,6 +371,86 @@ public class EffectSkin {
         }
     }
 
+    private long lastTimeSocolaXq, lastTimeNearSets;
+
+    /** option 29 / 186: biến sôcôla (kẹo) người xung quanh mỗi 30 giây, mỗi lần 5 giây. */
+    private void updateSocolaXq() {
+        try {
+            if (this.player.nPoint != null && this.player.nPoint.isSocolaXq && Util.canDoWithTime(lastTimeSocolaXq, 30000)) {
+                List<Player> playersMap = this.player.zone.getNotBosses();
+                for (int i = playersMap.size() - 1; i >= 0; i--) {
+                    Player pl = playersMap.get(i);
+                    if (pl != null && pl.nPoint != null && !this.player.equals(pl) && !pl.isBoss && !pl.isDie()
+                            && !pl.effectSkill.isSocola && Util.getDistance(this.player, pl) <= 200) {
+                        EffectSkillService.gI().setSocola(pl, System.currentTimeMillis(), 5000);
+                        Service.gI().Send_Caitrang(pl);
+                        nro.models.services.ItemTimeService.gI().sendItemTime(pl, 4133, 5);
+                    }
+                }
+                this.lastTimeSocolaXq = System.currentTimeMillis();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private long lastTimeZombieXq, lastTimeHoiDongBang;
+
+    /** option 262 / 263: biến người xung quanh (200px) thành Zombi / Bí Ngô mỗi 30 giây, mỗi lần 5 giây. */
+    private void updateZombieXq() {
+        try {
+            if (this.player.nPoint != null && this.player.nPoint.halloweenXq >= 0 && Util.canDoWithTime(lastTimeZombieXq, 30000)) {
+                List<Player> playersMap = this.player.zone.getNotBosses();
+                for (int i = playersMap.size() - 1; i >= 0; i--) {
+                    Player pl = playersMap.get(i);
+                    if (pl != null && pl.nPoint != null && pl.effectSkill != null && !this.player.equals(pl) && !pl.isBoss && !pl.isDie()
+                            && !pl.effectSkill.isHalloween && Util.getDistance(this.player, pl) <= 200) {
+                        EffectSkillService.gI().setIsHalloween(pl, this.player.nPoint.halloweenXq, 5000);
+                    }
+                }
+                this.lastTimeZombieXq = System.currentTimeMillis();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** option 221: phục hồi #% HP và KI mỗi 30 giây cho bản thân và người cùng bang trong khu. */
+    private void updateHoiDongBang() {
+        try {
+            int tl = this.player.nPoint == null ? 0 : this.player.nPoint.tlHoiDongBang;
+            if (tl > 0 && !this.player.isPet && Util.canDoWithTime(lastTimeHoiDongBang, 30000)) {
+                this.lastTimeHoiDongBang = System.currentTimeMillis();
+                for (Player pl : new java.util.ArrayList<>(this.player.zone.getNotBosses())) {
+                    boolean dongBang = pl == this.player || (this.player.clan != null && pl.clan != null && pl.clan.id == this.player.clan.id && !pl.isPet);
+                    if (pl != null && pl.nPoint != null && dongBang && !pl.isDie()) {
+                        long hp = (long) pl.nPoint.hpMax * tl / 100, mp = (long) pl.nPoint.mpMax * tl / 100;
+                        pl.nPoint.addHp((hp));
+                        pl.nPoint.addMp((mp));
+                        PlayerService.gI().sendInfoHpMp(pl);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** Hiệu ứng "ở gần cải trang khác loại": cập nhật mỗi 3 giây, đổi thì tính lại chỉ số. */
+    private void updateNearSets() {
+        try {
+            if (this.player.nPoint != null && !this.player.isPet && !this.player.isBoss && Util.canDoWithTime(lastTimeNearSets, 3000)) {
+                this.lastTimeNearSets = System.currentTimeMillis();
+                if (this.player.nPoint.updateNearSets()) {
+                    this.player.nPoint.calPoint();
+                    Service.gI().point(this.player);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void updateLamCham() {
         try {
             if (this.player.nPoint != null && this.player.nPoint.isLamCham) {
@@ -408,9 +492,9 @@ public class EffectSkin {
             if (this.player.effectSkill != null && this.player.effectSkill.isBinh && this.player.effectSkill.playerUseMafuba != null) {
                 if (Util.canDoWithTime(lastTimeMaPhongBa, 500) && this.player.effectSkill.playerUseMafuba.playerSkill != null) {
                     double param = this.player.effectSkill.playerUseMafuba.playerSkill.getSkillbyId(Skill.MA_PHONG_BA).point * (this.player.effectSkill.typeBinh == 0 ? 1 : 2);
-                    int subHp = (int) ((long) this.player.effectSkill.playerUseMafuba.nPoint.hpMax * param / 100);
+                    long subHp = (long) (this.player.effectSkill.playerUseMafuba.nPoint.hpMax * param / 100);
                     if (subHp >= this.player.nPoint.hp) {
-                        subHp = Math.abs(this.player.nPoint.hp - 100);
+                        subHp = (Math.abs(this.player.nPoint.hp - 100));
                     }
                     PlayerService.gI().sendInfoHpMpMoney(this.player);
                     Service.gI().Send_Info_NV(this.player);

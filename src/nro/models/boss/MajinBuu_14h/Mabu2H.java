@@ -117,21 +117,19 @@ public class Mabu2H extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(10, 100)) {
                 this.chat("Xí hụt");
                 return 0;
             }
 
-            if (plAtt.isPl() && Util.isTrue(1, 5)) {
+            if (plAtt != null && plAtt.isPl() && Util.isTrue(1, 5)) {
                 plAtt.fightMabu.changePercentPoint((byte) 1);
             }
             if (this.currentLevel == this.data.length - 1) {
@@ -155,7 +153,7 @@ public class Mabu2H extends Boss {
                 die(plAtt);
             }
 
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

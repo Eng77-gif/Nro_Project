@@ -8,7 +8,7 @@ import nro.models.task.BadgesTaskTemplate;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -51,6 +51,16 @@ public class BadgesTaskService {
                 break;
             }
         }
+    }
+
+    /** Danh hiệu này có nhiệm vụ mở khóa (task_badges_template) không. */
+    public static boolean hasTask(int idBadgesReward) {
+        for (BadgesTaskTemplate t : Manager.TASKS_BADGES_TEMPLATE) {
+            if (t.idbadgesReward == idBadgesReward) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static int sendPercenBadgesTask(Player player, int idBadgesReward) {

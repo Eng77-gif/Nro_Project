@@ -1,6 +1,7 @@
 package nro.models.npc;
 
 import nro.models.npc_list.Whis;
+import nro.models.npc_list.RuongSuuTam;
 import nro.models.npc_list.LinhCanh;
 import nro.models.npc_list.Bulma;
 import nro.models.npc_list.Cargo;
@@ -119,7 +120,7 @@ public class NpcFactory {
                     new TruongLaoGuru(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.VUA_VEGETA ->
                     new VuaVegeta(mapId, status, cx, cy, tempId, avatar);
-                case ConstNpc.CUA_HANG_KY_GUI ->
+                case ConstNpc.CUA_HANG_KY_GUI, ConstNpc.KY_GUI_SU_KIEN ->
                     new KyGui(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.ONG_GOHAN ->
                     new OngGohan(mapId, status, cx, cy, tempId, avatar);
@@ -147,6 +148,8 @@ public class NpcFactory {
                     new BaHatMit(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.RUONG_DO ->
                     new RuongDo(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.RUONG_SUU_TAM ->
+                    new RuongSuuTam(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.DR_MYUU ->
                     new DrMyuu(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.DAU_THAN ->
@@ -171,6 +174,10 @@ public class NpcFactory {
                     new Babiday(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.LY_TIEU_NUONG ->
                     new LyTieuNuong(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.DUONG_TANG ->
+                    new nro.models.npc_list.DuongTang(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.NGO_KHONG ->
+                    new nro.models.npc_list.NgoKhong(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.LINH_CANH ->
                     new LinhCanh(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.QUA_TRUNG ->
@@ -227,8 +234,23 @@ public class NpcFactory {
                     new NoiBanh(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.XE_NUOC_MIA ->
                     new XeNuocMia(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.HOA_HONG ->
+                    new nro.models.event.HoaHong(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.BARDOCK ->
                     new Bardock(mapId, status, cx, cy, tempId, avatar);
+                case 71 -> // Berry: nhiệm vụ Bardock "Tìm kiếm Berry đi lạc"
+                    new Npc(mapId, status, cx, cy, tempId, avatar) {
+                        @Override
+                        public void openBaseMenu(Player player) {
+                            if (canOpenNpc(player) && !nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+                                super.openBaseMenu(player);
+                            }
+                        }
+
+                        @Override
+                        public void confirmMenu(Player player, int select) {
+                        }
+                    };
                 default ->
                     new Npc(mapId, status, cx, cy, tempId, avatar) {
                         @Override
@@ -256,6 +278,9 @@ public class NpcFactory {
         new Npc(-1, -1, -1, -1, ConstNpc.RONG_THIENG, -1) {
             @Override
             public void confirmMenu(Player player, int select) {
+                if (nro.models.services.shenron.RongXuong.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
+                    return;
+                }
                 switch (player.idMark.getIndexMenu()) {
                     case ConstNpc.IGNORE_MENU:
                         break;
@@ -317,6 +342,12 @@ public class NpcFactory {
         new Npc(-1, -1, -1, -1, ConstNpc.CON_MEO, 351) {
             @Override
             public void confirmMenu(Player player, int select) {
+                if (nro.models.services_func.AdminTools.gI().confirmMenu(player, player.idMark.getIndexMenu(), select)) {
+                    return;
+                }
+                if (nro.models.services.shenron.RongXuong.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
+                    return;
+                }
                 switch (player.idMark.getIndexMenu()) {
                     case ConstNpc.IGNORE_MENU -> {
                         // Không làm gì
@@ -358,6 +389,12 @@ public class NpcFactory {
                                 Service.gI().sendThongBao(player, "Lựa chọn không hợp lệ.");
                         }
                     }
+                    case nro.models.services.CapsuleVoService.MANH_CAPSULE_VO, nro.models.services.CapsuleVoService.PHIEU_DOI_CAPSULE ->
+                        nro.models.services.CapsuleVoService.gI().confirm(player, player.idMark.getIndexMenu(), select);
+                    case nro.models.services.SaoPhaLe10Service.HOP_DA_9, nro.models.services.SaoPhaLe10Service.HOP_NRX ->
+                        nro.models.services.SaoPhaLe10Service.gI().openBox(player, player.idMark.getIndexMenu(), select);
+                    case nro.models.services.Event2026Service.SKH_BEERUS_BOX ->
+                        nro.models.services.Event2026Service.gI().openSkhBeerusBox(player, select);
                     case ConstNpc.CAPSULE_KICH_HOAT -> {
                         try {
                             switch (select) {
@@ -509,19 +546,14 @@ public class NpcFactory {
                                 Input.gI().createFormFindPlayer(player);
                             case 4 ->
                                 BossManager.gI().showListBoss(player);
+                            case 5 ->
+                                nro.models.services_func.AdminTools.gI().showMain(player);
                         }
                     }
                     case ConstNpc.CONFIRM_DISSOLUTION_CLAN -> {
                         switch (select) {
                             case 0 -> {
-                                Clan clan = player.clan;
-                                clan.deleteDB(clan.id);
-                                Manager.CLANS.remove(clan);
-                                player.clan = null;
-                                player.clanMember = null;
-                                ClanService.gI().sendMyClan(player);
-                                ClanService.gI().sendClanId(player);
-                                Service.gI().sendThongBao(player, "Đã giải tán bang hội.");
+                                ClanService.gI().dissolveClan(player);
                             }
 
                         }
@@ -533,6 +565,13 @@ public class NpcFactory {
                                 var bb = ItemService.gI().getTemplate(player.LearnSkill.ItemTemplateSkillId);
                                 String[] subName = bb.name.split("");
                                 byte level = Byte.parseByte(subName[subName.length - 1]);
+                                if (player.LearnSkill.Time != -1 || level < 1 || level > time.length) {
+                                    break; // đã xác nhận rồi hoặc dữ liệu không hợp lệ
+                                }
+                                if (player.nPoint.tiemNang < player.LearnSkill.Potential) {
+                                    Service.gI().sendThongBao(player, "Bạn không đủ tiềm năng để học chiêu thức này");
+                                    break;
+                                }
                                 player.LearnSkill.Time = time[level - 1] + System.currentTimeMillis();
                                 player.nPoint.tiemNang -= player.LearnSkill.Potential;
                                 Service.gI().point(player);
@@ -688,7 +727,7 @@ public class NpcFactory {
                     }
                     case ConstNpc.UP_TOP_ITEM -> {
                         if (select == 0) {
-                            if (player.inventory.gem >= 50 && player.idMark.getIdItemUpTop() != -1) {
+                            if (player.inventory.gem >= 5 && player.idMark.getIdItemUpTop() != -1) {
                                 nro.models.shop_ky_gui.ConsignItem it = ConsignShopService.gI().getItemBuy(player.idMark.getIdItemUpTop());
                                 if (it == null || it.isBuy) {
                                     Service.gI().sendThongBao(player, "Vật phẩm không tồn tại hoặc đã được bán");
@@ -702,7 +741,9 @@ public class NpcFactory {
                                 player.inventory.gem -= 5;
                                 Service.gI().sendMoney(player);
                                 Service.gI().sendThongBao(player, "Thành công");
-                                it.isUpTop += 1;
+                                it.isUpTop = 1; // byte: cộng dồn sẽ tràn âm và tụt xuống cuối
+                                player.idMark.setIdItemUpTop(-1);
+                                nro.models.shop_ky_gui.ConsignShopManager.gI().save();
                                 ConsignShopService.gI().openShopKyGui(player);
                             } else {
                                 Service.gI().sendThongBao(player, "Bạn không đủ ngọc");

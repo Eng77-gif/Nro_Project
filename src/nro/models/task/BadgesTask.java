@@ -6,7 +6,7 @@ import nro.models.task.ClanTaskTemplate;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 

@@ -39,9 +39,7 @@ public class GoldenFrieza extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         ItemMap CaiTrangFideVang = new ItemMap(zone, 629,1, this.location.x + Util.nextInt(-50, 50), this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id);
         CaiTrangFideVang.options.add(new Item.ItemOption(30, 1));
         CaiTrangFideVang.options.add(new Item.ItemOption(50, 20));
@@ -57,7 +55,7 @@ public class GoldenFrieza extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (this.isDie()) return 0;
 
         if (!piercing && Util.isTrue(this.nPoint.tlNeDon, 1000)) {
@@ -82,7 +80,7 @@ public class GoldenFrieza extends Boss {
             die(plAtt);
         }
 
-        return (int) damage;
+        return damage;
     }
 
     @Override

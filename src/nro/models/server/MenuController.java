@@ -12,7 +12,7 @@ import nro.models.services_func.TransactionService;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  * 
  */
 
@@ -34,6 +34,14 @@ public class MenuController {
             npc = NpcManager.getNpc(ConstNpc.CALICK);
         } else if (idnpc == ConstNpc.LY_TIEU_NUONG) {
             npc = NpcManager.getNpc(ConstNpc.LY_TIEU_NUONG);
+            if (npc == null) { // "Menu game" (Chức năng) mở được ở mọi map kể cả khi không đặt NPC Lý Tiểu Nương trên map nào
+                synchronized (MenuController.class) {
+                    npc = NpcManager.getNpc(ConstNpc.LY_TIEU_NUONG);
+                    if (npc == null) {
+                        npc = new nro.models.npc_list.LyTieuNuong(-1, -1, -1, -1, ConstNpc.LY_TIEU_NUONG, -1);
+                    }
+                }
+            }
         } else {
             npc = player.zone.map.getNpc(player, idnpc);
         }
@@ -59,6 +67,9 @@ public class MenuController {
                     npc = player.zone.map.getNpc(player, npcId);
                 }
                 if (npc != null) {
+                    if (nro.models.services.SeasonEventService.gI().npcSelect(npc, player, select)) {
+                        return;
+                    }
                     npc.confirmMenu(player, select);
                 } else {
                     Service.gI().hideWaitDialog(player);

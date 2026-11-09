@@ -33,7 +33,7 @@ public class Cumber extends Boss {
         int x = this.location.x;
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
         int drop = 190;
-        int quantity = Util.nextInt(20000, 30000);
+        int quantity = 0; // vàng theo độ mạnh boss: BossRewardService
         if (Util.isTrue(5 , 100)) {
         ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
         if (it != null) {
@@ -42,7 +42,7 @@ public class Cumber extends Boss {
         }
         ItemMap itemMap = new ItemMap(this.zone, drop, quantity, x, y, plKill.id);
         Item item = ItemService.gI().createNewItem((short) drop);
-        Service.gI().dropItemMap(zone, itemMap);
+        // (vàng rơi theo độ mạnh boss ở BossRewardService)
         if (Util.isTrue(5, 100)) {
             int group = Util.nextInt(1, 100) <= 70 ? 0 : 1;
 
@@ -76,12 +76,10 @@ public class Cumber extends Boss {
             Service.gI().dropItemMap(zone, optionalItemMap);
         }
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
     }
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(this.nPoint.tlNeDon, 1000)) {
                 this.chat("Xí hụt");
@@ -102,7 +100,7 @@ public class Cumber extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

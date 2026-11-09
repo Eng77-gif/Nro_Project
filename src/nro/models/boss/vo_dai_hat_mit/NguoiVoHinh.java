@@ -54,7 +54,7 @@ public class NguoiVoHinh extends DeathOrAliveArena {
         goToXY(pl.location.x, pl.location.y, isTeleport);
     }
      @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(100, 1000)) {
                 this.chat("Xí hụt");
@@ -75,7 +75,7 @@ public class NguoiVoHinh extends DeathOrAliveArena {
                 die(plAtt);
             }
 
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

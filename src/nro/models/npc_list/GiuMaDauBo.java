@@ -18,7 +18,7 @@ import org.json.simple.JSONArray;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class GiuMaDauBo extends Npc {

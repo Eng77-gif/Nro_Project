@@ -213,6 +213,10 @@ public class Boss extends Player implements IBoss {
         this.resetBase();
     }
 
+    /** chiêu khống chế người chơi: boss không được dùng */
+    public static final java.util.Set<Integer> CONTROL_SKILLS = java.util.Set.of((int) Skill.THOI_MIEN, (int) Skill.DICH_CHUYEN_TUC_THOI,
+            (int) Skill.TROI, (int) Skill.SOCOLA, (int) Skill.THAI_DUONG_HA_SAN, (int) Skill.MA_PHONG_BA);
+
     protected void initSkill() {
         for (Skill skill : this.playerSkill.skills) {
             skill.dispose();
@@ -221,11 +225,17 @@ public class Boss extends Player implements IBoss {
         this.playerSkill.skillSelect = null;
         int[][] skillTemps = data[this.currentLevel].getSkillTemp();
         for (int[] skillTemp : skillTemps) {
+            if (CONTROL_SKILLS.contains(skillTemp[0])) {
+                continue; // boss không dùng chiêu khống chế (thôi miên, dịch chuyển tức thời, trói, socola, thái dương hạ san, ma phong ba)
+            }
             Skill skill = SkillUtil.createSkill(skillTemp[0], skillTemp[1]);
             if (skillTemp.length == 3) {
                 skill.coolDown = skillTemp[2];
             }
             this.playerSkill.skills.add(skill);
+        }
+        if (this.playerSkill.skills.isEmpty()) { // chỉ có chiêu khống chế (vd Ăn Trộm): cho 1 chiêu đánh thường
+            this.playerSkill.skills.add(SkillUtil.createSkill(Skill.DRAGON, 1));
         }
     }
 
@@ -279,8 +289,8 @@ public class Boss extends Player implements IBoss {
     }
 
     @Override
-    public byte getAura() {
-        return (byte) this.data[this.currentLevel].getOutfit()[4];
+    public short getAura() {
+        return this.data[this.currentLevel].getOutfit()[4];
     }
 
     @Override
@@ -628,14 +638,26 @@ public class Boss extends Player implements IBoss {
         return 500;
     }
 
+    /** Lệnh admin: hạ boss ngay, tính như plKill đánh chết (nhận thưởng). */
+    public void adminKill(Player plKill) {
+        this.nPoint.hp = 0;
+        this.setDie(plKill);
+        this.die(plKill);
+    }
+
     @Override
     public void die(Player plKill) {
+        if (plKill != null && nro.models.Bot.BotWorld.counts(plKill)) {
+            nro.models.services.SeasonEventService.gI().onBossKilled(this, plKill);
+            nro.models.services.SaoPhaLe10Service.gI().onBossKilled(this, plKill);
+            nro.models.services.BossRewardService.gI().reward(this, plKill); // vàng, điểm, quà theo độ mạnh boss
+        }
 
         if (plKill != null
                 && (this.zone.map.mapId != 140 || !MapService.gI().isMapMaBu(this.zone.map.mapId)
                 || !MapService.gI().isMapDoanhTrai(this.zone.map.mapId)
                 || !MapService.gI().isMapBanDoKhoBau(this.zone.map.mapId))) {
-            if (!plKill.isBot) {
+            if (nro.models.Bot.BotWorld.counts(plKill)) {
                 reward(plKill);
             }
             ServerNotify.gI().notify(plKill.name + ": Đã tiêu diệt được " + this.name + " mọi người đều ngưỡng mộ.");
@@ -695,7 +717,7 @@ public class Boss extends Player implements IBoss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(this.nPoint.tlNeDon, 1000)) {
                 this.chat("Xí hụt");
@@ -712,7 +734,7 @@ public class Boss extends Player implements IBoss {
                 die(plAtt);
             }
 
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

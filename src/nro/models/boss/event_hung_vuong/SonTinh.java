@@ -35,9 +35,7 @@ public class SonTinh extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         this.parentBoss.playerReward = plKill;
         this.parentBoss.changeStatus(BossStatus.AFK);
     }
@@ -45,18 +43,18 @@ public class SonTinh extends Boss {
     @Override
     public void afk() {
         if (playerReward.isPl() && !isReward && this.zone != null) {
-            ItemMap it = new ItemMap(this.zone, 421, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x,
+            // theo bản chính thức: hạ Sơn Tinh được cải trang Thủy Tinh (7 ngày), 10% thêm Yêu quái núi lãng lãng 45 ngày
+            Item ct = nro.models.services.Event2026Service.gI().createItem(1827, 1, 7);
+            ItemMap it = new ItemMap(this.zone, 1827, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x,
                     this.location.y - 24), playerReward.id);
-            it.options.add(new Item.ItemOption(77, Util.nextInt(15, 20)));
-            it.options.add(new Item.ItemOption(103, Util.nextInt(15, 20)));
-            it.options.add(new Item.ItemOption(50, Util.nextInt(15, 20)));
-            it.options.add(new Item.ItemOption(94, Util.nextInt(1, 10)));
-            it.options.add(new Item.ItemOption(95, Util.nextInt(1, 15)));
-            if (Util.isTrue(1, 15)) {
-                it.options.add(new Item.ItemOption(116, 0));
+            it.options.addAll(ct.itemOptions);
+            if (Util.isTrue(10, 100)) {
+                Item yq = nro.models.services.Event2026Service.gI().createItem(1988, 1, 45);
+                ItemMap it2 = new ItemMap(this.zone, 1988, 1, this.location.x + 20, this.zone.map.yPhysicInTop(this.location.x + 20,
+                        this.location.y - 24), playerReward.id);
+                it2.options.addAll(yq.itemOptions);
+                Service.gI().dropItemMap(this.zone, it2);
             }
-            it.options.add(new Item.ItemOption(154, 0));
-            it.options.add(new Item.ItemOption(93, Util.nextInt(1, 15)));
             Service.gI().dropItemMap(this.zone, it);
             isReward = true;
             lastTimeReward = System.currentTimeMillis();
@@ -68,7 +66,7 @@ public class SonTinh extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(this.nPoint.tlNeDon, 1000)) {
                 this.chat("Xí hụt");
@@ -88,7 +86,7 @@ public class SonTinh extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) damage;
+            return damage;
         } else {
             return 0;
         }

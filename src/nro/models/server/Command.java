@@ -30,7 +30,7 @@ import nro.models.services.TaskService;
 
 /**
  *
- * @author By Mr Blue
+ * @author Việt
  *
  */
 public class Command {
@@ -56,6 +56,10 @@ public class Command {
         adminCommands.put("item", player -> Input.gI().createFormGiveItem(player));
         adminCommands.put("brl", player -> BrolyManager.gI().showListBoss(player));
         adminCommands.put("getitem", player -> Input.gI().createFormGetItem(player));
+        adminCommands.put("chottopql", player -> Service.gI().sendThongBao(player, "Đã chốt top Quy Lão: "
+                + nro.models.services.Event2026Service.gI().closeRace(player) + " người nhận quà"));
+        adminCommands.put("chottophdba", player -> Service.gI().sendThongBao(player, "Đã chốt top Hộp đen bí ẩn: "
+                + nro.models.services.Event2026Service.gI().closeHopDenRace() + " người nhận quà"));
         adminCommands.put("hs", player -> Service.gI().releaseCooldownSkill(player));
         adminCommands.put("d", player -> Service.gI().setPos(player, player.location.x, player.location.y + 10));
         adminCommands.put("a", player -> NpcService.gI().createMenuConMeo(player, ConstNpc.MENU_ADMIN, -1,
@@ -64,7 +68,7 @@ public class Command {
                 + "\n Sessions: " + SessionManager.gI().getNumSession()
                 + "\nThreads: " + Thread.activeCount()
                 + " luồng" + "\n" + SystemMetrics.ToString(),
-                "Ngọc rồng", "Đệ tử", "Bảo trì", "Tìm kiếm\nngười chơi", "Boss", "Đóng"));
+                "Ngọc rồng", "Đệ tử", "Bảo trì", "Tìm kiếm\nngười chơi", "Boss", "Công cụ\nadmin", "Đóng"));
     }
 
     private void initParameterizedCommands() {
@@ -75,6 +79,11 @@ public class Command {
             } catch (NumberFormatException e) {
                 Service.gI().sendThongBao(player, "Sai định dạng map ID!");
             }
+        });
+
+        parameterizedCommands.put("sukien", (player, text) -> {
+            String r = nro.models.services.SeasonEventService.gI().admin(text.substring("sukien".length()));
+            NpcService.gI().createTutorial(player, -1, r);
         });
 
         parameterizedCommands.put("toado", (player, text) -> {
@@ -265,6 +274,101 @@ parameterizedCommands.put("upp", (player, text) -> {
                     return true;
                 }
             }
+        }
+
+        if (text.equals("chiso") || text.equals("chi so")) {
+            nro.models.services.StatsInfoService.gI().show(player, false);
+            return true;
+        }
+        if (text.startsWith("goiboss ") && player.isAdmin()) { // admin: gọi boss theo BossID
+            try {
+                nro.models.boss.Boss b = nro.models.boss.Boss_Manager.BossManager.gI().createBoss(Integer.parseInt(text.substring(8).trim()));
+                Service.gI().sendThongBao(player, b == null ? "Không gọi được boss" : "Đã gọi " + b.name + (b.zone != null ? " tại " + b.zone.map.mapName : ""));
+            } catch (Exception e) {
+                Service.gI().sendThongBao(player, "Lỗi: " + e.getMessage());
+            }
+            return true;
+        }
+        if (text.startsWith("den boss ") && player.isAdmin()) { // admin: dịch chuyển tới boss theo tên
+            String want = text.substring(9).trim().toLowerCase();
+            java.util.List<nro.models.boss.Boss> all = new java.util.ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
+            all.addAll(nro.models.boss.Boss_Manager.BrolyManager.gI().getBosses());
+            for (nro.models.boss.Boss b : all) {
+                if (b.zone != null && !b.isDie() && b.name.toLowerCase().startsWith(want)) {
+                    nro.models.map.service.ChangeMapService.gI().changeMap(player, b.zone, b.location.x, b.location.y);
+                    Service.gI().sendThongBao(player, "Đến " + b.name + " tại " + b.zone.map.mapName + " khu " + b.zone.zoneId + " HP " + b.nPoint.hpMax);
+                    return true;
+                }
+            }
+            Service.gI().sendThongBao(player, "Không thấy boss " + want);
+            return true;
+        }
+        if ((text.equals("roiskh") || text.equals("roiskh cu")) && player.isAdmin()) { // admin: thả 1 món set kích hoạt như quái rơi (thử thông báo nhặt)
+            int[][] sets = {{245, 246, 247, 248}, {237, 238, 239, 240}, {241, 242, 243, 244}};
+            int g = Math.min(Math.max(player.gender, 0), 2);
+            if (text.equals("roiskh cu")) {
+                sets = new int[][]{{127}, {130}, {133}};
+            }
+            short temp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
+            nro.models.map.ItemMap it = new nro.models.map.ItemMap(player.zone, temp, 1, player.location.x, player.zone.map.yPhysicInTop(player.location.x, player.location.y - 24), player.id);
+            it.options.addAll(ItemService.gI().getListOptionItemShop(temp));
+            for (int id : sets[g]) {
+                it.options.add(new nro.models.item.Item.ItemOption(id, 0));
+            }
+            it.fromMob = true;
+            Service.gI().dropItemMap(player.zone, it);
+            Service.gI().sendThongBao(player, "itemMapId=" + it.itemMapId);
+            return true;
+        }
+        if (text.equals("giet boss") && player.isAdmin()) { // admin: hạ mọi boss trong khu, nhận thưởng
+            for (Player p : player.zone.getBossesCopy()) {
+                if (p instanceof nro.models.boss.Boss b && !b.isDie()) {
+                    Service.gI().sendThongBao(player, "Hạ " + b.name + " (HP " + b.nPoint.hpMax + ")");
+                    b.adminKill(player);
+                }
+            }
+            return true;
+        }
+        if (text.equals("pkall") && player.isAdmin()) { // admin: bật PK để thử chiến đấu
+            PlayerService.gI().changeAndSendTypePK(player, ConstPlayer.PK_ALL);
+            return true;
+        }
+        if (text.equals("chisoraw") && player.isAdmin()) {
+            // admin: in mọi biến chỉ số (dùng để kiểm tra option có tác dụng hay không)
+            StringBuilder sb = new StringBuilder("RAW|");
+            for (java.lang.reflect.Field f : nro.models.player.NPoint.class.getDeclaredFields()) {
+                if (java.lang.reflect.Modifier.isStatic(f.getModifiers())) {
+                    continue;
+                }
+                try {
+                    f.setAccessible(true);
+                    Object v = f.get(player.nPoint);
+                    if (v instanceof Number || v instanceof Boolean) {
+                        sb.append(f.getName()).append('=').append(v).append(';');
+                    } else if (v instanceof java.util.List<?> l) {
+                        long sum = 0;
+                        for (Object o : l) {
+                            if (o instanceof Number n) {
+                                sum += n.longValue();
+                            }
+                        }
+                        sb.append(f.getName()).append('=').append(sum).append(';');
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+            sb.append("speed2=").append(player.nPoint.speed).append(';');
+            nro.models.services.Service.gI().sendThongBao(player, sb.toString());
+            return true;
+        }
+        if (text.equals("chiso de") || text.equals("chi so de")) {
+            nro.models.services.StatsInfoService.gI().show(player, true);
+            return true;
+        }
+
+        if (text.equals("thao buoc chan")) {
+            nro.models.services.Event2026Service.gI().unequipFoot(player);
+            return true;
         }
 
         if (text.startsWith("ten con la ")) {

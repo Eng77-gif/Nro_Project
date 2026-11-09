@@ -56,9 +56,7 @@ public class KOGU extends Boss {
         Service.gI().dropItemMap(this.zone, it);
         Service.gI().dropItemMap(this.zone, it1);
         Service.gI().dropItemMap(this.zone, it2);
-        int diem = 5;
-        plKill.event.addEventPoint(diem);
-        Service.gI().sendThongBao(plKill, "+5 Point");
+        // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
     }
 
     @Override
