@@ -136,6 +136,26 @@ public class Bot extends Player {
         return mapId;
     }
 
+    /**
+     * Đủ sức đánh quái ở map chưa (như người chơi tự lượng sức): quái tiêu biểu (trung vị HP) chết trong khoảng 30 đòn và
+     * 6 đòn của quái chưa hạ được bot. Map không có quái luôn đi được.
+     */
+    public boolean strongEnough(int mapId) {
+        Map m = MapService.gI().getMapById(mapId);
+        if (m == null || m.zones.isEmpty() || this.nPoint == null) {
+            return true;
+        }
+        java.util.List<nro.models.mob.Mob> mobs = new java.util.ArrayList<>(m.zones.get(0).mobs);
+        if (mobs.isEmpty()) {
+            return true;
+        }
+        mobs.sort(java.util.Comparator.comparingLong(x -> x.point.getHpFull()));
+        nro.models.mob.Mob mid = mobs.get(mobs.size() / 2);
+        long hp = mid.point.getHpFull();
+        long dame = mid.point.dame != 0 ? mid.point.dame : hp * mid.pDame / 100;
+        return hp <= this.nPoint.dame * 30 && dame * 6 <= this.nPoint.hpMax;
+    }
+
     /** Tài khoản bot chỉ vào map người chơi cùng nhiệm vụ vào được (luật ChangeMapService.checkMapCanJoin: Namếc, tương lai, Cold...). */
     public boolean canGo(int mapId) {
         if (!this.accountBot || (this.stayMap && mapId == this.questMap)) {
@@ -147,8 +167,11 @@ public class Bot extends Player {
 
     public void joinMap() {
         int mapId = MapToPow();
+        for (int t = 0; t < 8 && !(canGo(mapId) && (!this.accountBot || strongEnough(mapId))); t++) {
+            mapId = this.questMap >= 0 ? -1 : MapToPow(); // tài khoản bot: ưu tiên map đánh nổi quái
+        }
         for (int t = 0; t < 8 && !canGo(mapId); t++) {
-            mapId = this.questMap >= 0 ? -1 : MapToPow();
+            mapId = MapToPow();
         }
         if (!canGo(mapId)) { // chưa tới nhiệm vụ mở map đó: luyện ở map đầu của hành tinh mình
             mapId = new int[]{1, 8, 15}[Math.max(0, Math.min(2, this.gender))];
