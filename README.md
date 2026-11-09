@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🐉 NRO Dev AL
+# 🐉 NRO Project
 
 **Máy chủ game Ngọc Rồng Online viết bằng Java: kèm panel quản trị web, bot chơi như người thật và hệ thống sự kiện theo mùa.**
 
@@ -83,8 +83,8 @@
 
 ```bash
 # 1. Lấy mã nguồn
-git clone https://github.com/Eng77-gif/nro_dev_al.git
-cd nro_dev_al
+git clone https://github.com/Eng77-gif/Nro_Project.git
+cd Nro_Project
 
 # 2. Tạo cơ sở dữ liệu và nạp dữ liệu mẫu
 mysql -u root -p -e "CREATE DATABASE team2026 CHARACTER SET utf8mb4"
@@ -120,7 +120,7 @@ Mọi cấu hình nằm trong `Config.properties`:
 ## 📁 Cấu trúc thư mục
 
 ```
-nro_dev_al/
+Nro_Project/
 ├── src/nro/models/
 │   ├── Bot/          # bot: nhiệm vụ, bang hội, buôn bán, tự học chọn map
 │   ├── boss/         # các boss và dữ liệu boss
