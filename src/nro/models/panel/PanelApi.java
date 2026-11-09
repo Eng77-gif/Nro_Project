@@ -198,7 +198,7 @@ public class PanelApi {
             case "giftcodes" -> rows("select id, code, count_left, detail, datecreate, expired from giftcode order by id desc");
             case "giftcode/save" -> giftcodeSave(b);
             case "giftcode/delete" -> giftcodeDelete(b);
-            case "boxes" -> rows("select b.box_id, t.name, count(*) n, sum(b.weight) w from item_box_reward b left join item_template t on t.id=b.box_id group by b.box_id, t.name order by b.box_id");
+            case "boxes" -> rows("select b.box_id, t.name, t.icon_id, t.description, count(*) n, sum(b.weight) w from item_box_reward b left join item_template t on t.id=b.box_id group by b.box_id, t.name, t.icon_id, t.description order by t.name, b.box_id");
             case "box" -> boxRows(intv(q.get("id")));
             case "box/save" -> boxSave(b);
             case "box/delete" -> boxDelete(b);

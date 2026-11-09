@@ -31,7 +31,7 @@ import nro.models.player_system.Template.BgItem;
 
 public class DataGame {
 
-    public static byte vsData = 25; // tăng khi thêm part/vật phẩm mới để client tải lại (25: tile_set_Info thêm bộ ô gạch 33)
+    public static byte vsData = 26; // tăng khi thêm part/vật phẩm mới để client tải lại (25: ô gạch 33, 26: máy đo sức mạnh đứng yên)
     public static byte vsMap = 6; // tăng khi thêm map / đổi mẫu NPC (5: hình King Furry, 6: Phòng thí nghiệm Myuu bản v10)
     public static byte vsSkill = 1;
     public static byte vsItem = 27; // tăng khi đổi item / bảng option để client tải lại (16: bảng option tối đa 255 dòng)
