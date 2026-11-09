@@ -1740,3 +1740,5 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Panel V3** (thiết kế anh gửi: bục vinh danh Top 3, avatar theo hành tinh, tổng quan mới, bảng người chơi / bot dễ nhìn) ghép cùng trang AI huấn luyện bot.
 - **Nhật ký chat & thông báo** (panel → Máy chủ): lưu chat thế giới, thông báo server và thông báo gửi cả server vào bảng `chat_log`, lọc theo loại, tìm theo tên / nội dung, 500 dòng mới nhất.
 - **Danh hiệu Phá Cổ Trung Thu** dùng hiệu ứng thật **505** có sẵn trong data (trăng, đèn lồng, ông sao, thỏ ngọc, chữ Phá Cỗ Trung Thu, 90 khung hình) thay banner 300; người chơi đã có danh hiệu đổi theo. Bản VIP giữ hiệu ứng 516.
+- **Máy đo sức mạnh đứng yên hẳn:** bỏ lệnh quay mặt về người đấm (client vẽ mỗi lệnh thành 1 lần máy chạy / nhảy qua lại).
+- **Nhặt set kích hoạt** báo song song: thông báo hệ thống (chạy chữ) và chat thế giới.
