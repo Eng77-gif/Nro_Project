@@ -50,7 +50,13 @@ public class BotQuest {
             }
             nextStep.put(b.id, now + 15_000);
             try {
-                if (!b.itemTime.isOpenPower && b.nPoint.canOpenPower()) {
+                if (b.nPoint.canOpenPower() && b.nPoint.limitPower < 5 // Quốc Vương mở tới bậc 5 (QuocVuong.MAX_LIMIT_CUSTOM)
+                        && b.inventory.gold >= nro.models.services.OpenPowerService.COST_SPEED_OPEN_LIMIT_POWER) {
+                    if (nro.models.services.OpenPowerService.gI().openPowerSpeed(b)) { // đủ vàng: trả vàng mở ngay như người chơi
+                        b.inventory.gold -= nro.models.services.OpenPowerService.COST_SPEED_OPEN_LIMIT_POWER;
+                        b.itemTime.isOpenPower = false;
+                    }
+                } else if (!b.itemTime.isOpenPower && b.nPoint.canOpenPower()) {
                     nro.models.services.OpenPowerService.gI().openPowerBasic(b); // mở giới hạn sức mạnh miễn phí (chờ như người chơi)
                 }
                 learnSkills(b);

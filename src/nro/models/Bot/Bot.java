@@ -367,25 +367,33 @@ public class Bot extends Player {
         int times = this.accountBot && this.nPoint.tiemNang > 1_000_000_000L ? 30 : 1;
         boolean changed = false;
         for (int t = 0; t < times; t++) {
-            long tiemNangUse;
-            if (Util.isTrue(50, 100)) {
-                int point = 100;
-                int pointHp = point * 20;
-                tiemNangUse = point * (2 * (this.nPoint.hpg + 1000) + pointHp - 20) / 2;
-                if (!doUseTiemNang(tiemNangUse)) {
+            // như người chơi bấm cộng 10 điểm (NPoint.increasePoint): HP / KI +20 mỗi điểm, sức đánh +1 mỗi điểm; ưu tiên HP để sống được
+            int r = Util.nextInt(1, 100), point = 10;
+            if (r <= 50 || this.nPoint.hpg < this.nPoint.dameg * 10) {
+                int add = point * 20;
+                if (this.nPoint.hpg + add > this.nPoint.getHpMpLimit()
+                        || !doUseTiemNang((long) point * (2L * (this.nPoint.hpg + 1000L) + add - 20) / 2)) {
                     break;
                 }
-                this.nPoint.hpMax += point;
-                this.nPoint.hpg += point;
+                this.nPoint.hpg += add;
+            } else if (r <= 65) {
+                int add = point * 20;
+                if (this.nPoint.mpg + add > this.nPoint.getHpMpLimit()
+                        || !doUseTiemNang((long) point * (2L * (this.nPoint.mpg + 1000L) + add - 20) / 2)) {
+                    break;
+                }
+                this.nPoint.mpg += add;
             } else {
-                int point = 10;
-                tiemNangUse = (long) point * (2L * this.nPoint.dameg + point - 1) / 2 * 100;
-                if (!doUseTiemNang(tiemNangUse)) {
+                if (this.nPoint.dameg + point > this.nPoint.getDameLimit()
+                        || !doUseTiemNang((long) point * (2L * this.nPoint.dameg + point - 1) / 2 * 100)) {
                     break;
                 }
                 this.nPoint.dameg += point;
             }
             changed = true;
+        }
+        if (changed) {
+            this.nPoint.calPoint(); // HP / KI / sức đánh tối đa tính lại từ chỉ số gốc (trước đây cộng thẳng hpMax, trả giá 2.000 HP chỉ được 100)
         }
         if (changed) {
             Service.gI().point(this);
