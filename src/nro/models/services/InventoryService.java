@@ -894,7 +894,7 @@ public class InventoryService {
         return true;
     }
 
-    /** Gộp mọi ô cùng loại hộp quà (bỏ hạn sử dụng) vào ô đầu tiên. */
+    /** Gộp mọi ô cùng loại hộp quà vào ô đầu tiên (giữ hạn sử dụng của ô đầu). */
     public void mergeBoxStacks(List<Item> items, int templateId) {
         Item first = null;
         for (int i = 0; i < items.size(); i++) {
@@ -902,7 +902,6 @@ public class InventoryService {
             if (it == null || !it.isNotNullItem() || it.template.id != templateId) {
                 continue;
             }
-            it.itemOptions.removeIf(io -> io.optionTemplate != null && io.optionTemplate.id == 93);
             if (it.itemOptions.isEmpty()) {
                 it.itemOptions.add(new Item.ItemOption(73, 0));
             }
@@ -932,9 +931,15 @@ public class InventoryService {
             items.forEach(InventoryService::tagHalloween); // ô cũ cùng loại cũng có đủ dòng để gộp chung
         }
         if (itemAdd.template != null && (Event2026Service.gI().isBox(itemAdd) || isGiftBox(itemAdd.template))) {
-            // hộp quà / túi mù / capsule mở ra quà: không có hạn sử dụng để luôn gộp chung 1 ô (cả hộp cũ đã có hạn)
-            itemAdd.itemOptions.removeIf(io -> io.optionTemplate != null && io.optionTemplate.id == 93);
+            // hộp quà / túi mù / capsule: luôn gộp chung 1 ô, giữ hạn sử dụng của ô hộp đang có (hộp gộp vào lấy hạn hộp trước)
             mergeBoxStacks(items, itemAdd.template.id);
+            for (Item it : items) {
+                if (it.isNotNullItem() && it.template.id == itemAdd.template.id) {
+                    it.quantity += itemAdd.quantity;
+                    itemAdd.quantity = 0;
+                    return true;
+                }
+            }
         }
         if (itemAdd.itemOptions.isEmpty() && itemAdd.template != null && hasDefaultStats(itemAdd.template)) {
             // cải trang / đeo lưng / pet / thú cưỡi / sao pha lê rơi ra hay được tặng mà chưa có chỉ số: lấy chỉ số mặc định
