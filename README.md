@@ -102,6 +102,25 @@ Máy chủ game nghe ở cổng `14445`, panel ở `http://<ip>:8088/`. Các b�
 
 **Build từ mã nguồn:** mở thư mục bằng Apache NetBeans 21 trở lên (đã có sẵn `nbproject`) rồi chọn *Clean and Build*, hoặc dùng `20.jar` có sẵn.
 
+> [!NOTE]
+> Máy chủ chỉ khởi động bằng jar có chữ ký số của tác giả (`JarSignatureCheck`). Jar tự build cần được ký lại trước khi chạy.
+
+### 📦 Bản phát hành và Docker
+
+- **Releases:** tải `nro-server-<phiên bản>.jar` (jar đã ký), gói SQL và script chạy ở trang [Releases](../../releases).
+- **Docker image** (GitHub Packages):
+
+```bash
+docker pull ghcr.io/eng77-gif/nro_project:latest
+docker run -d --name nro -p 14445:14445 -p 8088:8088 \
+  -v "$PWD/Config.properties:/srv/nro/Config.properties" \
+  ghcr.io/eng77-gif/nro_project:latest
+```
+
+Trong `Config.properties` mount vào, đặt `database.host` trỏ tới MySQL mà container truy cập được và đặt `panel.pass`.
+
+Phát hành bản mới: đẩy tag dạng `v1.2.3` (hoặc chạy workflow *Release* trong tab Actions). Workflow sẽ tạo Release và đẩy image lên `ghcr.io`.
+
 ## ⚙️ Cấu hình
 
 Mọi cấu hình nằm trong `Config.properties`:
