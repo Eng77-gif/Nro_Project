@@ -38,8 +38,8 @@ public class Rival extends SuperRank {
                 player.name,
                 player.gender,
                 new short[]{player.getHead(), player.getBody(), player.getLeg(), player.getFlagBag(), player.getAura(), player.getEffFront()},
-                Util.toInt(player.nPoint.dameg), // BossData giữ chỉ số gốc dạng int
-                new int[]{Util.toInt(player.nPoint.hpg)},
+                player.nPoint.dameg,
+                new long[]{player.nPoint.hpg},
                 new int[]{113},
                 skillTemp,
                 new String[]{}, //text chat 1

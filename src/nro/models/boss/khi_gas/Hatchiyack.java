@@ -30,7 +30,7 @@ public class Hatchiyack extends Boss {
                 ConstPlayer.TRAI_DAT,
                 new short[]{639, 640, 641, -1, -1, -1},
                 (dame),
-                new int[]{hp},
+                new long[]{hp},
                 new int[]{148},
                 (int[][]) Util.addArray(FULL_DEMON),
                 new String[]{"|-1|Các ngươi dám hạ sư phụ ta",

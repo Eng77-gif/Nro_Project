@@ -27,7 +27,7 @@ public class NinjaAoTim extends Boss {
                 ConstPlayer.TRAI_DAT, //gender
                 new short[]{123, 124, 125, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
                 ((dame)), //dame
-                new int[]{((hp))}, //hp
+                new long[]{((hp))}, //hp
                 new int[]{54}, //map join
                 new int[][]{
                     {Skill.DEMON, 3, 1}, {Skill.DEMON, 6, 2}, {Skill.DRAGON, 7, 3}, {Skill.DRAGON, 1, 4}, {Skill.GALICK, 5, 5},
@@ -121,13 +121,13 @@ public class NinjaAoTim extends Boss {
             if (this.nPoint.hp <= this.nPoint.hpMax / 2 && !this.calledNinja) {
                 if (Util.isTrue(4, 5)) {
                     try {
-                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, Util.toInt(this.nPoint.dame / 10), Util.toInt(this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM1));
-                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, Util.toInt(this.nPoint.dame / 10), Util.toInt(this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM2));
-                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, Util.toInt(this.nPoint.dame / 10), Util.toInt(this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM3));
-                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, Util.toInt(this.nPoint.dame / 10), Util.toInt(this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM4));
+                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, this.nPoint.dame / 10, this.nPoint.hpMax / 10, BossID.NINJA_AO_TIM1));
+                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, this.nPoint.dame / 10, this.nPoint.hpMax / 10, BossID.NINJA_AO_TIM2));
+                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, this.nPoint.dame / 10, this.nPoint.hpMax / 10, BossID.NINJA_AO_TIM3));
+                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, this.nPoint.dame / 10, this.nPoint.hpMax / 10, BossID.NINJA_AO_TIM4));
                         if (Util.isTrue(1, 2)) {
-                            clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, Util.toInt(this.nPoint.dame / 10), Util.toInt(this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM5));
-                            clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, Util.toInt(this.nPoint.dame / 10), Util.toInt(this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM6));
+                            clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, this.nPoint.dame / 10, this.nPoint.hpMax / 10, BossID.NINJA_AO_TIM5));
+                            clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, this.nPoint.dame / 10, this.nPoint.hpMax / 10, BossID.NINJA_AO_TIM6));
                         }
                     } catch (Exception ex) {
                     }

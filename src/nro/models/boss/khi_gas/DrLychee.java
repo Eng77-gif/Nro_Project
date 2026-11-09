@@ -30,7 +30,7 @@ public class DrLychee extends Boss {
                 ConstPlayer.TRAI_DAT,
                 new short[]{742, 743, 744, -1, -1, -1},
                 ((10000 + dame)),
-                new int[]{((1000000 + hp))},
+                new long[]{((1000000 + hp))},
                 new int[]{148},
                 (int[][]) Util.addArray(FULL_DEMON),
                 new String[]{"|-1|Ta đợi các ngươi mãi",

@@ -35,7 +35,7 @@ public class ThanhCo {
             ConstPlayer.TRAI_DAT,
             new short[]{1962, 1963, 1964, -1, -1, -1},
             1000,
-            new int[]{1000},
+            new long[]{1000},
             new int[]{VuaHung.MAP_DAU_TRUONG},
             new int[][]{
                 {Skill.DRAGON, 7, 1000},

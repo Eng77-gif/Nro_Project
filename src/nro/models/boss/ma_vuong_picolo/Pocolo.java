@@ -43,7 +43,7 @@ public class Pocolo extends Boss {
                 ConstPlayer.NAMEC,
                 new short[]{739, 740, 741, -1, -1, -1},
                 dame,
-                new int[]{hp},
+                new long[]{hp},
                 new int[]{146},
                 new int[][]{
                     {Skill.DEMON, 7, 1000},

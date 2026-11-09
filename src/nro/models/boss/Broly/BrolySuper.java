@@ -28,7 +28,7 @@ public class BrolySuper extends Boss {
                 ConstPlayer.XAYDA,
                 new short[]{2099, 2100, 2101, -1, -1, -1}, // Broly tóc xanh lá
                 1_000_000,
-                new int[]{HP},
+                new long[]{HP},
                 new int[]{105, 106, 107, 108, 109, 110},
                 new int[][]{
                     {Skill.DRAGON, 7, 1000}, {Skill.DEMON, 7, 1000}, {Skill.GALICK, 7, 1000},

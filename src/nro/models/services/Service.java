@@ -2342,7 +2342,7 @@ public class Service {
                 player.gender,
                 new short[]{player.getHead(), player.getBody(), player.getLeg(), player.getFlagBag(), player.getAura(), player.getEffFront()},
                 Functions.maxint(player.nPoint.dame * 10L),
-                new int[]{Functions.maxint(player.nPoint.hpMax * 10L)},
+                new long[]{Functions.maxint(player.nPoint.hpMax * 10L)},
                 new int[]{140},
                 skillTemp,
                 new String[]{"|-2|Boss nhân bản đã xuất hiện rồi"}, //text chat 1

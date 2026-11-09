@@ -36,7 +36,7 @@ public class MatTroi extends Boss {
                 ConstPlayer.TRAI_DAT,
                 new short[]{1501, 1502, 1503, -1, -1, -1},
                 10,
-                new int[]{100},
+                new long[]{100},
                 new int[]{5, 7, 0, 14},
                 new int[][]{{Skill.DRAGON, 7, 1000}},
                 new String[]{}, // Text chat 1

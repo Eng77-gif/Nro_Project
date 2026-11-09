@@ -24,7 +24,7 @@ public class RobotVeSi extends Boss {
                 ConstPlayer.TRAI_DAT, //gender
                 new short[]{138, 139, 140, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
                 ((dame)), //dame
-                new int[]{((hp))}, //hp
+                new long[]{((hp))}, //hp
                 new int[]{57}, //map join
                 new int[][]{
                     {Skill.DEMON, 3, 1}, {Skill.DEMON, 6, 2}, {Skill.DRAGON, 7, 3}, {Skill.DRAGON, 1, 4}, {Skill.GALICK, 5, 5},

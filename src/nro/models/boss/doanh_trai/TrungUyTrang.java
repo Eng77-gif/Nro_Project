@@ -29,7 +29,7 @@ public class TrungUyTrang extends Boss {
                 ConstPlayer.TRAI_DAT, //gender
                 new short[]{141, 142, 143, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
                 (dame), //dame
-                new int[]{(hp)}, //hp
+                new long[]{(hp)}, //hp
                 new int[]{59}, //map join
                 new int[][]{
                     {Skill.DEMON, 3, 1}, {Skill.DEMON, 6, 2}, {Skill.DRAGON, 7, 3}, {Skill.DRAGON, 1, 4}, {Skill.GALICK, 5, 5},

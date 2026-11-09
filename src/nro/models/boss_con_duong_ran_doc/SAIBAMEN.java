@@ -36,7 +36,7 @@ public class SAIBAMEN extends Boss {
                 ConstPlayer.XAYDA,
                 new short[]{642, 643, 644, -1, -1, -1},
                 ((10000 + dame)),
-                new int[]{((500000 + hp))},
+                new long[]{((500000 + hp))},
                 new int[]{144},
                 (int[][]) Util.addArray(FULL_GALICK),
                 new String[]{},
