@@ -975,7 +975,7 @@ public class Service {
 
             addSMTN(master, type, masterParam, true);
 
-        } else if (player.isBot) {
+        } else if (player.isBot && !(player instanceof nro.models.Bot.Bot b && b.accountBot)) { // tài khoản bot lên như người chơi (giới hạn sức mạnh, nhiệm vụ, điểm bang)
             player.nPoint.power += param;
             player.nPoint.tiemNang += param;
 

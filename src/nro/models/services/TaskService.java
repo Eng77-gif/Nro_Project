@@ -154,6 +154,11 @@ public class TaskService {
                 + player.playerTask.taskMain.subTasks.get(player.playerTask.taskMain.index).name);
     }
 
+    /** Người chơi hoặc tài khoản bot làm nhiệm vụ (boss, đệ, bot giả lập thì không). */
+    private static boolean doesTask(Player p) {
+        return p != null && !p.isBoss && !p.isPet && (!p.isBot || p instanceof nro.models.Bot.Bot b && b.accountBot);
+    }
+
     public boolean checkDoneTaskTalkNpc(Player player, Npc npc) {
         switch (npc.tempId) {
             case ConstNpc.QUY_LAO_KAME -> {
@@ -252,20 +257,27 @@ public class TaskService {
         return false;
     }
 
+    /** Tài khoản bot hái đậu thần (nhiệm vụ đầu tiên) như người chơi chọn "thu hoạch" ở cây đậu. */
+    public void botHarvest(Player bot) {
+        if (doesTask(bot)) {
+            doneTask(bot, ConstTask.TASK_0_4);
+        }
+    }
+
     public void checkDoneTaskJoinClan(Player player) {
-        if (!player.isBoss && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             doneTask(player, ConstTask.TASK_13_0);
         }
     }
 
     public void checkDoneTaskGetItemBox(Player player) {
-        if (!player.isBoss && !player.isBot && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             doneTask(player, ConstTask.TASK_0_3);
         }
     }
 
     public void checkDoneTaskPower(Player player, long power) {
-        if (!player.isBoss && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             if (power >= 16000) {
                 doneTask(player, ConstTask.TASK_7_0);
             }
@@ -297,20 +309,20 @@ public class TaskService {
     }
 
     public void checkDoneTaskUseTiemNang(Player player) {
-        if (!player.isBoss && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             doneTask(player, ConstTask.TASK_3_0);
         }
     }
 
     public void checkDoneTaskUseItem(Player player, Item item) {
-        if (player.isPl() && item.isNotNullItem()) {
+        if (doesTask(player) && item.isNotNullItem()) {
             switch (item.template.id) {
             }
         }
     }
 
     public void checkDoneTaskGoToMap(Player player, Zone zoneJoin) {
-        if (player.isPl()) {
+        if (doesTask(player)) {
             switch (zoneJoin.map.mapId) {
                 case 39, 40, 41 -> {
                     if (player.location.x >= 635) {
@@ -342,7 +354,7 @@ public class TaskService {
     }
 
     public void checkDoneTaskPickItem(Player player, ItemMap item) {
-        if (!player.isBoss && !player.isBot && !player.isPet && item != null && item.itemTemplate != null) {
+        if (doesTask(player) && item != null && item.itemTemplate != null) {
             switch (item.itemTemplate.id) {
                 case 73: //đùi gà
                     doneTask(player, ConstTask.TASK_2_0);
@@ -367,7 +379,7 @@ public class TaskService {
     }
 
     public void checkDoneTaskNangCS(Player player) {
-        if (!player.isBoss && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             if (player.nPoint.dameg < 35000) {
                 return;
             }
@@ -376,7 +388,7 @@ public class TaskService {
     }
 
     public void checkDoneTaskConfirmMenuNpc(Player player, Npc npc, byte select) {
-        if (!player.isBoss && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             switch (npc.tempId) {
                 case ConstNpc.DAU_THAN -> {
                     switch (player.idMark.getIndexMenu()) {
@@ -392,7 +404,7 @@ public class TaskService {
     }
 
     public void checkDoneTaskKillBoss(Player player, Boss boss) {
-        if (player != null && !player.isBot && !player.isBoss && !player.isPet) {
+        if (doesTask(player)) {
             AchievementService.gI().checkDoneTask(player, ConstAchievement.TRUM_KET_LIEU_BOSS);
             switch ((int) boss.id) {
                 case BossID.KUKU ->
@@ -474,7 +486,7 @@ public class TaskService {
     }
 
     public void checkDoneTaskKillMob(Player player, Mob mob) {
-        if (!player.isBoss && !player.isBot && !player.isPet) {
+        if (doesTask(player)) {
             switch (mob.tempId) {
                 case ConstMob.MOC_NHAN ->
                     doneTask(player, ConstTask.TASK_1_0);
@@ -515,7 +527,7 @@ public class TaskService {
                         List<Player> list = new ArrayList<>();
                         List<Player> playersMap = player.zone.getPlayers();
                         for (Player pl : playersMap) {
-                            if (pl != null && pl.isPl() && pl.clan != null && pl.clan.equals(player.clan)) {
+                            if (pl != null && doesTask(pl) && pl.clan != null && pl.clan.equals(player.clan)) {
                                 list.add(pl);
                             }
                         }
@@ -552,7 +564,7 @@ public class TaskService {
                         List<Player> list = new ArrayList<>();
                         List<Player> playersMap = player.zone.getPlayers();
                         for (Player pl : playersMap) {
-                            if (pl != null && pl.isPl() && pl.clan != null && pl.clan.equals(player.clan)) {
+                            if (pl != null && doesTask(pl) && pl.clan != null && pl.clan.equals(player.clan)) {
                                 list.add(pl);
                             }
                         }

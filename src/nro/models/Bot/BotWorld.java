@@ -138,6 +138,7 @@ public final class BotWorld {
         acc.removeIf(x -> !x.accountBot);
         clan.tick(acc);
         BotTrade.gI().tick(acc);
+        BotQuest.gI().tick(acc);
     }
 
     private void tick() {
@@ -472,6 +473,10 @@ public final class BotWorld {
             return;
         }
         endPk(b);
+        if (b.accountBot && b.playerTask != null && b.playerTask.taskMain != null && b.playerTask.taskMain.id <= 10) {
+            train(b); // người mới: làm nhiệm vụ đầu (BotQuest) trước đã
+            return;
+        }
         int r = Util.nextInt(1, 100);
         if (r <= 40) { // luyện tập
             train(b);
@@ -488,7 +493,7 @@ public final class BotWorld {
         } else if (r <= 73 && nro.models.utils.TimeUtil.isBlackBallWarOpen()) { // Ngọc Rồng Sao Đen đang mở
             goNrsd(b);
         } else if (r <= 81 && b.accountBot) {
-            train(b); // tài khoản bot đi doanh trại thật cùng bang (BotClan), không vắng mặt giả
+            upSkh(b); // tài khoản bot đi doanh trại thật cùng bang (BotClan), lúc rảnh đi úp set kích hoạt
         } else if (r <= 81) {
             goAway(b, Util.isTrue(50, 100) ? "Doanh trại" : "Đại hội võ thuật");
         } else if (r <= 90) {
@@ -498,7 +503,20 @@ public final class BotWorld {
         }
     }
 
+    /** Úp set kích hoạt ở map úp SKH của hành tinh mình (đồ rơi hiếm, BotQuest tự mặc vào). */
+    private void upSkh(Bot b) {
+        int[][] maps = {{1, 2, 3}, {8, 9, 11}, {15, 16, 17}};
+        b.boss.prefer = null;
+        b.setMode(0);
+        b.questMap = maps[Math.max(0, Math.min(2, b.gender))][Util.nextInt(0, 2)];
+        b.questMob = -1;
+        b.activity = "Úp SKH";
+        b.joinMap();
+    }
+
     private void train(Bot b) {
+        b.questMap = -1; // BotQuest đặt lại map / quái nhiệm vụ nếu có
+        b.questMob = -1;
         b.boss.prefer = null;
         b.setMode(0);
         b.activity = "Luyện tập";

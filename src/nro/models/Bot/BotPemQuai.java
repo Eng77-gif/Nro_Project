@@ -182,6 +182,14 @@ public class BotPemQuai {
     }
 
     public void GetMobAttack() {
+        if (this.bot.questMob >= 0 && (this.mAttack == null || this.mAttack.isDie() || this.mAttack.tempId != this.bot.questMob)) {
+            for (Mob m : this.bot.zone.mobs) {
+                if (m.tempId == this.bot.questMob && !m.isDie()) { // ưu tiên quái nhiệm vụ cần đánh
+                    this.mAttack = m;
+                    return;
+                }
+            }
+        }
         if (this.bot.zone.mobs.size() >= 1) {
             if (this.mAttack == null || this.mAttack.isDie()) {
                 mAttack = this.bot.zone.mobs.get(new Random().nextInt(this.bot.zone.mobs.size()));
@@ -265,7 +273,7 @@ public class BotPemQuai {
         if (this.bot.charms != null && this.bot.charms.tdThuHut > System.currentTimeMillis()) {
             List<ItemMap> itemsToPick = new ArrayList<>();
 
-            for (ItemMap item : new ArrayList<>(this.bot.zone.items)) {
+            for (ItemMap item : this.bot.zone.getItemMapsForPlayer(this.bot)) { // như người chơi: không thấy vật phẩm nhiệm vụ của bước khác
                 if (!item.isPickedUp
                         && Util.getDistance(this.bot.location.x, this.bot.location.y, item.x, item.y) < 500) {
                     itemsToPick.add(item);
@@ -283,9 +291,7 @@ public class BotPemQuai {
 
             for (ItemMap item : itemsToPick) {
                 try {
-                    ItemMapService.gI().pickItem(bot, item.itemMapId, true);
-                    item.isPickedUp = true;
-                    this.bot.zone.items.remove(item);
+                    ItemMapService.gI().pickItem(bot, item.itemMapId, true); // tự xoá khỏi map (trừ vật phẩm nhiệm vụ cố định như em bé)
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -49,7 +49,15 @@ public class Bot extends Player {
         this.flag_ = flag;
     }
 
+    /** Map nhiệm vụ / úp SKH đang luyện (BotQuest), -1: chọn theo sức mạnh. */
+    public volatile int questMap = -1;
+    /** Loại quái nhiệm vụ cần đánh (BotQuest), -1: đánh quái bất kỳ. */
+    public volatile int questMob = -1;
+
     public int MapToPow() {
+        if (this.questMap >= 0) {
+            return this.questMap;
+        }
         Random random = new Random();
         long power = this.nPoint.power;
         if (this.accountBot) {
@@ -295,6 +303,7 @@ public class Bot extends Player {
         }
         if (changed) {
             Service.gI().point(this);
+            nro.models.services.TaskService.gI().checkDoneTaskUseTiemNang(this); // nhiệm vụ "Sử dụng tiềm năng"
         }
     }
 

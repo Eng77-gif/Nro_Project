@@ -652,7 +652,7 @@ public class Mob {
         }
 
         //========================TASK========================
-        if (player.isPl() && TaskService.gI().getIdTask(player) == ConstTask.TASK_8_1) {
+        if ((player.isPl() || nro.models.Bot.BotWorld.isAccountBot(player)) && TaskService.gI().getIdTask(player) == ConstTask.TASK_8_1) {
             if (player.gender == 0 && this.tempId == 11 || player.gender == 1 && this.tempId == 12 || player.gender == 2 && this.tempId == 10) {
                 list.add(new ItemMap(zone, 20, 1, x, yEnd, player.id));
                 TaskService.gI().checkDoneTaskFind7Stars(player);
