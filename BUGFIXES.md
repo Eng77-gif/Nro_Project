@@ -1737,3 +1737,5 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Nhặt set kích hoạt từ quái báo lên chat thế giới** (trước là thông báo server).
 - **Mở giới hạn sức mạnh nhanh bằng ngọc** (Quốc Vương, Tổ Sư Kaio, cả đệ tử): dưới 50 tỷ sức mạnh 100 ngọc / lần, từ 50 tỷ 200 ngọc / lần (trước 50 triệu vàng); bot cũng trả ngọc.
 - **Nhiệm vụ hằng ngày (Bò Mộng) thưởng ngọc:** dễ 100 - 300, bình thường 300 - 600, khó 600 - 1.000, **cực khó 1.000 - 3.000** (thêm lựa chọn Cực khó vào menu), địa ngục 3.000 - 5.000.
+- **Panel V3** (thiết kế anh gửi: bục vinh danh Top 3, avatar theo hành tinh, tổng quan mới, bảng người chơi / bot dễ nhìn) ghép cùng trang AI huấn luyện bot.
+- **Nhật ký chat & thông báo** (panel → Máy chủ): lưu chat thế giới, thông báo server và thông báo gửi cả server vào bảng `chat_log`, lọc theo loại, tìm theo tên / nội dung, 500 dòng mới nhất.

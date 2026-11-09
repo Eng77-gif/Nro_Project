@@ -96,6 +96,7 @@ class PanelApi {
                 nro.models.Bot.BotWorld.gI().deleteBotAccount(lng(b.get("id")));
                 yield Map.of("ok", true);
             }
+            case "chatlog" -> ChatLog.list(str(q.getOrDefault("type", "")), str(q.getOrDefault("q", "")));
             case "ai" -> nro.models.Bot.BotBrain.panel();
             case "ai/set" -> {
                 for (String k : new String[]{"epsilon", "alpha", "enabled"}) {

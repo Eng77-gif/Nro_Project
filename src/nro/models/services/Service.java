@@ -1269,6 +1269,7 @@ public class Service {
     }
 
     public void sendThongBaoAllPlayer(String thongBao) {
+        nro.models.panel.ChatLog.log(nro.models.panel.ChatLog.BROADCAST, "", thongBao);
         Message msg;
         try {
             msg = new Message(-25);

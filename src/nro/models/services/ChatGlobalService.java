@@ -124,6 +124,7 @@ public class ChatGlobalService implements Runnable {
     }
 
     private void chatGlobal(ChatGlobal chat) {
+        nro.models.panel.ChatLog.log(nro.models.panel.ChatLog.WORLD, chat.playerName, chat.text);
         Message msg;
         try {
             msg = new Message(92);
