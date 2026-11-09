@@ -2,12 +2,13 @@
 
 # 🐉 NRO Project
 
-**Máy chủ game Ngọc Rồng Online viết bằng Java: kèm panel quản trị web, bot chơi như người thật và hệ thống sự kiện theo mùa.**
+**Máy chủ game Ngọc Rồng Online viết bằng Java: panel quản trị web, bot chơi như người thật có AI tự học, và hệ thống sự kiện theo mùa.**
 
 ![Java](https://img.shields.io/badge/Java-21_LTS-ED8B00?logo=openjdk&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%20%7C%208.0-4479A1?logo=mysql&logoColor=white)
 ![Netty](https://img.shields.io/badge/Netty-4.1-2E7D32)
 ![Client](https://img.shields.io/badge/Client-Android%20%7C%20PC%20%7C%20J2ME-6A1B9A)
+![Release](https://img.shields.io/github/v/release/Eng77-gif/Nro_Project?label=B%E1%BA%A3n%20m%E1%BB%9Bi%20nh%E1%BA%A5t&color=F57C00)
 ![Status](https://img.shields.io/badge/Tr%E1%BA%A1ng%20th%C3%A1i-%C4%91ang%20ph%C3%A1t%20tri%E1%BB%83n-F9A825)
 
 [Tính năng](#-tính-năng) · [Ảnh chụp](#-ảnh-chụp) · [Cài đặt](#-cài-đặt-nhanh) · [Cấu hình](#️-cấu-hình) · [Cấu trúc](#-cấu-trúc-thư-mục) · [Tài liệu](#-tài-liệu)
@@ -27,6 +28,9 @@
 - Boss theo giờ, boss sự kiện, Hirudegarn, Broly (15 tỷ HP)
 - Doanh trại, Ngọc Rồng Sao Đen, Đại hội võ thuật, Siêu hạng
 - Set kích hoạt, sao pha lê, bông tai cấp 2/3, đệ tử 2
+- Mở giới hạn sức mạnh bằng ngọc (100 / 200 ngọc mỗi lần)
+- Nhiệm vụ hằng ngày 4 mức, mức Cực khó thưởng 1.000 - 3.000 ngọc
+- Mỗi map 15 khu, Đảo Kamê 30 khu
 - Chỉ số chiến đấu và tiền tệ dùng `long`: sát thương vượt 2,1 tỷ
 
 </td>
@@ -36,9 +40,10 @@
 - Tài khoản bot riêng, không ai đăng nhập được
 - Làm nhiệm vụ từ đầu, luyện tập theo sức, săn boss, NRSD
 - Lập và vào bang hội, đi doanh trại, ký gửi, giao dịch
-- Học chiêu, ép sao theo lối chơi, tự rút kinh nghiệm chọn map
+- Cộng tiềm năng, học chiêu, ép sao theo lối chơi
+- Chỉ đi map đánh nổi quái, tự rút kinh nghiệm chọn map
 - Chơi theo ca (online / offline), trả lời khi người chơi gọi tên
-- **AI tự học** (tự viết, không dùng model ngoài): học tăng cường chọn việc theo sức, xem và chỉnh ở panel
+- **AI tự học** (tự viết, không dùng model ngoài): học tăng cường chọn việc theo bậc sức mạnh, xem và chỉnh ở panel
 
 </td>
 </tr>
@@ -50,13 +55,14 @@
 - Shop sự kiện, đổi điểm, đua top có thưởng
 - Thông báo top 1 - 10 khi đăng nhập
 - Chợ ký gửi đồ sự kiện riêng (NPC King Furry)
+- Danh hiệu sự kiện dùng hiệu ứng thật (Phá Cỗ Trung Thu...)
 
 </td>
 <td valign="top">
 
 ### 🛡️ Vận hành
 - Mạng Netty, chống DDoS và giới hạn kết nối mỗi IP
-- Panel web quản trị (không cần cài thêm)
+- Panel web quản trị V3 (không cần cài thêm), có nhật ký chat thế giới và thông báo server
 - Chạy được trên VPS 1 - 2 GB RAM
 - Tự nâng cấp cơ sở dữ liệu khi khởi động (migration)
 
@@ -72,9 +78,17 @@
 
 <img src="docs/images/panel-dashboard.png" alt="Panel tổng quan" width="900">
 
-**Panel: quản lý bot**
+**Panel: trung tâm bot**
 
 <img src="docs/images/panel-bots.png" alt="Panel quản lý bot" width="900">
+
+**Panel: AI huấn luyện bot**
+
+<img src="docs/images/panel-ai.png" alt="Panel AI huấn luyện bot" width="900">
+
+**Panel: nhật ký chat & thông báo**
+
+<img src="docs/images/panel-chatlog.png" alt="Panel nhật ký chat và thông báo" width="900">
 
 </div>
 
