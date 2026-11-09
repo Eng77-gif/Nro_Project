@@ -1970,8 +1970,7 @@ public class SeasonEventService implements Runnable {
         int t = it.template.type, id = it.template.id;
         boolean pet = t == 27 && it.template.head >= 0 && it.template.body >= 0 && it.template.leg >= 0;
         if (t == 5 || t == 11 || t == 23 || t == 24 || t == 36 || pet) {
-            it.itemOptions.removeIf(o -> o.optionTemplate.id == 30); // option mặc định của shop có thể kèm sẵn dòng 30
-            return it;
+            return it; // giữ nguyên: món nào gán sẵn dòng 30 (item_template_option) thì vẫn hiện
         }
         if (id == 457 || id == 2032 || (id >= 14 && id <= 20) || t == 9 || t == 10 || t == 34 || it.getOptionById(30) != null) {
             return it;
