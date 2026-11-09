@@ -1674,3 +1674,6 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Nâng chiêu:** bot đủ sức mạnh và ngọc thì học chiêu mới / cấp tiếp theo, trả ngọc bằng giá sách (mỗi lượt 1 cấp).
 - Bot tài khoản lên sức mạnh / tiềm năng như người chơi (có giới hạn sức mạnh, ghi nhiệm vụ, cộng điểm bang); trước đây cộng thẳng, không bao giờ xong nhiệm vụ "Đạt ... sức mạnh".
 - **Sửa lỗi bot làm mất vật phẩm nhiệm vụ của người chơi:** bot nhặt em bé (Vách núi) / vật phẩm nhà rồi tự xoá khỏi map, người chơi vào khu đó không làm được nhiệm vụ; bot còn nhặt cả vật phẩm nhiệm vụ đang ẩn. Giờ bot chỉ thấy và nhặt như người chơi.
+- Bot chỉ làm nhiệm vụ ở map người chơi đi tới được bằng cổng (bỏ Tây Karin và các map không có cổng, bỏ phó bản bang: doanh trại, kho báu, rắn độc, khí gas). Quái nhiệm vụ có ở nhiều map thì chọn map con quái đó yếu nhất.
+- Bot không tự học chiêu đặc biệt (khiên năng lượng, dịch chuyển tức thời, thôi miên, trói, huýt sáo, siêu chiêu): người chơi phải có sách đặc biệt thì bot cũng vậy.
+- Bot chạm giới hạn sức mạnh thì tự mở giới hạn miễn phí (chờ như người chơi); bước "Đạt ... sức mạnh" được kiểm tra lại mỗi lượt (trước đây chạm giới hạn thì kẹt bước này mãi).

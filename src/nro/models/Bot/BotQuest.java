@@ -50,6 +50,9 @@ public class BotQuest {
             }
             nextStep.put(b.id, now + 15_000);
             try {
+                if (!b.itemTime.isOpenPower && b.nPoint.canOpenPower()) {
+                    nro.models.services.OpenPowerService.gI().openPowerBasic(b); // mở giới hạn sức mạnh miễn phí (chờ như người chơi)
+                }
                 learnSkills(b);
                 wearSkh(b);
                 if ("Luyện tập".equals(b.activity) || "Làm nhiệm vụ".equals(b.activity)) {
@@ -65,6 +68,7 @@ public class BotQuest {
     private void quest(Bot b) {
         b.questMap = -1;
         b.questMob = -1;
+        TaskService.gI().checkDoneTaskPower(b, b.nPoint.power); // bước "Đạt ... sức mạnh" chỉ được ghi khi sức mạnh tăng: chạm giới hạn thì kẹt
         TaskMain tm = b.playerTask == null ? null : b.playerTask.taskMain;
         if (tm == null || tm.subTasks == null || tm.index < 0 || tm.index >= tm.subTasks.size()) {
             return;
@@ -167,6 +171,12 @@ public class BotQuest {
         }
     }
 
+    /** Map người chơi đi tới được bằng cổng (Tây Karin... không có cổng nào thì bỏ qua). */
+    private static boolean reachable(nro.models.map.Map m) {
+        return m != null && m.tileMap != null && !m.zones.isEmpty() && m.wayPoints != null && !m.wayPoints.isEmpty()
+                && !MapService.gI().isMapPhoBan(m.mapId); // phó bản bang (doanh trại, kho báu, rắn độc, khí gas) không vào làm nhiệm vụ
+    }
+
     private static boolean hasNpc(int mapId, int npcId) {
         nro.models.map.Map m = MapService.gI().getMapById(mapId);
         if (m == null || m.npcs == null) {
@@ -186,7 +196,7 @@ public class BotQuest {
         for (Npc npc : Manager.NPCS) {
             if (npc.tempId == npcId) {
                 nro.models.map.Map m = MapService.gI().getMapById(npc.mapId);
-                if (m != null && m.tileMap != null && (best < 0 || m.planetId == b.gender)) {
+                if (reachable(m) && (best < 0 || m.planetId == b.gender)) {
                     best = npc.mapId;
                 }
             }
@@ -215,7 +225,7 @@ public class BotQuest {
         int best = -1;
         long bestScore = Long.MAX_VALUE;
         for (nro.models.map.Map m : Manager.MAPS) {
-            if (m.tileMap == null || m.zones.isEmpty() || MapService.gI().isMapDoanhTrai(m.mapId) || MapService.gI().isMapBlackBallWar(m.mapId)) {
+            if (!reachable(m) || MapService.gI().isMapBlackBallWar(m.mapId)) {
                 continue;
             }
             for (Mob mob : m.zones.get(0).mobs) {
@@ -268,6 +278,9 @@ public class BotQuest {
         for (Skill cur : b.playerSkill.skills) {
             if (cur == null || cur.template == null || cur.point < 0 || cur.point >= 7) { // point 0: chiêu của phái chưa học
                 continue;
+            }
+            if (cur.point == 0 && cur.template.id >= 19) {
+                continue; // khiên, dịch chuyển, thôi miên, trói, huýt sáo, siêu chiêu: người chơi phải có sách đặc biệt, bot cũng vậy
             }
             Skill next = SkillUtil.createSkill(cur.template.id, cur.point + 1);
             if (next == null || next.powRequire > b.nPoint.power || b.inventory.gem < next.price) {
