@@ -60,6 +60,7 @@ public final class BotWorld {
                     + " head smallint not null, body smallint not null, leg smallint not null, flag smallint not null, power bigint not null,"
                     + " tiem_nang bigint not null, hpg bigint not null, mpg bigint not null, dameg bigint not null)");
             st.executeUpdate("create table if not exists bot_setting (k varchar(32) primary key, v varchar(64) not null)");
+            BotLearn.load();
             st.executeUpdate("create table if not exists bot_account (player_id bigint primary key, account_id int not null default 0)");
             // tài khoản bot riêng (tạo trên panel, không ai đăng nhập được) + bật/tắt
             st.executeUpdate("alter table bot_account add column if not exists dedicated tinyint not null default 0");
@@ -799,6 +800,7 @@ public final class BotWorld {
     }
 
     public void saveAll() {
+        BotLearn.save();
         for (Bot b : bots()) {
             save(b);
         }

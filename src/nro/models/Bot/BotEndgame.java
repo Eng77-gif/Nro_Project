@@ -32,6 +32,51 @@ public class BotEndgame {
         combine(b, BT1, MANH_BT, 9_999, 99, BT2, 2);
         combine(b, BT2, MANH_BT3, 20_000, 200, BT3, 3);
         changePet(b);
+        socket(b);
+    }
+
+    // ------------------------------------------------------------------ ép sao pha lê / ngọc rồng
+    /** Đá / ngọc rồng ưu tiên theo món: áo quần chống chịu, găng và rada sức đánh, giày né đòn / KI (CombineSystem.getOptionDaPhaLe). */
+    private static final int[][] SOCKET_PREF = {
+        {20, 15, 441, 446}, // áo: ngọc 7 sao HP, ngọc 2 sao giảm sát thương, hút HP
+        {20, 15, 441, 446}, // quần
+        {16, 444, 445, 17}, // găng: ngọc 3 sao sức đánh, xuyên giáp
+        {14, 19, 18, 442},  // giày: ngọc 1 sao né đòn, ngọc 6 sao KI
+        {16, 447, 18, 19}}; // rada: sức đánh, tiềm năng
+
+    /** Ép 1 viên mỗi lượt vào lỗ trống (lỗ 1 - 7) của đồ đang mặc, như người chơi ép ở Bà Hạt Mít (EpSaoTrangBi). */
+    private static void socket(Bot b) {
+        for (int slot = 0; slot < 5 && slot < b.inventory.itemsBody.size(); slot++) {
+            Item eq = b.inventory.itemsBody.get(slot);
+            if (eq == null || !eq.isNotNullItem() || !nro.models.combine.CombineSystem.isTrangBiPhaLeHoa(eq)) {
+                continue;
+            }
+            Item.ItemOption st = eq.getOptionById(102), holes = eq.getOptionById(107);
+            int star = st == null ? 0 : st.param;
+            if (holes == null || star >= holes.param || star >= 7) {
+                continue;
+            }
+            for (int id : SOCKET_PREF[slot]) {
+                Item da = InventoryService.gI().findItemBag(b, id);
+                if (da == null) {
+                    continue;
+                }
+                int gem = nro.models.combine.CombineSystem.getGemEpSao(star);
+                if (b.inventory.gem < gem) { // thiếu ngọc: đổi tiềm năng ra ngọc (GEM_TN)
+                    if (b.nPoint.tiemNang < (gem - b.inventory.gem) * GEM_TN) {
+                        return;
+                    }
+                    b.nPoint.tiemNang -= (gem - b.inventory.gem) * GEM_TN;
+                    b.inventory.gem = gem;
+                }
+                b.combineNew.itemsCombine = new java.util.ArrayList<>(java.util.List.of(eq, da));
+                b.combineNew.gemCombine = gem;
+                nro.models.combine.EpSaoTrangBi.epSaoTrangBi(b);
+                b.combineNew.itemsCombine.clear();
+                Service.gI().point(b);
+                return;
+            }
+        }
     }
 
     /** Hoạt động phần sau (BotWorld.switchActivity gọi trước khi chọn ngẫu nhiên). true nếu bot đã nhận việc. */

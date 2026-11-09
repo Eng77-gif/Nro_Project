@@ -60,6 +60,39 @@ public class Bot extends Player {
         if (this.questMap >= 0) {
             return this.questMap;
         }
+        if (!this.accountBot || Util.isTrue(20, 100)) {
+            return pickTierMap(); // bot giả lập / 1/5 số lần: chọn ngẫu nhiên để còn khám phá map
+        }
+        int best = pickTierMap();
+        for (int t = 0; t < 2; t++) { // rút thêm 2 map hợp sức, lấy map bot đã thấy lên nhanh nhất (BotLearn)
+            int m = pickTierMap();
+            if (BotLearn.score(m) > BotLearn.score(best)) {
+                best = m;
+            }
+        }
+        return best;
+    }
+
+    /** Ghi nhận lượt ở map cũ trước khi đổi map (BotLearn chấm điểm map). */
+    private void learnLeave() {
+        if (this.accountBot && this.zone != null && this.zone.map.mapId == this.learnMap && this.nPoint != null) {
+            BotLearn.record(this.learnMap, this.nPoint.power - this.learnPower, System.currentTimeMillis() - this.learnSince, this.deathTotal - this.learnDeaths);
+        }
+    }
+
+    private void learnEnter() {
+        if (this.zone != null && this.nPoint != null) {
+            this.learnMap = this.zone.map.mapId;
+            this.learnPower = this.nPoint.power;
+            this.learnSince = System.currentTimeMillis();
+            this.learnDeaths = this.deathTotal;
+        }
+    }
+
+    private int learnMap = -1, learnDeaths, deathTotal;
+    private long learnPower, learnSince;
+
+    private int pickTierMap() {
         Random random = new Random();
         long power = this.nPoint.power;
         if (this.accountBot) {
@@ -125,8 +158,10 @@ public class Bot extends Player {
         }
         Zone zone = getRandomZone(mapId);
         if (zone != null) {
+            learnLeave();
             ChangeMapService.gI().goToMap(this, zone);
             this.zone.load_Me_To_Another(this);
+            learnEnter();
             this.mo1.lastTimeChanM = System.currentTimeMillis();
         }
     }
@@ -231,6 +266,7 @@ public class Bot extends Player {
                 break;
         }
         if (this.isDie()) {
+            this.deathTotal++;
             if (this.accountBot) {
                 long now = System.currentTimeMillis();
                 if (now - this.deathWindow > 5 * 60_000L) {
