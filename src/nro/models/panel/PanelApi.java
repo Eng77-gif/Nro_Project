@@ -122,8 +122,9 @@ class PanelApi {
             case "player/save" -> playerSave(b);
             case "accounts" -> accounts(q.getOrDefault("q", ""));
             case "accounts/page" -> paged(q, "select a.id, a.username, a.ban, a.is_admin, a.vnd, a.tongnap, a.create_time, a.last_time_login, a.ip_address, "
-                    + "(select group_concat(p.name) from player p where p.account_id=a.id) players",
-                    "from account a where a.username like ? escape '!' or a.id = ? or exists (select 1 from player p where p.account_id=a.id and p.name like ? escape '!')",
+                    + "(select group_concat(p.name) from player p where p.account_id=a.id) players, a.id in " + BOT_ACC + " is_bot",
+                    "from account a where (a.username like ? escape '!' or a.id = ? or exists (select 1 from player p where p.account_id=a.id and p.name like ? escape '!'))"
+                    + ("bot".equals(q.get("kind")) ? " and a.id in " + BOT_ACC : "human".equals(q.get("kind")) ? " and a.id not in " + BOT_ACC : ""),
                     "a.id desc", like(q), idOf(q), like(q));
             case "clans/page" -> paged(q, "select id, NAME name, slogan, power_point, max_member, clan_point, LEVEL level, create_time",
                     "from clan where NAME like ? escape '!' or id = ?", "power_point desc, id", like(q), idOf(q));
@@ -260,6 +261,10 @@ class PanelApi {
         m.put("bosses", allBosses().stream().filter(x -> x.zone != null && !x.isDie()).count());
         m.put("accounts", scalar("select count(*) from account"));
         m.put("players", scalar("select count(*) from player"));
+        Map<Long, Integer> bots = nro.models.Bot.BotWorld.gI().accountBots(false);
+        m.put("botPlayers", bots.size());
+        m.put("botAccounts", new java.util.HashSet<>(bots.values()).size());
+        m.put("botsOnline", nro.models.Bot.BotWorld.gI().bots().size());
         m.put("seasons", SeasonEventService.gI().activeSeasons().stream().map(s -> s.name).toList());
         return m;
     }
@@ -1719,6 +1724,9 @@ class PanelApi {
     // ------------------------------------------------------------------ database
 
     /** Chia trang SQL: đếm tổng rồi lấy đúng 1 trang (LIMIT/OFFSET), trả {rows, page, size, total, totalPages}. */
+    /** Id các tài khoản bot riêng (không ai đăng nhập được). */
+    private static final String BOT_ACC = "(select p.account_id from bot_account b join player p on p.id = b.player_id where b.dedicated = 1)";
+
     private static Map<String, Object> paged(Map<String, String> p, String select, String fromWhere, String order, Object... args) throws Exception {
         long total = PanelDirectory.numeric(rows("select count(*) n " + fromWhere, args).get(0).get("n"));
         PanelDirectory.Page pg = new PanelDirectory.Page(select + " " + fromWhere + " order by " + order + " limit ? offset ?", List.of(args),
