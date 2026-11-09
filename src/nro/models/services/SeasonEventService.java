@@ -1207,7 +1207,7 @@ public class SeasonEventService implements Runnable {
                             if (e.rewardDays.length > 0 && !Util.isTrue(e.permRate, 100)) {
                                 days = e.rewardDays[Util.nextInt(0, e.rewardDays.length - 1)];
                             }
-                            InventoryService.gI().addItemBag(pl, Event2026Service.gI().createItem(e.rewardItem, 1, days));
+                            InventoryService.gI().addItemBag(pl, noTrade(Event2026Service.gI().createItem(e.rewardItem, 1, days)));
                             got.add(rewardName + (e.rewardDays.length > 0 ? (days > 0 ? " (" + days + " ngày)" : " (vĩnh viễn)") : ""));
                         }
                     }
@@ -1217,11 +1217,11 @@ public class SeasonEventService implements Runnable {
                 }
             }
             if (total > 0) {
-                InventoryService.gI().addItemBag(pl, Event2026Service.gI().createItem(e.rewardItem, total, 0));
+                InventoryService.gI().addItemBag(pl, noTrade(Event2026Service.gI().createItem(e.rewardItem, total, 0)));
                 got.add("x" + total + " " + rewardName);
             }
             if (bonus > 0) {
-                InventoryService.gI().addItemBag(pl, Event2026Service.gI().createItem(e.bonusItem, bonus, 0));
+                InventoryService.gI().addItemBag(pl, noTrade(Event2026Service.gI().createItem(e.bonusItem, bonus, 0)));
                 got.add("x" + bonus + " " + ItemService.gI().getTemplate(e.bonusItem).name);
             }
             if (e.eventPoint > 0) {
@@ -1860,6 +1860,18 @@ public class SeasonEventService implements Runnable {
         return plain(g).equals("đổi điểm");
     }
 
+    /** Nguyên liệu rơi của sự kiện (bí ngô, kẹo...): người chơi được ký gửi bán cho nhau ở Siêu thị. */
+    public boolean isEventMaterial(int itemId) {
+        for (Season s : seasons.values()) {
+            for (Drop d : s.drops) {
+                if (d.itemId == itemId || d.itemTo == itemId) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /** Sự kiện đang chạy (mỗi lúc 1 sự kiện), null nếu không có. */
     public Season current() {
         List<Season> list = activeSeasons();
@@ -1921,6 +1933,10 @@ public class SeasonEventService implements Runnable {
             } else if (e.rewardDays.length > 0) {
                 is.options.add(new Item.ItemOption(231, 0));
             } // vĩnh viễn: không hiện dòng nào (như bản chính thức)
+            Item probe = ItemService.gI().createNewItem((short) e.rewardItem);
+            if (noTrade(probe).getOptionById(30) != null) {
+                is.options.add(new Item.ItemOption(30, 0)); // hiện "Không giao dịch" như khi nhận
+            }
             tab.itemShops.add(is);
             map.put(e.rewardItem, e);
         }
@@ -1943,6 +1959,24 @@ public class SeasonEventService implements Runnable {
     public static final int OPT_VINH_VIEN = 266;
 
     /** Mua 1 món trong cửa hàng sự kiện: đi qua công thức đổi (trừ tiền / điểm, hạn dùng, điểm top, điểm sự kiện). */
+    /**
+     * Đồ đổi / mua ở sự kiện thêm dòng "Không giao dịch" (option 30), trừ cải trang, đeo lưng, ván bay, danh hiệu và pet
+     * (những món người chơi vẫn được giao dịch / ký gửi); tiền tệ (vàng, thỏi vàng, ngọc rồng) không thêm.
+     */
+    static Item noTrade(Item it) {
+        if (it == null || it.template == null) {
+            return it;
+        }
+        int t = it.template.type, id = it.template.id;
+        boolean pet = t == 27 && it.template.head >= 0 && it.template.body >= 0 && it.template.leg >= 0;
+        if (t == 5 || t == 11 || t == 23 || t == 24 || t == 36 || pet || id == 457 || id == 2032 || (id >= 14 && id <= 20)
+                || t == 9 || t == 10 || t == 34 || it.getOptionById(30) != null) {
+            return it;
+        }
+        it.itemOptions.add(new Item.ItemOption(30, 0));
+        return it;
+    }
+
     public void buyFromEventShop(Player pl, int tempId) {
         Map<Integer, Exchange> m = shopOpen.get(pl.id);
         Exchange e = m == null ? null : m.get(tempId);

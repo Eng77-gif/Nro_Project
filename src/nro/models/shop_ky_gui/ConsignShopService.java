@@ -361,7 +361,8 @@ public class ConsignShopService {
                     || it.template.type == 14
                     || it.template.type == 15
                     || it.template.type == 6
-                    || it.template.id >= 14 && it.template.id <= 20) {
+                    || it.template.id >= 14 && it.template.id <= 20
+                    || nro.models.services.SeasonEventService.gI().isEventMaterial(it.template.id)) { // đồ sự kiện: người chơi ký gửi bán cho nhau
                 return true;
             }
         }
