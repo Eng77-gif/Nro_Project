@@ -52,6 +52,8 @@ public class TabShopSoHuu extends TabShop {
                 }
                 it.tabShop = this;
                 it.isNew = false;
+                it.typeSell = 1; // hiện giá đổi danh hiệu: 2 ngọc (ShopService.changeDanhHieu trừ)
+                it.cost = 2;
                 int days = BadgesTaskService.sendDay(player, temp.idEffect);
                 it.options.removeIf(o -> o == null || o.optionTemplate == null || o.optionTemplate.id == 93);
                 if (days > 0 && days < 3650) {

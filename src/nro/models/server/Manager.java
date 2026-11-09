@@ -76,6 +76,7 @@ public final class Manager {
     public static int MAX_PER_IP = 1000;
     public static int MAX_PLAYER = 2000;
     public static byte RATE_EXP_SERVER = 1;
+    public static volatile int ADMIN_XUYEN_GIAP = 0; // % xuyên giáp (bỏ qua giáp % và giáp trừ) cho tài khoản admin, sửa ở panel
     public static boolean LOCAL = false;
     public static boolean TEST = false;
     public static boolean DAO_AUTO_UPDATER = false;
@@ -333,6 +334,7 @@ public final class Manager {
             nro.models.database.Dot96Migration.run(ConnectionDatabase);
             nro.models.database.Dot98Migration.run(ConnectionDatabase);
             nro.models.database.Dot101Migration.run(ConnectionDatabase);
+            nro.models.database.Dot102Migration.run(ConnectionDatabase);
             //load part
             ps = ConnectionDatabase.prepareStatement("select * from part");
             rs = ps.executeQuery();
@@ -1085,6 +1087,9 @@ public final class Manager {
         }
         if ((value = properties.get("server.maxplayer")) != null) {
             MAX_PLAYER = Integer.parseInt(String.valueOf(value));
+        }
+        if ((value = properties.get("admin.xuyengiap")) != null) {
+            ADMIN_XUYEN_GIAP = Math.max(0, Math.min(100, Integer.parseInt(String.valueOf(value).trim())));
         }
         if ((value = properties.get("server.expserver")) != null) {
             RATE_EXP_SERVER = Byte.parseByte(String.valueOf(value));

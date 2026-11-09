@@ -1713,3 +1713,12 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Bot giống người thật hơn:** chơi theo ca (40 phút - 4 tiếng rồi thoát, nghỉ 10 phút - 2 tiếng; 1h-7h sáng ca ngắn, nghỉ lâu như đi ngủ; mở server không phải bot nào cũng online ngay); người chơi gọi tên bot trong khu thì bot trả lời, chào / hỏi chung thì thỉnh thoảng có bot đáp (trễ 1,5-5 giây, mỗi bot cách nhau ≥ 20 giây).
 - **Chỉ số và tiền tệ dùng long (server):** sức đánh mỗi đòn (`getDameAttack`) trước bị kẹp ở 2,1 tỷ, nay không giới hạn; sát thương trả về từ `injured` (người chơi, boss, quái), HP / sức đánh quái, giáp, chỉ số cộng thêm, hút HP/KI, phản sát thương, ngọc, hồng ngọc đều là long. Gói tin client đọc long (J2ME / 2.4.9) nhận đủ số; gói nào client chỉ đọc int thì kẹp ở 2,1 tỷ khi gửi (`Util.toInt`) để không hiện số âm. BossData (sức đánh, HP gốc của mọi boss) cũng là long: boss Siêu hạng và Ninja Áo Tím phân thân sao chép đủ chỉ số, không bị cắt ở 2,1 tỷ.
 - **Bot không đi map quá sức:** bot 7 triệu sức mạnh vào Thung lũng Nappa (quái 40.000 HP) vì bước nhiệm vụ / săn boss chỉ chặn theo nhiệm vụ, không theo sức. Nay bot chỉ tới map khi quái tiêu biểu chết trong ~30 đòn và 6 đòn của quái chưa hạ được bot (`Bot.strongEnough`); chưa đủ sức thì luyện thêm ở map hợp sức rồi mới làm bước nhiệm vụ; săn boss bỏ qua boss quá sức (HP > 500 đòn hoặc 3 đòn hạ được bot); chọn map luyện tập cũng ưu tiên map đánh nổi.
+
+## Đợt 102
+- **Máy đấm quay qua quay lại:** người đấm đứng chồng lên máy thì mỗi đòn máy lệch 1 px làm người đấm đổi bên, đòn sau máy quay ngược lại. Nay chỉ quay khi người đấm lệch hẳn sang một bên (> 24 px), luôn tính từ chỗ gốc nên máy không trôi.
+- **15 khu mỗi map** (trước 10 khu: 0 - 9), riêng **Đảo Kamê 30 khu**.
+- **Đấm xuyên giáp cho admin:** `admin.xuyengiap` (0 - 100%) trong Config.properties, sửa ở panel → Cấu hình, áp dụng ngay không cần khởi động lại. Admin bỏ qua đúng % đó của giáp % và giáp trừ của đối thủ (người chơi, boss).
+- **Đổi danh hiệu mất 2 ngọc** (tab Sở hữu ở Santa hiện giá 2 ngọc).
+- **Phiếu sao vàng may mắn thay vé vàng:** shop Santa bán Phiếu sao vàng may mắn (vào Ngục tù may mắn) giá 19.999 ngọc thay vé vàng (vé vàng không dùng được); vàng rơi ở Ngục tù may mắn tối đa 500.000 / cục.
+- **Năng lượng E10** bán ở Santa (tab Hỗ trợ) giá 10 ngọc.
+- **Boss Mặt Trời** chỉ xuất hiện trong Sự kiện Hè (20 con), không còn có mặt quanh năm.

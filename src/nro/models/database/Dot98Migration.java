@@ -41,7 +41,7 @@ public class Dot98Migration {
                 n += update(con, "insert into server_migration (name) values ('dot98_bardock')");
             }
             // Vé vàng (vào khu riêng tư up bông tai) bán ở Santa, tab Hỗ trợ: 19.999 ngọc
-            if (!exists(con, "select 1 from item_shop where temp_id = 1876 and tab_id = 34")) {
+            if (!exists(con, "select 1 from item_shop where temp_id in (1876, 2021) and tab_id = 34")) { // Đợt 102 đổi vé vàng thành phiếu sao vàng (2021)
                 n += update(con, "insert into item_shop (tab_id, temp_id, is_new, is_sell, type_sell, cost, icon_spec) values (34, 1876, 1, 1, 1, 19999, 0)");
             }
             if (n > 0) {

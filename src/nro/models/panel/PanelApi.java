@@ -1363,7 +1363,7 @@ class PanelApi {
     }
 
     private static final List<String> EDITABLE = List.of("server.name", "server.expserver", "server.maxplayer", "server.maxperip", "server.waitlogin",
-            "panel.port", "panel.host", "panel.user", "panel.pass", "panel.enable");
+            "panel.port", "panel.host", "panel.user", "panel.pass", "panel.enable", "admin.xuyengiap");
 
     private Object config() throws Exception {
         Properties p = loadConfig();
@@ -1405,7 +1405,13 @@ class PanelApi {
         try (OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8)) {
             w.write(String.join("\n", lines) + "\n");
         }
-        return Map.of("ok", true, "note", "Đã lưu Config.properties, khởi động lại server để áp dụng");
+        if (v instanceof Map<?, ?> m && m.get("admin.xuyengiap") != null) { // áp dụng ngay, không cần khởi động lại
+            try {
+                nro.models.server.Manager.ADMIN_XUYEN_GIAP = Math.max(0, Math.min(100, Integer.parseInt(String.valueOf(m.get("admin.xuyengiap")).trim())));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return Map.of("ok", true, "note", "Đã lưu Config.properties (admin.xuyengiap áp dụng ngay, mục khác cần khởi động lại server)");
     }
 
     private static Properties loadConfig() throws Exception {

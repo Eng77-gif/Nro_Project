@@ -1235,6 +1235,10 @@ public class Player implements Runnable {
             if (piercing) {
                 tlGiap = 0;
             }
+            int xuyenGiap = plAtt != null && plAtt.isAdmin() ? nro.models.server.Manager.ADMIN_XUYEN_GIAP : 0;
+            if (xuyenGiap > 0) {
+                tlGiap = tlGiap * (100 - xuyenGiap) / 100; // admin: bỏ qua xuyenGiap% giáp
+            }
 
             if (tlNeDon > 90) {
                 tlNeDon = 90;
@@ -1271,7 +1275,9 @@ public class Player implements Runnable {
             } else {
                 damage -= ((damage / 100) * tlGiap);
 
-                if (!piercing) {
+                if (!piercing && xuyenGiap > 0) {
+                    damage = Math.max(1, damage - this.nPoint.def * (100 - xuyenGiap) / 100);
+                } else if (!piercing) {
                     damage = this.nPoint.subDameInjureWithDeff(damage);
                 }
             }
