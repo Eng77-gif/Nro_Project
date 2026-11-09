@@ -90,6 +90,14 @@ class PanelApi {
                 }
                 yield Map.of("ok", true, "ids", ids);
             }
+            case "bot/deleteall" -> {
+                if (!"XOA HET".equals(str(b.get("confirm")))) {
+                    throw new IllegalArgumentException("Thiếu xác nhận");
+                }
+                int[] del = nro.models.Bot.BotWorld.gI().deleteAllBotAccounts();
+                yield Map.of("ok", true, "deleted", del[0], "failed", del[1], "dissolved", del[2],
+                        "note", "Đã xoá " + del[0] + " tài khoản bot" + (del[1] > 0 ? ", lỗi " + del[1] : "") + (del[2] > 0 ? ", giải tán " + del[2] + " bang chỉ có bot" : ""));
+            }
             case "bot/delete" -> {
                 if (!"XOA".equals(str(b.get("confirm")))) {
                     throw new IllegalArgumentException("Thiếu xác nhận");

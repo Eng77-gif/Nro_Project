@@ -1745,6 +1745,8 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Panel V4 chia trang:** Người chơi, Vật phẩm theo V4; thêm chia trang giống vậy cho Tài khoản, Bảng xếp hạng, Bang hội, Ký gửi (lọc đang bán / đã bán), Giftcode, Boss (gộp đang sống / đang nghỉ, lọc trạng thái), Quái và Nhật ký chat. Mỗi mục có ô tìm kiếm, chọn 25 / 50 / 100 dòng, nút trang và ô nhảy trang; server chỉ trả trang đang xem (`*/page`, COUNT + LIMIT/OFFSET) nên xem được hết dữ liệu thay vì bị cắt ở 200 - 500 dòng.
 - **Panel trên điện thoại:** sửa lỗi phải thu nhỏ mới thấy thanh 4 mục dưới màn hình (dòng chữ dài ở trang Sự kiện, chỉ số Thẻ radar làm trang rộng hơn màn hình); mọi trang trong mục Thêm đã kiểm tra không còn tràn ngang.
 - **Tách tài khoản bot / người thật:** trang Tài khoản có lọc Loại tài khoản (mặc định tài khoản thật) và cột Loại; Tổng quan ghi rõ người thật / bot cho Tổng tài khoản, Tổng nhân vật và thêm 2 thẻ **Bot online**, **Tổng tài khoản bot**.
+- **Xoá hết tài khoản bot** (panel → Bot, gõ `XOA HET` để xác nhận): bot thoát game, xoá nhân vật + tài khoản; bang do bot làm chủ nhường cho người thật (ưu tiên phó bang), bang chỉ còn bot thì giải tán.
+- **Tên bot đậm chất Ngọc Rồng:** ghép nhân vật / chiêu / hành tinh / vật phẩm với dạng biến hình, vd `gokussj3`, `vegetablue`, `hacgoku`, `kamejoko88`, `ngocrong4sao`, `picolonamec`, `xaydavip`.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

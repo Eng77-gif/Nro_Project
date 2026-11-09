@@ -366,6 +366,70 @@ public final class BotWorld {
         accountBots(false);
     }
 
+    /**
+     * Xoá hết tài khoản bot. Bot thoát game trước; bang có bot: bot rời bang, bang do bot làm chủ thì nhường cho người thật
+     * (ưu tiên phó bang), bang không còn người thật thì giải tán. Trả về {đã xoá, lỗi, bang giải tán}.
+     */
+    public synchronized int[] deleteAllBotAccounts() throws Exception {
+        java.util.Set<Long> ids = new java.util.HashSet<>(accountBots(false).keySet());
+        Map<Long, Integer> accs = accountBots(false);
+        setAllAccountBots(false);
+        int dissolved = 0;
+        for (nro.models.clan.Clan c : new ArrayList<>(Manager.CLANS)) {
+            List<nro.models.clan.ClanMember> bots = new ArrayList<>(), humans = new ArrayList<>();
+            for (nro.models.clan.ClanMember m : new ArrayList<>(c.members)) {
+                (ids.contains((long) m.id) ? bots : humans).add(m);
+            }
+            if (bots.isEmpty()) {
+                continue;
+            }
+            synchronized (c.membersInGame) {
+                c.membersInGame.removeIf(p -> p != null && ids.contains(p.id));
+            }
+            if (humans.isEmpty()) {
+                LocalManager.executeUpdate("update player set clan_id = -1 where clan_id = ?", c.id);
+                c.deleteDB(c.id);
+                Manager.CLANS.remove(c);
+                dissolved++;
+                continue;
+            }
+            boolean leaderGone = bots.stream().anyMatch(m -> m.role == nro.models.clan.Clan.LEADER);
+            for (nro.models.clan.ClanMember m : bots) {
+                c.removeClanMember(m);
+            }
+            if (leaderGone) {
+                humans.sort((x, y) -> Byte.compare(x.role, y.role)); // phó bang (1) trước thành viên (2)
+                humans.get(0).role = nro.models.clan.Clan.LEADER;
+            }
+            c.update();
+            c.sendMyClanForAllMember();
+        }
+        int ok = 0, fail = 0;
+        for (long id : ids) {
+            try {
+                Bot b = find(id);
+                if (b != null) {
+                    BotManager.gI().bot.remove(b);
+                    nextSwitch.remove(b.id);
+                    try {
+                        ChangeMapService.gI().exitMap(b);
+                    } catch (Exception ignored) {
+                    }
+                }
+                LocalManager.executeUpdate("delete from bot_account where player_id = ?", id);
+                LocalManager.executeUpdate("delete from player where id = ?", id);
+                LocalManager.executeUpdate("delete from account where id = ?", accs.get(id));
+                ok++;
+            } catch (Exception e) {
+                fail++;
+                Logger.error("Bot: không xoá được tài khoản bot " + id + ": " + e.getMessage() + "\n");
+            }
+        }
+        accountBots(false);
+        lastAccSync = 0;
+        return new int[]{ok, fail, dissolved};
+    }
+
     private static boolean clanOf(long playerId) throws Exception {
         nro.models.data.LocalResultSet rs = LocalManager.executeQuery("select clan_id from player where id = ?", playerId);
         try {
@@ -808,20 +872,32 @@ public final class BotWorld {
 
     // ------------------------------------------------------------------ tạo / bỏ bot
     // tên giống người chơi thật: hanabi24h, meocon2k5, rongden99...
-    private static final String[] PRE = {"hanabi", "sakura", "yuki", "kuro", "shiro", "ryu", "kaze", "akira", "hikari", "sora", "kenji", "haru",
-        "meocon", "bemeo", "tieuquy", "rongden", "thanhlong", "bachho", "chiensi", "sieunhan", "baoanh", "minhthu", "kenhoang", "langtu",
-        "satthu", "vuabip", "conan", "gaucon", "thocon", "heocon", "cunbong", "mocmeo", "zinzin", "bonbon", "kenny", "tommy", "jerry",
-        "songoku", "vegito", "gohan", "goten", "trunks", "picolo", "frieza", "cell", "buu", "broly", "beerus", "whis", "zeno", "jiren",
-        "tuan", "minh", "hung", "long", "nam", "duc", "khoa", "huy", "phuc", "quang", "son", "trung", "vinh", "hoang", "linh", "mai",
-        "dragon", "shadow", "ghost", "killer", "ninja", "hunter", "legend", "master", "king", "boss", "lucky", "sunny", "moon", "star"};
-    private static final String[] SUF = {"24h", "99", "2k5", "2k6", "2k4", "9x", "vn", "pro", "vip", "zz", "x", "68", "88", "79", "86",
-        "197", "123", "kute", "dz", "tv", "hn", "sg", "hp", "dn", "nro", "boy", "girl", "baby", "", "", "", "", ""};
+    // Tên kiểu người chơi Ngọc Rồng: nhân vật, chiêu thức, hành tinh, vật phẩm + dạng biến hình / số sao / đuôi quen thuộc.
+    private static final String[] DB_HERO = {"goku", "gohan", "goten", "vegeta", "trunks", "picolo", "krillin", "yamcha", "tenshin", "chaozu",
+        "bardock", "raditz", "nappa", "broly", "gogeta", "vegito", "kakarot", "frieza", "cell", "buu", "cooler", "zamasu", "hit", "jiren",
+        "beerus", "whis", "zeno", "android17", "android18", "bulma", "chichi", "videl", "pan", "uub", "dende", "kami", "karin", "popo",
+        "satan", "kaio", "tapion", "janemba", "baby", "omega", "turles", "kefla", "caulifla", "kale", "cabba", "goku", "vegeta", "gohan"};
+    private static final String[] DB_SKILL = {"kamejoko", "kamehameha", "masenko", "galick", "kaioken", "genkidama", "bigbang", "finalflash",
+        "dragonfist", "makankosappo", "destructo", "thaiduong", "thoimien", "tusat", "khien", "quaqua", "dichchuyen", "biendoi", "laze"};
+    private static final String[] DB_PLACE = {"xayda", "namec", "traidat", "kame", "kaio", "fide", "yardrat", "nappa", "rongthan", "shenron",
+        "porunga", "ngocrong", "dauthan", "capsule", "radar", "kinhdauvan", "gay", "nhuy", "satthu", "chienbinh"};
+    private static final String[] DB_PRE = {"ssj", "sieu", "than", "hac", "bach", "tieu", "vua", "dai", "ma", "ac", "chien", "boss", "cute", "baby", "lao"};
+    private static final String[] DB_FORM = {"ssj", "ssj2", "ssj3", "ssj4", "god", "blue", "ui", "rose", "xeno", "gt", "z", "kai", "super",
+        "black", "dark", "max", "vip", "pro", "vn", "nro", "x", "zz", "99", "2k5", "2k6", "9x", "68", "88", "79", "", "", "", ""};
 
     private String newName() {
-        for (int t = 0; t < 30; t++) {
-            String n = PRE[rnd.nextInt(PRE.length)] + (rnd.nextInt(4) == 0 ? PRE[rnd.nextInt(PRE.length)].substring(0, 3) : "")
-                    + SUF[rnd.nextInt(SUF.length)] + (rnd.nextInt(4) == 0 ? String.valueOf(rnd.nextInt(10)) : "");
-            if (n.length() < 4 || n.length() > 15) {
+        for (int t = 0; t < 40; t++) {
+            String hero = DB_HERO[rnd.nextInt(DB_HERO.length)], form = DB_FORM[rnd.nextInt(DB_FORM.length)];
+            String n = switch (rnd.nextInt(8)) {
+                case 0, 1 -> hero + form;                                              // gokussj3, vegetablue
+                case 2 -> DB_PRE[rnd.nextInt(DB_PRE.length)] + hero;                   // hacgoku, tieugohan
+                case 3 -> DB_SKILL[rnd.nextInt(DB_SKILL.length)] + (rnd.nextBoolean() ? form : String.valueOf(1 + rnd.nextInt(99)));
+                case 4 -> "ngocrong" + (1 + rnd.nextInt(7)) + "sao";                   // ngocrong4sao
+                case 5 -> hero + DB_PLACE[rnd.nextInt(DB_PLACE.length)];               // gokuxayda, picolonamec
+                case 6 -> DB_PLACE[rnd.nextInt(DB_PLACE.length)] + form;               // xaydavip, namecpro
+                default -> DB_PRE[rnd.nextInt(DB_PRE.length)] + DB_PLACE[rnd.nextInt(DB_PLACE.length)] + (rnd.nextInt(3) == 0 ? String.valueOf(rnd.nextInt(10)) : "");
+            };
+            if (n.length() < 4 || n.length() > 15 || Util.haveSpecialCharacter(n)) {
                 continue;
             }
             try {
@@ -833,7 +909,7 @@ public final class BotWorld {
             }
             return n;
         }
-        return "bot" + rnd.nextInt(100000);
+        return "chienbinh" + rnd.nextInt(100000);
     }
 
     private void spawn(java.util.Set<Long> ids) {
