@@ -19,6 +19,16 @@ public class Dot103Migration {
 
     public static void run(Connection con) {
         try {
+            // Danh hiệu Phá Cổ Trung Thu: hiệu ứng thật 505 (trăng, đèn lồng, thỏ ngọc, chữ Phá Cỗ Trung Thu) thay banner 300; người đã có đổi theo
+            int b = update(con, "update data_badges set idEffect = 505 where idItem = 1885 and idEffect = 300")
+                    + update(con, "update player set dataBadges = replace(dataBadges, '\"idBadGes\":\"300\"', '\"idBadGes\":\"505\"') where dataBadges like '%\"idBadGes\":\"300\"%'");
+            if (b > 0) {
+                Logger.success("Đợt 103: danh hiệu Phá Cổ Trung Thu dùng hiệu ứng 505\n");
+            }
+        } catch (Exception e) {
+            Logger.error("Đợt 103: không đổi được hiệu ứng Phá Cổ Trung Thu: " + e.getMessage() + "\n");
+        }
+        try {
             if (exists(con, "select 1 from server_migration where name = 'dot103_botstats'")) {
                 return;
             }
