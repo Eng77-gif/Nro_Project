@@ -64,6 +64,8 @@ public class BotSanBoss {
             boolean bosAction = false;
             if (this.bossAttack != null && this.bossAttack.zone != null && this.bossAttack.zone.map != null) {
                 bosAction = !this.bossAttack.isDie() && this.bot.canGo(this.bossAttack.zone.map.mapId) // tài khoản bot không tới boss ở map chưa mở
+                        && (!this.bot.accountBot || (this.bossAttack.nPoint.hpMax <= this.bot.nPoint.dame * 500 // boss quá sức (như người chơi): bỏ qua
+                        && this.bossAttack.nPoint.dame * 3 <= this.bot.nPoint.hpMax && this.bot.strongEnough(this.bossAttack.zone.map.mapId)))
                         && !this.isMap(this.bossAttack.zone.map.mapId)
                         && !this.bossAttack.zone.isFullPlayer()
                         && this.bossAttack.zone.mobs != null

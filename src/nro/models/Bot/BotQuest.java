@@ -114,6 +114,14 @@ public class BotQuest {
                 : tm.id == 27 && tm.index == 1 ? 58 // capsule kì bí rơi từ Xên con (58 - 65) khi bật máy dò (BotEndgame.mayDo)
                 : mobId(st.name);
         int mobMap = mobId < 0 ? -1 : mobMap(b, mobId);
+        int target = mobMap >= 0 ? mobMap : map;
+        if (target >= 0 && !b.strongEnough(target)) { // quái map nhiệm vụ quá mạnh: luyện thêm ở map hợp sức rồi mới tới
+            b.activity = "Luyện tập";
+            if (!b.strongEnough(b.zone.map.mapId)) {
+                b.joinMap();
+            }
+            return;
+        }
         if (mobMap >= 0) { // đánh quái: luyện ở map có loại quái đó, ưu tiên đánh đúng loại
             b.activity = "Làm nhiệm vụ";
             b.questMap = mobMap;
