@@ -161,7 +161,7 @@ public class BossManager implements Runnable {
         this.createBoss(BossID.O_DO1, 5);
         this.createBoss(BossID.BABY, 2);
         this.createBoss(BossID.BROLY_SUPER, 1);
-        this.createBoss(BossID.MAT_TROI, 20);
+        // Mặt Trời: chỉ trong Sự kiện Hè (season_event 5, Đợt 102)
 
     }
 

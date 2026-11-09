@@ -61,18 +61,26 @@ public class MayDoSucManh extends BigBoss {
     }
 
     private int dir = 1;
+    private int baseX = -1;
 
     /**
      * Máy đứng yên một chỗ; bị đấm từ phía bên kia thì quay mặt về người đấm: gửi lệnh đi (102, hành động 10) lệch 1 px về phía
      * người đấm, client quay mặt theo hướng đi nhưng máy gần như không di chuyển.
      */
     private void faceTo(Player pl) {
-        int want = pl.location.x < this.location.x ? -1 : 1;
-        if (want == dir || this.zone == null) {
+        if (baseX < 0) {
+            baseX = this.location.x;
+        }
+        int dx = pl.location.x - baseX;
+        if (Math.abs(dx) <= 24 || this.zone == null) {
+            return; // người đấm đứng chồng lên máy: giữ hướng cũ (trước đây lệch 1 px làm máy quay qua quay lại mỗi đòn)
+        }
+        int want = dx < 0 ? -1 : 1;
+        if (want == dir) {
             return;
         }
         dir = want;
-        this.location.x += want;
+        this.location.x = baseX + want; // luôn tính từ chỗ gốc, máy không trôi dần
         Message msg = null;
         try {
             msg = new Message(102);

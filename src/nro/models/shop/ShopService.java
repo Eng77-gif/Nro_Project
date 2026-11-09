@@ -998,6 +998,8 @@ public class ShopService {
         Service.gI().sendThongBao(pl, "Bạn đã nhận được danh hiệu " + badgeName);
     }
 
+    private static final int CHANGE_BADGE_GEM = 2; // phí mỗi lần đổi danh hiệu
+
     private void changeDanhHieu(Player pl, ItemShop is) {
         if (pl.lastTimeChangeBadges - System.currentTimeMillis() > 0) {
             Service.gI().sendThongBao(pl, "Vui lòng đợi " + (pl.lastTimeChangeBadges - System.currentTimeMillis()) / 1000 + " giây nữa");
@@ -1008,8 +1010,14 @@ public class ShopService {
             pl.lastTimeChangeBadges = System.currentTimeMillis() + 3000;
             return;
         }
+        if (pl.inventory.gem < CHANGE_BADGE_GEM) {
+            Service.gI().sendThongBao(pl, "Đổi danh hiệu cần " + CHANGE_BADGE_GEM + " ngọc");
+            return;
+        }
+        pl.inventory.subGem(CHANGE_BADGE_GEM);
+        Service.gI().sendMoney(pl);
         BadgesService.turnOnBadges(pl, BagesTemplate.fineIdEffectbyIdItem(is.temp.id));
-        Service.gI().sendThongBao(pl, "Đã đổi danh hiệu sang " + is.temp.name);
+        Service.gI().sendThongBao(pl, "Đã đổi danh hiệu sang " + is.temp.name + " (-" + CHANGE_BADGE_GEM + " ngọc)");
         pl.lastTimeChangeBadges = System.currentTimeMillis() + 3000;
         pl.nPoint.calPoint();
         pl.nPoint.setHp(pl.nPoint.hpMax);

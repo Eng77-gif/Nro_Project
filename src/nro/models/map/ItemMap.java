@@ -34,10 +34,10 @@ public class ItemMap {
     public boolean fromMob; // rơi từ quái (thông báo nhặt set kích hoạt riêng)
     public String id;
 
-    /** Vàng rơi (76, 188, 189, 190): ngoài map tối đa 9.999 / cục, trong khu riêng tư vào bằng vé vàng (map 164) tối đa 500.000 / cục. */
+    /** Vàng rơi (76, 188, 189, 190): ngoài map tối đa 9.999 / cục; Ngục tù may mắn (vào bằng Phiếu sao vàng may mắn) và khu riêng tư (164) tối đa 500.000 / cục. */
     static int goldCap(Zone zone, int tempId, int quantity) {
         if (tempId == 76 || tempId == 188 || tempId == 189 || tempId == 190) {
-            return Math.min(quantity, zone != null && zone.map != null && zone.map.mapId == 164 ? 500_000 : 9_999);
+            return Math.min(quantity, zone != null && zone.map != null && (zone.map.mapId == 164 || zone.map.mapId == nro.models.map.service.MapService.MAP_NGUC_TU_MAY_MAN) ? 500_000 : 9_999);
         }
         return quantity;
     }
