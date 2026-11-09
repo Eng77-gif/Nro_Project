@@ -1797,6 +1797,13 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Ước ở Bà Hạt Mít (sự kiện Halloween):** "Ước bằng 50 ngọc" / "Ước miễn phí" báo ngay quà nhận được ("Điều ước đã thành hiện thực! Bạn nhận được: ..."); ước ra Lưỡi hái hồng thì báo cả server.
 - **Dòng chỉ số đồ Halloween** như bản chính thức: Bí ngô, Bí ngô 1 - 7 sao, bánh kẹo Halloween, Kẹo bàn tay, Hộp Kẹo Ma Quỷ, Kẹo bí ngô, Kẹo mù / Túi mù / Gói quà / Hòm / Thiệp / Capsule / Hộp Halloween, Giấy trang trí, Giỏ đựng kẹo / ngọc bí, Vé ước miễn phí, Rađa dò Zombie có "Không giao dịch", "Ký gửi ngọc", "Sự kiện năm 2026" khi vào hành trang / rương (ô cũ cùng loại được bổ sung để gộp chung). Đồ có dòng "Ký gửi ngọc" dù không giao dịch vẫn ký gửi được, chỉ bán bằng ngọc.
 - **Hộp quà gộp ô giữ hạn sử dụng:** hộp / túi / capsule vẫn gộp chung 1 ô nhưng không còn bị xoá hạn; hộp nhận thêm gộp vào ô đang có và lấy hạn của hộp trước (vd. ô đang còn 34 ngày, nhận thêm hộp 35 ngày → ô x2 còn 34 ngày). Hộp Kẹo Ma Quỷ làm ra có hạn 35 ngày (Đợt 111).
+- **Trang web người chơi** (`http://ip-may-chu:8080/`, cấu hình `web.*` trong Config.properties, giao diện `data/web/index.html`, server `nro.models.web.WebServer`):
+  - Trang chủ: số người online, số tài khoản, sự kiện đang chạy, top 10 sức mạnh (không tính bot), bài mới diễn đàn, nút tải game (`web.download.apk/pc/ios`).
+  - Giới thiệu: 3 hành tinh, tính năng nổi bật, luật chơi.
+  - Đăng nhập bằng tài khoản game (chặn tài khoản bị khoá và tài khoản bot, sai 8 lần khoá 5 phút).
+  - Diễn đàn công khai (đăng bài, bình luận); Tố cáo (tên nhân vật bị tố cáo), Báo lỗi, Góp ý là phiếu riêng, chỉ người gửi và admin xem, có trạng thái Mới gửi / Đang xử lý / Đã xử lý / Từ chối. Chống spam: 1 bài / 30 giây mỗi mục, 1 bình luận / 10 giây.
+  - Nạp ngọc: chuyển khoản QR VietQR (`web.bank.code/account/owner`, nội dung `NAP<mã> <tài khoản>`) và thẻ cào (`web.card.*`, giao thức chargingws/v2 của thesieure / cardvip..., callback `/callback/card` kiểm tra chữ ký; chưa cấu hình cổng thì admin tự kiểm tra thẻ). Tiền cộng vào số dư `vnd` + `tongnap`, người đang online thấy ngay, đổi ra ngọc ở NPC như trước. Mỗi yêu cầu chỉ cộng 1 lần.
+  - Panel → Người chơi → **Diễn đàn & hỗ trợ** (trả lời với tư cách Ban quản trị, đổi trạng thái, ghim, xoá) và **Nạp qua web** (duyệt / từ chối, sửa số tiền khi duyệt). Bảng mới: `web_post`, `web_reply`, `web_topup` (Đợt 112).
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

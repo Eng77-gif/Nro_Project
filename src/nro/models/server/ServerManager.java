@@ -111,6 +111,7 @@ public class ServerManager {
             isRunning = true;
             activeServerSocket();
             nro.models.panel.PanelServer.gI().start();
+            nro.models.web.WebServer.gI().start();
 
             // Gửi các nhiệm vụ cập nhật theo từng dịch vụ
             new Thread(NgocRongNamecService.gI(), "Update NRNM").start();

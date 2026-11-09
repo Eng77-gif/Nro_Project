@@ -203,6 +203,15 @@ public class PanelApi {
             case "box/save" -> boxSave(b);
             case "box/delete" -> boxDelete(b);
             case "nrsd/page" -> nrsdPage(q);
+            case "web/posts/page" -> webPosts(q);
+            case "web/post" -> webPost(intv(q.get("id")));
+            case "web/post/reply" -> webReply(b);
+            case "web/post/status" -> Map.of("ok", update("update web_post set status=?, updated_at=now() where id=?", Math.max(0, Math.min(3, intv(b.get("status")))), lng(b.get("id"))) > 0, "note", "Đã đổi trạng thái");
+            case "web/post/pin" -> Map.of("ok", update("update web_post set pinned=1-pinned where id=?", lng(b.get("id"))) > 0, "note", "Đã đổi ghim");
+            case "web/post/delete" -> webPostDelete(b);
+            case "web/topups/page" -> webTopups(q);
+            case "web/topup/approve" -> webTopupApprove(b);
+            case "web/topup/reject" -> Map.of("ok", update("update web_topup set status=2, note=?, updated_at=now() where id=? and status=0", str(b.getOrDefault("note", "Admin từ chối")), lng(b.get("id"))) > 0, "note", "Đã từ chối");
             case "nrsd/summary" -> nrsdSummary();
             case "nrsd/tournament/save" -> nrsdTournamentSave(b);
             case "nrsd/tournament/delete" -> Map.of("ok", update("delete from nrsd_tournament where id=?", lng(b.get("id"))) > 0);
@@ -1251,6 +1260,86 @@ public class PanelApi {
         return Map.of("ok", true);
     }
 
+    // ------------------------------------------------------------------ web người chơi
+
+    private Object webPosts(Map<String, String> q) throws Exception {
+        StringBuilder w = new StringBuilder("from web_post where (title like ? escape '!' or author like ? escape '!' or ifnull(target,'') like ? escape '!')");
+        List<Object> args = new ArrayList<>(List.of(like(q), like(q), like(q)));
+        String kind = str(q.getOrDefault("kind", ""));
+        if (nro.models.web.WebServer.KINDS.contains(kind)) {
+            w.append(" and kind = ?");
+            args.add(kind);
+        }
+        String st = str(q.getOrDefault("status", ""));
+        if (st.matches("[0-3]")) {
+            w.append(" and status = ?");
+            args.add(Integer.parseInt(st));
+        }
+        return paged(q, "select id, kind, title, author, target, status, pinned, replies, date_format(created_at, '%d/%m/%Y %H:%i') created_at, "
+                + "date_format(updated_at, '%d/%m/%Y %H:%i') updated_at", w.toString(), "status = 0 desc, updated_at desc", args.toArray());
+    }
+
+    private Object webPost(int id) throws Exception {
+        List<Map<String, Object>> r = rows("select p.*, a.username from web_post p left join account a on a.id = p.account_id where p.id = ?", id);
+        if (r.isEmpty()) {
+            throw new IllegalArgumentException("Không có bài " + id);
+        }
+        Map<String, Object> m = new LinkedHashMap<>(r.get(0));
+        m.put("created_at", String.valueOf(m.get("created_at")));
+        m.put("updated_at", String.valueOf(m.get("updated_at")));
+        m.put("replyList", rows("select author, is_admin, content, date_format(created_at, '%d/%m/%Y %H:%i') created_at from web_reply where post_id = ? order by id", id));
+        return m;
+    }
+
+    private Object webReply(Map<String, Object> b) throws Exception {
+        String c = str(b.get("content")).trim();
+        long id = lng(b.get("id"));
+        if (c.isEmpty() || c.length() > 2000) {
+            throw new IllegalArgumentException("Nội dung từ 1 đến 2.000 ký tự");
+        }
+        update("insert into web_reply (post_id, account_id, author, is_admin, content) values (?, 0, 'Ban quản trị', 1, ?)", id, c);
+        // phiếu mới được trả lời thì chuyển sang "đang xử lý"
+        update("update web_post set replies = replies + 1, updated_at = now(), status = if(status = 0 and kind <> 'forum', 1, status) where id = ?", id);
+        return Map.of("ok", true, "note", "Đã trả lời");
+    }
+
+    private Object webPostDelete(Map<String, Object> b) throws Exception {
+        long id = lng(b.get("id"));
+        update("delete from web_reply where post_id = ?", id);
+        return Map.of("ok", update("delete from web_post where id = ?", id) > 0, "note", "Đã xoá bài");
+    }
+
+    private Object webTopups(Map<String, String> q) throws Exception {
+        StringBuilder w = new StringBuilder("from web_topup where (username like ? escape '!' or ifnull(note,'') like ? escape '!' or ifnull(serial,'') like ? escape '!')");
+        List<Object> args = new ArrayList<>(List.of(like(q), like(q), like(q)));
+        String st = str(q.getOrDefault("status", ""));
+        if (st.matches("[0-2]")) {
+            w.append(" and status = ?");
+            args.add(Integer.parseInt(st));
+        }
+        String m = str(q.getOrDefault("method", ""));
+        if (m.equals("bank") || m.equals("card")) {
+            w.append(" and method = ?");
+            args.add(m);
+        }
+        return paged(q, "select id, username, method, amount, telco, serial, code, status, note, credited, date_format(created_at, '%d/%m/%Y %H:%i') created_at",
+                w.toString(), "status = 0 desc, id desc", args.toArray());
+    }
+
+    /** Duyệt nạp: amount bỏ trống = đúng số tiền yêu cầu (chuyển khoản) / mệnh giá (thẻ). */
+    private Object webTopupApprove(Map<String, Object> b) throws Exception {
+        int id = (int) lng(b.get("id"));
+        List<Map<String, Object>> r = rows("select amount from web_topup where id = ?", id);
+        if (r.isEmpty()) {
+            throw new IllegalArgumentException("Không có yêu cầu " + id);
+        }
+        int amount = b.get("amount") != null && intv(b.get("amount")) > 0 ? intv(b.get("amount")) : intv(r.get(0).get("amount"));
+        if (!nro.models.web.WebServer.approve(id, amount, "Admin duyệt")) {
+            throw new IllegalStateException("Yêu cầu đã được xử lý trước đó");
+        }
+        return Map.of("ok", true, "note", "Đã cộng " + amount + "đ");
+    }
+
     // ------------------------------------------------------------------ ngọc rồng sao đen
 
     /** Kết quả các trận NRSD mới nhất trước; lọc theo sao, ngày (yyyy-mm-dd), tên người / bang. */
@@ -2066,7 +2155,7 @@ public class PanelApi {
         return k.matches("\\d{1,18}") ? Long.parseLong(k) : -1;
     }
 
-    static List<Map<String, Object>> rows(String sql, Object... args) throws Exception {
+    public static List<Map<String, Object>> rows(String sql, Object... args) throws Exception {
         List<Map<String, Object>> out = new ArrayList<>();
         try (Connection con = LocalManager.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             for (int i = 0; i < args.length; i++) {
@@ -2092,7 +2181,7 @@ public class PanelApi {
         return out;
     }
 
-    static int update(String sql, Object... args) throws Exception {
+    public static int update(String sql, Object... args) throws Exception {
         try (Connection con = LocalManager.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             for (int i = 0; i < args.length; i++) {
                 ps.setObject(i + 1, args[i]);

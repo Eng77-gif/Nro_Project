@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ngọc Rồng Online</title>
+<meta name="description" content="Trang chủ máy chủ Ngọc Rồng Online: tải game, sự kiện, diễn đàn, hỗ trợ và nạp ngọc.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1020;--bg2:#111a33;--card:#141f3d;--card2:#1a2850;--line:#26365f;--text:#eef2ff;--mute:#9aa8cc;
+  --orange:#ff8a1f;--orange2:#ffb347;--gold:#ffd25e;--blue:#3fa9ff;--green:#3ddc84;--red:#ff5d6c;--violet:#a98bff;
+  --r:16px;--shadow:0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 "Be Vietnam Pro",system-ui,sans-serif;min-height:100vh;
+  background-image:radial-gradient(1200px 600px at 80% -10%,rgba(255,138,31,.18),transparent 60%),radial-gradient(900px 500px at -10% 10%,rgba(63,169,255,.14),transparent 60%)}
+a{color:var(--orange2);text-decoration:none}a:hover{text-decoration:underline}
+h1,h2,h3{font-family:"Baloo 2",cursive;line-height:1.15;margin:0 0 .4em}
+img{max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+.mute{color:var(--mute)}
+.pix{image-rendering:pixelated}
+
+/* ---------- đầu trang ---------- */
+header{position:sticky;top:0;z-index:20;background:rgba(11,16,32,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:14px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-family:"Baloo 2";font-weight:800;font-size:22px;color:var(--text);white-space:nowrap}
+.logo:hover{text-decoration:none}
+.logo .ball{width:34px;height:34px}
+.logo b{color:var(--orange)}
+nav.main{display:flex;gap:2px;margin-left:auto}
+nav.main a{color:var(--mute);padding:8px 11px;border-radius:10px;font-weight:600;font-size:14px;white-space:nowrap}
+nav.main a:hover{color:var(--text);background:var(--card);text-decoration:none}
+nav.main a.on{color:var(--text);background:var(--card2)}
+nav.main a.nap{color:#1b1200;background:linear-gradient(135deg,var(--gold),var(--orange))}
+.acc{display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:10px 18px;font-weight:700;cursor:pointer;
+  background:var(--card2);color:var(--text);border:1px solid var(--line);transition:transform .12s,filter .12s;text-decoration:none!important}
+.btn:hover{filter:brightness(1.12)}.btn:active{transform:translateY(1px)}
+.btn.p{background:linear-gradient(135deg,var(--gold),var(--orange));color:#1b1200;border:0;box-shadow:0 6px 18px rgba(255,138,31,.35)}
+.btn.b{background:linear-gradient(135deg,#6cc4ff,var(--blue));color:#04121f;border:0}
+.btn.s{padding:6px 12px;font-size:13px;border-radius:10px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.menu-btn{display:none;margin-left:auto;background:none;border:1px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer}
+
+/* ---------- khung chung ---------- */
+main{padding:28px 16px 60px;min-height:calc(100vh - 140px)}
+.card{background:linear-gradient(180deg,var(--card),#121b36);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:1.6fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.sec-title{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:34px 0 14px}
+.sec-title h2{font-size:28px;margin:0}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange2);font-weight:700}
+.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid var(--line);background:var(--bg2);white-space:nowrap}
+.tag.s0{color:var(--gold);border-color:rgba(255,210,94,.4)}.tag.s1{color:var(--blue);border-color:rgba(63,169,255,.4)}
+.tag.s2{color:var(--green);border-color:rgba(61,220,132,.4)}.tag.s3{color:var(--red);border-color:rgba(255,93,108,.4)}
+.empty{text-align:center;padding:30px 10px;color:var(--mute)}
+
+/* ---------- trang chủ ---------- */
+.hero{position:relative;overflow:hidden;border-radius:24px;padding:56px 40px;border:1px solid var(--line);
+  background:radial-gradient(500px 300px at 85% 30%,rgba(255,179,71,.35),transparent 70%),linear-gradient(135deg,#1a2a5c 0%,#0f1733 60%,#1b1030 100%)}
+.hero h1{font-size:clamp(34px,6vw,62px);margin:8px 0 10px;text-shadow:0 4px 0 rgba(0,0,0,.35)}
+.hero h1 span{background:linear-gradient(180deg,var(--gold),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1{max-width:700px;position:relative}
+.hero p{max-width:540px;position:relative;color:#cfd8f5;font-size:17px;margin:0 0 22px}
+.hero .cta{display:flex;flex-wrap:wrap;gap:12px}
+.balls{position:absolute;right:30px;top:50%;transform:translateY(-50%);width:330px;height:330px}
+.balls img{position:absolute;width:64px;height:64px;filter:drop-shadow(0 8px 16px rgba(255,138,31,.45));animation:float 4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-10px)}}
+@media (prefers-reduced-motion:reduce){.balls img{animation:none}}
+.online-dot{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:rgba(61,220,132,.12);color:var(--green);font-weight:700;font-size:14px}
+.online-dot::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(61,220,132,.25)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;gap:12px;align-items:center}
+.stat img{width:40px;height:40px}
+.stat b{display:block;font-family:"Baloo 2";font-size:26px;line-height:1}
+.stat span{color:var(--mute);font-size:13px}
+.event{display:flex;flex-direction:column;gap:6px}
+.event h3{font-size:22px;color:var(--gold);margin:0}
+.event p{margin:0;color:#cfd8f5;white-space:pre-line;font-size:14px}
+.rank{list-style:none;margin:0;padding:0}
+.rank li{display:flex;align-items:center;gap:12px;padding:9px 4px;border-bottom:1px dashed var(--line)}
+.rank li:last-child{border:0}
+.rank .no{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--bg2);font-size:13px;flex:none}
+.rank li:nth-child(1) .no{background:linear-gradient(135deg,#fff3b0,#ffc83d);color:#3a2700}
+.rank li:nth-child(2) .no{background:linear-gradient(135deg,#f1f5ff,#b8c4dd);color:#1b2335}
+.rank li:nth-child(3) .no{background:linear-gradient(135deg,#ffd2a8,#d9864a);color:#2e1500}
+.rank .nm{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank .pw{font-family:"Baloo 2";color:var(--orange2);font-size:17px}
+.planet{font-size:12px;color:var(--mute)}
+.quick a{display:flex;gap:14px;align-items:center;padding:16px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--text)}
+.quick a:hover{border-color:var(--orange);text-decoration:none;transform:translateY(-2px)}
+.quick .ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:24px;flex:none}
+.quick b{display:block;font-size:16px}.quick span{color:var(--mute);font-size:13px}
+
+/* ---------- giới thiệu ---------- */
+.feature{display:flex;gap:14px}
+.feature .ico{width:52px;height:52px;flex:none;border-radius:14px;background:var(--bg2);display:grid;place-items:center;font-size:26px;border:1px solid var(--line)}
+.feature h3{font-size:20px;margin:0 0 4px}
+.feature p{margin:0;color:#cfd8f5;font-size:14px}
+.planets .card{text-align:center}
+.planets .card h3{font-size:24px}
+.planets .em{font-size:44px}
+.rules li{margin:6px 0}
+
+/* ---------- diễn đàn, phiếu ---------- */
+.list{display:flex;flex-direction:column}
+.item{display:flex;gap:14px;align-items:center;padding:14px 6px;border-bottom:1px solid var(--line);color:var(--text)}
+.item:hover{background:rgba(255,255,255,.02);text-decoration:none}
+.item:last-child{border:0}
+.item .t{flex:1;min-width:0}
+.item .t b{display:block;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .t span{font-size:13px;color:var(--mute)}
+.item .n{text-align:center;min-width:60px;font-size:13px;color:var(--mute)}
+.item .n b{display:block;font-size:18px;color:var(--text)}
+.pin{color:var(--gold);font-size:12px;font-weight:700;margin-right:6px}
+.pager{display:flex;gap:6px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.post-body{white-space:pre-wrap;word-break:break-word;font-size:15px;color:#dde4fb}
+.reply{padding:14px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);margin-top:12px}
+.reply.admin{border-color:rgba(255,138,31,.55);background:linear-gradient(180deg,rgba(255,138,31,.10),var(--bg2))}
+.reply .who{font-weight:700;font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.reply .who .mute{font-weight:400;font-size:12px}
+form .f{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+form label,.f>span{font-weight:600;font-size:14px}
+input,select,textarea{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:11px 13px;width:100%}
+textarea{min-height:150px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--orange);outline:none}
+.hint{font-size:12px;color:var(--mute)}
+.page-head{display:flex;gap:18px;align-items:center;margin-bottom:22px}
+.page-head .ico{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;font-size:34px;flex:none}
+.page-head h1{font-size:36px;margin:0}
+.page-head p{margin:2px 0 0;color:var(--mute)}
+
+/* ---------- nạp ---------- */
+.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.tabs button{border:1px solid var(--line);background:var(--card);padding:10px 18px;border-radius:12px;font-weight:700;cursor:pointer}
+.tabs button.on{background:linear-gradient(135deg,var(--gold),var(--orange));color:#1b1200;border-color:transparent}
+.amounts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.amounts button{padding:14px 6px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);cursor:pointer;font-weight:700}
+.amounts button.on{border-color:var(--orange);background:rgba(255,138,31,.12);color:var(--orange2)}
+.qr{display:grid;grid-template-columns:240px 1fr;gap:20px;align-items:start}
+.qr img{width:240px;border-radius:14px;background:#fff;padding:8px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv dt{color:var(--mute)}.kv dd{margin:0;font-weight:700;word-break:break-all}
+.copy{margin-left:6px;font-size:12px;padding:2px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card2);cursor:pointer}
+.balance{display:flex;gap:16px;align-items:center;padding:16px;border-radius:14px;background:linear-gradient(135deg,rgba(255,210,94,.14),rgba(255,138,31,.06));border:1px solid rgba(255,179,71,.35)}
+.balance img{width:44px;height:44px}
+.balance .big{font-family:"Baloo 2";font-size:28px;color:var(--gold);line-height:1}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--mute);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.tw{overflow-x:auto}
+
+/* ---------- hộp thoại, thông báo ---------- */
+.modal{position:fixed;inset:0;background:rgba(3,6,15,.72);display:grid;place-items:center;z-index:50;padding:16px}
+.modal .card{width:100%;max-width:420px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;padding:12px 20px;border-radius:12px;background:var(--card2);border:1px solid var(--line);box-shadow:var(--shadow);font-weight:600;max-width:calc(100% - 32px)}
+.toast.err{border-color:var(--red);color:#ffd1d6}
+footer{border-top:1px solid var(--line);padding:26px 0;color:var(--mute);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+@media (max-width:980px){
+  .g2,.g3{grid-template-columns:1fr}.g4,.stats{grid-template-columns:repeat(2,1fr)}
+  .balls{opacity:.25;right:-80px}
+  nav.main{display:none;position:absolute;top:64px;left:0;right:0;flex-direction:column;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px}
+  nav.main.open{display:flex}
+  .menu-btn{display:block}
+  .acc{margin-left:0}
+}
+@media (max-width:600px){
+  .hero{padding:36px 20px}.g4,.stats{grid-template-columns:1fr 1fr}
+  .qr{grid-template-columns:1fr}.qr img{width:100%;max-width:280px}
+  .amounts{grid-template-columns:repeat(2,1fr)}
+  .item .n{display:none}
+  .acc .name{display:none}
+  .logo span{display:none}
+}
+</style>
+</head>
+<body>
+<a href="#main" class="mute" style="position:absolute;left:-999px">Bỏ qua tới nội dung</a>
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#/"><img class="ball pix" src="/icon/422" alt=""><span id="sv-name">Ngọc Rồng</span></a>
+    <button class="menu-btn" aria-label="Mở menu" onclick="document.querySelector('nav.main').classList.toggle('open')">☰</button>
+    <nav class="main" aria-label="Điều hướng chính">
+      <a href="#/" data-r="">Trang chủ</a>
+      <a href="#/gioi-thieu" data-r="gioi-thieu">Giới thiệu</a>
+      <a href="#/dien-dan" data-r="dien-dan">Diễn đàn</a>
+      <a href="#/to-cao" data-r="to-cao">Tố cáo</a>
+      <a href="#/bao-loi" data-r="bao-loi">Báo lỗi</a>
+      <a href="#/gop-y" data-r="gop-y">Góp ý</a>
+      <a href="#/nap" data-r="nap" class="nap">Nạp ngọc</a>
+    </nav>
+    <div class="acc" id="acc"></div>
+  </div>
+</header>
+<main id="main" class="wrap" tabindex="-1"></main>
+<footer><div class="wrap"><span>© <span id="ft-name">Ngọc Rồng</span> · Máy chủ Ngọc Rồng Online</span><span>Chơi game có trách nhiệm · Không mua bán tài khoản ngoài</span></div></footer>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>Number(n||0).toLocaleString('vi-VN');
+const power=n=>{n=Number(n||0);return n>=1e9?(n/1e9).toFixed(n>=1e11?0:1).replace('.',',')+' tỷ':n>=1e6?(n/1e6).toFixed(0)+' tr':money(n)};
+const PLANET=['Trái Đất','Namek','Xayda'];
+const KIND={forum:['Diễn đàn','💬','#3fa9ff'],report:['Tố cáo','🚨','#ff5d6c'],bug:['Báo lỗi','🐞','#ffb347'],idea:['Góp ý','💡','#3ddc84']};
+const STATUS=['Mới gửi','Đang xử lý','Đã xử lý','Từ chối'];
+const TOP_STATUS=['Đang chờ','Thành công','Thất bại'];
+let token=localStorage.getItem('nro_token')||'',me=null,info=null;
+
+async function api(path,body){
+  const r=await fetch('/api/'+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json','X-Token':token},body:body?JSON.stringify(body):undefined});
+  const d=await r.json().catch(()=>({error:'Lỗi kết nối'}));
+  if(r.status===401&&token){token='';localStorage.removeItem('nro_token');me=null;drawAcc()}
+  if(!r.ok)throw new Error(d.error||'Có lỗi xảy ra');
+  return d}
+function toast(msg,err){const t=document.createElement('div');t.className='toast'+(err?' err':'');t.setAttribute('role','status');t.textContent=msg;document.body.append(t);setTimeout(()=>t.remove(),3200)}
+async function act(fn,ok){try{const r=await fn();if(ok)toast(ok);return r}catch(e){toast(e.message,1)}}
+
+/* ---------- tài khoản ---------- */
+function drawAcc(){
+  $('#acc').innerHTML=me?`<span class="name mute" style="font-size:13px">${esc(me.username)} · <b style="color:var(--gold)">${money(me.vnd)}đ</b></span><button class="btn s" onclick="logout()">Thoát</button>`
+    :`<button class="btn s p" onclick="loginBox()">Đăng nhập</button>`}
+async function loadMe(){if(!token){me=null;drawAcc();return}try{me=await api('me')}catch(e){me=null}drawAcc()}
+function loginBox(after){
+  const m=document.createElement('div');m.className='modal';
+  m.innerHTML=`<form class="card" aria-labelledby="lg-t"><h2 id="lg-t" style="font-size:28px">Đăng nhập</h2><p class="mute" style="margin-top:0">Dùng tài khoản và mật khẩu chơi game.</p>
+    <div class="f"><label for="lu">Tài khoản</label><input id="lu" autocomplete="username" maxlength="20" required></div>
+    <div class="f"><label for="lp">Mật khẩu</label><input id="lp" type="password" autocomplete="current-password" maxlength="100" required></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end"><button type="button" class="btn" id="lc">Huỷ</button><button class="btn p">Đăng nhập</button></div></form>`;
+  m.onclick=e=>{if(e.target===m)m.remove()};
+  m.querySelector('#lc').onclick=()=>m.remove();
+  m.querySelector('form').onsubmit=async e=>{e.preventDefault();const r=await act(()=>api('login',{user:$('#lu').value,pass:$('#lp').value}));
+    if(r){token=r.token;localStorage.setItem('nro_token',token);m.remove();await loadMe();toast('Xin chào '+me.username);(after||route)()}};
+  document.body.append(m);$('#lu').focus()}
+async function logout(){await api('logout',{}).catch(()=>{});token='';localStorage.removeItem('nro_token');me=null;drawAcc();route()}
+function needLogin(what){return `<div class="card empty"><p style="font-size:40px;margin:0">🔐</p><h3>Đăng nhập để ${esc(what)}</h3><p>Dùng tài khoản chơi game của bạn.</p><button class="btn p" onclick="loginBox()">Đăng nhập</button></div>`}
+
+/* ---------- định tuyến ---------- */
+const ROUTES={'':home,'gioi-thieu':about,'dien-dan':()=>board('forum'),'to-cao':()=>board('report'),'bao-loi':()=>board('bug'),'gop-y':()=>board('idea'),'nap':topup,'bai':postPage};
+async function route(){
+  const parts=location.hash.replace(/^#\/?/,'').split('/'),key=parts[0]||'';
+  document.querySelectorAll('nav.main a').forEach(a=>a.classList.toggle('on',a.dataset.r===key||(key==='bai'&&a.dataset.r==='dien-dan')));
+  $('nav.main').classList.remove('open');
+  const fn=ROUTES[key]||home;$('#main').innerHTML='<div class="empty">Đang tải…</div>';
+  try{await fn(parts[1])}catch(e){$('#main').innerHTML=`<div class="card empty"><h3>Không tải được trang</h3><p>${esc(e.message)}</p></div>`}
+  window.scrollTo(0,0)}
+addEventListener('hashchange',route);
+
+/* ---------- trang chủ ---------- */
+async function home(){
+  const s=info=await api('status');
+  const dl=s.download||{};
+  const balls=[[419,'8%','4%'],[420,'55%','0%'],[421,'78%','28%'],[422,'38%','36%'],[423,'2%','52%'],[424,'62%','66%'],[425,'28%','78%']];
+  $('#main').innerHTML=`
+  <section class="hero">
+    <div class="balls" aria-hidden="true">${balls.map((b,i)=>`<img class="pix" src="/icon/${b[0]}" alt="" style="left:${b[1]};top:${b[2]};animation-delay:${i*.4}s">`).join('')}</div>
+    <span class="online-dot">${money(s.online)} người đang chơi</span>
+    <h1>Thu thập đủ <span>7 viên ngọc rồng</span><br>ước nguyện cùng ${esc(s.name)}</h1>
+    <p>Phiêu lưu khắp Trái Đất, Namek và Xayda: luyện công, săn boss, giành Ngọc Rồng Sao Đen cùng bang hội và tham gia sự kiện mỗi mùa.</p>
+    <div class="cta">
+      ${dl.apk?`<a class="btn p" href="${esc(dl.apk)}" rel="noopener">⬇ Tải cho Android</a>`:''}
+      ${dl.pc?`<a class="btn b" href="${esc(dl.pc)}" rel="noopener">⬇ Bản PC</a>`:''}
+      ${dl.ios?`<a class="btn" href="${esc(dl.ios)}" rel="noopener">⬇ Bản iOS</a>`:''}
+      <a class="btn ${dl.apk?'':'p'}" href="#/nap">💎 Nạp ngọc</a>
+      <a class="btn" href="#/gioi-thieu">Tìm hiểu thêm</a>
+    </div>
+  </section>
+  <div class="stats">
+    <div class="stat"><img class="pix" src="/icon/422" alt=""><div><b>${money(s.online)}</b><span>Đang trực tuyến</span></div></div>
+    <div class="stat"><img class="pix" src="/icon/4028" alt=""><div><b>${money(s.accounts)}</b><span>Tài khoản</span></div></div>
+    <div class="stat"><img class="pix" src="/icon/7743" alt=""><div><b>${money(s.events.length)}</b><span>Sự kiện đang chạy</span></div></div>
+    <div class="stat"><img class="pix" src="/icon/932" alt=""><div><b>1đ = 1</b><span>ngọc khi nạp</span></div></div>
+  </div>
+  <div class="grid g2" style="margin-top:8px">
+    <div>
+      <div class="sec-title"><div><div class="eyebrow">Đang diễn ra</div><h2>Sự kiện</h2></div></div>
+      ${s.events.length?`<div class="grid">${s.events.map(e=>`<article class="card event"><span class="tag s0" style="align-self:flex-start">${e.end?'Đến hết '+esc(e.end.split('-').reverse().join('/')):'Đang chạy'}</span><h3>${esc(e.name)}</h3><p>${esc(e.description)}</p></article>`).join('')}</div>`
+        :`<div class="card empty">Hiện chưa có sự kiện, hẹn bạn mùa sau!</div>`}
+      <div class="sec-title"><div><div class="eyebrow">Cộng đồng</div><h2>Bài mới trên diễn đàn</h2></div><a href="#/dien-dan">Xem tất cả →</a></div>
+      <div class="card list">${s.news.length?s.news.map(postRow).join(''):'<div class="empty">Chưa có bài nào, hãy là người mở đầu!</div>'}</div>
+    </div>
+    <aside>
+      <div class="sec-title"><div><div class="eyebrow">Bảng vàng</div><h2>Top sức mạnh</h2></div></div>
+      <div class="card"><ol class="rank">${s.top.map((p,i)=>`<li><span class="no">${i+1}</span><span class="nm">${esc(p.name)}<div class="planet">${PLANET[p.gender]||''}</div></span><span class="pw">${power(p.power)}</span></li>`).join('')||'<li class="mute">Chưa có dữ liệu</li>'}</ol></div>
+      <div class="sec-title"><div><div class="eyebrow">Hỗ trợ</div><h2>Cần giúp đỡ?</h2></div></div>
+      <div class="grid quick">
+        ${['report','bug','idea'].map(k=>`<a href="#/${{report:'to-cao',bug:'bao-loi',idea:'gop-y'}[k]}"><span class="ico" style="background:${KIND[k][2]}22">${KIND[k][1]}</span><div><b>${KIND[k][0]}</b><span>${{report:'Hack, lừa đảo, ngôn từ xấu',bug:'Lỗi game, mất đồ, kẹt map',idea:'Ý tưởng cho máy chủ'}[k]}</span></div></a>`).join('')}
+      </div>
+    </aside>
+  </div>`}
+
+/* ---------- giới thiệu ---------- */
+async function about(){
+  const name=info?.name||'Ngọc Rồng';
+  const feat=[['⚔️','Luyện công & săn boss','Đánh quái, mộc nhân, tự động luyện tập; săn Broly, Fide, Cooler, Xên bọ hung, Black Goku và boss sự kiện.'],
+    ['🌑','Ngọc Rồng Sao Đen','20h00 - 21h00 mỗi ngày: các bang tranh giành 7 viên ngọc sao đen, giữ ngọc 5 phút để nhận buff cả bang.'],
+    ['🥋','Đại hội võ thuật','Thi đấu đối kháng, leo hạng, nhận quà theo vòng và danh hiệu cao thủ.'],
+    ['🏯','Doanh trại & Kho báu','Cùng bang vượt Doanh trại Độc Nhãn, Bản đồ kho báu dưới biển, Khí gas hủy diệt.'],
+    ['🐉','Đệ tử & bông tai Porata','Thu nhận đệ tử, nâng chiêu, hợp thể bằng bông tai Porata cấp 1 - 3.'],
+    ['🎉','Sự kiện mỗi mùa','Tết, Trung Thu, Halloween, Giáng sinh... với đua top, rồng thần và quà độc quyền.']];
+  $('#main').innerHTML=`
+  <div class="page-head"><span class="ico" style="background:#3fa9ff22">📖</span><div><h1>Giới thiệu</h1><p>${esc(name)} là máy chủ Ngọc Rồng Online, lối chơi quen thuộc, cân bằng và nhiều sự kiện.</p></div></div>
+  <div class="sec-title"><div><div class="eyebrow">Chọn hành tinh</div><h2>Ba chủng tộc</h2></div></div>
+  <div class="grid g3 planets">
+    <div class="card"><div class="em">🌍</div><h3>Trái Đất</h3><p class="mute">Cân bằng, chiêu Kamejoko và Thái Dương Hạ San, dễ chơi cho người mới.</p></div>
+    <div class="card"><div class="em">🟢</div><h3>Namek</h3><p class="mute">Hồi phục và hỗ trợ đồng đội, đệ tử mạnh, chiêu Masenko.</p></div>
+    <div class="card"><div class="em">🔥</div><h3>Xayda</h3><p class="mute">Sát thương cao, biến khỉ, chiêu Galick và Kaioken.</p></div>
+  </div>
+  <div class="sec-title"><div><div class="eyebrow">Có gì để chơi</div><h2>Tính năng nổi bật</h2></div></div>
+  <div class="grid g2" style="grid-template-columns:1fr 1fr">${feat.map(f=>`<div class="card feature"><span class="ico">${f[0]}</span><div><h3>${f[1]}</h3><p>${f[2]}</p></div></div>`).join('')}</div>
+  <div class="sec-title"><div><div class="eyebrow">Cùng giữ máy chủ sạch</div><h2>Luật chơi</h2></div></div>
+  <div class="card"><ul class="rules">
+    <li>Không dùng phần mềm thứ ba, hack, auto ngoài tính năng có sẵn trong game.</li>
+    <li>Không lừa đảo, mua bán tài khoản, vật phẩm bằng tiền thật ngoài kênh nạp chính thức.</li>
+    <li>Không xúc phạm, phân biệt, spam trên kênh chat thế giới và diễn đàn.</li>
+    <li>Gặp lỗi game hãy <a href="#/bao-loi">báo lỗi</a>, không lợi dụng lỗi để trục lợi.</li>
+    <li>Thấy vi phạm hãy <a href="#/to-cao">tố cáo</a> kèm bằng chứng, ban quản trị sẽ xử lý.</li>
+  </ul></div>`}
+
+/* ---------- diễn đàn & phiếu ---------- */
+const BOARD={forum:{route:'dien-dan',title:'Diễn đàn',desc:'Trao đổi kinh nghiệm, tìm đồng đội, khoe đồ cùng cộng đồng.',btn:'Đăng bài',list:'Bài viết'},
+  report:{route:'to-cao',title:'Tố cáo',desc:'Báo người chơi hack, lừa đảo, xúc phạm. Chỉ bạn và ban quản trị xem được phiếu.',btn:'Gửi tố cáo',list:'Phiếu tố cáo của bạn'},
+  bug:{route:'bao-loi',title:'Báo lỗi',desc:'Lỗi game, mất đồ, kẹt bản đồ, sai chỉ số. Ghi càng rõ càng sửa nhanh.',btn:'Gửi báo lỗi',list:'Báo lỗi của bạn'},
+  idea:{route:'gop-y',title:'Góp ý',desc:'Ý tưởng tính năng, sự kiện, cân bằng game cho máy chủ.',btn:'Gửi góp ý',list:'Góp ý của bạn'}};
+function postRow(p){
+  const k=p.kind||'forum';
+  return `<a class="item" href="#/bai/${Number(p.id)}"><span class="ico" aria-hidden="true" style="font-size:22px">${KIND[k]?.[1]||'💬'}</span>
+    <div class="t"><b>${p.pinned?'<span class="pin">📌 GHIM</span>':''}${esc(p.title)}</b><span>${esc(p.author)}${p.target?' · tố cáo <b style="color:var(--red)">'+esc(p.target)+'</b>':''} · ${esc(p.updated_at||p.created_at)}</span></div>
+    ${p.status!==undefined&&k!=='forum'?`<span class="tag s${p.status}">${STATUS[p.status]}</span>`:''}
+    <div class="n"><b>${money(p.replies)}</b>trả lời</div></a>`}
+async function board(kind,page=1){
+  const B=BOARD[kind];
+  const head=`<div class="page-head"><span class="ico" style="background:${KIND[kind][2]}22">${KIND[kind][1]}</span><div><h1>${B.title}</h1><p>${B.desc}</p></div></div>`;
+  const form=me?`<form class="card" id="pf"><h2 style="font-size:24px">${B.btn}</h2>
+      ${kind==='report'?'<div class="f"><label for="pt">Tên nhân vật bị tố cáo</label><input id="pt" maxlength="64" required></div>':''}
+      <div class="f"><label for="ph">Tiêu đề</label><input id="ph" maxlength="150" minlength="4" required placeholder="${{forum:'Ví dụ: Kinh nghiệm up đệ tử nhanh',report:'Ví dụ: Lừa giao dịch ở Siêu thị',bug:'Ví dụ: Kẹt ở bản đồ Doanh trại',idea:'Ví dụ: Thêm sự kiện câu cá'}[kind]}"></div>
+      <div class="f"><label for="pc">Nội dung</label><textarea id="pc" maxlength="5000" minlength="10" required placeholder="${{forum:'Chia sẻ của bạn…',report:'Thời gian, khu vực, diễn biến, bằng chứng (link ảnh / video)…',bug:'Bạn đang làm gì, ở bản đồ / khu nào, lỗi hiện ra sao, có mất đồ không…',idea:'Mô tả ý tưởng và lý do…'}[kind]}"></textarea><span class="hint">Tối đa 5.000 ký tự. Dán link ảnh / video làm bằng chứng nếu có.</span></div>
+      <button class="btn p">${B.btn}</button></form>`:needLogin(kind==='forum'?'đăng bài':'gửi phiếu');
+  if(kind!=='forum'&&!me){$('#main').innerHTML=head+form;return}
+  const d=await api(`posts?kind=${kind}&page=${page}`);
+  const list=`<div class="card"><h2 style="font-size:24px">${B.list} <span class="mute" style="font-size:16px">(${money(d.total)})</span></h2>
+    <div class="list">${d.rows.length?d.rows.map(r=>postRow({...r,kind})).join(''):'<div class="empty">Chưa có gì ở đây.</div>'}</div>
+    ${d.pages>1?`<div class="pager">${Array.from({length:d.pages},(_,i)=>`<button class="btn s ${i+1===d.page?'p':''}" onclick="board('${kind}',${i+1})">${i+1}</button>`).join('')}</div>`:''}</div>`;
+  $('#main').innerHTML=head+`<div class="grid g2">${kind==='forum'?list+form:form+list}</div>`;
+  const f=$('#pf');if(f)f.onsubmit=async e=>{e.preventDefault();const b=f.querySelector('button');b.disabled=true;
+    const r=await act(()=>api('post/create',{kind,title:$('#ph').value,content:$('#pc').value,target:$('#pt')?.value||''}),'Đã gửi');b.disabled=false;
+    if(r)location.hash='#/bai/'+r.id}}
+async function postPage(id){
+  const p=await api('post?id='+encodeURIComponent(id||''));
+  const B=BOARD[p.kind];
+  $('#main').innerHTML=`<p><a href="#/${B.route}">← ${B.title}</a></p>
+  <article class="card">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px"><span class="tag" style="color:${KIND[p.kind][2]}">${KIND[p.kind][1]} ${B.title}</span>${p.kind!=='forum'?`<span class="tag s${p.status}">${STATUS[p.status]}</span>`:''}${p.pinned?'<span class="tag s0">📌 Ghim</span>':''}</div>
+    <h1 style="font-size:32px">${esc(p.title)}</h1>
+    <p class="mute" style="margin-top:0">${esc(p.author)} · ${esc(p.created_at)}${p.target?` · Nhân vật bị tố cáo: <b style="color:var(--red)">${esc(p.target)}</b>`:''}</p>
+    <div class="post-body">${esc(p.content)}</div>
+  </article>
+  <h2 style="margin:24px 0 4px;font-size:24px">${money(p.replyList.length)} trả lời</h2>
+  ${p.replyList.map(r=>`<div class="reply ${r.is_admin?'admin':''}"><div class="who">${r.is_admin?'🛡️ ':''}${esc(r.author)}${r.is_admin?' <span class="tag s0">Ban quản trị</span>':''}<span class="mute">${esc(r.created_at)}</span></div><div class="post-body" style="margin-top:6px">${esc(r.content)}</div></div>`).join('')}
+  ${me?`<form class="card" id="rf" style="margin-top:16px"><div class="f"><label for="rc">${p.kind==='forum'?'Bình luận':'Bổ sung thông tin'}</label><textarea id="rc" maxlength="2000" minlength="2" required style="min-height:100px"></textarea></div><button class="btn p">Gửi</button></form>`
+    :`<div style="margin-top:16px">${needLogin('bình luận')}</div>`}`;
+  const f=$('#rf');if(f)f.onsubmit=async e=>{e.preventDefault();if(await act(()=>api('post/reply',{id:p.id,content:$('#rc').value}),'Đã gửi'))postPage(id)}}
+
+/* ---------- nạp ngọc ---------- */
+let napTab='bank',napAmount=50000;
+async function topup(){
+  const t=await api('topup/info');
+  const head=`<div class="page-head"><span class="ico" style="background:#ffd25e22"><img class="pix" src="/icon/932" alt="" style="width:40px"></span><div><h1>Nạp ngọc</h1><p>Tiền nạp vào số dư tài khoản, vào game gặp NPC nạp để đổi ra ngọc xanh (1đ = 1 ngọc) hoặc thỏi vàng.</p></div></div>`;
+  if(!me){$('#main').innerHTML=head+needLogin('nạp ngọc');return}
+  if(!t.bank&&!t.card)napTab='none';else if(napTab==='bank'&&!t.bank)napTab='card';else if(napTab==='card'&&!t.card)napTab='bank';
+  $('#main').innerHTML=head+`
+  <div class="balance" style="margin-bottom:18px"><img class="pix" src="/icon/4028" alt=""><div><span class="mute">Số dư của <b>${esc(me.username)}</b></span><br><b class="big">${money(me.vnd)}đ</b></div><div style="margin-left:auto;text-align:right"><span class="mute">Tổng đã nạp</span><br><b class="big" style="font-size:20px">${money(me.tongnap)}đ</b></div></div>
+  <div class="grid g2">
+    <div class="card">
+      <div class="tabs" role="tablist">${t.bank?`<button role="tab" class="${napTab==='bank'?'on':''}" onclick="napTab='bank';topup()">🏦 Chuyển khoản QR</button>`:''}${t.card?`<button role="tab" class="${napTab==='card'?'on':''}" onclick="napTab='card';topup()">💳 Thẻ cào</button>`:''}</div>
+      <div id="napbox"></div>
+    </div>
+    <div class="card"><h2 style="font-size:22px">Lịch sử nạp</h2><div id="hist"></div></div>
+  </div>`;
+  await drawHist();
+  const box=$('#napbox');
+  if(napTab==='none'){box.innerHTML='<div class="empty">Máy chủ chưa mở nạp. Vui lòng quay lại sau.</div>';return}
+  drawNap(t,box)}
+async function drawHist(){const hist=await api('topup/history');$('#hist').innerHTML=hist.length?`<div class="tw"><table><thead><tr><th>Lúc</th><th>Cách</th><th>Số tiền</th><th>Trạng thái</th></tr></thead><tbody>${hist.map(h=>`<tr><td>${esc(h.created_at)}</td><td>${h.method==='bank'?'Chuyển khoản':esc(h.telco)}</td><td>${money(h.amount)}đ${h.status===1&&h.credited!==h.amount?`<div class="hint">nhận ${money(h.credited)}đ</div>`:''}</td><td><span class="tag s${[0,2,3][h.status]}">${TOP_STATUS[h.status]}</span>${h.note?`<div class="hint">${esc(h.note)}</div>`:''}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Chưa có giao dịch.</div>'}
+function drawNap(t,box){
+  const amounts=`<div class="f"><span>Mệnh giá</span><div class="amounts">${t.amounts.map(a=>`<button type="button" class="${a===napAmount?'on':''}" onclick="napAmount=${a};this.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===this))">${money(a)}đ</button>`).join('')}</div></div>`;
+  if(napTab==='bank'){
+    box.innerHTML=`<form id="bf">${amounts}<div class="f"><label for="ba">Hoặc nhập số tiền khác</label><input id="ba" type="number" min="10000" step="1000" placeholder="Tối thiểu 10.000đ"></div>
+      <button class="btn p" style="width:100%">Tạo mã QR chuyển khoản</button><p class="hint">Chuyển đúng số tiền và đúng nội dung, ban quản trị kiểm tra rồi cộng tiền (thường trong vài phút).</p></form><div id="qrbox"></div>`;
+    $('#bf').onsubmit=async e=>{e.preventDefault();const amount=Number($('#ba').value)||napAmount;
+      const r=await act(()=>api('topup/bank',{amount}));if(!r)return;
+      const qr=`https://img.vietqr.io/image/${encodeURIComponent(r.bank)}-${encodeURIComponent(r.account)}-compact2.png?amount=${r.amount}&addInfo=${encodeURIComponent(r.memo)}&accountName=${encodeURIComponent(r.owner||'')}`;
+      $('#qrbox').innerHTML=`<div class="qr" style="margin-top:18px"><img src="${esc(qr)}" alt="Mã QR chuyển khoản ${money(r.amount)}đ"><dl class="kv">
+        <dt>Ngân hàng</dt><dd>${esc(r.bank)}</dd><dt>Số tài khoản</dt><dd>${esc(r.account)} <button type="button" class="copy" data-c="${esc(r.account)}">Chép</button></dd>
+        <dt>Chủ tài khoản</dt><dd>${esc(r.owner||'')}</dd><dt>Số tiền</dt><dd style="color:var(--gold)">${money(r.amount)}đ</dd>
+        <dt>Nội dung</dt><dd style="color:var(--orange2)">${esc(r.memo)} <button type="button" class="copy" data-c="${esc(r.memo)}">Chép</button></dd></dl></div>`;
+      $('#qrbox').querySelectorAll('.copy').forEach(b=>b.onclick=()=>navigator.clipboard.writeText(b.dataset.c).then(()=>toast('Đã chép')));drawHist()}}
+  else{
+    box.innerHTML=`<form id="cf"><div class="f"><label for="ct">Nhà mạng</label><select id="ct">${t.telcos.map(x=>`<option>${x}</option>`).join('')}</select></div>${amounts}
+      <div class="f"><label for="cs">Số seri</label><input id="cs" inputmode="numeric" maxlength="20" required autocomplete="off"></div>
+      <div class="f"><label for="cc">Mã thẻ</label><input id="cc" inputmode="numeric" maxlength="20" required autocomplete="off"></div>
+      <button class="btn p" style="width:100%">Nạp thẻ</button><p class="hint">Chọn đúng mệnh giá, sai mệnh giá có thể mất thẻ.${t.cardRate<100?` Thẻ cào nhận ${t.cardRate}% mệnh giá.`:''}</p></form>`;
+    $('#cf').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;
+      const r=await act(()=>api('topup/card',{telco:$('#ct').value,amount:napAmount,serial:$('#cs').value,code:$('#cc').value}),'Đã gửi thẻ, đang chờ xử lý');b.disabled=false;
+      if(r){await loadMe();topup()}}}}
+
+/* ---------- khởi động ---------- */
+(async()=>{
+  try{info=await api('status');document.title=info.name+' · Ngọc Rồng Online';$('#sv-name').innerHTML='Ngọc Rồng <b>'+esc(info.name)+'</b>';$('#ft-name').textContent=info.name}catch(e){}
+  await loadMe();route()})();
+</script>
+</body>
+</html>

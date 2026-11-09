@@ -274,7 +274,7 @@ public class PanelServer {
         }
     }
 
-    private void serveIcon(HttpExchange ex, String name) throws IOException {
+    public static void serveIcon(HttpExchange ex, String name) throws IOException {
         String id = name.replaceAll("[^0-9]", "");
         for (String z : new String[]{"x2", "x3", "x1", "x4"}) {
             File f = new File("data/icon/" + z + "/" + id + ".png");
@@ -289,11 +289,11 @@ public class PanelServer {
 
     // ------------------------------------------------------------------ tiện ích
 
-    static void sendJson(HttpExchange ex, int code, Object o) throws IOException {
+    public static void sendJson(HttpExchange ex, int code, Object o) throws IOException {
         sendText(ex, code, "application/json; charset=utf-8", GSON.toJson(o).getBytes(StandardCharsets.UTF_8));
     }
 
-    static void sendText(HttpExchange ex, int code, String type, byte[] data) throws IOException {
+    public static void sendText(HttpExchange ex, int code, String type, byte[] data) throws IOException {
         ex.getResponseHeaders().set("Content-Type", type);
         ex.getResponseHeaders().set("X-Content-Type-Options", "nosniff");
         ex.sendResponseHeaders(code, data.length);
@@ -302,7 +302,7 @@ public class PanelServer {
         }
     }
 
-    private static Map<String, String> query(HttpExchange ex) {
+    public static Map<String, String> query(HttpExchange ex) {
         Map<String, String> m = new LinkedHashMap<>();
         String raw = ex.getRequestURI().getRawQuery();
         if (raw == null) {
