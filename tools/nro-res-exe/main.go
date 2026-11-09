@@ -264,8 +264,9 @@ type options struct {
 	Auras    string  `json:"auras"`
 	Names    string  `json:"names"`
 	Effects  string  `json:"effects"`
-	Maps     string  `json:"maps"` // bản đồ (ô gạch): danh sách mã map, vd 0-185
-	Scan     string  `json:"scan"` // dò danh hiệu: danh sách khu cần đi qua, vd 0-15
+	Maps     string  `json:"maps"`         // bản đồ (ô gạch): danh sách mã map, vd 0-185
+	Crawl    int     `json:"crawl,string"` // dò bản đồ: đi qua cổng, lấy đủ tối đa N map
+	Scan     string  `json:"scan"`         // dò danh hiệu: danh sách khu cần đi qua, vd 0-15
 	Parts    bool    `json:"parts"`
 	Res      bool    `json:"res"`
 	Official bool    `json:"official"`
@@ -319,7 +320,10 @@ type downloader struct {
 	parts     [][][3]int
 	types     []int
 	resEnd    bool
-	mapData   []byte          // ô gạch của bản đồ vừa hỏi (lệnh -28 loại 10, gói không ghi mã map)
+	mapData   []byte   // ô gạch của bản đồ vừa hỏi (lệnh -28 loại 10, gói không ghi mã map)
+	curMap    *mapInfo // bản đồ đang đứng (gói -24)
+	mapSeq    int      // đếm số lần vào map (đổi map thành công)
+	full      map[int]*mapInfo
 	got       map[string]bool // các yêu cầu đã nhận được (để không gửi lại / đếm trùng)
 	hinted    bool
 	waitLogin int         // server bảo chờ bao nhiêu giây mới cho đăng nhập (lệnh 122)
@@ -484,6 +488,7 @@ func (d *downloader) onMsg(m msg) {
 		}
 	case -24: // thông tin bản đồ: đã vào game
 		d.inGame = true
+		d.onMapInfo(m.data)
 	case -26, -25:
 		if s, err := r.utf(); err == nil && strings.TrimSpace(s) != "" {
 			d.j.log("  Server: %s", strings.ReplaceAll(s, "\n", " "))
@@ -1117,6 +1122,13 @@ func (d *downloader) run() error {
 	if ids := parseRange(o.Maps); len(ids) > 0 && !d.j.isStopped() {
 		d.maps(ids)
 	}
+	if o.Crawl > 0 && !d.j.isStopped() {
+		d.crawl(o.Crawl)
+	}
+	if (o.Crawl > 0 || strings.TrimSpace(o.Maps) != "") && d.curMap != nil && d.full[d.curMap.ID] == nil {
+		d.saveMap(d.curMap) // map đang đứng: lưu đủ (vật nền, hiệu ứng, quái, NPC)
+	}
+	d.writeMapSQL()
 	if zones := parseRange(o.Scan); len(zones) > 0 && !d.j.isStopped() {
 		d.scan(zones)
 	}
@@ -1411,7 +1423,7 @@ func startDownload(w http.ResponseWriter, r *http.Request) {
 		on   bool
 		name string
 	}{{o.Res, "res"}, {o.Parts, "part"}, {strings.TrimSpace(o.Icons) != "", "icon"}, {strings.TrimSpace(o.Mounts) != "", "mount"},
-		{strings.TrimSpace(o.Auras) != "", "aura"}, {strings.TrimSpace(o.Names) != "", "ảnh theo tên"}, {strings.TrimSpace(o.Effects) != "", "effect"}, {strings.TrimSpace(o.Maps) != "", "bản đồ"}, {strings.TrimSpace(o.Scan) != "", "danh hiệu (dò)"}} {
+		{strings.TrimSpace(o.Auras) != "", "aura"}, {strings.TrimSpace(o.Names) != "", "ảnh theo tên"}, {strings.TrimSpace(o.Effects) != "", "effect"}, {strings.TrimSpace(o.Maps) != "", "bản đồ"}, {o.Crawl > 0, "dò bản đồ"}, {strings.TrimSpace(o.Scan) != "", "danh hiệu (dò)"}} {
 		if w.on {
 			what = append(what, w.name)
 		}
