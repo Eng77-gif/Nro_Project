@@ -17,8 +17,11 @@ public class Dot96Migration {
         try {
             int n = update(con, "update item_template set gold = 37000000 where id = 457 and gold <> 37000000")
                     + update(con, "update item_template set gold = 150000000, description = 'Bán cho cửa hàng được 150 triệu vàng' where id = 2032 and gold <> 150000000");
+            // Danh hiệu Phá cỗ Trung Thu VIP / Perfect: hiệu ứng mới (data/effect 516, 517; hiệu ứng cũ 301 đơn sơ, 302 vỡ hình)
+            n += update(con, "update data_badges set idEffect = 516 where idItem = 2076 and idEffect = 301")
+                    + update(con, "update data_badges set idEffect = 517 where idItem = 2081 and idEffect = 302");
             if (n > 0) {
-                Logger.success("Đợt 96: giá thỏi vàng 37 triệu, thỏi vàng NRJ 150 triệu\n");
+                Logger.success("Đợt 96: giá thỏi vàng / hiệu ứng danh hiệu đã cập nhật\n");
             }
         } catch (Exception e) {
             Logger.error("Đợt 96: không đổi được giá thỏi vàng: " + e.getMessage() + "\n");
