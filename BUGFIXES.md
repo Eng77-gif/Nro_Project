@@ -1677,3 +1677,10 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - Bot chỉ làm nhiệm vụ ở map người chơi đi tới được bằng cổng (bỏ Tây Karin và các map không có cổng, bỏ phó bản bang: doanh trại, kho báu, rắn độc, khí gas). Quái nhiệm vụ có ở nhiều map thì chọn map con quái đó yếu nhất.
 - Bot không tự học chiêu đặc biệt (khiên năng lượng, dịch chuyển tức thời, thôi miên, trói, huýt sáo, siêu chiêu): người chơi phải có sách đặc biệt thì bot cũng vậy.
 - Bot chạm giới hạn sức mạnh thì tự mở giới hạn miễn phí (chờ như người chơi); bước "Đạt ... sức mạnh" được kiểm tra lại mỗi lượt (trước đây chạm giới hạn thì kẹt bước này mãi).
+
+## Đợt 98
+- **Danh hiệu Phá Cỗ Trung Thu VIP / Perfect:** dùng hiệu ứng mới anh gửi (data/effect 516 = Phá Cỗ Trung Thu VIP đèn lồng, 517 = Perfect Cell); hiệu ứng cũ 301 chỉ là khung chữ, 302 bị vỡ hình. Mã mới nên client tải lại ảnh, không dùng ảnh cũ đã lưu. Hiệu ứng 515 / 518 / 519 trong gói trùng mã với hiệu ứng đang dùng (hình khác) nên không chép đè.
+- **Bot không vào map chưa mở theo nhiệm vụ:** dùng chung luật người chơi (ChangeMapService.checkMapCanJoin) khi luyện tập, làm nhiệm vụ, săn boss; kèm chặn theo chỉ số HP / sức đánh đã có. Bot tài khoản không bị gỡ ngang khỏi game khi map hết khu.
+- **Bot học chiêu bằng tiềm năng** (1/10 sức mạnh yêu cầu của cấp đó) vì ngọc chỉ kiếm qua nhiệm vụ hằng ngày; vẫn không tự học chiêu cần sách đặc biệt.
+- **Nội tại:** bot từ 10 tỷ sức mạnh mở nội tại bằng vàng (giá như người chơi, chừa 50tr dự trữ) tới khi được nội tại tăng sát thương cho 1 chiêu đánh bot đang dùng.
+- **Bot phần sau:** đệ đi đánh cùng để lên sức mạnh; 22h đánh Hirudegarn (Thành phố Santa), nhặt Quả trứng Mabư thì dùng (nở sau 10 ngày như người chơi, sau đó Hirudegarn rơi Bình hút); có Bình hút thì đi Sa mạc hoang vu tích Kilis, đủ 3000 Kilis và đệ 40 tỷ thì đổi đệ tử 2; mua Bông tai Porata cấp 1, lên Thánh địa nhặt mảnh vỡ, đủ 9999 mảnh ghép bông tai cấp 2 (200tr vàng, 50%); có đủ 20000 mảnh BT3 thì ghép cấp 3. Chỗ cần ngọc bot trả bằng tiềm năng (1 ngọc = 1 triệu tiềm năng). Các việc này chỉ đi khi chỉ số đủ đánh map Cold.
