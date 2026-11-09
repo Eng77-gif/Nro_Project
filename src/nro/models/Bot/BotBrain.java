@@ -16,7 +16,7 @@ import nro.models.utils.Logger;
  * <li>Trạng thái: bậc sức mạnh của bot (số chữ số của sức mạnh: dưới 10 nghìn ... trên 100 nghìn tỷ).</li>
  * <li>Hành động: hoạt động bot chọn mỗi lần đổi việc (luyện tập, săn boss, săn đệ, NRSD, úp SKH, PK).</li>
  * <li>Phần thưởng: sức mạnh tăng mỗi phút tính theo ‰ sức mạnh lúc bắt đầu (bot yếu và mạnh so sánh được với nhau), mỗi lần chết
- * trừ DEATH_PENALTY.</li>
+ * trừ DEATH_PENALTY cho mỗi lần chết / phút.</li>
  * <li>Cập nhật: Q = Q + alpha * (thưởng - Q); chọn hành động epsilon-greedy (epsilon phần trăm số lần thử ngẫu nhiên để khám phá,
  * hành động chưa ai thử được ưu tiên thử trước).</li>
  * </ul>
@@ -31,7 +31,7 @@ public final class BotBrain {
 
     private static final double[][] Q = new double[TIERS][ACTIONS.length];
     private static final int[][] N = new int[TIERS][ACTIONS.length];
-    private static final Deque<double[]> RECENT = new ArrayDeque<>(); // {lúc, bậc, hành động, thưởng}
+    private static final Deque<double[]> RECENT = new ArrayDeque<>(); // {lúc, bậc, hành động, thưởng, ‰ tăng / phút, số lần chết, số phút}
     private static final Random RND = new Random();
     static volatile double epsilon = 0.15, alpha = 0.2;
     static volatile boolean enabled = true;
@@ -99,14 +99,16 @@ public final class BotBrain {
         if (a < 0 || ms < 60_000 || b.nPoint == null) {
             return; // làm quá ngắn, chưa đủ để chấm
         }
-        double perMin = Math.max(0, b.nPoint.power - b.brainPower) / (ms / 60_000.0);
-        double r = perMin / Math.max(1_000, b.brainPower) * 1000 - DEATH_PENALTY * Math.max(0, b.deaths() - b.brainDeaths);
+        double min = ms / 60_000.0;
+        double growth = Math.max(0, b.nPoint.power - b.brainPower) / min / Math.max(1_000, b.brainPower) * 1000; // ‰ / phút
+        int died = Math.max(0, b.deaths() - b.brainDeaths);
+        double r = growth - DEATH_PENALTY * died / min; // phạt theo số lần chết mỗi phút (lượt dài không bị phạt dồn)
         r = Math.max(-MAX_REWARD, Math.min(MAX_REWARD, r));
         int t = b.brainTier;
         Q[t][a] += alpha * (r - Q[t][a]);
         N[t][a]++;
         episodes++;
-        RECENT.addLast(new double[]{System.currentTimeMillis(), t, a, r});
+        RECENT.addLast(new double[]{System.currentTimeMillis(), t, a, r, growth, died, min});
         while (RECENT.size() > 300) {
             RECENT.removeFirst();
         }

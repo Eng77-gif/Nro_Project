@@ -309,7 +309,7 @@ async function page_bots(){
 
 async function page_ai(){
   $('#main').innerHTML=`<h2>AI huấn luyện bot</h2>
-  <div class="card mute">Bộ não tự học của bot, viết riêng, không dùng model AI nào. Mỗi lần bot đổi việc, AI chấm điểm việc vừa làm: sức mạnh tăng mỗi phút (‰ so với sức mạnh lúc bắt đầu), mỗi lần chết bị trừ 2 điểm. Điểm được học riêng cho từng bậc sức mạnh, tất cả bot dùng chung một bảng nên học rất nhanh. Bot sẽ chọn việc điểm cao nhất; một phần số lần (ε) thử việc khác để khám phá. Trang tự làm mới 10 giây.</div>
+  <div class="card mute">Bộ não tự học của bot, viết riêng, không dùng model AI nào. Mỗi lần bot đổi việc, AI chấm điểm việc vừa làm: sức mạnh tăng mỗi phút (‰ so với sức mạnh lúc bắt đầu), mỗi lần chết / phút bị trừ 2 điểm. Điểm được học riêng cho từng bậc sức mạnh, tất cả bot dùng chung một bảng nên học rất nhanh. Bot sẽ chọn việc điểm cao nhất; một phần số lần (ε) thử việc khác để khám phá. Trang tự làm mới 10 giây.</div>
   <div class="stats" id="ais"></div>
   <div class="grid2" style="margin-top:12px">
    <div class="card"><b>Điều khiển</b>
@@ -329,7 +329,7 @@ async function page_ai(){
     if(first){first=false;$('#ai_on').checked=d.enabled;$('#ai_e').value=d.epsilon;$('#ai_a').value=d.alpha}
     $('#ai_ev').textContent=(+$('#ai_e').value).toFixed(2);$('#ai_av').textContent=(+$('#ai_a').value).toFixed(2);
     const mx=Math.max(1,...d.recent.map(r=>Math.abs(r[3])));
-    $('#ai_rc').innerHTML=d.recent.map(r=>`<div title="${esc(d.actions[r[2]])}: ${r[3].toFixed(2)}" style="flex:1;min-width:2px;height:${Math.max(3,100*Math.abs(r[3])/mx)}%;background:${r[3]>0?'var(--ok)':'var(--bad,#e5534b)'};border-radius:2px"></div>`).join('')||'<span class="mute">Chưa có lượt nào (mỗi lượt cần bot làm 1 việc ít nhất 1 phút)</span>';
+    $('#ai_rc').innerHTML=d.recent.map(r=>`<div title="${esc(d.actions[r[2]])}: ${r[3].toFixed(2)} (tăng ${(r[4]||0).toFixed(2)}‰/phút, chết ${r[5]||0} lần, ${(r[6]||0).toFixed(1)} phút)" style="flex:1;min-width:2px;height:${Math.max(3,100*Math.abs(r[3])/mx)}%;background:${r[3]>0?'var(--ok)':'var(--bad,#e5534b)'};border-radius:2px"></div>`).join('')||'<span class="mute">Chưa có lượt nào (mỗi lượt cần bot làm 1 việc ít nhất 1 phút)</span>';
     $('#ai_t').innerHTML=`<table><tr><th>Bậc sức mạnh</th>${d.actions.map(a=>`<th>${esc(a)}</th>`).join('')}</tr>${d.table.map(r=>{const m=Math.max(1e-9,...r.q.map((q,i)=>r.n[i]?Math.abs(q):0));
       return `<tr><td><b>${esc(r.tier)}</b></td>${r.q.map((q,i)=>r.n[i]?`<td style="background:${q>=0?`rgba(46,160,67,${.12+.5*q/m})`:`rgba(229,83,75,${.12+.5*-q/m})`};${i===r.best?'outline:2px solid var(--acc);outline-offset:-2px;':''}">${q.toFixed(2)} <span class="mute">(${r.n[i]})</span></td>`:'<td class="mute">—</td>').join('')}</tr>`}).join('')||`<tr><td colspan="${d.actions.length+1}" class="mute">Chưa học được gì</td></tr>`}</table>`;
     $('#ai_m').innerHTML=`<table><tr><th>Bản đồ</th><th>Điểm (sức mạnh / phút)</th><th>Số lượt</th></tr>${d.maps.map(m=>`<tr><td>${esc(m.map)}</td><td>${fmt(m.score)}</td><td>${m.n}</td></tr>`).join('')||'<tr><td colspan=3 class="mute">Chưa có</td></tr>'}</table>`};
