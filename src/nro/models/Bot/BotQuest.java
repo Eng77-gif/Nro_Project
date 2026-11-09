@@ -88,17 +88,20 @@ public class BotQuest {
             map = 42 + b.gender; // "Đi khám phá vật thể lạ": em bé nằm ở Vách núi 42 - 44 (Map.initItem)
         }
         if (st.npcId >= 0) { // gặp NPC (nói chuyện, mở rương, hái đậu, báo cáo)
+            int npcId = st.npcId;
             if (map < 0) {
-                map = npcMap(b, st.npcId);
+                map = npcMap(b, npcId);
             }
-            if (map < 0) {
-                return;
+            if (npcId != NPC_RUONG && (map < 0 || !hasNpc(map, npcId))) {
+                // dữ liệu bước ghi NPC không có ở map đó (vd "Đi về nhà ông Gôhan": Tiên Bry ở Vách núi): về nhà gặp ông nội
+                map = 21 + b.gender;
+                npcId = new int[]{nro.models.consts.ConstNpc.ONG_GOHAN, nro.models.consts.ConstNpc.ONG_MOORI, nro.models.consts.ConstNpc.ONG_PARAGUS}[Math.max(0, Math.min(2, b.gender))];
             }
             b.activity = "Làm nhiệm vụ";
             if (b.zone.map.mapId != map && !goTo(b, map)) {
                 return;
             }
-            interact(b, st.npcId);
+            interact(b, npcId);
             return;
         }
         int mobId = tm.id == 8 && tm.index == 1 ? new int[]{11, 12, 10}[Math.max(0, Math.min(2, b.gender))] // ngọc 7 sao rơi từ quái mẹ (Mob: TASK_8_1)
@@ -162,6 +165,19 @@ public class BotQuest {
                 return;
             }
         }
+    }
+
+    private static boolean hasNpc(int mapId, int npcId) {
+        nro.models.map.Map m = MapService.gI().getMapById(mapId);
+        if (m == null || m.npcs == null) {
+            return false;
+        }
+        for (Npc n : m.npcs) {
+            if (n.tempId == npcId) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Map có NPC (ưu tiên hành tinh của bot), -1 nếu không thấy. */
@@ -247,10 +263,10 @@ public class BotQuest {
     }
 
     // ------------------------------------------------------------------ nâng chiêu
-    /** Học cấp tiếp theo của chiêu đã có khi đủ sức mạnh, trả ngọc bằng giá sách. */
+    /** Học chiêu mới (cấp 1) hoặc cấp tiếp theo của chiêu đã có khi đủ sức mạnh, trả ngọc bằng giá sách. */
     private void learnSkills(Bot b) {
         for (Skill cur : b.playerSkill.skills) {
-            if (cur == null || cur.template == null || cur.point <= 0 || cur.point >= 7) {
+            if (cur == null || cur.template == null || cur.point < 0 || cur.point >= 7) { // point 0: chiêu của phái chưa học
                 continue;
             }
             Skill next = SkillUtil.createSkill(cur.template.id, cur.point + 1);
