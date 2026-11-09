@@ -1769,6 +1769,9 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Chỉ số tạm** (Đợt 105, chạy 1 lần, chỉ cho món đang không có chỉ số nào; sửa lại ở panel khi có chỉ số thật): 18 cải trang / đeo lưng / thú cưỡi lấy đúng chỉ số của v10; sao pha lê có dòng chỉ số theo màu; Sao pha lê ánh kim vàng rơi 10 - 25%; còn lại mức chung sức đánh / HP / KI: cải trang 15%, pet 10%, đeo lưng 8%, thú cưỡi / ván bay 5%. Cải trang / đeo lưng / pet / thú cưỡi rơi ra hay được tặng mà chưa có dòng nào thì nhận chỉ số mặc định khi vào hành trang.
 - **Sửa ép sao pha lê:** viên sao pha lê rơi từ quái / boss không có dòng chỉ số nên ép vào đồ chỉ được dòng "không chỉ số"; nay lấy chỉ số theo màu viên.
 - **Bot trang bị như người chơi:** mặc đồ tốt nhất (set kích hoạt > thiên sứ > hủy diệt > đồ thường); ô cải trang / pet / đeo lưng / ván bay còn trống thì mua món tốt nhất dư sức trả ở cửa hàng rồi mặc; mua sách nâng chiêu cho đệ tử bằng ngọc; từ 150 tỷ sức mạnh và dư vàng thì chế đồ thiên sứ cho ô chưa có đồ hạng cao.
+- **Ván Rồng 7 sao** (2100) dùng hình riêng `mount_80`: mây Cân Đẩu Vân ngọc rồng 7 sao, 8 khung (ảnh tạm anh gửi, tới khi có hình thật); trước dùng chung hình ván với Ván bay té nước / Ván Bay Trung Thu (Đợt 106, client tải lại: vsItem 26, vsRes 3).
+- **Gỡ sao pha lê 10** (Bà Hạt Mít → Ép sao trang bị... → "Gỡ sao pha lê 10"): trang bị đủ 10 sao + 1 Mũi khoan siêu cấp → gỡ viên ngọc rồng xanh ở lỗ 10, trả lại viên đó, trang bị còn 9 sao (bỏ hào quang SPL 10); chỉ gỡ được lỗ 10.
+- **Rồng thần siêu cấp thưởng lớn hơn** (3 viên siêu cấp rất khó kiếm): 300.000 ngọc / 30 tỷ vàng / TNSM x3 bản thân 3 giờ / Mũi khoan siêu cấp + 1 ngọc rồng xanh / 99 Đá bảo vệ / TNSM x3 đệ tử 3 giờ / +1% chí mạng gốc (5 lần) / 1 ngọc rồng xanh + 1 Sao pha lê ánh kim; hành trang thiếu chỗ thì rồng chờ, không mất quà.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

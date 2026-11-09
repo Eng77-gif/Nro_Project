@@ -49,6 +49,7 @@ public class CombineService {
     public static final int PHAN_RA_SACH = 108;
     public static final int DUI_DUC = 109;
     public static final int DA_MAI = 110;
+    public static final int GO_SAO_PHA_LE_10 = 111;
     public static final int NANG_CAP_VAT_PHAM = 510;
     public static final int NANG_CAP_BONG_TAI = 511;
     public static final int NHAP_NGOC_RONG = 513;
@@ -143,6 +144,9 @@ public class CombineService {
                 break;
             case CUONG_HOA_LO_SAO_PHA_LE:
                 CuongHoaLoSaoPhaLe.showInfoCombine(player);
+                break;
+            case GO_SAO_PHA_LE_10:
+                GoSaoPhaLe10.showInfoCombine(player);
                 break;
             case TAO_DA_HEMATITE:
                 TaoDaHematite.showInfoCombine(player);
@@ -253,6 +257,9 @@ public class CombineService {
                 break;
             case CUONG_HOA_LO_SAO_PHA_LE:
                 CuongHoaLoSaoPhaLe.cuongHoaLoSaoPhaLe(player);
+                break;
+            case GO_SAO_PHA_LE_10:
+                GoSaoPhaLe10.go(player);
                 break;
             case TAO_DA_HEMATITE:
                 TaoDaHematite.taoDaHematite(player);
@@ -678,6 +685,8 @@ public class CombineService {
                 return "Cường hóa\nÔ Sao Pha Lê";
             case TAO_DA_HEMATITE:
                 return "Ta sẽ phù phép\ntạo đá hematite";
+            case GO_SAO_PHA_LE_10:
+                return "Ta sẽ dùng Mũi khoan siêu cấp\ngỡ sao pha lê lỗ thứ 10";
             case DUI_DUC:
                 return "Ta sẽ phù phép\ntạo dùi đục";
             case DA_MAI:
@@ -705,6 +714,8 @@ public class CombineService {
     
     private String getTextInfoTabCombine(int type) {
         switch (type) {
+            case GO_SAO_PHA_LE_10:
+                return "Chọn trang bị đã ép đủ 10 sao pha lê\nCần 1 Mũi khoan siêu cấp trong hành trang\nSau đó chọn 'Gỡ sao'";
             case EP_SAO_TRANG_BI:
                 return "Chọn trang bị\n(Áo, quần, găng, giày hoặc rađa) có ô đặt sao pha lê\nChọn loại sao pha lê\n"
                         + "Sau đó chọn 'Nâng cấp'";

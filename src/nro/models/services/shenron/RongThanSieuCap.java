@@ -23,17 +23,17 @@ public class RongThanSieuCap {
     public static final int MENU_SUMMON = 31720500, MENU_WISH = 31720501, MENU_CONFIRM = 31720502, MENU_WISH2 = 31720503;
     public static final int MUI_KHOAN_SIEU_CAP = 2073, SPL_ANH_KIM = 2074, MAX_WISH_CRIT = 5;
     private static final int NEED = 3;
-    private static final long WAIT_MS = 5 * 60_000L, BUFF_MS = 60 * 60_000L;
+    private static final long WAIT_MS = 5 * 60_000L, BUFF_MS = 3 * 60 * 60_000L; // 3 viên siêu cấp rất khó kiếm: thưởng lớn
     private static final String SAY = "Ta là Rồng thần siêu cấp, ta sẽ ban cho ngươi một điều ước, ngươi có 5 phút, hãy chọn đi:\n"
-            + "1) 100.000 ngọc xanh.\n"
-            + "2) 5 tỷ vàng.\n"
-            + "3) Tiềm năng sức mạnh X3 cho bản thân 60 phút.\n"
-            + "4) 1 Mũi khoan siêu cấp (gỡ sao pha lê 10 tại Bà Hạt Mít).\n"
-            + "5) 10 viên Đá bảo vệ.";
+            + "1) 300.000 ngọc xanh.\n"
+            + "2) 30 tỷ vàng.\n"
+            + "3) Tiềm năng sức mạnh X3 cho bản thân 3 giờ.\n"
+            + "4) 1 Mũi khoan siêu cấp và 1 ngọc rồng xanh ngẫu nhiên.\n"
+            + "5) 99 viên Đá bảo vệ.";
     private static final String SAY2 = "Ta sẽ ban cho ngươi một điều ước, ngươi có 5 phút, hãy chọn đi:\n"
-            + "6) Tiềm năng sức mạnh X3 cho đệ tử 60 phút.\n"
+            + "6) Tiềm năng sức mạnh X3 cho đệ tử 3 giờ.\n"
             + "7) Tăng 1% chí mạng gốc (tối đa " + MAX_WISH_CRIT + " lần / nhân vật).\n"
-            + "8) Ngẫu nhiên 1 ngọc rồng xanh hoặc 1 Sao pha lê ánh kim (vàng rơi 10% - 25%).";
+            + "8) 1 ngọc rồng xanh ngẫu nhiên và 1 Sao pha lê ánh kim (vàng rơi 10% - 25%).";
 
     private static final Map<Long, long[]> dragons = new ConcurrentHashMap<>(); // id -> {lúc gọi, điều ước đang chọn}
 
@@ -140,18 +140,25 @@ public class RongThanSieuCap {
 
     private static void wish(Player pl, int wish) {
         long now = System.currentTimeMillis();
+        int need = wish == 4 || wish == 8 ? 2 : wish == 5 ? 1 : 0;
+        if (InventoryService.gI().getCountEmptyBag(pl) < need) {
+            Service.gI().sendThongBao(pl, "Hành trang cần ít nhất " + need + " chỗ trống, dọn rồi ước lại (rồng vẫn chờ)");
+            return;
+        }
         switch (wish) {
             case 1 ->
-                pl.inventory.gem += 100_000;
+                pl.inventory.gem += 300_000;
             case 2 ->
-                pl.inventory.gold += 5_000_000_000L;
+                pl.inventory.gold += 30_000_000_000L;
             case 3 ->
                 pl.hlwSelfX3Until = Math.max(now, pl.hlwSelfX3Until) + BUFF_MS;
-            case 4 ->
+            case 4 -> {
                 give(pl, ItemService.gI().createNewItem((short) MUI_KHOAN_SIEU_CAP));
+                give(pl, ItemService.gI().createNewItem((short) Util.nextInt(2064, 2070)));
+            }
             case 5 -> {
                 Item da = ItemService.gI().createNewItem((short) 987);
-                da.quantity = 10;
+                da.quantity = 99;
                 give(pl, da);
             }
             case 6 -> {
@@ -173,14 +180,10 @@ public class RongThanSieuCap {
                 nro.models.database.PlayerExtraDAO.save(pl);
             }
             case 8 -> {
-                Item it;
-                if (Util.isTrue(50, 100)) {
-                    it = ItemService.gI().createNewItem((short) Util.nextInt(2064, 2070)); // ngọc rồng xanh: chỉ số tung khi khảm
-                } else {
-                    it = ItemService.gI().createNewItem((short) SPL_ANH_KIM);
-                    it.itemOptions.add(new Item.ItemOption(100, Util.nextInt(10, 25))); // +% vàng từ quái
-                }
-                give(pl, it);
+                give(pl, ItemService.gI().createNewItem((short) Util.nextInt(2064, 2070))); // ngọc rồng xanh: chỉ số tung khi khảm
+                Item ak = ItemService.gI().createNewItem((short) SPL_ANH_KIM);
+                ak.itemOptions.add(new Item.ItemOption(100, Util.nextInt(10, 25))); // +% vàng từ quái
+                give(pl, ak);
             }
             default -> {
                 return;

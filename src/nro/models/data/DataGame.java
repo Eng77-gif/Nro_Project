@@ -34,8 +34,8 @@ public class DataGame {
     public static byte vsData = 25; // tăng khi thêm part/vật phẩm mới để client tải lại (25: tile_set_Info thêm bộ ô gạch 33)
     public static byte vsMap = 6; // tăng khi thêm map / đổi mẫu NPC (5: hình King Furry, 6: Phòng thí nghiệm Myuu bản v10)
     public static byte vsSkill = 1;
-    public static byte vsItem = 25; // tăng khi đổi item / bảng option để client tải lại (16: bảng option tối đa 255 dòng)
-    public static int vsRes = 2; // tăng khi thêm file res để client tải lại
+    public static byte vsItem = 26; // tăng khi đổi item / bảng option để client tải lại (16: bảng option tối đa 255 dòng)
+    public static int vsRes = 3; // tăng khi thêm file res để client tải lại (3: hình mount_80 Ván Rồng 7 sao)
     public static short maxSmallVersion = 32767;
 
     public static String LINK_IP_PORT = "Ngọc Rồng Online:36.50.134.190:14445:0";
