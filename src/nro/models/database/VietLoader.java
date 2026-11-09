@@ -1286,7 +1286,15 @@ public class VietLoader {
                 String kolJson = rs.getString("nhiem_vu_kol");
                 if (kolJson != null && !kolJson.isEmpty()) {
                     KOLProgressData kolData = new Gson().fromJson(kolJson, KOLProgressData.class);
+                    if (kolData != null && !nro.models.npc_list.QuyLaoKame.KOL_SEASON.equals(kolData.season)) {
+                        kolData = new KOLProgressData(); // sang đợt KOL mới: nhận lại từ nhiệm vụ 1
+                    }
                     if (kolData != null) {
+                        player.kolBoMong = kolData.kolBoMong;
+                        player.kolMocNhan = kolData.kolMocNhan;
+                        player.kolBdkb = kolData.kolBdkb;
+                        player.kolNinjaTim = kolData.kolNinjaTim;
+                        player.kolVip = kolData.kolVip;
                         player.kolQuestStage = kolData.kolQuestStage;
                         player.kolVIPQuestStage = kolData.kolVIPQuestStage;
                         player.destronGas70CompletionCount = kolData.destronGas70CompletionCount;

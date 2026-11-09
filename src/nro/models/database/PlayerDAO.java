@@ -327,6 +327,12 @@ public class PlayerDAO {
             kolData.dailySuperHardQuestCompletionCount = (int) player.dailySuperHardQuestCompletionCount;
             kolData.bossBabyDefeatParticipationCount = (int) player.bossBabyDefeatParticipationCount;
             kolData.monsterKillCountAutoTrain = player.monsterKillCountAutoTrain;
+            kolData.kolBoMong = player.kolBoMong;
+            kolData.kolMocNhan = player.kolMocNhan;
+            kolData.kolBdkb = player.kolBdkb;
+            kolData.kolNinjaTim = player.kolNinjaTim;
+                kolData.kolVip = player.kolVip;
+            kolData.season = nro.models.npc_list.QuyLaoKame.KOL_SEASON;
 
             Gson gson = new Gson();
             String dataKol = gson.toJson(kolData);
@@ -908,6 +914,18 @@ public class PlayerDAO {
                 kolData.dailySuperHardQuestCompletionCount = (int) player.dailySuperHardQuestCompletionCount;
                 kolData.bossBabyDefeatParticipationCount = (int) player.bossBabyDefeatParticipationCount;
                 kolData.monsterKillCountAutoTrain = player.monsterKillCountAutoTrain;
+                kolData.kolBoMong = player.kolBoMong;
+                kolData.kolMocNhan = player.kolMocNhan;
+                kolData.kolBdkb = player.kolBdkb;
+                kolData.kolNinjaTim = player.kolNinjaTim;
+                kolData.kolVip = player.kolVip;
+                kolData.season = nro.models.npc_list.QuyLaoKame.KOL_SEASON;
+            kolData.kolBoMong = player.kolBoMong;
+            kolData.kolMocNhan = player.kolMocNhan;
+            kolData.kolBdkb = player.kolBdkb;
+            kolData.kolNinjaTim = player.kolNinjaTim;
+                kolData.kolVip = player.kolVip;
+            kolData.season = nro.models.npc_list.QuyLaoKame.KOL_SEASON;
 
                 Gson gson = new Gson();
                 String dataKol = gson.toJson(kolData);

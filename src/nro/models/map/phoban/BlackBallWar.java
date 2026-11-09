@@ -114,6 +114,7 @@ public class BlackBallWar implements Runnable {
         player.rewardBlackBall.reward((byte) star);
         Service.gI().sendThongBao(player, "Chúc mừng bạn đã "
                 + "dành được Ngọc rồng " + star + " sao đen cho bang");
+        nro.models.services_dungeon.NrsdResultService.record(player, star); // panel: theo dõi kết quả NRSD + thưởng giải đặc biệt
         // Danh hiệu "Chiến binh sao đen" (7 ngày): thắng Ngọc rồng 1 sao đen ở khu 1 vào ngày chủ nhật
         if (star == 1 && player.zone.zoneId == 0 && java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")).getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
             nro.models.player_badges.BadgesService.giveBadge(player, CHIEN_BINH_SAO_DEN, 7);

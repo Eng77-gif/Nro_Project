@@ -13,6 +13,10 @@ public class KOLProgressData {
     public int dailySuperHardQuestCompletionCount;
     public int bossBabyDefeatParticipationCount;
     public long monsterKillCountAutoTrain;
+    public long kolBoMong, kolMocNhan, kolBdkb, kolNinjaTim;
+    public boolean kolVip;
+    /** Đợt KOL lúc lưu; khác đợt đang chạy thì tiến độ bắt đầu lại từ đầu. */
+    public String season;
 
     public KOLProgressData() {
         this.kolQuestStage = 1;

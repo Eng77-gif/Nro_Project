@@ -48,6 +48,7 @@ public class NinjaAoTim extends Boss {
 
     @Override
     public void reward(Player plKill) {
+        plKill.kolNinjaTim++; // KOL tháng 11: hạ Ninja tím (tính cả bóng)
         // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
 
         // Xác suất rơi item 1560 (50%)

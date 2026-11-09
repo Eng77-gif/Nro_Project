@@ -45,6 +45,7 @@ public class NinjaClone extends Boss {
 
     @Override
     public void reward(Player plKill) {
+        plKill.kolNinjaTim++; // KOL tháng 11: hạ Ninja tím (tính cả bóng)
         // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         if (Util.isTrue(10, 100)) {
             ItemMap it = new ItemMap(this.zone, 17, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x,

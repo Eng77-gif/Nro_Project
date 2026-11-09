@@ -384,6 +384,8 @@ public class Player implements Runnable {
     public long dailySuperHardQuestCompletionCount;
     public long bossBabyDefeatParticipationCount;
     public long monsterKillCountAutoTrain;
+    public long kolBoMong, kolMocNhan, kolBdkb, kolNinjaTim; // KOL tháng 11
+    public boolean kolVip; // đã nạp 450 ngọc mở thưởng KOL VIP của đợt này
     public int vipPurchaseCount;
     public long lastClanCheckIn = 0;
     public long lastChallengeGauTuongCuopTime;

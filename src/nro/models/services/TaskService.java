@@ -1315,6 +1315,7 @@ public class TaskService {
     public void paySideTask(Player player) {
         if (player.playerTask.sideTask.template != null) {
             if (player.playerTask.sideTask.isDone()) {
+                player.kolBoMong++; // KOL tháng 11: nhiệm vụ Bò Mộng mọi cấp
                 int goldReward = 0;
                 int gemReward = 0; // ngọc xanh (mở giới hạn sức mạnh bằng ngọc): dễ 100-300, bình thường 300-600, khó 600-1000, cực khó 1000-3000, địa ngục 3000-5000
                 int ngocBi = 708;

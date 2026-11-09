@@ -371,5 +371,9 @@ public class ConstNpc {
     public static final int KOL_QUEST_TYPE_DAILY_QUEST_COMPLETION = 1012;
     public static final int KOL_QUEST_TYPE_BOSS_DEFEAT_PARTICIPATION = 1013;
     public static final int KOL_QUEST_TYPE_MONSTER_KILL_COUNT = 1014;
+    public static final int KOL_QUEST_TYPE_BO_MONG = 1015;
+    public static final int KOL_QUEST_TYPE_MOC_NHAN = 1016;
+    public static final int KOL_QUEST_TYPE_BDKB = 1017;
+    public static final int KOL_QUEST_TYPE_NINJA_TIM = 1018;
 
 }

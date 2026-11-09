@@ -1780,6 +1780,18 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Máy đo sức mạnh hết quay đầu:** trong database máy là quái loại 1 "đi lại" với vùng di chuyển 1, client tự cho máy đi qua lại 1 điểm nên cứ quay 2 đầu; đổi thành loại 0 đứng yên như Mộc nhân (Đợt 109, client tải lại dữ liệu vsData 26).
 - **Hộp quà theo danh sách anh gửi:** Thiệp chúc VIP (1718) mất hết quà khi đổi mã vật phẩm (mã cũ 1946 nay là Cải trang Thiên sư phụ), khôi phục đủ 13 món; Hộp bánh Trung Thu VIP 2026 thêm Cờ ngọc rồng 4 sao, Cờ ngọc rồng Super, Bóng sinh nhật NRO, Hộp nâng cấp đồ thiên sứ (trước chưa có trong database); Hộp quà thiếu nhi (1606 - 1608) và Hộp quà tháng 9 / VIP (1695, 1696) mã cũ chưa có quà dùng chung quà với bản mới. Hộp 20/10, Trung Thu 2026, Trăng tròn / khuyết đã đủ. Còn thiếu vì chưa có vật phẩm: Tờ mảnh VIP, Picolo Kid.
 - **Panel:** trang Hộp quà làm mới (danh sách hộp có tìm kiếm và icon bên trái, chi tiết hộp bên phải: thêm / sửa quà, tỉ lệ ra dạng thanh, hạn dùng, bảo hiểm); mọi trang còn tiêu đề kiểu cũ tự đổi sang khối tiêu đề như trang Người chơi (nhóm, tên, mô tả ngắn, biểu tượng).
+- **Mảnh thẻ VIP** (2089, chính là "Tờ mảnh VIP" trong danh sách) thêm vào Hộp bánh Trung Thu VIP 2026, ra 1 - 3 mảnh (Đợt 110). Picolo Kid không có trong game nên bỏ.
+- **Nhiệm vụ KOL tháng 11** (Quy Lão → Nhận quà KOL / KOL VIP), đợt `KOL_SEASON = "2026-11"`: sang đợt mới mọi người tự làm lại từ nhiệm vụ 1. Thưởng thường / VIP:
+  1. 70 nhiệm vụ Bò Mộng (mọi cấp): 5 Trứng Rồng Nhí / CT Goku SSJ 4 Red vĩnh viễn + 10 Trứng Rồng Nhí
+  2. Đánh 6.000 Mộc Nhân: 10 / 20 Rương Rồng Thần
+  3. Hạ hết quái + boss Đảo Kho Báu cấp 20 trở lên 10 lần: 10 / 20 Máy dò Ngọc rồng sự kiện (thay "RaDa Ngọc Rồng" chưa có trong game), VIP thêm 100 - 1.000 ngọc xanh
+  4. Thắng 10 người ở Đại Hội Võ Thuật: CT Lý Tiểu Nương hầu gái xanh / CT Gohan học đường (vĩnh viễn)
+  5. Hạ 10 Ninja Áo Tím trong Doanh Trại (tính cả bóng): 5 / 10 Hộp quà Goku Day VIP + 5 / 10 Hộp quà Cađíc VIP
+  6. Đánh 100.000 quái: Pet Cửu Vĩ Hồ 60 ngày / Thú cưỡi rồng Đen 365 ngày
+  7. Tặng Quy Lão 7 viên Ngọc Rồng 1 sao: CT Goku SSJ God / CT Goku cận vô cực (vĩnh viễn)
+
+  KOL VIP mở bằng cách nạp **450 ngọc xanh** cho Quy Lão lần đầu nhận thưởng VIP trong tháng (hoặc 1 Vé KOL VIP nếu có). Quà có chỉ số mặc định và "Không thể giao dịch"; cần đủ ô trống hành trang mới nhận.
+- **Panel → Thế giới → Ngọc Rồng Sao Đen:** mỗi trận NRSD thắng được ghi vào bảng `nrsd_result` (lúc, viên mấy sao, khu, người giữ ngọc, bang). Trang có số trận hôm nay / 7 ngày / tổng, top bang và người thắng 30 ngày, bảng kết quả lọc theo viên ngọc, ngày, tên. **Giải Ngọc Rồng Sao Đen Đặc Biệt** (bảng `nrsd_tournament`): đặt ngày diễn ra và phần thưởng (`mã:số lượng`), đúng ngày đó mỗi người giữ ngọc thắng nhận thưởng vào hành trang; đã tạo giải đầu tiên (thêm 08/11/2026, diễn ra 15/11/2026: 5 Hộp ngọc rồng xanh, 99 Thỏi vàng, 200 Đá bảo vệ), sửa ngày / quà ngay trên trang.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

@@ -202,6 +202,10 @@ public class PanelApi {
             case "box" -> boxRows(intv(q.get("id")));
             case "box/save" -> boxSave(b);
             case "box/delete" -> boxDelete(b);
+            case "nrsd/page" -> nrsdPage(q);
+            case "nrsd/summary" -> nrsdSummary();
+            case "nrsd/tournament/save" -> nrsdTournamentSave(b);
+            case "nrsd/tournament/delete" -> Map.of("ok", update("delete from nrsd_tournament where id=?", lng(b.get("id"))) > 0);
             case "shops" -> rows("select s.id shop_id, s.npc_id, s.tag_name, t.id tab_id, t.NAME tab_name, (select count(*) from item_shop i where i.tab_id=t.id) n from shop s join tab_shop t on t.shop_id=s.id order by s.id, t.id");
             case "shop/items" -> rows("select i.id, i.temp_id, it.name, it.icon_id, i.cost, i.type_sell, i.is_sell, i.is_new from item_shop i left join item_template it on it.id=i.temp_id where i.tab_id=? order by i.id", intv(q.get("tab")));
             case "shop/save" -> shopSave(b);
@@ -1245,6 +1249,78 @@ public class PanelApi {
         update("delete from item_box_reward where id=?", lng(b.get("id")));
         Event2026Service.gI().reloadBoxes();
         return Map.of("ok", true);
+    }
+
+    // ------------------------------------------------------------------ ngọc rồng sao đen
+
+    /** Kết quả các trận NRSD mới nhất trước; lọc theo sao, ngày (yyyy-mm-dd), tên người / bang. */
+    private Object nrsdPage(Map<String, String> q) throws Exception {
+        StringBuilder w = new StringBuilder("from nrsd_result r left join player p on p.id = r.player_id where (r.player_name like ? escape '!' or r.clan_name like ? escape '!')");
+        List<Object> args = new ArrayList<>(List.of(like(q), like(q)));
+        int star = intv(q.getOrDefault("star", "0"));
+        if (star >= 1 && star <= 7) {
+            w.append(" and r.star = ?");
+            args.add(star);
+        }
+        String day = str(q.getOrDefault("date", ""));
+        if (day.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            w.append(" and date(r.played_at) = ?");
+            args.add(day);
+        }
+        if ("1".equals(q.get("tournament"))) {
+            w.append(" and r.tournament is not null");
+        }
+        Map<String, Object> out = paged(q, "select r.id, date_format(r.played_at, '%Y-%m-%d %H:%i:%s') played_at, r.star, r.map_id, r.zone_id, r.player_id, r.player_name, r.clan_name, r.tournament, r.reward, p.gender, p.head, p.items_body",
+                w.toString(), "r.id desc", args.toArray());
+        for (Object o : (List<?>) out.get("rows")) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> r = (Map<String, Object>) o;
+            r.put("avatar", avatarOf(r.remove("head"), r.remove("items_body")));
+        }
+        return out;
+    }
+
+    /** Tổng quan: số trận hôm nay / 7 ngày, bang và người thắng nhiều nhất 30 ngày, danh sách giải đặc biệt kèm người thắng. */
+    private Object nrsdSummary() throws Exception {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("today", scalar("select count(*) from nrsd_result where date(played_at) = curdate()"));
+        m.put("week", scalar("select count(*) from nrsd_result where played_at >= now() - interval 7 day"));
+        m.put("total", scalar("select count(*) from nrsd_result"));
+        m.put("clans", rows("select clan_name name, count(*) n from nrsd_result where clan_name is not null and played_at >= now() - interval 30 day group by clan_name order by n desc limit 5"));
+        m.put("players", rows("select player_name name, count(*) n from nrsd_result where played_at >= now() - interval 30 day group by player_id, player_name order by n desc limit 5"));
+        List<Map<String, Object>> ts = rows("select t.id, t.name, date_format(t.play_date, '%Y-%m-%d') play_date, t.rewards, date_format(t.created_at, '%Y-%m-%d') created_at, (select count(*) from nrsd_result r where date(r.played_at) = t.play_date) wins from nrsd_tournament t order by t.play_date desc");
+        for (Map<String, Object> t : ts) {
+            List<Map<String, Object>> rw = new ArrayList<>();
+            for (String part : str(t.get("rewards")).split(",")) {
+                String[] kv = part.split(":");
+                if (kv.length == 2) {
+                    int id = Integer.parseInt(kv[0].trim());
+                    var tpl = nro.models.services.ItemService.gI().getTemplate(id);
+                    rw.add(Map.of("id", id, "qty", Integer.parseInt(kv[1].trim()), "name", tpl != null ? tpl.name : "#" + id, "icon", tpl != null ? tpl.iconID : -1));
+                }
+            }
+            t.put("items", rw);
+        }
+        m.put("tournaments", ts);
+        return m;
+    }
+
+    private Object nrsdTournamentSave(Map<String, Object> b) throws Exception {
+        String name = str(b.get("name")).trim(), day = str(b.get("play_date")).trim(), rewards = str(b.get("rewards")).replace(" ", "");
+        if (name.isEmpty() || name.length() > 128 || !day.matches("\\d{4}-\\d{2}-\\d{2}") || !rewards.matches("\\d{1,5}:\\d{1,6}(,\\d{1,5}:\\d{1,6})*")) {
+            return Map.of("ok", false, "error", "Cần tên giải, ngày (yyyy-mm-dd) và phần thưởng dạng mã:số lượng, cách nhau dấu phẩy");
+        }
+        for (String part : rewards.split(",")) {
+            if (nro.models.services.ItemService.gI().getTemplate(Integer.parseInt(part.split(":")[0])) == null) {
+                return Map.of("ok", false, "error", "Không có vật phẩm mã " + part.split(":")[0]);
+            }
+        }
+        if (b.get("id") != null && lng(b.get("id")) > 0) {
+            update("update nrsd_tournament set name=?, play_date=?, rewards=? where id=?", name, day, rewards, lng(b.get("id")));
+        } else {
+            update("insert into nrsd_tournament (name, play_date, rewards) values (?, ?, ?)", name, day, rewards);
+        }
+        return Map.of("ok", true, "note", "Đã lưu giải " + name);
     }
 
     // ------------------------------------------------------------------ shop

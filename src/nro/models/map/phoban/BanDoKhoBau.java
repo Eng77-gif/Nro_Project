@@ -99,6 +99,13 @@ public class BanDoKhoBau implements Runnable {
                 }
             }
 
+            if (!kickoutbdkb && allCharactersDead && level >= 20) { // KOL tháng 11: hạ hết quái + boss kho báu cấp 20 trở lên
+                for (Zone zone : zones) {
+                    for (Player pl : zone.getNotBosses()) {
+                        pl.kolBdkb++;
+                    }
+                }
+            }
             if (!kickoutbdkb && (allCharactersDead || Util.canDoWithTime(lastTimeOpen, TIME_BAN_DO_KHO_BAU - 60000))) {
                 kickoutbdkb = true;
                 timeKickOutBDKB = System.currentTimeMillis();

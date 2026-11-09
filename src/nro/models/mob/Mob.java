@@ -169,6 +169,9 @@ public class Mob {
                     TaskService.gI().checkDoneSideTaskKillMob(plAtt, this);
                     TaskService.gI().checkDoneClanTaskKillMob(plAtt, this);
                     AchievementService.gI().checkDoneTaskKillMob(plAtt, this);
+                    if (this.tempId == ConstMob.MOC_NHAN) {
+                        plAtt.kolMocNhan++; // KOL tháng 11: đánh mộc nhân
+                    }
                 }
                 if (this.id == 13) {
                     this.zone.isbulon1Alive = false;
