@@ -1772,6 +1772,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Ván Rồng 7 sao** (2100) dùng hình riêng `mount_80`: mây Cân Đẩu Vân ngọc rồng 7 sao, 8 khung (ảnh tạm anh gửi, tới khi có hình thật); trước dùng chung hình ván với Ván bay té nước / Ván Bay Trung Thu (Đợt 106, client tải lại: vsItem 26, vsRes 3).
 - **Gỡ sao pha lê 10** (Bà Hạt Mít → Ép sao trang bị... → "Gỡ sao pha lê 10"): trang bị đủ 10 sao + 1 Mũi khoan siêu cấp → gỡ viên ngọc rồng xanh ở lỗ 10, trả lại viên đó, trang bị còn 9 sao (bỏ hào quang SPL 10); chỉ gỡ được lỗ 10.
 - **Rồng thần siêu cấp thưởng lớn hơn** (3 viên siêu cấp rất khó kiếm): 300.000 ngọc / 30 tỷ vàng / TNSM x3 bản thân 3 giờ / Mũi khoan siêu cấp + 1 ngọc rồng xanh / 99 Đá bảo vệ / TNSM x3 đệ tử 3 giờ / +1% chí mạng gốc (5 lần) / 1 ngọc rồng xanh + 1 Sao pha lê ánh kim; hành trang thiếu chỗ thì rồng chờ, không mất quà.
+- **Hộp quà gộp chung 1 ô:** 22 hộp / rương / capsule / túi trước mỗi cái chiếm 1 ô (Set kích hoạt Beerus 1 món tự chọn, Hộp quà Set kích hoạt, Hộp ngọc rồng xanh, Hộp đá nâng cấp +9, Hộp thần linh, Rương ngọc rồng...) nay xếp chồng (Đợt 107, client tải lại vsItem 27); hộp quà bỏ hạn sử dụng để luôn gộp được, các ô hộp cùng loại đang tách sẽ gộp lại khi nhận thêm 1 hộp.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

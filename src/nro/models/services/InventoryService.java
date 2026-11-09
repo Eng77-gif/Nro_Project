@@ -896,13 +896,20 @@ public class InventoryService {
         }
     }
 
+    private static final java.util.regex.Pattern GIFT_BOX_NAME = java.util.regex.Pattern.compile("^(Hộp|Rương|Capsule|Cápsule|Túi) .*|^Set kích hoạt.*tự chọn.*");
+
+    /** Hộp quà / rương / capsule / túi (giống Dot107Migration.GIFT_BOX): bỏ hạn sử dụng và gộp chung 1 ô. */
+    static boolean isGiftBox(nro.models.player_system.Template.ItemTemplate t) {
+        return (t.type == 27 || t.type == 29) && t.head < 0 && t.name != null && GIFT_BOX_NAME.matcher(t.name).matches();
+    }
+
     private static boolean hasDefaultStats(nro.models.player_system.Template.ItemTemplate t) {
         // sao pha lê thường không thêm (ép sao lấy chỉ số theo mã viên; thêm dòng sẽ không gộp chung ô với viên cũ)
         return t.type == 5 || t.type == 11 || t.type == 23 || t.type == 24 || t.id == 2074 || (t.type == 27 && t.head >= 0);
     }
 
     public boolean addItemList(List<Item> items, Item itemAdd) {
-        if (itemAdd.template != null && Event2026Service.gI().isBox(itemAdd)) {
+        if (itemAdd.template != null && (Event2026Service.gI().isBox(itemAdd) || isGiftBox(itemAdd.template))) {
             // hộp quà / túi mù / capsule mở ra quà: không có hạn sử dụng để luôn gộp chung 1 ô (cả hộp cũ đã có hạn)
             itemAdd.itemOptions.removeIf(io -> io.optionTemplate != null && io.optionTemplate.id == 93);
             mergeBoxStacks(items, itemAdd.template.id);
