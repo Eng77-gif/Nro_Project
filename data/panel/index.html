@@ -45,6 +45,7 @@ tr:hover td{background:var(--panel2)}
 #login form{width:min(340px,92vw);display:flex;flex-direction:column;gap:10px}
 .log{background:#05070c;color:#cfe3c8;height:60vh;overflow:auto;padding:10px;border-radius:var(--r);white-space:pre-wrap;font:12px/1.4 ui-monospace,Consolas,monospace}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.boss-hp{display:grid;gap:4px;min-width:140px}.boss-hp .metric-track span{background:var(--bad,#e5534b)}.check-line{display:flex!important;gap:8px;align-items:center;font-size:13px}.check-line input{width:auto;flex:none}.boss-spawn .check-line{grid-column:span 2;justify-content:flex-start}.boss-spawn{grid-template-columns:minmax(220px,2fr) minmax(160px,1.4fr) 110px 110px}
 .inv-list{display:grid;gap:6px;max-height:340px;overflow:auto;padding-right:2px}.inv-row{display:flex;align-items:center;gap:10px;padding:7px 9px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}.inv-row>img{flex:none}.inv-txt{flex:1;min-width:0;overflow-wrap:anywhere;font-size:13px}.inv-txt .mute{font-size:12px}.inv-row button{flex:none}
 label.f{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute)}label.f>*{color:var(--text)}
 .pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px;max-height:55vh;overflow:auto;margin-top:10px}
@@ -560,9 +561,49 @@ async function page_events(){const r=await api('seasons');
 async function sev(cmd){const r=await act(()=>api('season/cmd',{cmd}));if(r)toast(r.result);page_events()}
 
 /* ---------- boss ---------- */
-async function page_bosses(){const r=await api('bosses');
-  $('#main').innerHTML=`<h2>Boss</h2><div class="card row"><select id="bi" class="grow">${r.ids.map(b=>`<option value="${b.id}">${esc(b.key)} (${b.id})</option>`).join('')}</select><button class="p" onclick="act(()=>api('boss/spawn',{bossId:+$('#bi').value})).then(()=>lpLoad('boss'))">Gọi boss</button></div>`+
-  lpBox('boss',{path:'bosses/page',label:'Tên boss hoặc ID',filters:[{k:'state',label:'Trạng thái',opts:[['','Tất cả'],['alive','Đang ở bản đồ'],['rest','Đang nghỉ / chờ']]}],cols:[['id','ID'],['name','Tên'],['alive','Trạng thái',v=>v?'<span class="tag on1">đang sống</span>':'<span class="tag">đang nghỉ</span>'],['map','Đang ở'],['hp','HP',(v,b)=>b.alive?fmt(v)+' / '+fmt(b.hpMax):fmt(b.hpMax)]],actions:b=>b.alive?`<button class="s d" onclick="act(()=>api('boss/remove',{id:${Number(b.id)}})).then(()=>lpLoad('boss'))">Cho rời bản đồ</button>`:''});await lpInit('boss')}
+let bossRequest=0,bossPage=1,bossRows=[],bossTpl=[];
+async function page_bosses(){
+  $('#main').innerHTML=`<div class="people-heading"><div><div class="eyebrow">THẾ GIỚI</div><h2>Boss</h2><p>Theo dõi boss đang ở bản đồ, boss đang nghỉ và gọi boss theo ý muốn.</p></div><span class="heading-icon">${uiIcon('bolt')}</span></div>
+  <div class="card"><div class="section-head"><h3>Gọi boss</h3><span class="mute" style="font-size:12px">Bỏ trống bản đồ: boss xuất hiện ở bản đồ mặc định của nó</span></div>
+   <div class="directory-toolbar boss-spawn" style="padding:0;margin:0;box-shadow:none;border:0;background:none">
+    <label class="directory-search" for="bs_boss">Boss (gõ tên để tìm)<input id="bs_boss" list="bs_bosslist" placeholder="Ví dụ: Broly, Black Goku, Cooler…" autocomplete="off"><datalist id="bs_bosslist"></datalist></label>
+    <label for="bs_map">Bản đồ<input id="bs_map" list="bs_maplist" placeholder="Mặc định" autocomplete="off"><datalist id="bs_maplist"></datalist></label>
+    <label for="bs_zone">Khu<input id="bs_zone" type="number" min="0" placeholder="Ngẫu nhiên"></label>
+    <label for="bs_count">Số lượng<input id="bs_count" type="number" min="1" max="10" value="1"></label>
+    <label class="check-line" style="align-self:end"><input type="checkbox" id="bs_once"> Chỉ xuất hiện 1 lần (bị hạ / rời map là mất, không hồi sinh)</label>
+    <div class="toolbar-actions"><button class="p" id="bs_go">${uiIcon('bolt')} Gọi boss</button></div>
+   </div><div id="bs_info" class="mute" style="font-size:12px;margin-top:6px"></div></div>
+  <div class="card directory-toolbar"><label class="directory-search" for="bq">Tên boss, mã hoặc bản đồ<input id="bq" placeholder="Nhập từ khóa rồi Enter…" maxlength="100"></label>
+   <label for="bst">Trạng thái<select id="bst"><option value="">Tất cả</option><option value="alive">Đang ở bản đồ</option><option value="rest">Đang nghỉ / sắp xuất hiện</option><option value="panel">Gọi từ panel</option></select></label>
+   <label for="bso">Sắp xếp<select id="bso"><option value="">Đang ở bản đồ trước</option><option value="hp_desc">HP cao nhất</option><option value="name_asc">Tên A–Z</option></select></label>
+   <div class="toolbar-actions"><button class="p" onclick="loadBosses(1)">Tìm kiếm</button><button onclick="loadBosses(bossPage)">Làm mới</button></div></div>
+  <div class="directory-bar"><div id="boss-summary" class="result-strip" role="status"></div><label for="bsz">Mỗi trang<select id="bsz"><option>25</option><option>50</option><option>100</option></select></label></div>
+  <div id="bt"></div><div id="boss-pager"></div>`;
+  $('#bq').onkeydown=e=>{if(e.key==='Enter')loadBosses(1)};for(const id of ['bst','bso','bsz'])$('#'+id).onchange=()=>loadBosses(1);
+  $('#bs_go').onclick=spawnBoss;$('#bs_boss').oninput=bossHint;
+  try{bossTpl=await api('boss/templates');$('#bs_bosslist').innerHTML=bossTpl.map(b=>`<option value="${esc(b.name)} #${b.id}">${b.running?'đang có '+b.running:'chưa có'}</option>`).join('')}catch(e){}
+  try{const maps=await api('maps');$('#bs_maplist').innerHTML=maps.map(m=>`<option value="${m.id} - ${esc(m.name)}"></option>`).join('')}catch(e){}
+  await loadBosses(1);logTimer=setInterval(()=>loadBosses(bossPage),15000)}
+function bossHint(){const t=bossTpl.find(b=>`${b.name} #${b.id}`===$('#bs_boss').value);$('#bs_info').textContent=t?`Mã ${t.id} (${t.key}) · đang có ${t.running} con trên server`:''}
+async function spawnBoss(){const v=$('#bs_boss').value.trim(),m=v.match(/#(-?\d+)\s*$/);const t=m?bossTpl.find(b=>b.id===+m[1]):bossTpl.find(b=>b.name.toLowerCase()===v.toLowerCase());
+  if(!t){toast('Chọn boss trong danh sách gợi ý',1);return}
+  const map=($('#bs_map').value.match(/^\s*(\d+)/)||[])[1]||'';
+  const r=await act(()=>api('boss/spawn',{bossId:t.id,mapId:map,zone:$('#bs_zone').value,count:+$('#bs_count').value||1,once:$('#bs_once').checked}));
+  if(r)setTimeout(()=>loadBosses(1),2500)}
+function hpBar(b){const p=b.hpMax>0?Math.max(0,Math.min(100,100*b.hp/b.hpMax)):0;return `<div class="boss-hp"><div class="metric-track"><span style="width:${b.alive?p:100}%;${b.alive?'':'opacity:.35'}"></span></div><span class="power-exact">${b.alive?shortPower(b.hp)+' / ':''}${shortPower(b.hpMax)} HP</span></div>`}
+function bossTable(rows){if(!rows.length)return recordEmpty('Không có boss phù hợp','Thử từ khóa hoặc trạng thái khác.','bolt');
+  return `<div class="tw people-table directory-table"><table><thead><tr><th>Boss</th><th>Trạng thái</th><th>HP</th><th>Vị trí</th><th>Thao tác</th></tr></thead><tbody>${rows.map((b,i)=>`<tr>
+   <td data-l="Boss"><div class="identity"><span class="character-avatar" aria-hidden="true">${avatarMark(b,b.gender)}</span><div class="identity-text"><span class="character-name">${esc(b.name)}</span><div class="character-meta"><span>#${Number(b.id)}</span>${b.panel?'<span>gọi từ panel</span>':''}</div></div></div></td>
+   <td data-l="Trạng thái"><span class="presence ${b.alive?'is-online':''}">${esc(b.state)}</span></td>
+   <td data-l="HP">${hpBar(b)}</td>
+   <td data-l="Vị trí"><span class="where-name">${esc(b.map||'—')}</span></td>
+   <td data-l="Thao tác" class="act">${b.alive?`<button class="record-action" onclick="bossAct('boss/remove',${i},false)">Cho rời bản đồ</button>`:`<button class="record-action" onclick="bossAct('boss/respawn',${i})">Xuất hiện ngay</button>`} <button class="s d" title="Xoá hẳn, không hồi sinh (tới lần khởi động sau)" onclick="bossAct('boss/remove',${i},true)">Xoá</button></td></tr>`).join('')}</tbody></table></div>`}
+async function bossAct(path,i,del){const b=bossRows[i];if(!b)return;if(del&&!confirm('Xoá hẳn boss '+b.name+'? Boss sẽ không hồi sinh tới lần khởi động server sau.'))return;
+  const r=await act(()=>api(path,{key:b.key,delete:!!del}));if(r)setTimeout(()=>loadBosses(bossPage),1500)}
+async function loadBosses(page=1){const req=++bossRequest;const params=new URLSearchParams({q:$('#bq').value.trim(),state:$('#bst').value,sort:$('#bso').value,size:$('#bsz').value||'25',page:String(page)});
+  try{const d=await pagedApi('bosses/page?'+params);if(req!==bossRequest||!$('#bt'))return;bossPage=d.page;bossRows=d.rows;$('#bt').innerHTML=bossTable(d.rows);
+   $('#boss-summary').innerHTML=`<span class="summary-label"><b>${fmt(d.total)}</b> boss phù hợp · Trang ${d.page}/${d.totalPages}</span>`;$('#boss-pager').innerHTML=pagerMarkup(d,'loadBosses')}
+  catch(e){if(!e.stale&&req===bossRequest&&$('#bt')){$('#bt').innerHTML=directoryError(e);$('#boss-summary').textContent='Chưa tải được dữ liệu'}}}
 async function page_mobs(){$('#main').innerHTML='<h2>Quái</h2>'+lpBox('mob',{path:'mobs/page',label:'Tên quái hoặc ID',cols:[['id','ID'],['name','Tên'],['type','Loại'],['hp','HP',fmt]]});await lpInit('mob')}
 
 /* ---------- thông báo & quà toàn server ---------- */

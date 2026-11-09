@@ -17,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -163,8 +164,15 @@ public class PanelApi {
                 List<Map<String, Object>> list = new ArrayList<>((List<Map<String, Object>>) ((Map<String, Object>) bosses()).get("bosses"));
                 String kw = str(q.getOrDefault("q", "")).trim().toLowerCase(), st = str(q.getOrDefault("state", ""));
                 list.removeIf(x -> !kw.isEmpty() && !String.valueOf(x.get("name")).toLowerCase().contains(kw) && !String.valueOf(x.get("id")).equals(kw)
-                        || st.equals("alive") && !Boolean.TRUE.equals(x.get("alive")) || st.equals("rest") && Boolean.TRUE.equals(x.get("alive")));
-                list.sort((x, y) -> Boolean.compare(Boolean.TRUE.equals(y.get("alive")), Boolean.TRUE.equals(x.get("alive")))); // boss đang sống lên trước
+                        && !String.valueOf(x.get("map")).toLowerCase().contains(kw)
+                        || st.equals("alive") && !Boolean.TRUE.equals(x.get("alive")) || st.equals("rest") && Boolean.TRUE.equals(x.get("alive"))
+                        || st.equals("panel") && !Boolean.TRUE.equals(x.get("panel")));
+                Comparator<Map<String, Object>> cmp = switch (str(q.getOrDefault("sort", ""))) {
+                    case "hp_desc" -> Comparator.comparingLong((Map<String, Object> x) -> PanelDirectory.numeric(x.get("hpMax"))).reversed();
+                    case "name_asc" -> Comparator.comparing((Map<String, Object> x) -> String.valueOf(x.get("name")), String.CASE_INSENSITIVE_ORDER);
+                    default -> (x, y) -> Boolean.compare(Boolean.TRUE.equals(y.get("alive")), Boolean.TRUE.equals(x.get("alive"))); // boss đang ở bản đồ lên trước
+                };
+                list.sort(cmp);
                 yield pagedList(list, q);
             }
             case "account/update" -> accountUpdate(b);
@@ -213,6 +221,8 @@ public class PanelApi {
             case "bosses" -> bosses();
             case "boss/spawn" -> bossSpawn(b);
             case "boss/remove" -> bossRemove(b);
+            case "boss/respawn" -> bossRespawn(b);
+            case "boss/templates" -> bossTemplates();
             case "notify" -> notify(b);
             case "maintenance" -> maintenance(b);
             case "logs" -> PanelServer.LOG.since(lng(q.getOrDefault("since", "0")));
@@ -368,6 +378,28 @@ public class PanelApi {
                 m.put(h.headId, h.avatarId);
             }
             headAvatar = m;
+        }
+        Integer av = m.get(head);
+        return av != null ? av : headIcon(head);
+    }
+
+    private static volatile Map<Integer, Integer> headIcons;
+
+    /** Không có ảnh đại diện (boss, đầu lạ): lấy hình đầu tiên của part đầu (bảng part, TYPE 0). */
+    private static int headIcon(int head) {
+        Map<Integer, Integer> m = headIcons;
+        if (m == null) {
+            m = new java.util.HashMap<>();
+            try {
+                for (Map<String, Object> r : rows("select id, DATA from part where TYPE = 0")) {
+                    java.util.regex.Matcher mt = java.util.regex.Pattern.compile("^\\[\\[(\\d+)").matcher(String.valueOf(r.get("DATA")));
+                    if (mt.find()) {
+                        m.put(((Number) r.get("id")).intValue(), Integer.parseInt(mt.group(1)));
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+            headIcons = m;
         }
         return m.getOrDefault(head, -1);
     }
@@ -1403,16 +1435,38 @@ public class PanelApi {
         return l;
     }
 
+    private static String bossState(Boss b) {
+        if (b.zone != null && !b.isDie()) {
+            return "Đang ở bản đồ";
+        }
+        if (b.bossStatus == nro.models.consts.BossStatus.RESPAWN || b.bossStatus == nro.models.consts.BossStatus.JOIN_MAP) {
+            return "Sắp xuất hiện";
+        }
+        return "Đang nghỉ";
+    }
+
     private Object bosses() {
         List<Map<String, Object>> list = new ArrayList<>();
         for (Boss b : allBosses()) {
             Map<String, Object> o = new LinkedHashMap<>();
+            o.put("key", System.identityHashCode(b));
             o.put("id", b.id);
             o.put("name", b.name);
+            int av = -1;
+            try {
+                av = avatarOfHead(b.getHead()); // boss vừa tạo chưa xuất hiện (cấp -1) thì không lấy được đầu
+            } catch (Exception ignored) {
+            }
+            o.put("avatar", av);
+            o.put("gender", (int) b.gender);
+            o.put("state", bossState(b));
+            o.put("alive", b.zone != null && !b.isDie());
             o.put("map", b.zone != null ? b.zone.map.mapName + " (khu " + b.zone.zoneId + ")" : "");
+            o.put("mapId", b.zone != null ? b.zone.map.mapId : -1);
             o.put("hp", b.nPoint.hp);
             o.put("hpMax", b.nPoint.hpMax);
-            o.put("alive", b.zone != null && !b.isDie());
+            o.put("dame", b.nPoint.dame);
+            o.put("panel", PANEL_BOSSES.containsKey(b));
             list.add(o);
         }
         List<Map<String, Object>> ids = new ArrayList<>();
@@ -1427,23 +1481,159 @@ public class PanelApi {
         return Map.of("bosses", list, "ids", ids);
     }
 
-    private Object bossSpawn(Map<String, Object> b) {
-        Boss boss = BossManager.gI().createBoss(intv(b.get("bossId")));
-        if (boss == null) {
-            throw new IllegalStateException("Không gọi được boss (BossManager chưa hỗ trợ ID này)");
+    /** Danh sách boss gọi được: tên thật lấy theo boss đang có trên server (cùng mã), chưa có thì theo tên hằng số. */
+    private Object bossTemplates() {
+        Map<Integer, String> names = new java.util.HashMap<>();
+        Map<Integer, Integer> count = new java.util.HashMap<>();
+        for (Boss b : allBosses()) {
+            names.putIfAbsent((int) b.id, b.name);
+            count.merge((int) b.id, 1, Integer::sum);
         }
-        return Map.of("ok", true, "name", str(boss.name), "note", "Đã gọi boss " + str(boss.name));
+        List<Map<String, Object>> out = new ArrayList<>();
+        java.util.Set<Integer> seen = new java.util.HashSet<>();
+        for (Field f : BossID.class.getDeclaredFields()) {
+            if (!Modifier.isStatic(f.getModifiers()) || f.getType() != int.class) {
+                continue;
+            }
+            try {
+                int id = f.getInt(null);
+                if (!seen.add(id)) {
+                    continue;
+                }
+                String key = f.getName();
+                String pretty = key.charAt(0) + key.substring(1).toLowerCase().replace('_', ' ');
+                out.add(Map.of("id", id, "key", key, "name", names.getOrDefault(id, pretty), "running", count.getOrDefault(id, 0)));
+            } catch (Exception ignored) {
+            }
+        }
+        out.sort(Comparator.comparing(x -> String.valueOf(x.get("name")), String.CASE_INSENSITIVE_ORDER));
+        return out;
+    }
+
+    // Boss gọi từ panel: {boss -> [chỉ 1 lần?, đã vào map?]}; zoneFinal chỉ dùng cho lần xuất hiện đầu, boss 1 lần thì đi rồi là xoá hẳn
+    private static final Map<Boss, boolean[]> PANEL_BOSSES = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Map<Boss, nro.models.map.Zone> PANEL_TARGET = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.concurrent.ScheduledExecutorService BOSS_WATCH = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "PanelBossWatch");
+        t.setDaemon(true);
+        return t;
+    });
+
+    static {
+        BOSS_WATCH.scheduleWithFixedDelay(() -> {
+            try {
+                for (Map.Entry<Boss, boolean[]> e : PANEL_BOSSES.entrySet()) {
+                    Boss b = e.getKey();
+                    boolean[] st = e.getValue();
+                    if (b.zone != null && !st[1]) {
+                        st[1] = true;
+                        b.zoneFinal = null; // lần sau boss xuất hiện theo map mặc định
+                        nro.models.map.Zone target = PANEL_TARGET.remove(b);
+                        if (target != null && b.zone != target) { // boss tự chọn map (Broly...): đưa về đúng khu đã chọn
+                            int x = target.map.mapWidth > 200 ? nro.models.utils.Util.nextInt(100, target.map.mapWidth - 100) : 100;
+                            nro.models.map.service.ChangeMapService.gI().changeMap(b, target, x, target.map.yPhysicInTop(x, 100));
+                        }
+                    } else if (st[1] && st[0] && (b.zone == null || b.isDie()) && b.bossStatus != nro.models.consts.BossStatus.DIE
+                            && b.bossStatus != nro.models.consts.BossStatus.CHAT_E && b.bossStatus != nro.models.consts.BossStatus.LEAVE_MAP) {
+                        removeBoss(b); // boss gọi 1 lần: đã bị hạ / rời map thì không hồi sinh nữa
+                        PANEL_BOSSES.remove(b);
+                    } else if (!st[0] && st[1]) {
+                        PANEL_BOSSES.remove(b);
+                    }
+                }
+            } catch (Exception ex) {
+                nro.models.utils.Logger.error("Panel: lỗi theo dõi boss: " + ex.getMessage() + "\n");
+            }
+        }, 3, 3, java.util.concurrent.TimeUnit.SECONDS);
+    }
+
+    private static void removeBoss(Boss b) {
+        for (BossManager m : new BossManager[]{BossManager.gI(), BrolyManager.gI()}) {
+            m.removeBoss(b);
+        }
+    }
+
+    private static Boss bossByKey(Map<String, Object> b) {
+        int key = intv(b.get("key"));
+        for (Boss boss : allBosses()) {
+            if (System.identityHashCode(boss) == key) {
+                return boss;
+            }
+        }
+        throw new IllegalStateException("Không còn thấy boss này, hãy làm mới danh sách");
+    }
+
+    /** Gọi boss: {bossId, count 1 - 10, mapId (bỏ trống: map mặc định của boss), zone (bỏ trống: ngẫu nhiên), once: chỉ xuất hiện 1 lần}. */
+    private Object bossSpawn(Map<String, Object> b) {
+        int bossId = intv(b.get("bossId"));
+        int count = Math.max(1, Math.min(10, b.get("count") == null ? 1 : intv(b.get("count"))));
+        boolean once = Boolean.parseBoolean(String.valueOf(b.getOrDefault("once", "false")));
+        nro.models.map.Zone zone = null;
+        String mapStr = str(b.get("mapId")).trim();
+        if (!mapStr.isEmpty()) {
+            nro.models.map.Map m = nro.models.map.service.MapService.gI().getMapById(Integer.parseInt(mapStr));
+            if (m == null || m.zones.isEmpty()) {
+                throw new IllegalArgumentException("Không có bản đồ " + mapStr);
+            }
+            String zs = str(b.get("zone")).trim();
+            int z = zs.isEmpty() ? nro.models.utils.Util.nextInt(0, m.zones.size() - 1) : Integer.parseInt(zs);
+            if (z < 0 || z >= m.zones.size()) {
+                throw new IllegalArgumentException(m.mapName + " chỉ có khu 0 - " + (m.zones.size() - 1));
+            }
+            zone = m.zones.get(z);
+        }
+        String name = null;
+        for (int i = 0; i < count; i++) {
+            Boss boss = BossManager.gI().createBoss(bossId);
+            if (boss == null) {
+                throw new IllegalStateException("Không gọi được boss (BossManager chưa hỗ trợ ID này)");
+            }
+            name = str(boss.name).isBlank() && boss.data != null && boss.data.length > 0 ? boss.data[0].getName() : str(boss.name);
+            if (zone != null) {
+                boss.zoneFinal = zone;
+                PANEL_TARGET.put(boss, zone);
+            }
+            if (zone != null || once) {
+                PANEL_BOSSES.put(boss, new boolean[]{once, false});
+            }
+        }
+        return Map.of("ok", true, "name", name, "note", "Đã gọi " + count + " boss " + name
+                + (zone != null ? " tại " + zone.map.mapName + " khu " + zone.zoneId : "") + (once ? " (chỉ 1 lần)" : ""));
     }
 
     private Object bossRemove(Map<String, Object> b) {
-        long id = lng(b.get("id"));
-        for (Boss boss : allBosses()) {
-            if (boss.id == id && boss.zone != null) {
-                boss.leaveMap();
-                return Map.of("ok", true);
+        Boss boss = b.get("key") != null ? bossByKey(b) : null;
+        if (boss == null) {
+            long id = lng(b.get("id"));
+            for (Boss x : allBosses()) {
+                if (x.id == id && x.zone != null) {
+                    boss = x;
+                    break;
+                }
             }
         }
-        throw new IllegalStateException("Không thấy boss đang ở trên bản đồ");
+        boolean delete = Boolean.parseBoolean(String.valueOf(b.getOrDefault("delete", "false")));
+        if (boss == null || (boss.zone == null && !delete)) {
+            throw new IllegalStateException("Không thấy boss đang ở trên bản đồ");
+        }
+        if (boss.zone != null) {
+            boss.leaveMap();
+        }
+        if (delete) {
+            removeBoss(boss); // xoá hẳn: không hồi sinh nữa (tới lần khởi động server sau)
+            PANEL_BOSSES.remove(boss);
+        }
+        return Map.of("ok", true, "note", delete ? "Đã xoá hẳn boss " + boss.name : "Boss " + boss.name + " đã rời bản đồ");
+    }
+
+    /** Boss đang nghỉ: cho xuất hiện ngay. */
+    private Object bossRespawn(Map<String, Object> b) {
+        Boss boss = bossByKey(b);
+        if (boss.zone != null && !boss.isDie()) {
+            throw new IllegalStateException("Boss đang ở trên bản đồ");
+        }
+        boss.changeStatus(nro.models.consts.BossStatus.RESPAWN);
+        return Map.of("ok", true, "note", "Boss " + boss.name + " sắp xuất hiện");
     }
 
     // ------------------------------------------------------------------ thông báo, bảo trì
