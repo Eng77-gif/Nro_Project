@@ -1790,6 +1790,8 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   6. Đánh 100.000 quái: Pet Cửu Vĩ Hồ 60 ngày / Thú cưỡi rồng Đen 365 ngày
   7. Tặng Quy Lão 7 viên Ngọc Rồng 1 sao: CT Goku SSJ God / CT Goku cận vô cực (vĩnh viễn)
 
+  Nhiệm vụ 2 (mộc nhân) và 6 (đánh quái) chỉ tính khi đang bật **Tự động luyện tập** (đã dùng vật phẩm Tự động luyện tập, còn thời gian).
+
   KOL VIP mở bằng cách nạp **450 ngọc xanh** cho Quy Lão lần đầu nhận thưởng VIP trong tháng (hoặc 1 Vé KOL VIP nếu có). Quà có chỉ số mặc định và "Không thể giao dịch"; cần đủ ô trống hành trang mới nhận.
 - **Panel → Thế giới → Ngọc Rồng Sao Đen:** mỗi trận NRSD thắng được ghi vào bảng `nrsd_result` (lúc, viên mấy sao, khu, người giữ ngọc, bang). Trang có số trận hôm nay / 7 ngày / tổng, top bang và người thắng 30 ngày, bảng kết quả lọc theo viên ngọc, ngày, tên. **Giải Ngọc Rồng Sao Đen Đặc Biệt** (bảng `nrsd_tournament`): đặt ngày diễn ra và phần thưởng (`mã:số lượng`), đúng ngày đó mỗi người giữ ngọc thắng nhận thưởng vào hành trang; đã tạo giải đầu tiên (thêm 08/11/2026, diễn ra 15/11/2026: 5 Hộp ngọc rồng xanh, 99 Thỏi vàng, 200 Đá bảo vệ), sửa ngày / quà ngay trên trang.
 

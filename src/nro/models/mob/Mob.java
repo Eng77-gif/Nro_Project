@@ -169,8 +169,8 @@ public class Mob {
                     TaskService.gI().checkDoneSideTaskKillMob(plAtt, this);
                     TaskService.gI().checkDoneClanTaskKillMob(plAtt, this);
                     AchievementService.gI().checkDoneTaskKillMob(plAtt, this);
-                    if (this.tempId == ConstMob.MOC_NHAN) {
-                        plAtt.kolMocNhan++; // KOL tháng 11: đánh mộc nhân
+                    if (this.tempId == ConstMob.MOC_NHAN && plAtt.itemTime.isUseTDLT) {
+                        plAtt.kolMocNhan++; // KOL tháng 11: đánh mộc nhân khi đang bật Tự động luyện tập
                     }
                 }
                 if (this.id == 13) {
@@ -715,7 +715,7 @@ public class Mob {
             }
         }
         if (MapService.gI().AllMap(mapid)) {
-            if (player != null) {
+            if (player != null && player.itemTime.isUseTDLT) { // KOL: chỉ tính khi đang bật Tự động luyện tập
                 player.monsterKillCountAutoTrain++;
             }
 
