@@ -1765,6 +1765,10 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Chi Chi đua top:** đua top đang diễn ra chỉ có Top 100 và Xem điểm; nút nhận thưởng chỉ hiện khi đua top đã kết thúc.
 - **Panel:** ảnh đại diện người chơi / bot là ảnh đầu thật (theo cải trang đang mặc) thay hình vẽ chung.
 - **AI huấn luyện bot bản 2:** chấm điểm nhiều mục tiêu (sức mạnh, vàng, ngọc kiếm được mỗi phút, thang log; chết bị trừ 4 / lần / phút), chọn việc bằng UCB, bậc mới mượn kinh nghiệm bậc kề bên, tốc độ học tự giảm theo số mẫu; bảng cũ khác thang điểm nên tự học lại từ đầu.
+- **Rồng thần siêu cấp 8 điều ước:** 1) 100.000 ngọc, 2) 5 tỷ vàng, 3) TNSM x3 bản thân 60 phút, 4) 1 Mũi khoan siêu cấp, 5) 10 Đá bảo vệ, 6) TNSM x3 đệ tử 60 phút, 7) +1% chí mạng gốc (tối đa 5 lần / nhân vật, lưu ở `player_extra.wish_crit`), 8) ngẫu nhiên 1 ngọc rồng xanh hoặc 1 Sao pha lê ánh kim (vàng rơi 10% - 25%).
+- **Chỉ số tạm** (Đợt 105, chạy 1 lần, chỉ cho món đang không có chỉ số nào; sửa lại ở panel khi có chỉ số thật): 18 cải trang / đeo lưng / thú cưỡi lấy đúng chỉ số của v10; sao pha lê có dòng chỉ số theo màu; Sao pha lê ánh kim vàng rơi 10 - 25%; còn lại mức chung sức đánh / HP / KI: cải trang 15%, pet 10%, đeo lưng 8%, thú cưỡi / ván bay 5%. Cải trang / đeo lưng / pet / thú cưỡi rơi ra hay được tặng mà chưa có dòng nào thì nhận chỉ số mặc định khi vào hành trang.
+- **Sửa ép sao pha lê:** viên sao pha lê rơi từ quái / boss không có dòng chỉ số nên ép vào đồ chỉ được dòng "không chỉ số"; nay lấy chỉ số theo màu viên.
+- **Bot trang bị như người chơi:** mặc đồ tốt nhất (set kích hoạt > thiên sứ > hủy diệt > đồ thường); ô cải trang / pet / đeo lưng / ván bay còn trống thì mua món tốt nhất dư sức trả ở cửa hàng rồi mặc; mua sách nâng chiêu cho đệ tử bằng ngọc; từ 150 tỷ sức mạnh và dư vàng thì chế đồ thiên sứ cho ô chưa có đồ hạng cao.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

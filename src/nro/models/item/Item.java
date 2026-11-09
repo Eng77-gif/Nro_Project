@@ -296,8 +296,9 @@ public class Item {
                 new ItemOption(153, 5);
             case 1434 ->
                 new ItemOption(160, 5);
-            default ->
-                itemOptions.get(0);
+            default -> // viên khác (ánh kim...): dòng chỉ số của viên, bỏ dòng "không chỉ số" 73
+                itemOptions.stream().filter(o -> o.optionTemplate != null && o.optionTemplate.id != 73).findFirst()
+                        .orElseGet(() -> itemOptions.isEmpty() ? new ItemOption(73, 0) : itemOptions.get(0));
         };
     }
 

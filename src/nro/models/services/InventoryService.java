@@ -896,11 +896,20 @@ public class InventoryService {
         }
     }
 
+    private static boolean hasDefaultStats(nro.models.player_system.Template.ItemTemplate t) {
+        // sao pha lê thường không thêm (ép sao lấy chỉ số theo mã viên; thêm dòng sẽ không gộp chung ô với viên cũ)
+        return t.type == 5 || t.type == 11 || t.type == 23 || t.type == 24 || t.id == 2074 || (t.type == 27 && t.head >= 0);
+    }
+
     public boolean addItemList(List<Item> items, Item itemAdd) {
         if (itemAdd.template != null && Event2026Service.gI().isBox(itemAdd)) {
             // hộp quà / túi mù / capsule mở ra quà: không có hạn sử dụng để luôn gộp chung 1 ô (cả hộp cũ đã có hạn)
             itemAdd.itemOptions.removeIf(io -> io.optionTemplate != null && io.optionTemplate.id == 93);
             mergeBoxStacks(items, itemAdd.template.id);
+        }
+        if (itemAdd.itemOptions.isEmpty() && itemAdd.template != null && hasDefaultStats(itemAdd.template)) {
+            // cải trang / đeo lưng / pet / thú cưỡi / sao pha lê rơi ra hay được tặng mà chưa có chỉ số: lấy chỉ số mặc định
+            itemAdd.itemOptions.addAll(ItemService.gI().getListOptionItemShop(itemAdd.template.id));
         }
         if (itemAdd.itemOptions.isEmpty()) {
             itemAdd.itemOptions.add(new Item.ItemOption(73, 0));

@@ -13,21 +13,27 @@ import nro.models.services.ItemService;
 import nro.models.services.ItemTimeService;
 import nro.models.services.PlayerService;
 import nro.models.services.Service;
+import nro.models.utils.Util;
 
 /**
- * Rồng thần siêu cấp: đủ 3 viên Ngọc rồng Siêu Cấp (ghép 7 viên 1 sao ở Bà Hạt Mít) thì gọi được rồng, ban 1 trong 5 điều ước.
+ * Rồng thần siêu cấp: đủ 3 viên Ngọc rồng Siêu Cấp (ghép 7 viên 1 sao ở Bà Hạt Mít) thì gọi được rồng, ban 1 trong 8 điều ước.
  */
 public class RongThanSieuCap {
 
-    public static final int MENU_SUMMON = 31720500, MENU_WISH = 31720501, MENU_CONFIRM = 31720502;
+    public static final int MENU_SUMMON = 31720500, MENU_WISH = 31720501, MENU_CONFIRM = 31720502, MENU_WISH2 = 31720503;
+    public static final int MUI_KHOAN_SIEU_CAP = 2073, SPL_ANH_KIM = 2074, MAX_WISH_CRIT = 5;
     private static final int NEED = 3;
     private static final long WAIT_MS = 5 * 60_000L, BUFF_MS = 60 * 60_000L;
     private static final String SAY = "Ta là Rồng thần siêu cấp, ta sẽ ban cho ngươi một điều ước, ngươi có 5 phút, hãy chọn đi:\n"
             + "1) 100.000 ngọc xanh.\n"
             + "2) 5 tỷ vàng.\n"
             + "3) Tiềm năng sức mạnh X3 cho bản thân 60 phút.\n"
-            + "4) Tiềm năng sức mạnh X3 cho đệ tử 60 phút.\n"
+            + "4) 1 Mũi khoan siêu cấp (gỡ sao pha lê 10 tại Bà Hạt Mít).\n"
             + "5) 10 viên Đá bảo vệ.";
+    private static final String SAY2 = "Ta sẽ ban cho ngươi một điều ước, ngươi có 5 phút, hãy chọn đi:\n"
+            + "6) Tiềm năng sức mạnh X3 cho đệ tử 60 phút.\n"
+            + "7) Tăng 1% chí mạng gốc (tối đa " + MAX_WISH_CRIT + " lần / nhân vật).\n"
+            + "8) Ngẫu nhiên 1 ngọc rồng xanh hoặc 1 Sao pha lê ánh kim (vàng rơi 10% - 25%).";
 
     private static final Map<Long, long[]> dragons = new ConcurrentHashMap<>(); // id -> {lúc gọi, điều ước đang chọn}
 
@@ -62,7 +68,15 @@ public class RongThanSieuCap {
         dragons.put(pl.id, new long[]{System.currentTimeMillis(), -1});
         sendDragon(pl, true);
         Service.gI().sendThongBao(pl, "Rồng thần siêu cấp đã xuất hiện!");
-        NpcService.gI().createMenuRongThieng(pl, MENU_WISH, SAY, "Điều\nước 1", "Điều\nước 2", "Điều\nước 3", "Điều\nước 4", "Điều\nước 5");
+        page(pl, 1);
+    }
+
+    private static void page(Player pl, int p) {
+        if (p == 1) {
+            NpcService.gI().createMenuRongThieng(pl, MENU_WISH, SAY, "Điều\nước 1", "Điều\nước 2", "Điều\nước 3", "Điều\nước 4", "Điều\nước 5", "->");
+        } else {
+            NpcService.gI().createMenuRongThieng(pl, MENU_WISH2, SAY2, "<-", "Điều\nước 6", "Điều\nước 7", "Điều\nước 8");
+        }
     }
 
     private static void sendDragon(Player pl, boolean appear) {
@@ -95,20 +109,26 @@ public class RongThanSieuCap {
                 }
                 return true;
             }
-            case MENU_WISH, MENU_CONFIRM -> {
+            case MENU_WISH, MENU_WISH2, MENU_CONFIRM -> {
                 long[] st = dragons.get(pl.id);
                 if (st == null) {
                     return true;
                 }
+                int chosen = menu == MENU_WISH && select >= 0 && select < 5 ? select + 1
+                        : menu == MENU_WISH2 && select >= 1 && select <= 3 ? select + 5 : 0;
                 if (System.currentTimeMillis() - st[0] > WAIT_MS) {
                     leave(pl, "Hết giờ rồi, ta đi đây...");
-                } else if (menu == MENU_WISH && select >= 0 && select < 5) {
-                    st[1] = select + 1;
+                } else if (menu == MENU_WISH && select == 5) {
+                    page(pl, 2);
+                } else if (menu == MENU_WISH2 && select == 0) {
+                    page(pl, 1);
+                } else if (chosen > 0) {
+                    st[1] = chosen;
                     NpcService.gI().createMenuRongThieng(pl, MENU_CONFIRM, "Ngươi có chắc muốn ước điều ước " + st[1] + "?", "Điều\nước " + st[1], "Từ chối");
                 } else if (menu == MENU_CONFIRM && select == 0 && st[1] > 0) {
                     wish(pl, (int) st[1]);
                 } else {
-                    NpcService.gI().createMenuRongThieng(pl, MENU_WISH, SAY, "Điều\nước 1", "Điều\nước 2", "Điều\nước 3", "Điều\nước 4", "Điều\nước 5");
+                    page(pl, st[1] > 5 ? 2 : 1);
                 }
                 return true;
             }
@@ -127,28 +147,56 @@ public class RongThanSieuCap {
                 pl.inventory.gold += 5_000_000_000L;
             case 3 ->
                 pl.hlwSelfX3Until = Math.max(now, pl.hlwSelfX3Until) + BUFF_MS;
-            case 4 -> {
+            case 4 ->
+                give(pl, ItemService.gI().createNewItem((short) MUI_KHOAN_SIEU_CAP));
+            case 5 -> {
+                Item da = ItemService.gI().createNewItem((short) 987);
+                da.quantity = 10;
+                give(pl, da);
+            }
+            case 6 -> {
                 if (pl.pet == null) {
                     Service.gI().sendThongBao(pl, "Ngươi chưa có đệ tử, hãy ước điều khác");
                     return;
                 }
                 pl.hlwPetX3Until = Math.max(now, pl.hlwPetX3Until) + BUFF_MS;
             }
-            case 5 -> {
-                Item da = ItemService.gI().createNewItem((short) 987);
-                da.quantity = 10;
-                InventoryService.gI().addItemBag(pl, da);
-                InventoryService.gI().sendItemBags(pl);
+            case 7 -> {
+                if (pl.wishCrit >= MAX_WISH_CRIT) {
+                    Service.gI().sendThongBao(pl, "Ngươi đã ước tăng chí mạng đủ " + MAX_WISH_CRIT + " lần, hãy ước điều khác");
+                    return;
+                }
+                pl.wishCrit++;
+                pl.nPoint.critg++;
+                pl.nPoint.calPoint();
+                Service.gI().point(pl);
+                nro.models.database.PlayerExtraDAO.save(pl);
+            }
+            case 8 -> {
+                Item it;
+                if (Util.isTrue(50, 100)) {
+                    it = ItemService.gI().createNewItem((short) Util.nextInt(2064, 2070)); // ngọc rồng xanh: chỉ số tung khi khảm
+                } else {
+                    it = ItemService.gI().createNewItem((short) SPL_ANH_KIM);
+                    it.itemOptions.add(new Item.ItemOption(100, Util.nextInt(10, 25))); // +% vàng từ quái
+                }
+                give(pl, it);
             }
             default -> {
                 return;
             }
         }
-        if (wish == 3 || wish == 4) {
+        if (wish == 3 || wish == 6) {
             ItemTimeService.gI().sendItemTime(pl, ItemService.gI().getTemplate(ConstItem.NGOC_RONG_SIEU_CAP).iconID, (int) (BUFF_MS / 1000));
         }
         PlayerService.gI().sendInfoHpMpMoney(pl);
         leave(pl, "Điều ước của ngươi đã trở thành sự thật. Hẹn gặp lại!");
+    }
+
+    private static void give(Player pl, Item it) {
+        InventoryService.gI().addItemBag(pl, it);
+        InventoryService.gI().sendItemBags(pl);
+        Service.gI().sendThongBao(pl, "Bạn nhận được " + it.template.name);
     }
 
     private static void leave(Player pl, String text) {

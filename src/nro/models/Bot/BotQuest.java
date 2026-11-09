@@ -60,6 +60,7 @@ public class BotQuest {
                 openIntrinsic(b);
                 BotEndgame.step(b);
                 wearSkh(b);
+                BotGear.step(b); // mặc đồ tốt nhất, sắm cải trang / pet / đeo lưng / ván bay, nâng chiêu đệ tử
                 if ("Luyện tập".equals(b.activity) || "Làm nhiệm vụ".equals(b.activity)) {
                     quest(b);
                 }

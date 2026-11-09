@@ -72,7 +72,7 @@ public class CombineSystem {
 
     public static int getOptionDaPhaLe(Item daPhaLe) {
         if (daPhaLe.template.type == 30) {
-            return daPhaLe.itemOptions.get(0).optionTemplate.id;
+            return daPhaLe.getOptionDaPhaLe().optionTemplate.id; // theo mã viên (viên rơi ra chỉ có dòng "không chỉ số" 73)
         }
         return switch (daPhaLe.template.id) {
             case 20 ->
@@ -110,7 +110,7 @@ public class CombineSystem {
 
     public static int getParamDaPhaLe(Item daPhaLe) {
         if (daPhaLe.template.type == 30) {
-            return daPhaLe.itemOptions.get(0).param;
+            return daPhaLe.getOptionDaPhaLe().param;
         }
         return switch (daPhaLe.template.id) {
             case 20 ->

@@ -67,9 +67,7 @@ public class EpSaoTrangBi {
                     if (SaoPhaLe10Service.isNgocRongXanh(daPhaLe)) {
                         npcSay += "|7|" + SaoPhaLe10Service.describe(daPhaLe) + "\n";
                     } else if (daPhaLe.template.type == 30) {
-                        for (ItemOption io : daPhaLe.itemOptions) {
-                            npcSay += "|7|" + io.getOptionString() + "\n";
-                        }
+                        npcSay += "|7|" + daPhaLe.getOptionDaPhaLe().getOptionString() + "\n";
                     } else {
                         npcSay += "|7|" + ItemService.gI().getItemOptionTemplate(CombineSystem.getOptionDaPhaLe(daPhaLe)).name
                                 .replaceAll("#", CombineSystem.getParamDaPhaLe(daPhaLe) + "") + "\n";

@@ -277,6 +277,7 @@ public class Player implements Runnable {
     public int hdbaRewardRank; // hạng top mua Hộp đen bí ẩn đang chờ nhận quà
     // điều ước Rồng Xương (Halloween): hết hạn lúc (ms)
     public long hlwPetX3Until, hlwSelfX3Until, hlwHpUntil, hlwKiUntil, hlwDameUntil;
+    public int wishCrit; // số lần ước +1% chí mạng gốc ở Rồng thần siêu cấp (tối đa 5)
     /** Pet Ma tốc độ: hết bất tử lúc này; Năng lượng E10: hết hiệu lực lúc này */
     public long batTuUntil, e10Until;
     private boolean e10Active;
