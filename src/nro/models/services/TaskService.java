@@ -249,6 +249,13 @@ public class TaskService {
             case ConstNpc.THAN_MEO_KARIN -> {
                 return doneTask(player, ConstTask.TASK_27_0);
             }
+            case ConstNpc.BARDOCK -> { // chuỗi Bardock (nhiệm vụ 29, theo source V10)
+                return doneTask(player, ConstTask.TASK_29_2) || doneTask(player, ConstTask.TASK_29_4)
+                        || doneTask(player, ConstTask.TASK_29_6) || doneTask(player, ConstTask.TASK_29_9);
+            }
+            case 71 -> { // Berry
+                return doneTask(player, ConstTask.TASK_29_5);
+            }
             case ConstNpc.OSIN -> {
                 return doneTask(player, ConstTask.TASK_28_0)
                         || doneTask(player, ConstTask.TASK_28_7);
@@ -317,6 +324,8 @@ public class TaskService {
     public void checkDoneTaskUseItem(Player player, Item item) {
         if (doesTask(player) && item.isNotNullItem()) {
             switch (item.template.id) {
+                case 992 -> // dùng nhẫn thời không: tới hành tinh thực vật quá khứ
+                    doneTask(player, ConstTask.TASK_29_1);
             }
         }
     }
@@ -358,6 +367,12 @@ public class TaskService {
             switch (item.itemTemplate.id) {
                 case 73: //đùi gà
                     doneTask(player, ConstTask.TASK_2_0);
+                    if (player.zone != null && player.zone.map.mapId == 161) {
+                        doneTask(player, ConstTask.TASK_29_7); // thức ăn cho Bardock ở bìa rừng
+                    }
+                    break;
+                case 992: // nhẫn thời không sai lệch (Black Goku)
+                    doneTask(player, ConstTask.TASK_29_0);
                     break;
                 case 78: //em bé
                     doneTask(player, ConstTask.TASK_3_1);
@@ -610,6 +625,10 @@ public class TaskService {
                     doneTask(player, ConstTask.TASK_18_2);
                 case ConstMob.RASPBERRY ->
                     doneTask(player, ConstTask.TASK_18_3);
+                case 80, 81 -> { // Cabira, Tobi (hành tinh thực vật quá khứ)
+                    doneTask(player, ConstTask.TASK_29_3);
+                    doneTask(player, ConstTask.TASK_29_8);
+                }
                 case ConstMob.THAN_LAN_XANH ->
                     doneTask(player, ConstTask.TASK_18_4);
                 case ConstMob.XEN_CON_CAP_1 ->
@@ -1065,6 +1084,9 @@ public class TaskService {
                 case ConstTask.TASK_28_6:
                     break;
                 case ConstTask.TASK_28_7:
+                    break;
+                case ConstTask.TASK_29_9: // hết chuỗi Bardock: thưởng 10 Tr sức mạnh, 10 Tr tiềm năng (như mô tả nhiệm vụ)
+                    Service.gI().addSMTN(player, (byte) 2, 10_000_000, false);
                     break;
             }
             InventoryService.gI().sendItemBags(player);

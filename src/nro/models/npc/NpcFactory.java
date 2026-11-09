@@ -238,6 +238,19 @@ public class NpcFactory {
                     new nro.models.event.HoaHong(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.BARDOCK ->
                     new Bardock(mapId, status, cx, cy, tempId, avatar);
+                case 71 -> // Berry: nhiệm vụ Bardock "Tìm kiếm Berry đi lạc"
+                    new Npc(mapId, status, cx, cy, tempId, avatar) {
+                        @Override
+                        public void openBaseMenu(Player player) {
+                            if (canOpenNpc(player) && !nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+                                super.openBaseMenu(player);
+                            }
+                        }
+
+                        @Override
+                        public void confirmMenu(Player player, int select) {
+                        }
+                    };
                 default ->
                     new Npc(mapId, status, cx, cy, tempId, avatar) {
                         @Override
