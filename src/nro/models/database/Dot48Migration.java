@@ -111,8 +111,8 @@ public final class Dot48Migration {
     // ------------------------------------------------------------------ Đợt 50
     /** {itemId, part (hiệu ứng), mô tả cách nhận} cho các danh hiệu không có nhiệm vụ danh hiệu. */
     private static final Object[][] TITLE_ITEMS_50 = {
-        {2081, 302, "Sở hữu đủ 3 Pet Xên vĩnh viễn"},
-        {2076, 301, "Top 1 - 3 đua top Hộp bánh Trung Thu"},
+        {2081, 517, "Sở hữu đủ 3 Pet Xên vĩnh viễn"}, // hiệu ứng mới (Đợt 96), trước 302
+        {2076, 516, "Top 1 - 3 đua top Hộp bánh Trung Thu"}, // trước 301
         {1885, 300, "Top 4 - 100 đua top Hộp bánh Trung Thu"},
         {1978, 303, "Top 1 - 100 đua top Lì xì Tết"},};
 

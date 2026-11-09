@@ -111,6 +111,7 @@ public class BotQuest {
             return;
         }
         int mobId = tm.id == 8 && tm.index == 1 ? new int[]{11, 12, 10}[Math.max(0, Math.min(2, b.gender))] // ngọc 7 sao rơi từ quái mẹ (Mob: TASK_8_1)
+                : tm.id == 27 && tm.index == 1 ? 58 // capsule kì bí rơi từ Xên con (58 - 65) khi bật máy dò (BotEndgame.mayDo)
                 : mobId(st.name);
         int mobMap = mobId < 0 ? -1 : mobMap(b, mobId);
         if (mobMap >= 0) { // đánh quái: luyện ở map có loại quái đó, ưu tiên đánh đúng loại

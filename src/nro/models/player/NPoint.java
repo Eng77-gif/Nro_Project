@@ -2340,13 +2340,13 @@ public class NPoint {
         return this.tlHutMp;
     }
 
-    public int subDameInjureWithDeff(long dame) {
+    public long subDameInjureWithDeff(long dame) {
         long def = this.def;
         dame -= def;
         if (dame < 0) {
             dame = 1;
         }
-        return (int) dame;
+        return dame; // long: trước đây ép int, sát thương > 2,1 tỷ (sức đánh 1,4 tỷ chí mạng) tràn số âm -> báo hụt
     }
 
     /*------------------------------------------------------------------------*/

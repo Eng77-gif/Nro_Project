@@ -10,7 +10,7 @@ import nro.models.player.Player;
 
 public class BadgesService {
 
-    public static final int PERFECT_EFFECT = 302;
+    public static final int PERFECT_EFFECT = 517; // danh hiệu lưu theo mã hiệu ứng (data_badges.idEffect), Đợt 96 đổi 302 -> 517
     public static final int[] XEN_PETS = {2037, 2036, 2038};
 
     /**

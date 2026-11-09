@@ -33,6 +33,109 @@ public class BotEndgame {
         combine(b, BT2, MANH_BT3, 20_000, 200, BT3, 3);
         changePet(b);
         socket(b);
+        dressPet(b);
+        useBoxes(b);
+        mayDo(b);
+        worldChat(b);
+        flag(b);
+    }
+
+    // ------------------------------------------------------------------ đời sống như người chơi
+    /** Mặc đồ thừa trong hành trang cho đệ (ô đệ đang trống, đúng hành tinh của đệ), như người chơi mặc đồ cho đệ. */
+    private static void dressPet(Bot b) {
+        if (b.pet == null || b.pet.nPoint == null || b.pet.nPoint.power < 1_500_000 || b.pet.inventory == null) {
+            return;
+        }
+        for (int i = 0; i < b.inventory.itemsBag.size(); i++) {
+            Item it = b.inventory.itemsBag.get(i);
+            if (it == null || !it.isNotNullItem() || it.template.type > 4 || (it.template.gender != b.pet.gender && it.template.gender != 3)
+                    || it.template.strRequire > b.pet.nPoint.power) {
+                continue;
+            }
+            int slot = it.template.type;
+            Item cur = slot < b.pet.inventory.itemsBody.size() ? b.pet.inventory.itemsBody.get(slot) : null;
+            if (cur == null || !cur.isNotNullItem()) {
+                InventoryService.gI().itemBagToPetBody(b, i);
+                return;
+            }
+        }
+    }
+
+    private static java.util.Set<Integer> boxes;
+
+    /** Mở hộp quà / capsule / túi mù có trong hành trang (item_box_reward) như người chơi. */
+    private static void useBoxes(Bot b) {
+        if (boxes == null) {
+            java.util.Set<Integer> s = new java.util.HashSet<>();
+            try (java.sql.Connection con = nro.models.data.LocalManager.getConnection(); java.sql.Statement st = con.createStatement();
+                    java.sql.ResultSet rs = st.executeQuery("select distinct box_id from item_box_reward")) {
+                while (rs.next()) {
+                    s.add(rs.getInt(1));
+                }
+            } catch (Exception ignored) {
+            }
+            boxes = s;
+        }
+        if (InventoryService.gI().getCountEmptyBag(b) < 3) {
+            return;
+        }
+        for (int i = 0; i < b.inventory.itemsBag.size(); i++) {
+            Item it = b.inventory.itemsBag.get(i);
+            if (it != null && it.isNotNullItem() && boxes.contains((int) it.template.id)) {
+                nro.models.services_func.UseItem.gI().botUseItem(b, i);
+                return;
+            }
+        }
+    }
+
+    /** Nhiệm vụ "Thu thập Capsule kì bí": mua máy dò (5 triệu vàng như cửa hàng) và bật để quái rơi capsule. */
+    private static void mayDo(Bot b) {
+        if (b.playerTask == null || b.playerTask.taskMain == null || b.playerTask.taskMain.id != 27 || b.playerTask.taskMain.index != 1
+                || b.itemTime.isUseMayDo) {
+            return;
+        }
+        Item md = InventoryService.gI().findItemBag(b, 379);
+        if (md == null && b.inventory.gold >= 5_000_000 && InventoryService.gI().getCountEmptyBag(b) > 0) {
+            b.inventory.gold -= 5_000_000;
+            InventoryService.gI().addItemBag(b, ItemService.gI().createNewItem((short) 379));
+            md = InventoryService.gI().findItemBag(b, 379);
+        }
+        if (md != null) {
+            nro.models.services_func.UseItem.gI().botUseItem(b, InventoryService.gI().getIndexBag(b, md));
+        }
+    }
+
+    private static final String[] WORLD_CHAT = {"ai pt săn boss không ae", "bán đồ thần giá rẻ, ib", "cần tìm bang hoạt động ae ơi",
+        "đi NRSD tối nay không mọi người", "ai up bông tai cùng không", "server vui ghê", "mua đá nâng cấp số lượng lớn",
+        "tuyển thành viên bang, ae vào chơi cùng", "có ai biết Hirudegarn mấy giờ ra không", "pk không ae"};
+
+    /** Thỉnh thoảng chat thế giới (tốn ngọc như người chơi, thiếu ngọc đổi tiềm năng). */
+    private static void worldChat(Bot b) {
+        if (b.nPoint.power <= 1_500_000 || !Util.isTrue(1, 150)) {
+            return; // khoảng 1 lần / 40 phút mỗi bot
+        }
+        if (b.inventory.gem < 5 && !payGemTo(b, 5)) {
+            return;
+        }
+        nro.models.services.ChatGlobalService.gI().chat(b, WORLD_CHAT[Util.nextInt(0, WORLD_CHAT.length - 1)]);
+    }
+
+    private static boolean payGemTo(Bot b, int n) {
+        long need = (n - b.inventory.gem) * GEM_TN;
+        if (b.nPoint.tiemNang < need) {
+            return false;
+        }
+        b.nPoint.tiemNang -= need;
+        b.inventory.gem = n;
+        return true;
+    }
+
+    /** Thỉnh thoảng bật / tắt cờ (người chơi khác cờ có thể PK) khi đang luyện tập ngoài NRSD, như người chơi. */
+    private static void flag(Bot b) {
+        if (b.zone == null || MapService.gI().isMapBlackBallWar(b.zone.map.mapId) || !"Luyện tập".equals(b.activity) || !Util.isTrue(1, 100)) {
+            return;
+        }
+        Service.gI().changeFlag(b, b.cFlag == 0 ? Util.nextInt(1, 7) : 0);
     }
 
     // ------------------------------------------------------------------ ép sao pha lê / ngọc rồng

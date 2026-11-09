@@ -33,7 +33,7 @@ public class TaoPaiPai extends Boss {
             if (damage >= 100) {
                 damage = 100;
             }
-            this.nPoint.dame = (int) damage / Util.nextInt(500, 1000);
+            this.nPoint.dame = (int) Math.min(Integer.MAX_VALUE, damage / Util.nextInt(500, 1000));
             this.nPoint.subHP(damage);
             long tnSm = damage * Util.nextInt(20, 50);
             if (tnSm > 10000000) {
@@ -47,7 +47,7 @@ public class TaoPaiPai extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) damage;
+            return (int) Math.min(damage, Integer.MAX_VALUE);
         } else {
             return 0;
         }

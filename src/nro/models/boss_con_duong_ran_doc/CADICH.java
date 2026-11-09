@@ -132,7 +132,7 @@ public class CADICH extends Boss {
                 return 0;
             }
             this.nPoint.subHP(damage);
-            return (int) damage;
+            return (int) Math.min(damage, Integer.MAX_VALUE);
         } else {
             return 0;
         }

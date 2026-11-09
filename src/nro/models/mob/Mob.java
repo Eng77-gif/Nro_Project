@@ -164,7 +164,7 @@ public class Mob {
                 this.setDie();
                 this.temporaryEnemies.clear();
                 if (plAtt != null) {
-                    this.sendMobDieAffterAttacked(plAtt, (int) damage);
+                    this.sendMobDieAffterAttacked(plAtt, (int) Math.min(damage, Integer.MAX_VALUE));
                     TaskService.gI().checkDoneTaskKillMob(plAtt, this);
                     TaskService.gI().checkDoneSideTaskKillMob(plAtt, this);
                     TaskService.gI().checkDoneClanTaskKillMob(plAtt, this);
@@ -177,7 +177,7 @@ public class Mob {
                     this.zone.isbulon2Alive = false;
                 }
             } else {
-                this.sendMobStillAliveAffterAttacked((int) damage, plAtt != null ? (plAtt.nPoint != null && plAtt.nPoint.isCrit) : false);
+                this.sendMobStillAliveAffterAttacked((int) Math.min(damage, Integer.MAX_VALUE), plAtt != null ? (plAtt.nPoint != null && plAtt.nPoint.isCrit) : false);
             }
             if (plAtt != null) {
                 if (plAtt.isPl() && plAtt.satellite != null && plAtt.satellite.isDefend) {

@@ -89,7 +89,7 @@ public class Dracula extends DeathOrAliveArena {
                 die(plAtt);
             }
 
-            return (int) damage;
+            return (int) Math.min(damage, Integer.MAX_VALUE);
         } else {
             return 0;
         }

@@ -91,7 +91,7 @@ public class XenBoHung extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) damage;
+            return (int) Math.min(damage, Integer.MAX_VALUE);
         } else {
             return 0;
         }
