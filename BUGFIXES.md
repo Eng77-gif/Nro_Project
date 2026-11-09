@@ -1776,6 +1776,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Panel: trang Boss làm mới** theo kiểu trang Người chơi: ảnh boss thật, trạng thái (đang ở bản đồ / đang nghỉ / sắp xuất hiện), thanh HP, vị trí, tìm theo tên / mã / bản đồ, lọc trạng thái, sắp xếp, chia trang, tự làm mới 15 giây. Thao tác: cho rời bản đồ, xuất hiện ngay (boss đang nghỉ), xoá hẳn (không hồi sinh tới lần khởi động sau).
 - **Gọi boss trên panel:** gõ tên boss (gợi ý đủ 151 loại, kèm số con đang có), chọn bản đồ + khu (bỏ trống: bản đồ mặc định / khu ngẫu nhiên), số lượng 1 - 10, tuỳ chọn "chỉ xuất hiện 1 lần" (bị hạ / rời map là mất, không hồi sinh). Boss tự chọn map như Broly cũng được đưa về đúng khu đã chọn.
 - **Gọi được Super Broly** (boss cho đệ tử) trên panel: trước chỉ hiện khi hạ Broly nên panel báo "chưa hỗ trợ"; gọi không chọn map thì ra ngẫu nhiên trong các map của Super Broly.
+- **Ván bay gây lỗi hành trang:** 7 ván bay / thú cưỡi chỉ có 1 trong 2 lớp hình (`mount_{part}_0` / `_1`), client đi tìm lớp còn thiếu nên lỗi khi vẽ nhân vật cưỡi: Ván bay Cây Thông, Máy bay 41, Chổi bay phù thủy, Máy bay giấy, Bảng đen, Ván khủng long Noel, Máy bay NRO; thêm lớp ảnh trống như các thú cưỡi khác (Đợt 108). Cá chép đồng tiền: ảnh x3 cao 332 không chia đều 3 khung, làm lại 333. Client tải lại hình (vsRes 4).
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
