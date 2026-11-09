@@ -1752,6 +1752,10 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Siêu hạng:** bỏ nút Top 100 Cao Thủ ở Trọng tài.
 - **Kết bạn với tài khoản bot** (trước báo không tìm thấy vì bot không nằm trong danh sách phiên); danh sách bạn hiện bot đang online.
 - **Panel:** kho đồ (đang mặc / hành trang / rương) hiện dạng danh sách gọn, không còn chồng lên nhau trên điện thoại.
+- **Đổi cờ trên client J2ME:** client J2ME bỏ qua gói bảng chọn cờ nên kẹt ở "xin chờ"; nay J2ME chọn cờ bằng menu (Tắt cờ, Cờ xanh, Cờ đỏ...). Client khác giữ bảng cũ.
+- **Siêu hạng:** Đợt 104 xoá bảng xếp hạng cũ trong database (`super_rank`, hơn 1.300 dòng của nhân vật mẫu không còn tồn tại), chạy 1 lần khi khởi động.
+- **Rồng Xương** hiện bằng hiệu ứng 51 (hình rồng xương trong data/effect) thay hình rồng Namek của client; `sukien rongtype 0/1` để quay lại hình rồng client.
+- **Ký gửi:** món ký gửi có mã vật phẩm / dòng chỉ số không còn tồn tại được bỏ qua thay vì làm hỏng cả gói mở cửa hàng; lỗi ghi vào log. Admin mở được ký gửi kể cả tài khoản chưa kích hoạt; tài khoản chưa kích hoạt nhận thông báo rõ ràng.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

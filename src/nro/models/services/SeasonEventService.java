@@ -2269,7 +2269,7 @@ public class SeasonEventService implements Runnable {
                 }
                 case "rongtype" -> {
                     nro.models.services.shenron.RongXuong.dragonType = Integer.parseInt(a[1]);
-                    return "Loại rồng gửi cho client khi gọi Rồng Xương: " + a[1];
+                    return "Rồng Xương hiện bằng: " + (Integer.parseInt(a[1]) < 0 ? "hiệu ứng 51" : "hình rồng client loại " + a[1]);
                 }
                 case "zombie" -> {
                     int m = a.length > 1 ? Integer.parseInt(a[1]) : 15;

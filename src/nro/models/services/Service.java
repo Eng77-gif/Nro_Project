@@ -1365,7 +1365,19 @@ public class Service {
         }
     }
 
+    public static final int MENU_FLAG_J2ME = 31720400;
+
     public void openFlagUI(Player pl) {
+        if (pl.getSession() instanceof nro.models.network.MySession ms && ms.longNumbers && ms.typeClient == 1) {
+            // client J2ME bỏ qua gói -103 (bảng chọn cờ) nên kẹt ở "xin chờ": cho chọn cờ bằng menu
+            String[] names = new String[flagTempId.length];
+            for (int i = 0; i < names.length; i++) {
+                nro.models.player_system.Template.ItemTemplate t = ItemService.gI().getTemplate(flagTempId[i]);
+                names[i] = i == 0 ? "Tắt cờ" : (t != null ? t.name : "Cờ " + i);
+            }
+            NpcService.gI().createMenuConMeo(pl, MENU_FLAG_J2ME, -1, "Chọn cờ (đổi cờ 1 phút / lần)", names);
+            return;
+        }
         Message msg;
         try {
             msg = new Message(-103);

@@ -36,7 +36,7 @@ public class ConsignShopService {
 
     private List<ConsignItem> getItemKyGui2(Player pl, byte tab, byte to, byte max) {
         List<ConsignItem> filtered = ConsignShopManager.gI().listItem.stream()
-                .filter(it -> it != null && it.tab == tab && !it.isBuy && inMarket(pl, it.itemId))
+                .filter(it -> it != null && it.tab == tab && !it.isBuy && inMarket(pl, it.itemId) && ItemService.gI().getTemplate(it.itemId) != null)
                 .sorted(Comparator.comparingInt((ConsignItem it) -> it.isUpTop).reversed())
                 .collect(Collectors.toList());
 
@@ -49,7 +49,7 @@ public class ConsignShopService {
 
     private List<ConsignItem> getItemKyGui(Player pl, byte tab, byte... max) {
         List<ConsignItem> filtered = ConsignShopManager.gI().listItem.stream()
-                .filter(it -> it != null && it.tab == tab && !it.isBuy && it.player_sell != pl.id && inMarket(pl, it.itemId))
+                .filter(it -> it != null && it.tab == tab && !it.isBuy && it.player_sell != pl.id && inMarket(pl, it.itemId) && ItemService.gI().getTemplate(it.itemId) != null)
                 .sorted(Comparator.comparingInt((ConsignItem it) -> it.isUpTop).reversed())
                 .collect(Collectors.toList());
 
@@ -212,6 +212,7 @@ public class ConsignShopService {
                     it.itemOptions.add(new ItemOption(73, 0));
                 } else {
                     it.itemOptions.addAll(nro.models.item.Item.ItemOption.copyAll(itk.options));
+                    it.itemOptions.removeIf(o -> o == null || o.optionTemplate == null); // dòng chỉ số lỗi làm hỏng cả gói
                 }
                 msg.writer().writeShort(it.template.id);
                 msg.writer().writeShort(itk.id);
@@ -232,8 +233,8 @@ public class ConsignShopService {
                 msg.writer().writeByte(0);
             }
             pl.sendMessage(msg);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            nro.models.utils.Logger.logException(ConsignShopService.class, e, "Lỗi mở cửa hàng ký gửi");
         } finally {
             if (msg != null) {
                 msg.cleanup();
@@ -345,7 +346,7 @@ public class ConsignShopService {
 
     public List<ConsignItem> getItemCanKiGui(Player pl) {
         List<ConsignItem> its = new ArrayList<>();
-        ConsignShopManager.gI().listItem.stream().filter((it) -> (it != null && it.player_sell == pl.id && inMarket(pl, it.itemId))).forEachOrdered((it) -> {
+        ConsignShopManager.gI().listItem.stream().filter((it) -> (it != null && it.player_sell == pl.id && inMarket(pl, it.itemId) && ItemService.gI().getTemplate(it.itemId) != null)).forEachOrdered((it) -> {
             its.add(it);
         });
         pl.inventory.itemsBag.stream().filter((it) -> (itemCanConsign(it) && inMarket(pl, it.template.id))).forEachOrdered((it) -> {
@@ -515,6 +516,7 @@ public class ConsignShopService {
                             it.itemOptions.add(new ItemOption(73, 0));
                         } else {
                             it.itemOptions.addAll(nro.models.item.Item.ItemOption.copyAll(itk.options));
+                    it.itemOptions.removeIf(o -> o == null || o.optionTemplate == null); // dòng chỉ số lỗi làm hỏng cả gói
                         }
                         msg.writer().writeShort(it.template.id);
                         msg.writer().writeShort(itk.id);
@@ -552,6 +554,7 @@ public class ConsignShopService {
                             it.itemOptions.add(new ItemOption(73, 0));
                         } else {
                             it.itemOptions.addAll(nro.models.item.Item.ItemOption.copyAll(itk.options));
+                    it.itemOptions.removeIf(o -> o == null || o.optionTemplate == null); // dòng chỉ số lỗi làm hỏng cả gói
                         }
                         msg.writer().writeShort(it.template.id);
                         msg.writer().writeShort(itk.id);
@@ -571,8 +574,8 @@ public class ConsignShopService {
                 }
             }
             pl.sendMessage(msg);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            nro.models.utils.Logger.logException(ConsignShopService.class, e, "Lỗi mở cửa hàng ký gửi");
         } finally {
             if (msg != null) {
                 msg.cleanup();

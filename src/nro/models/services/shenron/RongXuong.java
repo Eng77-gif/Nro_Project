@@ -30,8 +30,10 @@ public class RongXuong {
     public static final int MENU_SUMMON = 31720300, MENU_P1 = 31720301, MENU_P2 = 31720302, MENU_CONFIRM = 31720303;
     private static final int HALLOWEEN = 7;
     private static final long WAIT_MS = 5 * 60_000L, RESUMMON_MS = 60_000L, BUFF_MS = 30 * 60_000L;
-    /** loại rồng gửi cho client (-83): 0 Rồng thần, 1 Rồng Namek/sự kiện; client khác có thể dùng số khác cho Rồng Xương */
-    public static volatile int dragonType = 1;
+    /** Hiệu ứng hình Rồng Xương trong data/effect (client không có hình rồng xương ở lệnh gọi rồng -83). */
+    public static final int EFFECT_RONG_XUONG = 51;
+    /** -1: hiện bằng hiệu ứng 51 (mặc định); 0 / 1: dùng hình rồng của client (0 Rồng thần Trái Đất, 1 Rồng Namek). */
+    public static volatile int dragonType = -1;
 
     private static final String SAY_1 = "Ta sẽ ban cho ngươi một điều ước, ngươi có 5 phút, hãy chọn đi:\n"
             + "1) Đổi cả 3 kỹ năng đầu của đệ tử\n(Lưu ý: Kỹ năng mới có cấp 1 và vẫn có thể trùng lại với kỹ năng vốn có).\n"
@@ -106,6 +108,15 @@ public class RongXuong {
     }
 
     private static void sendDragon(Player pl, State st, boolean appear) {
+        if (dragonType < 0) {
+            if (appear) {
+                Service.gI().sendEffAllPlayer(pl, EFFECT_RONG_XUONG, 0, -1, 1, 1); // sau lưng nhân vật, lặp tới khi rồng đi
+                pl.isShenronAppear = true;
+            } else {
+                Service.gI().removeEffPlayer(pl, EFFECT_RONG_XUONG);
+            }
+            return;
+        }
         try {
             Message msg = new Message(-83);
             msg.writer().writeByte(appear ? 0 : 1);
