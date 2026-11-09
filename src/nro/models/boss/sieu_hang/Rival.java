@@ -1,6 +1,7 @@
 package nro.models.boss.sieu_hang;
 
 
+import nro.models.utils.Util;
 import nro.models.boss.BossData;
 import static nro.models.consts.BossType.PHOBAN;
 import java.util.ArrayList;
@@ -37,8 +38,8 @@ public class Rival extends SuperRank {
                 player.name,
                 player.gender,
                 new short[]{player.getHead(), player.getBody(), player.getLeg(), player.getFlagBag(), player.getAura(), player.getEffFront()},
-                (int) Math.min(Integer.MAX_VALUE, player.nPoint.dameg),
-                new int[]{(int) Math.min(Integer.MAX_VALUE, player.nPoint.hpg)},
+                Util.toInt(player.nPoint.dameg), // BossData giữ chỉ số gốc dạng int
+                new int[]{Util.toInt(player.nPoint.hpg)},
                 new int[]{113},
                 skillTemp,
                 new String[]{}, //text chat 1

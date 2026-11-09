@@ -64,7 +64,7 @@ public class DrKore extends Boss {
     }
     private long st;
 
-    public synchronized int injured(Player plAtt, int damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, int damage, boolean piercing, boolean isMobAttack) {
         if (plAtt != null) {
             switch (plAtt.playerSkill.skillSelect.template.id) {
                 case Skill.KAMEJOKO:

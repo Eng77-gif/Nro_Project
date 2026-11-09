@@ -178,7 +178,7 @@ public abstract class SuperRank extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (plAtt != null && plAtt.effectSkill != null && plAtt.effectSkill.isBinh
                     && !Util.canDoWithTime(plAtt.effectSkill.lastTimeUpBinh, 3000)) {
@@ -316,7 +316,7 @@ public abstract class SuperRank extends Boss {
                 setDie(plAtt);
             }
 
-            return (int) Math.min(damage, Integer.MAX_VALUE);
+            return damage;
         } else {
             return 0;
         }

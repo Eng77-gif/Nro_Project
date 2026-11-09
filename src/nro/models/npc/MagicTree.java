@@ -239,7 +239,7 @@ public class MagicTree {
         // Kiểm tra nếu cấp độ cây còn dưới MAX_LEVEL và người chơi đủ ngọc
         if (this.level < MAX_LEVEL && this.player.inventory.gem >= upgradeGemCost) {
             // Lấy số ngọc trước khi nâng cấp
-            int currentGem = this.player.inventory.gem;
+            long currentGem = this.player.inventory.gem;
            this.player.inventory.gem -= upgradeGemCost;
             this.level++;  // Tăng cấp độ cây
             this.isUpgrade = false;

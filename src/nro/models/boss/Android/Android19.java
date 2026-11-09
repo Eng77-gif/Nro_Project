@@ -49,7 +49,7 @@ public class Android19 extends Boss {
     private long st;
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (plAtt != null) {
             switch (plAtt.playerSkill.skillSelect.template.id) {
                 case Skill.KAMEJOKO:

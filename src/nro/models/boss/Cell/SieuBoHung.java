@@ -146,7 +146,7 @@ public class SieuBoHung extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (prepareBom) {
             return 0;
         }
@@ -178,7 +178,7 @@ public class SieuBoHung extends Boss {
                 return 0;
             }
 
-            return (int) Math.min(damage, Integer.MAX_VALUE);
+            return damage;
         }
         return 0;
     }

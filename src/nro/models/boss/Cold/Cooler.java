@@ -87,7 +87,7 @@ public class Cooler extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (Util.isTrue(10, 1000)) {
                 this.chat("Xí hụt");
@@ -99,7 +99,7 @@ public class Cooler extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) Math.min(damage, Integer.MAX_VALUE);
+            return damage;
         } else {
             return 0;
         }

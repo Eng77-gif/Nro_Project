@@ -330,7 +330,7 @@ public class ConsignShopService {
                     InventoryService.gI().addItemBag(pl, tvAdd);
                     InventoryService.gI().sendItemBags(pl);
                 } else if (it.gemSell > 0) {
-                    pl.inventory.gem = (int) Math.min(Integer.MAX_VALUE, (long) pl.inventory.gem + it.gemSell - it.gemSell * 10L / 100);
+                    pl.inventory.gem += it.gemSell - it.gemSell * 10L / 100;
                 }
                 {
                     Service.gI().sendMoney(pl);

@@ -175,7 +175,7 @@ public class EffectSkin {
                         for (Mob mob : this.player.zone.mobs) {
                             if (mob.point.gethp() > 1) {
                                 if (Util.getDistance(this.player, mob) <= 200) {
-                                    int subHp = mob.point.getHpFull() * param / 100;
+                                    long subHp = mob.point.getHpFull() * param / 100;
                                     if (subHp >= mob.point.gethp()) {
                                         subHp = mob.point.gethp() - 1;
                                     }
@@ -185,13 +185,13 @@ public class EffectSkin {
                             }
                         }
                         for (Player pl : players) {
-                            int subHp = (int) ((long) pl.nPoint.hpMax * param / 100);
-                            int subMp = (int) ((long) pl.nPoint.mpMax * param / 100);
+                            long subHp = pl.nPoint.hpMax * param / 100;
+                            long subMp = pl.nPoint.mpMax * param / 100;
                             if (subHp >= pl.nPoint.hp) {
-                                subHp = (int) Math.min(Integer.MAX_VALUE, pl.nPoint.hp - 1);
+                                subHp = (pl.nPoint.hp - 1);
                             }
                             if (subMp >= pl.nPoint.mp) {
-                                subMp = (int) Math.min(Integer.MAX_VALUE, pl.nPoint.mp - 1);
+                                subMp = (pl.nPoint.mp - 1);
                             }
                             hpHut += subHp;
                             mpHut += subMp;
@@ -223,9 +223,9 @@ public class EffectSkin {
                             Player pl = playersMap.get(i);
                             if (pl != null && pl.nPoint != null && !this.player.equals(pl) && !pl.isBoss && !pl.isDie() && !pl.nPoint.isChongNLX
                                     && Util.getDistance(this.player, pl) <= 200) {
-                                int subHp = (int) ((long) pl.nPoint.hpMax * param / 100);
+                                long subHp = pl.nPoint.hpMax * param / 100;
                                 if (subHp >= pl.nPoint.hp) {
-                                    subHp = (int) Math.min(Integer.MAX_VALUE, pl.nPoint.hp - 1);
+                                    subHp = (pl.nPoint.hp - 1);
                                 }
                                 Service.gI().chat(pl, textOdo[Util.nextInt(0, textOdo.length - 1)]);
                                 PlayerService.gI().sendInfoHpMpMoney(pl);
@@ -425,8 +425,8 @@ public class EffectSkin {
                     boolean dongBang = pl == this.player || (this.player.clan != null && pl.clan != null && pl.clan.id == this.player.clan.id && !pl.isPet);
                     if (pl != null && pl.nPoint != null && dongBang && !pl.isDie()) {
                         long hp = (long) pl.nPoint.hpMax * tl / 100, mp = (long) pl.nPoint.mpMax * tl / 100;
-                        pl.nPoint.addHp((int) Math.min(Integer.MAX_VALUE, hp));
-                        pl.nPoint.addMp((int) Math.min(Integer.MAX_VALUE, mp));
+                        pl.nPoint.addHp((hp));
+                        pl.nPoint.addMp((mp));
                         PlayerService.gI().sendInfoHpMp(pl);
                     }
                 }
@@ -492,9 +492,9 @@ public class EffectSkin {
             if (this.player.effectSkill != null && this.player.effectSkill.isBinh && this.player.effectSkill.playerUseMafuba != null) {
                 if (Util.canDoWithTime(lastTimeMaPhongBa, 500) && this.player.effectSkill.playerUseMafuba.playerSkill != null) {
                     double param = this.player.effectSkill.playerUseMafuba.playerSkill.getSkillbyId(Skill.MA_PHONG_BA).point * (this.player.effectSkill.typeBinh == 0 ? 1 : 2);
-                    int subHp = (int) ((long) this.player.effectSkill.playerUseMafuba.nPoint.hpMax * param / 100);
+                    long subHp = (long) (this.player.effectSkill.playerUseMafuba.nPoint.hpMax * param / 100);
                     if (subHp >= this.player.nPoint.hp) {
-                        subHp = (int) Math.min(Integer.MAX_VALUE, Math.abs(this.player.nPoint.hp - 100));
+                        subHp = (Math.abs(this.player.nPoint.hp - 100));
                     }
                     PlayerService.gI().sendInfoHpMpMoney(this.player);
                     Service.gI().Send_Info_NV(this.player);

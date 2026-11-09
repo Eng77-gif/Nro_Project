@@ -105,7 +105,7 @@ public class NinjaAoTim extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(30, 100)) {
                 this.chat("Xí hụt");
@@ -121,13 +121,13 @@ public class NinjaAoTim extends Boss {
             if (this.nPoint.hp <= this.nPoint.hpMax / 2 && !this.calledNinja) {
                 if (Util.isTrue(4, 5)) {
                     try {
-                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, (int) Math.min(Integer.MAX_VALUE, this.nPoint.dame / 10), (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM1));
-                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, (int) Math.min(Integer.MAX_VALUE, this.nPoint.dame / 10), (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM2));
-                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, (int) Math.min(Integer.MAX_VALUE, this.nPoint.dame / 10), (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM3));
-                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, (int) Math.min(Integer.MAX_VALUE, this.nPoint.dame / 10), (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM4));
+                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, Util.toInt(this.nPoint.dame / 10), Util.toInt(this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM1));
+                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, Util.toInt(this.nPoint.dame / 10), Util.toInt(this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM2));
+                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, Util.toInt(this.nPoint.dame / 10), Util.toInt(this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM3));
+                        clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, Util.toInt(this.nPoint.dame / 10), Util.toInt(this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM4));
                         if (Util.isTrue(1, 2)) {
-                            clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, (int) Math.min(Integer.MAX_VALUE, this.nPoint.dame / 10), (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM5));
-                            clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, (int) Math.min(Integer.MAX_VALUE, this.nPoint.dame / 10), (int) Math.min(Integer.MAX_VALUE, this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM6));
+                            clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, Util.toInt(this.nPoint.dame / 10), Util.toInt(this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM5));
+                            clan.doanhTrai.bosses.add(new NinjaClone(this.zone, this, Util.toInt(this.nPoint.dame / 10), Util.toInt(this.nPoint.hpMax / 10), BossID.NINJA_AO_TIM6));
                         }
                     } catch (Exception ex) {
                     }
@@ -140,7 +140,7 @@ public class NinjaAoTim extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) Math.min(damage, Integer.MAX_VALUE);
+            return damage;
         } else {
             return 0;
         }

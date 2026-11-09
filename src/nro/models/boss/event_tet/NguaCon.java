@@ -105,7 +105,7 @@ public class NguaCon extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (plAtt != null && Util.isTrue(1, 5)) {
             this.chat("Đừng đánh ta, cho ta ăn rơm đi mà!");
         }

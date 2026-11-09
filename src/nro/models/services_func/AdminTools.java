@@ -211,8 +211,8 @@ public class AdminTools {
             return;
         }
         p.inventory.gold = Math.min(Inventory.LIMIT_GOLD, p.inventory.gold + gold);
-        p.inventory.gem = (int) Math.min(Integer.MAX_VALUE, (long) p.inventory.gem + gem);
-        p.inventory.ruby = (int) Math.min(Integer.MAX_VALUE, (long) p.inventory.ruby + ruby);
+        p.inventory.gem += gem;
+        p.inventory.ruby += ruby;
         Service.gI().sendMoney(p);
         Service.gI().sendThongBao(p, "Bạn nhận được quà từ admin: " + gold + " vàng, " + gem + " ngọc, " + ruby + " hồng ngọc");
         Service.gI().sendThongBao(pl, "Đã tặng " + p.name);

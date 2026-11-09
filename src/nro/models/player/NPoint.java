@@ -57,7 +57,7 @@ public class NPoint {
 
     private Intrinsic intrinsic;
     private int percentDameIntrinsic;
-    public int dameAfter;
+    public long dameAfter;
 
     /*-----------------------Chỉ số cơ bản------------------------------------*/
     public byte numAttack;
@@ -70,7 +70,7 @@ public class NPoint {
     public long hp, hpMax, hpg;
     public long mp, mpMax, mpg;
     public long dame, dameg;
-    public int def, defg;
+    public long def, defg;
     public int crit, critg, critdragon;
     public byte speed = 8;
 
@@ -81,7 +81,8 @@ public class NPoint {
     /**
      * Chỉ số cộng thêm
      */
-    public int hpAdd, mpAdd, dameAdd, defAdd, critAdd, hpHoiAdd, mpHoiAdd;
+    public long hpAdd, mpAdd, dameAdd, defAdd, hpHoiAdd, mpHoiAdd;
+    public int critAdd;
 
     /**
      * //+#% sức đánh chí mạng
@@ -1784,7 +1785,7 @@ public class NPoint {
             dame = MAX_STAT;
         }
 
-        this.dame = (int) dame;
+        this.dame = dame;
     }
 
     public void setDame(long dame) {
@@ -1971,7 +1972,7 @@ public class NPoint {
         }
     }
 
-    public int getDameAttack(boolean isAttackMob) {
+    public long getDameAttack(boolean isAttackMob) {
         setIsCrit();
         long dameAttack = this.dame;
         intrinsic = this.player.playerIntrinsic.intrinsic;
@@ -2057,14 +2058,13 @@ public class NPoint {
             case Skill.DICH_CHUYEN_TUC_THOI:
                 isCrit = true;
                 isCritTele = true;
-                dameAttack = Util.nextInt((int) (int) Math.min(2_147_483_647L, (dameAttack - (dameAttack / 100 * 5))),
-                        (int) (int) Math.min(2_147_483_647L, (dameAttack + (dameAttack / 100 * 5))));
+                dameAttack = Util.nextLong(dameAttack - dameAttack / 100 * 5, dameAttack + dameAttack / 100 * 5);
                 break;
             case Skill.MAKANKOSAPPO:
                 percentDameSkill = skillSelect.damage;
-                int dameSkill = (int) Math.min(2_147_483_647L, (long) this.mpMax * percentDameSkill / 100);
+                long dameSkill = this.mpMax * percentDameSkill / 100;
                 if (this.player.setClothes.picolo == 5) {
-                    dameSkill = (int) Math.min(2_147_483_647L, (long) dameSkill * 3 / 2); // trước là *= 3 / 2 = nhân 1
+                    dameSkill = dameSkill * 3 / 2; // trước là *= 3 / 2 = nhân 1
                 }
                 return dameSkill;
             case Skill.QUA_CAU_KENH_KHI:
@@ -2099,10 +2099,7 @@ public class NPoint {
                 if (player.setClothes.pikkoroDaimao == 5) {
                     dameAttack *= 4;
                 }
-                if (dameAttack > 2_147_483_647) {
-                    dameAttack = 2_147_483_647;
-                }
-                return (int) dameAttack;
+                return dameAttack;
         }
 
         if (intrinsic.id == 18 && this.player.effectSkill.isMonkey) {
@@ -2183,11 +2180,7 @@ public class NPoint {
             dameAttack += (long) dameAttack * tlAoThuat / 100;
         }
 
-        if (dameAttack
-                > 2_147_483_647) {
-            dameAttack = 2_147_483_647;
-        }
-        return (int) dameAttack;
+        return dameAttack;
     }
 
     public int getCurrPercentHP() {

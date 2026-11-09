@@ -40,7 +40,7 @@ public class MobEffectSkill {
             if (Util.canDoWithTime(lastTimeMaPhongBa, 500) && !mob.isDie()) {
                 if (playerUseMafuba != null && playerUseMafuba.playerSkill != null) {
                     double param = playerUseMafuba.playerSkill.getSkillbyId(Skill.MA_PHONG_BA).point;
-                    int subHp = (int) ((long) playerUseMafuba.nPoint.hpMax * param * (playerUseMafuba.effectSkill.typeBinh == 0 ? 1 : 2) / 100);
+                    long subHp = (long) ((long) playerUseMafuba.nPoint.hpMax * param * (playerUseMafuba.effectSkill.typeBinh == 0 ? 1 : 2) / 100);
                     if (subHp >= this.mob.point.hp) {
                         subHp = this.mob.point.hp - 1;
                     }

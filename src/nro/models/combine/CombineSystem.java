@@ -25,7 +25,7 @@ public class CombineSystem {
 
     /** Trừ ngọc bất kỳ: ngọc xanh trước, thiếu thì trừ hồng ngọc. */
     public static void subNgocBatKy(Player player, int n) {
-        int g = Math.min(Math.max(player.inventory.gem, 0), n);
+        long g = (int) Math.min(Math.max(player.inventory.gem, 0), n);
         player.inventory.gem -= g;
         player.inventory.ruby -= n - g;
     }

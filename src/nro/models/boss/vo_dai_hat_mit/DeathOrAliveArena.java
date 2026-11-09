@@ -140,7 +140,7 @@ public abstract class DeathOrAliveArena extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(100, 1000)) {
                 this.chat("Xí hụt");
@@ -161,7 +161,7 @@ public abstract class DeathOrAliveArena extends Boss {
                 die(plAtt);
             }
 
-            return (int) Math.min(damage, Integer.MAX_VALUE);
+            return damage;
         } else {
             return 0;
         }

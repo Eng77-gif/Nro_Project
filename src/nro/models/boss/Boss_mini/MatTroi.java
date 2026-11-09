@@ -198,7 +198,7 @@ public class MatTroi extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             int actualDamage = 1;
             this.nPoint.subHP(actualDamage);

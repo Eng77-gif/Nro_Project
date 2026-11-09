@@ -130,7 +130,7 @@ public class TrungUyTrang extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie() && !this.zone.isbulon1Alive && !this.zone.isbulon2Alive) {
             if (!piercing && Util.isTrue(20, 100)) {
                 this.chat("Xí hụt");
@@ -148,7 +148,7 @@ public class TrungUyTrang extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) Math.min(damage, Integer.MAX_VALUE);
+            return damage;
         } else {
             return 0;
         }

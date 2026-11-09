@@ -30,8 +30,8 @@ public class Inventory {
     public List<Item> itemsDaBan;
 
     public long gold;
-    public int gem;
-    public int ruby;
+    public long gem;
+    public long ruby;
     public int coupon;
     public int event;
     public Iterable<Item> items;
@@ -45,7 +45,7 @@ public class Inventory {
         giftCode = new ArrayList<>();
     }
 
-    public int getGem() {
+    public long getGem() {
         return this.gem;
     }
 
@@ -66,15 +66,15 @@ public class Inventory {
         return false;
     }
 
-    public void subGem(int num) {
+    public void subGem(long num) {
         this.gem -= num;
     }
 
-    public void subGold(int num) {
+    public void subGold(long num) {
         this.gold -= num;
     }
 
-    public void addGold(int gold) {
+    public void addGold(long gold) {
         this.gold += gold;
         if (this.gold > LIMIT_GOLD) {
             this.gold = LIMIT_GOLD;

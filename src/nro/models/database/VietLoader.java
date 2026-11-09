@@ -237,8 +237,8 @@ public class VietLoader {
             //data kim lượng
             dataArray = (JSONArray) JSONValue.parse(rs.getString("data_inventory"));
             player.inventory.gold = Long.parseLong(String.valueOf(dataArray.get(0)));
-            player.inventory.gem = Integer.parseInt(String.valueOf(dataArray.get(1)));
-            player.inventory.ruby = Integer.parseInt(String.valueOf(dataArray.get(2)));
+            player.inventory.gem = Long.parseLong(String.valueOf(dataArray.get(1)));
+            player.inventory.ruby = Long.parseLong(String.valueOf(dataArray.get(2)));
             player.inventory.coupon = Integer.parseInt(String.valueOf(dataArray.get(3)));
             if (dataArray.size() >= 4) {
                 player.inventory.coupon = Integer.parseInt(String.valueOf(dataArray.get(3)));

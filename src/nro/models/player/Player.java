@@ -1114,7 +1114,7 @@ public class Player implements Runnable {
         }
     }
 
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             // option 191 Né chí mạng: có tỉ lệ biến đòn chí mạng của người đánh thành đòn thường
             if (plAtt != null && plAtt.nPoint != null && plAtt.nPoint.isCrit && this.nPoint != null && this.nPoint.tlNeCrit > 0
@@ -1136,7 +1136,7 @@ public class Player implements Runnable {
                 }
                 // option 4: hồi #% KI khi bị đánh
                 if (this.nPoint.kiHoiKhiBiDanh > 0 && damage > 0) {
-                    this.nPoint.addMp((int) Math.min(Integer.MAX_VALUE, (long) this.nPoint.mpMax * this.nPoint.kiHoiKhiBiDanh / 100));
+                    this.nPoint.addMp(((long) this.nPoint.mpMax * this.nPoint.kiHoiKhiBiDanh / 100));
                 }
                 // option 15: phản # sát thương khi bị đánh bằng chiêu cận chiến
                 if (this.nPoint.phanDonCanChien > 0 && plAtt != null && plAtt != this && !plAtt.isDie()
@@ -1356,7 +1356,7 @@ public class Player implements Runnable {
                 }
             }
 
-            return (int) Math.min(damage, Integer.MAX_VALUE);
+            return damage;
         } else {
             return 0;
         }

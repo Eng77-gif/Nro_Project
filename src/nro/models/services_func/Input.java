@@ -207,7 +207,7 @@ public class Input {
                             break;
                         }
 
-                        player.inventory.gem = (int) Math.min(Integer.MAX_VALUE, (long) player.inventory.gem + quantity);
+                        player.inventory.gem += quantity;
                         Service.gI().sendMoney(player);
 
                         int soLuongVe = (quantity / 10000) * 10;
@@ -406,7 +406,7 @@ public class Input {
 
                             int gemNhan = soGem;
                             int gemThucNhan = (int) (gemNhan * 0.9);
-                            target.inventory.gem = (int) Math.min(Integer.MAX_VALUE, (long) target.inventory.gem + gemThucNhan);
+                            target.inventory.gem += gemThucNhan;
 
                             Service.gI().sendMoney(player);
                             Service.gI().sendMoney(target);
@@ -572,7 +572,7 @@ public class Input {
                             // kiểm tra hồng ngọc thì phải trừ hồng ngọc (trước đây trừ nhầm ngọc xanh)
                             player.inventory.ruby -= numruby;
                             PlayerService.gI().sendInfoHpMpMoney(player);
-                            pl.inventory.ruby = (int) Math.min(Integer.MAX_VALUE, (long) pl.inventory.ruby + numruby);
+                            pl.inventory.ruby += numruby;
                             PlayerService.gI().sendInfoHpMpMoney(pl);
                             Service.gI().sendThongBao(player, "Tặng ngọc thành công");
                             Service.gI().sendThongBao(pl,

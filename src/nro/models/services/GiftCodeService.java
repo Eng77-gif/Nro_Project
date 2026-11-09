@@ -56,11 +56,11 @@ public class GiftCodeService {
                         textGift += "|2|" + quantity + " vàng\b";
                     }
                     case -2 -> {
-                        player.inventory.gem = (int) Math.min((long) player.inventory.gem + quantity, Integer.MAX_VALUE);
+                        player.inventory.gem += quantity;
                         textGift += "|3|" + quantity + " ngọc\b";
                     }
                     case -3 -> {
-                        player.inventory.ruby = (int) Math.min((long) player.inventory.ruby + quantity, Integer.MAX_VALUE);
+                        player.inventory.ruby += quantity;
                         textGift += "|4|" + quantity + " ngọc khóa\b";
                     }
                     default -> {

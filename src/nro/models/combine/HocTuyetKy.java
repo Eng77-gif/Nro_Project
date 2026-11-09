@@ -22,7 +22,7 @@ public class HocTuyetKy {
     public static void showInfoCombine(Player player) {
         Item biKipTuyetKy = InventoryService.gI().findItem(player.inventory.itemsBag, 1229);
         int quantityBiKipTuyetKy = (biKipTuyetKy != null) ? biKipTuyetKy.quantity : 0;
-        int gem = player.inventory.getGem();
+        long gem = player.inventory.getGem();
         long gold = player.inventory.gold;
         int skillId = getSkillIdByGender(player.gender);
         Skill curSkill = SkillUtil.getSkillbyId(player, skillId);
@@ -63,7 +63,7 @@ public class HocTuyetKy {
     public static void hocTuyetKy(Player player) {
         Item biKipTuyetKy = InventoryService.gI().findItem(player.inventory.itemsBag, 1229);
         int quantityBiKipTuyetKy = (biKipTuyetKy != null) ? biKipTuyetKy.quantity : 0;
-        int gem = player.inventory.getGem();
+        long gem = player.inventory.getGem();
         long gold = player.inventory.gold;
         int skillId = getSkillIdByGender(player.gender);
         Skill curSkill = SkillUtil.getSkillbyId(player, skillId);

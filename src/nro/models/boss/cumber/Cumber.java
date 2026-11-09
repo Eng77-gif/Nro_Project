@@ -79,7 +79,7 @@ public class Cumber extends Boss {
         // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
     }
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(this.nPoint.tlNeDon, 1000)) {
                 this.chat("Xí hụt");
@@ -100,7 +100,7 @@ public class Cumber extends Boss {
                 this.setDie(plAtt);
                 die(plAtt);
             }
-            return (int) Math.min(damage, Integer.MAX_VALUE);
+            return damage;
         } else {
             return 0;
         }

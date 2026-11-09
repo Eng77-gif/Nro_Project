@@ -822,7 +822,7 @@ public class InventoryService {
                 if (gem > Integer.MAX_VALUE) {
                     gem = Integer.MAX_VALUE;
                 }
-                player.inventory.gem = (int) gem;
+                player.inventory.gem = gem;
                 Service.gI().sendMoney(player);
                 return true;
             case 34:
@@ -830,7 +830,7 @@ public class InventoryService {
                 if (ruby > Integer.MAX_VALUE) {
                     ruby = Integer.MAX_VALUE;
                 }
-                player.inventory.ruby = (int) ruby;
+                player.inventory.ruby = ruby;
                 Service.gI().sendMoney(player);
                 return true;
         }

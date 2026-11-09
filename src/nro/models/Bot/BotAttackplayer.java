@@ -152,7 +152,7 @@ public class BotAttackplayer extends Bot {
         }
 
         boolean isMiss = false;
-        int realDame = targetPlayer.injured(this, isMiss ? 0 : damage, false, false);
+        long realDame = targetPlayer.injured(this, isMiss ? 0 : damage, false, false);
 
         Skill skill = playerSkill.skillSelect;
 
@@ -222,9 +222,9 @@ public class BotAttackplayer extends Bot {
             return;
         }
 
-        int damePST = (int) (dame * percentPST / 100L);
+        long damePST = dame * percentPST / 100L;
         if (damePST >= attacker.nPoint.hp) {
-            damePST = (int) Math.min(Integer.MAX_VALUE, attacker.nPoint.hp - 1);
+            damePST = attacker.nPoint.hp - 1;
         }
 
         Message msg = null;

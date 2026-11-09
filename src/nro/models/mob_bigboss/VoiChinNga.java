@@ -69,9 +69,9 @@ public class VoiChinNga extends BigBoss {
                         msg.writer().writeByte(players.size()); // sl player;
                         int dir = 0;
                         for (Player pl : players) {
-                            int dame = pl.injured(null, this.point.getDameAttack(), false, true);
+                            long dame = pl.injured(null, this.point.getDameAttack(), false, true);
                             msg.writer().writeInt((int) pl.id); // id player
-                            msg.writer().writeInt(dame); // dame
+                            msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, dame)); // dame
                             dir = pl.location.x < this.location.x ? -1 : 1;
                         }
                         msg.writer().writeByte(dir); // dir

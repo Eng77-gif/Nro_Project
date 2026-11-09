@@ -39,9 +39,9 @@ public final class MobMe extends Mob {
         Message msg;
         try {
             if (pl != null) {
-                int dame = !miss ? this.point.dame : 0;
+                long dame = !miss ? this.point.dame : 0;
                 if ((pl.nPoint.hp > dame && pl.nPoint.hp > pl.nPoint.hpMax * 0.05) || this.player.setClothes.pikkoroDaimao == 5) {
-                    int dameHit = pl.injured(this.player, dame, true, true);
+                    long dameHit = pl.injured(this.player, dame, true, true);
                     msg = new Message(-95);
                     msg.writer().writeByte(2);
                     msg.writer().writeInt(this.id);

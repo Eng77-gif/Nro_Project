@@ -407,8 +407,8 @@ class PanelApi {
         Player on = Client.gI().getPlayerByID((int) id);
         if (on != null) {
             on.inventory.gold = Math.max(0, Math.min(nro.models.player.Inventory.LIMIT_GOLD, on.inventory.gold + gold));
-            on.inventory.gem = (int) Math.max(0, Math.min(Integer.MAX_VALUE, (long) on.inventory.gem + gem));
-            on.inventory.ruby = (int) Math.max(0, Math.min(Integer.MAX_VALUE, (long) on.inventory.ruby + ruby));
+            on.inventory.gem = Math.max(0, on.inventory.gem + gem);
+            on.inventory.ruby = Math.max(0, on.inventory.ruby + ruby);
             Service.gI().sendMoney(on);
             Service.gI().sendThongBao(on, "Bạn nhận được từ quản trị: " + money(gold, gem, ruby));
             return Map.of("ok", true, "online", true);
@@ -528,7 +528,7 @@ class PanelApi {
                     case "hpg" -> n.hpg = Math.max(1, x);
                     case "mpg" -> n.mpg = Math.max(1, x);
                     case "dameg" -> n.dameg = Math.max(1, x);
-                    case "defg" -> n.defg = (int) Math.max(0, Math.min(Integer.MAX_VALUE, x));
+                    case "defg" -> n.defg = Math.max(0, x);
                     case "critg" -> n.critg = (byte) Math.max(0, Math.min(127, x));
                 }
             }

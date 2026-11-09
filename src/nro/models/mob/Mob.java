@@ -164,7 +164,7 @@ public class Mob {
                 this.setDie();
                 this.temporaryEnemies.clear();
                 if (plAtt != null) {
-                    this.sendMobDieAffterAttacked(plAtt, (int) Math.min(damage, Integer.MAX_VALUE));
+                    this.sendMobDieAffterAttacked(plAtt, damage);
                     TaskService.gI().checkDoneTaskKillMob(plAtt, this);
                     TaskService.gI().checkDoneSideTaskKillMob(plAtt, this);
                     TaskService.gI().checkDoneClanTaskKillMob(plAtt, this);
@@ -177,7 +177,7 @@ public class Mob {
                     this.zone.isbulon2Alive = false;
                 }
             } else {
-                this.sendMobStillAliveAffterAttacked((int) Math.min(damage, Integer.MAX_VALUE), plAtt != null ? (plAtt.nPoint != null && plAtt.nPoint.isCrit) : false);
+                this.sendMobStillAliveAffterAttacked(damage, plAtt != null ? (plAtt.nPoint != null && plAtt.nPoint.isCrit) : false);
             }
             if (plAtt != null) {
                 if (plAtt.isPl() && plAtt.satellite != null && plAtt.satellite.isDefend) {
@@ -297,7 +297,7 @@ public class Mob {
                     }
                     if (Util.canDoWithTime(lastTimePhucHoi, 30000) && !isDie()) {
                         lastTimePhucHoi = System.currentTimeMillis();
-                        int hpMax = this.point.maxHp;
+                        long hpMax = this.point.maxHp;
                         if (this.point.hp < hpMax) {
                             hoi_hp(hpMax / 10);
                         } else {
@@ -396,7 +396,7 @@ public class Mob {
             return;
         }
 
-        int dameMob = this.point.getDameAttack();
+        long dameMob = this.point.getDameAttack();
 
         if (player.charms != null && player.charms.tdDaTrau > System.currentTimeMillis()) {
             dameMob /= 2;
@@ -410,7 +410,7 @@ public class Mob {
         }
 
         if (this.lvMob > 0 && !MapService.gI().isMapPhoBan(this.zone.map.mapId)) {
-            dameMob = (int) Math.min(Integer.MAX_VALUE, player.nPoint.hpMax / 10);
+            dameMob = (player.nPoint.hpMax / 10);
         }
 
         if (player.satellite != null && player.satellite.isDefend) {
@@ -425,13 +425,13 @@ public class Mob {
             // giữ nguyên dameMob
         }
 
-        int dame = player.injured(null, dameMob, false, true);
+        long dame = player.injured(null, dameMob, false, true);
         this.sendMobAttackMe(player, dame);
         this.sendMobAttackPlayer(player);
         this.phanSatThuong(player, dame);
     }
 
-    private void sendMobAttackMe(Player player, int dame) {
+    private void sendMobAttackMe(Player player, long dame) {
         if (!player.isPet && !player.isBot && !player.isNewPet) {
             Message msg;
             try {
@@ -498,11 +498,11 @@ public class Mob {
         }
     }
 
-    public void hoi_hp(int hp) {
+    public void hoi_hp(long hp) {
         Message msg = null;
         try {
             this.point.sethp(this.point.gethp() + hp);
-            int HP = hp > 0 ? 1 : Math.abs(hp);
+            long HP = hp > 0 ? 1 : Math.abs(hp);
             msg = new Message(-9);
             msg.writer().writeByte(this.id);
             msg.writeNum(this.point.gethp());
@@ -540,7 +540,7 @@ public class Mob {
         }
     }
 
-    private void sendMobDieAffterAttacked(Player plKill, int dameHit) {
+    private void sendMobDieAffterAttacked(Player plKill, long dameHit) {
         Message msg;
         try {
             msg = new Message(-12);
@@ -1112,7 +1112,7 @@ public class Mob {
         return null;
     }
 
-    private void sendMobStillAliveAffterAttacked(int dameHit, boolean crit) {
+    private void sendMobStillAliveAffterAttacked(long dameHit, boolean crit) {
         Message msg;
         try {
             msg = new Message(-9);
@@ -1233,12 +1233,12 @@ public class Mob {
         }
     }
 
-    public void sendMobMaxHp(int maxHp) {
+    public void sendMobMaxHp(long maxHp) {
         Message msg;
         try {
             msg = new Message(87);
             msg.writer().writeByte(this.id);
-            msg.writeDual(maxHp, 4, 0, 1); // J2ME: gói 87 là cờ boolean, không phải HP
+            msg.writeDual(Math.min(Integer.MAX_VALUE, maxHp), 4, 0, 1); // J2ME: gói 87 là cờ boolean, không phải HP
             Service.gI().sendMessAllPlayerInMap(this.zone, msg);
             msg.cleanup();
         } catch (IOException e) {
@@ -1254,7 +1254,7 @@ public class Mob {
         }
         int percentPST = plTarget.nPoint.tlPST;
         if (percentPST != 0) {
-            int damePST = (int) (long) (dame * percentPST / 100L);
+            long damePST = dame * percentPST / 100L;
             Message msg;
             try {
                 msg = new Message(-9);
@@ -1262,7 +1262,7 @@ public class Mob {
                 if (damePST >= this.point.hp) {
                     damePST = this.point.hp - 1;
                 }
-                int hpMob = this.point.hp;
+                long hpMob = this.point.hp;
                 injured(null, damePST, true);
                 damePST = hpMob - this.point.hp;
                 msg.writeNum(this.point.hp);

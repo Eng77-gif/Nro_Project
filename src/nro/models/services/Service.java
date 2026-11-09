@@ -854,8 +854,8 @@ public class Service {
             } else {
                 msg.writer().writeInt((int) pl.inventory.gold);
             }
-            msg.writer().writeInt(pl.inventory.ruby);
-            msg.writer().writeInt(pl.inventory.gem);
+            msg.writer().writeInt(Util.toInt(pl.inventory.ruby));
+            msg.writer().writeInt(Util.toInt(pl.inventory.gem));
             List<Item> itemsBody = InventoryService.gI().bodyForClient(pl); // + ô bóng mờ cuối
             msg.writer().writeByte(itemsBody.size());
             for (Item item : itemsBody) {
@@ -1341,8 +1341,8 @@ public class Service {
             } else {
                 msg.writer().writeInt((int) pl.inventory.gold);
             }
-            msg.writer().writeInt(pl.inventory.gem);
-            msg.writer().writeInt(pl.inventory.ruby);
+            msg.writer().writeInt(Util.toInt(pl.inventory.gem));
+            msg.writer().writeInt(Util.toInt(pl.inventory.ruby));
             pl.sendMessage(msg);
             msg.cleanup();
         } catch (Exception e) {
@@ -2520,8 +2520,8 @@ public class Service {
             msg.writer().writeByte(player.zone.getNotBosses().size()); // số player
             for (Player plM : player.zone.getNotBosses()) {
                 msg.writer().writeInt((int) plM.id);
-                int damage = plM.injured(player, player.nPoint.dame + plM.nPoint.hp / 10, true, false);
-                msg.writer().writeInt(damage);
+                long damage = plM.injured(player, player.nPoint.dame + plM.nPoint.hp / 10, true, false);
+                msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, damage));
             }
             sendMessAllPlayerInMap(player, msg);
             msg.cleanup();
@@ -2992,8 +2992,8 @@ public class Service {
             msg.writer().writeByte(gauTuong.status);
             msg.writer().writeShort(gauTuong.location.x);
             msg.writer().writeShort(gauTuong.location.y);
-            msg.writer().writeInt(gauTuong.point.gethp());
-            msg.writer().writeInt(gauTuong.point.getHpFull());
+            msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, gauTuong.point.gethp()));
+            msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, gauTuong.point.getHpFull()));
             msg.writer().writeByte(0);
             msg.writer().writeInt(gauTuong.level);
             msg.writer().writeBoolean(true);

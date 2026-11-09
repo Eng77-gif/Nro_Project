@@ -116,7 +116,7 @@ public class ThanhCo {
         }
 
         @Override
-        public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+        public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
             if (plAtt != playerAtt) {
                 return 0; // chỉ người lên sàn được đánh
             }

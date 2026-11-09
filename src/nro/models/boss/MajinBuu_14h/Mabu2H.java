@@ -122,7 +122,7 @@ public class Mabu2H extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(10, 100)) {
                 this.chat("Xí hụt");
@@ -153,7 +153,7 @@ public class Mabu2H extends Boss {
                 die(plAtt);
             }
 
-            return (int) Math.min(damage, Integer.MAX_VALUE);
+            return damage;
         } else {
             return 0;
         }

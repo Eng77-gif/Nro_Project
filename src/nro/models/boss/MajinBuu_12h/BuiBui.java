@@ -90,7 +90,7 @@ public class BuiBui extends Boss {
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
     }
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
             if (!piercing && Util.isTrue(200, 1000)) {
                 this.chat("Xí hụt");
@@ -117,7 +117,7 @@ public class BuiBui extends Boss {
                 die(plAtt);
             }
 
-            return (int) Math.min(damage, Integer.MAX_VALUE);
+            return damage;
         } else {
             return 0;
         }

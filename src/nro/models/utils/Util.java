@@ -174,6 +174,11 @@ public class Util {
         return rand.nextInt(max);
     }
 
+    /** Số long gửi qua gói tin client đọc int: kẹp trong khoảng int (không bị tràn âm). */
+    public static int toInt(long v) {
+        return (int) Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, v));
+    }
+
     public static long nextLong(long from, long to) {
         return from + rand.nextLong(to - from + 1);
     }

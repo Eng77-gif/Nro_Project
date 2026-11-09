@@ -49,7 +49,7 @@ public class Android13 extends Boss {
     }
 
     @Override
-    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+    public synchronized long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (damage >= this.nPoint.hp) {
             boolean flag = true;
             if (this.parentBoss != null) {

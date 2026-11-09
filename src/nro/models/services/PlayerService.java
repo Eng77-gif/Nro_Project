@@ -135,10 +135,10 @@ public class PlayerService {
             } catch (Exception e) {
                 msg.writer().writeInt((int) player.inventory.gold);
             }
-            msg.writer().writeInt(player.inventory.gem);//luong
+            msg.writer().writeInt(Util.toInt(player.inventory.gem));//luong
             msg.writeNum(player.nPoint.hp);//chp
             msg.writeNum(player.nPoint.mp);//cmp
-            msg.writer().writeInt(player.inventory.ruby);//ruby
+            msg.writer().writeInt(Util.toInt(player.inventory.ruby));//ruby
             player.sendMessage(msg);
         } catch (Exception e) {
             Logger.logException(PlayerService.class, e);
@@ -197,7 +197,7 @@ public class PlayerService {
                 } catch (Exception e) {
                 }
                 if (player.isFly && player.getMount() == -1) {
-                    int mp = (int) Math.min(Integer.MAX_VALUE, player.nPoint.mpg / (100 * (player.effectSkill.isMonkey ? 2 : 1)));
+                    long mp = (player.nPoint.mpg / (100 * (player.effectSkill.isMonkey ? 2 : 1)));
                     hoiPhuc(player, 0, -mp);
                 }
             }

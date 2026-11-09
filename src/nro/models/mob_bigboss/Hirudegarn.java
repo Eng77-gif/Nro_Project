@@ -200,9 +200,9 @@ public class Hirudegarn extends BigBoss {
                     switch (action) {
                         case 1:
                             msg.writer().writeByte(1);
-                            int dame = player.injured(null, this.point.getDameAttack(), false, true);
+                            long dame = player.injured(null, this.point.getDameAttack(), false, true);
                             msg.writer().writeInt((int) player.id);
-                            msg.writer().writeInt(dame);
+                            msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, dame));
                             break;
                         case 3:
                             this.location.x = (short) player.location.x;
@@ -215,7 +215,7 @@ public class Hirudegarn extends BigBoss {
                                 Player pl = this.zone.getPlayers().get(i);
                                 dame = pl.injured(null, this.point.getDameAttack(), false, true);
                                 msg.writer().writeInt((int) pl.id);
-                                msg.writer().writeInt(dame);
+                                msg.writer().writeInt((int) Math.min(Integer.MAX_VALUE, dame));
                             }
                             break;
                     }
