@@ -1742,3 +1742,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Danh hiệu Phá Cổ Trung Thu** dùng hiệu ứng thật **505** có sẵn trong data (trăng, đèn lồng, ông sao, thỏ ngọc, chữ Phá Cỗ Trung Thu, 90 khung hình) thay banner 300; người chơi đã có danh hiệu đổi theo. Bản VIP giữ hiệu ứng 516.
 - **Máy đo sức mạnh đứng yên hẳn:** bỏ lệnh quay mặt về người đấm (client vẽ mỗi lệnh thành 1 lần máy chạy / nhảy qua lại).
 - **Nhặt set kích hoạt** báo song song: thông báo hệ thống (chạy chữ) và chat thế giới.
+
+## Công cụ
+- **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
+- **NroResTool v13:** thêm mục **Bản đồ**: nhập mã map (vd 0-185), công cụ hỏi lần lượt từng map và lưu ô gạch vào `map/tile_map_data/<mã>`, dùng để thay map bị lỗi trong source. `tools/res_import.py` nhận thư mục này và chép vào `data/map/tile_map_data` (cần `--overwrite` khi map đã có; file cũ giữ lại thành `.bak`).

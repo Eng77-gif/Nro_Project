@@ -26,11 +26,11 @@ import (
 	"time"
 )
 
-const version = "1.1 (03/11/2026)"
+const version = "1.2 (09/11/2026)"
 
 var (
-	repo     = flag.String("repo", "Eng77-gif/nro_dev_al", "repo GitHub dạng chủ/tên")
-	branch   = flag.String("branch", "claude/new-session-vmt4qz", "nhánh cần tải")
+	repo     = flag.String("repo", "Eng77-gif/Nro_Project", "repo GitHub dạng chủ/tên")
+	branch   = flag.String("branch", "main", "nhánh cần tải")
 	outDir   = flag.String("out", "", "thư mục lưu (mặc định: thư mục nro_server cạnh file exe)")
 	exclude  = flag.String("exclude", "tools,client", "các thư mục / file bỏ qua, cách nhau dấu phẩy")
 	keep     = flag.String("keep", "Config.properties,maintenanceConfig.txt", "file đã có trên máy thì giữ nguyên, không ghi đè (cấu hình riêng)")
@@ -319,7 +319,7 @@ func downloadZip(base string, want map[string]entry, all bool, excl, keepL []str
 		if f.FileInfo().IsDir() {
 			continue
 		}
-		// bỏ thư mục gốc "nro_dev_al-<nhánh>/" của file zip
+		// bỏ thư mục gốc "<tên repo>-<nhánh>/" của file zip
 		i := strings.Index(f.Name, "/")
 		if i < 0 {
 			continue

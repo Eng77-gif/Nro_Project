@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Nhập một gói res vào server: icon, part, mount/aura (img_by_name), effect, file res.
+"""Nhập một gói res vào server: icon, part, mount/aura (img_by_name), effect, file res, bản đồ (ô gạch).
 
 Ví dụ:
     python tools/res_import.py "D:/res team new 16th10" --db team2026
@@ -104,7 +104,7 @@ def main():
     data = os.path.join(args.repo, 'data')
     if not os.path.isdir(os.path.join(data, 'icon')):
         sys.exit(f'Không thấy {data}/icon, kiểm tra --repo')
-    stats, icons, part_files, imgs, effects, res_files = {}, {}, [], {}, {}, []
+    stats, icons, part_files, imgs, effects, res_files, maps = {}, {}, [], {}, {}, [], {}
     frames_json = {}
     for root, _, files in os.walk(args.pack):
         for fn in files:
@@ -120,6 +120,8 @@ def main():
                 effects.setdefault(int(re.sub(r'\D', '', fn)), {})['img'] = path
             elif re.fullmatch(r'dataeffect_\d+', low):
                 effects.setdefault(int(re.sub(r'\D', '', fn)), {})['data'] = path
+            elif re.fullmatch(r'\d+', fn) and re.search(r'tile_map_data', root):
+                maps[int(fn)] = path
             elif re.search(r'[\\/]res[\\/]x[1-4][\\/]', path):
                 res_files.append(path)
             elif re.fullmatch(r'[a-z0-9_]+_\d+\.png', low) and (low.startswith(('mount_', 'aura_')) or 'img_by_name' in path.lower()):
@@ -137,6 +139,15 @@ def main():
             if args.overwrite or not os.path.exists(dst):
                 shutil.copyfile(e['data'], dst)
                 stats['effdata'] = stats.get('effdata', 0) + 1
+    # bản đồ (ô gạch, NroResTool mục Bản đồ): file cũ giữ lại thành .bak
+    for i, path in sorted(maps.items()):
+        dst = os.path.join(data, 'map', 'tile_map_data', str(i))
+        if os.path.exists(dst) and not args.overwrite:
+            continue
+        if os.path.exists(dst) and not os.path.exists(dst + '.bak'):
+            shutil.copyfile(dst, dst + '.bak')
+        shutil.copyfile(path, dst)
+        stats['map'] = stats.get('map', 0) + 1
     # res
     if args.res:
         for path in res_files:

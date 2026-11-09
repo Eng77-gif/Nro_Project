@@ -264,6 +264,7 @@ type options struct {
 	Auras    string  `json:"auras"`
 	Names    string  `json:"names"`
 	Effects  string  `json:"effects"`
+	Maps     string  `json:"maps"` // bản đồ (ô gạch): danh sách mã map, vd 0-185
 	Scan     string  `json:"scan"` // dò danh hiệu: danh sách khu cần đi qua, vd 0-15
 	Parts    bool    `json:"parts"`
 	Res      bool    `json:"res"`
@@ -318,6 +319,7 @@ type downloader struct {
 	parts     [][][3]int
 	types     []int
 	resEnd    bool
+	mapData   []byte          // ô gạch của bản đồ vừa hỏi (lệnh -28 loại 10, gói không ghi mã map)
 	got       map[string]bool // các yêu cầu đã nhận được (để không gửi lại / đếm trùng)
 	hinted    bool
 	waitLogin int         // server bảo chờ bao nhiêu giây mới cho đăng nhập (lệnh 122)
@@ -376,6 +378,10 @@ func (d *downloader) onMsg(m msg) {
 	r := &rd{d: m.data}
 	z := strconv.Itoa(d.o.Zoom)
 	switch m.cmd {
+	case -28: // loại 10: ô gạch bản đồ (rộng, cao, các ô...) trả lời yêu cầu sendMapTemp
+		if len(m.data) > 3 && m.data[0] == 10 {
+			d.mapData = append([]byte(nil), m.data[1:]...)
+		}
 	case -67: // icon
 		d.recvCount++
 		id, err := r.i32()
@@ -1108,6 +1114,9 @@ func (d *downloader) run() error {
 			d.fetch("effect", reqs, keys, rels, -66)
 		}
 	}
+	if ids := parseRange(o.Maps); len(ids) > 0 && !d.j.isStopped() {
+		d.maps(ids)
+	}
 	if zones := parseRange(o.Scan); len(zones) > 0 && !d.j.isStopped() {
 		d.scan(zones)
 	}
@@ -1126,6 +1135,54 @@ func (d *downloader) run() error {
 	d.j.log("Xong. %s", strings.Join(sum, ", "))
 	d.j.log("Lưu tại: %s", o.Out)
 	return nil
+}
+
+// maps tải ô gạch bản đồ (data/map/tile_map_data/<id>): gói trả lời không ghi mã map nên hỏi lần lượt từng map
+// và chờ trả lời trước khi hỏi map sau. Dùng khi map trong source bị lỗi (thiếu / sai ô gạch).
+func (d *downloader) maps(ids []int) {
+	d.j.log("Tải bản đồ (ô gạch) %d map...", len(ids))
+	ok, miss := 0, []string{}
+	for _, id := range ids {
+		if d.j.isStopped() {
+			break
+		}
+		rel := "map/tile_map_data/" + strconv.Itoa(id)
+		if d.o.Skip && d.have(rel) {
+			continue
+		}
+		if id < 0 || id > 255 {
+			miss = append(miss, strconv.Itoa(id))
+			continue
+		}
+		d.mapData = nil
+		for try := 0; try < 2 && d.mapData == nil && !d.j.isStopped(); try++ {
+			if d.isClosed() && !d.reconnect("") {
+				d.j.log("  mất kết nối, dừng tải bản đồ")
+				return
+			}
+			d.c.send(-28, []byte{10, byte(id)})
+			for end := time.Now().Add(4 * time.Second); d.mapData == nil && !d.j.isStopped() && time.Now().Before(end); {
+				d.pump(0.3)
+			}
+		}
+		if d.mapData == nil {
+			miss = append(miss, strconv.Itoa(id))
+			continue
+		}
+		d.write(rel, d.mapData)
+		d.stats["map"]++
+		ok++
+		if ok%20 == 0 {
+			d.j.log("  đã tải %d map", ok)
+		}
+		if d.o.Delay > 0 {
+			time.Sleep(time.Duration(d.o.Delay * float64(time.Second)))
+		}
+	}
+	d.j.log("  %d map → map/tile_map_data (chép vào data/map/tile_map_data của server)", ok)
+	if len(miss) > 0 {
+		d.j.log("  không nhận được: %s", strings.Join(miss, ", "))
+	}
 }
 
 // scan đi qua các khu của bản đồ đang đứng, ghi lại effect mà người chơi khác đang đeo (danh hiệu gửi bằng lệnh -128),
@@ -1354,7 +1411,7 @@ func startDownload(w http.ResponseWriter, r *http.Request) {
 		on   bool
 		name string
 	}{{o.Res, "res"}, {o.Parts, "part"}, {strings.TrimSpace(o.Icons) != "", "icon"}, {strings.TrimSpace(o.Mounts) != "", "mount"},
-		{strings.TrimSpace(o.Auras) != "", "aura"}, {strings.TrimSpace(o.Names) != "", "ảnh theo tên"}, {strings.TrimSpace(o.Effects) != "", "effect"}, {strings.TrimSpace(o.Scan) != "", "danh hiệu (dò)"}} {
+		{strings.TrimSpace(o.Auras) != "", "aura"}, {strings.TrimSpace(o.Names) != "", "ảnh theo tên"}, {strings.TrimSpace(o.Effects) != "", "effect"}, {strings.TrimSpace(o.Maps) != "", "bản đồ"}, {strings.TrimSpace(o.Scan) != "", "danh hiệu (dò)"}} {
 		if w.on {
 			what = append(what, w.name)
 		}
@@ -1482,7 +1539,7 @@ func openBrowser(url string) {
 }
 
 // version: ghi vào nhật ký và giao diện để biết đang chạy bản nào
-const version = "v12 (27/10 sửa lỗi không vào game của v10-v11)"
+const version = "v13 (09/11 thêm tải bản đồ: ô gạch map)"
 
 const safePlatform, safeVersion = "pc|2.3.3", "2.3.3"
 
