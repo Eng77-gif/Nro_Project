@@ -251,7 +251,8 @@ public class TaskService {
             }
             case ConstNpc.BARDOCK -> { // chuỗi Bardock (nhiệm vụ 29, theo source V10)
                 return doneTask(player, ConstTask.TASK_29_2) || doneTask(player, ConstTask.TASK_29_4)
-                        || doneTask(player, ConstTask.TASK_29_6) || doneTask(player, ConstTask.TASK_29_9);
+                        || doneTask(player, ConstTask.TASK_29_6) || doneTask(player, ConstTask.TASK_29_9)
+                        || doneTask(player, ConstTask.TASK_29_11);
             }
             case 71 -> { // Berry
                 return doneTask(player, ConstTask.TASK_29_5);
@@ -422,6 +423,8 @@ public class TaskService {
         if (doesTask(player)) {
             AchievementService.gI().checkDoneTask(player, ConstAchievement.TRUM_KET_LIEU_BOSS);
             switch ((int) boss.id) {
+                case BossID.CHILLED ->
+                    doneTask(player, ConstTask.TASK_29_10);
                 case BossID.KUKU ->
                     doneTask(player, ConstTask.TASK_19_0);
                 case BossID.MAP_DAU_DINH ->
@@ -1085,7 +1088,10 @@ public class TaskService {
                     break;
                 case ConstTask.TASK_28_7:
                     break;
-                case ConstTask.TASK_29_9: // hết chuỗi Bardock: thưởng 10 Tr sức mạnh, 10 Tr tiềm năng (như mô tả nhiệm vụ)
+                case ConstTask.TASK_29_9:
+                    Service.gI().sendThongBao(player, "Chilled đang xâm lược hành tinh thực vật, hãy hạ hắn!");
+                    break;
+                case ConstTask.TASK_29_11: // hết chuỗi Bardock (sau khi hạ Chilled): thưởng 10 Tr sức mạnh, 10 Tr tiềm năng
                     Service.gI().addSMTN(player, (byte) 2, 10_000_000, false);
                     break;
             }

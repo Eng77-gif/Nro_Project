@@ -281,6 +281,9 @@ public class NpcFactory {
                 if (nro.models.services.shenron.RongXuong.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
                     return;
                 }
+                if (nro.models.services.shenron.RongThanSieuCap.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
+                    return;
+                }
                 switch (player.idMark.getIndexMenu()) {
                     case ConstNpc.IGNORE_MENU:
                         break;
@@ -350,6 +353,9 @@ public class NpcFactory {
                     return;
                 }
                 if (nro.models.services.shenron.RongXuong.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
+                    return;
+                }
+                if (nro.models.services.shenron.RongThanSieuCap.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
                     return;
                 }
                 switch (player.idMark.getIndexMenu()) {

@@ -47,7 +47,7 @@ import nro.models.services.Service;
  * Các API của panel web. Mỗi hàm trả về một đối tượng (Map / List) để chuyển thành JSON.
  * Người chơi đang online: sửa trực tiếp trên bộ nhớ (lưu khi thoát); offline: sửa thẳng database.
  */
-class PanelApi {
+public class PanelApi {
 
     static final com.google.gson.Gson GSON_PUBLIC = new com.google.gson.GsonBuilder().serializeNulls().create();
 
@@ -305,7 +305,7 @@ class PanelApi {
             }
             return out;
         }
-        for (Map<String, Object> r : rows("select p.id, p.name, p.gender, a.username, a.ban, a.is_admin, p.data_point, p.data_inventory, p.data_location from player p left join account a on a.id=p.account_id "
+        for (Map<String, Object> r : rows("select p.id, p.name, p.gender, p.head, p.items_body, a.username, a.ban, a.is_admin, p.data_point, p.data_inventory, p.data_location from player p left join account a on a.id=p.account_id "
                 + "where p.name like ? or a.username like ? or p.id = ? order by p.id desc limit 200", "%" + kw + "%", "%" + kw + "%", kw.matches("\\d+") ? Long.parseLong(kw) : -1)) {
             out.add(directoryRow(r));
         }
@@ -327,6 +327,7 @@ class PanelApi {
             o.put("name", r.get("name"));
             o.put("username", r.get("username"));
             o.put("gender", r.get("gender"));
+            o.put("avatar", avatarOf(r.get("head"), r.get("items_body")));
             o.put("power", pt != null && pt.size() > 1 ? pt.get(1).getAsLong() : 0);
             o.put("gold", inv != null && inv.size() > 0 ? inv.get(0).getAsLong() : 0);
             o.put("gem", inv != null && inv.size() > 1 ? inv.get(1).getAsLong() : 0);
@@ -356,9 +357,44 @@ class PanelApi {
         return page.result(list);
     }
 
+    private static volatile Map<Integer, Integer> headAvatar;
+
+    /** Ảnh đại diện (icon) của 1 đầu / cải trang theo bảng head_avatar; -1 nếu không có (panel vẽ hình mặc định). */
+    public static int avatarOfHead(int head) {
+        Map<Integer, Integer> m = headAvatar;
+        if (m == null || m.size() != Manager.HEAD_AVATARS.size()) {
+            m = new java.util.HashMap<>();
+            for (nro.models.player_system.Template.HeadAvatar h : new ArrayList<>(Manager.HEAD_AVATARS)) {
+                m.put(h.headId, h.avatarId);
+            }
+            headAvatar = m;
+        }
+        return m.getOrDefault(head, -1);
+    }
+
+    /** Nhân vật offline: đầu trong bảng player, có cải trang (ô 5 của items_body) thì lấy đầu của cải trang. */
+    static int avatarOf(Object head, Object itemsBody) {
+        int h = head instanceof Number n ? n.intValue() : -1;
+        try {
+            JsonArray body = arr(itemsBody);
+            if (body != null && body.size() > 5) {
+                java.util.regex.Matcher mt = java.util.regex.Pattern.compile("^\\[(\\d+)").matcher(body.get(5).getAsString());
+                if (mt.find()) {
+                    nro.models.player_system.Template.ItemTemplate t = ItemService.gI().getTemplate(Integer.parseInt(mt.group(1)));
+                    if (t != null && t.head >= 0) {
+                        h = t.head;
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return h < 0 ? -1 : avatarOfHead(h);
+    }
+
     private Map<String, Object> onlineRow(Player p) {
         Map<String, Object> o = new LinkedHashMap<>();
         o.put("id", p.id);
+        o.put("avatar", avatarOfHead(p.getHead()));
         o.put("name", p.name);
         o.put("gender", (int) p.gender);
         o.put("power", p.nPoint.power);
@@ -677,7 +713,7 @@ class PanelApi {
         for(int start=0;start<botIds.size();start+=500){
             List<Long> batch=botIds.subList(start,Math.min(start+500,botIds.size()));
             String marks=String.join(",",java.util.Collections.nCopies(batch.size(),"?"));
-            for(Map<String,Object> row:rows("select p.id,p.name,a.username from player p left join account a on a.id=p.account_id where p.id in ("+marks+")",batch.toArray()))
+            for(Map<String,Object> row:rows("select p.id,p.name,p.gender,p.head,p.items_body,a.username from player p left join account a on a.id=p.account_id where p.id in ("+marks+")",batch.toArray()))
                 identities.put(((Number)row.get("id")).longValue(),row);
         }
         for (Map.Entry<Long, Integer> e : acc.entrySet()) {
@@ -691,7 +727,8 @@ class PanelApi {
             m.put("enabled", on.containsKey(pid));
             m.put("state", !on.containsKey(pid) ? "Đã tắt" : bot != null ? "Đang chơi" : "Chờ vào game");
             m.put("clan", bot != null && bot.clan != null ? bot.clan.name : "");
-            m.put("gender", bot != null ? bot.gender : -1);
+            m.put("gender", bot != null ? bot.gender : r.isEmpty() ? -1 : r.get(0).get("gender"));
+            m.put("avatar", bot != null ? avatarOfHead(bot.getHead()) : r.isEmpty() ? -1 : avatarOf(r.get(0).get("head"), r.get(0).get("items_body")));
             m.put("task", bot != null && bot.playerTask != null && bot.playerTask.taskMain != null ? bot.playerTask.taskMain.id + "." + bot.playerTask.taskMain.index : "");
             m.put("gold", bot != null ? bot.inventory.gold : null);
             m.put("activity", bot != null ? bot.activity : "");
@@ -1718,10 +1755,13 @@ class PanelApi {
             case "naptien" -> rows("select a.id, a.username name, a.tongnap point from account a order by a.tongnap desc limit 100");
             default -> {
                 List<Map<String, Object>> out = new ArrayList<>();
-                for (Map<String, Object> r : rows("select id, name, data_point from player")) {
+                for (Map<String, Object> r : rows("select id, name, gender, head, items_body, data_point from player")) {
                     JsonArray pt = arr(r.get("data_point"));
                     long power = pt != null && pt.size() > 1 ? pt.get(1).getAsLong() : 0;
-                    out.add(new LinkedHashMap<>(Map.of("id", r.get("id"), "name", r.get("name"), "point", power)));
+                    Map<String, Object> row = new LinkedHashMap<>(Map.of("id", r.get("id"), "name", r.get("name"), "point", power, "gender", r.get("gender")));
+                    Player on = Client.gI().getPlayerByID(((Number) r.get("id")).intValue());
+                    row.put("avatar", on != null ? avatarOfHead(on.getHead()) : avatarOf(r.get("head"), r.get("items_body")));
+                    out.add(row);
                 }
                 out.sort((x, y) -> Long.compare(((Number) y.get("point")).longValue(), ((Number) x.get("point")).longValue()));
                 yield out.subList(0, Math.min(100, out.size()));

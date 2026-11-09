@@ -1756,6 +1756,15 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Siêu hạng:** Đợt 104 xoá bảng xếp hạng cũ trong database (`super_rank`, hơn 1.300 dòng của nhân vật mẫu không còn tồn tại), chạy 1 lần khi khởi động.
 - **Rồng Xương** hiện bằng hiệu ứng 51 (hình rồng xương trong data/effect) thay hình rồng Namek của client; `sukien rongtype 0/1` để quay lại hình rồng client.
 - **Ký gửi:** món ký gửi có mã vật phẩm / dòng chỉ số không còn tồn tại được bỏ qua thay vì làm hỏng cả gói mở cửa hàng; lỗi ghi vào log. Admin mở được ký gửi kể cả tài khoản chưa kích hoạt; tài khoản chưa kích hoạt nhận thông báo rõ ràng.
+- **Phòng thí nghiệm Myuu (map 166) dùng bản v10:** bản cũ thiếu ô nền đất của bộ ô gạch 23 nên không có chỗ đứng; nay ô gạch lấy từ v10, bộ ô gạch 33, nền 20 (Đợt 105), `tile_set_Info` bổ sung mặt đất cho bộ ô gạch 33 (trước để trống), client tải lại map / dữ liệu (vsMap 6, vsData 25).
+- **Boss Baby** rơi đồ có sao pha lê 30% mỗi lần (trước 5%), nhiều ô sao hơn (60% 1-3, 30% 4-5, 10% 6 sao).
+- **Boss Chilled** (hình theo v10) ở hành tinh thực vật quá khứ; chuỗi Bardock (nhiệm vụ 29) thêm bước **Hạ Chilled** rồi báo tin cho Bardock mới nhận thưởng 10 Tr sức mạnh / tiềm năng.
+- **Ngọc rồng Siêu Cấp:** ở Bà Hạt Mít (Nhập ngọc rồng) bỏ 7 Ngọc Rồng 1 sao: cần 150 Tr vàng + 1 Lọ nước phép, thành công 50%; thất bại mất 1 viên 1 sao, chọn "Nâng cấp dùng đá bảo vệ" thì không mất. Lọ nước phép bán cạnh Đá bảo vệ (10 ngọc).
+- **Rồng thần siêu cấp:** dùng Ngọc rồng Siêu Cấp, đủ 3 viên thì gọi rồng, 5 điều ước: 100.000 ngọc / 5 tỷ vàng / TNSM x3 bản thân 60 phút / TNSM x3 đệ tử 60 phút / 10 Đá bảo vệ.
+- **Bỏ kích hoạt thành viên:** mọi tài khoản dùng được ký gửi, giao dịch, thách đấu... như đã kích hoạt.
+- **Chi Chi đua top:** đua top đang diễn ra chỉ có Top 100 và Xem điểm; nút nhận thưởng chỉ hiện khi đua top đã kết thúc.
+- **Panel:** ảnh đại diện người chơi / bot là ảnh đầu thật (theo cải trang đang mặc) thay hình vẽ chung.
+- **AI huấn luyện bot bản 2:** chấm điểm nhiều mục tiêu (sức mạnh, vàng, ngọc kiếm được mỗi phút, thang log; chết bị trừ 4 / lần / phút), chọn việc bằng UCB, bậc mới mượn kinh nghiệm bậc kề bên, tốc độ học tự giảm theo số mẫu; bảng cũ khác thang điểm nên tự học lại từ đầu.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

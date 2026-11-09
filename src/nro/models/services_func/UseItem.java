@@ -294,6 +294,10 @@ public class UseItem {
                     Event2026Service.gI().equipFoot(pl, item);
                     return;
                 }
+                if (nro.models.services.shenron.RongThanSieuCap.isItem(item.template.id)) { // Ngọc rồng Siêu Cấp (loại 27)
+                    nro.models.services.shenron.RongThanSieuCap.openSummon(pl);
+                    return;
+                }
                 switch (item.template.type) {
                     case 33: //card
                         UseCard(pl, item);

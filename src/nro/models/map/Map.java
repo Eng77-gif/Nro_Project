@@ -465,6 +465,9 @@ public class Map implements Runnable {
     }
 
     private boolean isTileTop(int tileMap) {
+        if (tileTop == null) {
+            return false; // bộ ô gạch không có dữ liệu mặt đất trong tile_set_Info
+        }
         for (int i = 0; i < tileTop.length; i++) {
             if (tileTop[i] == tileMap) {
                 return true;

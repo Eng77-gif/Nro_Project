@@ -54,8 +54,8 @@ public class Baby extends Boss {
         ItemMap itemMap = new ItemMap(this.zone, drop, quantity, x, y, plKill.id);
         Item item = ItemService.gI().createNewItem((short) drop);
         Service.gI().dropItemMap(zone, itemMap);
-        // 30% xác suất để rơi đồ
-        if (Util.isTrue(5, 100)) {
+        // Đồ có sao pha lê: 30% mỗi lần hạ (trước 5%)
+        if (Util.isTrue(30, 100)) {
             int group = Util.nextInt(1, 100) <= 70 ? 0 : 1;  // 70% chọn Áo Quần Giày (group = 0), 30% chọn Găng Rada (group = 1)
 
             // Các vật phẩm rơi từ nhóm Áo Quần Giày và Găng Rada
@@ -71,15 +71,15 @@ public class Baby extends Boss {
             List<Item.ItemOption> optionalOps = ItemService.gI().getListOptionItemShop((short) dropOptional);
             optionalOps.forEach(option -> option.param = (int) (option.param * Util.nextInt(100, 115) / 100.0));
             optionalItemMap.options.addAll(optionalOps);
-            // Thêm chỉ số sao pha lê (80% từ 1-3 sao, 17% từ 4-5 sao, 3% sao 6)
+            // Số ô sao pha lê: 60% 1-3 sao, 30% 4-5 sao, 10% 6 sao (trước 80 / 17 / 3)
             int rand = Util.nextInt(1, 100);
-            int value = 0;
-            if (rand <= 80) {
-                value = Util.nextInt(1, 3); // 80% xác suất: sao từ 1 đến 3
-            } else if (rand <= 97) {
-                value = Util.nextInt(4, 5); // 17% xác suất: sao từ 4 đến 5
+            int value;
+            if (rand <= 60) {
+                value = Util.nextInt(1, 3);
+            } else if (rand <= 90) {
+                value = Util.nextInt(4, 5);
             } else {
-                value = 6; // 3% xác suất: sao 6
+                value = 6;
             }
             optionalItemMap.options.add(new Item.ItemOption(107, value));
             // Drop vật phẩm tùy chọn xuống bản đồ

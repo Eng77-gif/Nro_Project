@@ -42,7 +42,7 @@ final class PanelDirectory {
         Query(String where,List<Object> args,String order,int requested,int size){
             String from=" from player p left join account a on a.id=p.account_id where "+where;
             countSql="select count(*) total"+from;
-            dataSql="select p.id,p.name,p.gender,a.username,a.ban,a.is_admin,p.data_point,p.data_inventory,p.data_location"+from+" order by "+order+" limit ? offset ?";
+            dataSql="select p.id,p.name,p.gender,p.head,p.items_body,a.username,a.ban,a.is_admin,p.data_point,p.data_inventory,p.data_location"+from+" order by "+order+" limit ? offset ?";
             countArgs=args;this.requested=requested;this.size=size;
         }
         Page page(long total){return new Page(dataSql,countArgs,requested,size,total);}

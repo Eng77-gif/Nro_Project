@@ -87,7 +87,8 @@ public class ChiChi extends Npc {
                 List<SeasonEventService.Top> tops = sv.currentTops();
                 if (i < tops.size()) {
                     SeasonEventService.Top t = tops.get(i);
-                    createOtherMenu(player, MENU_TOP + i, sv.topIntro(t), "Top 100\n" + sv.topName(t), "Xem điểm", "Nhận thưởng\nSự kiện\nĐua Top");
+                    // đua top đang diễn ra: chưa có nút nhận thưởng (chỉ hiện khi đua top kết thúc)
+                    createOtherMenu(player, MENU_TOP + i, sv.topIntro(t), "Top 100\n" + sv.topName(t), "Xem điểm", "Đóng");
                 }
                 return;
             }
@@ -157,8 +158,6 @@ public class ChiChi extends Npc {
                     sv.showTop100(player, t);
                 case 1 ->
                     NpcService.gI().createTutorial(player, tempId, this.avartar, sv.viewPoint(t, player));
-                case 2 ->
-                    sv.openTopRewardBox(player);
                 default -> {
                 }
             }

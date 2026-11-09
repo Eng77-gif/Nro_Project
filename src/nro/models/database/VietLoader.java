@@ -68,7 +68,7 @@ public class VietLoader {
                 session.isAdmin = rs.getBoolean("is_admin");
                 nro.models.data.ResGuard.onLogin(session);
                 session.lastTimeLogout = rs.getTimestamp("last_time_logout").getTime();
-                session.actived = rs.getBoolean("active");
+                session.actived = true; // bỏ yêu cầu kích hoạt thành viên: mọi tài khoản dùng được ký gửi, giao dịch, PK...
                 session.goldBar = rs.getInt("account.thoi_vang");
                 session.luotquay = rs.getInt("account.luotquay");
                 session.gold = rs.getLong("account.vang");
@@ -1311,8 +1311,7 @@ public class VietLoader {
             }
 
             PlayerService.gI().dailyLogin(player);// RESET DATA KHI QUA 12H ĐÊM
-            if (player.getSession() != null && player.getSession().actived && player.getSession().vnd < 0) {
-                player.getSession().actived = false;
+            if (player.getSession() != null && player.getSession().vnd < 0) {
                 player.getSession().vnd = 0;
             }
             player.nPoint.hp = plHp;

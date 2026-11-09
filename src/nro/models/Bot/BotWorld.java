@@ -1094,6 +1094,7 @@ public final class BotWorld {
             m.put("id", b.id);
             m.put("name", b.name);
             m.put("gender", b.gender);
+            m.put("avatar", nro.models.panel.PanelApi.avatarOfHead(b.getHead()));
             m.put("power", b.nPoint.power);
             m.put("map", b.zone != null ? b.zone.map.mapName + " [" + b.zone.map.mapId + "] khu " + b.zone.zoneId : "-");
             m.put("activity", modeName(b));

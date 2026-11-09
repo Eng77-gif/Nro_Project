@@ -69,14 +69,6 @@ public class SubMenuService {
                                 "Chơi oẳn tù tì với " + plTarget.name + " mức cược 5tr.", selects);
                         return;
                     }
-                    if (!plTarget.getSession().actived) {
-                        Service.gI().sendThongBao(player, plTarget.name + " chưa kích hoạt tài khoản!");
-                        return;
-                    }
-                    if (!player.getSession().actived) {
-                        Service.gI().sendThongBao(player, "Bạn chưa kích hoạt tài khoản!");
-                        return;
-                    }
                     if (plTarget.inventory.gold < 5000000) {
                         Service.gI().sendThongBao(player, plTarget.name + " không có đủ 5tr vàng.");
                     } else if (player.inventory.gold < 5000000) {

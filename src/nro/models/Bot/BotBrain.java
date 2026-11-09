@@ -11,14 +11,16 @@ import nro.models.data.LocalManager;
 import nro.models.utils.Logger;
 
 /**
- * "Bộ não" tự học của bot (không dùng model AI có sẵn): học tăng cường dạng bảng (Q-learning một bước / contextual bandit).
+ * "Bộ não" tự học của bot (không dùng model AI có sẵn): học tăng cường dạng bảng (contextual bandit), bản 2.
  * <ul>
  * <li>Trạng thái: bậc sức mạnh của bot (số chữ số của sức mạnh: dưới 10 nghìn ... trên 100 nghìn tỷ).</li>
  * <li>Hành động: hoạt động bot chọn mỗi lần đổi việc (luyện tập, săn boss, săn đệ, NRSD, úp SKH, PK).</li>
- * <li>Phần thưởng: sức mạnh tăng mỗi phút tính theo ‰ sức mạnh lúc bắt đầu (bot yếu và mạnh so sánh được với nhau), mỗi lần chết
- * trừ DEATH_PENALTY cho mỗi lần chết / phút.</li>
- * <li>Cập nhật: Q = Q + alpha * (thưởng - Q); chọn hành động epsilon-greedy (epsilon phần trăm số lần thử ngẫu nhiên để khám phá,
- * hành động chưa ai thử được ưu tiên thử trước).</li>
+ * <li>Phần thưởng nhiều mục tiêu, thang log để việc ít lên sức mạnh nhưng kiếm vàng / ngọc (săn boss, NRSD) vẫn được điểm:
+ * 8·log10(1 + ‰ sức mạnh tăng / phút) + 2·log10(1 + vàng / phút / 1 Tr) + 1,5·log10(1 + ngọc / phút / 10) − 4 · số lần chết / phút.</li>
+ * <li>Cập nhật: Q += α_hiệu_dụng · (thưởng − Q) với α_hiệu_dụng = max(α, 1/(n+1)): lúc ít mẫu là trung bình cộng (học nhanh, ổn định),
+ * nhiều mẫu thì theo α (bám thay đổi của server).</li>
+ * <li>Chọn việc: UCB1 (điểm + độ thưởng cho việc ít được thử) thay vì thử ngẫu nhiên; bậc mới mượn kinh nghiệm của 2 bậc kề bên;
+ * ε phần nhỏ số lần vẫn thử ngẫu nhiên.</li>
  * </ul>
  * Mọi bot dùng chung một bảng nên học nhanh; bảng lưu ở bot_brain, chỉnh và xem trên panel (trang AI huấn luyện bot).
  */
@@ -27,13 +29,14 @@ public final class BotBrain {
     public static final String[] ACTIONS = {"Luyện tập", "Săn boss", "Săn đệ", "NRSD", "Úp SKH", "PK"};
     public static final int TRAIN = 0, BOSS = 1, BROLY = 2, NRSD = 3, SKH = 4, PK = 5;
     static final int TIERS = 12; // < 10^4, 10^4, ..., >= 10^14
-    private static final double DEATH_PENALTY = 2.0, MAX_REWARD = 50;
+    private static final double DEATH_PENALTY = 4.0, MAX_REWARD = 30, MIN_REWARD = -20, UCB_C = 2.0, PRIOR_WEIGHT = 2.0;
+    static final int VERSION = 2; // đổi thang điểm thì tăng: bảng cũ khác thang điểm, học lại từ đầu
 
     private static final double[][] Q = new double[TIERS][ACTIONS.length];
     private static final int[][] N = new int[TIERS][ACTIONS.length];
     private static final Deque<double[]> RECENT = new ArrayDeque<>(); // {lúc, bậc, hành động, thưởng, ‰ tăng / phút, số lần chết, số phút}
     private static final Random RND = new Random();
-    static volatile double epsilon = 0.15, alpha = 0.2;
+    static volatile double epsilon = 0.05, alpha = 0.1;
     static volatile boolean enabled = true;
     private static long episodes;
 
@@ -65,21 +68,41 @@ public final class BotBrain {
         if (ok.isEmpty()) {
             return TRAIN;
         }
-        for (int a : ok) {
-            if (N[t][a] == 0) {
-                return a; // chưa ai thử ở bậc này: thử trước
-            }
-        }
         if (RND.nextDouble() < epsilon) {
             return ok.get(RND.nextInt(ok.size()));
         }
-        int best = ok.get(0);
+        int total = 1;
         for (int a : ok) {
-            if (Q[t][a] > Q[t][best]) {
+            total += N[t][a];
+        }
+        int best = ok.get(0);
+        double bestScore = Double.NEGATIVE_INFINITY;
+        for (int a : ok) {
+            double score = estimate(t, a) + UCB_C * Math.sqrt(Math.log(total) / (N[t][a] + 1));
+            if (score > bestScore) {
+                bestScore = score;
                 best = a;
             }
         }
         return best;
+    }
+
+    /** Điểm ước lượng: bậc ít mẫu thì kéo về trung bình của 2 bậc kề bên (bot vừa lên bậc không phải học lại từ số 0). */
+    static double estimate(int t, int a) {
+        double prior = 0;
+        int pn = 0;
+        for (int d = -1; d <= 1; d += 2) {
+            int u = t + d;
+            if (u >= 0 && u < TIERS && N[u][a] > 0) {
+                prior += Q[u][a];
+                pn++;
+            }
+        }
+        if (pn == 0) {
+            return Q[t][a];
+        }
+        prior /= pn;
+        return (Q[t][a] * N[t][a] + prior * PRIOR_WEIGHT) / (N[t][a] + PRIOR_WEIGHT);
     }
 
     /** Bắt đầu 1 lượt: ghi mốc để chấm điểm khi bot đổi việc. */
@@ -89,6 +112,8 @@ public final class BotBrain {
         b.brainPower = b.nPoint.power;
         b.brainAt = System.currentTimeMillis();
         b.brainDeaths = b.deaths();
+        b.brainGold = b.inventory.gold;
+        b.brainGem = b.inventory.gem;
     }
 
     /** Kết thúc lượt đang chạy (trước khi đổi việc): chấm thưởng và học. */
@@ -101,14 +126,17 @@ public final class BotBrain {
         }
         double min = ms / 60_000.0;
         double growth = Math.max(0, b.nPoint.power - b.brainPower) / min / Math.max(1_000, b.brainPower) * 1000; // ‰ / phút
+        double gold = Math.max(0, b.inventory.gold - b.brainGold) / min;
+        double gem = Math.max(0, b.inventory.gem - b.brainGem) / min;
         int died = Math.max(0, b.deaths() - b.brainDeaths);
-        double r = growth - DEATH_PENALTY * died / min; // phạt theo số lần chết mỗi phút (lượt dài không bị phạt dồn)
-        r = Math.max(-MAX_REWARD, Math.min(MAX_REWARD, r));
+        double r = 8 * Math.log10(1 + growth) + 2 * Math.log10(1 + gold / 1_000_000) + 1.5 * Math.log10(1 + gem / 10)
+                - DEATH_PENALTY * died / min; // phạt theo số lần chết mỗi phút (lượt dài không bị phạt dồn)
+        r = Math.max(MIN_REWARD, Math.min(MAX_REWARD, r));
         int t = b.brainTier;
-        Q[t][a] += alpha * (r - Q[t][a]);
+        Q[t][a] += Math.max(alpha, 1.0 / (N[t][a] + 1)) * (r - Q[t][a]);
         N[t][a]++;
         episodes++;
-        RECENT.addLast(new double[]{System.currentTimeMillis(), t, a, r, growth, died, min});
+        RECENT.addLast(new double[]{System.currentTimeMillis(), t, a, r, growth, died, min, gold, gem});
         while (RECENT.size() > 300) {
             RECENT.removeFirst();
         }
@@ -119,6 +147,19 @@ public final class BotBrain {
         try (java.sql.Connection con = LocalManager.getConnection(); java.sql.Statement st = con.createStatement()) {
             st.executeUpdate("create table if not exists bot_brain (tier int not null, action int not null, q double not null, n int not null, primary key (tier, action))");
             st.executeUpdate("create table if not exists bot_brain_cfg (k varchar(16) primary key, v varchar(32) not null)");
+            int ver = 1;
+            try (java.sql.ResultSet rs = st.executeQuery("select v from bot_brain_cfg where k = 'version'")) {
+                if (rs.next()) {
+                    ver = Integer.parseInt(rs.getString(1));
+                }
+            } catch (Exception ignored) {
+            }
+            if (ver < VERSION) { // bảng của thang điểm cũ: học lại theo thang mới, tham số về mặc định mới
+                st.executeUpdate("delete from bot_brain");
+                st.executeUpdate("delete from bot_brain_cfg where k in ('epsilon', 'alpha')");
+                st.executeUpdate("replace into bot_brain_cfg (k, v) values ('version', '" + VERSION + "')");
+                Logger.success("Bot: AI huấn luyện bot lên bản " + VERSION + " (thang điểm mới, học lại từ đầu)\n");
+            }
             synchronized (BotBrain.class) {
                 try (java.sql.ResultSet rs = st.executeQuery("select tier, action, q, n from bot_brain")) {
                     while (rs.next()) {
@@ -133,7 +174,9 @@ public final class BotBrain {
             }
             try (java.sql.ResultSet rs = st.executeQuery("select k, v from bot_brain_cfg")) {
                 while (rs.next()) {
-                    set(rs.getString(1), rs.getString(2));
+                    if (!"version".equals(rs.getString(1))) {
+                        set(rs.getString(1), rs.getString(2));
+                    }
                 }
             }
         } catch (Exception e) {
@@ -157,7 +200,7 @@ public final class BotBrain {
                 }
             }
             ps.executeBatch();
-            for (String[] kv : new String[][]{{"epsilon", String.valueOf(epsilon)}, {"alpha", String.valueOf(alpha)}, {"enabled", String.valueOf(enabled)}}) {
+            for (String[] kv : new String[][]{{"epsilon", String.valueOf(epsilon)}, {"alpha", String.valueOf(alpha)}, {"enabled", String.valueOf(enabled)}, {"version", String.valueOf(VERSION)}}) {
                 pc.setString(1, kv[0]);
                 pc.setString(2, kv[1]);
                 pc.addBatch();
@@ -204,13 +247,14 @@ public final class BotBrain {
         m.put("epsilon", epsilon);
         m.put("alpha", alpha);
         m.put("episodes", episodes);
+        m.put("version", VERSION);
         m.put("actions", ACTIONS);
         List<Map<String, Object>> rows = new ArrayList<>();
         for (int t = 0; t < TIERS; t++) {
             int seen = 0, best = -1;
             for (int a = 0; a < ACTIONS.length; a++) {
                 seen += N[t][a];
-                if (N[t][a] > 0 && (best < 0 || Q[t][a] > Q[t][best])) {
+                if (N[t][a] > 0 && (best < 0 || estimate(t, a) > estimate(t, best))) {
                     best = a;
                 }
             }

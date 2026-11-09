@@ -155,6 +155,7 @@ public class BossManager implements Runnable {
         this.createBoss(BossID.CUMBER);
         this.createBoss(BossID.COOLER, 1);
         this.createBoss(BossID.BLACK_GOKU, 2);
+        this.createBoss(BossID.CHILLED, 2); // nhiệm vụ Bardock: Hạ Chilled
         this.createBoss(BossID.GOLDEN_FRIEZA, 1);
         this.createBoss(BossID.SOI_HEC_QUYN1, 2);
         this.createBoss(BossID.AN_TROM, 5);
@@ -372,6 +373,8 @@ public class BossManager implements Runnable {
                     new MatTroi();
                 case BossID.BLACK_GOKU ->
                     new BlackGoku();
+                case BossID.CHILLED ->
+                    new nro.models.boss.Boss_mini.Chilled();
                 case BossID.CUMBER ->
                     new Cumber();
                 case BossID.AN_TROM ->

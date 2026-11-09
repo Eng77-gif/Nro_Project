@@ -460,6 +460,7 @@ public class SeasonEventService implements Runnable {
             try {
                 update();
                 nro.models.services.shenron.RongXuong.tick();
+                nro.models.services.shenron.RongThanSieuCap.tick();
             } catch (Exception e) {
                 Logger.error("Lỗi cập nhật sự kiện theo mùa: " + e.getMessage() + "\n");
             }

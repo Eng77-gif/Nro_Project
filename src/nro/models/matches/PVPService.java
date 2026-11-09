@@ -113,8 +113,8 @@ public class PVPService {
             Service.gI().sendThongBao(pl, "Đối thủ đã rời map");
             return;
         }
-        if (plMap.getSession() == null || !plMap.getSession().actived) {
-            Service.gI().sendThongBao(pl, "Đối thủ chưa kích hoạt tài khoản");
+        if (plMap.getSession() == null) { // tài khoản bot không có màn hình để nhận lời thách đấu
+            Service.gI().sendThongBao(pl, "Không thể thách đấu người này");
             return;
         }
         int goldThachDau = GOLD_CHALLENGE[selectGold];
@@ -152,8 +152,8 @@ public class PVPService {
             Service.gI().sendThongBao(pl, "Đối thủ đã rời map");
             return;
         }
-        if (plMap.getSession() == null || !plMap.getSession().actived) {
-            Service.gI().sendThongBao(pl, "Đối thủ chưa kích hoạt tài khoản");
+        if (plMap.getSession() == null) { // tài khoản bot không có màn hình để nhận lời thách đấu
+            Service.gI().sendThongBao(pl, "Không thể thách đấu người này");
             return;
         }
 

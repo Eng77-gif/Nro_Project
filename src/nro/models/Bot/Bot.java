@@ -91,7 +91,7 @@ public class Bot extends Player {
 
     private int learnMap = -1, learnDeaths, deathTotal;
     int brainAction = -1, brainTier, brainDeaths; // lượt đang chạy của BotBrain
-    long brainPower, brainAt;
+    long brainPower, brainAt, brainGold, brainGem;
 
     int deaths() {
         return deathTotal;
