@@ -1934,9 +1934,9 @@ public class SeasonEventService implements Runnable {
                 is.options.add(new Item.ItemOption(231, 0));
             } // vĩnh viễn: không hiện dòng nào (như bản chính thức)
             Item probe = ItemService.gI().createNewItem((short) e.rewardItem);
-            if (noTrade(probe).getOptionById(30) != null) {
-                is.options.add(new Item.ItemOption(30, 0)); // hiện "Không giao dịch" như khi nhận
-            }
+            probe.itemOptions.addAll(is.options);
+            is.options.clear();
+            is.options.addAll(noTrade(probe).itemOptions); // hiện "Không giao dịch" đúng như khi nhận
             tab.itemShops.add(is);
             map.put(e.rewardItem, e);
         }
@@ -1969,8 +1969,11 @@ public class SeasonEventService implements Runnable {
         }
         int t = it.template.type, id = it.template.id;
         boolean pet = t == 27 && it.template.head >= 0 && it.template.body >= 0 && it.template.leg >= 0;
-        if (t == 5 || t == 11 || t == 23 || t == 24 || t == 36 || pet || id == 457 || id == 2032 || (id >= 14 && id <= 20)
-                || t == 9 || t == 10 || t == 34 || it.getOptionById(30) != null) {
+        if (t == 5 || t == 11 || t == 23 || t == 24 || t == 36 || pet) {
+            it.itemOptions.removeIf(o -> o.optionTemplate.id == 30); // option mặc định của shop có thể kèm sẵn dòng 30
+            return it;
+        }
+        if (id == 457 || id == 2032 || (id >= 14 && id <= 20) || t == 9 || t == 10 || t == 34 || it.getOptionById(30) != null) {
             return it;
         }
         it.itemOptions.add(new Item.ItemOption(30, 0));

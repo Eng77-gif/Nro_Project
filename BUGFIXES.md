@@ -1706,3 +1706,4 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Bot:** bỏ bot giả lập (chỉ còn tài khoản bot chơi thật); tạo tới 1.000 bot một lần (panel / menu admin), tên ngẫu nhiên như người chơi (hunter2k5, gauconboy, kazephu2k6...); bot vào game 20 con / 30 giây.
 - **Panel Bot mới:** ô tổng hợp (tổng, đang chơi, chờ, đã tắt, tổng sức mạnh, số bang), biểu đồ đang làm gì, tìm / lọc / sắp xếp, thanh sức mạnh, bật / tắt tất cả, tự làm mới 10 giây.
 - **Menu Bot trong game** (công cụ admin → Bot): xem tổng hợp, tạo bot (1 - 1000), bật / tắt tất cả, tới chỗ 1 bot đang chơi.
+- **Sửa "Không giao dịch" hiện nhầm** trên CT (Gohan Beast, Android 21...), đeo lưng (Cánh thiên sứ hắc ám, Cánh thiên thần sa ngã, Bư tập tạ, Lưỡi hái hồng...): dòng này đến từ option mặc định của món, nay bị gỡ cho các loại được miễn, cả trong shop lẫn khi nhận.
