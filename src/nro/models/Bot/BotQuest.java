@@ -54,6 +54,7 @@ public class BotQuest {
                     nro.models.services.OpenPowerService.gI().openPowerBasic(b); // mở giới hạn sức mạnh miễn phí (chờ như người chơi)
                 }
                 learnSkills(b);
+                openIntrinsic(b);
                 wearSkh(b);
                 if ("Luyện tập".equals(b.activity) || "Làm nhiệm vụ".equals(b.activity)) {
                     quest(b);
@@ -272,8 +273,36 @@ public class BotQuest {
         return false;
     }
 
+    // ------------------------------------------------------------------ nội tại
+    /** Từ 10 tỷ sức mạnh: mở nội tại bằng vàng (như người chơi) tới khi được nội tại tăng sát thương cho 1 chiêu đánh bot đã học. */
+    private void openIntrinsic(Bot b) {
+        if (b.nPoint.power < 10_000_000_000L || b.playerIntrinsic == null || fitsIntrinsic(b)) {
+            return;
+        }
+        long cost = 10_000_000L << Math.min(7, b.playerIntrinsic.countOpen); // IntrinsicService.COST_OPEN (triệu vàng)
+        if (b.inventory.gold >= cost + 50_000_000L) { // chừa vàng dự trữ
+            nro.models.services.IntrinsicService.gI().open(b);
+        }
+    }
+
+    private static boolean fitsIntrinsic(Bot b) {
+        nro.models.intrinsic.Intrinsic in = b.playerIntrinsic.intrinsic;
+        if (in == null || in.id == 0 || in.name == null || !in.name.contains("sát thương")) {
+            return false;
+        }
+        for (Skill s : b.playerSkill.skills) {
+            if (s != null && s.point > 0 && s.template != null && s.template.name != null && in.name.startsWith(s.template.name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // ------------------------------------------------------------------ nâng chiêu
-    /** Học chiêu mới (cấp 1) hoặc cấp tiếp theo của chiêu đã có khi đủ sức mạnh, trả ngọc bằng giá sách. */
+    /**
+     * Học chiêu mới (cấp 1) hoặc cấp tiếp theo của chiêu đã có khi đủ sức mạnh. Ngọc chỉ kiếm được qua nhiệm vụ hằng ngày nên bot trả bằng
+     * tiềm năng: 1/10 sức mạnh yêu cầu của cấp đó.
+     */
     private void learnSkills(Bot b) {
         for (Skill cur : b.playerSkill.skills) {
             if (cur == null || cur.template == null || cur.point < 0 || cur.point >= 7) { // point 0: chiêu của phái chưa học
@@ -283,10 +312,11 @@ public class BotQuest {
                 continue; // khiên, dịch chuyển, thôi miên, trói, huýt sáo, siêu chiêu: người chơi phải có sách đặc biệt, bot cũng vậy
             }
             Skill next = SkillUtil.createSkill(cur.template.id, cur.point + 1);
-            if (next == null || next.powRequire > b.nPoint.power || b.inventory.gem < next.price) {
+            long cost = Math.max(1, next == null ? 0 : next.powRequire / 10);
+            if (next == null || next.powRequire > b.nPoint.power || b.nPoint.tiemNang < cost) {
                 continue;
             }
-            b.inventory.gem -= next.price;
+            b.nPoint.tiemNang -= cost;
             SkillUtil.setSkill(b, next);
             if (Util.isTrue(30, 100)) {
                 Service.gI().chat(b, "lên " + next.template.name + " cấp " + next.point + " rồi");
