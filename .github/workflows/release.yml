@@ -1,14 +1,17 @@
 name: Release
 
-# Đẩy tag dạng v1.2.3 (hoặc bấm Run workflow) để tạo bản phát hành và Docker image.
+# Mỗi lần cập nhật main (merge PR) tự phát hành bản mới, tăng số cuối phiên bản (v1.0.0 -> v1.0.1).
+# Đẩy tag dạng v1.2.3 hoặc bấm Run workflow để tự chọn số phiên bản (vd lên v1.1.0).
 on:
   push:
+    branches: [main]
     tags: ["v*"]
+    paths-ignore: ["**.md", "docs/**"]
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag phát hành (vd v1.0.0)"
-        required: true
+        description: "Tag phát hành (vd v1.1.0); bỏ trống để tự tăng số cuối"
+        required: false
 
 permissions:
   contents: write
@@ -17,10 +20,26 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    concurrency: release
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Chọn số phiên bản
+        run: |
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          elif [ "${{ github.ref_type }}" = "tag" ]; then
+            TAG="${{ github.ref_name }}"
+          else
+            LAST=$(git tag -l 'v*' --sort=-v:refname | head -n1)
+            LAST=${LAST:-v1.0.0}
+            IFS=. read -r MA MI PA <<< "${LAST#v}"
+            TAG="v${MA}.${MI}.$((PA + 1))"
+          fi
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          echo "Phát hành $TAG"
 
       # 20.jar đã được ký bằng chữ ký số của tác giả; khóa ký không nằm trên GitHub nên không build lại jar.
       - name: Đóng gói

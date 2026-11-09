@@ -119,7 +119,7 @@ docker run -d --name nro -p 14445:14445 -p 8088:8088 \
 
 Trong `Config.properties` mount vào, đặt `database.host` trỏ tới MySQL mà container truy cập được và đặt `panel.pass`.
 
-Phát hành bản mới: đẩy tag dạng `v1.2.3` (hoặc chạy workflow *Release* trong tab Actions). Workflow sẽ tạo Release và đẩy image lên `ghcr.io`.
+**Phát hành tự động:** mỗi lần cập nhật nhánh `main` (merge pull request), workflow *Release* tự tạo bản mới với số cuối tăng dần (`v1.0.0` → `v1.0.1`…) và đẩy image lên `ghcr.io`. Muốn lên số khác (vd `v1.1.0`), đẩy tag đó hoặc chạy workflow *Release* trong tab Actions và nhập tag.
 
 ## ⚙️ Cấu hình
 
