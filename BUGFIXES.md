@@ -1724,3 +1724,5 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Boss Mặt Trời** chỉ xuất hiện trong Sự kiện Hè (20 con), không còn có mặt quanh năm.
 - **Bóng mờ hiện sau lưng khi chạy:** vị trí đi lên server rồi lệnh vẽ về client mất ~100 - 200 ms, nhân vật đã chạy thêm 30 - 50 px nên vật luôn tụt lại sau lưng. Nay đặt vật lên trước theo tốc độ chạy (đón trước 150 ms, tối đa 60 px) và bám mặt đất, vật rơi đúng dưới chân.
 - **Bỏ thông báo** khi mặc / tháo bóng mờ và khi đổi đồ ở Quy Lão (shop đổi điểm và menu đổi).
+- **Bỏ thông báo "Nhận được …"** ở mọi nơi đổi đồ sự kiện (Chi Chi, Quy Lão, shop sự kiện) và khi mở hộp quà (Hộp Thần linh, Hộp quà thường / VIP, Goku Day, Cadic, Noel, Rương ngọc rồng, Trứng rồng nhí, Xương chó).
+- **Bóng mờ mượt hơn:** vật đặt dày hơn (8 px / vật), độ đón trước theo tốc độ đã làm mượt (trung bình trượt, 180 ms, tối đa 72 px) nên không giật khi đổi tốc độ; đứng im rồi chạy lại thì bỏ tốc độ cũ.

@@ -2137,7 +2137,7 @@ public class UseItem {
             InventoryService.gI().addItemBag(player, chosenItem);
             InventoryService.gI().subQuantityItemsBag(player, itemused, 1);
             InventoryService.gI().sendItemBags(player);
-            Service.gI().sendThongBao(player, "Bạn vừa nhận được 1 " + chosenItem.template.name + " Thần linh!");
+            // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
         } else {
             Service.gI().sendThongBao(player, "Yêu cầu có ít nhất 1 ô trống hành trang");
         }
@@ -2169,7 +2169,7 @@ public class UseItem {
             InventoryService.gI().addItemBag(player, newItem);
             InventoryService.gI().subQuantityItemsBag(player, itemused, 1);
             InventoryService.gI().sendItemBags(player);
-            Service.gI().sendThongBao(player, "Bạn đã nhận được item ngẫu nhiên");
+            // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
         } else {
             Service.gI().sendThongBao(player, "Yêu cầu có 5 ô trống trong hành trang.");
         }
@@ -2208,7 +2208,7 @@ public class UseItem {
             InventoryService.gI().subQuantityItemsBag(player, itemused, 1);
 
             InventoryService.gI().sendItemBags(player);
-            Service.gI().sendThongBao(player, "Bạn đã nhận được vật phẩm ngẫu nhiên!");
+            // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
         } else {
             Service.gI().sendThongBao(player, "Yêu cầu có ít nhất 5 ô trống trong hành trang.");
         }
@@ -2244,7 +2244,7 @@ public class UseItem {
             InventoryService.gI().addItemBag(player, newItem);
             InventoryService.gI().subQuantityItemsBag(player, itemused, 1);
             InventoryService.gI().sendItemBags(player);
-            Service.gI().sendThongBao(player, "Bạn đã nhận được item ngẫu nhiên");
+            // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
         } else {
             Service.gI().sendThongBao(player, "Yêu cầu có 5 ô trống trong hành trang.");
         }
@@ -2276,7 +2276,7 @@ public class UseItem {
             InventoryService.gI().addItemBag(player, newItem);
             InventoryService.gI().subQuantityItemsBag(player, itemused, 1);
             InventoryService.gI().sendItemBags(player);
-            Service.gI().sendThongBao(player, "Bạn đã nhận được item ngẫu nhiên");
+            // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
         } else {
             Service.gI().sendThongBao(player, "Yêu cầu có 5 ô trống trong hành trang.");
         }
@@ -2308,7 +2308,7 @@ public class UseItem {
             InventoryService.gI().addItemBag(player, newItem);
             InventoryService.gI().subQuantityItemsBag(player, itemused, 1);
             InventoryService.gI().sendItemBags(player);
-            Service.gI().sendThongBao(player, "Bạn đã nhận được item ngẫu nhiên");
+            // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
         } else {
             Service.gI().sendThongBao(player, "Yêu cầu có 5 ô trống trong hành trang.");
         }
@@ -2348,7 +2348,7 @@ public class UseItem {
             InventoryService.gI().subQuantityItemsBag(player, itemUsed, 1);
             InventoryService.gI().sendItemBags(player);
 
-            Service.gI().sendThongBao(player, "Bạn đã nhận được " + newItem.template.name + "!");
+            // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
         } else {
             Service.gI().sendThongBao(player, "Yêu cầu có ít nhất 5 ô trống trong hành trang.");
         }
@@ -2380,7 +2380,7 @@ public class UseItem {
             InventoryService.gI().addItemBag(player, newItem);
             InventoryService.gI().subQuantityItemsBag(player, itemused, 1);
             InventoryService.gI().sendItemBags(player);
-            Service.gI().sendThongBao(player, "Bạn đã nhận được item ngẫu nhiên");
+            // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
         } else {
             Service.gI().sendThongBao(player, "Yêu cầu có 5 ô trống trong hành trang.");
         }
@@ -2453,7 +2453,7 @@ public class UseItem {
 
                             if (InventoryService.gI().getCountEmptyBag(pl) > 0) {
                                 InventoryService.gI().addItemBag(pl, it);
-                                Service.gI().sendThongBao(pl, "Bạn vừa nhận được " + it.template.name);
+                                // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
                             } else {
                                 Service.gI().sendThongBao(pl, "Hành trang không đủ chỗ trống.");
                             }
@@ -2465,7 +2465,7 @@ public class UseItem {
                             it.itemOptions.add(new Item.ItemOption(20, Util.nextInt(10000)));
                             if (InventoryService.gI().getCountEmptyBag(pl) > 0) {
                                 InventoryService.gI().addItemBag(pl, it);
-                                Service.gI().sendThongBao(pl, "Bạn vừa nhận được " + it.template.name);
+                                // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
                             } else {
                                 Service.gI().sendThongBao(pl, "Hành trang không đủ chỗ trống.");
                             }
@@ -2503,7 +2503,7 @@ public class UseItem {
                 PlayerService.gI().sendInfoHpMpMoney(pl);
                 InventoryService.gI().subQuantityItemsBag(pl, item, 1);
                 InventoryService.gI().sendItemBags(pl);
-                Service.gI().sendThongBao(pl, "Bạn nhận được " + ruby + "  Ngọc");
+                // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
             } else {
                 int[] temp = {spl, dnc, nr, nrBang, mts, 533, 380};
                 byte index = (byte) Util.nextInt(0, temp.length - 1);
@@ -3000,7 +3000,7 @@ public class UseItem {
                 InventoryService.gI().subQuantityItemsBag(pl, item1561, 1); // Trừ 1 Item Box
                 InventoryService.gI().addItemBag(pl, it); // Thêm item vào túi
                 InventoryService.gI().sendItemBags(pl); // Gửi cập nhật túi đồ
-                Service.gI().sendThongBao(pl, "Bạn vừa nhận được " + it.template.name);
+                // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
             } else {
                 Service.gI().sendThongBao(pl, "Bạn không có chìa khoá vàng");
             }
