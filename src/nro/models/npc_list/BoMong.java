@@ -58,7 +58,7 @@ public class BoMong extends Npc {
                                 this.createOtherMenu(player, ConstNpc.MENU_OPTION_LEVEL_SIDE_TASK,
                                         "Tôi có vài nhiệm vụ theo cấp bậc, "
                                         + "sức cậu có thể làm được cái nào?",
-                                        "Dễ", "Bình thường", "Khó", "Từ chối");
+                                        "Dễ", "Bình thường", "Khó", "Cực khó", "Từ chối");
                             }
                         }
                         case 1 -> {
@@ -91,7 +91,7 @@ public class BoMong extends Npc {
                     }
                 } else if (player.idMark.getIndexMenu() == ConstNpc.MENU_OPTION_LEVEL_SIDE_TASK) {
                     switch (select) {
-                        case 0, 1, 2 ->
+                        case 0, 1, 2, 3 -> // 3: cực khó (ConstTask.VERY_HARD)
                             TaskService.gI().changeSideTask(player, (byte) select);
                     }
                 } else if (player.idMark.getIndexMenu() == ConstNpc.MENU_OPTION_PAY_SIDE_TASK) {

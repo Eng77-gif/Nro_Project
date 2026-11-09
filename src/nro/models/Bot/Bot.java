@@ -32,9 +32,9 @@ public class Bot extends Player {
 
     private Player plAttack;
 
-    private int[] TraiDat = new int[]{1, 2, 3, 4, 6, 29, 30, 28, 27, 42, 110, 103, 106, 105, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74 ,75 ,76, 77, 78, 79, 80, 81, 82, 83, 92, 93, 94, 95, 96, 97, 98, 99, 100, 107, 108, 109};
+    private int[] TraiDat = new int[]{1, 2, 3, 4, 6, 29, 30, 28, 27, 110, 103, 106, 105, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74 ,75 ,76, 77, 78, 79, 80, 81, 82, 83, 92, 93, 94, 95, 96, 97, 98, 99, 100, 107, 108, 109};
     private int[] Namec = new int[]{8, 9, 10, 11, 12, 13, 33, 34, 32, 31, 110, 103, 106, 105, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74 ,75 ,76, 77, 78, 79, 80, 81, 82, 83, 92, 93, 94, 95, 96, 97, 98, 99, 100, 107, 108, 109};
-    private int[] XayDa = new int[]{15, 16, 17, 18, 19, 20, 37, 36, 35, 44, 52, 110, 106, 105, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74 ,75 ,76, 77, 78, 79, 80, 81, 82, 83, 92, 93, 94, 95, 96, 97, 98, 99, 100, 107, 108, 109};
+    private int[] XayDa = new int[]{15, 16, 17, 18, 19, 20, 37, 36, 35, 110, 106, 105, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74 ,75 ,76, 77, 78, 79, 80, 81, 82, 83, 92, 93, 94, 95, 96, 97, 98, 99, 100, 107, 108, 109};
     Player player;
 
     public Bot(short head, short body, short leg, int type, String name, BotGiaoDich shop, short flag) {
@@ -116,8 +116,9 @@ public class Bot extends Player {
         int mapId = 21;
         if (power < 100000000 && this.accountBot) {
             // tài khoản bot: dưới 100 triệu chỉ luyện ở các map của hành tinh mình như người mới chơi
-            int[] home = this.gender == 0 ? new int[]{1, 2, 3, 4, 6, 29, 30, 28, 27, 42}
-                    : this.gender == 1 ? new int[]{8, 9, 10, 11, 12, 13, 33, 34, 32, 31} : new int[]{15, 16, 17, 18, 19, 20, 37, 36, 35, 44, 52};
+            // không có Vách núi 42 - 44 (máy đo sức mạnh) và Đại hội võ thuật 52: không phải chỗ luyện tập
+            int[] home = this.gender == 0 ? new int[]{1, 2, 3, 4, 6, 29, 30, 28, 27}
+                    : this.gender == 1 ? new int[]{8, 9, 10, 11, 12, 13, 33, 34, 32, 31} : new int[]{15, 16, 17, 18, 19, 20, 37, 36, 35};
             int lim = power < 2_000_000 ? Math.min(5, home.length) : home.length;
             mapId = home[random.nextInt(lim)];
         } else if (power < 100000000) {

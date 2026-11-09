@@ -78,7 +78,7 @@ public class ToSuKaio extends Npc {
                         "Ta sẽ truyền năng lượng giúp con mở giới hạn sức mạnh của bản thân lên "
                         + Util.numberToMoney(player.nPoint.getPowerNextLimit()),
                         "Nâng\ngiới hạn\nsức mạnh",
-                        "Nâng ngay\n" + Util.numberToMoney(OpenPowerService.COST_SPEED_OPEN_LIMIT_POWER) + " vàng",
+                        "Nâng ngay\n" + OpenPowerService.gemCost(player) + " ngọc",
                         "Đóng");
             } else {
                 this.createOtherMenu(player, ConstNpc.IGNORE_MENU,
@@ -100,17 +100,8 @@ public class ToSuKaio extends Npc {
         switch (select) {
             case 0 ->
                 OpenPowerService.gI().openPowerBasic(player);
-            case 1 -> {
-                if (player.inventory.gold >= OpenPowerService.COST_SPEED_OPEN_LIMIT_POWER) {
-                    if (OpenPowerService.gI().openPowerSpeed(player)) {
-                        player.inventory.gold -= OpenPowerService.COST_SPEED_OPEN_LIMIT_POWER;
-                        Service.gI().sendMoney(player);
-                    }
-                } else {
-                    Service.gI().sendThongBao(player, "Bạn không đủ vàng để mở, còn thiếu "
-                            + Util.numberToMoney(OpenPowerService.COST_SPEED_OPEN_LIMIT_POWER - player.inventory.gold) + " vàng");
-                }
-            }
+            case 1 ->
+                OpenPowerService.gI().openPowerSpeedByGem(player, player);
         }
     }
 
@@ -130,15 +121,7 @@ public class ToSuKaio extends Npc {
             return;
         }
 
-        if (player.inventory.gold >= OpenPowerService.COST_SPEED_OPEN_LIMIT_POWER) {
-            if (OpenPowerService.gI().openPowerSpeed(player.pet)) {
-                player.inventory.gold -= OpenPowerService.COST_SPEED_OPEN_LIMIT_POWER;
-                Service.gI().sendMoney(player);
-            }
-        } else {
-            Service.gI().sendThongBao(player, "Bạn không đủ vàng để mở, còn thiếu "
-                    + Util.numberToMoney(OpenPowerService.COST_SPEED_OPEN_LIMIT_POWER - player.inventory.gold) + " vàng");
-        }
+        OpenPowerService.gI().openPowerSpeedByGem(player, player.pet);
     }
 
     private void handleAutoTrainingMenu(Player player) {

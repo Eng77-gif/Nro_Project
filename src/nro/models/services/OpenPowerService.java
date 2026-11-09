@@ -1,5 +1,7 @@
 package nro.models.services;
 
+import nro.models.utils.Util;
+
 import nro.models.player.NPoint;
 import nro.models.player.Pet;
 import nro.models.player.Player;
@@ -25,6 +27,27 @@ public class OpenPowerService {
             i = new OpenPowerService();
         }
         return i;
+    }
+
+    /** Giá mở nhanh giới hạn sức mạnh (ngọc): dưới 50 tỷ sức mạnh 100 ngọc / lần, từ 50 tỷ tới tối đa 200 ngọc / lần. */
+    public static int gemCost(Player target) {
+        return target.nPoint.power < 50_000_000_000L ? 100 : 200;
+    }
+
+    /** Trả ngọc của payer để mở ngay 1 bậc giới hạn sức mạnh cho target (bản thân hoặc đệ tử). */
+    public boolean openPowerSpeedByGem(Player payer, Player target) {
+        int cost = gemCost(target);
+        if (payer.inventory.gem < cost) {
+            Service.gI().sendThongBao(payer, "Bạn không đủ ngọc để mở, còn thiếu " + Util.numberToMoney(cost - payer.inventory.gem) + " ngọc");
+            return false;
+        }
+        if (!openPowerSpeed(target)) {
+            return false;
+        }
+        payer.inventory.gem -= cost;
+        target.itemTime.isOpenPower = false; // đang chờ mở miễn phí thì huỷ (đã mở ngay)
+        Service.gI().sendMoney(payer);
+        return true;
     }
 
     public boolean openPowerBasic(Player player) {

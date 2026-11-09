@@ -118,7 +118,7 @@ public class BotPemQuai {
         }
         Mob alive = null;
         for (Mob m : this.bot.zone.mobs) {
-            if (!m.isDie()) {
+            if (trainable(m) || (m.tempId == this.bot.questMob && !m.isDie())) {
                 alive = m;
                 break;
             }
@@ -190,11 +190,21 @@ public class BotPemQuai {
                 }
             }
         }
-        if (this.bot.zone.mobs.size() >= 1) {
-            if (this.mAttack == null || this.mAttack.isDie()) {
-                mAttack = this.bot.zone.mobs.get(new Random().nextInt(this.bot.zone.mobs.size()));
+        if (this.mAttack == null || this.mAttack.isDie() || !trainable(this.mAttack) && this.mAttack.tempId != this.bot.questMob) {
+            java.util.List<Mob> ok = new java.util.ArrayList<>();
+            for (Mob m : this.bot.zone.mobs) {
+                if (trainable(m)) {
+                    ok.add(m);
+                }
             }
+            mAttack = ok.isEmpty() ? null : ok.get(new Random().nextInt(ok.size()));
         }
+    }
+
+    /** Quái đánh để luyện tập: không đánh máy đo sức mạnh, mộc nhân, bù nhìn, cỗ máy (chỉ khi nhiệm vụ cần). */
+    static boolean trainable(Mob m) {
+        return m != null && !m.isDie() && m.tempId != nro.models.consts.ConstMob.MAY_DO_SUC_MANH && m.tempId != nro.models.consts.ConstMob.MOC_NHAN
+                && m.tempId != nro.models.consts.ConstMob.BU_NHIN_MA_QUAI && m.tempId != nro.models.consts.ConstMob.CO_MAY_HUY_DIET;
     }
 
     public void Attack() {

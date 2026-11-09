@@ -9,7 +9,7 @@ import nro.models.server.ServerNotify;
 /**
  * Thông báo toàn server:
  * - Top 1 - 10 các đua top sự kiện đang chạy (Chi Chi) và Hộp đen bí ẩn vừa đăng nhập (chat thế giới), mỗi lần đăng nhập.
- * - Đánh quái nhặt được trang bị set kích hoạt: 3 set riêng (Thần Vũ Trụ Kaio, Nail chiến binh Namếc, Cađic M) kèm tên set,
+ * - Đánh quái nhặt được trang bị set kích hoạt (chat thế giới): 3 set riêng (Thần Vũ Trụ Kaio, Nail chiến binh Namếc, Cađic M) kèm tên set,
  *   set cũ (Sôngôku, Kakarot...) chỉ báo chung.
  * - Mở hộp quà nhận được cải trang, pet, đeo lưng, thú cưỡi.
  */
@@ -88,8 +88,7 @@ public class AnnounceService {
         for (Item.ItemOption io : item.itemOptions) {
             for (int id : SKH_RIENG) {
                 if (io.optionTemplate.id == id) { // 3 set riêng: báo kèm tên set
-                    ServerNotify.gI().notify(pl.name + " vừa đánh quái may mắn nhận được 1 trang bị Set kích hoạt "
-                            + io.optionTemplate.name);
+                    ChatGlobalService.gI().chatVip(pl, "vừa đánh quái may mắn nhận được 1 trang bị Set kích hoạt " + io.optionTemplate.name);
                     return;
                 }
             }
@@ -98,7 +97,7 @@ public class AnnounceService {
             }
         }
         if (skh) { // set cũ (Sôngôku, Kakarot, Picolo...): không kèm tên set
-            ServerNotify.gI().notify(pl.name + " vừa đánh quái may mắn nhận được 1 trang bị Set kích hoạt");
+            ChatGlobalService.gI().chatVip(pl, "vừa đánh quái may mắn nhận được 1 trang bị Set kích hoạt"); // chat thế giới
         }
     }
 
