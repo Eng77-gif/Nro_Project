@@ -1742,6 +1742,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Danh hiệu Phá Cổ Trung Thu** dùng hiệu ứng thật **505** có sẵn trong data (trăng, đèn lồng, ông sao, thỏ ngọc, chữ Phá Cỗ Trung Thu, 90 khung hình) thay banner 300; người chơi đã có danh hiệu đổi theo. Bản VIP giữ hiệu ứng 516.
 - **Máy đo sức mạnh đứng yên hẳn:** bỏ lệnh quay mặt về người đấm (client vẽ mỗi lệnh thành 1 lần máy chạy / nhảy qua lại).
 - **Nhặt set kích hoạt** báo song song: thông báo hệ thống (chạy chữ) và chat thế giới.
+- **Panel V4 chia trang:** Người chơi, Vật phẩm theo V4; thêm chia trang giống vậy cho Tài khoản, Bảng xếp hạng, Bang hội, Ký gửi (lọc đang bán / đã bán), Giftcode, Boss (gộp đang sống / đang nghỉ, lọc trạng thái), Quái và Nhật ký chat. Mỗi mục có ô tìm kiếm, chọn 25 / 50 / 100 dòng, nút trang và ô nhảy trang; server chỉ trả trang đang xem (`*/page`, COUNT + LIMIT/OFFSET) nên xem được hết dữ liệu thay vì bị cắt ở 200 - 500 dòng.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

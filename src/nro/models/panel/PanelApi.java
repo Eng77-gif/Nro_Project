@@ -62,6 +62,7 @@ class PanelApi {
         return switch (r) {
             case "me" -> Map.of("ok", true);
             case "stats" -> stats();
+            case "players/page" -> playersPage(q);
             case "players" -> players(q.getOrDefault("q", ""), "1".equals(q.get("online")));
             case "player" -> player(lng(q.get("id")));
             case "player/money" -> playerMoney(b);
@@ -120,7 +121,45 @@ class PanelApi {
             }
             case "player/save" -> playerSave(b);
             case "accounts" -> accounts(q.getOrDefault("q", ""));
+            case "accounts/page" -> paged(q, "select a.id, a.username, a.ban, a.is_admin, a.vnd, a.tongnap, a.create_time, a.last_time_login, a.ip_address, "
+                    + "(select group_concat(p.name) from player p where p.account_id=a.id) players",
+                    "from account a where a.username like ? escape '!' or a.id = ? or exists (select 1 from player p where p.account_id=a.id and p.name like ? escape '!')",
+                    "a.id desc", like(q), idOf(q), like(q));
+            case "clans/page" -> paged(q, "select id, NAME name, slogan, power_point, max_member, clan_point, LEVEL level, create_time",
+                    "from clan where NAME like ? escape '!' or id = ?", "power_point desc, id", like(q), idOf(q));
+            case "kygui/page" -> paged(q, "select k.id, k.player_id, p.name player, k.item_id, t.name, t.icon_id, k.gold, k.gem, k.quantity, k.isBuy",
+                    "from shop_ky_gui k left join player p on p.id=k.player_id left join item_template t on t.id=k.item_id where (t.name like ? escape '!' or p.name like ? escape '!' or k.id = ?)"
+                    + ("1".equals(q.get("state")) ? " and k.isBuy = 1" : "0".equals(q.get("state")) ? " and k.isBuy = 0" : ""),
+                    "k.id desc", like(q), like(q), idOf(q));
+            case "giftcodes/page" -> paged(q, "select id, code, count_left, detail, datecreate, expired", "from giftcode where code like ? escape '!' or id = ?", "id desc", like(q), idOf(q));
+            case "mobs/page" -> paged(q, "select id, NAME name, type, hp", "from mob_template where NAME like ? escape '!' or id = ?", "id", like(q), idOf(q));
+            case "chatlog/page" -> {
+                ChatLog.list("", "x"); // tạo bảng nếu chưa có
+                String type = str(q.getOrDefault("type", ""));
+                yield type.isBlank()
+                        ? paged(q, "select date_format(t, '%d/%m %H:%i:%s') t, type, name, text", "from chat_log where name like ? escape '!' or text like ? escape '!'", "id desc", like(q), like(q))
+                        : paged(q, "select date_format(t, '%d/%m %H:%i:%s') t, type, name, text", "from chat_log where type = ? and (name like ? escape '!' or text like ? escape '!')", "id desc", type, like(q), like(q));
+            }
+            case "tops/page" -> {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> top = new ArrayList<>((List<Map<String, Object>>) tops(str(q.getOrDefault("kind", "power"))));
+                for (int i = 0; i < top.size(); i++) {
+                    top.set(i, new LinkedHashMap<>(top.get(i)));
+                    top.get(i).put("rank", i + 1);
+                }
+                yield pagedList(top, q);
+            }
+            case "bosses/page" -> {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> list = new ArrayList<>((List<Map<String, Object>>) ((Map<String, Object>) bosses()).get("bosses"));
+                String kw = str(q.getOrDefault("q", "")).trim().toLowerCase(), st = str(q.getOrDefault("state", ""));
+                list.removeIf(x -> !kw.isEmpty() && !String.valueOf(x.get("name")).toLowerCase().contains(kw) && !String.valueOf(x.get("id")).equals(kw)
+                        || st.equals("alive") && !Boolean.TRUE.equals(x.get("alive")) || st.equals("rest") && Boolean.TRUE.equals(x.get("alive")));
+                list.sort((x, y) -> Boolean.compare(Boolean.TRUE.equals(y.get("alive")), Boolean.TRUE.equals(x.get("alive")))); // boss đang sống lên trước
+                yield pagedList(list, q);
+            }
             case "account/update" -> accountUpdate(b);
+            case "items/page" -> itemsPage(q);
             case "items" -> items(q.getOrDefault("q", ""), q.getOrDefault("type", ""));
             case "item" -> item(intv(q.get("id")));
             case "item/options" -> rows("select o.id, o.option_id, t.NAME name, o.param, o.param_max, o.chance, o.group_id from item_template_option o left join item_option_template t on t.id=o.option_id where o.template_id=? order by o.id", intv(q.get("id")));
@@ -255,14 +294,19 @@ class PanelApi {
         }
         for (Map<String, Object> r : rows("select p.id, p.name, p.gender, a.username, a.ban, a.is_admin, p.data_point, p.data_inventory, p.data_location from player p left join account a on a.id=p.account_id "
                 + "where p.name like ? or a.username like ? or p.id = ? order by p.id desc limit 200", "%" + kw + "%", "%" + kw + "%", kw.matches("\\d+") ? Long.parseLong(kw) : -1)) {
+            out.add(directoryRow(r));
+        }
+        return out;
+    }
+
+    private Map<String, Object> directoryRow(Map<String, Object> r) {
             long id = ((Number) r.get("id")).longValue();
             Player on = Client.gI().getPlayerByID((int) id);
             if (on != null) {
                 Map<String, Object> o = onlineRow(on);
                 o.put("username", r.get("username"));
                 o.put("ban", r.get("ban"));
-                out.add(o);
-                continue;
+                return o;
             }
             JsonArray pt = arr(r.get("data_point")), inv = arr(r.get("data_inventory")), loc = arr(r.get("data_location"));
             Map<String, Object> o = new LinkedHashMap<>();
@@ -277,9 +321,26 @@ class PanelApi {
             o.put("map", loc != null && loc.size() > 0 ? mapName(loc.get(0).getAsInt()) : "");
             o.put("online", false);
             o.put("ban", r.get("ban"));
-            out.add(o);
+            return o;
+    }
+
+    private Object playersPage(Map<String,String> params) throws Exception {
+        java.util.Set<Long> online=new java.util.HashSet<>();
+        for(Player p:onlinePlayers())online.add(p.id);
+        Map<Long,Integer> bots=nro.models.Bot.BotWorld.gI().accountBots(false);
+        for(Long id:bots.keySet())if(nro.models.Bot.BotWorld.gI().find(id)!=null)online.add(id);
+        PanelDirectory.Query query=PanelDirectory.query(params,online,bots.keySet());
+        long total=((Number)rows(query.countSql,query.countArgs.toArray()).get(0).get("total")).longValue();
+        PanelDirectory.Page page=query.page(total);
+        List<Map<String,Object>> list=new ArrayList<>();
+        for(Map<String,Object> raw:rows(page.sql,page.args.toArray())){
+            long id=((Number)raw.get("id")).longValue();
+            Player bot=nro.models.Bot.BotWorld.gI().find(id);
+            Map<String,Object> row=bot==null?directoryRow(raw):onlineRow(bot);
+            row.put("username",raw.get("username"));row.put("ban",raw.get("ban"));
+            row.put("botAccount",bots.containsKey(id));list.add(row);
         }
-        return out;
+        return page.result(list);
     }
 
     private Map<String, Object> onlineRow(Player p) {
@@ -309,7 +370,7 @@ class PanelApi {
             throw new IllegalArgumentException("Không có nhân vật " + id);
         }
         Map<String, Object> r = rs.get(0);
-        o.putAll(on != null ? onlineRow(on) : ((List<Map<String, Object>>) players(String.valueOf(id), false)).stream().filter(x -> ((Number) x.get("id")).longValue() == id).findFirst().orElse(Map.of()));
+        o.putAll(on != null ? onlineRow(on) : directoryRow(r));
         for (String k : new String[]{"account_id", "username", "ban", "is_admin", "vnd", "tongnap", "last_time_login", "ip_address"}) {
             o.put(k, r.get(k));
         }
@@ -598,10 +659,18 @@ class PanelApi {
         List<Map<String, Object>> out = new ArrayList<>();
         Map<Long, Integer> acc = nro.models.Bot.BotWorld.gI().accountBots(false);
         Map<Long, Integer> on = nro.models.Bot.BotWorld.gI().accountBots(true);
+        Map<Long,Map<String,Object>> identities=new java.util.HashMap<>();
+        List<Long> botIds=new ArrayList<>(acc.keySet());
+        for(int start=0;start<botIds.size();start+=500){
+            List<Long> batch=botIds.subList(start,Math.min(start+500,botIds.size()));
+            String marks=String.join(",",java.util.Collections.nCopies(batch.size(),"?"));
+            for(Map<String,Object> row:rows("select p.id,p.name,a.username from player p left join account a on a.id=p.account_id where p.id in ("+marks+")",batch.toArray()))
+                identities.put(((Number)row.get("id")).longValue(),row);
+        }
         for (Map.Entry<Long, Integer> e : acc.entrySet()) {
             Map<String, Object> m = new LinkedHashMap<>();
             long pid = e.getKey();
-            List<Map<String, Object>> r = rows("select p.name, a.username from player p left join account a on a.id = p.account_id where p.id=?", pid);
+            List<Map<String,Object>> r=identities.containsKey(pid)?List.of(identities.get(pid)):List.of();
             m.put("id", pid);
             m.put("name", r.isEmpty() ? "?" : r.get(0).get("name"));
             m.put("username", r.isEmpty() ? "" : r.get(0).get("username"));
@@ -771,7 +840,16 @@ class PanelApi {
 
     // ------------------------------------------------------------------ item
 
-    private Object items(String kw, String type) {
+    private Object items(String kw,String type){return itemsList(kw,type,300);}
+
+    private Object itemsPage(Map<String,String> params){
+        List<Map<String,Object>> list=itemsList(params.getOrDefault("q","").trim(),params.getOrDefault("type",""),Integer.MAX_VALUE);
+        String gender=params.getOrDefault("gender","");
+        if(!gender.isEmpty())list.removeIf(x->!String.valueOf(x.get("gender")).equals(gender));
+        return PanelDirectory.slice(list,params);
+    }
+
+    private List<Map<String,Object>> itemsList(String kw, String type, int maxResults) {
         List<Map<String, Object>> out = new ArrayList<>();
         String k = kw.toLowerCase();
         for (ItemTemplate t : Manager.ITEM_TEMPLATES) {
@@ -793,7 +871,7 @@ class PanelApi {
             o.put("icon", t.iconID);
             o.put("desc", t.description);
             out.add(o);
-            if (out.size() >= 300) {
+            if (out.size() >= maxResults) {
                 break;
             }
         }
@@ -1639,6 +1717,32 @@ class PanelApi {
     }
 
     // ------------------------------------------------------------------ database
+
+    /** Chia trang SQL: đếm tổng rồi lấy đúng 1 trang (LIMIT/OFFSET), trả {rows, page, size, total, totalPages}. */
+    private static Map<String, Object> paged(Map<String, String> p, String select, String fromWhere, String order, Object... args) throws Exception {
+        long total = PanelDirectory.numeric(rows("select count(*) n " + fromWhere, args).get(0).get("n"));
+        PanelDirectory.Page pg = new PanelDirectory.Page(select + " " + fromWhere + " order by " + order + " limit ? offset ?", List.of(args),
+                Math.max(1, PanelDirectory.integer(p.get("page"), 1)), PanelDirectory.size(p), total);
+        return pg.result(rows(pg.sql, pg.args.toArray()));
+    }
+
+    /** Chia trang danh sách trong bộ nhớ, giữ nguyên thứ tự. */
+    private static Map<String, Object> pagedList(List<Map<String, Object>> list, Map<String, String> p) {
+        PanelDirectory.Page pg = new PanelDirectory.Page(null, List.of(), Math.max(1, PanelDirectory.integer(p.get("page"), 1)), PanelDirectory.size(p), list.size());
+        int from = (pg.page - 1) * pg.size;
+        return pg.result(new ArrayList<>(list.subList(from, Math.min(from + pg.size, list.size()))));
+    }
+
+    private static String like(Map<String, String> p) {
+        String k = str(p.getOrDefault("q", "")).trim();
+        k = k.length() > 100 ? k.substring(0, 100) : k;
+        return "%" + k.replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
+    }
+
+    private static long idOf(Map<String, String> p) {
+        String k = str(p.getOrDefault("q", "")).trim();
+        return k.matches("\\d{1,18}") ? Long.parseLong(k) : -1;
+    }
 
     static List<Map<String, Object>> rows(String sql, Object... args) throws Exception {
         List<Map<String, Object>> out = new ArrayList<>();
