@@ -1085,7 +1085,7 @@ public class SeasonEventService implements Runnable {
                 default -> 0;
             };
             if (times > 0) {
-                exchange(pl, e, times);
+                exchange(pl, e, times, npc != null && npc.tempId == nro.models.consts.ConstNpc.QUY_LAO_KAME); // đổi ở Quy Lão: không thông báo
                 openExchange(npc, pl, e);
             }
             return true;
@@ -1157,6 +1157,11 @@ public class SeasonEventService implements Runnable {
     }
 
     private void exchange(Player pl, Exchange e, int times) {
+        exchange(pl, e, times, false);
+    }
+
+    /** silent: không báo "Nhận được ..." (mua ở shop đổi điểm Quy Lão). */
+    private void exchange(Player pl, Exchange e, int times, boolean silent) {
         synchronized (pl) {
             String rewardName = e.openNow ? "" : ItemService.gI().getTemplate(e.rewardItem).name;
             int empty = InventoryService.gI().getCountEmptyBag(pl);
@@ -1236,7 +1241,9 @@ public class SeasonEventService implements Runnable {
             InventoryService.gI().sendItemBags(pl);
             Service.gI().sendMoney(pl);
             String text = String.join(", ", got);
-            Service.gI().sendThongBao(pl, "Nhận được " + (text.length() > 200 ? text.substring(0, 200) + "..." : text));
+            if (!silent) {
+                Service.gI().sendThongBao(pl, "Nhận được " + (text.length() > 200 ? text.substring(0, 200) + "..." : text));
+            }
         }
     }
 
@@ -1983,7 +1990,7 @@ public class SeasonEventService implements Runnable {
             Service.gI().sendThongBao(pl, e.costPoint > 0 ? "Bạn không đủ điểm sự kiện (cần " + e.costPoint + ")" : "Bạn không đủ tiền để mua");
             return;
         }
-        exchange(pl, e, 1);
+        exchange(pl, e, 1, e.costPoint > 0); // shop Quy Lão (trừ điểm sự kiện): không thông báo
         Service.gI().sendMoney(pl);
     }
 

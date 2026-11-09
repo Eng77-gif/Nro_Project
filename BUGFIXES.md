@@ -1722,3 +1722,5 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Phiếu sao vàng may mắn thay vé vàng:** shop Santa bán Phiếu sao vàng may mắn (vào Ngục tù may mắn) giá 19.999 ngọc thay vé vàng (vé vàng không dùng được); vàng rơi ở Ngục tù may mắn tối đa 500.000 / cục.
 - **Năng lượng E10** bán ở Santa (tab Hỗ trợ) giá 10 ngọc.
 - **Boss Mặt Trời** chỉ xuất hiện trong Sự kiện Hè (20 con), không còn có mặt quanh năm.
+- **Bóng mờ hiện sau lưng khi chạy:** vị trí đi lên server rồi lệnh vẽ về client mất ~100 - 200 ms, nhân vật đã chạy thêm 30 - 50 px nên vật luôn tụt lại sau lưng. Nay đặt vật lên trước theo tốc độ chạy (đón trước 150 ms, tối đa 60 px) và bám mặt đất, vật rơi đúng dưới chân.
+- **Bỏ thông báo** khi mặc / tháo bóng mờ và khi đổi đồ ở Quy Lão (shop đổi điểm và menu đổi).
