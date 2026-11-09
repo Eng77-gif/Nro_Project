@@ -36,7 +36,7 @@ public class ConsignShopService {
 
     private List<ConsignItem> getItemKyGui2(Player pl, byte tab, byte to, byte max) {
         List<ConsignItem> filtered = ConsignShopManager.gI().listItem.stream()
-                .filter(it -> it != null && it.tab == tab && !it.isBuy)
+                .filter(it -> it != null && it.tab == tab && !it.isBuy && inMarket(pl, it.itemId))
                 .sorted(Comparator.comparingInt((ConsignItem it) -> it.isUpTop).reversed())
                 .collect(Collectors.toList());
 
@@ -49,7 +49,7 @@ public class ConsignShopService {
 
     private List<ConsignItem> getItemKyGui(Player pl, byte tab, byte... max) {
         List<ConsignItem> filtered = ConsignShopManager.gI().listItem.stream()
-                .filter(it -> it != null && it.tab == tab && !it.isBuy && it.player_sell != pl.id)
+                .filter(it -> it != null && it.tab == tab && !it.isBuy && it.player_sell != pl.id && inMarket(pl, it.itemId))
                 .sorted(Comparator.comparingInt((ConsignItem it) -> it.isUpTop).reversed())
                 .collect(Collectors.toList());
 
@@ -345,13 +345,18 @@ public class ConsignShopService {
 
     public List<ConsignItem> getItemCanKiGui(Player pl) {
         List<ConsignItem> its = new ArrayList<>();
-        ConsignShopManager.gI().listItem.stream().filter((it) -> (it != null && it.player_sell == pl.id)).forEachOrdered((it) -> {
+        ConsignShopManager.gI().listItem.stream().filter((it) -> (it != null && it.player_sell == pl.id && inMarket(pl, it.itemId))).forEachOrdered((it) -> {
             its.add(it);
         });
-        pl.inventory.itemsBag.stream().filter((it) -> (itemCanConsign(it))).forEachOrdered((it) -> {
+        pl.inventory.itemsBag.stream().filter((it) -> (itemCanConsign(it) && inMarket(pl, it.template.id))).forEachOrdered((it) -> {
             its.add(new ConsignItem(InventoryService.gI().getIndexBag(pl, it), it.template.id, (int) pl.id, (byte) 4, -1, -1, it.quantity, (byte) -1, it.itemOptions, false));
         });
         return its;
+    }
+
+    /** Đồ sự kiện chỉ bán ở chợ đồ sự kiện (NPC KY_GUI_SU_KIEN), đồ thường chỉ ở cửa hàng ký gửi. */
+    private static boolean inMarket(Player pl, int itemId) {
+        return nro.models.services.SeasonEventService.gI().isEventMaterial(itemId) == pl.kyGuiEvent;
     }
 
     public boolean itemCanConsign(Item it) {
@@ -405,7 +410,7 @@ public class ConsignShopService {
                 return;
             }
             Item itemBag = pl.inventory.itemsBag.get(id);
-            if (!itemCanConsign(itemBag)) {
+            if (!itemCanConsign(itemBag) || !inMarket(pl, itemBag.template.id)) {
                 Service.gI().sendThongBao(pl, "Vật phẩm không thể kí gửi");
                 openShopKyGui(pl);
                 return;

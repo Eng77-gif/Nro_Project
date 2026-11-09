@@ -1959,19 +1959,12 @@ public class SeasonEventService implements Runnable {
     public static final int OPT_VINH_VIEN = 266;
 
     /** Mua 1 món trong cửa hàng sự kiện: đi qua công thức đổi (trừ tiền / điểm, hạn dùng, điểm top, điểm sự kiện). */
-    /**
-     * Đồ đổi / mua ở sự kiện thêm dòng "Không giao dịch" (option 30), trừ cải trang, đeo lưng, ván bay, danh hiệu và pet
-     * (những món người chơi vẫn được giao dịch / ký gửi); tiền tệ (vàng, thỏi vàng, ngọc rồng) không thêm.
-     */
+    /** Đồ đổi / mua ở sự kiện thêm dòng "Không giao dịch" (option 30), kể cả CT, đeo lưng, pet, ván bay, bóng mờ; tiền tệ (vàng, thỏi vàng, ngọc rồng) không thêm. */
     static Item noTrade(Item it) {
         if (it == null || it.template == null) {
             return it;
         }
         int t = it.template.type, id = it.template.id;
-        boolean pet = t == 27 && it.template.head >= 0 && it.template.body >= 0 && it.template.leg >= 0;
-        if (t == 5 || t == 11 || t == 23 || t == 24 || t == 36 || pet) {
-            return it; // giữ nguyên: món nào gán sẵn dòng 30 (item_template_option) thì vẫn hiện
-        }
         if (id == 457 || id == 2032 || (id >= 14 && id <= 20) || t == 9 || t == 10 || t == 34 || it.getOptionById(30) != null) {
             return it;
         }

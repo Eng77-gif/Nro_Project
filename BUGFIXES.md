@@ -1706,4 +1706,5 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Bot:** bỏ bot giả lập (chỉ còn tài khoản bot chơi thật); tạo tới 1.000 bot một lần (panel / menu admin), tên ngẫu nhiên như người chơi (hunter2k5, gauconboy, kazephu2k6...); bot vào game 20 con / 30 giây.
 - **Panel Bot mới:** ô tổng hợp (tổng, đang chơi, chờ, đã tắt, tổng sức mạnh, số bang), biểu đồ đang làm gì, tìm / lọc / sắp xếp, thanh sức mạnh, bật / tắt tất cả, tự làm mới 10 giây.
 - **Menu Bot trong game** (công cụ admin → Bot): xem tổng hợp, tạo bot (1 - 1000), bật / tắt tất cả, tới chỗ 1 bot đang chơi.
-- **"Không giao dịch" trên CT / đeo lưng / ván bay / danh hiệu / pet:** không tự thêm; món nào gán sẵn dòng này trong dữ liệu (item_template_option, vd Cánh thiên sứ hắc ám, Lưỡi hái hồng, CT Janemba) thì vẫn hiện, cả trong shop lẫn khi nhận.
+- **"Không giao dịch" mặc định cho mọi đồ sự kiện**, kể cả CT, đeo lưng, pet, ván bay, bóng mờ, danh hiệu (trừ tiền tệ: vàng, thỏi vàng, ngọc rồng), cả trong shop lẫn khi nhận.
+- **Chợ đồ sự kiện tách riêng:** NPC Panchy ở Siêu thị (cạnh Cửa hàng ký gửi) chỉ ký gửi / mua bán nguyên liệu sự kiện; Cửa hàng ký gửi thường không còn nhận / hiện đồ sự kiện.

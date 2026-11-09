@@ -120,7 +120,7 @@ public class NpcFactory {
                     new TruongLaoGuru(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.VUA_VEGETA ->
                     new VuaVegeta(mapId, status, cx, cy, tempId, avatar);
-                case ConstNpc.CUA_HANG_KY_GUI ->
+                case ConstNpc.CUA_HANG_KY_GUI, ConstNpc.KY_GUI_SU_KIEN ->
                     new KyGui(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.ONG_GOHAN ->
                     new OngGohan(mapId, status, cx, cy, tempId, avatar);

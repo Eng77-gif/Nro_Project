@@ -97,6 +97,7 @@ public class Player implements Runnable {
     public boolean haveTennisSpaceShip;
     public Badges badges;
     public boolean isBot;
+    public boolean kyGuiEvent; // đang mở chợ đồ sự kiện (NPC KY_GUI_SU_KIEN) thay vì cửa hàng ký gửi thường
     public PlayerEvent event;
     public boolean isCopy;
     public int point_sukien;
