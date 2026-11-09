@@ -110,7 +110,9 @@ public class BotClan {
             }
             ClanMember lead = c.getLeader();
             if (lead != null && BotWorld.gI().find(lead.id) != null) {
-                botLed.add(c);
+                if (b.nPoint.power >= ClanService.BOT_CLAN_MIN_POWER) {
+                    botLed.add(c); // chưa đủ sức mạnh thì bang chủ bot sẽ từ chối, khỏi xin
+                }
             } else if (lead != null && lead.id > 0 && nro.models.server.Client.gI().getPlayer(lead.id) != null) {
                 others.add(c); // bang của người chơi thật: chỉ xin khi bang chủ đang online (có người duyệt)
             }

@@ -98,7 +98,7 @@ public class FriendAndEnemyService {
     private void reloadFriend(Player player) {
         for (Friend f : player.friends) {
             Player pl = null;
-            if ((pl = Client.gI().getPlayerByUser(f.id)) != null || (pl = Client.gI().getPlayer(f.name)) != null) {
+            if ((pl = Client.gI().getPlayerByUser(f.id)) != null || (pl = Client.gI().getPlayer(f.name)) != null || (pl = online(f.id)) != null) {
                 try {
                     f.power = pl.nPoint.power;
                     f.head = pl.getHead();
@@ -117,7 +117,7 @@ public class FriendAndEnemyService {
     private void reloadEnemy(Player player) {
         for (Enemy e : player.enemies) {
             Player pl = null;
-            if ((pl = Client.gI().getPlayerByUser(e.id)) != null || (pl = Client.gI().getPlayer(e.name)) != null) {
+            if ((pl = Client.gI().getPlayerByUser(e.id)) != null || (pl = Client.gI().getPlayer(e.name)) != null || (pl = online(e.id)) != null) {
                 try {
                     e.power = pl.nPoint.power;
                     e.head = pl.getHead();
@@ -148,7 +148,7 @@ public class FriendAndEnemyService {
                 msg.writer().writeShort(f.leg);
                 msg.writeDual(f.bag, 1, f.bag, 2); // J2ME: short
                 msg.writer().writeUTF(f.name);
-                msg.writer().writeBoolean(Client.gI().getPlayer((int) f.id) != null);
+                msg.writer().writeBoolean(online((int) f.id) != null);
                 msg.writer().writeUTF(Util.numberToMoney(f.power));
             }
             player.sendMessage(msg);
@@ -174,13 +174,19 @@ public class FriendAndEnemyService {
                 msg.writer().writeShort(e.bag);
                 msg.writer().writeUTF(e.name);
                 msg.writer().writeUTF(Util.numberToMoney(e.power));
-                msg.writer().writeBoolean(Client.gI().getPlayer((int) e.id) != null);
+                msg.writer().writeBoolean(online((int) e.id) != null);
             }
             player.sendMessage(msg);
             msg.cleanup();
         } catch (Exception e) {
             Logger.logException(FriendAndEnemyService.class, e);
         }
+    }
+
+    /** Người chơi đang online, kể cả tài khoản bot (bot không nằm trong danh sách phiên của Client). */
+    private static Player online(int playerId) {
+        Player pl = Client.gI().getPlayer(playerId);
+        return pl != null ? pl : nro.models.Bot.BotWorld.gI().find(playerId);
     }
 
     private void makeFriend(Player player, int playerId) {
@@ -193,7 +199,7 @@ public class FriendAndEnemyService {
             }
         }
         if (!madeFriend) {
-            Player pl = Client.gI().getPlayer(playerId);
+            Player pl = online(playerId);
             if (pl != null) {
                 String npcSay;
                 if (player.friends.size() >= 5) {
@@ -242,7 +248,7 @@ public class FriendAndEnemyService {
             try {
                 int playerId = msg.reader().readInt();
                 String text = msg.reader().readUTF();
-                Player pl = Client.gI().getPlayer(playerId);
+                Player pl = online(playerId);
                 if (pl != null) {
                     Service.gI().chatPrivate(player, pl, text);
                 }
@@ -252,7 +258,7 @@ public class FriendAndEnemyService {
     }
 
     public void acceptMakeFriend(Player player, int playerId) {
-        Player pl = Client.gI().getPlayer(playerId);
+        Player pl = online(playerId);
         if (pl != null) {
             Friend friend = new Friend();
             friend.id = (int) pl.id;
@@ -273,7 +279,7 @@ public class FriendAndEnemyService {
     public void goToPlayerWithYardrat(Player player, Message msg) {
         try {
             int playerId = msg.reader().readInt();
-            Player pl = Client.gI().getPlayer(playerId);
+            Player pl = online(playerId);
             if (pl != null) {
                 if (player.isAdmin() || player.nPoint.teleport) {
                     if (!pl.itemTime.isUseAnDanh || player.isAdmin()) {

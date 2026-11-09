@@ -24,7 +24,7 @@ public class TrongTai extends Npc {
                 String ticketMsg = player.superRank.ticket > 0 ? "Miễn phí\nCòn " + player.superRank.ticket + " vé" : "Thi đấu";
                 createOtherMenu(player, ConstNpc.BASE_MENU,
                         "Đại hội võ thuật Siêu Hạng\ndiễn ra 24/7 kể cả ngày lễ và chủ nhật\nHãy thi đấu ngay để khẳng định đẳng cấp của mình nhé",
-                        "Top 100\nCao Thủ", "Hướng\ndẫn\nthêm", ticketMsg, "Ưu tiên\nđấu ngay", "Về\nĐại Hội\nVõ Thuật");
+                        "Hướng\ndẫn\nthêm", ticketMsg, "Ưu tiên\nđấu ngay", "Về\nĐại Hội\nVõ Thuật");
             }
         } else {
             super.openBaseMenu(player);
@@ -44,11 +44,10 @@ public class TrongTai extends Npc {
             }
 
             switch (select) {
-                case 0 -> SuperRankService.gI().topList(player, 0);
-                case 1 -> NpcService.gI().createTutorial(player, tempId, avartar, ConstNpc.THONG_TIN_SIEU_HANG);
-                case 2 -> SuperRankService.gI().topList(player, 1);
-                case 3 -> SuperRankService.gI().topList(player, 2);
-                case 4 -> ChangeMapService.gI().changeMapNonSpaceship(player, 52, player.location.x, 336);
+                case 0 -> NpcService.gI().createTutorial(player, tempId, avartar, ConstNpc.THONG_TIN_SIEU_HANG);
+                case 1 -> SuperRankService.gI().topList(player, 1);
+                case 2 -> SuperRankService.gI().topList(player, 2);
+                case 3 -> ChangeMapService.gI().changeMapNonSpaceship(player, 52, player.location.x, 336);
             }
         }
     }

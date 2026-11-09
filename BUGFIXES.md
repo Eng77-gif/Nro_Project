@@ -1747,6 +1747,11 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Tách tài khoản bot / người thật:** trang Tài khoản có lọc Loại tài khoản (mặc định tài khoản thật) và cột Loại; Tổng quan ghi rõ người thật / bot cho Tổng tài khoản, Tổng nhân vật và thêm 2 thẻ **Bot online**, **Tổng tài khoản bot**.
 - **Xoá hết tài khoản bot** (panel → Bot, gõ `XOA HET` để xác nhận): bot thoát game, xoá nhân vật + tài khoản; bang do bot làm chủ nhường cho người thật (ưu tiên phó bang), bang chỉ còn bot thì giải tán.
 - **Tên bot đậm chất Ngọc Rồng:** ghép nhân vật / chiêu / hành tinh / vật phẩm với dạng biến hình, vd `gokussj3`, `vegetablue`, `hacgoku`, `kamejoko88`, `ngocrong4sao`, `picolonamec`, `xaydavip`.
+- **Bang hội:** tin "Từ chối … vào bang" ghi đúng tên người xin (trước ghi nhầm tên bang chủ nên trông như bang chủ tự từ chối mình); bot chưa đủ 1,5 triệu sức mạnh không xin vào bang do bot làm chủ nữa (chắc chắn bị từ chối).
+- **Nhiệm vụ hằng ngày (Bò Mộng)** theo mẫu: "Bạn còn lại N nhiệm vụ chưa nhận / Phần thưởng sẽ tương xứng tùy vào từng nhiệm vụ / Bạn muốn chọn nhiệm vụ khó hay dễ ?" với Siêu khó (1.000 - 3.000 ngọc) / Khó / Dễ / Từ chối.
+- **Siêu hạng:** bỏ nút Top 100 Cao Thủ ở Trọng tài.
+- **Kết bạn với tài khoản bot** (trước báo không tìm thấy vì bot không nằm trong danh sách phiên); danh sách bạn hiện bot đang online.
+- **Panel:** kho đồ (đang mặc / hành trang / rương) hiện dạng danh sách gọn, không còn chồng lên nhau trên điện thoại.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

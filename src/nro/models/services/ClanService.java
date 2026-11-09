@@ -460,13 +460,14 @@ public class ClanService {
             ClanMessage cmg = clan.getClanMessage(clanMessageId);
             if (cmg != null) {
                 Player newMember = Client.gI().getPlayer(cmg.playerId);
+                String askerName = cmg.playerName; // giữ tên người xin trước khi ghi tên bang chủ vào tin
                 cmg.type = 0;
                 cmg.role = Clan.LEADER;
                 cmg.playerId = (int) player.id;
                 cmg.playerName = player.name;
                 cmg.isNewMessage = 0;
                 cmg.color = ClanMessage.RED;
-                cmg.text = "Từ chối " + cmg.playerName + " vào bang.";
+                cmg.text = "Từ chối " + askerName + " vào bang.";
                 if (newMember != null) {
                     if (newMember.clan != null) {
                         cmg.text = newMember.name + " đã vào bang nào khác.";
@@ -579,6 +580,8 @@ public class ClanService {
         acceptJoinClan(bot, clanId);
     }
 
+    public static final long BOT_CLAN_MIN_POWER = 1_500_000;
+
     /** Bot làm bang chủ: duyệt các đơn xin vào bang (người chơi hay bot đều như nhau), bang đầy thì từ chối. */
     public void botHandleAsks(Player leader) {
         Clan clan = leader.clan;
@@ -587,7 +590,7 @@ public class ClanService {
         }
         for (ClanMessage c : new java.util.ArrayList<>(clan.getCurrClanMessages())) {
             if (c.type == 2 && c.role == -1) {
-                if (clan.getCurrMembers() < clan.maxMember && c.playerPower >= 1_500_000) {
+                if (clan.getCurrMembers() < clan.maxMember && c.playerPower >= BOT_CLAN_MIN_POWER) {
                     acceptAskJoinClan(leader, c.id);
                 } else {
                     cancelAskJoinClan(leader, c.id);

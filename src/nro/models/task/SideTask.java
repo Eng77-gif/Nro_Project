@@ -81,7 +81,7 @@ public class SideTask {
             case ConstTask.HARD:
                 return "khó";
             case ConstTask.VERY_HARD:
-                return "cực khó";
+                return "siêu khó";
             case ConstTask.HELL:
                 return "địa ngục";
             default:
