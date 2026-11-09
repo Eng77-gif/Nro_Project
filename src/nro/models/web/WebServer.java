@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -107,6 +108,8 @@ public class WebServer {
                 PanelServer.serveIcon(ex, path.substring(6));
             } else if (path.equals("/callback/card")) {
                 cardCallback(ex);
+            } else if (path.equals("/callback/sepay")) {
+                sepayCallback(ex);
             } else {
                 File f = new File("data/web/index.html");
                 if (!f.exists()) {
@@ -155,7 +158,7 @@ public class WebServer {
                 b = m;
             }
         }
-        String ip = ex.getRemoteAddress().getAddress().getHostAddress();
+        String ip = clientIp(ex);
         Session s = session(ex);
         Object res = switch (route) {
             case "status" -> status();
@@ -180,6 +183,55 @@ public class WebServer {
             default -> throw new ApiError(404, "Không có chức năng này");
         };
         send(ex, 200, res);
+    }
+
+    // ------------------------------------------------------------------ Cloudflare
+
+    /** Dải IP của Cloudflare (https://www.cloudflare.com/ips/). */
+    private static final String[] CF_RANGES = {"173.245.48.0/20", "103.21.244.0/22", "103.22.200.0/22", "103.31.4.0/22", "141.101.64.0/18",
+        "108.162.192.0/18", "190.93.240.0/20", "188.114.96.0/20", "197.234.240.0/22", "198.41.128.0/17", "162.158.0.0/15", "104.16.0.0/13",
+        "104.24.0.0/14", "172.64.0.0/13", "131.0.72.0/22", "2400:cb00::/32", "2606:4700::/32", "2803:f800::/32", "2405:b500::/32",
+        "2405:8100::/32", "2a06:98c0::/29", "2c0f:f248::/32"};
+
+    /**
+     * IP thật của người chơi. Khi web.cloudflare=true và yêu cầu đến từ Cloudflare (proxy DNS) hoặc từ chính máy chủ (Cloudflare
+     * Tunnel / cloudflared chạy trên VPS) thì lấy theo header CF-Connecting-IP; nguồn khác không được tin header này (chống giả IP).
+     */
+    String clientIp(HttpExchange ex) {
+        java.net.InetAddress remote = ex.getRemoteAddress().getAddress();
+        String cf = ex.getRequestHeaders().getFirst("CF-Connecting-IP");
+        if (cf != null && "true".equalsIgnoreCase(conf("web.cloudflare")) && (remote.isLoopbackAddress() || fromCloudflare(remote))) {
+            return cf.trim();
+        }
+        return remote.getHostAddress();
+    }
+
+    static boolean fromCloudflare(java.net.InetAddress a) {
+        byte[] ip = a.getAddress();
+        for (String c : CF_RANGES) {
+            try {
+                String[] p = c.split("/");
+                byte[] net = java.net.InetAddress.getByName(p[0]).getAddress();
+                if (net.length != ip.length) {
+                    continue;
+                }
+                int bits = Integer.parseInt(p[1]), i = 0;
+                for (; bits >= 8; bits -= 8, i++) {
+                    if (ip[i] != net[i]) {
+                        break;
+                    }
+                }
+                if (bits >= 8) {
+                    continue; // khác ở byte nguyên
+                }
+                int mask = bits == 0 ? 0 : (0xFF << (8 - bits)) & 0xFF;
+                if (i >= ip.length || (ip[i] & mask) == (net[i] & mask)) {
+                    return true;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return false;
     }
 
     private Session session(HttpExchange ex) {
@@ -506,6 +558,63 @@ public class WebServer {
             PanelApi.update("update web_topup set status = 2, note = ?, updated_at = now() where id = ? and status = 0", "Thẻ lỗi: " + str(q.get("message")), id);
         }
         send(ex, 200, Map.of("ok", true));
+    }
+
+    private static final java.util.regex.Pattern NAP_CODE = java.util.regex.Pattern.compile("NAP\\s*(\\d{1,9})", java.util.regex.Pattern.CASE_INSENSITIVE);
+
+    /**
+     * Webhook SePay (web.sepay.apikey; ở SePay chọn chứng thực "API Key", gửi header "Authorization: Apikey <key>"): mỗi giao dịch
+     * tiền vào có nội dung "NAP<mã>" thì tự duyệt yêu cầu nạp chuyển khoản đó theo số tiền thật nhận được. Mọi giao dịch được lưu ở
+     * web_bank_txn theo mã giao dịch SePay để gửi lại nhiều lần cũng chỉ cộng 1 lần; giao dịch không khớp để admin xem trên panel.
+     */
+    private void sepayCallback(HttpExchange ex) throws Exception {
+        String key = conf("web.sepay.apikey"), auth = Objects.toString(ex.getRequestHeaders().getFirst("Authorization"), "").trim();
+        String given = auth.toLowerCase().startsWith("apikey ") ? auth.substring(7).trim() : auth;
+        if (key.isEmpty() || !"POST".equals(ex.getRequestMethod())
+                || !MessageDigest.isEqual(key.getBytes(StandardCharsets.UTF_8), given.getBytes(StandardCharsets.UTF_8))) {
+            send(ex, 401, Map.of("success", false, "message", "sai API key"));
+            return;
+        }
+        Map<String, Object> t = GSON.fromJson(new String(ex.getRequestBody().readNBytes(32_000), StandardCharsets.UTF_8), new TypeToken<Map<String, Object>>() {
+        }.getType());
+        if (t == null || t.get("id") == null) {
+            send(ex, 400, Map.of("success", false, "message", "thiếu dữ liệu"));
+            return;
+        }
+        long txId = (long) Double.parseDouble(str(t.get("id")));
+        String content = (str(t.get("content")) + " " + str(t.get("code")) + " " + str(t.get("description"))).trim();
+        long amount = (long) Double.parseDouble(str(t.get("transferAmount")).isEmpty() ? "0" : str(t.get("transferAmount")));
+        boolean in = !"out".equalsIgnoreCase(str(t.get("transferType")));
+        try {
+            PanelApi.update("insert into web_bank_txn (sepay_id, gateway, account_number, amount, content, transfer_type, reference_code, txn_time) values (?, ?, ?, ?, ?, ?, ?, ?)",
+                    txId, str(t.get("gateway")), str(t.get("accountNumber")), amount, content.length() > 500 ? content.substring(0, 500) : content,
+                    str(t.get("transferType")), str(t.get("referenceCode")), str(t.get("transactionDate")));
+        } catch (java.sql.SQLException dup) {
+            if (dup.getErrorCode() != 1062 && !(dup instanceof java.sql.SQLIntegrityConstraintViolationException)) {
+                throw dup;
+            }
+            send(ex, 200, Map.of("success", true, "message", "đã xử lý trước đó")); // SePay gửi lại giao dịch đã nhận
+            return;
+        }
+        String result = "Không có mã NAP trong nội dung";
+        java.util.regex.Matcher m = NAP_CODE.matcher(content);
+        if (in && amount > 0 && m.find()) {
+            int id = Integer.parseInt(m.group(1));
+            List<Map<String, Object>> r = PanelApi.rows("select amount, status, method from web_topup where id = ?", id);
+            if (r.isEmpty() || !"bank".equals(r.get(0).get("method"))) {
+                result = "Không có yêu cầu nạp NAP" + id;
+            } else if (intv(r.get(0).get("status")) != 0) {
+                result = "Yêu cầu NAP" + id + " đã được xử lý trước đó";
+            } else if (approve(id, (int) Math.min(amount, Integer.MAX_VALUE), "SePay tự duyệt (giao dịch " + txId + ")"
+                    + (amount != intv(r.get(0).get("amount")) ? ", chuyển " + amount + "đ khác số tiền yêu cầu" : ""))) {
+                result = "OK";
+                PanelApi.update("update web_bank_txn set topup_id = ? where sepay_id = ?", id, txId);
+            }
+        } else if (!in) {
+            result = "Giao dịch tiền ra";
+        }
+        PanelApi.update("update web_bank_txn set result = ? where sepay_id = ?", result, txId);
+        send(ex, 200, Map.of("success", true, "message", result));
     }
 
     /** Thẻ đúng (1) hoặc sai mệnh giá (2): cộng theo mệnh giá thật nhân tỉ lệ web.card.rate %. */

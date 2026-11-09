@@ -504,7 +504,12 @@ async function page_webtopup(){$('#main').innerHTML='<h2>Nạp qua web</h2><div 
   lpBox('wt',{path:'web/topups/page',label:'Tài khoản, nội dung, seri',filters:[{k:'status',label:'Trạng thái',opts:[['','Tất cả'],['0','Đang chờ'],['1','Thành công'],['2','Thất bại']]},{k:'method',label:'Cách nạp',opts:[['','Tất cả'],['bank','Chuyển khoản'],['card','Thẻ cào']]}],
   cols:[['id','Mã'],['created_at','Lúc','','mute'],['username','Tài khoản'],['method','Cách',(v,x)=>v==='bank'?'🏦 Chuyển khoản':'💳 '+esc(x.telco)],['amount','Số tiền',(v,x)=>fmt(v)+'đ'+(x.status===1&&x.credited!==v?`<div class="mute" style="font-size:12px">cộng ${fmt(x.credited)}đ</div>`:'')],
    ['serial','Seri / mã thẻ',(v,x)=>x.method==='card'?`<code>${esc(v)}</code><br><code>${esc(x.code)}</code>`:'—'],['note','Ghi chú','','w'],['status','Trạng thái',v=>`<span class="tag" style="border-color:${TSC[v]};color:${TSC[v]}">${TS[v]}</span>`]],
-  actions:x=>x.status===0?`<button class="s p" onclick="topApprove(${Number(x.id)},${Number(x.amount)})">Duyệt</button> <button class="s d" onclick="topReject(${Number(x.id)})">Từ chối</button>`:''});await lpInit('wt')}
+  actions:x=>x.status===0?`<button class="s p" onclick="topApprove(${Number(x.id)},${Number(x.amount)})">Duyệt</button> <button class="s d" onclick="topReject(${Number(x.id)})">Từ chối</button>`:''})+
+  '<h3 style="margin-top:22px">Giao dịch ngân hàng từ SePay</h3><div class="card mute">Tiền vào có nội dung NAP&lt;mã&gt; được tự duyệt. Giao dịch không khớp (ghi sai nội dung, yêu cầu đã duyệt…) xem ở đây rồi duyệt tay yêu cầu tương ứng phía trên.</div>'+
+  lpBox('wb',{path:'web/banktxn/page',label:'Nội dung, mã tham chiếu',filters:[{k:'unmatched',label:'Lọc',opts:[['','Tất cả'],['1','Chưa khớp yêu cầu nạp']]}],
+   cols:[['txn_time','Lúc','','mute'],['gateway','Ngân hàng'],['amount','Số tiền',(v,x)=>(x.transfer_type==='out'?'-':'+')+fmt(v)+'đ'],['content','Nội dung','','w'],['reference_code','Mã tham chiếu'],
+    ['topup_id','Yêu cầu',v=>v?'NAP'+Number(v):'—'],['result','Kết quả',v=>v==='OK'?'<span class="tag on1">Đã cộng</span>':`<span class="mute">${esc(v||'')}</span>`]]});
+  await lpInit('wt');await lpInit('wb')}
 async function topApprove(id,amount){const v=prompt('Số tiền cộng cho yêu cầu #'+id+' (đ):',amount);if(v===null)return;if(await act(()=>api('web/topup/approve',{id,amount:+v})))lpLoad('wt')}
 async function topReject(id){const n=prompt('Lý do từ chối yêu cầu #'+id+':','Không tìm thấy giao dịch');if(n===null)return;if(await act(()=>api('web/topup/reject',{id,note:n})))lpLoad('wt')}
 async function page_napthe(){$('#main').innerHTML='<h2>Lịch sử nạp thẻ</h2>'+table(await api('napthe'))}

@@ -210,6 +210,9 @@ public class PanelApi {
             case "web/post/pin" -> Map.of("ok", update("update web_post set pinned=1-pinned where id=?", lng(b.get("id"))) > 0, "note", "Đã đổi ghim");
             case "web/post/delete" -> webPostDelete(b);
             case "web/topups/page" -> webTopups(q);
+            case "web/banktxn/page" -> paged(q, "select id, sepay_id, gateway, account_number, amount, content, transfer_type, reference_code, txn_time, topup_id, result",
+                    "from web_bank_txn where (content like ? escape '!' or ifnull(reference_code,'') like ? escape '!')" + ("1".equals(q.get("unmatched")) ? " and topup_id is null" : ""),
+                    "id desc", like(q), like(q));
             case "web/topup/approve" -> webTopupApprove(b);
             case "web/topup/reject" -> Map.of("ok", update("update web_topup set status=2, note=?, updated_at=now() where id=? and status=0", str(b.getOrDefault("note", "Admin từ chối")), lng(b.get("id"))) > 0, "note", "Đã từ chối");
             case "nrsd/summary" -> nrsdSummary();

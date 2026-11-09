@@ -1804,6 +1804,9 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - Diễn đàn công khai (đăng bài, bình luận); Tố cáo (tên nhân vật bị tố cáo), Báo lỗi, Góp ý là phiếu riêng, chỉ người gửi và admin xem, có trạng thái Mới gửi / Đang xử lý / Đã xử lý / Từ chối. Chống spam: 1 bài / 30 giây mỗi mục, 1 bình luận / 10 giây.
   - Nạp ngọc: chuyển khoản QR VietQR (`web.bank.code/account/owner`, nội dung `NAP<mã> <tài khoản>`) và thẻ cào (`web.card.*`, giao thức chargingws/v2 của thesieure / cardvip..., callback `/callback/card` kiểm tra chữ ký; chưa cấu hình cổng thì admin tự kiểm tra thẻ). Tiền cộng vào số dư `vnd` + `tongnap`, người đang online thấy ngay, đổi ra ngọc ở NPC như trước. Mỗi yêu cầu chỉ cộng 1 lần.
   - Panel → Người chơi → **Diễn đàn & hỗ trợ** (trả lời với tư cách Ban quản trị, đổi trạng thái, ghim, xoá) và **Nạp qua web** (duyệt / từ chối, sửa số tiền khi duyệt). Bảng mới: `web_post`, `web_reply`, `web_topup` (Đợt 112).
+- **Web người chơi gắn Cloudflare + SePay** (hướng dẫn từng bước: `docs/HUONG_DAN_WEB_CLOUDFLARE_SEPAY.md`):
+  - Cloudflare: `web.cloudflare=true` lấy IP thật của người chơi từ `CF-Connecting-IP`, chỉ tin header khi yêu cầu đến từ dải IP Cloudflare hoặc từ chính máy (Cloudflare Tunnel), nên chống spam / khoá đăng nhập theo đúng người. `web.host=127.0.0.1` khi dùng Tunnel để không lộ cổng 8080.
+  - SePay: webhook `/callback/sepay` (chứng thực `Authorization: Apikey <web.sepay.apikey>`). Tiền vào có `NAP<mã>` trong nội dung thì tự duyệt yêu cầu nạp, cộng theo số tiền thật nhận. Mọi giao dịch lưu ở `web_bank_txn` (Đợt 113) theo mã giao dịch SePay nên gửi lại không cộng trùng. Giao dịch không khớp (sai nội dung, chuyển 2 lần) hiện ở panel → Nạp qua web → "Giao dịch ngân hàng từ SePay".
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
