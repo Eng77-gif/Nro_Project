@@ -32,9 +32,9 @@ public class Bot extends Player {
 
     private Player plAttack;
 
-    private int[] TraiDat = new int[]{1, 2, 3, 4, 6, 29, 30, 28, 27, 42, 110, 103, 106, 105, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74 ,75 ,76, 77, 78, 79, 80, 81, 82, 83, 92, 93, 94, 95, 96, 97, 98, 99, 100, 107, 108, 109};
+    private int[] TraiDat = new int[]{1, 2, 3, 4, 6, 29, 30, 28, 27, 110, 103, 106, 105, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74 ,75 ,76, 77, 78, 79, 80, 81, 82, 83, 92, 93, 94, 95, 96, 97, 98, 99, 100, 107, 108, 109};
     private int[] Namec = new int[]{8, 9, 10, 11, 12, 13, 33, 34, 32, 31, 110, 103, 106, 105, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74 ,75 ,76, 77, 78, 79, 80, 81, 82, 83, 92, 93, 94, 95, 96, 97, 98, 99, 100, 107, 108, 109};
-    private int[] XayDa = new int[]{15, 16, 17, 18, 19, 20, 37, 36, 35, 44, 52, 110, 106, 105, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74 ,75 ,76, 77, 78, 79, 80, 81, 82, 83, 92, 93, 94, 95, 96, 97, 98, 99, 100, 107, 108, 109};
+    private int[] XayDa = new int[]{15, 16, 17, 18, 19, 20, 37, 36, 35, 110, 106, 105, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74 ,75 ,76, 77, 78, 79, 80, 81, 82, 83, 92, 93, 94, 95, 96, 97, 98, 99, 100, 107, 108, 109};
     Player player;
 
     public Bot(short head, short body, short leg, int type, String name, BotGiaoDich shop, short flag) {
@@ -90,6 +90,12 @@ public class Bot extends Player {
     }
 
     private int learnMap = -1, learnDeaths, deathTotal;
+    int brainAction = -1, brainTier, brainDeaths; // lượt đang chạy của BotBrain
+    long brainPower, brainAt;
+
+    int deaths() {
+        return deathTotal;
+    }
     private long learnPower, learnSince;
 
     private int pickTierMap() {
@@ -110,8 +116,9 @@ public class Bot extends Player {
         int mapId = 21;
         if (power < 100000000 && this.accountBot) {
             // tài khoản bot: dưới 100 triệu chỉ luyện ở các map của hành tinh mình như người mới chơi
-            int[] home = this.gender == 0 ? new int[]{1, 2, 3, 4, 6, 29, 30, 28, 27, 42}
-                    : this.gender == 1 ? new int[]{8, 9, 10, 11, 12, 13, 33, 34, 32, 31} : new int[]{15, 16, 17, 18, 19, 20, 37, 36, 35, 44, 52};
+            // không có Vách núi 42 - 44 (máy đo sức mạnh) và Đại hội võ thuật 52: không phải chỗ luyện tập
+            int[] home = this.gender == 0 ? new int[]{1, 2, 3, 4, 6, 29, 30, 28, 27}
+                    : this.gender == 1 ? new int[]{8, 9, 10, 11, 12, 13, 33, 34, 32, 31} : new int[]{15, 16, 17, 18, 19, 20, 37, 36, 35};
             int lim = power < 2_000_000 ? Math.min(5, home.length) : home.length;
             mapId = home[random.nextInt(lim)];
         } else if (power < 100000000) {
@@ -361,25 +368,33 @@ public class Bot extends Player {
         int times = this.accountBot && this.nPoint.tiemNang > 1_000_000_000L ? 30 : 1;
         boolean changed = false;
         for (int t = 0; t < times; t++) {
-            long tiemNangUse;
-            if (Util.isTrue(50, 100)) {
-                int point = 100;
-                int pointHp = point * 20;
-                tiemNangUse = point * (2 * (this.nPoint.hpg + 1000) + pointHp - 20) / 2;
-                if (!doUseTiemNang(tiemNangUse)) {
+            // như người chơi bấm cộng 10 điểm (NPoint.increasePoint): HP / KI +20 mỗi điểm, sức đánh +1 mỗi điểm; ưu tiên HP để sống được
+            int r = Util.nextInt(1, 100), point = 10;
+            if (r <= 50 || this.nPoint.hpg < this.nPoint.dameg * 10) {
+                int add = point * 20;
+                if (this.nPoint.hpg + add > this.nPoint.getHpMpLimit()
+                        || !doUseTiemNang((long) point * (2L * (this.nPoint.hpg + 1000L) + add - 20) / 2)) {
                     break;
                 }
-                this.nPoint.hpMax += point;
-                this.nPoint.hpg += point;
+                this.nPoint.hpg += add;
+            } else if (r <= 65) {
+                int add = point * 20;
+                if (this.nPoint.mpg + add > this.nPoint.getHpMpLimit()
+                        || !doUseTiemNang((long) point * (2L * (this.nPoint.mpg + 1000L) + add - 20) / 2)) {
+                    break;
+                }
+                this.nPoint.mpg += add;
             } else {
-                int point = 10;
-                tiemNangUse = (long) point * (2L * this.nPoint.dameg + point - 1) / 2 * 100;
-                if (!doUseTiemNang(tiemNangUse)) {
+                if (this.nPoint.dameg + point > this.nPoint.getDameLimit()
+                        || !doUseTiemNang((long) point * (2L * this.nPoint.dameg + point - 1) / 2 * 100)) {
                     break;
                 }
                 this.nPoint.dameg += point;
             }
             changed = true;
+        }
+        if (changed) {
+            this.nPoint.calPoint(); // HP / KI / sức đánh tối đa tính lại từ chỉ số gốc (trước đây cộng thẳng hpMax, trả giá 2.000 HP chỉ được 100)
         }
         if (changed) {
             Service.gI().point(this);

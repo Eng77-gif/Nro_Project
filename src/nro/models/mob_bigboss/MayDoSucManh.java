@@ -49,7 +49,7 @@ public class MayDoSucManh extends BigBoss {
             return;
         }
 
-        faceTo(plAtt);
+        // không gửi lệnh quay / di chuyển: client vẽ mỗi lệnh thành 1 lần máy chạy / nhảy, máy phải đứng yên một chỗ
         long hpBefore = this.point.hp;
         super.injured(plAtt, damage, dieWhenHpFull);
         long hpAfter = Math.max(this.point.hp, 0);
@@ -57,43 +57,6 @@ public class MayDoSucManh extends BigBoss {
 
         if (realDamage > 0) {
             updateMilestone(plAtt, realDamage);
-        }
-    }
-
-    private int dir = 1;
-    private int baseX = -1;
-
-    /**
-     * Máy đứng yên một chỗ; bị đấm từ phía bên kia thì quay mặt về người đấm: gửi lệnh đi (102, hành động 10) lệch 1 px về phía
-     * người đấm, client quay mặt theo hướng đi nhưng máy gần như không di chuyển.
-     */
-    private void faceTo(Player pl) {
-        if (baseX < 0) {
-            baseX = this.location.x;
-        }
-        int dx = pl.location.x - baseX;
-        if (Math.abs(dx) <= 24 || this.zone == null) {
-            return; // người đấm đứng chồng lên máy: giữ hướng cũ (trước đây lệch 1 px làm máy quay qua quay lại mỗi đòn)
-        }
-        int want = dx < 0 ? -1 : 1;
-        if (want == dir) {
-            return;
-        }
-        dir = want;
-        this.location.x = baseX + want; // luôn tính từ chỗ gốc, máy không trôi dần
-        Message msg = null;
-        try {
-            msg = new Message(102);
-            msg.writer().writeByte(10);
-            msg.writer().writeByte(this.id);
-            msg.writer().writeShort(this.location.x);
-            msg.writer().writeShort(this.location.y);
-            Service.gI().sendMessAllPlayerInMap(this.zone, msg);
-        } catch (Exception ignored) {
-        } finally {
-            if (msg != null) {
-                msg.cleanup();
-            }
         }
     }
 

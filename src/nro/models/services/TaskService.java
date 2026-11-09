@@ -1310,38 +1310,38 @@ public class TaskService {
         if (player.playerTask.sideTask.template != null) {
             if (player.playerTask.sideTask.isDone()) {
                 int goldReward = 0;
-                int gemReward = 0; // ngọc xanh: nguồn ngọc thay cho quái rơi
+                int gemReward = 0; // ngọc xanh (mở giới hạn sức mạnh bằng ngọc): dễ 100-300, bình thường 300-600, khó 600-1000, cực khó 1000-3000, địa ngục 3000-5000
                 int ngocBi = 708;
                 int cayThong = -1;
                 switch (player.playerTask.sideTask.level) {
                     case ConstTask.EASY:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_EASY;
-                        gemReward = 2;
+                        gemReward = Util.nextInt(100, 300);
                         ngocBi = 708;
                         break;
                     case ConstTask.NORMAL:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_NORMAL;
-                        gemReward = 4;
+                        gemReward = Util.nextInt(300, 600);
                         ngocBi = 707;
                         break;
                     case ConstTask.HARD:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_HARD;
-                        gemReward = 6;
+                        gemReward = Util.nextInt(600, 1000);
                         ngocBi = 706;
                         break;
                     case ConstTask.VERY_HARD:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_VERY_HARD;
-                        gemReward = 10;
+                        gemReward = Util.nextInt(1000, 3000); // cực khó
                         ngocBi = 705;
                         break;
                     case ConstTask.HELL:
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         goldReward = ConstTask.GOLD_HELL;
-                        gemReward = 15;
+                        gemReward = Util.nextInt(3000, 5000);
                         ngocBi = 704;
                         if (player.playerTask.sideTask.leftTask < 15) {
                             cayThong = 822;

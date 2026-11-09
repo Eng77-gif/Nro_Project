@@ -61,7 +61,6 @@ public class Event2026Service {
     private static final int[] TRAIL_BASE = {508, 509, 513, 514, 518, 519};
     private static final int FOOT_STEP = 8, FOOT_MAX = 36, FOOT_VARIANTS = 12; // dày hơn cho vệt liền, không khựng
     private static final long FRAME_MS = 33 * 3; // client chạy khoảng 30 nhịp / giây, mỗi bản bỏ 3 nhịp
-    private static final double LEAD_MS = 180, LEAD_MAX = 72, LEAD_SMOOTH = 0.35; // tốc độ làm mượt (trung bình trượt) cho độ đón trước không giật
 
     private static int footBase(int eff) {
         for (int k = 0; k < TRAIL_BASE.length; k++) {
@@ -88,10 +87,7 @@ public class Event2026Service {
         int base = footBase(footEffectId(pl));
         long now = System.currentTimeMillis();
         long dt = now - pl.trailLastMove;
-        if (dt > 500 || dt < 0) { // vừa đứng im rồi đi tiếp: coi như đoạn đường mới đi, bỏ tốc độ cũ
-            dt = 200;
-            pl.trailVx = pl.trailVy = 0;
-        }
+        dt = dt > 500 || dt < 0 ? 200 : dt; // vừa đứng im rồi đi tiếp: coi như đoạn đường mới đi
         pl.trailLastMove = now;
         if (base < 0) {
             return;
@@ -100,7 +96,6 @@ public class Event2026Service {
         if (len > 400 || pl.trailZone != pl.zone) { // dịch chuyển / đổi khu: chỉ đặt 1 điểm ở chỗ mới
             pl.trailZone = pl.zone;
             pl.footAcc = 0;
-            pl.trailVx = pl.trailVy = 0;
             nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, base, 2, 1, x, y, 1);
             return;
         }
@@ -118,19 +113,12 @@ public class Event2026Service {
             pts.add(new int[]{x, y, (int) Math.round(len)});
             pl.footAcc = 0;
         }
-        // gói vị trí tới server rồi lệnh vẽ về client mất ~100 - 200 ms, nhân vật đã chạy tiếp: đặt vật lên trước theo tốc độ
-        // (đón trước LEAD_MS, tối đa LEAD_MAX px) để vật rơi đúng dưới chân thay vì tụt lại sau lưng
-        pl.trailVx += (dx / dt - pl.trailVx) * LEAD_SMOOTH; // px / ms, làm mượt qua các gói vị trí
-        pl.trailVy += (dy / dt - pl.trailVy) * LEAD_SMOOTH;
-        double lx0 = pl.trailVx * LEAD_MS, ly0 = pl.trailVy * LEAD_MS, ll = Math.hypot(lx0, ly0);
-        double k = ll > LEAD_MAX ? LEAD_MAX / ll : 1;
-        int lx = (int) Math.round(lx0 * k), ly = (int) Math.round(ly0 * k);
         for (int[] p : pts) {
             long age = (long) (dt * (1 - p[2] / len)); // điểm gần chỗ cũ đã đi qua lâu hơn
             int v = (int) Math.min(FOOT_VARIANTS - 1, age / FRAME_MS);
-            int fx = p[0] + lx, fy = pl.zone.map.yPhysicInTop(p[0] + lx, p[1] + ly - 24) ; // bám mặt đất ở chỗ mới
-            if (Math.abs(fy - (p[1] + ly)) > 48) {
-                fy = p[1] + ly; // đang bay / không có đất gần: giữ độ cao của chân
+            int fx = p[0], fy = pl.zone.map.yPhysicInTop(p[0], p[1] - 24); // bám mặt đất dưới điểm đi qua
+            if (Math.abs(fy - p[1]) > 48) {
+                fy = p[1]; // đang bay / không có đất gần: giữ độ cao của chân
             }
             nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, base + v, 2, 1, fx, fy, 1);
         }

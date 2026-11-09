@@ -256,7 +256,6 @@ public class Player implements Runnable {
 
     // dữ liệu bảng player_extra
     public Item itemFoot; // ô bóng bước chân (hiện ở ô cuối của trang bị)
-    public double trailVx, trailVy; // tốc độ chạy đã làm mượt (bóng mờ đón trước)
     public int trailEff = -1; // vệt bóng mờ đang hiện (chỉ khi chạy / bay)
     public int trailDir = 1;
     public long trailLastMove;

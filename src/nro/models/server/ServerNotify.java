@@ -75,6 +75,7 @@ public class ServerNotify extends Thread {
 
     public void notify(String text) {
         this.notifies.add(text);
+        nro.models.panel.ChatLog.log(nro.models.panel.ChatLog.NOTIFY, "", text);
     }
 
      public void sendNotifyTab(Player player) {

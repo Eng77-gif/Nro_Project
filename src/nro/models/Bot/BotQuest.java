@@ -50,7 +50,10 @@ public class BotQuest {
             }
             nextStep.put(b.id, now + 15_000);
             try {
-                if (!b.itemTime.isOpenPower && b.nPoint.canOpenPower()) {
+                if (b.nPoint.canOpenPower() && b.nPoint.limitPower < nro.models.player.NPoint.MAX_LIMIT
+                        && b.inventory.gem >= nro.models.services.OpenPowerService.gemCost(b)) {
+                    nro.models.services.OpenPowerService.gI().openPowerSpeedByGem(b, b); // đủ ngọc: trả ngọc mở ngay như người chơi
+                } else if (!b.itemTime.isOpenPower && b.nPoint.canOpenPower()) {
                     nro.models.services.OpenPowerService.gI().openPowerBasic(b); // mở giới hạn sức mạnh miễn phí (chờ như người chơi)
                 }
                 learnSkills(b);

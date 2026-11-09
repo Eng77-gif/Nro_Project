@@ -34,6 +34,20 @@ public final class BotLearn {
         return v == null ? Double.MAX_VALUE : v[0];
     }
 
+    /** Các map điểm cao nhất (panel). */
+    static java.util.List<java.util.Map<String, Object>> top(int n) {
+        java.util.List<java.util.Map<String, Object>> out = new java.util.ArrayList<>();
+        SCORE.entrySet().stream().sorted((a, b) -> Double.compare(b.getValue()[0], a.getValue()[0])).limit(n).forEach(e -> {
+            nro.models.map.Map m = nro.models.map.service.MapService.gI().getMapById(e.getKey());
+            java.util.Map<String, Object> r = new java.util.LinkedHashMap<>();
+            r.put("map", m != null ? m.mapName : "Map " + e.getKey());
+            r.put("score", Math.round(e.getValue()[0]));
+            r.put("n", (int) e.getValue()[1]);
+            out.add(r);
+        });
+        return out;
+    }
+
     static void load() {
         if (loaded) {
             return;

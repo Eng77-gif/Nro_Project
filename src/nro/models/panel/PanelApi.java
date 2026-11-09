@@ -96,6 +96,20 @@ class PanelApi {
                 nro.models.Bot.BotWorld.gI().deleteBotAccount(lng(b.get("id")));
                 yield Map.of("ok", true);
             }
+            case "chatlog" -> ChatLog.list(str(q.getOrDefault("type", "")), str(q.getOrDefault("q", "")));
+            case "ai" -> nro.models.Bot.BotBrain.panel();
+            case "ai/set" -> {
+                for (String k : new String[]{"epsilon", "alpha", "enabled"}) {
+                    if (b.get(k) != null) {
+                        nro.models.Bot.BotBrain.set(k, String.valueOf(b.get(k)));
+                    }
+                }
+                yield nro.models.Bot.BotBrain.panel();
+            }
+            case "ai/reset" -> {
+                nro.models.Bot.BotBrain.reset();
+                yield nro.models.Bot.BotBrain.panel();
+            }
             case "bot/all" -> {
                 nro.models.Bot.BotWorld.gI().setAllAccountBots(lng(b.getOrDefault("on", 1)) != 0);
                 yield Map.of("ok", true);

@@ -64,8 +64,15 @@ public final class DrMyuuService {
                 && !ms.isMapCold(m) && !ms.isMapNgucTu(id) && !ms.isMapHanhTinhThucVat(id) && !ms.isMapBlackBallWar(id)
                 && !ms.isMapMaBu(id) && !ms.isMapYardart(id) && !ms.isMapCadic(id) && !ms.isMapBossFinal(id) && !ms.isMapPhoBan(id)
                 && !ms.isMapSieuThanhThuy(id) && !ms.isMapRiengTu(id) && !ms.isMapHuyDiet(id) && !ms.isMapNguHanhSon(id)
-                && !ms.isMapLuyenTap(id) && !ms.isMapMabu2H(id) && !ms.isMapUpPorata(id) && id != 24 && id != 25 && id != 26;
+                && !ms.isMapLuyenTap(id) && !ms.isMapMabu2H(id) && !ms.isMapUpPorata(id) && !SPECIAL.contains(id)
+                && m.zones.get(0).mobs.stream().anyMatch(x -> x.tempId != nro.models.consts.ConstMob.MAY_DO_SUC_MANH); // map có quái thường
     }
+
+    /** Map đặc biệt không cho Dr. Myuu đứng: trạm tàu, Vách núi (máy đo sức mạnh, Bà Hạt Mít), Đại hội võ thuật, các võ đài,
+     *  đấu trường, doanh trại, thánh địa, Siêu thị, lãnh địa bang. */
+    private static final java.util.Set<Integer> SPECIAL = java.util.Set.of(24, 25, 26, 39, 40, 41, 42, 43, 44, 45, 46, 49, 50, 51, 52,
+            53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 84, 103, 104, 112, 113, 115, 116, 120, 129, 145, 153, 156, 157, 158, 159);
+
 
     public synchronized void move() {
         if (wander != null) {

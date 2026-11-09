@@ -38,6 +38,7 @@
 - Lập và vào bang hội, đi doanh trại, ký gửi, giao dịch
 - Học chiêu, ép sao theo lối chơi, tự rút kinh nghiệm chọn map
 - Chơi theo ca (online / offline), trả lời khi người chơi gọi tên
+- **AI tự học** (tự viết, không dùng model ngoài): học tăng cường chọn việc theo sức, xem và chỉnh ở panel
 
 </td>
 </tr>

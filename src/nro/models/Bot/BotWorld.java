@@ -61,6 +61,7 @@ public final class BotWorld {
                     + " tiem_nang bigint not null, hpg bigint not null, mpg bigint not null, dameg bigint not null)");
             st.executeUpdate("create table if not exists bot_setting (k varchar(32) primary key, v varchar(64) not null)");
             BotLearn.load();
+            BotBrain.load();
             st.executeUpdate("create table if not exists bot_account (player_id bigint primary key, account_id int not null default 0)");
             // tài khoản bot riêng (tạo trên panel, không ai đăng nhập được) + bật/tắt
             st.executeUpdate("alter table bot_account add column if not exists dedicated tinyint not null default 0");
@@ -618,32 +619,46 @@ public final class BotWorld {
             return;
         }
         b.stayMap = false;
+        BotBrain.end(b); // chấm điểm việc vừa làm (bộ não tự học)
         if (b.accountBot && BotEndgame.pickActivity(b)) {
             return; // Hirudegarn 22h, hút Kilis, up mảnh bông tai
         }
-        int r = Util.nextInt(1, 100);
-        if (r <= 40) { // luyện tập
-            train(b);
-        } else if (r <= 55) { // săn boss
-            b.boss.prefer = null;
-            b.boss.bossAttack = null;
-            b.setMode(2);
-            b.activity = "Săn boss";
-        } else if (r <= 63) { // săn đệ: đi đánh Broly
-            b.boss.prefer = "Broly";
-            b.boss.bossAttack = null;
-            b.setMode(2);
-            b.activity = "Săn đệ (Broly)";
-        } else if (r <= 73 && nro.models.utils.TimeUtil.isBlackBallWarOpen()) { // Ngọc Rồng Sao Đen đang mở
-            goNrsd(b);
-        } else if (r <= 81 && b.accountBot) {
-            upSkh(b); // tài khoản bot đi doanh trại thật cùng bang (BotClan), lúc rảnh đi úp set kích hoạt
-        } else if (r <= 81) {
-            goAway(b, Util.isTrue(50, 100) ? "Doanh trại" : "Đại hội võ thuật");
-        } else if (r <= 90) {
-            startPk(b);
-        } else {
-            train(b);
+        boolean nrsd = nro.models.utils.TimeUtil.isBlackBallWarOpen();
+        int a = BotBrain.pick(b, new boolean[]{true, true, true, nrsd, true, true});
+        if (a < 0) { // bộ não tắt: chọn ngẫu nhiên như trước
+            int r = Util.nextInt(1, 100);
+            a = r <= 40 ? BotBrain.TRAIN : r <= 55 ? BotBrain.BOSS : r <= 63 ? BotBrain.BROLY
+                    : r <= 73 && nrsd ? BotBrain.NRSD : r <= 81 ? BotBrain.SKH : r <= 90 ? BotBrain.PK : BotBrain.TRAIN;
+        }
+        switch (a) {
+            case BotBrain.BOSS -> {
+                b.boss.prefer = null;
+                b.boss.bossAttack = null;
+                b.setMode(2);
+                b.activity = "Săn boss";
+            }
+            case BotBrain.BROLY -> { // săn đệ: đi đánh Broly
+                b.boss.prefer = "Broly";
+                b.boss.bossAttack = null;
+                b.setMode(2);
+                b.activity = "Săn đệ (Broly)";
+            }
+            case BotBrain.NRSD ->
+                goNrsd(b);
+            case BotBrain.SKH -> {
+                if (b.accountBot) {
+                    upSkh(b); // tài khoản bot đi doanh trại thật cùng bang (BotClan), lúc rảnh đi úp set kích hoạt
+                } else {
+                    goAway(b, Util.isTrue(50, 100) ? "Doanh trại" : "Đại hội võ thuật");
+                }
+            }
+            case BotBrain.PK ->
+                startPk(b);
+            default ->
+                train(b);
+        }
+        if (b.accountBot) {
+            BotBrain.begin(b, a);
         }
     }
 
@@ -945,6 +960,7 @@ public final class BotWorld {
 
     public void saveAll() {
         BotLearn.save();
+        BotBrain.save();
         for (Bot b : bots()) {
             save(b);
         }
