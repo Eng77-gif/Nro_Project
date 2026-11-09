@@ -1371,6 +1371,11 @@ public class UseItem {
         }
     }
 
+    /** Tài khoản bot dùng bình hút năng lượng đổi đệ tử 2 (cùng điều kiện như người chơi). */
+    public void botChangePet(Player bot, Item item) {
+        changePetRamdom(bot, item);
+    }
+
     private void changePetRamdom(Player player, Item item) {
         if (item.template.id != 1852) {
             Service.gI().sendThongBao(player, "Vật phẩm không hợp lệ!");

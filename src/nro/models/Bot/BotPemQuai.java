@@ -63,8 +63,8 @@ public class BotPemQuai {
             return;
         }
         Attack();
-        if (!this.bot.worldBot || !"NRSD".equals(this.bot.activity)) {
-            chanGeMap(); // đang đánh NRSD thì ở lại map NRSD
+        if ((!this.bot.worldBot || !"NRSD".equals(this.bot.activity)) && !this.bot.stayMap) {
+            chanGeMap(); // đang đánh NRSD / Hirudegarn / Kilis / Thánh địa thì ở lại map
         }
         if (this.bot.accountBot || this.bot.zone == null || !nro.models.map.service.MapService.gI().isMapBlackBallWar(this.bot.zone.map.mapId)) {
             NhatItem(); // bot giả lập không nhặt trong NRSD; tài khoản bot nhặt cả ngọc rồng sao đen như người chơi

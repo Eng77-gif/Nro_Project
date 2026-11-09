@@ -477,6 +477,10 @@ public final class BotWorld {
             train(b); // người mới: làm nhiệm vụ đầu (BotQuest) trước đã
             return;
         }
+        b.stayMap = false;
+        if (b.accountBot && BotEndgame.pickActivity(b)) {
+            return; // Hirudegarn 22h, hút Kilis, up mảnh bông tai
+        }
         int r = Util.nextInt(1, 100);
         if (r <= 40) { // luyện tập
             train(b);
@@ -517,6 +521,7 @@ public final class BotWorld {
     private void train(Bot b) {
         b.questMap = -1; // BotQuest đặt lại map / quái nhiệm vụ nếu có
         b.questMob = -1;
+        b.stayMap = false;
         b.boss.prefer = null;
         b.setMode(0);
         b.activity = "Luyện tập";

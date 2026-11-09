@@ -55,6 +55,7 @@ public class BotQuest {
                 }
                 learnSkills(b);
                 openIntrinsic(b);
+                BotEndgame.step(b);
                 wearSkh(b);
                 if ("Luyện tập".equals(b.activity) || "Làm nhiệm vụ".equals(b.activity)) {
                     quest(b);

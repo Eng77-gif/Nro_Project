@@ -53,6 +53,8 @@ public class Bot extends Player {
     public volatile int questMap = -1;
     /** Loại quái nhiệm vụ cần đánh (BotQuest), -1: đánh quái bất kỳ. */
     public volatile int questMob = -1;
+    /** Đang ở map vào qua NPC (Hirudegarn, Sa mạc hoang vu, Thánh địa): không tự đổi map / không chặn theo cổng. */
+    public volatile boolean stayMap;
 
     public int MapToPow() {
         if (this.questMap >= 0) {
@@ -103,7 +105,7 @@ public class Bot extends Player {
 
     /** Tài khoản bot chỉ vào map người chơi cùng nhiệm vụ vào được (luật ChangeMapService.checkMapCanJoin: Namếc, tương lai, Cold...). */
     public boolean canGo(int mapId) {
-        if (!this.accountBot) {
+        if (!this.accountBot || (this.stayMap && mapId == this.questMap)) {
             return true;
         }
         Map m = MapService.gI().getMapById(mapId);
