@@ -415,7 +415,10 @@ public class SkillService {
             case Skill.DEMON:
             case Skill.GALICK:
             case Skill.LIEN_HOAN:
-                if (player.zone != null && player.zone.map.mapId != 113 && plTarget != null && Util.getDistance(player, plTarget) > Skill.RANGE_ATTACK_CHIEU_DAM) {
+                // boss di chuyển / bay liên tục nên vị trí trên server lệch so với màn hình người chơi: cho thêm khoảng cách,
+                // trước đây đấm sát Black Goku / Broly vẫn bị tính xa quá 100 px nên toàn hụt
+                if (player.zone != null && player.zone.map.mapId != 113 && plTarget != null
+                        && Util.getDistance(player, plTarget) > (plTarget.isBoss ? Skill.RANGE_ATTACK_CHIEU_DAM * 2 : Skill.RANGE_ATTACK_CHIEU_DAM)) {
                     miss = true;
                 }
                 if (mobTarget != null && Util.getDistance(player, mobTarget) > Skill.RANGE_ATTACK_CHIEU_DAM) {
