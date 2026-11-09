@@ -26,6 +26,7 @@ public class AdminTools {
     public static final int MENU_EXP = 77_002;
     public static final int MENU_RELOAD = 77_003;
     public static final int MENU_EVENT = 77_004;
+    public static final int MENU_BOT = 77_005;
 
     public static final int INPUT_ANNOUNCE = 77_101;
     public static final int INPUT_MONEY = 77_102;
@@ -33,6 +34,7 @@ public class AdminTools {
     public static final int INPUT_BAN = 77_104;
     public static final int INPUT_QL_POINT = 77_105;
     public static final int INPUT_EVENT = 77_106;
+    public static final int INPUT_BOT_CREATE = 77_107;
 
     private static final int[] EXP_RATES = {1, 2, 3, 5, 10};
 
@@ -45,6 +47,12 @@ public class AdminTools {
         return instance;
     }
 
+    /** Menu bot trong game: tổng hợp, tạo bot, bật / tắt tất cả, tới chỗ 1 bot. */
+    private void showBots(Player pl) {
+        NpcService.gI().createMenuConMeo(pl, MENU_BOT, -1, "|7|Bot\n|1|" + nro.models.Bot.BotWorld.gI().summary(),
+                "Tạo bot", "Bật tất cả", "Tắt tất cả", "Tới chỗ\n1 bot", "Đóng");
+    }
+
     public void showMain(Player pl) {
         if (!pl.isAdmin()) {
             return;
@@ -52,12 +60,12 @@ public class AdminTools {
         NpcService.gI().createMenuConMeo(pl, MENU_MAIN, -1, "|7|Công cụ admin\n|1|Online: " + Client.gI().getPlayers().size()
                 + " · EXP server x" + Manager.RATE_EXP_SERVER,
                 "Thông báo\ntoàn server", "Tặng vàng\nngọc", "Hồi đầy\nHP KI", "Dịch chuyển\nmap", "Người chơi\nonline",
-                "EXP\nserver", "Nạp lại\ndữ liệu", "Khóa / mở\ntài khoản", "Tặng điểm\nQuy Lão", "Bật / tắt\nsự kiện");
+                "EXP\nserver", "Nạp lại\ndữ liệu", "Khóa / mở\ntài khoản", "Tặng điểm\nQuy Lão", "Bật / tắt\nsự kiện", "Bot");
     }
 
     /** Trả về true nếu menu thuộc công cụ admin (đã xử lý). */
     public boolean confirmMenu(Player pl, int menu, int select) {
-        if (menu != MENU_MAIN && menu != MENU_EXP && menu != MENU_RELOAD && menu != MENU_EVENT) {
+        if (menu != MENU_MAIN && menu != MENU_EXP && menu != MENU_RELOAD && menu != MENU_EVENT && menu != MENU_BOT) {
             return false;
         }
         if (!pl.isAdmin()) {
@@ -91,6 +99,7 @@ public class AdminTools {
                             "Bật / tắt\ntheo mã", "Đóng");
                     case 8 -> Input.gI().createForm(pl, INPUT_QL_POINT, "Tặng điểm Quy Lão (số âm để trừ)", new Input.SubInput("Tên người chơi", Input.ANY),
                             new Input.SubInput("Điểm sự kiện (đổi thưởng)", Input.ANY), new Input.SubInput("Điểm đua top ngọc rồng", Input.ANY));
+                    case 10 -> showBots(pl);
                     case 7 -> Input.gI().createForm(pl, INPUT_BAN, "Khóa / mở khóa tài khoản", new Input.SubInput("Tên nhân vật", Input.ANY),
                             new Input.SubInput("1 = khóa, 0 = mở", Input.NUMERIC));
                 }
@@ -103,6 +112,35 @@ public class AdminTools {
                 }
             }
             case MENU_RELOAD -> reload(pl, select);
+            case MENU_BOT -> {
+                nro.models.Bot.BotWorld w = nro.models.Bot.BotWorld.gI();
+                try {
+                    switch (select) {
+                        case 0 -> Input.gI().createForm(pl, INPUT_BOT_CREATE, "Tạo tài khoản bot (tên ngẫu nhiên)", new Input.SubInput("Số lượng (1 - 1000)", Input.NUMERIC));
+                        case 1 -> {
+                            w.setAllAccountBots(true);
+                            Service.gI().sendThongBao(pl, "Đã bật tất cả bot, vào game dần trong ít phút");
+                            log(pl, "bật tất cả bot");
+                        }
+                        case 2 -> {
+                            w.setAllAccountBots(false);
+                            Service.gI().sendThongBao(pl, "Đã tắt tất cả bot");
+                            log(pl, "tắt tất cả bot");
+                        }
+                        case 3 -> {
+                            nro.models.Bot.Bot b = w.randomOnline();
+                            if (b == null || b.zone == null) {
+                                Service.gI().sendThongBao(pl, "Chưa có bot nào đang chơi");
+                            } else {
+                                nro.models.map.service.ChangeMapService.gI().changeMap(pl, b.zone, b.location.x, b.location.y);
+                                Service.gI().sendThongBao(pl, "Tới chỗ bot " + b.name + " (" + b.activity + ")");
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    Service.gI().sendThongBao(pl, "Lỗi: " + e.getMessage());
+                }
+            }
             case MENU_EVENT -> {
                 if (select == 0) {
                     Input.gI().createForm(pl, INPUT_EVENT, "Bật / tắt sự kiện", new Input.SubInput("Mã sự kiện", Input.NUMERIC),
@@ -115,7 +153,7 @@ public class AdminTools {
 
     /** Trả về true nếu form thuộc công cụ admin (đã xử lý). */
     public boolean doInput(Player pl, int type, String[] text) {
-        if (type < INPUT_ANNOUNCE || type > INPUT_EVENT) {
+        if (type < INPUT_ANNOUNCE || type > INPUT_BOT_CREATE) {
             return false;
         }
         if (!pl.isAdmin()) {
@@ -144,6 +182,12 @@ public class AdminTools {
                     log(pl, "sự kiện " + id + " chế độ " + mode + ": " + r);
                 }
                 case INPUT_QL_POINT -> giveQlPoint(pl, text[0].trim(), num(text[1]), text.length > 2 ? num(text[2]) : 0);
+                case INPUT_BOT_CREATE -> {
+                    int n = (int) Math.max(1, Math.min(1000, num(text[0])));
+                    int ok = nro.models.Bot.BotWorld.gI().createBotAccounts(n);
+                    Service.gI().sendThongBao(pl, "Đã tạo " + ok + " tài khoản bot, vào game dần trong ít phút");
+                    log(pl, "tạo " + ok + " bot");
+                }
             }
         } catch (NumberFormatException e) {
             Service.gI().sendThongBao(pl, "Sai định dạng số");

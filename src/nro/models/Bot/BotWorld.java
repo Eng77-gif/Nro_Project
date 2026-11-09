@@ -68,7 +68,7 @@ public final class BotWorld {
             st.executeUpdate("alter table bot_account add column if not exists created bigint not null default 0");
             st.executeUpdate("delete from bot_account where dedicated = 0"); // bỏ kiểu cũ: nhân vật của người chơi thật không còn làm bot
             try (ResultSet rs = st.executeQuery("select v from bot_setting where k = 'count'")) {
-                target = rs.next() ? Integer.parseInt(rs.getString(1)) : defaultTarget;
+                target = 0; // bỏ bot giả lập: chỉ còn tài khoản bot (chơi thật)
             }
         } catch (Exception e) {
             Logger.error("Bot: không tạo được bảng bot_profile: " + e.getMessage() + "\n");
@@ -85,7 +85,7 @@ public final class BotWorld {
 
     /** Đặt số bot online (0 = tắt bot). */
     public void setTarget(int n) {
-        target = Math.max(0, Math.min(MAX_BOTS, n));
+        target = 0; // bỏ bot giả lập (chỉ còn tài khoản bot)
         try {
             LocalManager.executeUpdate("replace into bot_setting (k, v) values ('count', ?)", String.valueOf(target));
         } catch (Exception ignored) {
@@ -373,6 +373,55 @@ public final class BotWorld {
         }
     }
 
+    /** Tạo n tài khoản bot (tên ngẫu nhiên, hành tinh ngẫu nhiên, bắt đầu từ nhiệm vụ đầu). Trả về số bot tạo được. */
+    public int createBotAccounts(int n) {
+        int ok = 0;
+        for (int i = 0; i < n; i++) {
+            try {
+                createBotAccount("", -1, 0, 0);
+                ok++;
+            } catch (Exception e) {
+                Logger.error("Bot: không tạo được tài khoản bot: " + e.getMessage() + "\n");
+            }
+        }
+        return ok;
+    }
+
+    public void setAllAccountBots(boolean on) throws Exception {
+        LocalManager.executeUpdate("update bot_account set enabled = ? where dedicated = 1", on ? 1 : 0);
+        if (!on) {
+            for (Bot b : bots()) {
+                if (b.accountBot) {
+                    remove(b);
+                }
+            }
+        }
+        lastAccSync = 0;
+    }
+
+    public Bot randomOnline() {
+        List<Bot> l = new ArrayList<>(bots());
+        l.removeIf(x -> !x.accountBot || x.zone == null);
+        return l.isEmpty() ? null : l.get(rnd.nextInt(l.size()));
+    }
+
+    /** Tổng hợp cho menu bot trong game / panel: số bot đang chơi, tổng số, đang làm gì. */
+    public String summary() {
+        Map<String, Integer> act = new java.util.TreeMap<>();
+        int online = 0;
+        for (Bot b : bots()) {
+            if (b.accountBot) {
+                online++;
+                act.merge(b.activity == null || b.activity.isEmpty() ? "Luyện tập" : b.activity, 1, Integer::sum);
+            }
+        }
+        StringBuilder sb = new StringBuilder("Đang chơi: " + online + " / " + accountBots(false).size() + " tài khoản bot");
+        for (Map.Entry<String, Integer> e : act.entrySet()) {
+            sb.append("\n").append(e.getKey()).append(": ").append(e.getValue());
+        }
+        return sb.toString();
+    }
+
     /** Bật / tắt 1 tài khoản bot (tắt: bot thoát game, nhân vật vẫn giữ). */
     public void setAccountBot(long playerId, boolean on) throws Exception {
         LocalManager.executeUpdate("update bot_account set enabled = ? where player_id = ? and dedicated = 1", on ? 1 : 0, playerId);
@@ -400,8 +449,8 @@ public final class BotWorld {
         }
         int added = 0;
         for (Map.Entry<Long, Integer> e : want.entrySet()) {
-            if (added >= 5) {
-                break; // vào dần
+            if (added >= 20) {
+                break; // vào dần (20 bot / 30 giây)
             }
             long pid = e.getKey();
             if (find(pid) != null || nro.models.server.Client.gI().getPlayerByID((int) pid) != null) {
@@ -653,15 +702,20 @@ public final class BotWorld {
     }
 
     // ------------------------------------------------------------------ tạo / bỏ bot
-    private static final String[] PRE = {"tuan", "minh", "hung", "long", "nam", "duc", "khoa", "huy", "phuc", "quang", "son", "trung", "vinh", "hoang",
-        "ngoc", "linh", "lan", "mai", "thu", "trang", "an", "bao", "dat", "hieu", "kien", "loc", "tai", "tam", "thanh", "viet", "gohan", "goku",
-        "vegeta", "cadic", "songoku", "pikachu", "rong", "sayan", "kame", "broly", "zeno", "bulma", "trunks", "picolo", "xayda", "namec"};
-    private static final String[] SUF = {"pro", "vip", "99", "2k", "123", "kute", "dz", "vn", "gaming", "07", "88", "xd", "td", "nm", "kk", "zz", "1",
-        "2009", "2010", "hn", "sg", "boy", "girl", "", "", ""};
+    // tên giống người chơi thật: hanabi24h, meocon2k5, rongden99...
+    private static final String[] PRE = {"hanabi", "sakura", "yuki", "kuro", "shiro", "ryu", "kaze", "akira", "hikari", "sora", "kenji", "haru",
+        "meocon", "bemeo", "tieuquy", "rongden", "thanhlong", "bachho", "chiensi", "sieunhan", "baoanh", "minhthu", "kenhoang", "langtu",
+        "satthu", "vuabip", "conan", "gaucon", "thocon", "heocon", "cunbong", "mocmeo", "zinzin", "bonbon", "kenny", "tommy", "jerry",
+        "songoku", "vegito", "gohan", "goten", "trunks", "picolo", "frieza", "cell", "buu", "broly", "beerus", "whis", "zeno", "jiren",
+        "tuan", "minh", "hung", "long", "nam", "duc", "khoa", "huy", "phuc", "quang", "son", "trung", "vinh", "hoang", "linh", "mai",
+        "dragon", "shadow", "ghost", "killer", "ninja", "hunter", "legend", "master", "king", "boss", "lucky", "sunny", "moon", "star"};
+    private static final String[] SUF = {"24h", "99", "2k5", "2k6", "2k4", "9x", "vn", "pro", "vip", "zz", "x", "68", "88", "79", "86",
+        "197", "123", "kute", "dz", "tv", "hn", "sg", "hp", "dn", "nro", "boy", "girl", "baby", "", "", "", "", ""};
 
     private String newName() {
         for (int t = 0; t < 30; t++) {
-            String n = PRE[rnd.nextInt(PRE.length)] + SUF[rnd.nextInt(SUF.length)] + (rnd.nextInt(3) == 0 ? String.valueOf(rnd.nextInt(100)) : "");
+            String n = PRE[rnd.nextInt(PRE.length)] + (rnd.nextInt(4) == 0 ? PRE[rnd.nextInt(PRE.length)].substring(0, 3) : "")
+                    + SUF[rnd.nextInt(SUF.length)] + (rnd.nextInt(4) == 0 ? String.valueOf(rnd.nextInt(10)) : "");
             if (n.length() < 4 || n.length() > 15) {
                 continue;
             }

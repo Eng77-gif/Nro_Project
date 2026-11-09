@@ -73,14 +73,14 @@ class PanelApi {
             case "player/removeitem" -> playerRemoveItem(b);
             case "player/delete" -> playerDelete(b);
             case "tasks" -> taskList();
-            case "bots" -> Map.of("target", nro.models.Bot.BotWorld.gI().target(), "list", nro.models.Bot.BotWorld.gI().panelList(), "errors", nro.models.Bot.BotWorld.gI().recentErrors());
+            case "bots" -> Map.of("errors", nro.models.Bot.BotWorld.gI().recentErrors());
             case "bot/accounts" -> botAccounts();
             case "bot/account" -> { // bật / tắt tài khoản bot
                 nro.models.Bot.BotWorld.gI().setAccountBot(lng(b.get("id")), lng(b.getOrDefault("on", 1)) != 0);
                 yield Map.of("ok", true);
             }
             case "bot/create" -> {
-                int n = Math.max(1, Math.min(20, intv(b.getOrDefault("count", 1))));
+                int n = Math.max(1, Math.min(1000, intv(b.getOrDefault("count", 1)))); // tạo liên tục tới 1000 bot
                 String nm = str(b.get("name")).trim();
                 List<Long> ids = new ArrayList<>();
                 for (int i = 0; i < n; i++) {
@@ -94,6 +94,10 @@ class PanelApi {
                     throw new IllegalArgumentException("Thiếu xác nhận");
                 }
                 nro.models.Bot.BotWorld.gI().deleteBotAccount(lng(b.get("id")));
+                yield Map.of("ok", true);
+            }
+            case "bot/all" -> {
+                nro.models.Bot.BotWorld.gI().setAllAccountBots(lng(b.getOrDefault("on", 1)) != 0);
                 yield Map.of("ok", true);
             }
             case "bot/set" -> {
@@ -591,6 +595,9 @@ class PanelApi {
             m.put("enabled", on.containsKey(pid));
             m.put("state", !on.containsKey(pid) ? "Đã tắt" : bot != null ? "Đang chơi" : "Chờ vào game");
             m.put("clan", bot != null && bot.clan != null ? bot.clan.name : "");
+            m.put("gender", bot != null ? bot.gender : -1);
+            m.put("task", bot != null && bot.playerTask != null && bot.playerTask.taskMain != null ? bot.playerTask.taskMain.id + "." + bot.playerTask.taskMain.index : "");
+            m.put("gold", bot != null ? bot.inventory.gold : null);
             m.put("activity", bot != null ? bot.activity : "");
             m.put("power", bot != null ? bot.nPoint.power : null);
             m.put("map", bot != null && bot.zone != null ? bot.zone.map.mapName + " khu " + bot.zone.zoneId : "");

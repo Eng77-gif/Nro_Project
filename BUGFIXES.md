@@ -1696,3 +1696,13 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Sức đánh lớn (1,4 tỷ) đánh boss vẫn báo hụt:** sát thương sau giáp và số trả về khi bị đánh bị ép kiểu int, đòn > 2,1 tỷ (chí mạng) tràn thành số âm, client hiện hụt. Hàm trừ giáp trả long, mọi chỗ trả / hiện sát thương giới hạn ở 2,1 tỷ thay vì tràn số.
 - **Có đủ 3 Pet Xên mà không nhận danh hiệu Perfect:** lỗi do Đợt 96 đổi mã hiệu ứng danh hiệu (302 -> 517) nhưng code cấp danh hiệu và vật phẩm danh hiệu vẫn dùng 302. Đã đổi đồng bộ (PERFECT_EFFECT, vật phẩm danh hiệu 2081 / 2076, danh hiệu người chơi đã có 301 / 302 -> 516 / 517). Đã thử: đủ 3 pet vĩnh viễn, vào game nhận ngay danh hiệu Perfect.
 - **Bot như người chơi thêm:** chat thế giới (tốn ngọc như người chơi, ~40 phút / lần), mở hộp quà / capsule / túi mù trong hành trang, mua và bật máy dò khi làm nhiệm vụ Capsule kì bí (đánh Xên con), thỉnh thoảng bật / tắt cờ khi luyện tập, mặc đồ thừa cho đệ.
+
+## Đợt 100
+- **EXP server x1** (Config.properties server.expserver=1; panel / menu admin vẫn đổi tạm được).
+- **Vàng rơi:** mỗi cục tối đa 9.999 vàng; trong khu riêng tư vào bằng Vé vàng (map 164) tối đa 500.000 / cục (áp cho mọi nguồn rơi vàng: quái, boss, phó bản).
+- **Vé vàng** bán ở Santa (tab Hỗ trợ) giá 19.999 ngọc.
+- **Dòng "Không giao dịch"** cho đồ đổi / mua ở sự kiện (cả hiện trong shop sự kiện), trừ cải trang, đeo lưng, ván bay, danh hiệu, pet.
+- **Ký gửi đồ sự kiện ở Siêu thị:** Cửa hàng ký gửi (Siêu thị) nhận nguyên liệu sự kiện (bí ngô, kẹo...), người chơi bán cho nhau bằng ngọc / thỏi vàng.
+- **Bot:** bỏ bot giả lập (chỉ còn tài khoản bot chơi thật); tạo tới 1.000 bot một lần (panel / menu admin), tên ngẫu nhiên như người chơi (hunter2k5, gauconboy, kazephu2k6...); bot vào game 20 con / 30 giây.
+- **Panel Bot mới:** ô tổng hợp (tổng, đang chơi, chờ, đã tắt, tổng sức mạnh, số bang), biểu đồ đang làm gì, tìm / lọc / sắp xếp, thanh sức mạnh, bật / tắt tất cả, tự làm mới 10 giây.
+- **Menu Bot trong game** (công cụ admin → Bot): xem tổng hợp, tạo bot (1 - 1000), bật / tắt tất cả, tới chỗ 1 bot đang chơi.

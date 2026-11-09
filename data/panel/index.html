@@ -268,21 +268,44 @@ async function openPlayer(id){
   if(p.online){m.querySelector('#bk').onclick=()=>act(()=>api('player/kick',{id})).then(()=>m.remove());m.querySelector('#bt').onclick=()=>act(()=>api('player/teleport',{id,mapId:+$('#tm').value}))}}
 
 /* ---------- bot ---------- */
-async function page_bots(){const d=await api('bots'),acc=await api('bot/accounts');
-  $('#main').innerHTML=`<h2>Bot</h2><div class="card"><div class="mute">Bot tự vào game cho đỡ trống server: luyện tập lên sức mạnh, săn boss, săn đệ (Broly), vào NRSD lúc mở (cắm cờ, không nhặt ngọc rồng sao đen), đi doanh trại / ĐHVT (vắng mặt một lúc, về mạnh hơn), PK với bot khác (không đánh người chơi thật), đập đồ, úp vàng, đem đồ thường lên ký gửi (tối đa 20 món), đua top bám sát người chơi đứng đầu (hiện trong bảng xếp hạng nhưng không nhận quà, không chiếm quà của người chơi). Tiến độ bot được lưu, khởi động lại vẫn giữ sức mạnh. Lỗi của bot ghi ở logs/bot.log.</div>
-  <div class="row" style="margin-top:8px"><label>Số bot giả lập <input id="bc" type="number" min="0" max="200" value="${d.target}" style="width:90px"></label><button class="p" id="bcs">Lưu</button><button id="bc0">Tắt hết bot</button><span class="mute">Đang online: ${d.list.length}</span></div></div>
-  <h3>Tài khoản bot <span class="mute">(tài khoản riêng của máy chủ, tách biệt với người chơi, không ai đăng nhập được. Bot chơi thật như người: đánh quái, săn boss, nhặt / thủ NRSD, tạo / vào bang, đi doanh trại, buôn bán ký gửi, giao dịch, đua top và nhận thưởng)</span></h3>
-  <div class="card row"><input id="ba_n" class="grow" placeholder="Tên nhân vật (bỏ trống: tên ngẫu nhiên)"><select id="ba_g"><option value="-1">Hành tinh ngẫu nhiên</option><option value="0">Trái Đất</option><option value="1">Namếc</option><option value="2">Xayda</option></select><input id="ba_p" type="number" min="0" placeholder="Sức mạnh ban đầu" style="width:150px"><input id="ba_t" type="number" min="0" max="40" placeholder="Nhiệm vụ (vd 11)" style="width:130px"><input id="ba_c" type="number" min="1" max="20" value="1" title="Số lượng" style="width:70px"><button class="p" id="ba_add">Tạo bot</button></div>
-  <div class="tw"><table><tr><th>Nhân vật</th><th>Tài khoản</th><th>Trạng thái</th><th>Đang làm</th><th>Sức mạnh</th><th>Bản đồ</th><th>Bang</th><th></th></tr>${acc.map(a=>`<tr><td><b>${esc(a.name)}</b> <span class="mute">#${a.id}</span></td><td>${esc(a.username||'')}</td><td>${esc(a.state)}</td><td>${esc(a.activity||'')}</td><td>${a.power!=null?fmt(a.power):''}</td><td>${esc(a.map||'')}</td><td>${esc(a.clan||'')}</td><td><button data-v="${a.id}">Xem hành trang</button><button data-e="${a.id}" data-on="${a.enabled?0:1}">${a.enabled?'Tắt':'Bật'}</button><button class="d" data-x="${a.id}">Xoá</button></td></tr>`).join('')||'<tr><td colspan=8 class="mute">Chưa có tài khoản bot</td></tr>'}</table></div>
-  <h3>Bot giả lập <span class="mute">(không có tài khoản, đặt số lượng ở trên; 0 = tắt)</span></h3>
-  <div class="tw"><table><tr><th>Tên</th><th>Hành tinh</th><th>Sức mạnh</th><th>Đang làm</th><th>Bản đồ</th></tr>${d.list.map(b=>`<tr><td><b>${esc(b.name)}</b> <span class="mute">#${b.id}</span></td><td>${['Trái Đất','Namếc','Xayda'][b.gender]||b.gender}</td><td>${fmt(b.power)}</td><td>${esc(b.activity)}</td><td>${esc(b.map)}</td></tr>`).join('')}</table></div>
-  <h3>Lỗi bot gần đây <span class="mute">(đầy đủ trong logs/bot.log)</span></h3>${d.errors&&d.errors.length?`<pre style="white-space:pre-wrap;max-height:300px;overflow:auto">${esc(d.errors.join('\n'))}</pre>`:'<span class="mute">Không có lỗi</span>'}`;
-  $('#bcs').onclick=()=>act(()=>api('bot/set',{count:+$('#bc').value}),'Đã lưu, bot vào / ra dần trong ít phút').then(page_bots);
-  $('#bc0').onclick=()=>act(()=>api('bot/set',{count:0}),'Đã tắt bot').then(page_bots);
-  $('#ba_add').onclick=()=>act(()=>api('bot/create',{name:$('#ba_n').value.trim(),gender:+$('#ba_g').value,power:+($('#ba_p').value||0),task:+($('#ba_t').value||0),count:+($('#ba_c').value||1)}),'Đã tạo bot, vào game trong ~30 giây').then(page_bots);
-  document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>act(()=>api('bot/account',{id:+b.dataset.e,on:+b.dataset.on}),'Đã lưu').then(page_bots));
-  document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>openPlayer(+b.dataset.v));
-  document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{if(confirm('Xoá hẳn tài khoản bot này (nhân vật, hành trang)?'))act(()=>api('bot/delete',{id:+b.dataset.x,confirm:'XOA'}),'Đã xoá').then(page_bots)})}
+async function page_bots(){
+  $('#main').innerHTML=`<h2>Bot</h2>
+  <div class="card mute">Tài khoản bot: tài khoản riêng của máy chủ (không ai đăng nhập được), chơi thật như người: làm nhiệm vụ từ đầu, luyện tập theo sức, săn boss, NRSD, bang hội, doanh trại, ký gửi / giao dịch, học chiêu, ép sao, đệ tử. Lỗi của bot ghi ở logs/bot.log. Trang tự làm mới 10 giây.</div>
+  <div class="stats" id="bs"></div>
+  <div class="grid2" style="margin-top:12px"><div class="card"><b>Đang làm gì</b><div id="bact" style="margin-top:8px"></div></div>
+  <div class="card"><b>Tạo bot</b><div class="row" style="margin-top:8px"><input id="ba_n" class="grow" placeholder="Tên (bỏ trống: tên ngẫu nhiên như người chơi)"><select id="ba_g"><option value="-1">Hành tinh ngẫu nhiên</option><option value="0">Trái Đất</option><option value="1">Namếc</option><option value="2">Xayda</option></select></div>
+   <div class="row" style="margin-top:8px"><input id="ba_p" type="number" min="0" placeholder="Sức mạnh ban đầu" style="width:150px"><input id="ba_t" type="number" min="0" max="40" placeholder="Nhiệm vụ (0: từ đầu)" style="width:150px"><label>Số lượng <input id="ba_c" type="number" min="1" max="1000" value="10" style="width:90px"></label><button class="p" id="ba_add">Tạo bot</button></div>
+   <div class="row" style="margin-top:8px"><button id="ba_on">Bật tất cả</button><button class="d" id="ba_off">Tắt tất cả</button></div></div></div>
+  <div class="card row"><input id="bf" class="grow" placeholder="Tìm tên, bản đồ, bang, hoạt động..."><select id="bst"><option value="">Mọi trạng thái</option><option>Đang chơi</option><option>Chờ vào game</option><option>Đã tắt</option></select><select id="bso"><option value="p">Sức mạnh cao trước</option><option value="n">Tên A-Z</option><option value="t">Nhiệm vụ cao trước</option></select><span class="mute" id="bcnt"></span></div>
+  <div class="tw" id="btb"></div>
+  <h3>Lỗi bot gần đây</h3><div id="berr"></div>`;
+  let acc=[];const G=['Trái Đất','Namếc','Xayda'],col={'Đang chơi':'var(--ok)','Chờ vào game':'var(--acc)','Đã tắt':'var(--mute)'};
+  const draw=()=>{const q=$('#bf').value.trim().toLowerCase(),st=$('#bst').value,so=$('#bso').value;
+    let l=acc.filter(a=>(!st||a.state===st)&&(!q||[a.name,a.map,a.clan,a.activity,a.username].join(' ').toLowerCase().includes(q)));
+    l.sort(so==='n'?(x,y)=>x.name.localeCompare(y.name):so==='t'?(x,y)=>(parseFloat(y.task)||0)-(parseFloat(x.task)||0):(x,y)=>(y.power||0)-(x.power||0));
+    const maxP=Math.max(1,...acc.map(a=>a.power||0));$('#bcnt').textContent=l.length+' / '+acc.length+' bot';
+    $('#btb').innerHTML=`<table><tr><th>Nhân vật</th><th>Trạng thái</th><th>Đang làm</th><th>Sức mạnh</th><th>Nhiệm vụ</th><th>Bản đồ</th><th>Bang</th><th>Vàng</th><th></th></tr>${l.slice(0,500).map(a=>`<tr>
+      <td><b>${esc(a.name)}</b> <span class="mute">${a.gender>=0?G[a.gender]:''} #${a.id}</span></td>
+      <td><span class="tag" style="border-color:${col[a.state]||'var(--line)'};color:${col[a.state]||'inherit'}">${esc(a.state)}</span></td>
+      <td>${esc(a.activity||'')}</td>
+      <td style="min-width:140px">${a.power!=null?`<div style="background:var(--panel2);border-radius:6px;height:6px;margin-bottom:3px"><div style="width:${Math.max(2,100*a.power/maxP)}%;height:6px;border-radius:6px;background:var(--acc)"></div></div>${fmt(a.power)}`:'<span class="mute">—</span>'}</td>
+      <td>${esc(a.task||'')}</td><td>${esc(a.map||'')}</td><td>${esc(a.clan||'')}</td><td>${a.gold!=null?fmt(a.gold):''}</td>
+      <td><button class="s" data-v="${a.id}">Hành trang</button> <button class="s" data-e="${a.id}" data-on="${a.enabled?0:1}">${a.enabled?'Tắt':'Bật'}</button> <button class="s d" data-x="${a.id}">Xoá</button></td></tr>`).join('')||'<tr><td colspan=9 class="mute">Chưa có bot</td></tr>'}</table>${l.length>500?'<div class="mute" style="padding:8px">Hiện 500 bot đầu, dùng ô tìm để lọc.</div>':''}`;
+    document.querySelectorAll('#btb [data-e]').forEach(b=>b.onclick=()=>act(()=>api('bot/account',{id:+b.dataset.e,on:+b.dataset.on}),'Đã lưu').then(pull));
+    document.querySelectorAll('#btb [data-v]').forEach(b=>b.onclick=()=>openPlayer(+b.dataset.v));
+    document.querySelectorAll('#btb [data-x]').forEach(b=>b.onclick=()=>{if(confirm('Xoá hẳn tài khoản bot này (nhân vật, hành trang)?'))act(()=>api('bot/delete',{id:+b.dataset.x,confirm:'XOA'}),'Đã xoá').then(pull)})};
+  const pull=async()=>{const [a,d]=await Promise.all([api('bot/accounts'),api('bots')]);acc=a;
+    const on=acc.filter(x=>x.state==='Đang chơi'),wait=acc.filter(x=>x.state==='Chờ vào game').length,off=acc.filter(x=>x.state==='Đã tắt').length;
+    const pw=on.reduce((s,x)=>s+(x.power||0),0),clans=new Set(on.map(x=>x.clan).filter(Boolean)).size;
+    $('#bs').innerHTML=[['Tổng bot',acc.length],['Đang chơi',on.length],['Chờ vào game',wait],['Đã tắt',off],['Tổng sức mạnh',fmt(pw)],['Bang có bot',clans]].map(([k,v])=>`<div class="stat"><b>${typeof v==='number'?fmt(v):v}</b><span>${k}</span></div>`).join('');
+    const ac={};on.forEach(x=>{const k=x.activity||'Luyện tập';ac[k]=(ac[k]||0)+1});const mx=Math.max(1,...Object.values(ac));
+    $('#bact').innerHTML=Object.entries(ac).sort((x,y)=>y[1]-x[1]).map(([k,v])=>`<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><span style="width:120px">${esc(k)}</span><div style="flex:1;background:var(--panel2);border-radius:6px;height:10px"><div style="width:${100*v/mx}%;height:10px;border-radius:6px;background:var(--acc2)"></div></div><b style="width:36px;text-align:right">${v}</b></div>`).join('')||'<span class="mute">Chưa có bot đang chơi</span>';
+    $('#berr').innerHTML=d.errors&&d.errors.length?`<pre style="white-space:pre-wrap;max-height:260px;overflow:auto">${esc(d.errors.join('\n'))}</pre>`:'<span class="mute">Không có lỗi</span>';draw()};
+  $('#bf').oninput=draw;$('#bst').onchange=draw;$('#bso').onchange=draw;
+  $('#ba_add').onclick=()=>act(()=>api('bot/create',{name:+$('#ba_c').value>1?'':$('#ba_n').value.trim(),gender:+$('#ba_g').value,power:+($('#ba_p').value||0),task:+($('#ba_t').value||0),count:+($('#ba_c').value||1)}),'Đã tạo bot, vào game dần (20 bot / 30 giây)').then(pull);
+  $('#ba_on').onclick=()=>act(()=>api('bot/all',{on:1}),'Đã bật tất cả bot').then(pull);
+  $('#ba_off').onclick=()=>{if(confirm('Tắt tất cả bot?'))act(()=>api('bot/all',{on:0}),'Đã tắt tất cả bot').then(pull)};
+  await pull();logTimer=setInterval(pull,10000)}
 
 /* ---------- tài khoản ---------- */
 async function page_accounts(){
