@@ -144,6 +144,9 @@ public class BotQuest {
     }
 
     private boolean goTo(Bot b, int mapId) {
+        if (!b.canGo(mapId)) {
+            return false; // chưa tới nhiệm vụ mở map
+        }
         Zone z = b.getRandomZone(mapId);
         if (z == null) {
             return false;
@@ -231,6 +234,9 @@ public class BotQuest {
             }
             for (Mob mob : m.zones.get(0).mobs) {
                 if (mob.tempId == mobId) {
+                    if (!b.canGo(m.mapId)) {
+                        break; // map chưa mở theo nhiệm vụ
+                    }
                     long score = mob.point.maxHp * 2L + (m.planetId == b.gender ? 0 : 1);
                     if (score < bestScore) {
                         bestScore = score;

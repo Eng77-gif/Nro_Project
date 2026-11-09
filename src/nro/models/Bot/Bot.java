@@ -101,8 +101,27 @@ public class Bot extends Player {
         return mapId;
     }
 
+    /** Tài khoản bot chỉ vào map người chơi cùng nhiệm vụ vào được (luật ChangeMapService.checkMapCanJoin: Namếc, tương lai, Cold...). */
+    public boolean canGo(int mapId) {
+        if (!this.accountBot) {
+            return true;
+        }
+        Map m = MapService.gI().getMapById(mapId);
+        return m != null && !m.zones.isEmpty() && ChangeMapService.gI().checkMapCanJoin(this, m.zones.get(0)) != null;
+    }
+
     public void joinMap() {
-        Zone zone = getRandomZone(MapToPow());
+        int mapId = MapToPow();
+        for (int t = 0; t < 8 && !canGo(mapId); t++) {
+            mapId = this.questMap >= 0 ? -1 : MapToPow();
+        }
+        if (!canGo(mapId)) { // chưa tới nhiệm vụ mở map đó: luyện ở map đầu của hành tinh mình
+            mapId = new int[]{1, 8, 15}[Math.max(0, Math.min(2, this.gender))];
+            if (!canGo(mapId)) {
+                return;
+            }
+        }
+        Zone zone = getRandomZone(mapId);
         if (zone != null) {
             ChangeMapService.gI().goToMap(this, zone);
             this.zone.load_Me_To_Another(this);
@@ -131,7 +150,7 @@ public class Bot extends Player {
             return zone;
         } else {
             this.index_ += 1;
-            if (this.index_ >= 20) {
+            if (this.index_ >= 20 && !this.accountBot) { // tài khoản bot không bị gỡ ngang (mất dữ liệu chưa lưu)
                 BotManager.gI().bot.remove(this);
                 ChangeMapService.gI().exitMap(this);
                 return null;
