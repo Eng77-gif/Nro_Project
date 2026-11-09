@@ -2027,7 +2027,7 @@ public class SeasonEventService implements Runnable {
         return sb.toString();
     }
 
-    private int[] myPoint(Top t, Player pl) {
+    int[] myPoint(Top t, Player pl) {
         try (Connection con = LocalManager.getConnection()) {
             int pts = 0;
             try (PreparedStatement ps = con.prepareStatement("select points from season_event_point where top_id = ? and player_id = ?")) {

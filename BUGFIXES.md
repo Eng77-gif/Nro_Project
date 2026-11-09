@@ -1708,3 +1708,6 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Menu Bot trong game** (công cụ admin → Bot): xem tổng hợp, tạo bot (1 - 1000), bật / tắt tất cả, tới chỗ 1 bot đang chơi.
 - **"Không giao dịch" mặc định cho mọi đồ sự kiện**, kể cả CT, đeo lưng, pet, ván bay, bóng mờ, danh hiệu (trừ tiền tệ: vàng, thỏi vàng, ngọc rồng), cả trong shop lẫn khi nhận.
 - **Chợ đồ sự kiện tách riêng:** NPC King Furry ở Siêu thị (cạnh Cửa hàng ký gửi) chỉ ký gửi / mua bán nguyên liệu sự kiện; Cửa hàng ký gửi thường không còn nhận / hiện đồ sự kiện.
+- **King Furry đúng hình:** head 1251 / body 1252 / leg 1253 (ảnh 11375-11377, avatar 11378); part 1391-1393 bản V10 là của 1 CT khác.
+- **Thông báo top khi đăng nhập (chat thế giới):** trước chỉ đọc bảng top sự kiện cũ (Hộp quà thiếu nhi, Nước mía, Kem trái cây) nên đua top sự kiện ở Chi Chi không bao giờ được báo; nay báo top 1-10 của mọi đua top sự kiện đang bật (+ Hộp đen bí ẩn), và báo lại mỗi lần đăng nhập (trước chỉ 1 lần mỗi lần server chạy).
+- **Bot giống người thật hơn:** chơi theo ca (40 phút - 4 tiếng rồi thoát, nghỉ 10 phút - 2 tiếng; 1h-7h sáng ca ngắn, nghỉ lâu như đi ngủ; mở server không phải bot nào cũng online ngay); người chơi gọi tên bot trong khu thì bot trả lời, chào / hỏi chung thì thỉnh thoảng có bot đáp (trễ 1,5-5 giây, mỗi bot cách nhau ≥ 20 giây).

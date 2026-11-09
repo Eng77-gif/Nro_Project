@@ -703,6 +703,9 @@ public class Service {
             } catch (Exception e) {
                 Logger.logException(Service.class, e);
             }
+            if (!player.isBot) {
+                nro.models.Bot.BotWorld.gI().onPlayerChat(player, text);
+            }
         }
     }
 

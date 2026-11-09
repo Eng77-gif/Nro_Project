@@ -421,6 +421,8 @@ public class Bot extends Player {
     /** tài khoản thật do admin đặt làm bot: nhân vật thật, chơi và nhận thưởng như người chơi */
     public boolean accountBot;
     public int accountId;
+    public long sessionEnd; // hết ca chơi thì thoát game như người thật (BotWorld.syncAccounts)
+    long lastReply;
     /** hoạt động đang làm (hiện trên panel) */
     public String activity = "Luyện tập";
     /** đang đi vắng (doanh trại / ĐHVT) tới lúc này */

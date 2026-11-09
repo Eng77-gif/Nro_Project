@@ -205,6 +205,7 @@ public final class BotWorld {
 
     // ------------------------------------------------------------------ tài khoản bot (nhân vật thật do admin chọn)
     private long lastAccSync;
+    private final Map<Long, Long> offlineUntil = new java.util.concurrent.ConcurrentHashMap<>(); // tài khoản bot đang "nghỉ chơi"
 
     /** Id các tài khoản bot (để chặn đăng nhập). */
     private volatile java.util.Set<Integer> botAccountIds = java.util.Set.of();
@@ -445,6 +446,10 @@ public final class BotWorld {
         for (Bot b : bots()) {
             if (b.accountBot && !want.containsKey(b.id)) {
                 remove(b);
+            } else if (b.accountBot && b.sessionEnd > 0 && now > b.sessionEnd && !BotClan.inDungeon(b)
+                    && !nro.models.services_func.TransactionService.gI().check(b)) {
+                remove(b); // hết ca chơi: thoát, nghỉ một lúc rồi mới vào lại
+                offlineUntil.put(b.id, now + offlineMillis());
             }
         }
         int added = 0;
@@ -453,6 +458,12 @@ public final class BotWorld {
                 break; // vào dần (20 bot / 30 giây)
             }
             long pid = e.getKey();
+            if (!offlineUntil.containsKey(pid) && Util.isTrue(35, 100)) {
+                offlineUntil.put(pid, now + Util.nextInt(0, 120) * 60_000L); // lúc mới mở server: không phải ai cũng đang online
+            }
+            if (offlineUntil.getOrDefault(pid, 0L) > now) {
+                continue;
+            }
             if (find(pid) != null || nro.models.server.Client.gI().getPlayerByID((int) pid) != null) {
                 continue; // đã có bot hoặc chủ tài khoản đang online
             }
@@ -474,6 +485,7 @@ public final class BotWorld {
         b.accountBot = true;
         b.accountId = accountId;
         b.activity = "Luyện tập";
+        b.sessionEnd = System.currentTimeMillis() + (night() ? Util.nextInt(20, 90) : Util.nextInt(40, 240)) * 60_000L;
         b.mo1 = new BotPemQuai(b);
         b.boss = new BotSanBoss(b);
         b.charms.tdThuHut = Math.max(b.charms.tdThuHut, System.currentTimeMillis() + 24L * 3600_000); // tự nhặt đồ như người treo máy
@@ -496,6 +508,84 @@ public final class BotWorld {
             return false;
         }
         return true;
+    }
+
+    private static boolean night() {
+        int h = java.time.LocalTime.now().getHour();
+        return h >= 1 && h < 7;
+    }
+
+    /** Nghỉ giữa 2 ca chơi: ban ngày 10 phút - 2 tiếng, đêm khuya lâu hơn (đi ngủ). */
+    private static long offlineMillis() {
+        return (night() ? Util.nextInt(120, 420) : Util.nextInt(10, 120)) * 60_000L;
+    }
+
+    // ------------------------------------------------------------------ trò chuyện với người chơi
+    private static final java.util.concurrent.ScheduledExecutorService CHAT = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "bot-chat");
+        t.setDaemon(true);
+        return t;
+    });
+
+    /** Người chơi chat trong khu: bot bị gọi tên thì trả lời; chào / hỏi chung thì thỉnh thoảng 1 bot đáp. */
+    public void onPlayerChat(Player pl, String text) {
+        if (pl == null || pl.isBot || pl.zone == null || text == null) {
+            return;
+        }
+        String t = text.toLowerCase();
+        List<Bot> near = new ArrayList<>();
+        Bot called = null;
+        for (Player p : new ArrayList<>(pl.zone.players)) {
+            if (p instanceof Bot && ((Bot) p).accountBot && !p.isDie()) {
+                Bot b = (Bot) p;
+                near.add(b);
+                if (b.name != null && b.name.length() >= 3 && t.contains(b.name.toLowerCase())) {
+                    called = b;
+                }
+            }
+        }
+        if (near.isEmpty()) {
+            return;
+        }
+        Bot b = called;
+        if (b == null) {
+            if (!Util.isTrue(45, 100) || !(t.matches(".*\\b(hi|hello|alo|chào|chao|hế lô|helo|ae|mọi người|bot)\\b.*") || t.endsWith("?"))) {
+                return;
+            }
+            b = near.get(Util.nextInt(0, near.size() - 1));
+        }
+        long now = System.currentTimeMillis();
+        if (now - b.lastReply < 20_000) {
+            return;
+        }
+        b.lastReply = now;
+        String reply = reply(t, pl.name);
+        Bot who = b;
+        CHAT.schedule(() -> {
+            if (who.zone != null && who.zone == pl.zone) {
+                nro.models.services.Service.gI().chat(who, reply);
+            }
+        }, Util.nextInt(1500, 5000), java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
+
+    static String reply(String t, String name) {
+        String[] r;
+        if (t.contains("bot")) {
+            r = new String[]{"bot đâu mà bot", "người thật 100% nhé", "bot gì tầm này", "=))"};
+        } else if (t.matches(".*\\b(hi|hello|alo|chào|chao|hế lô|helo)\\b.*")) {
+            r = new String[]{"chào " + name, "hi bạn", "alo", "chào nha", "hế lô " + name};
+        } else if (t.contains("bang") || t.contains("clan")) {
+            r = new String[]{"bang mình đang tuyển đó, xin vào đi", "mình có bang rồi", "bang gì bạn"};
+        } else if (t.contains("pk") || t.contains("solo")) {
+            r = new String[]{"thôi đang up", "lát nhé", "solo thì ra võ đài"};
+        } else if (t.contains("đâu") || t.contains("map")) {
+            r = new String[]{"đang up ở đây nè", "không biết nữa", "hỏi admin xem"};
+        } else if (t.endsWith("?")) {
+            r = new String[]{"không biết nữa", "chịu", "hỏi admin đi bạn", "mình cũng mới chơi"};
+        } else {
+            r = new String[]{"sao bạn", "gọi gì đó", "?", "ơi", "đang up nè"};
+        }
+        return r[Util.nextInt(0, r.length - 1)];
     }
 
     /** Chủ tài khoản bot đăng nhập: bot thoát ngay và lưu nhân vật trước khi server nạp nhân vật cho chủ. */

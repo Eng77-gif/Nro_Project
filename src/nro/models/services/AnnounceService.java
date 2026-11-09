@@ -3,14 +3,12 @@ package nro.models.services;
 import java.util.List;
 import nro.models.item.Item;
 import nro.models.map.ItemMap;
-import nro.models.matches.TOP;
 import nro.models.player.Player;
-import nro.models.server.Manager;
 import nro.models.server.ServerNotify;
 
 /**
  * Thông báo toàn server:
- * - Top 1 - 10 các sự kiện ở Chi Chi vừa đăng nhập (chat thế giới).
+ * - Top 1 - 10 các đua top sự kiện đang chạy (Chi Chi) và Hộp đen bí ẩn vừa đăng nhập (chat thế giới), mỗi lần đăng nhập.
  * - Đánh quái nhặt được trang bị set kích hoạt: 3 set riêng (Thần Vũ Trụ Kaio, Nail chiến binh Namếc, Cađic M) kèm tên set,
  *   set cũ (Sôngôku, Kakarot...) chỉ báo chung.
  * - Mở hộp quà nhận được cải trang, pet, đeo lưng, thú cưỡi.
@@ -31,16 +29,23 @@ public class AnnounceService {
 
     // ------------------------------------------------------------------ top 1 đăng nhập
 
-    /** Đứng top 1 - 10 bảng nào ở Chi Chi thì báo chat thế giới khi đăng nhập. */
+    /** Đứng top 1 - 10 đua top sự kiện / Hộp đen bí ẩn thì báo chat thế giới mỗi lần đăng nhập. */
     public void onLogin(Player pl) {
-        if (pl == null || pl.isBot || pl.loginAnnounced) {
-            return;
+        if (pl == null || pl.isBot || pl.getSession() == null || pl.loginAnnounced == pl.getSession()) {
+            return; // mỗi lần đăng nhập (mỗi phiên) báo 1 lần; client gửi "client ok" nhiều lần trong 1 phiên
         }
-        pl.loginAnnounced = true;
+        pl.loginAnnounced = pl.getSession();
+        new Thread(() -> {
+            try {
+                announce(pl);
+            } catch (Exception e) {
+                nro.models.utils.Logger.error("Thông báo top khi đăng nhập lỗi: " + e + "\n");
+            }
+        }, "announce-login").start(); // đọc hạng từ DB, không chặn luồng đăng nhập
+    }
+
+    private void announce(Player pl) {
         StringBuilder tops = new StringBuilder();
-        addTop(tops, pl, Manager.Topsukien, "Hộp quà thiếu nhi");
-        addTop(tops, pl, Manager.Topsukien1, "Nước mía");
-        addTop(tops, pl, Manager.Topsukien2, "Kem trái cây");
         try {
             List<Object[]> hd = nro.models.database.PlayerExtraDAO.top("hdba_count", TOP_LIMIT);
             for (int i = 0; i < hd.size(); i++) {
@@ -51,27 +56,20 @@ public class AnnounceService {
             }
         } catch (Exception ignored) {
         }
+        for (SeasonEventService.Season s : SeasonEventService.gI().activeSeasons()) { // đua top mọi sự kiện đang chạy ở Chi Chi
+            for (SeasonEventService.Top t : s.tops) {
+                int rank = SeasonEventService.gI().myPoint(t, pl)[1];
+                if (rank >= 1 && rank <= TOP_LIMIT) {
+                    append(tops, rank, SeasonEventService.gI().topName(t).replaceFirst("(?iu)^đua top ", ""));
+                }
+            }
+        }
         if (tops.length() > 0) {
             ChatGlobalService.gI().chatVip(pl, tops + " vừa đăng nhập!");
         }
     }
 
     private static final int TOP_LIMIT = 10;
-
-    private void addTop(StringBuilder sb, Player pl, List<TOP> list, String name) {
-        if (list == null) {
-            return;
-        }
-        for (int i = 0; i < Math.min(TOP_LIMIT, list.size()); i++) {
-            TOP t = list.get(i);
-            if (t.getId_player() == pl.id) {
-                if (!String.valueOf(t.getInfo1()).startsWith("0 ")) {
-                    append(sb, i + 1, name);
-                }
-                return;
-            }
-        }
-    }
 
     private void append(StringBuilder sb, int rank, String name) {
         if (sb.length() > 0) {
