@@ -417,8 +417,14 @@ public class ConsignShopService {
                 return;
             }
             Item it = ItemService.gI().copyItem(itemBag);
+            boolean kyGuiNgoc = it.getOptionById(87) != null; // dòng "Ký gửi ngọc": không giao dịch vẫn ký gửi được, chỉ bán bằng ngọc
+            if (kyGuiNgoc && moneyType != 1) {
+                Service.gI().sendThongBao(pl, "Vật phẩm này chỉ ký gửi bằng ngọc");
+                openShopKyGui(pl);
+                return;
+            }
             for (Item.ItemOption daubuoi : it.itemOptions) {
-                if (daubuoi.optionTemplate.id == 30) {
+                if (daubuoi.optionTemplate.id == 30 && !kyGuiNgoc) {
                     Service.gI().sendThongBao(pl, "Vật phẩm không thể kí gửi");
                     openShopKyGui(pl);
                     return;

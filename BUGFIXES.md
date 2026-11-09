@@ -1794,6 +1794,8 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 
   KOL VIP mở bằng cách nạp **450 ngọc xanh** cho Quy Lão lần đầu nhận thưởng VIP trong tháng (hoặc 1 Vé KOL VIP nếu có). Quà có chỉ số mặc định và "Không thể giao dịch"; cần đủ ô trống hành trang mới nhận.
 - **Panel → Thế giới → Ngọc Rồng Sao Đen:** mỗi trận NRSD thắng được ghi vào bảng `nrsd_result` (lúc, viên mấy sao, khu, người giữ ngọc, bang). Trang có số trận hôm nay / 7 ngày / tổng, top bang và người thắng 30 ngày, bảng kết quả lọc theo viên ngọc, ngày, tên. **Giải Ngọc Rồng Sao Đen Đặc Biệt** (bảng `nrsd_tournament`): đặt ngày diễn ra và phần thưởng (`mã:số lượng`), đúng ngày đó mỗi người giữ ngọc thắng nhận thưởng vào hành trang; đã tạo giải đầu tiên (thêm 08/11/2026, diễn ra 15/11/2026: 5 Hộp ngọc rồng xanh, 99 Thỏi vàng, 200 Đá bảo vệ), sửa ngày / quà ngay trên trang.
+- **Ước ở Bà Hạt Mít (sự kiện Halloween):** "Ước bằng 50 ngọc" / "Ước miễn phí" báo ngay quà nhận được ("Điều ước đã thành hiện thực! Bạn nhận được: ..."); ước ra Lưỡi hái hồng thì báo cả server.
+- **Dòng chỉ số đồ Halloween** như bản chính thức: Bí ngô, Bí ngô 1 - 7 sao, bánh kẹo Halloween, Kẹo bàn tay, Hộp Kẹo Ma Quỷ, Kẹo bí ngô, Kẹo mù / Túi mù / Gói quà / Hòm / Thiệp / Capsule / Hộp Halloween, Giấy trang trí, Giỏ đựng kẹo / ngọc bí, Vé ước miễn phí, Rađa dò Zombie có "Không giao dịch", "Ký gửi ngọc", "Sự kiện năm 2026" khi vào hành trang / rương (ô cũ cùng loại được bổ sung để gộp chung). Đồ có dòng "Ký gửi ngọc" dù không giao dịch vẫn ký gửi được, chỉ bán bằng ngọc.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

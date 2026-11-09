@@ -1237,7 +1237,15 @@ public class SeasonEventService implements Runnable {
             }
             InventoryService.gI().sendItemBags(pl);
             Service.gI().sendMoney(pl);
-
+            if (e.season != null && e.season.id == HALLOWEEN && e.name != null && e.name.startsWith("Ước") && !got.isEmpty()) {
+                // ước ở Bà Hạt Mít (sự kiện Halloween): báo quà nhận được, quà hiếm báo cả server
+                Service.gI().sendThongBao(pl, "Điều ước đã thành hiện thực! Bạn nhận được: " + String.join(", ", got));
+                for (String g : got) {
+                    if (g.contains("Lưỡi hái")) {
+                        ServerNotify.gI().notify("Chúc mừng " + pl.name + " đã ước được " + g + " tại Bà Hạt Mít");
+                    }
+                }
+            }
         }
     }
 
@@ -1953,6 +1961,8 @@ public class SeasonEventService implements Runnable {
             nro.models.shop.ShopService.gI().openCustomShop(pl, shop);
         }
     }
+
+    private static final int HALLOWEEN = 7;
 
     /** Icon "điểm sự kiện" hiện cạnh giá ở cửa hàng đổi điểm Quy Lão (icon vật phẩm Ngôi sao). */
     public static final int ICON_EVENT_POINT = 14116; // đồng xu NRO như bản chính thức

@@ -875,6 +875,25 @@ public class InventoryService {
         return addItemList(player.inventory.itemsBox, item);
     }
 
+    /** Vật phẩm sự kiện Halloween (bí ngô, bánh kẹo, hộp / túi / thiệp, vé ước, giỏ, rađa): hiện dòng như bản chính thức. */
+    private static final java.util.Set<Integer> HALLOWEEN_ITEMS = java.util.Set.of(585, 702, 703, 704, 705, 706, 707, 708, 818, 899, 900, 901,
+            902, 903, 910, 1116, 1117, 1348, 1354, 1355, 1356, 1357, 1725, 1726, 1728, 1730, 1737, 2119);
+
+    /** Thêm "Không giao dịch", "Ký gửi ngọc", "Sự kiện năm ..." cho đồ Halloween còn thiếu; trả về true nếu là đồ Halloween. */
+    static boolean tagHalloween(Item it) {
+        if (it == null || it.template == null || !HALLOWEEN_ITEMS.contains((int) it.template.id)) {
+            return false;
+        }
+        it.itemOptions.removeIf(io -> io.optionTemplate != null && io.optionTemplate.id == 73); // dòng trống
+        int[][] lines = {{30, 0}, {87, 0}, {174, 2026}};
+        for (int[] l : lines) {
+            if (it.getOptionById(l[0]) == null) {
+                it.itemOptions.add(new Item.ItemOption(l[0], l[1]));
+            }
+        }
+        return true;
+    }
+
     /** Gộp mọi ô cùng loại hộp quà (bỏ hạn sử dụng) vào ô đầu tiên. */
     public void mergeBoxStacks(List<Item> items, int templateId) {
         Item first = null;
@@ -909,6 +928,9 @@ public class InventoryService {
     }
 
     public boolean addItemList(List<Item> items, Item itemAdd) {
+        if (tagHalloween(itemAdd)) {
+            items.forEach(InventoryService::tagHalloween); // ô cũ cùng loại cũng có đủ dòng để gộp chung
+        }
         if (itemAdd.template != null && (Event2026Service.gI().isBox(itemAdd) || isGiftBox(itemAdd.template))) {
             // hộp quà / túi mù / capsule mở ra quà: không có hạn sử dụng để luôn gộp chung 1 ô (cả hộp cũ đã có hạn)
             itemAdd.itemOptions.removeIf(io -> io.optionTemplate != null && io.optionTemplate.id == 93);
