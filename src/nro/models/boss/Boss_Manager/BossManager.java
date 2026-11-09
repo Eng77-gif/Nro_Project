@@ -179,6 +179,8 @@ public class BossManager implements Runnable {
                     new Broly();
                 case BossID.BROLY_SUPER ->
                     new nro.models.boss.Broly.BrolySuper();
+                case BossID.SUPER_BROLY -> // bình thường chỉ hiện khi hạ Broly; gọi từ panel: chọn map ngẫu nhiên trong danh sách của nó
+                    new nro.models.boss.Broly.SuperBroly(null, 0, 0);
                 case BossID.TAP_SU_0 ->
                     new TAPSU0();
                 case BossID.TAP_SU_1 ->

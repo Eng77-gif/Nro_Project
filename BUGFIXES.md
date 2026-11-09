@@ -1775,6 +1775,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Hộp quà gộp chung 1 ô:** 22 hộp / rương / capsule / túi trước mỗi cái chiếm 1 ô (Set kích hoạt Beerus 1 món tự chọn, Hộp quà Set kích hoạt, Hộp ngọc rồng xanh, Hộp đá nâng cấp +9, Hộp thần linh, Rương ngọc rồng...) nay xếp chồng (Đợt 107, client tải lại vsItem 27); hộp quà bỏ hạn sử dụng để luôn gộp được, các ô hộp cùng loại đang tách sẽ gộp lại khi nhận thêm 1 hộp.
 - **Panel: trang Boss làm mới** theo kiểu trang Người chơi: ảnh boss thật, trạng thái (đang ở bản đồ / đang nghỉ / sắp xuất hiện), thanh HP, vị trí, tìm theo tên / mã / bản đồ, lọc trạng thái, sắp xếp, chia trang, tự làm mới 15 giây. Thao tác: cho rời bản đồ, xuất hiện ngay (boss đang nghỉ), xoá hẳn (không hồi sinh tới lần khởi động sau).
 - **Gọi boss trên panel:** gõ tên boss (gợi ý đủ 151 loại, kèm số con đang có), chọn bản đồ + khu (bỏ trống: bản đồ mặc định / khu ngẫu nhiên), số lượng 1 - 10, tuỳ chọn "chỉ xuất hiện 1 lần" (bị hạ / rời map là mất, không hồi sinh). Boss tự chọn map như Broly cũng được đưa về đúng khu đã chọn.
+- **Gọi được Super Broly** (boss cho đệ tử) trên panel: trước chỉ hiện khi hạ Broly nên panel báo "chưa hỗ trợ"; gọi không chọn map thì ra ngẫu nhiên trong các map của Super Broly.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
