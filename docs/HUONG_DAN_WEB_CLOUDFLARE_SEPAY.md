@@ -51,6 +51,33 @@ Không cần mở cổng nào trên VPS, https có sẵn, giấu IP máy chủ.
 
 ---
 
+## 1a. Đang dùng: Cloudflare Worker, chưa cần tên miền
+
+Trang chủ chạy ở **https://nro-web.dov77471.workers.dev** (Cloudflare Worker `nro-web`). Worker gồm:
+
+- Giao diện `data/web/index.html`.
+- Bộ chuyển tiếp `cloudflare/lib/proxy.js` qua `cloudflare/worker.js`, chuyển `/api/*` và `/icon/*` về server game qua `BACKEND_URL = http://160-191-243-165.sslip.io:8080`.
+  - `sslip.io` là tên miền miễn phí tự trỏ về IP VPS, vì Cloudflare không cho gọi thẳng địa chỉ IP.
+
+Trên VPS Windows, chạy **một lần** `cloudflare/setup_vps_windows.bat`: chuột phải → **Run as administrator**, dán `PROXY_KEY`. File này làm 2 việc:
+
+- Mở cổng 8080 trên tường lửa Windows.
+- Ghi `web.proxy.key` vào `Config.properties`.
+
+Sau đó khởi động lại server game. Nếu nhà cung cấp VPS có tường lửa riêng trên trang quản lý, mở thêm cổng TCP 8080 ở đó.
+
+**Cập nhật trang** sau khi sửa `data/web/index.html`:
+
+```bash
+CF_API_TOKEN=... CF_ACCOUNT_ID=... BACKEND_URL=http://160-191-243-165.sslip.io:8080 PROXY_KEY=... bash cloudflare/deploy_worker.sh
+```
+
+`PROXY_KEY` phải trùng `web.proxy.key` trên VPS.
+
+**Khi có tên miền**: làm theo mục 1 (Tunnel) và 1b để có https từ đầu tới cuối, rồi đổi `BACKEND_URL` sang `https://api.ten-mien`.
+
+---
+
 ## 1b. Trang chủ chạy riêng trên Cloudflare Pages (khuyên dùng)
 
 Trang chủ (giao diện) được Cloudflare phục vụ từ khắp nơi. Server game tắt hay bảo trì thì trang chủ vẫn mở được, chỉ các mục cần dữ liệu báo "đang bảo trì".
