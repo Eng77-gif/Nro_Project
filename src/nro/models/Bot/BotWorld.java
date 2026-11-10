@@ -731,7 +731,15 @@ public final class BotWorld {
         int[][] maps = {{1, 2, 3}, {8, 9, 11}, {15, 16, 17}};
         b.boss.prefer = null;
         b.setMode(0);
-        b.questMap = maps[Math.max(0, Math.min(2, b.gender))][Util.nextInt(0, 2)];
+        int[] mine = maps[Math.max(0, Math.min(2, b.gender))];
+        b.questMap = mine[Util.nextInt(0, 2)];
+        for (int t = 0; t < 6 && !(b.canGo(b.questMap) && b.strongEnough(b.questMap)); t++) {
+            b.questMap = mine[Util.nextInt(0, 2)]; // chỉ úp ở map đã mở và đánh nổi quái
+        }
+        if (!(b.canGo(b.questMap) && b.strongEnough(b.questMap))) {
+            train(b);
+            return;
+        }
         b.questMob = -1;
         b.activity = "Úp SKH";
         b.joinMap();
@@ -755,8 +763,8 @@ public final class BotWorld {
             return;
         }
         nro.models.map.Zone z = m.zones.get(Util.nextInt(0, m.zones.size() - 1));
-        if (z.isFullPlayer()) {
-            train(b);
+        if (z.isFullPlayer() || (b.accountBot && (!b.canGo(m.mapId) || !b.strongEnough(m.mapId)))) {
+            train(b); // map NRSD chưa mở theo nhiệm vụ hoặc quá sức: luyện tiếp
             return;
         }
         b.setMode(0);
@@ -803,6 +811,10 @@ public final class BotWorld {
             return;
         }
         Bot o = others.get(rnd.nextInt(others.size()));
+        if (o.zone != b.zone && b.accountBot && (!b.canGo(o.zone.map.mapId) || !b.strongEnough(o.zone.map.mapId))) {
+            train(b); // không chạy sang map chưa mở / quá sức chỉ để PK
+            return;
+        }
         if (o.zone != b.zone) {
             ChangeMapService.gI().goToMap(b, o.zone);
             o.zone.load_Me_To_Another(b);

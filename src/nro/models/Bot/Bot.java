@@ -163,6 +163,28 @@ public class Bot extends Player {
         return hp <= this.nPoint.dame * 30 && dame * 6 <= this.nPoint.hpMax;
     }
 
+    /** Map luyện tập đã mở theo nhiệm vụ có quái yếu nhất (trung vị HP thấp nhất) trên hành tinh của bot; -1 nếu chưa mở map nào. */
+    int easiestMap() {
+        int[] home = this.gender == 0 ? new int[]{1, 2, 3, 4, 6, 29, 30, 28, 27}
+                : this.gender == 1 ? new int[]{8, 9, 10, 11, 12, 13, 33, 34, 32, 31} : new int[]{15, 16, 17, 18, 19, 20, 37, 36, 35};
+        int best = -1;
+        long bestHp = Long.MAX_VALUE;
+        for (int id : home) {
+            Map m = MapService.gI().getMapById(id);
+            if (m == null || m.zones.isEmpty() || m.zones.get(0).mobs.isEmpty() || !canGo(id)) {
+                continue;
+            }
+            java.util.List<nro.models.mob.Mob> mobs = new java.util.ArrayList<>(m.zones.get(0).mobs);
+            mobs.sort(java.util.Comparator.comparingLong(x -> x.point.getHpFull()));
+            long hp = mobs.get(mobs.size() / 2).point.getHpFull();
+            if (hp < bestHp) {
+                bestHp = hp;
+                best = id;
+            }
+        }
+        return best;
+    }
+
     /** Tài khoản bot chỉ vào map người chơi cùng nhiệm vụ vào được (luật ChangeMapService.checkMapCanJoin: Namếc, tương lai, Cold...). */
     public boolean canGo(int mapId) {
         if (!this.accountBot || (this.stayMap && mapId == this.questMap)) {
@@ -185,6 +207,14 @@ public class Bot extends Player {
             if (!canGo(mapId)) {
                 return;
             }
+        }
+        if (this.accountBot && !strongEnough(mapId)) {
+            // rút ngẫu nhiên không ra map vừa sức (hoặc map úp SKH / map nhiệm vụ quá mạnh): tới map dễ nhất đã mở, không liều vào map quái trâu
+            int easy = easiestMap();
+            if (easy < 0) {
+                return;
+            }
+            mapId = easy;
         }
         Zone zone = getRandomZone(mapId);
         if (zone != null) {

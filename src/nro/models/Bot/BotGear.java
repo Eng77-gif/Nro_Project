@@ -31,6 +31,7 @@ final class BotGear {
             return;
         }
         next.put(b.id, now + Util.nextInt(90, 180) * 1000L);
+        dropIllGotten(b);
         wearBest(b);
         buyLook(b, 5);  // cải trang
         buyLook(b, 7);  // pet
@@ -94,6 +95,9 @@ final class BotGear {
         }
         ItemShop pick = null;
         for (var shop : Manager.SHOPS) {
+            if (!REAL_SHOPS.contains(shop.tagName) || !reach(b, shop.npcId)) {
+                continue; // chỉ mua ở cửa hàng vàng / ngọc thật (Santa, Urôn) khi bot đã mở được map có NPC đó
+            }
             for (var tab : shop.tabShops) {
                 for (ItemShop is : tab.itemShops) {
                     if (is.temp == null || is.cost <= 0 || !fits(slot, is.temp) || !wearable(b, is.temp)) {
@@ -130,6 +134,61 @@ final class BotGear {
         }
     }
 
+    /**
+     * Cửa hàng bán bằng vàng / ngọc thật. Các shop khác (đổi điểm Quy Lão, shop bang, shop VIP, shop sự kiện) ghi giá bằng điểm /
+     * điều kiện riêng nên bot không có điểm thì không được "mua".
+     */
+    private static final java.util.Set<String> REAL_SHOPS = java.util.Set.of("SANTA", "URON");
+
+    /**
+     * Gỡ cải trang / pet / đeo lưng / ván bay bot đang mặc mà không thể có thật: món chỉ bán ở shop đổi điểm, shop bang, shop VIP...
+     * (trước đây bot "mua" được dù không có điểm) hoặc bán ở Santa / Urôn khi bot chưa mở được map có NPC đó. Đồ rơi / quà (không
+     * bán ở cửa hàng nào) giữ nguyên.
+     */
+    private static void dropIllGotten(Bot b) {
+        if (!b.accountBot) {
+            return;
+        }
+        boolean changed = false;
+        for (int slot : new int[]{5, 7, 8, 9}) {
+            if (slot >= b.inventory.itemsBody.size() || !b.inventory.itemsBody.get(slot).isNotNullItem()) {
+                continue;
+            }
+            int id = b.inventory.itemsBody.get(slot).template.id;
+            boolean sold = false, legit = false;
+            for (var shop : Manager.SHOPS) {
+                for (var tab : shop.tabShops) {
+                    for (ItemShop is : tab.itemShops) {
+                        if (is.temp != null && is.temp.id == id) {
+                            sold = true;
+                            legit |= REAL_SHOPS.contains(shop.tagName) && reach(b, shop.npcId);
+                        }
+                    }
+                }
+            }
+            if (sold && !legit) {
+                b.inventory.itemsBody.set(slot, ItemService.gI().createItemNull());
+                changed = true;
+            }
+        }
+        if (changed) {
+            Service.gI().point(b);
+            Service.gI().Send_Caitrang(b);
+        }
+    }
+
+    /** Bot đã vào được ít nhất 1 map có NPC bán hàng này chưa (Santa / Urôn ở Đảo Kamê, Đảo Guru, Vách núi đen: sau nhiệm vụ 7). */
+    private static boolean reach(Bot b, int npcId) {
+        for (nro.models.map.Map m : Manager.MAPS) {
+            for (nro.models.npc.Npc n : m.npcs) {
+                if (n.tempId == npcId && b.canGo(m.mapId)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /** Mua sách nâng chiêu đệ tử (ngọc, như cửa hàng) cho chiêu thấp cấp nhất, khi còn dư ngọc. */
     private static void petSkills(Bot b) {
         if (b.pet == null || b.pet.playerSkill == null) {
@@ -142,7 +201,7 @@ final class BotGear {
                 low = i;
             }
         }
-        if (low >= 0 && b.inventory.gem >= PET_BOOK_GEM[low] * 3L && SkillUtil.upSkillPet(b.pet.playerSkill.skills, low)) {
+        if (low >= 0 && reach(b, nro.models.consts.ConstNpc.SANTA) && b.inventory.gem >= PET_BOOK_GEM[low] * 3L && SkillUtil.upSkillPet(b.pet.playerSkill.skills, low)) {
             b.inventory.gem -= PET_BOOK_GEM[low];
         }
     }

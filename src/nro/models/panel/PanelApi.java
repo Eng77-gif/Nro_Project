@@ -782,6 +782,8 @@ public class PanelApi {
             m.put("activity", bot != null ? bot.activity : "");
             m.put("power", bot != null ? bot.nPoint.power : null);
             m.put("map", bot != null && bot.zone != null ? bot.zone.map.mapName + " khu " + bot.zone.zoneId : "");
+            m.put("mapFit", bot == null || bot.zone == null || bot.strongEnough(bot.zone.map.mapId)); // quái ở map hiện tại có vừa sức bot không
+            m.put("look", bot != null && bot.inventory.itemsBody.size() > 5 && bot.inventory.itemsBody.get(5).isNotNullItem() ? bot.inventory.itemsBody.get(5).template.name : "");
             out.add(m);
         }
         return out;
