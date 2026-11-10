@@ -563,6 +563,9 @@ public final class BotWorld {
         if (b.clan != null) {
             b.clan.addMemberOnline(b); // nạp kiểu offline không thêm vào danh sách thành viên online
         }
+        b.nPoint.calPoint();
+        b.nPoint.hp = b.nPoint.hpMax; // vào game đầy HP / KI (đồ mặc cộng thêm HP nên thanh máu không bị hụt sẵn)
+        b.nPoint.mp = b.nPoint.mpMax;
         BotManager.gI().bot.add(b);
         b.joinMap();
         if (b.zone == null) {

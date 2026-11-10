@@ -281,7 +281,7 @@ public class FriendAndEnemyService {
             int playerId = msg.reader().readInt();
             Player pl = online(playerId);
             if (pl != null) {
-                if (player.isAdmin() || player.nPoint.teleport) {
+                if (player.nPoint.teleport) { // admin cũng phải mặc CT Yardrat / đồ có dòng dịch chuyển tức thời như người chơi
                     if (!pl.itemTime.isUseAnDanh || player.isAdmin()) {
                         if ((player.isAdmin() || !pl.zone.isFullPlayer()) && !MapService.gI().isMapOffline(pl.zone.map.mapId) && !MapService.gI().isMapBlackBallWar(pl.zone.map.mapId) && !MapService.gI().isMapPhoBan(pl.zone.map.mapId) && !MapService.gI().isMapMaBu(pl.zone.map.mapId)) {
                             ChangeMapService.gI().changeMapYardrat(player, ChangeMapService.gI().checkMapCanJoin(player, pl.zone), pl.location.x + Util.nextInt(-5, 5), pl.location.y);

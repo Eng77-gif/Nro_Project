@@ -32,8 +32,11 @@ public class RongXuong {
     private static final long WAIT_MS = 5 * 60_000L, RESUMMON_MS = 60_000L, BUFF_MS = 30 * 60_000L;
     /** Hiệu ứng hình Rồng Xương trong data/effect (client không có hình rồng xương ở lệnh gọi rồng -83). */
     public static final int EFFECT_RONG_XUONG = 51;
-    /** -1: hiện bằng hiệu ứng 51 (mặc định); 0 / 1: dùng hình rồng của client (0 Rồng thần Trái Đất, 1 Rồng Namek). */
-    public static volatile int dragonType = -1;
+    /**
+     * 0 (mặc định): gọi rồng như bộ ngọc 1 sao (lệnh gọi rồng của client: trời tối, rồng thần hiện lên, client tự đóng hành trang);
+     * 1: hình Rồng Namek; -1: chỉ hiện hiệu ứng 51 sau lưng (hành trang không tự đóng).
+     */
+    public static volatile int dragonType = 0;
 
     private static final String SAY_1 = "Ta sẽ ban cho ngươi một điều ước, ngươi có 5 phút, hãy chọn đi:\n"
             + "1) Đổi cả 3 kỹ năng đầu của đệ tử\n(Lưu ý: Kỹ năng mới có cấp 1 và vẫn có thể trùng lại với kỹ năng vốn có).\n"

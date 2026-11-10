@@ -254,14 +254,14 @@ public class BotPemQuai {
             if (mAttack != null) {
                 int dame = Util.nextInt(10000, 15000);
             }
-            SkillService.gI().useSkillAttack(bot, bot, mAttack);
+            SkillService.gI().useSkillAttack(bot, null, mAttack); // mục tiêu chỉ là quái (trước đây truyền chính bot làm mục tiêu người chơi nên bot tự đánh mình, mất HP)
             SkillService.gI().useSkillAlone(bot);
             return;
         }
 
         if (this.bot.UseLastTimeSkill()) {
             PlayerService.gI().playerMove(this.bot, this.mAttack.location.x, this.mAttack.location.y);
-            SkillService.gI().useSkillAttack(bot, bot, mAttack);
+            SkillService.gI().useSkillAttack(bot, null, mAttack); // mục tiêu chỉ là quái (trước đây truyền chính bot làm mục tiêu người chơi nên bot tự đánh mình, mất HP)
             SkillService.gI().useSkillAlone(bot);
         }
     }

@@ -1815,6 +1815,10 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - Mua cải trang / đeo lưng / pet / ván bay / sách đệ tử: chỉ ở cửa hàng vàng / ngọc thật (Santa, Urôn) và chỉ khi bot đã mở được map có NPC đó (sau nhiệm vụ 7, tới Đảo Kamê / Đảo Guru / Vách núi đen). Trước đây bot "mua" ở mọi cửa hàng, gồm shop đổi điểm Quy Lão, shop bang, shop VIP, shop sự kiện (giá ở đó là điểm chứ không phải ngọc).
   - Đồ bot đang mặc mà không thể có thật (mua từ các shop trên, hoặc mua ở Santa / Urôn khi chưa tới được) được gỡ khi bot chạy lại; đồ rơi / quà giữ nguyên.
   - Panel API `bot/accounts` thêm `mapFit` (map hiện tại có vừa sức không) và `look` (cải trang đang mặc) để soi.
+- **Bot tự mất HP khi đánh quái (mộc nhân, máy đo sức mạnh, mọi quái):** lệnh đánh quái của bot truyền chính bot làm "người chơi bị đánh" nên mỗi đòn bot tự đánh vào mình. Sửa: mục tiêu chỉ là quái. Bot vào game đầy HP / KI.
+- **Dịch chuyển tức thời tới người chơi:** tài khoản admin không còn được miễn điều kiện, phải mặc CT Yardrat hoặc đồ có dòng "Dịch chuyển tức thời" như mọi người (người chơi thường vốn đã bị chặn).
+- **Rồng Xương** gọi như bộ ngọc 1 sao (lệnh gọi rồng của client: trời tối, rồng thần hiện, hành trang tự đóng) thay cho hiệu ứng 51 đứng sau lưng. Đổi lại bằng lệnh sự kiện `rongtype -1`.
+- **Panel trang Boss trên điện thoại:** ô "Chỉ xuất hiện 1 lần" không còn phình to / chữ dọc; form gọi boss xếp 2 cột gọn, nút Gọi boss rộng hết hàng.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
