@@ -309,8 +309,12 @@ public class ServerManager {
         Client.gI().close();
         Logger.success("SUCCESSFULLY MAINTENANCE!\n");
 
+        if (System.getenv("NRO_RESTART_LOOP") != null) {
+            // run.bat / run_vps_yeu.bat / .sh bản mới: mã thoát 3 = tự bật lại ngay trong cửa sổ đang chạy (không mở cửa sổ thứ hai)
+            System.exit(3);
+        }
         try {
-            Runtime.getRuntime().exec("cmd /c start restart_server.bat");
+            Runtime.getRuntime().exec("cmd /c start restart_server.bat"); // file chạy bản cũ
         } catch (IOException e) {
             e.printStackTrace();
         }
