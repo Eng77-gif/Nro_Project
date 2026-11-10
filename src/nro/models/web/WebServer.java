@@ -199,6 +199,12 @@ public class WebServer {
      */
     String clientIp(HttpExchange ex) {
         java.net.InetAddress remote = ex.getRemoteAddress().getAddress();
+        // trang chủ chạy riêng trên Cloudflare Pages (thư mục cloudflare/): Pages Function gửi kèm IP người chơi và khoá web.proxy.key
+        String key = conf("web.proxy.key"), given = ex.getRequestHeaders().getFirst("X-NRO-Proxy-Key"), pip = ex.getRequestHeaders().getFirst("X-NRO-Client-IP");
+        if (!key.isEmpty() && given != null && pip != null && !pip.isBlank()
+                && MessageDigest.isEqual(key.getBytes(StandardCharsets.UTF_8), given.getBytes(StandardCharsets.UTF_8))) {
+            return pip.trim();
+        }
         String cf = ex.getRequestHeaders().getFirst("CF-Connecting-IP");
         if (cf != null && "true".equalsIgnoreCase(conf("web.cloudflare")) && (remote.isLoopbackAddress() || fromCloudflare(remote))) {
             return cf.trim();

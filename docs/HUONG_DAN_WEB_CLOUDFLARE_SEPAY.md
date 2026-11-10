@@ -51,6 +51,66 @@ Không cần mở cổng nào trên VPS, https có sẵn, giấu IP máy chủ.
 
 ---
 
+## 1b. Trang chủ chạy riêng trên Cloudflare Pages (khuyên dùng)
+
+Trang chủ (giao diện) được Cloudflare phục vụ từ khắp nơi. Server game tắt hay bảo trì thì trang chủ vẫn mở được, chỉ các mục cần dữ liệu báo "đang bảo trì".
+
+Dữ liệu (đăng nhập, diễn đàn, nạp...) vẫn lấy từ server game: Pages Function trong thư mục `cloudflare/` chuyển tiếp `/api/*` và `/icon/*` sang server qua Cloudflare Tunnel. Người chơi chỉ thấy 1 tên miền.
+
+```
+người chơi ──https──> nro.ten-mien.com (Cloudflare Pages: trang tĩnh + Function)
+                              │  /api/*, /icon/*
+                              └──https──> api.ten-mien.com (Tunnel) ──> server game :8080
+SePay / cổng thẻ ──https──> api.ten-mien.com/callback/sepay | /callback/card
+```
+
+### Bước 1: tunnel cho API
+
+Làm như **Cách A** ở trên, nhưng hostname đặt là `api` (ví dụ `api.ten-mien.com` → `HTTP localhost:8080`).
+
+### Bước 2: tạo dự án Pages nối với GitHub
+
+Mỗi lần đẩy code lên `main`, Cloudflare tự dựng lại trang.
+
+1. Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git** → chọn repo của server.
+2. Build settings:
+   - Production branch: `main`
+   - Framework preset: `None`
+   - **Root directory**: `cloudflare`
+   - **Build command**: `bash build.sh`
+   - **Build output directory**: `public`
+3. **Environment variables** (Settings → Variables and Secrets, cho Production):
+   - `BACKEND_URL` = `https://api.ten-mien.com`
+   - `PROXY_KEY` = một chuỗi ngẫu nhiên dài. Chọn loại **Secret** (mã hoá).
+4. **Custom domains** → thêm `ten-mien.com` hoặc `nro.ten-mien.com`.
+
+### Bước 3: cấu hình server game
+
+```properties
+web.host=127.0.0.1
+web.cloudflare=true
+web.proxy.key=<cùng chuỗi PROXY_KEY ở bước 2>
+```
+
+Khởi động lại server. `web.proxy.key` để server tin IP người chơi mà Pages gửi kèm (chống spam, khoá đăng nhập sai đúng người). Thiếu hoặc sai khoá thì header IP bị bỏ qua.
+
+### Triển khai bằng lệnh (không nối GitHub)
+
+```bash
+cd cloudflare
+bash build.sh
+npx wrangler pages deploy public --project-name nro-web
+```
+
+Lệnh phải chạy trong thư mục `cloudflare` để wrangler tìm thấy thư mục `functions/`.
+
+### Ghi chú
+
+- Nguồn giao diện vẫn là **một file** `data/web/index.html`. `build.sh` chép nó sang `cloudflare/public/`. Sửa giao diện chỉ sửa file đó; server game vẫn phục vụ cùng trang ở cổng 8080 làm dự phòng.
+- Webhook SePay và callback thẻ cào trỏ thẳng `https://api.ten-mien.com/callback/...`, không qua Pages.
+
+---
+
 ## 2. SePay: tự động cộng tiền chuyển khoản
 
 SePay đọc biến động số dư tài khoản ngân hàng và gọi về server mỗi khi có tiền vào. Server tìm mã `NAP<số>` trong nội dung chuyển khoản, khớp với yêu cầu nạp trên web rồi tự cộng tiền. Không còn phải duyệt tay.

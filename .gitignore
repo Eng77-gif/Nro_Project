@@ -11,3 +11,7 @@ admin/
 # khóa riêng chữ ký số Việt: không đưa lên git
 *.p12
 *.jks
+
+# Cloudflare Pages: thư mục gom tự sinh
+cloudflare/public/
+cloudflare/.wrangler/

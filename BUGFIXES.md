@@ -1807,6 +1807,7 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Web người chơi gắn Cloudflare + SePay** (hướng dẫn từng bước: `docs/HUONG_DAN_WEB_CLOUDFLARE_SEPAY.md`):
   - Cloudflare: `web.cloudflare=true` lấy IP thật của người chơi từ `CF-Connecting-IP`, chỉ tin header khi yêu cầu đến từ dải IP Cloudflare hoặc từ chính máy (Cloudflare Tunnel), nên chống spam / khoá đăng nhập theo đúng người. `web.host=127.0.0.1` khi dùng Tunnel để không lộ cổng 8080.
   - SePay: webhook `/callback/sepay` (chứng thực `Authorization: Apikey <web.sepay.apikey>`). Tiền vào có `NAP<mã>` trong nội dung thì tự duyệt yêu cầu nạp, cộng theo số tiền thật nhận. Mọi giao dịch lưu ở `web_bank_txn` (Đợt 113) theo mã giao dịch SePay nên gửi lại không cộng trùng. Giao dịch không khớp (sai nội dung, chuyển 2 lần) hiện ở panel → Nạp qua web → "Giao dịch ngân hàng từ SePay".
+- **Trang chủ chạy riêng trên Cloudflare Pages** (thư mục `cloudflare/`): trang tĩnh + Pages Function chuyển tiếp `/api/*`, `/icon/*` sang server game qua Tunnel (`BACKEND_URL`), cùng 1 tên miền nên không cần CORS; server game sập / bảo trì thì trang chủ vẫn mở. IP người chơi gửi kèm, server chỉ tin khi đúng khoá `web.proxy.key` (= `PROXY_KEY` của Pages). Nối GitHub thì mỗi lần đẩy `main` Cloudflare tự dựng lại (Root `cloudflare`, build `bash build.sh`, output `public`). Hướng dẫn: `docs/HUONG_DAN_WEB_CLOUDFLARE_SEPAY.md` mục 1b.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
