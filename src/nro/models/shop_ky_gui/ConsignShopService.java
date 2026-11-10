@@ -231,6 +231,7 @@ public class ConsignShopService {
                 }
                 msg.writeDescOption(itk.itemId); // client J2ME: thêm dòng mô tả item
                 msg.writer().writeByte(0);
+                writeSeller(msg, pl, itk);
             }
             pl.sendMessage(msg);
         } catch (Exception e) {
@@ -358,6 +359,30 @@ public class ConsignShopService {
     /** Đồ sự kiện chỉ bán ở chợ đồ sự kiện (NPC KY_GUI_SU_KIEN), đồ thường chỉ ở cửa hàng ký gửi. */
     private static boolean inMarket(Player pl, int itemId) {
         return nro.models.services.SeasonEventService.gI().isEventMaterial(itemId) == pl.kyGuiEvent;
+    }
+
+    private static final java.util.Map<Integer, String> SELLER_NAMES = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * Client từ 2.3.7 đọc thêm tên người ký gửi sau mỗi món (gói -44 loại 2 và -100). Thiếu trường này client đọc lệch cả gói nên
+     * cửa hàng ký gửi có hàng là không mở được.
+     */
+    private static void writeSeller(Message msg, Player pl, ConsignItem itk) throws java.io.IOException {
+        if (pl.getSession().version < 237) {
+            return;
+        }
+        msg.writer().writeUTF(SELLER_NAMES.computeIfAbsent(itk.player_sell, id -> {
+            Player on = nro.models.server.Client.gI().getPlayer((long) id);
+            if (on != null) {
+                return on.name;
+            }
+            try {
+                nro.models.data.LocalResultSet rs = nro.models.data.LocalManager.executeQuery("select name from player where id = ?", id);
+                return rs.first() ? rs.getString("name") : "";
+            } catch (Exception e) {
+                return "";
+            }
+        }));
     }
 
     public boolean itemCanConsign(Item it) {
@@ -544,6 +569,7 @@ public class ConsignShopService {
                         msg.writeDescOption(itk.itemId); // client J2ME: thêm dòng mô tả item
                         msg.writer().writeByte(0);
                         msg.writer().writeByte(0);
+                        writeSeller(msg, pl, itk);
                     }
                 } else {
                     List<ConsignItem> items = getItemKyGui(pl, i);
@@ -576,6 +602,7 @@ public class ConsignShopService {
                         msg.writeDescOption(itk.itemId); // client J2ME: thêm dòng mô tả item
                         msg.writer().writeByte(0);
                         msg.writer().writeByte(0);
+                        writeSeller(msg, pl, itk);
                     }
                 }
             }

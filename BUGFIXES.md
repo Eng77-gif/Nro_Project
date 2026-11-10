@@ -1819,6 +1819,9 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Dịch chuyển tức thời tới người chơi:** tài khoản admin không còn được miễn điều kiện, phải mặc CT Yardrat hoặc đồ có dòng "Dịch chuyển tức thời" như mọi người (người chơi thường vốn đã bị chặn).
 - **Rồng Xương** gọi như bộ ngọc 1 sao (lệnh gọi rồng của client: trời tối, rồng thần hiện, hành trang tự đóng) thay cho hiệu ứng 51 đứng sau lưng. Đổi lại bằng lệnh sự kiện `rongtype -1`.
 - **Panel trang Boss trên điện thoại:** ô "Chỉ xuất hiện 1 lần" không còn phình to / chữ dọc; form gọi boss xếp 2 cột gọn, nút Gọi boss rộng hết hàng.
+- **Cửa hàng ký gửi không mở trên client APK / PC (và J2ME từ 2.3.7):** client đọc thêm tên người ký gửi sau mỗi món (gói -44 loại 2 và -100), server không gửi nên hễ shop có hàng là client đọc lệch cả gói, không hiện gì (shop trống thì mở được nên khó phát hiện). Nay gửi tên người bán, client cũng hiện tên dưới món hàng.
+- **Đổi cờ không hiện bảng trên client APK "số lớn" (DragonBoy 2.4.9 / Unity gửi `|long`):** gói bảng cờ ghi chỉ số kiểu cũ (1 + 2 byte) trong khi client đọc 2 + 4 byte. Nay ghi theo giao thức của từng client.
+- Kiểm chứng bằng bộ đọc gói viết theo đúng mã nguồn client Unity 2.4.7 (đọc hết gói, không lệch byte nào) cho cả client thường và client số lớn.
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

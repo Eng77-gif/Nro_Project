@@ -1386,19 +1386,15 @@ public class Service {
             for (int i = 0; i < flagTempId.length; i++) {
                 msg.writer().writeShort(flagTempId[i]);
                 msg.writer().writeByte(1);
+                // ghi theo giao thức của từng client: client APK "số lớn" đọc mã chỉ số 2 byte + giá trị 4 byte; ghi cứng 1 + 2 byte làm
+                // client đọc lệch, không hiện bảng đổi cờ
                 switch (flagTempId[i]) {
-                    case 363:
-                        msg.writer().writeByte(73);
-                        msg.writer().writeShort(0);
-                        break;
-                    case 371:
-                        msg.writer().writeByte(88);
-                        msg.writer().writeShort(10);
-                        break;
-                    default:
-                        msg.writer().writeByte(88);
-                        msg.writer().writeShort(5);
-                        break;
+                    case 363 ->
+                        msg.writeItemOption(73, 0);
+                    case 371 ->
+                        msg.writeItemOption(88, 10);
+                    default ->
+                        msg.writeItemOption(88, 5);
                 }
             }
             pl.sendMessage(msg);
