@@ -17,6 +17,11 @@ export async function proxy({ request, env }) {
   if (request.method !== 'GET' && request.method !== 'HEAD') init.body = await request.arrayBuffer();
   try {
     const res = await fetch(backend + url.pathname + url.search, init);
+    const type = res.headers.get('content-type') || '';
+    if (url.pathname.startsWith('/api/') && !type.includes('json')) {
+      // không phải web server của game trả lời (server cũ chưa có web, cổng 8080 bị chương trình khác chiếm...)
+      return json(502, `Máy chủ game chưa bật trang web (HTTP ${res.status}). Cập nhật server bản mới rồi khởi động lại.`);
+    }
     const out = new Headers({ 'x-content-type-options': 'nosniff' });
     for (const h of ['content-type', 'cache-control']) {
       const v = res.headers.get(h);
