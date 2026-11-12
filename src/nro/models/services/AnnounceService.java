@@ -37,13 +37,6 @@ public class AnnounceService {
         pl.loginAnnounced = pl.getSession();
         new Thread(() -> {
             try {
-                if (pl.hasMam()) { // đệ tử nhắc hạn tìm set kích hoạt (còn mầm), chờ đệ tử hiện trên map
-                    Thread.sleep(4000);
-                    if (pl.pet != null) {
-                        String until = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new java.util.Date(pl.newMemberUntil));
-                        nro.models.services.Service.gI().chatJustForMe(pl, pl.pet, "Thời gian tìm set kích hoạt đến " + until);
-                    }
-                }
                 announce(pl);
             } catch (Exception e) {
                 nro.models.utils.Logger.error("Thông báo top khi đăng nhập lỗi: " + e + "\n");

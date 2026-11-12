@@ -290,6 +290,7 @@ public class Player implements Runnable {
     /** Hạn vào Ngục tù may mắn (Phiếu sao vàng may mắn) */
     public long luckyMapUntil;
     private long lastLuckyMapCheck;
+    private long lastMamNotice = System.currentTimeMillis() - 280_000; // lần đầu ~20 giây sau khi vào game
     public long timePKVDST;
 
     public int binhChonHatMit;
@@ -507,6 +508,11 @@ public class Player implements Runnable {
                     }
                     if (fusion != null) {
                         fusion.update();
+                    }
+                    if (isPl() && hasMam() && Util.canDoWithTime(lastMamNotice, 300_000) && pet != null && pet.zone != null && pet.zone == zone) {
+                        lastMamNotice = System.currentTimeMillis(); // còn mầm: đệ tử nhắc hạn tìm set kích hoạt mỗi 5 phút (bong bóng chat như bản chính thức)
+                        Service.gI().chatJustForMe(this, pet, "Thời gian tìm set kích hoạt đến "
+                                + new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new java.util.Date(newMemberUntil)));
                     }
                     if (isPl() && Util.canDoWithTime(lastLuckyMapCheck, 5000)) {
                         lastLuckyMapCheck = System.currentTimeMillis();
