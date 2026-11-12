@@ -342,6 +342,9 @@ public class ItemData {
 
     /** Id dòng "mô tả" của item cho client J2ME, -1 nếu item không có mô tả. */
     public static int descOption(int templateId) {
+        if (true) {
+            return -1; // Dragonboy247 v7.0 đã nhận mô tả qua gói lệnh 12 và hiện dưới vạch kẻ: thêm dòng này là lặp mô tả 2 lần
+        }
         if (templateId < 0 || templateId >= Manager.ITEM_TEMPLATES.size()) {
             return -1;
         }

@@ -102,9 +102,9 @@ public class BotQuest {
         if (BotArena.inArena(b)) {
             return;
         }
-        if (tm.id == 17 && tm.index == 1) { // nhiệm vụ thử thách: thắng đại hội võ thuật (đấu thật ở ĐHVT lần thứ 23)
-            if (!BotArena.startDhvt23(b)) {
-                b.activity = "Luyện tập"; // chưa đủ vàng / hết lượt hôm nay: luyện tiếp rồi thử lại
+        if (tm.id == 17 && tm.index == 1) { // nhiệm vụ thử thách: đấu giải đại hội võ thuật (Nhi đồng, Siêu cấp, Ngoại hạng) như người chơi
+            if (!BotArena.startDhvt(b)) {
+                b.activity = "Luyện tập"; // chưa tới giờ đăng ký / chưa đủ ngọc: luyện tiếp rồi thử lại
                 actionable.put(b.id, false);
             }
             return;

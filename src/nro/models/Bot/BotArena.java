@@ -26,7 +26,8 @@ import nro.models.utils.Util;
 public final class BotArena {
 
     static final int MODE_ARENA = 3, MAP_SIEU_HANG = 113, MAP_DHVT23 = 129, MAP_THANH_THUY = 146;
-    static final String SIEU_HANG = "Giải siêu hạng", DHVT_23 = "Đại hội võ thuật lần thứ 23", MA_VUONG = "Tìm Đại Ma Vương";
+    static final String SIEU_HANG = "Giải siêu hạng", DHVT_23 = "Đại hội võ thuật lần thứ 23", MA_VUONG = "Tìm Đại Ma Vương", DHVT = "Đại hội võ thuật";
+    static final int MAP_DHVT = 52;
 
     private BotArena() {
     }
@@ -128,6 +129,72 @@ public final class BotArena {
         return true;
     }
 
+    // ------------------------------------------------------------------ đại hội võ thuật (Nhi đồng, Siêu cấp 1 - 3, Ngoại hạng)
+    /** Tới Đại hội võ thuật, đăng ký giải đang mở như người chơi (Trọng tài), chờ ghép cặp rồi đấu với người chơi / bot khác. */
+    public static boolean startDhvt(Bot b) {
+        if (b.zone == null || inArena(b) || !nro.models.matches.giai_dau.WorldMartialArtsTournamentManager.gI().canReg) {
+            return false;
+        }
+        if (b.zone.map.mapId != MAP_DHVT) {
+            Zone z = b.getRandomZone(MAP_DHVT);
+            if (z == null) {
+                return false;
+            }
+            ChangeMapService.gI().goToMap(b, z);
+            b.zone.load_Me_To_Another(b);
+        }
+        if (!nro.models.matches.dai_hoi_vo_thuat.WorldMartialArtsTournamentService.botRegister(b)) {
+            return false;
+        }
+        begin(b, DHVT, 40 * 60_000L);
+        return true;
+    }
+
+    private static void updateDhvt(Bot b, long now) {
+        nro.models.matches.giai_dau.WorldMartialArtsTournamentManager m = nro.models.matches.giai_dau.WorldMartialArtsTournamentManager.gI();
+        nro.models.matches.dai_hoi_vo_thuat.WorldMartialArtsTournament match = null;
+        try {
+            for (nro.models.matches.dai_hoi_vo_thuat.WorldMartialArtsTournament w : new java.util.ArrayList<>(m.listTournaments)) {
+                if (w.player_1 == b || w.player_2 == b) {
+                    match = w;
+                }
+            }
+        } catch (Exception e) { // danh sách trận đổi giữa chừng: nhịp sau xem lại
+            return;
+        }
+        if (match != null) { // đang trên sàn: trọng tài đếm xong thì đánh đối thủ
+            Player opp = match.player_1 == b ? match.player_2 : match.player_1;
+            if (match.timeUp >= 23 && opp != null && !opp.isDie() && opp.zone == b.zone && !b.isDie()) {
+                attack(b, opp);
+            }
+            return;
+        }
+        if (m.listReg.contains(b.id) || m.listWait.contains(b.id)) { // chờ vòng sau: đứng ở Đại hội võ thuật (vắng mặt là bị loại)
+            if (b.zone.map.mapId != MAP_DHVT) {
+                Zone z = b.getRandomZone(MAP_DHVT);
+                if (z != null) {
+                    ChangeMapService.gI().goToMap(b, z);
+                    b.zone.load_Me_To_Another(b);
+                }
+            }
+            if (now <= b.arenaUntil) {
+                return;
+            }
+        }
+        end(b); // thua / vô địch / hết giải
+    }
+
+    private static void attack(Bot b, Player target) {
+        nro.models.skill.Skill pick = b.pickSkill(2);
+        if (pick != null) {
+            b.playerSkill.skillSelect = pick;
+        }
+        if (b.UseLastTimeSkill()) {
+            PlayerService.gI().playerMove(b, target.location.x, target.location.y);
+            SkillService.gI().useSkill(b, target, null, 0, null);
+        }
+    }
+
     /** Hết trận ĐHVT 23: nhận Rương gỗ cấp đã đạt (như bấm nhận thưởng ở NPC Ghi Danh). */
     private static void claimWoodChest(Bot b) {
         if (b.levelWoodChest <= 0 || !InventoryService.gI().finditemWoodChest(b) || InventoryService.gI().getCountEmptyBag(b) <= 0) {
@@ -160,6 +227,10 @@ public final class BotArena {
             return;
         }
         long now = System.currentTimeMillis();
+        if (DHVT.equals(b.activity)) {
+            updateDhvt(b, now);
+            return;
+        }
         int map = b.zone.map.mapId;
         boolean arenaMap = map == MAP_SIEU_HANG || map == MAP_DHVT23 || map == MAP_THANH_THUY;
         boolean matchOn = MA_VUONG.equals(b.activity) ? map == MAP_THANH_THUY && !b.winSTT

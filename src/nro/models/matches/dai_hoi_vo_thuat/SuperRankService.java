@@ -91,7 +91,7 @@ public class SuperRankService {
             List<SuperRankBuilder> list = type == 0 ? SuperRankDAO.getPlayerListInRank(player.superRank.rank, 100) : SuperRankDAO.getPlayerListInRankRange(player.superRank.rank, 11);
             msg = new Message(-96);
             msg.writer().writeByte(0);
-            msg.writer().writeUTF("Top 100 Cao Thủ");
+            msg.writer().writeUTF(type == 0 ? "Top 100 Cao Thủ" : "Giải siêu hạng"); // danh sách thách đấu (Trọng tài) không phải bảng Top 100
             msg.writer().writeByte(list.size());
             for (int i = 0; i < list.size(); i++) {
                 SuperRankBuilder sb = list.get(i);

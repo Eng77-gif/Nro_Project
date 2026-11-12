@@ -202,6 +202,7 @@ public class WorldMartialArtsTournamentManager implements Runnable {
     }
 
     public void reward(Player pl) {
+        nro.models.services.TaskService.gI().checkDoneTaskWinMartialArts(pl, 2); // vô địch: xong bước đại hội võ thuật của nhiệm vụ thử thách
         listChamp.add(pl.name);
         listReg.clear();
         listWait.clear();
@@ -257,7 +258,15 @@ public class WorldMartialArtsTournamentManager implements Runnable {
 
     public Player getPlayerById(long id) {
         try {
-            return Client.gI().getPlayer(id);
+            Player p = Client.gI().getPlayer(id);
+            if (p != null) {
+                return p;
+            }
+            for (nro.models.Bot.Bot b : nro.models.Bot.BotWorld.gI().bots()) { // tài khoản bot không nằm trong Client: trước đây đăng ký là bị loại
+                if (b.id == id) {
+                    return b;
+                }
+            }
         } catch (Exception e) {
         }
         return null;

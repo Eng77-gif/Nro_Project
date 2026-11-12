@@ -25,6 +25,7 @@ public class DropItem {
     public void update() {
         Zone zone = player.zone;
         if ((player.isPl() || player instanceof nro.models.Bot.Bot b && b.accountBot) && zone != null && zone.map.mapId == 52
+                && nro.models.services.TaskService.gI().getIdTask(player) == nro.models.consts.ConstTask.TASK_18_6 // chỉ rơi khi tới bước "Tìm mảnh giấy có chữ 'ma'"
                 && InventoryService.gI().getCountEmptyBag(player) > 0
                 && !InventoryService.gI().isExistItemBag(player, 726)
                 && !ItemMapService.gI().findItemMapByPlayer(player, 726)) {

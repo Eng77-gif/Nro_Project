@@ -127,6 +127,24 @@ public class WorldMartialArtsTournamentService extends ConstTournament {
         }
     }
 
+    /** Tài khoản bot đăng ký giải đang mở như người chơi bấm Trọng tài: đúng giải theo sức mạnh, trả vàng / ngọc. */
+    public static boolean botRegister(Player player) {
+        WorldMartialArtsTournamentManager m = WorldMartialArtsTournamentManager.gI();
+        int tour = getTournament();
+        if (!m.canReg || tour < 0 || m.listReg.contains(player.id) || m.listChamp.contains(player.name)) {
+            return false;
+        }
+        long pw = player.nPoint.power;
+        int need = pw < 1_500_000 ? NHI_DONG : pw < 15_000_000 ? SIEU_CAP_1 : pw < 150_000_000 ? SIEU_CAP_2 : pw < 1_500_000_000 ? SIEU_CAP_3 : NGOAI_HANG;
+        if ((tour != need && tour != NGOAI_HANG) || player.inventory.gold < tournamentGolds[tour] || player.inventory.getGem() < tournamentGems[tour]) {
+            return false;
+        }
+        player.inventory.gold -= tournamentGolds[tour];
+        player.inventory.subGem(tournamentGems[tour]);
+        m.listReg.add(player.id);
+        return true;
+    }
+
     public static boolean regCheck(Player player) {
         return WorldMartialArtsTournamentManager.gI().listReg.contains(player.id);
     }
