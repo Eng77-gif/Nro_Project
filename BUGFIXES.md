@@ -1835,6 +1835,13 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 
 - **Sa mạc hoang vu đứng hình (cả thông báo server cũng đứng)**: file ảnh quái Cađíc M bản x4 (`data/mob/x4/95`) có byte cuối = 2 (kiểu "boss mới") nhưng không kèm bảng khung hình. Client tra bảng rỗng nên lỗi ở mọi khung hình, vòng cập nhật dừng: quái đứng im, máu về 0 vẫn không chết, chữ chạy không chạy. Đổi byte về 0 như các quái thường.
 
+- **Thông báo set kích hoạt (Đợt 125)**: set cũ 3 hành tinh (Sôngôku, Thên Xin Hăng, Kirin, Picolo, Ốc tiêu, Pikkoro Daimao, Kakarot, Ca Đíc, Nappa) chỉ báo "... nhận được 1 trang bị Set kích hoạt"; set riêng (Thần Vũ Trụ Kaio, Cađic M, Nail chiến binh, Champa, Beerus, Gohan) kèm tên set. Chỉ báo chat thế giới, bỏ chạy chữ thông báo server; xoá các dòng thông báo server set kích hoạt cũ trong nhật ký panel.
+- **Thông báo đồ boss**: "[HT] X vừa hạ boss Baby may mắn nhận được 1 trang bị Set kích hoạt Set Thần hủy diệt Champa" (chat thế giới); "Chúc mừng X đã may mắn hạ Boss Zombie nhận được CT ... hạn dùng vĩnh viễn" (thông báo server, cải trang / pet / đeo lưng / thú cưỡi vĩnh viễn). Đồ rơi trong 3 giây sau khi boss chết ở khu đó được gắn tên boss.
+- **Whis chế tạo đồ Thiên Sứ**: thông báo server "Whis: X đã chế tạo thành công Găng Thiên Sứ với N dòng chỉ số thưởng, mọi người đều kinh ngạc." / "..., mọi người đều trầm trồ.".
+- **Top 100 Cao Thủ hai người cùng hạng 2**: tạo hạng mới khi nhiều người đăng nhập cùng lúc lấy trùng "hạng cao nhất + 1"; nay khoá đồng bộ, và mỗi lần khởi động đánh số lại hạng 1, 2, 3...
+- **Đồ Thần Linh** luôn có dòng "Vật phẩm hiếm rơi từ quái (+1 - 15%)" (cả đồ boss rơi, trước là dòng "từ boss" hoặc không có).
+- **Sa mạc hoang vu** dùng nền đồi cỏ xanh đá vàng (nền 14) như bản chính thức.
+
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
 - **NroResTool v13:** **Dò bản đồ** (lấy cả map): nhân vật tự đi qua các cổng, mỗi map lưu ô gạch, vật trang trí nền (`item_bg_map_data`), hiệu ứng (`eff_map`), `info/<mã>.json` (tên, hành tinh, nền, cổng + chỗ đến, quái, NPC) và `map/maps.sql` (thêm / cập nhật `map_template`; cổng chỉ ghi khi đã biết hết chỗ đến). Mục **Bản đồ**: nhập mã map (vd 0-185), công cụ hỏi lần lượt từng map và lưu ô gạch vào `map/tile_map_data/<mã>`, dùng để thay map bị lỗi trong source. `tools/res_import.py` nhận thư mục này và chép vào `data/map/tile_map_data` (cần `--overwrite` khi map đã có; file cũ giữ lại thành `.bak`).

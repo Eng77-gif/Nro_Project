@@ -105,6 +105,7 @@ public class CheTaoTrangBiThienSu {
                         }
 
                         InventoryService.gI().addItemBag(player, itemTS);
+                        nro.models.services.AnnounceService.gI().onCraftThienSu(player, itemTS);
                         CombineService.gI().sendEffectSuccessCombine(player);
                     } else {
                         CombineService.gI().sendEffectFailCombine(player);
@@ -159,6 +160,7 @@ public class CheTaoTrangBiThienSu {
 
         Item itemTS = ItemService.gI().DoThienSu(itemIds[itemTL.template.gender > 2 ? player.gender : itemTL.template.gender][itemManh.typeIdManh()], itemTL.template.gender);
         InventoryService.gI().addItemBag(player, itemTS);
+        nro.models.services.AnnounceService.gI().onCraftThienSu(player, itemTS);
 
         InventoryService.gI().subQuantityItemsBag(player, itemTL, 1);
         InventoryService.gI().subQuantityItemsBag(player, itemManh, 99);

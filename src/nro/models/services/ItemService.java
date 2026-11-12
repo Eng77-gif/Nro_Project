@@ -900,7 +900,7 @@ public class ItemService {
             idTempTL = giay[Util.nextInt(3)];
         }
 
-        int tiLe = Util.nextInt(100, 115);
+        int tiLe = Util.nextInt(101, 115); // luôn có dòng "Vật phẩm hiếm rơi từ quái" 1 - 15% như bản chính thức
         List<ItemOption> itemoptions = new ArrayList<>();
 
         switch (idTempTL) {
@@ -1029,7 +1029,7 @@ public class ItemService {
             idTempTL = giay[Util.nextInt(3)];
         }
 
-        int tiLe = Util.nextInt(100, 115);
+        int tiLe = Util.nextInt(101, 115); // luôn có dòng "Vật phẩm hiếm rơi từ quái" 1 - 15% như bản chính thức
         List<ItemOption> itemoptions = new ArrayList<>();
 
         // Tùy chỉnh chỉ số cho từng ID trang bị cụ thể
@@ -1037,19 +1037,19 @@ public class ItemService {
             case 555: // Áo Thần Linh TD
                 itemoptions.add(new ItemOption(47, 800 * tiLe / 100));
                 if (tiLe > 100) {
-                    itemoptions.add(new ItemOption(207, tiLe - 100)); // Vật phẩm hiếm rơi từ quái
+                    itemoptions.add(new ItemOption(206, tiLe - 100)); // Vật phẩm hiếm rơi từ quái
                 }
                 break;
             case 557: // Áo Thần Linh NM
                 itemoptions.add(new ItemOption(47, 850 * tiLe / 100));
                 if (tiLe > 100) {
-                    itemoptions.add(new ItemOption(207, tiLe - 100));
+                    itemoptions.add(new ItemOption(206, tiLe - 100));
                 }
                 break;
             case 559: // Áo Thần Linh XD
                 itemoptions.add(new ItemOption(47, 900 * tiLe / 100));
                 if (tiLe > 100) {
-                    itemoptions.add(new ItemOption(207, tiLe - 100));
+                    itemoptions.add(new ItemOption(206, tiLe - 100));
                 }
                 break;
             case 556: // Quần Thần Linh TD
@@ -1057,7 +1057,7 @@ public class ItemService {
                 itemoptions.add(new ItemOption(22, chiso / 1000));
                 itemoptions.add(new ItemOption(27, chiso / 20));
                 if (tiLe > 100) {
-                    itemoptions.add(new ItemOption(207, tiLe - 100));
+                    itemoptions.add(new ItemOption(206, tiLe - 100));
                 }
                 break;
             case 558: // Quần Thần Linh NM
@@ -1065,7 +1065,7 @@ public class ItemService {
                 itemoptions.add(new ItemOption(22, chiso / 1000));
                 itemoptions.add(new ItemOption(27, chiso / 20));
                 if (tiLe > 100) {
-                    itemoptions.add(new ItemOption(207, tiLe - 100));
+                    itemoptions.add(new ItemOption(206, tiLe - 100));
                 }
                 break;
             case 560: // Quần Thần Linh XD
@@ -1073,25 +1073,25 @@ public class ItemService {
                 itemoptions.add(new ItemOption(22, chiso / 1000));
                 itemoptions.add(new ItemOption(27, chiso / 20));
                 if (tiLe > 100) {
-                    itemoptions.add(new ItemOption(207, tiLe - 100));
+                    itemoptions.add(new ItemOption(206, tiLe - 100));
                 }
                 break;
             case 562: // Găng tay Thần Linh TD
                 itemoptions.add(new ItemOption(0, 4400 * tiLe / 100));
                 if (tiLe > 100) {
-                    itemoptions.add(new ItemOption(207, tiLe - 100));
+                    itemoptions.add(new ItemOption(206, tiLe - 100));
                 }
                 break;
             case 564: // Găng tay Thần Linh NM
                 itemoptions.add(new ItemOption(0, 4300 * tiLe / 100));
                 if (tiLe > 100) {
-                    itemoptions.add(new ItemOption(207, tiLe - 100));
+                    itemoptions.add(new ItemOption(206, tiLe - 100));
                 }
                 break;
             case 566: // Găng tay Thần Linh
                 itemoptions.add(new ItemOption(0, 4500 * tiLe / 100));
                 if (tiLe > 100) {
-                    itemoptions.add(new ItemOption(207, tiLe - 100));
+                    itemoptions.add(new ItemOption(206, tiLe - 100));
                 }
                 break;
             case 563: // Giày Thần Linh TD
@@ -1099,7 +1099,7 @@ public class ItemService {
                 itemoptions.add(new ItemOption(23, chiso / 1000));
                 itemoptions.add(new ItemOption(28, chiso / 20));
                 if (tiLe > 100) {
-                    itemoptions.add(new ItemOption(207, tiLe - 100));
+                    itemoptions.add(new ItemOption(206, tiLe - 100));
                 }
                 break;
             case 565: // Giày Thần Linh NM
@@ -1107,7 +1107,7 @@ public class ItemService {
                 itemoptions.add(new ItemOption(23, chiso / 1000));
                 itemoptions.add(new ItemOption(28, chiso / 20));
                 if (tiLe > 100) {
-                    itemoptions.add(new ItemOption(207, tiLe - 100));
+                    itemoptions.add(new ItemOption(206, tiLe - 100));
                 }
                 break;
             case 567: // Giày Thần Linh XD
@@ -1115,7 +1115,7 @@ public class ItemService {
                 itemoptions.add(new ItemOption(23, chiso / 1000));
                 itemoptions.add(new ItemOption(28, chiso * 150 / 1000));
                 if (tiLe > 100) {
-                    itemoptions.add(new ItemOption(207, tiLe - 100));
+                    itemoptions.add(new ItemOption(206, tiLe - 100));
                 }
                 break;
             case 561: // Nhẫn Thần Linh

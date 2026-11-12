@@ -9,14 +9,12 @@ import nro.models.server.ServerNotify;
 /**
  * Thông báo toàn server:
  * - Top 1 - 10 các đua top sự kiện đang chạy (Chi Chi) và Hộp đen bí ẩn vừa đăng nhập (chat thế giới), mỗi lần đăng nhập.
- * - Đánh quái nhặt được trang bị set kích hoạt (thông báo hệ thống + chat thế giới): 3 set riêng (Thần Vũ Trụ Kaio, Nail chiến binh Namếc, Cađic M) kèm tên set,
- *   set cũ (Sôngôku, Kakarot...) chỉ báo chung.
+ * - Nhặt trang bị set kích hoạt rơi từ quái / boss (chỉ chat thế giới): set riêng (Thần Vũ Trụ Kaio, Nail chiến binh Namếc, Cađic M, Champa...) kèm tên set,
+ *   set cũ (Sôngôku, Kakarot, Nappa...) chỉ báo chung "Set kích hoạt".
+ * - Nhặt cải trang / pet / đeo lưng / thú cưỡi vĩnh viễn rơi từ boss, chế tạo đồ Thiên Sứ (thông báo server).
  * - Mở hộp quà nhận được cải trang, pet, đeo lưng, thú cưỡi.
  */
 public class AnnounceService {
-
-    /** Set kích hoạt riêng rơi từ quái: Nail chiến binh Namếc, Cađic M, Thần Vũ Trụ Kaio */
-    private static final int[] SKH_RIENG = {237, 241, 245};
 
     private static AnnounceService instance;
 
@@ -75,34 +73,78 @@ public class AnnounceService {
         tops.add("TOP " + rank + " " + name);
     }
 
-    // ------------------------------------------------------------------ nhặt set kích hoạt riêng từ quái
+    // ------------------------------------------------------------------ nhặt đồ rơi từ quái / boss
+
+    /** Set cũ 3 hành tinh (Sôngôku, Thên Xin Hăng, Kirin, Picolo, Ốc tiêu, Pikkoro Daimao, Kakarot, Ca Đíc, Nappa): chỉ báo chung "Set kích hoạt". */
+    private static boolean isOldSet(int optId) {
+        return optId >= 127 && optId <= 135;
+    }
+
+    /** Tên set kích hoạt của món đồ: "" với set cũ, " Set ..." với set riêng (Thần Vũ Trụ Kaio, Cađic M, Nail chiến binh, Champa...), null nếu không phải SKH. */
+    private static String skhName(Item item) {
+        if (item == null || item.template == null || item.template.type > 4) {
+            return null;
+        }
+        String name = null;
+        for (Item.ItemOption io : item.itemOptions) {
+            String n = io.optionTemplate == null ? null : io.optionTemplate.name;
+            if (n == null || !n.startsWith("Set ")) {
+                continue;
+            }
+            if (isOldSet(io.optionTemplate.id)) {
+                name = "";
+            } else {
+                return " " + n.replaceAll("\\s*[#%(].*$", "").trim();
+            }
+        }
+        return name;
+    }
 
     public void onPickItem(Player pl, ItemMap itemMap, Item item) {
-        if (pl == null || itemMap == null || !itemMap.fromMob || item == null || item.template == null || item.template.type > 4) {
+        if (pl == null || pl.isBot || itemMap == null || item == null || item.template == null) {
             return;
         }
-        String skh = null;
-        for (Item.ItemOption io : item.itemOptions) {
-            for (int id : SKH_RIENG) {
-                if (io.optionTemplate.id == id) { // 3 set riêng: báo kèm tên set
-                    announceSkh(pl, " " + io.optionTemplate.name);
-                    return;
-                }
+        String skh = skhName(item);
+        if (itemMap.fromMob) {
+            if (skh != null) { // chỉ chat thế giới, không chạy chữ thông báo server
+                ChatGlobalService.gI().chatVip(pl, "[HT] " + pl.name + " vừa đánh quái may mắn nhận được 1 trang bị Set kích hoạt" + skh);
             }
-            if (io.optionTemplate.name != null && io.optionTemplate.name.startsWith("Set ")) {
-                skh = " " + io.optionTemplate.name.replaceAll("\\s*[#%(].*$", "").trim(); // set cũ (Sôngôku, Kakarot...): kèm tên set, bỏ phần chỉ số
-            }
+            return;
+        }
+        if (itemMap.fromBoss == null) {
+            return;
         }
         if (skh != null) {
-            announceSkh(pl, skh);
+            ChatGlobalService.gI().chatVip(pl, "[HT] " + pl.name + " vừa hạ boss " + itemMap.fromBoss + " may mắn nhận được 1 trang bị Set kích hoạt" + skh);
+        } else if (isRare(item) && !hasExpiry(item)) {
+            ServerNotify.gI().notify("Chúc mừng " + pl.name + " đã may mắn hạ Boss " + itemMap.fromBoss + " nhận được " + item.template.name + " hạn dùng vĩnh viễn");
         }
     }
 
-    /** Báo song song: thông báo hệ thống (chạy chữ) và chat thế giới. */
-    private void announceSkh(Player pl, String setName) {
-        String text = "[HT] " + pl.name + " vừa đánh quái may mắn nhận được 1 trang bị Set kích hoạt" + setName;
-        ServerNotify.gI().notify(text);
-        ChatGlobalService.gI().chatVip(pl, text); // tin thế giới gửi từ chính người nhặt, như bản chính thức
+    private static boolean hasExpiry(Item it) {
+        for (Item.ItemOption io : it.itemOptions) {
+            if (io.optionTemplate.id == 93 && io.param > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ------------------------------------------------------------------ chế tạo đồ thiên sứ
+
+    /** Whis: "X đã chế tạo thành công Găng Thiên Sứ với 2 dòng chỉ số thưởng, mọi người đều kinh ngạc." (dòng thưởng = option 15). */
+    public void onCraftThienSu(Player pl, Item it) {
+        if (pl == null || pl.isBot || it == null || it.template == null) {
+            return;
+        }
+        int bonus = 0;
+        for (Item.ItemOption io : it.itemOptions) {
+            if (io.optionTemplate.id == 15) {
+                bonus = io.param;
+            }
+        }
+        ServerNotify.gI().notify("Whis: " + pl.name + " đã chế tạo thành công " + it.template.name
+                + (bonus > 0 ? " với " + bonus + " dòng chỉ số thưởng, mọi người đều kinh ngạc." : ", mọi người đều trầm trồ."));
     }
 
     // ------------------------------------------------------------------ mở hộp

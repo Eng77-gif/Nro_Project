@@ -947,9 +947,11 @@ public class Controller implements IMessageHandler {
             Service.gI().sendHavePet(player);
             Service.gI().sendTopRank(player);
             if (player.superRank != null && player.superRank.rank < 1) {
-                player.superRank.rank = SuperRankDAO.getRank((int) player.id);
-                player.superRank.lastRewardTime = System.currentTimeMillis();
-                SuperRankDAO.insertData(player);
+                synchronized (SuperRankDAO.class) { // nhiều người đăng nhập cùng lúc từng lấy cùng 1 hạng (hạng cao nhất + 1)
+                    player.superRank.rank = SuperRankDAO.getRank((int) player.id);
+                    player.superRank.lastRewardTime = System.currentTimeMillis();
+                    SuperRankDAO.insertData(player);
+                }
             }
             ServerNotify.gI().sendNotifyTab(player);
             player.setClothes.setup();

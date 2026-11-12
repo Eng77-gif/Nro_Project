@@ -36,6 +36,8 @@ public class Zone {
     public final List<BotAttackplayer> bots = new ArrayList<>();
 
     public int countItemAppeaerd = 0;
+    public volatile String bossDropName; // boss vừa chết ở khu này
+    public volatile long bossDropTime;
 
     public Map map;
     public int zoneId;

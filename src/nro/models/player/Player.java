@@ -1398,6 +1398,10 @@ public class Player implements Runnable {
     }
 
     protected void setDie(Player plAtt) {
+        if (this.isBoss && this.zone != null) { // đồ boss rơi ngay sau đây được gắn tên boss
+            this.zone.bossDropName = this.name;
+            this.zone.bossDropTime = System.currentTimeMillis();
+        }
         if (this.isPl()) {
             long vangtru = this.nPoint.power / 1000000;
             if (vangtru > 32000) {
