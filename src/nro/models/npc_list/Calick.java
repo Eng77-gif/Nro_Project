@@ -49,7 +49,7 @@ public class Calick extends Npc {
             return;
         }
         player.idMark.setIndexMenu(ConstNpc.BASE_MENU);
-        if (TaskService.gI().getIdTask(player) < ConstTask.TASK_20_0) {
+        if (TaskService.gI().getIdTask(player) < ConstTask.TASK_22_0) {
             Service.gI().hideWaitDialog(player);
             Service.gI().sendThongBao(player, "Không thể thực hiện");
             return;
@@ -89,7 +89,7 @@ public class Calick extends Npc {
                 case 1 -> {
                     //đến tương lai
                     changeMap();
-                    if (TaskService.gI().getIdTask(player) >= ConstTask.TASK_20_0) {
+                    if (TaskService.gI().getIdTask(player) >= ConstTask.TASK_22_0) {
                         ChangeMapService.gI().goToTuongLai(player);
                     }
                 }

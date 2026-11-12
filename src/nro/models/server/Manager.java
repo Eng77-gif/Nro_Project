@@ -363,6 +363,7 @@ public final class Manager {
             nro.models.database.Dot128Migration.run(ConnectionDatabase);
             nro.models.database.Dot129Migration.run(ConnectionDatabase);
             nro.models.database.Dot130Migration.run(ConnectionDatabase);
+            nro.models.database.Dot131Migration.run(ConnectionDatabase);
             //load part
             ps = ConnectionDatabase.prepareStatement("select * from part");
             rs = ps.executeQuery();
@@ -609,7 +610,7 @@ public final class Manager {
             ps = ConnectionDatabase.prepareStatement("SELECT id, task_main_template.name, detail, "
                     + "task_sub_template.name AS 'sub_name', max_count, notify, npc_id, map "
                     + "FROM task_main_template JOIN task_sub_template ON task_main_template.id = "
-                    + "task_sub_template.task_main_id");
+                    + "task_sub_template.task_main_id ORDER BY task_main_template.id, task_sub_template.ducvupro");
             rs = ps.executeQuery();
             int taskId = -1;
             TaskMain task = null;

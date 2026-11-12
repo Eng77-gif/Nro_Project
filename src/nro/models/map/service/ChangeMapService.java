@@ -974,7 +974,7 @@ public class ChangeMapService {
                 case 72: //thung lũng rasphery
                 case 64: //núi dây leo
                 case 65: //núi cây quỷ
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_18_0) {
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_20_0) {
                         return null;
                     }
                     break;
@@ -986,7 +986,7 @@ public class ChangeMapService {
                 case 75: //khe núi tử thần
                 case 76: //núi đá
                 case 77: //rừng đá
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_19_0) {
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_21_0) {
                         return null;
                     }
                     break;
@@ -994,12 +994,12 @@ public class ChangeMapService {
                 case 82: //núi khỉ đen
                 case 83: //hang khỉ đen
                 case 79: //núi khỉ đỏ
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_19_0) {
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_21_0) {
                         return null;
                     }
                     break;
                 case 80: //núi khỉ vàng
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_20_0) {
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_22_0) {
                         return null;
                     }
                     break;
@@ -1009,7 +1009,7 @@ public class ChangeMapService {
                 case 93: //thành phố phía nam
                 case 94: //đảo balê
                 case 96: //cao nguyên
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_21_0) {
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_23_0) {
                         return null;
                     }
                     break;
@@ -1017,7 +1017,7 @@ public class ChangeMapService {
                 case 98: //ngọn núi phía bắc
                 case 99: //thung lũng phía bắc
                 case 100: //thị trấn ginder
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_24_0) {
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_26_0) {
                         return null;
                     }
                     break;
@@ -1027,12 +1027,12 @@ public class ChangeMapService {
                 case 108: //dòng sông băng
                 case 109: //rừng băng
                 case 110: //hang băng
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_27_0) {
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_29_0) {
                         return null;
                     }
                     break;
                 case 103: //võ đài xên
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_27_0) {
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_29_0) {
                         return null;
                     }
                     break;
@@ -1042,7 +1042,7 @@ public class ChangeMapService {
                     }
                     break;
                 case 154:
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_27_0) {
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_29_0) {
                         return null;
                     }
             }

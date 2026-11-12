@@ -99,6 +99,23 @@ public class BotQuest {
             return;
         }
         actionable.put(b.id, true);
+        if (BotArena.inArena(b)) {
+            return;
+        }
+        if (tm.id == 17 && tm.index == 1) { // nhiệm vụ thử thách: thắng đại hội võ thuật (đấu thật ở ĐHVT lần thứ 23)
+            if (!BotArena.startDhvt23(b)) {
+                b.activity = "Luyện tập"; // chưa đủ vàng / hết lượt hôm nay: luyện tiếp rồi thử lại
+                actionable.put(b.id, false);
+            }
+            return;
+        }
+        if (tm.id == 18 && tm.index >= 7 && tm.index <= 9) { // nhiệm vụ cam go: dùng mảnh giấy, hạ đệ tử Ma Vương và Pôcôlô
+            if (!BotArena.startMaVuong(b)) {
+                b.activity = "Luyện tập";
+                actionable.put(b.id, false);
+            }
+            return;
+        }
         int map = st.mapId;
         if (tm.id == 0 && tm.index == 0) {
             map = 39 + b.gender; // "Di chuyển tới mũi tên chỉ dẫn": Vách núi của hành tinh mình, đi sang phải
@@ -123,7 +140,7 @@ public class BotQuest {
             return;
         }
         int mobId = tm.id == 8 && tm.index == 1 ? new int[]{11, 12, 10}[Math.max(0, Math.min(2, b.gender))] // ngọc 7 sao rơi từ quái mẹ (Mob: TASK_8_1)
-                : tm.id == 27 && tm.index == 1 ? 58 // capsule kì bí rơi từ Xên con (58 - 65) khi bật máy dò (BotEndgame.mayDo)
+                : tm.id == 29 && tm.index == 1 ? 58 // capsule kì bí rơi từ Xên con (58 - 65) khi bật máy dò (BotEndgame.mayDo)
                 : mobId(st.name);
         int mobMap = mobId < 0 ? -1 : mobMap(b, mobId);
         int target = mobMap >= 0 ? mobMap : map;

@@ -674,6 +674,12 @@ public final class BotWorld {
         if (BotArena.inArena(b)) {
             return; // đang thi đấu: đánh cho xong trận
         }
+        if (b.accountBot && b.zone != null && nro.models.map.service.MapService.gI().isMapDoanhTrai(b.zone.map.mapId)
+                && (b.clan == null || b.clan.doanhTrai == null)) {
+            b.activity = "Luyện tập"; // lạc vào map doanh trại mà bang không đánh doanh trại: ra ngoài luyện tập
+            b.joinMap();
+            return;
+        }
         if (b.accountBot && BotClan.inDungeon(b) && !"NRSD".equals(b.activity)) {
             return; // đang trong doanh trại: đánh cho xong
         }

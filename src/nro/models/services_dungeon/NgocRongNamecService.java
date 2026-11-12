@@ -132,10 +132,13 @@ public class NgocRongNamecService implements Runnable {
             Zone zone = Manager.MAPS.get(mapNrNamec[i]).zones.get(zoneNrNamec[i]);
             int idItem = (int) (i + 353);
             int idItem2 = 362;
-            for (byte j = 0; j < zone.items.size(); j++) {
-                if (zone.items.get(j).itemTemplate.id == idItem
-                        || zone.items.get(j).itemTemplate.id == idItem2) {
-                    ItemMapService.gI().removeItemMapAndSendClient(zone.items.remove(j));
+            java.util.List<ItemMap> copy; // duyệt bản sao: luồng khu vẫn thêm / xoá item cùng lúc (trước lỗi IndexOutOfBounds)
+            synchronized (zone) {
+                copy = new java.util.ArrayList<>(zone.items);
+            }
+            for (ItemMap it : copy) {
+                if (it != null && (it.itemTemplate.id == idItem || it.itemTemplate.id == idItem2)) {
+                    ItemMapService.gI().removeItemMapAndSendClient(it);
                 }
             }
         }

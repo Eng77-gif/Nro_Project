@@ -1881,3 +1881,14 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
 - **NroResTool v13:** **Dò bản đồ** (lấy cả map): nhân vật tự đi qua các cổng, mỗi map lưu ô gạch, vật trang trí nền (`item_bg_map_data`), hiệu ứng (`eff_map`), `info/<mã>.json` (tên, hành tinh, nền, cổng + chỗ đến, quái, NPC) và `map/maps.sql` (thêm / cập nhật `map_template`; cổng chỉ ghi khi đã biết hết chỗ đến). Mục **Bản đồ**: nhập mã map (vd 0-185), công cụ hỏi lần lượt từng map và lưu ô gạch vào `map/tile_map_data/<mã>`, dùng để thay map bị lỗi trong source. `tools/res_import.py` nhận thư mục này và chép vào `data/map/tile_map_data` (cần `--overwrite` khi map đã có; file cũ giữ lại thành `.bak`).
+
+## Đợt 131: Nhiệm vụ thử thách + Nhiệm vụ cam go, map Phòng thí nghiệm hở, lỗi NR Namek
+- **2 nhiệm vụ còn thiếu sau "Tiêu diệt quái vật" (16)**, như bản chính thức (Dot131Migration, chạy 1 lần trong 1 giao dịch):
+  - **17 Nhiệm vụ thử thách:** đạt 15 triệu sức mạnh → thắng đại hội võ thuật (thắng vòng 2, hoặc 3 trận vòng 1; trận thắng ở ĐHVT lần thứ 23 cũng tính) → báo cáo sư phụ. Thưởng 3 Tr sức mạnh, 3 Tr tiềm năng.
+  - **18 Nhiệm vụ cam go:** 25 triệu sức mạnh → diệt Trung Úy Trắng ở doanh trại (cả đội trong doanh trại cùng được tính) → báo cáo → 30 triệu sức mạnh → báo cáo → đến đại hội võ thuật → nhặt Mảnh giấy có chữ 'MA' (rơi sẵn ở ĐHVT) → dùng mảnh giấy tìm Đại Ma Vương (map Siêu thánh thủy) → diệt đám đệ tử → diệt Đại Ma Vương Pôcôlô → báo cáo. Thưởng 4 Tr sức mạnh, 4 Tr tiềm năng.
+  - Nhiệm vụ 17 - 30 cũ thành 19 - 32: dữ liệu nhiệm vụ, mọi chỗ trong code (ConstTask) và tiến trình đã lưu của mọi nhân vật dời theo, người đang làm dở không mất tiến trình. Người đã qua nhiệm vụ 16 không phải làm lại.
+  - Tải nhiệm vụ có `ORDER BY` (trước dựa vào thứ tự ngẫu nhiên của câu join).
+  - Bot làm được cả 2 nhiệm vụ: đi ĐHVT 23 đấu thật để thắng, theo bang vào doanh trại, nhặt / dùng mảnh giấy, đánh đệ tử Ma Vương và Pôcôlô (BotArena). Thử trên server: bot đi hết từ 18.5 tới nhiệm vụ 19 trong khoảng 1 phút rưỡi.
+- **Bot kẹt ở Trại độc nhãn 3:** bot chọn map 62 (thuộc doanh trại) làm map luyện tập, vào rồi bị coi là "đang đánh doanh trại" nên đứng yên mãi. Nay bot không chọn phó bản bang làm map luyện tập; lạc vào doanh trại mà bang không đánh thì tự ra.
+- **Phòng thí nghiệm Myuu (166) chui được xuống dưới map:** 2 cột viền và hàng đáy dùng ô gạch 34 nhưng `tile_set_Info` của bộ ô gạch 33 không khai báo ô này là mặt đất / tường, nên đi sát mép là rơi xuống đáy (boss Baby cũng rơi). Nay ô 34 là tường + mặt đất; client tải lại dữ liệu (vsData 28).
+- **Lỗi IndexOutOfBounds ở NgocRongNamecService.removeStoneNrNamec (ảnh terminal):** xoá đá NR Namek bằng vòng lặp chỉ số trong khi luồng khu cũng thêm / xoá vật phẩm. Nay duyệt bản sao danh sách.

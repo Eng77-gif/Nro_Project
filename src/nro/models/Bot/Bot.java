@@ -195,6 +195,9 @@ public class Bot extends Player {
         if (!this.accountBot || (this.stayMap && mapId == this.questMap)) {
             return true;
         }
+        if (MapService.gI().isMapPhoBan(mapId)) {
+            return false; // phó bản bang (doanh trại 53 - 62...) chỉ vào cùng bang qua NPC, không chọn làm map luyện tập (trước đây kẹt ở Trại độc nhãn 3)
+        }
         Map m = MapService.gI().getMapById(mapId);
         return m != null && !m.zones.isEmpty() && ChangeMapService.gI().checkMapCanJoin(this, m.zones.get(0)) != null;
     }

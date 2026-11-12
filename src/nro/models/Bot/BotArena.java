@@ -25,8 +25,8 @@ import nro.models.utils.Util;
  */
 public final class BotArena {
 
-    static final int MODE_ARENA = 3, MAP_SIEU_HANG = 113, MAP_DHVT23 = 129;
-    static final String SIEU_HANG = "Giải siêu hạng", DHVT_23 = "Đại hội võ thuật lần thứ 23";
+    static final int MODE_ARENA = 3, MAP_SIEU_HANG = 113, MAP_DHVT23 = 129, MAP_THANH_THUY = 146;
+    static final String SIEU_HANG = "Giải siêu hạng", DHVT_23 = "Đại hội võ thuật lần thứ 23", MA_VUONG = "Tìm Đại Ma Vương";
 
     private BotArena() {
     }
@@ -106,6 +106,28 @@ public final class BotArena {
         return true;
     }
 
+    // ------------------------------------------------------------------ nhiệm vụ cam go: Đại Ma Vương Pôcôlô
+    /** Dùng Mảnh giấy có chữ 'MA' như người chơi (bấm Đồng ý): vào Siêu thánh thủy, hạ đám đệ tử rồi tới Pôcôlô. */
+    public static boolean startMaVuong(Bot b) {
+        if (b.zone == null || inArena(b) || (b.winSTT && !Util.isAfterMidnight(b.lastTimeWinSTT))) {
+            return false;
+        }
+        if (b.zoneSieuThanhThuy == null && InventoryService.gI().findItemBag(b, 726) == null) {
+            return false;
+        }
+        if (b.winSTT) {
+            b.winSTT = false;
+            b.callBossPocolo = false;
+            b.zoneSieuThanhThuy = null;
+        }
+        nro.models.services_dungeon.SuperDivineWaterService.gI().joinMapThanhThuy(b);
+        if (b.zone == null || b.zone.map.mapId != MAP_THANH_THUY) {
+            return false;
+        }
+        begin(b, MA_VUONG, 15 * 60_000L);
+        return true;
+    }
+
     /** Hết trận ĐHVT 23: nhận Rương gỗ cấp đã đạt (như bấm nhận thưởng ở NPC Ghi Danh). */
     private static void claimWoodChest(Bot b) {
         if (b.levelWoodChest <= 0 || !InventoryService.gI().finditemWoodChest(b) || InventoryService.gI().getCountEmptyBag(b) <= 0) {
@@ -139,11 +161,28 @@ public final class BotArena {
         }
         long now = System.currentTimeMillis();
         int map = b.zone.map.mapId;
-        boolean arenaMap = map == MAP_SIEU_HANG || map == MAP_DHVT23;
-        boolean matchOn = SIEU_HANG.equals(b.activity)
+        boolean arenaMap = map == MAP_SIEU_HANG || map == MAP_DHVT23 || map == MAP_THANH_THUY;
+        boolean matchOn = MA_VUONG.equals(b.activity) ? map == MAP_THANH_THUY && !b.winSTT
+                : SIEU_HANG.equals(b.activity)
                 ? SuperRankManager.gI().currentlyCompeting(b.id) || SuperRankManager.gI().awaitingCompetition(b.id)
                 : The23rdMartialArtCongressManager.gI().plCheck(b);
         Player target = null;
+        if (map == MAP_THANH_THUY && !b.isDie()) { // đám đệ tử Ma Vương trước, hết quái mới tới Pôcôlô
+            for (nro.models.mob.Mob mob : b.zone.mobs) {
+                if (!mob.isDie()) {
+                    b.arenaIdle = 0;
+                    nro.models.skill.Skill pick = b.pickSkill(2);
+                    if (pick != null) {
+                        b.playerSkill.skillSelect = pick;
+                    }
+                    if (b.UseLastTimeSkill()) {
+                        PlayerService.gI().playerMove(b, mob.location.x, mob.location.y);
+                        SkillService.gI().useSkill(b, null, mob, 0, null);
+                    }
+                    return;
+                }
+            }
+        }
         if (arenaMap) {
             for (Player p : b.zone.getBossesCopy()) {
                 if (p instanceof Boss && !p.isDie() && p.nPoint != null) {
@@ -152,7 +191,7 @@ public final class BotArena {
                 }
             }
         }
-        if (target != null && !b.isDie()) {
+        if (target != null && !b.isDie() && !(map == MAP_THANH_THUY && b.winSTT)) {
             b.arenaIdle = 0;
             nro.models.skill.Skill pick = b.pickSkill(2);
             if (pick != null) {

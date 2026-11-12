@@ -90,7 +90,7 @@ public class BotEndgame {
 
     /** Nhiệm vụ "Thu thập Capsule kì bí": mua máy dò (5 triệu vàng như cửa hàng) và bật để quái rơi capsule. */
     private static void mayDo(Bot b) {
-        if (b.playerTask == null || b.playerTask.taskMain == null || b.playerTask.taskMain.id != 27 || b.playerTask.taskMain.index != 1
+        if (b.playerTask == null || b.playerTask.taskMain == null || b.playerTask.taskMain.id != 29 || b.playerTask.taskMain.index != 1
                 || b.itemTime.isUseMayDo) {
             return;
         }

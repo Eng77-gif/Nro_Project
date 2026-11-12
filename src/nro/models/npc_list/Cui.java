@@ -40,15 +40,15 @@ public class Cui extends Npc {
                         case 19 -> {
                             int taskId = TaskService.gI().getIdTask(pl);
                             switch (taskId) {
-                                case ConstTask.TASK_19_0 ->
+                                case ConstTask.TASK_21_0 ->
                                     this.createOtherMenu(pl, ConstNpc.MENU_FIND_KUKU,
                                             "Đội quân của Fide đang ở Thung lũng Nappa, ta sẽ đưa ngươi đến đó",
                                             "Đến chỗ\nKuku\n(" + Util.numberToMoney(COST_FIND_BOSS) + " vàng)", "Đến Cold", "Đến\nNappa", "Từ chối");
-                                case ConstTask.TASK_19_1 ->
+                                case ConstTask.TASK_21_1 ->
                                     this.createOtherMenu(pl, ConstNpc.MENU_FIND_MAP_DAU_DINH,
                                             "Đội quân của Fide đang ở Thung lũng Nappa, ta sẽ đưa ngươi đến đó",
                                             "Đến chỗ\nMập đầu đinh\n(" + Util.numberToMoney(COST_FIND_BOSS) + " vàng)", "Đến Cold", "Đến\nNappa", "Từ chối");
-                                case ConstTask.TASK_19_2 ->
+                                case ConstTask.TASK_21_2 ->
                                     this.createOtherMenu(pl, ConstNpc.MENU_FIND_RAMBO,
                                             "Đội quân của Fide đang ở Thung lũng Nappa, ta sẽ đưa ngươi đến đó",
                                             "Đến chỗ\nRambo\n(" + Util.numberToMoney(COST_FIND_BOSS) + " vàng)", "Đến Cold", "Đến\nNappa", "Từ chối");

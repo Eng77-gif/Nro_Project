@@ -1129,7 +1129,7 @@ public class Mob {
 
     private ItemMap dropItemTask(Player player) {
         ItemMap itemMap = null;
-        if ((tempId == 80 || tempId == 81) && zone.map.mapId == 161 && TaskService.gI().getIdTask(player) == ConstTask.TASK_29_7) {
+        if ((tempId == 80 || tempId == 81) && zone.map.mapId == 161 && TaskService.gI().getIdTask(player) == ConstTask.TASK_31_7) {
             return new ItemMap(zone, 73, 1, location.x, location.y, player.id); // thức ăn cho Bardock (đùi gà) ở bìa rừng
         }
         switch (tempId) {

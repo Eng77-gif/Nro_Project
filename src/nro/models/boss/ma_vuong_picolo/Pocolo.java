@@ -146,6 +146,7 @@ public class Pocolo extends Boss {
         if (this.isLaze && !playerCall.winSTT && Util.canDoWithTime(lastTimeLaze, 3000)) {
             playerCall.winSTT = true;
             playerCall.lastTimeWinSTT = System.currentTimeMillis();
+            nro.models.services.TaskService.gI().doneQuestStep(playerCall, nro.models.consts.ConstTask.TASK_18_9); // nhiệm vụ cam go
             Message msg;
             try {
                 msg = new Message(-60);

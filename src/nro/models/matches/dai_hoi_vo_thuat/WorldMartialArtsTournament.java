@@ -198,6 +198,7 @@ public final class WorldMartialArtsTournament implements Runnable {
                     WorldMartialArtsTournamentManager.gI().listWait.add(plWin.id);
                 }
                 plWin.martialArtsTournamentWins++;
+                TaskService.gI().checkDoneTaskWinMartialArts(plWin, WorldMartialArtsTournamentManager.gI().round); // nhiệm vụ thử thách
             }
             if (plWin != null && plWin.zone != null) {
                 plWin.thongBaoChangeMap = true;

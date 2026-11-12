@@ -111,6 +111,7 @@ public class The23rdMartialArtCongress {
             if (player.location != null && player.isPKDHVT && !player.isDie() && player != null && player.zone != null) {
                 if (boss.isDie()) {
                     round++;
+                    nro.models.services.TaskService.gI().checkDoneTaskWinMartialArts(player, 1); // nhiệm vụ thử thách: thắng 1 trận
                     boss.leaveMap();
                     toTheNextRound();
                     reward();

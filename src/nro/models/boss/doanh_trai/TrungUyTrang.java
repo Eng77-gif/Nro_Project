@@ -57,6 +57,11 @@ public class TrungUyTrang extends Boss {
             Service.gI().dropItemMap(this.zone, it);
         }
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
+        for (Player p : this.zone.getPlayers()) { // nhiệm vụ cam go: cả đội trong doanh trại cùng được tính
+            if (p != plKill) {
+                TaskService.gI().doneQuestStep(p, nro.models.consts.ConstTask.TASK_18_1);
+            }
+        }
         // 100% rơi item 1824
         ItemMap it = new ItemMap(
                 this.zone,

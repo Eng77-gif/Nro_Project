@@ -14,6 +14,8 @@ import nro.models.services.PlayerService;
 import nro.models.services.Service;
 import nro.models.map.service.ChangeMapService;
 import nro.models.utils.Util;
+import nro.models.services.TaskService;
+import nro.models.consts.ConstTask;
 
 /**
  *
@@ -60,6 +62,7 @@ public class SuperDivineWaterService {
             init(zoneJoin, player);
             EffectSkillService.gI().setPKSTT(player, 900000);
             ChangeMapService.gI().changeMap(player, zoneJoin, 70, 336);
+            TaskService.gI().doneQuestStep(player, ConstTask.TASK_18_7); // nhiệm vụ cam go: dùng mảnh giấy tìm Đại Ma Vương
         } else {
             Service.gI().sendThongBao(player, "Vui lòng thử lại sau ít phút!");
         }
@@ -98,7 +101,7 @@ public class SuperDivineWaterService {
 
     public void update(Player player) {
         try {
-            if (player.isPl() && MapService.gI().isMapSieuThanhThuy(player.zone.map.mapId) && player.zone == player.zoneSieuThanhThuy) {
+            if ((player.isPl() || player instanceof nro.models.Bot.Bot bt && bt.accountBot) && MapService.gI().isMapSieuThanhThuy(player.zone.map.mapId) && player.zone == player.zoneSieuThanhThuy) {
                 if (!player.callBossPocolo) {
                     boolean allCharactersDead = true;
                     for (Mob mob : player.zone.mobs) {
@@ -108,6 +111,7 @@ public class SuperDivineWaterService {
                         }
                     }
                     if (allCharactersDead) {
+                        TaskService.gI().doneQuestStep(player, ConstTask.TASK_18_8); // diệt đám đệ tử của Ma Vương
                         try {
                             long bossDamage = Math.min((long) (player.nPoint.dame), 200_000_000L);
                             long bossMaxHealth = Math.min(((long) player.nPoint.hpMax * 5), 2_147_483_647L);
