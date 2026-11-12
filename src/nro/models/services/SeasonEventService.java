@@ -57,6 +57,7 @@ public class SeasonEventService implements Runnable {
     public static final int GIO_TO = 4;
     public static final int SUMMER = 5;
     public static final int TEACHERS_DAY = 8; // Nhà giáo Việt Nam 20/11
+    public static final int SUMMER_1 = 5, SUMMER_2 = 21, SUMMER_3 = 19; // Sự kiện hè 2025: Ẩm thực mùa hè / Vi vu bãi biển / Săn thú cưng (gộp Pokémon)
 
     // chỉ số menu ở NPC Santa
     public static final int MENU_LIST = 83000;
@@ -720,6 +721,22 @@ public class SeasonEventService implements Runnable {
     }
 
     // ------------------------------------------------------------------ vật phẩm rơi
+    /** Giới hạn theo ngày cho quà ngoài bảng rơi (nhiệm vụ hằng ngày, đăng nhập...): trả về số được nhận hôm nay (0 = đã đủ). */
+    public int takeDaily(Player pl, String key, int max, int qty) {
+        LocalDate t = today();
+        if (!t.equals(dailyDate)) {
+            daily.clear();
+            dailyDate = t;
+        }
+        String k = pl.id + ":" + key;
+        int got = daily.getOrDefault(k, 0);
+        int n = Math.max(0, Math.min(qty, max - got));
+        if (n > 0) {
+            daily.put(k, got + n);
+        }
+        return n;
+    }
+
     /** Trả về số lượng được nhặt sau khi trừ giới hạn ngày (0 = đã đủ hôm nay). */
     private int takeDaily(Player pl, Drop d, int qty) {
         if (d.dailyMax <= 0) {
@@ -796,6 +813,20 @@ public class SeasonEventService implements Runnable {
     public void onBossKilled(Boss boss, Player pl) {
         if (pl == null || boss == null || boss.zone == null || !pl.isPl()) {
             return;
+        }
+        if (isActive(SUMMER_3) && boss.id <= nro.models.boss.BossID.XEN_BO_HUNG && boss.id >= nro.models.boss.BossID.XEN_CON_7
+                && Util.isTrue(10, 100)) { // hè 3: boss Xên bọ hung / Siêu bọ hung / Xên con rơi set kích hoạt Gohan
+            int temp = ItemService.gI().randTempItemKichHoat(pl.gender);
+            int x = boss.location.x + Util.nextInt(-20, 20);
+            ItemMap it = new ItemMap(boss.zone, temp, 1, x, boss.zone.map.yPhysicInTop(x, boss.location.y - 24), pl.id);
+            List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop((short) temp);
+            if (!ops.isEmpty()) {
+                it.options = ops;
+            }
+            it.options.add(new Item.ItemOption(233, 0));
+            it.options.add(new Item.ItemOption(234, 0));
+            it.options.add(new Item.ItemOption(30, 0));
+            Service.gI().dropItemMap(boss.zone, it);
         }
         for (Season s : seasons.values()) {
             if (!s.active) {

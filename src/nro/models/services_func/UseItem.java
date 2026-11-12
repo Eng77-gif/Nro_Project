@@ -1504,47 +1504,18 @@ public class UseItem {
         InventoryService.gI().sendItemBags(pl);
     }
 
+    /** Sự kiện hè 1: ăn Kem trái cây được 1 Que kem và 1 điểm đua top "Ăn kem trái cây"; Que kem mở ra quà (item_box_reward). */
     private void KemTraiCay(Player player, Item item) {
         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.XSMAX, 1);
-        if (InventoryService.gI().getCountEmptyBag(player) > 4) {
-            Item itemused = InventoryService.gI().findItemBag(player, 1609);
-
-            if (itemused == null || itemused.quantity < 1) {
-                Service.gI().sendThongBao(player, "Bạn không có vật phẩm cần dùng!");
-                return;
-            }
-
-            int[] itemIds = {1854};
-            int randomIndex = (int) (Math.random() * itemIds.length);
-            short randomItemId = (short) itemIds[randomIndex];
-
-            Item newItem = ItemService.gI().createNewItem(randomItemId);
-            RewardService.gI().initChiSoItem(newItem);
-
-            int dame = randomInRange(20, 28);
-            int hp = randomInRange(20, 30);
-            int ki = randomInRange(20, 30);
-            int khongthegiaodich = randomInRange(0, 0);
-
-            newItem.itemOptions.add(new ItemOption(50, dame));
-            newItem.itemOptions.add(new ItemOption(77, hp));
-            newItem.itemOptions.add(new ItemOption(103, ki));
-            newItem.itemOptions.add(new ItemOption(30, khongthegiaodich));
-
-            int randomOption = (int) (Math.random() * 100);
-            newItem.itemOptions.add(new ItemOption(93, randomOption < 0.5 ? 0 : 15));
-
-            InventoryService.gI().addItemBag(player, newItem);
-            InventoryService.gI().subQuantityItemsBag(player, itemused, 1);
-
-            player.point_sukien2 += 1;
-            if (!Manager.isTopSukien2Changed) {
-                Manager.isTopSukien2Changed = true;
-            }
-
-            PlayerService.gI().sendInfoHpMpMoney(player);
-            InventoryService.gI().sendItemBags(player);
+        if (InventoryService.gI().getCountEmptyBag(player) <= 0) {
+            Service.gI().sendThongBao(player, "Hành trang không còn chỗ trống");
+            return;
         }
+        InventoryService.gI().subQuantityItemsBag(player, item, 1);
+        InventoryService.gI().addItemBag(player, ItemService.gI().createNewItem((short) 1610, 1));
+        nro.models.services.SeasonEventService.gI().addTopPointById(nro.models.database.Dot127Migration.TOP_KEM, player, 1);
+        InventoryService.gI().sendItemBags(player);
+        Service.gI().sendThongBao(player, "Bạn nhận được 1 Que kem");
     }
 
     private void QuaThieuNhi(Player player, Item item) {

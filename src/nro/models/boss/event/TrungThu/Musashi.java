@@ -38,6 +38,14 @@ public class Musashi extends Boss {
             it.options.add(new ItemOption(14, 13));
             it.options.add(new ItemOption(93, Util.nextInt(1, 5)));
             it.options.add(new ItemOption(30, 0));
+        } else if (Util.isTrue(20, 100)) { // giải cứu Pikachu (sự kiện hè 3): 50% vĩnh viễn
+            it = new ItemMap(this.zone, 1870, 1, x, y, plKill.id);
+            it.options.add(new ItemOption(50, 10));
+            it.options.add(new ItemOption(77, 10));
+            it.options.add(new ItemOption(103, 10));
+            if (Util.isTrue(50, 100)) {
+                it.options.add(new ItemOption(93, Util.nextInt(3, 7)));
+            }
         } else if (Util.isTrue(30, 100)) {
             it = new ItemMap(this.zone, 1892, 1, x, y, plKill.id); // Bóng Poke (mã v10 1873)
             if (Util.isTrue(99, 100)) {

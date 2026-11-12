@@ -33,6 +33,11 @@ public class AnnounceService {
             return; // mỗi lần đăng nhập (mỗi phiên) báo 1 lần; client gửi "client ok" nhiều lần trong 1 phiên
         }
         pl.loginAnnounced = pl.getSession();
+        if (SeasonEventService.gI().isActive(SeasonEventService.SUMMER_2) && SeasonEventService.gI().takeDaily(pl, "canoc_login", 2, 2) > 0) {
+            InventoryService.gI().addItemBag(pl, ItemService.gI().createNewItem((short) 1002, 2)); // Hè 2: đăng nhập mỗi ngày nhận 2 Cá nóc
+            InventoryService.gI().sendItemBags(pl);
+            Service.gI().sendThongBao(pl, "Quà đăng nhập sự kiện hè: 2 Cá nóc");
+        }
         new Thread(() -> {
             try {
                 announce(pl);

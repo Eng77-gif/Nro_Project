@@ -1271,6 +1271,35 @@ public class TaskService {
         return text;
     }
 
+    /**
+     * Sự kiện hè 2025 - nhiệm vụ hằng ngày (Bò Mộng):
+     * Hè 1: siêu khó thưởng Kẹo táo (tối đa 2 / ngày). Hè 2: dễ 2 Cá nóc (tối đa 20), khó 5 Cá nóc (tối đa 50), siêu khó 5 Cá bảy màu (tối đa 50).
+     */
+    private void summerTaskReward(Player player, int lv) {
+        SeasonEventService se = SeasonEventService.gI();
+        boolean sieuKho = lv >= ConstTask.VERY_HARD;
+        int id = -1, n = 0;
+        if (se.isActive(SeasonEventService.SUMMER_1) && sieuKho) {
+            id = 1858;
+            n = se.takeDaily(player, "keotao", 2, 1);
+        } else if (se.isActive(SeasonEventService.SUMMER_2)) {
+            if (sieuKho) {
+                id = 1003;
+                n = se.takeDaily(player, "ca7mau_nv", 50, 5);
+            } else if (lv == ConstTask.HARD) {
+                id = 1002;
+                n = se.takeDaily(player, "canoc_kho", 50, 5);
+            } else {
+                id = 1002;
+                n = se.takeDaily(player, "canoc_de", 20, 2);
+            }
+        }
+        if (id > 0 && n > 0) {
+            InventoryService.gI().addItemBag(player, ItemService.gI().createNewItem((short) id, n));
+            Service.gI().sendThongBao(player, "Bạn nhận được " + n + " " + ItemService.gI().getTemplate(id).name);
+        }
+    }
+
     private boolean isCurrentTask(Player player, int idTaskCustom) {
         return (player.playerTask != null && player.playerTask.taskMain != null && idTaskCustom == (player.playerTask.taskMain.id << 10) + player.playerTask.taskMain.index << 1);
     }
@@ -1365,6 +1394,7 @@ public class TaskService {
                     InventoryService.gI().addItemBag(player, qt);
                     Service.gI().sendThongBao(player, "Bạn nhận được " + que + " Que tre");
                 }
+                summerTaskReward(player, player.playerTask.sideTask.level);
                 if (InventoryService.gI().getCountEmptyBag(player) > 1) {
                     if (cayThong != -1 && canNhanCayThong) {
                         canNhanCayThong = false;
