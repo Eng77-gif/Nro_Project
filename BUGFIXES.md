@@ -1873,8 +1873,9 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Bot chơi theo nhu cầu (Đợt 130)**: trước khi để "bộ não tự học" chọn, bot làm việc cần làm:
   - chưa có đệ tử và đủ mạnh hạ Super Broly: đi đánh Broly (bị đánh lớn dần rồi hóa Super Broly, hạ được đệ). Trước đây bot "săn đệ" không bao giờ thấy Broly vì Broly / Super Broly nằm ở danh sách boss riêng (BrolyManager);
   - NRSD đang mở và sức mạnh từ 2 tỉ: vào NRSD; sức mạnh từ 1 tỉ: săn boss lấy đồ;
-  - thiếu ngọc (dưới 20.000, sức mạnh từ 100 triệu): đi giải Siêu hạng (đánh 1 - 3 hạng trên, thắng theo so chỉ số, thắng thì đổi hạng, nhận ngọc theo hạng);
-  - thiếu vàng (dưới 1 tỉ, sức mạnh từ 50 triệu): đi ĐHVT lần thứ 23 (vàng theo số trận thắng);
+  - thiếu ngọc (dưới 20.000, sức mạnh từ 100 triệu): đi giải Siêu hạng **đấu thật** như người chơi: tốn vé / 1 ngọc, thách 1 - 3 hạng trên qua SuperRankService, vào khu thi đấu đánh bản sao đối thủ bằng chiêu của mình, thắng / thua ghi vào lịch sử và đổi hạng như người chơi;
+  - thiếu vàng (dưới 1 tỉ, sức mạnh từ 50 triệu): đi ĐHVT lần thứ 23 **đấu thật**: trả vàng như ở NPC Ghi Danh, đánh lần lượt từng đối thủ, hết trận nhận Rương gỗ cấp đã đạt, qua ngày mở rương lấy quà rồi mới đánh tiếp;
+  - lệnh admin `daubot <tên bot> sh|dh`: cho bot vào giải Siêu hạng / ĐHVT 23 ngay để xem bot đánh.
   - 10 phút / lần mua đồ tính đua top ở cửa hàng sự kiện (hộp Chi Chi...), chừa 5.000 ngọc / 500 triệu vàng.
 
 ## Công cụ

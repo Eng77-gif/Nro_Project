@@ -188,6 +188,7 @@ public class Bot extends Player {
     }
 
     /** Tài khoản bot chỉ vào map người chơi cùng nhiệm vụ vào được (luật ChangeMapService.checkMapCanJoin: Namếc, tương lai, Cold...). */
+    public long arenaUntil, arenaIdle; // đang thi đấu Siêu hạng / ĐHVT 23 (BotArena)
     public long lastShopTop, lastSieuHang, lastDhvt23; // lần gần nhất mua hộp đua top / đi giải Siêu hạng / ĐHVT 23
 
     public boolean canGo(int mapId) {
@@ -327,6 +328,9 @@ public class Bot extends Player {
                 break;
             case 2:
                 this.boss.update();
+                break;
+            case BotArena.MODE_ARENA:
+                BotArena.update(this);
                 break;
         }
         if (this.isDie()) {

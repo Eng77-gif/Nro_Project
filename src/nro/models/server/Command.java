@@ -325,6 +325,22 @@ parameterizedCommands.put("upp", (player, text) -> {
             Service.gI().sendThongBao(player, "itemMapId=" + it.itemMapId);
             return true;
         }
+        if (text.startsWith("daubot ") && player.isAdmin()) { // admin: "daubot <tên bot> sh|dh" cho bot đi giải Siêu hạng / ĐHVT 23 ngay (đấu thật)
+            String[] p = text.substring(7).trim().split("\\s+");
+            nro.models.Bot.Bot bot = null;
+            for (nro.models.Bot.Bot x : nro.models.Bot.BotWorld.gI().bots()) {
+                if (x.name != null && x.name.equalsIgnoreCase(p[0])) {
+                    bot = x;
+                }
+            }
+            if (bot == null) {
+                Service.gI().sendThongBao(player, "Không thấy bot " + p[0]);
+                return true;
+            }
+            boolean ok = p.length > 1 && p[1].equals("dh") ? nro.models.Bot.BotArena.startDhvt23(bot) : nro.models.Bot.BotArena.startSieuHang(bot);
+            Service.gI().sendThongBao(player, bot.name + (ok ? " đã vào trận" : " không vào được trận (thiếu điều kiện)"));
+            return true;
+        }
         if (text.equals("giet boss") && player.isAdmin()) { // admin: hạ mọi boss trong khu, nhận thưởng
             for (Player p : player.zone.getBossesCopy()) {
                 if (p instanceof nro.models.boss.Boss b && !b.isDie()) {

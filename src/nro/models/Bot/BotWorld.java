@@ -671,6 +671,9 @@ public final class BotWorld {
     }
 
     private void switchActivity(Bot b) {
+        if (BotArena.inArena(b)) {
+            return; // đang thi đấu: đánh cho xong trận
+        }
         if (b.accountBot && BotClan.inDungeon(b) && !"NRSD".equals(b.activity)) {
             return; // đang trong doanh trại: đánh cho xong
         }
@@ -678,6 +681,16 @@ public final class BotWorld {
             return;
         }
         endPk(b);
+        if (b.accountBot && b.playerTask != null && b.playerTask.taskMain != null && b.playerTask.taskMain.id > 10) {
+            long now = System.currentTimeMillis(); // xen giữa lúc làm nhiệm vụ như người chơi: mua hộp đua top, đi giải Siêu hạng / ĐHVT 23
+            if (now - b.lastShopTop > 10 * 60_000L) {
+                b.lastShopTop = now;
+                nro.models.services.SeasonEventService.gI().botBuyTopItems(b);
+            }
+            if (planSpecial(b, now)) {
+                return;
+            }
+        }
         if (b.accountBot && b.playerTask != null && b.playerTask.taskMain != null
                 && (b.playerTask.taskMain.id <= 10 || BotQuest.gI().pending(b))) {
             if (!"Làm nhiệm vụ".equals(b.activity)) {
@@ -691,16 +704,6 @@ public final class BotWorld {
             return; // Hirudegarn 22h, hút Kilis, up mảnh bông tai
         }
         boolean nrsd = nro.models.utils.TimeUtil.isBlackBallWarOpen();
-        if (b.accountBot) {
-            long now = System.currentTimeMillis();
-            if (now - b.lastShopTop > 10 * 60_000L) {
-                b.lastShopTop = now;
-                nro.models.services.SeasonEventService.gI().botBuyTopItems(b); // mua hộp Chi Chi tính đua top
-            }
-            if (planSpecial(b, now)) {
-                return; // giải Siêu hạng / ĐHVT 23
-            }
-        }
         int a = b.accountBot ? plan(b, nrsd) : -1; // làm theo nhu cầu trước, bộ não tự học chỉ chọn khi không có việc cần làm
         if (a < 0) {
             a = BotBrain.pick(b, new boolean[]{true, true, true, nrsd, true, true});
@@ -765,65 +768,19 @@ public final class BotWorld {
         return -1;
     }
 
-    /** Thiếu ngọc -> giải Siêu hạng (thắng lên hạng, nhận ngọc theo hạng); thiếu vàng -> ĐHVT lần thứ 23 (vàng theo số trận thắng). */
+    /** Thiếu ngọc -> giải Siêu hạng; thiếu vàng -> ĐHVT lần thứ 23. Đấu thật như người chơi (BotArena). */
     private boolean planSpecial(Bot b, long now) {
         if (b.inventory.gem < 20_000 && b.nPoint.power >= 100_000_000L && now - b.lastSieuHang > 30 * 60_000L) {
             b.lastSieuHang = now;
-            goAway(b, SIEU_HANG);
-            return true;
+            if (BotArena.startSieuHang(b)) {
+                return true;
+            }
         }
         if (b.inventory.gold < 1_000_000_000L && b.nPoint.power >= 50_000_000L && now - b.lastDhvt23 > 30 * 60_000L) {
             b.lastDhvt23 = now;
-            goAway(b, DHVT_23);
-            return true;
+            return BotArena.startDhvt23(b);
         }
         return false;
-    }
-
-    static final String SIEU_HANG = "Giải siêu hạng", DHVT_23 = "Đại hội võ thuật lần thứ 23";
-
-    /** Kết quả giải Siêu hạng: đánh 1 - 3 hạng trên, thắng theo so sức mạnh với chỉ số đã lưu của đối thủ, thắng thì đổi hạng. */
-    private void sieuHangResult(Bot b) {
-        try {
-            synchronized (nro.models.database.SuperRankDAO.class) {
-                int rank = nro.models.database.SuperRankDAO.getRank((int) b.id);
-                if (b.superRank != null && b.superRank.rank < 1) {
-                    b.superRank.rank = rank;
-                    b.superRank.lastRewardTime = System.currentTimeMillis();
-                    nro.models.database.SuperRankDAO.insertData(b);
-                }
-                int target = Math.max(1, rank - Util.nextInt(1, 3));
-                if (target < rank) {
-                    nro.models.data.LocalResultSet rs = nro.models.data.LocalManager.executeQuery("select player_id, info from super_rank where `rank` = ? limit 1", target);
-                    if (rs.first()) {
-                        long opp = rs.getLong("player_id");
-                        org.json.simple.JSONObject info = (org.json.simple.JSONObject) org.json.simple.JSONValue.parse(rs.getString("info"));
-                        double oppScore = info == null ? 1 : Math.max(1, Double.parseDouble(String.valueOf(info.get("hp"))) * Double.parseDouble(String.valueOf(info.get("dame"))));
-                        double my = Math.max(1, (double) b.nPoint.hpMax * b.nPoint.dame);
-                        double win = Math.max(0.1, Math.min(0.9, my / (my + oppScore)));
-                        if (opp != b.id && Math.random() < win) {
-                            nro.models.data.LocalManager.executeUpdate("update super_rank set `rank` = ? where player_id = ?", rank, opp);
-                            nro.models.data.LocalManager.executeUpdate("update super_rank set `rank` = ? where player_id = ?", target, b.id);
-                            if (b.superRank != null) {
-                                b.superRank.rank = target;
-                            }
-                            rank = target;
-                        }
-                    }
-                    rs.dispose();
-                }
-                int gem = rank == 1 ? 100 : rank <= 10 ? 20 : rank <= 100 ? 5 : 1;
-                b.inventory.gem += gem * Util.nextInt(5, 20); // nhiều trận trong ngày
-            }
-        } catch (Exception e) {
-            logError(b, e);
-        }
-    }
-
-    /** ĐHVT lần thứ 23: vàng theo số trận thắng (mạnh hơn thắng nhiều trận hơn). */
-    private void dhvt23Result(Bot b) {
-        int wins = (int) Math.min(10, Math.max(1, Math.log10(Math.max(10, b.nPoint.power)) - 6));
-        b.inventory.gold = Math.min(nro.models.player.Inventory.LIMIT_GOLD, b.inventory.gold + wins * Util.nextInt(20, 60) * 1_000_000L);
     }
 
     private static final int NPC_SANTA = 39, VE_RIENG_TU = 1825, PHIEU_SAO_VANG = 2021;
@@ -958,11 +915,6 @@ public final class BotWorld {
 
     private void comeBack(Bot b) {
         b.awayUntil = 0;
-        if (SIEU_HANG.equals(b.activity)) {
-            sieuHangResult(b);
-        } else if (DHVT_23.equals(b.activity)) {
-            dhvt23Result(b);
-        }
         long bonus = Math.max(50_000, b.nPoint.power / 100);
         b.nPoint.power += bonus;
         b.nPoint.tiemNang += bonus;
