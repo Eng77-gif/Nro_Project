@@ -348,10 +348,6 @@ public class NpcFactory {
                 if (nro.models.services_func.AdminTools.gI().confirmMenu(player, player.idMark.getIndexMenu(), select)) {
                     return;
                 }
-                if (player.idMark.getIndexMenu() == nro.models.services.Service.MENU_FLAG_J2ME) {
-                    nro.models.services.Service.gI().chooseFlag(player, select);
-                    return;
-                }
                 if (nro.models.services.shenron.RongXuong.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
                     return;
                 }

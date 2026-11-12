@@ -1365,44 +1365,8 @@ public class Service {
         }
     }
 
-    public static final int MENU_FLAG_J2ME = 31720400;
-    public static final String FLAG_SHOP = "FLAG_J2ME";
 
     public void openFlagUI(Player pl) {
-        if (pl.getSession() instanceof nro.models.network.MySession ms && ms.longNumbers && ms.typeClient == 1) {
-            // client J2ME (Dragonboy247) không có bảng chọn cờ: gói -103 rơi vào nhánh bỏ qua trong bảng lệnh của client (đã soi mã máy).
-            // Hiện bảng cờ bằng giao diện cửa hàng (ô có hình từng lá cờ, chỉ số cờ như bảng của APK), bấm chọn là đổi cờ (ShopService.takeItem)
-            try {
-                Message m = new Message(-44);
-                m.writer().writeByte(0); // cửa hàng thường
-                m.writer().writeByte(1);
-                m.writer().writeUTF("Đổi cờ");
-                m.writer().writeByte(flagTempId.length);
-                for (int id : flagTempId) {
-                    m.writer().writeShort(id);
-                    m.writer().writeInt(0);
-                    m.writer().writeInt(0);
-                    m.writer().writeByte(1);
-                    switch (id) {
-                        case 363 ->
-                            m.writeItemOption(73, 0);
-                        case 371 ->
-                            m.writeItemOption(88, 10);
-                        default ->
-                            m.writeItemOption(88, 5);
-                    }
-                    m.writer().writeByte(id == flagTempId[Math.max(0, Math.min(flagTempId.length - 1, pl.cFlag))] ? 1 : 0); // cờ đang dùng: dấu "mới"
-                    m.writer().writeByte(0);
-                }
-                pl.idMark.setShopOpen(null);
-                pl.idMark.setTagNameShop(FLAG_SHOP);
-                pl.sendMessage(m);
-                m.cleanup();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return;
-        }
         Message msg;
         try {
             msg = new Message(-103);
