@@ -56,6 +56,7 @@ public class SeasonEventService implements Runnable {
 
     public static final int GIO_TO = 4;
     public static final int SUMMER = 5;
+    public static final int TEACHERS_DAY = 8; // Nhà giáo Việt Nam 20/11
 
     // chỉ số menu ở NPC Santa
     public static final int MENU_LIST = 83000;

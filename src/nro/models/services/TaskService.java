@@ -1356,6 +1356,15 @@ public class TaskService {
                         break;
                 }
 
+                // sự kiện 20/11 (như v10): nhiệm vụ hằng ngày thưởng thêm Que tre, dễ 1 / thường 2 / khó 3 / cực khó và địa ngục 4
+                if (nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.TEACHERS_DAY)) {
+                    int lv = player.playerTask.sideTask.level;
+                    int que = lv == ConstTask.EASY ? 1 : lv == ConstTask.NORMAL ? 2 : lv == ConstTask.HARD ? 3 : 4;
+                    Item qt = ItemService.gI().createNewItem((short) 1366, que);
+                    qt.itemOptions.add(new Item.ItemOption(30, 0));
+                    InventoryService.gI().addItemBag(player, qt);
+                    Service.gI().sendThongBao(player, "Bạn nhận được " + que + " Que tre");
+                }
                 if (InventoryService.gI().getCountEmptyBag(player) > 1) {
                     if (cayThong != -1 && canNhanCayThong) {
                         canNhanCayThong = false;
