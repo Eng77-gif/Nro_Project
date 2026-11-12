@@ -87,8 +87,6 @@ public class Dot114Migration {
                         + "power_require, gold, gem, head, body, leg from item_template where id = 1851");
                 Logger.success("Đợt 114: thêm Con dấu VIP (2131)\n");
             }
-            // Cađíc M ở Sa mạc hoang vu đứng im: v10 cho đi lại (vùng di chuyển 33, tốc độ 1)
-            update(con, "update mob_template set range_move = 33, speed = 1 where id = 95 and range_move = 0");
             if (!exists(con, "select 1 from server_migration where name = 'dot114_stack'")) {
                 // gộp mọi vật phẩm vào 1 ô, trừ đồ mặc được (áo, quần, găng, giày, rada / nhẫn, cải trang, đeo lưng, thú cưỡi, pet,
                 // danh hiệu, giáp tập luyện, cờ), sách tuyệt kỹ / sách kỹ năng; bông tai và capsule VIP không gộp (anh dặn)

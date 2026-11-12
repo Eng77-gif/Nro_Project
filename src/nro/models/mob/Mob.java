@@ -584,6 +584,11 @@ public class Mob {
             msg.writeNum(dameHit);
             msg.writer().writeBoolean(plKill.nPoint.isCrit); // crit
             List<ItemMap> items = mobReward(plKill, this.dropItemTask(plKill), msg);
+            for (ItemMap it : items) {
+                if (it != null) {
+                    it.fromMob = true; // mọi đồ quái rơi: thông báo nhặt theo kiểu "đánh quái", không nhầm sang boss
+                }
+            }
             // option 161: thêm # ngọc mỗi ngày khi đánh quái (lần hạ quái đầu tiên trong ngày)
             if (plKill.nPoint != null && plKill.nPoint.ngocMoiNgay > 0 && plKill.isPl()
                     && nro.models.daily_Giftcode.DailyGiftService.checkOrAdd(plKill, nro.models.consts.ConstDailyGift.NGOC_KHI_DANH_QUAI)) {
@@ -1016,6 +1021,7 @@ public class Mob {
             }
             if (Util.isTrue(1, 50000)) {
                 ItemMap it = ItemService.gI().randDoTL(this.zone, 1, x, yEnd, player.id);
+                it.fromMob = true; // nhặt được thì thông báo server
                 list.add(it);
                 //   ChatGlobalService.gI().ThongBaoRoiDo(player, "[ Hệ Thống ] " + player.name + " vừa nhặt được " + it.itemTemplate.name + " tại " + this.zone.map.mapName + " khu " + this.zone.zoneId);
             }

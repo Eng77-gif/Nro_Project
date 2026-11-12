@@ -32,7 +32,7 @@ public class ItemMap {
     public boolean isNamecBall;
     public volatile boolean isPickedUp;
     public boolean fromMob; // rơi từ quái (thông báo nhặt set kích hoạt riêng)
-    public String fromBoss; // tên boss vừa chết tại khu này (rơi trong 3 giây sau khi boss chết) - thông báo nhặt đồ boss
+    public String fromBoss; // tên boss vừa chết tại khu này (rơi trong lúc boss chết, 300ms) - thông báo nhặt đồ boss
     public String id;
 
     /** Vàng rơi (76, 188, 189, 190): ngoài map tối đa 9.999 / cục; Ngục tù may mắn (vào bằng Phiếu sao vàng may mắn) và khu riêng tư (164) tối đa 500.000 / cục. */
@@ -59,7 +59,7 @@ public class ItemMap {
         this.isBlackBall = ItemMapService.gI().isBlackBall(this.itemTemplate.id);
         this.isNamecBall = ItemMapService.gI().isNamecBall(this.itemTemplate.id);
         this.lastTimeMoveToPlayer = System.currentTimeMillis();
-        this.fromBoss = zone.bossDropName != null && this.createTime - zone.bossDropTime < 3000 ? zone.bossDropName : null;
+        this.fromBoss = zone.bossDropName != null && this.createTime - zone.bossDropTime < 300 ? zone.bossDropName : null;
         this.zone.addItem(this);
     }
 
@@ -79,7 +79,7 @@ public class ItemMap {
         this.isBlackBall = ItemMapService.gI().isBlackBall(this.itemTemplate.id);
         this.isNamecBall = ItemMapService.gI().isNamecBall(this.itemTemplate.id);
         this.lastTimeMoveToPlayer = System.currentTimeMillis();
-        this.fromBoss = zone.bossDropName != null && this.createTime - zone.bossDropTime < 3000 ? zone.bossDropName : null;
+        this.fromBoss = zone.bossDropName != null && this.createTime - zone.bossDropTime < 300 ? zone.bossDropName : null;
         this.zone.addItem(this);
     }
 

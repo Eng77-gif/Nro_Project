@@ -7,14 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import nro.models.utils.Logger;
 
-import static nro.models.database.Dot77Migration.exists;
 import static nro.models.database.Dot77Migration.update;
 
 /**
  * Đợt 125:
- * - Sa mạc hoang vu (165) dùng nền đồi cỏ xanh đá vàng (nền 14) như bản chính thức.
+ * - Sa mạc hoang vu (165) dùng nền đồi cỏ xanh đá vàng (nền 14) như bản chính thức, mặt đất cỏ bộ ô gạch Trái Đất (1).
+ * - Cađíc M đứng yên lại như cũ.
  * - Siêu hạng: đánh số lại hạng liên tục 1, 2, 3... mỗi lần khởi động (trước đây 2 người cùng hạng 2, không ai hạng 1).
- * - Xoá thông báo server nhặt set kích hoạt cũ trong nhật ký panel (từ nay set kích hoạt chỉ báo chat thế giới).
  *
  * @author Việt
  */
@@ -22,11 +21,9 @@ public class Dot125Migration {
 
     public static void run(Connection con) {
         try {
-            update(con, "update map_template set bg_id = 14, bg_type = 0 where id = 165");
+            update(con, "update map_template set tile_id = 1, bg_id = 14, bg_type = 0 where id = 165");
+            update(con, "update mob_template set range_move = 0 where id = 95"); // Cađíc M đứng yên như cũ (đi lại thì cứ đi tới đi lui quanh người chơi)
             renumberSuperRank(con);
-            if (exists(con, "select 1 from information_schema.tables where table_schema = database() and table_name = 'chat_log'")) {
-                update(con, "delete from chat_log where type = 'notify' and text like '%Set kích hoạt%'");
-            }
         } catch (Exception e) {
             Logger.error("Đợt 125: " + e.getMessage() + "\n");
         }

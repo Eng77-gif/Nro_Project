@@ -1272,7 +1272,7 @@ public class TaskService {
     }
 
     private boolean isCurrentTask(Player player, int idTaskCustom) {
-        return (player.playerTask != null && idTaskCustom == (player.playerTask.taskMain.id << 10) + player.playerTask.taskMain.index << 1);
+        return (player.playerTask != null && player.playerTask.taskMain != null && idTaskCustom == (player.playerTask.taskMain.id << 10) + player.playerTask.taskMain.index << 1);
     }
 
     public int getIdTask(Player player) {
