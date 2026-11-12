@@ -1864,6 +1864,12 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - Sa mạc hoang vu trả lại như cũ (ô gạch 12, nền 11), vsMap 8.
   - Bot làm nhiệm vụ: bước "tới map" (9.0 Lên đường, 12.0 Về nhà...) không được ghi vì bot dịch chuyển thẳng, không đi bộ trong map (kẹt nhiệm vụ 9); bước 0.0 Vách núi bị khoá tới nhiệm vụ 13 nên bot tạo ở nhà kẹt ở nhiệm vụ 0.
 
+- **Đợt 130**:
+  - Thoát vào lại đánh quái lại rơi 2 ngọc miễn phí: vào lại nhanh khi dữ liệu lúc thoát chưa lưu xong thì tải lại dữ liệu cũ (còn lượt). Nay nhớ thêm trong bộ nhớ đã nhận hôm nay.
+  - Xoá toàn bộ bang hội và ký gửi (1 lần).
+  - Map Mùa hè bỏ 2 cổng; Rađa dò vỏ Xên: mỗi lần dùng mất 1 rađa, được ở map 3 tiếng (dùng lại khi còn hạn không mất rađa), hết giờ tự về nhà.
+  - Bot: bật bao nhiêu vào game bấy nhiêu (bỏ hẹn giờ vào ngẫu nhiên lúc mở server và thoát nghỉ theo ca - trước đây bật 200 chỉ ~160 vào); ưu tiên xin vào bang có sẵn, chỉ lập bang khi không còn bang nào còn chỗ; tên bang kiểu Ngọc Rồng.
+
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
 - **NroResTool v13:** **Dò bản đồ** (lấy cả map): nhân vật tự đi qua các cổng, mỗi map lưu ô gạch, vật trang trí nền (`item_bg_map_data`), hiệu ứng (`eff_map`), `info/<mã>.json` (tên, hành tinh, nền, cổng + chỗ đến, quái, NPC) và `map/maps.sql` (thêm / cập nhật `map_template`; cổng chỉ ghi khi đã biết hết chỗ đến). Mục **Bản đồ**: nhập mã map (vd 0-185), công cụ hỏi lần lượt từng map và lưu ô gạch vào `map/tile_map_data/<mã>`, dùng để thay map bị lỗi trong source. `tools/res_import.py` nhận thư mục này và chép vào `data/map/tile_map_data` (cần `--overwrite` khi map đã có; file cũ giữ lại thành `.bak`).

@@ -33,6 +33,15 @@ import nro.models.utils.TimeUtil;
 
 public class Mob {
 
+    /** Đã nhận ngọc miễn phí hôm nay (giữ trong bộ nhớ: thoát vào lại nhanh, dữ liệu lúc thoát chưa kịp lưu thì không nhận lại). */
+    private static final java.util.Map<Long, java.time.LocalDate> FREE_GEM_DAY = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private static boolean claimToday(long playerId) {
+        java.time.LocalDate today = java.time.LocalDate.now();
+        return !today.equals(FREE_GEM_DAY.put(playerId, today));
+    }
+
+
     public int id;
     public Zone zone;
     public int tempId;
@@ -757,7 +766,7 @@ public class Mob {
                 player.monsterKillCountAutoTrain++;
             }
 
-            if (player.event.luotNhanNgocMienPhi == 1) { // ngọc miễn phí mỗi ngày (con quái đầu tiên)
+            if (player.event.luotNhanNgocMienPhi == 1 && claimToday(player.id)) { // ngọc miễn phí mỗi ngày (con quái đầu tiên)
                 ItemMap item1 = new ItemMap(zone, 77, 1, x, yEnd, player.id);
                 ItemMap item2 = new ItemMap(zone, 77, 1, x + 10, yEnd, player.id);
                 list.add(item1);

@@ -694,14 +694,8 @@ public class UseItem {
                             case 1825: // capule kich hoat
                                 UseItem.gI().MapRiengTu(pl, item);
                                 break;
-                            case 1666: // Rađa dò vỏ Xên: vào map Mùa hè (sự kiện hè 3), rađa không mất khi dùng
-                                if (!nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.SUMMER_3)) {
-                                    Service.gI().sendThongBao(pl, "Sự kiện hè 3 chưa diễn ra");
-                                } else if (pl.zone != null && pl.zone.map.mapId == nro.models.database.Dot129Migration.MAP_MUA_HE) {
-                                    Service.gI().sendThongBao(pl, "Bạn đang ở Map Mùa hè");
-                                } else {
-                                    ChangeMapService.gI().changeMapBySpaceShip(pl, nro.models.database.Dot129Migration.MAP_MUA_HE, -1, Util.nextInt(300, 900));
-                                }
+                            case 1666: // Rađa dò vỏ Xên: mỗi lần dùng mất 1 rađa, được ở map Mùa hè 3 tiếng (sự kiện hè 3)
+                                useSummerRadar(pl, item);
                                 break;
                             case 2021: // Phiếu sao vàng may mắn: vào Ngục tù may mắn
                                 UseItem.gI().useLuckyTicket(pl, item);
@@ -2838,6 +2832,39 @@ public class UseItem {
             return;
         }
         ChangeMapService.gI().changeMapBySpaceShip(pl, nro.models.map.service.MapService.MAP_NGUC_TU_MAY_MAN, -1, Util.nextInt(300, 700));
+    }
+
+    /** Hạn ở map Mùa hè theo người chơi (giữ trong bộ nhớ, thoát vào lại vẫn còn). */
+    private static final java.util.Map<Long, Long> SUMMER_MAP_UNTIL = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final long SUMMER_MAP_MS = 3 * 3_600_000L;
+
+    private void useSummerRadar(Player pl, Item item) {
+        if (!nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.SUMMER_3)) {
+            Service.gI().sendThongBao(pl, "Sự kiện hè 3 chưa diễn ra");
+            return;
+        }
+        long now = System.currentTimeMillis();
+        long until = SUMMER_MAP_UNTIL.getOrDefault(pl.id, 0L);
+        if (until <= now) { // hết hạn: dùng rađa mới, mất 1 rađa, được 3 tiếng
+            InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+            InventoryService.gI().sendItemBags(pl);
+            until = now + SUMMER_MAP_MS;
+            SUMMER_MAP_UNTIL.put(pl.id, until);
+            Service.gI().sendThongBao(pl, "Được vào Map Mùa hè trong 3 tiếng. Dùng lại rađa khi còn hạn để quay lại (không mất rađa)");
+        } else if (pl.zone != null && pl.zone.map.mapId == nro.models.database.Dot129Migration.MAP_MUA_HE) {
+            Service.gI().sendThongBao(pl, "Còn " + Math.max(1, (until - now) / 60_000) + " phút ở Map Mùa hè");
+            return;
+        }
+        ChangeMapService.gI().changeMapBySpaceShip(pl, nro.models.database.Dot129Migration.MAP_MUA_HE, -1, Util.nextInt(300, 900));
+    }
+
+    /** Hết 3 tiếng (hoặc vào map Mùa hè mà không có hạn) thì đưa về nhà. */
+    public void checkSummerMap(Player pl) {
+        if (pl.zone != null && pl.zone.map.mapId == nro.models.database.Dot129Migration.MAP_MUA_HE && !pl.isDie() && !pl.isBoss
+                && SUMMER_MAP_UNTIL.getOrDefault(pl.id, 0L) <= System.currentTimeMillis()) {
+            ChangeMapService.gI().changeMapBySpaceShip(pl, 21 + pl.gender, -1, 400);
+            Service.gI().sendThongBao(pl, "Hết thời gian ở Map Mùa hè");
+        }
     }
 
     /** Hết hạn phiếu (hoặc vào map không có phiếu) thì đưa về nhà. */

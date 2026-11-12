@@ -27,9 +27,15 @@ import nro.models.utils.Util;
 public class BotClan {
 
     private static final int MAP_LINH_CANH = 27;
-    private static final String[] CLAN_NAME = {"Rồng Thần", "Siêu Xayda", "Namếc Huyền Thoại", "Bất Bại", "Thiên Hạ Đệ Nhất", "Hắc Long",
-        "Bạch Hổ", "Kame Kame", "Vô Địch", "Chiến Binh Z", "Tiểu Đội Ginyu", "Hội Bạn Thân", "Sao Đen", "Đệ Tử Quy Lão", "Thần Long",
-        "Huyền Thoại", "Cày Thuê", "Săn Boss", "Hành Tinh Xanh", "Vũ Trụ 7"};
+    /** Tên bang kiểu Ngọc Rồng: tên chính + (đôi khi) đuôi. */
+    private static final String[] CLAN_NAME = {"Rồng Thần", "Shenron", "Porunga", "Siêu Rồng Thần", "Ngọc Rồng Sao Đen", "7 Viên Ngọc Rồng",
+        "Kame House", "Capsule Corp", "Red Ribbon", "Hành Tinh Vegeta", "Namếc", "Xayda", "Siêu Xayda", "Saiyan Elite", "Hoàng Tử Xayda",
+        "Chiến Binh Z", "Z Fighters", "Tiểu Đội Ginyu", "Quân Đoàn Frieza", "Đội Hỏa Tiễn", "Thần Điện", "Tháp Karin", "Đậu Thần",
+        "Đại Hội Võ Thuật", "Võ Đài Xên", "Kamejoko", "Kaioken", "Genki Dama", "Galick Ho", "Final Flash", "Makankosappo",
+        "Bản Năng Vô Cực", "Ultra Instinct", "Fusion Gogeta", "Vegito", "Thiên Sứ Whis", "Thần Hủy Diệt", "Vũ Trụ 7", "Vũ Trụ 11",
+        "Quy Lão Kame", "Đệ Tử Kaio", "Gohan Beast", "Super Broly", "Black Goku", "Hắc Mabư", "Cell Hoàn Thiện", "Cooler",
+        "Rồng Xương", "Ngọc Rồng Namek", "Thánh Địa Kaio"};
+    private static final String[] CLAN_SUFFIX = {"VN", "Team", "Clan", "Z", "Super", "Huyền Thoại", "Pro", "Vô Đối", "SSJ"};
 
     private final Random rnd = new Random();
     private long lastStep;
@@ -80,17 +86,17 @@ public class BotClan {
                 return; // đã xin, chờ bang chủ duyệt
             }
             Clan want = pickClan(b);
-            int asked = askCount.getOrDefault(b.id, 0);
-            if (want != null && asked < 2) {
+            if (want != null) { // ưu tiên xin vào bang có sẵn, cứ xin tiếp bang khác đến khi được nhận
                 ClanService.gI().botAskJoin(b, want.id);
                 lastAsk.put(b.id, now);
-                askCount.put(b.id, asked + 1);
                 return;
             }
-            if (want == null || Util.isTrue(50, 100)) {
+            int asked = askCount.getOrDefault(b.id, 0);
+            if (asked >= 2 && Util.isTrue(30, 100) && (b.nPoint.power >= ClanService.BOT_CLAN_MIN_POWER || Manager.CLANS.isEmpty())) { // không còn bang nào còn chỗ (đã chờ vài lượt): mới tự lập bang
                 createClan(b);
+                asked = 0;
             }
-            askCount.put(b.id, 0);
+            askCount.put(b.id, asked + 1);
             lastAsk.put(b.id, now);
             return;
         }
@@ -138,7 +144,7 @@ public class BotClan {
         }
         String name = null;
         for (int t = 0; t < 10 && name == null; t++) {
-            String n = CLAN_NAME[rnd.nextInt(CLAN_NAME.length)] + (rnd.nextBoolean() ? " " + Util.nextInt(1, 99) : "");
+            String n = CLAN_NAME[rnd.nextInt(CLAN_NAME.length)] + (rnd.nextInt(3) == 0 ? " " + CLAN_SUFFIX[rnd.nextInt(CLAN_SUFFIX.length)] : "");
             boolean used = false;
             for (Clan c : Manager.CLANS) {
                 if (c != null && n.equalsIgnoreCase(c.name)) {

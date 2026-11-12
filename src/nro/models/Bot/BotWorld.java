@@ -523,9 +523,6 @@ public final class BotWorld {
                 break; // vào dần (20 bot / 30 giây)
             }
             long pid = e.getKey();
-            if (!offlineUntil.containsKey(pid) && Util.isTrue(35, 100)) {
-                offlineUntil.put(pid, now + Util.nextInt(0, 120) * 60_000L); // lúc mới mở server: không phải ai cũng đang online
-            }
             if (offlineUntil.getOrDefault(pid, 0L) > now) {
                 continue;
             }
@@ -550,7 +547,7 @@ public final class BotWorld {
         b.accountBot = true;
         b.accountId = accountId;
         b.activity = "Luyện tập";
-        b.sessionEnd = System.currentTimeMillis() + (night() ? Util.nextInt(20, 90) : Util.nextInt(40, 240)) * 60_000L;
+        b.sessionEnd = 0; // bật là chơi liên tục: không thoát nghỉ theo ca (trước đây bật 200 bot chỉ ~160 bot vào game)
         b.mo1 = new BotPemQuai(b);
         b.boss = new BotSanBoss(b);
         b.charms.tdThuHut = Math.max(b.charms.tdThuHut, System.currentTimeMillis() + 24L * 3600_000); // tự nhặt đồ như người treo máy

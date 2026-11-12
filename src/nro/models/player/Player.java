@@ -518,6 +518,7 @@ public class Player implements Runnable {
                     if (isPl() && Util.canDoWithTime(lastLuckyMapCheck, 5000)) {
                         lastLuckyMapCheck = System.currentTimeMillis();
                         nro.models.services_func.UseItem.gI().checkLuckyMap(this);
+                        nro.models.services_func.UseItem.gI().checkSummerMap(this);
                         boolean e10 = e10Until > System.currentTimeMillis();
                         if (e10 != e10Active) { // Năng lượng E10 hết hạn: tính lại chỉ số
                             e10Active = e10;
