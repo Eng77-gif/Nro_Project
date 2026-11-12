@@ -34,7 +34,7 @@ public class Meowth extends Boss {
         int y = this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24);
         ItemMap it;
         if (Util.isTrue(30, 100)) {
-            it = new ItemMap(this.zone, 1878, 1, x, y, plKill.id);
+            it = new ItemMap(this.zone, 1881, 1, x, y, plKill.id); // Pet Meowth (mã v10 1878, ở server này 1878 là Ván bay cá đuối VIP)
             it.options.add(new ItemOption(93, Util.nextInt(1, 5)));
         } else if (Util.isTrue(90, 100)) {
             it = new ItemMap(this.zone, 1482, 1, x, y, plKill.id);
