@@ -489,6 +489,15 @@ public class ShopService {
         if (tagName == null || tagName.length() <= 0) {
             return;
         }
+        if (tagName.equals(Service.FLAG_SHOP)) { // bảng đổi cờ của client J2ME (Service.openFlagUI): "mua" lá cờ nào là đổi sang cờ đó
+            for (int i = 0; i < Service.flagTempId.length; i++) {
+                if (Service.flagTempId[i] == tempId) {
+                    Service.gI().chooseFlag(player, i);
+                    break;
+                }
+            }
+            return;
+        }
         if (tagName.equals("ITEMS_LUCKY_ROUND")) {
             getItemSideBoxLuckyRound(player, player.inventory.itemsBoxCrackBall, type, tempId);
             return;

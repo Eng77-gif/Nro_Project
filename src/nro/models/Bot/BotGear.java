@@ -32,7 +32,10 @@ final class BotGear {
         }
         next.put(b.id, now + Util.nextInt(90, 180) * 1000L);
         dropIllGotten(b);
+        useCards(b);
         wearBest(b);
+        wearBestLook(b);
+        tidyBag(b);
         buyLook(b, 5);  // cải trang
         buyLook(b, 7);  // pet
         buyLook(b, 8);  // đeo lưng
@@ -56,18 +59,167 @@ final class BotGear {
     /** Áo, quần, găng, giầy, rada (ô 0 - 4): mặc món hạng cao nhất trong hành trang nếu hơn món đang mặc. */
     private static void wearBest(Bot b) {
         for (int slot = 0; slot <= 4 && slot < b.inventory.itemsBody.size(); slot++) {
-            int curRank = rank(b.inventory.itemsBody.get(slot)), best = -1, bestRank = curRank;
+            Item cur = b.inventory.itemsBody.get(slot);
+            int curRank = rank(cur), best = -1;
+            long bestScore = score(cur);
             for (int i = 0; i < b.inventory.itemsBag.size(); i++) {
                 Item it = b.inventory.itemsBag.get(i);
-                if (it != null && it.isNotNullItem() && it.template.type == slot && wearable(b, it.template) && rank(it) > bestRank) {
+                if (it == null || !it.isNotNullItem() || it.template.type != slot || !wearable(b, it.template)) {
+                    continue;
+                }
+                // hạng cao hơn thì mặc; cùng hạng (trừ set kích hoạt: giữ đủ bộ) thì mặc món chỉ số cao hơn (+ cấp nâng)
+                if (rank(it) > curRank || (curRank < 3 && rank(it) == curRank && score(it) > bestScore)) {
                     best = i;
-                    bestRank = rank(it);
+                    curRank = rank(it);
+                    bestScore = score(it);
                 }
             }
             if (best >= 0) {
                 InventoryService.gI().itemBagToBody(b, best);
             }
         }
+    }
+
+    // ------------------------------------------------------------------ đồ ngon nhất cho mọi ô (cải trang, pet, đeo lưng, ván bay, bóng mờ...)
+    /** Ô trang bị của món trong hành trang (như putItemBody), -2 = ô bóng mờ, -1 = không mặc được. */
+    static int slotOf(Item it) {
+        if (it == null || !it.isNotNullItem()) {
+            return -1;
+        }
+        if (nro.models.services.Event2026Service.gI().isFoot(it)) {
+            return -2;
+        }
+        return switch (it.template.type) {
+            case 0, 1, 2, 3, 4, 5 -> it.template.type;
+            case 32 -> 6;
+            case 27 -> it.template.head >= 0 ? 7 : -1; // loại 27 không có hình (vật phẩm) thì không phải pet
+            case 11 -> 8;
+            case 23, 24 -> 9;
+            case 25 -> 10;
+            default -> -1;
+        };
+    }
+
+    /** Độ ngon: hạng (set kích hoạt > thiên sứ > hủy diệt) rồi chỉ số (% tính nặng, chỉ số cộng thẳng tính nhẹ), dòng "Mặc giảm ..." trừ điểm. */
+    static long score(Item it) {
+        if (it == null || !it.isNotNullItem()) {
+            return -1;
+        }
+        long s = rank(it) * 1_000_000_000L + it.template.strRequire / 1000;
+        for (Item.ItemOption io : it.itemOptions) {
+            if (io == null || io.optionTemplate == null || io.optionTemplate.name == null) {
+                continue;
+            }
+            String n = io.optionTemplate.name;
+            int id = io.optionTemplate.id;
+            if (id == 30 || id == 93 || id == 73 || id == 102 || id == 107) { // không giao dịch, hạn dùng, ô sao pha lê... không phải chỉ số
+                continue;
+            }
+            if (n.startsWith("Mặc giảm")) {
+                s -= io.param * 3000L;
+            } else if (n.contains("%")) {
+                s += io.param * 1000L;
+            } else {
+                s += Math.min(io.param, 1_000_000) / 10;
+            }
+        }
+        return s;
+    }
+
+    private static Item bodyAt(Bot b, int slot) {
+        if (slot == -2) {
+            return b.itemFoot;
+        }
+        return slot < b.inventory.itemsBody.size() ? b.inventory.itemsBody.get(slot) : null;
+    }
+
+    /** Cải trang, cờ, pet, đeo lưng, ván bay, ô 10, bóng mờ: mặc món ngon nhất trong hành trang nếu hơn món đang mặc. */
+    private static void wearBestLook(Bot b) {
+        for (int slot : new int[]{5, 6, 7, 8, 9, 10, -2}) {
+            long cur = score(bodyAt(b, slot));
+            int best = -1;
+            for (int i = 0; i < b.inventory.itemsBag.size(); i++) {
+                Item it = b.inventory.itemsBag.get(i);
+                if (slotOf(it) == slot && wearable(b, it.template) && score(it) > cur) {
+                    best = i;
+                    cur = score(it);
+                }
+            }
+            if (best >= 0) {
+                InventoryService.gI().itemBagToBody(b, best);
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------ mảnh thẻ rađa
+    /** Dùng hết mảnh thẻ (loại 33) vào Rađa như bấm "Sử dụng", rồi bật những thẻ ngon nhất (tối đa RadarService.MAX_USED). */
+    private static void useCards(Bot b) {
+        for (int i = 0; i < b.inventory.itemsBag.size(); i++) {
+            Item it = b.inventory.itemsBag.get(i);
+            for (int k = 0; k < 200 && it != null && it.isNotNullItem() && it.template.type == 33; k++) {
+                int q = it.quantity;
+                nro.models.services_func.UseItem.gI().UseCard(b, it);
+                if (it.quantity == q) {
+                    break; // chưa đủ điều kiện thẻ trước / thẻ đã tối đa
+                }
+            }
+        }
+        if (b.Cards == null || b.Cards.isEmpty()) {
+            return;
+        }
+        java.util.List<nro.models.radar.Card> owned = new java.util.ArrayList<>();
+        for (nro.models.radar.Card c : b.Cards) {
+            if (c != null && c.Level >= 1) {
+                owned.add(c);
+            }
+        }
+        owned.sort((x, y) -> Integer.compare(nro.models.services.RadarService.cardScore(y, y.Level), nro.models.services.RadarService.cardScore(x, x.Level)));
+        boolean changed = false;
+        for (int i = 0; i < owned.size(); i++) {
+            byte want = (byte) (i < nro.models.services.RadarService.MAX_USED ? 1 : 0);
+            if (owned.get(i).Used != want) {
+                owned.get(i).Used = want;
+                if (want == 1) {
+                    owned.get(i).usedAt = System.currentTimeMillis();
+                }
+                changed = true;
+            }
+        }
+        if (changed) {
+            Service.gI().point(b);
+        }
+    }
+
+    // ------------------------------------------------------------------ dọn hành trang
+    /**
+     * Mỗi lượt dọn hành trang; sắp đầy thì mua thêm ô (Mở rộng hành trang 100 ngọc, rương 50 triệu vàng như cửa hàng Santa), đồ kém hơn đồ đang mặc
+     * thì đồ hạng cao / không hạn dùng cất rương, đồ thường hoặc có hạn dùng thì vứt. Chỉ đụng tới đồ mặc được, không đụng vật phẩm khác.
+     */
+    private static void tidyBag(Bot b) {
+        if (InventoryService.gI().getCountEmptyBag(b) < 5 && b.inventory.itemsBag.size() < nro.models.player.Inventory.MAX_ITEMS_BAG && b.inventory.gem >= 300) {
+            b.inventory.gem -= 100;
+            b.inventory.itemsBag.add(ItemService.gI().createItemNull());
+        }
+        if (InventoryService.gI().getCountEmptyListItem(b.inventory.itemsBox) <= 1
+                && b.inventory.itemsBox.size() < nro.models.player.Inventory.MAX_ITEMS_BOX && b.inventory.gold >= 250_000_000L) {
+            b.inventory.gold -= 50_000_000L;
+            b.inventory.itemsBox.add(ItemService.gI().createItemNull());
+        }
+        for (int i = b.inventory.itemsBag.size() - 1; i >= 0; i--) {
+            Item it = b.inventory.itemsBag.get(i);
+            int slot = slotOf(it);
+            boolean otherGender = slot != -1 && it.template.gender < 3 && it.template.gender != b.gender;
+            if (slot == -1 || (!otherGender && score(it) > score(bodyAt(b, slot)))) {
+                continue; // không phải đồ mặc, hoặc ngon hơn đồ đang mặc (chưa đủ sức mạnh mặc thì giữ lại)
+            }
+            boolean expiring = it.itemOptions.stream().anyMatch(o -> o.optionTemplate != null && o.optionTemplate.id == 93);
+            if ((rank(it) >= 1 || (!expiring && slot >= 5)) && InventoryService.gI().getCountEmptyListItem(b.inventory.itemsBox) > 0) {
+                InventoryService.gI().itemBagToBox(b, i);
+            } else if (rank(it) < 1) {
+                b.inventory.itemsBag.set(i, ItemService.gI().createItemNull());
+            }
+        }
+        InventoryService.gI().sortItems(b.inventory.itemsBag);
     }
 
     private static boolean fits(int slot, ItemTemplate t) {
