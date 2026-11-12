@@ -1846,6 +1846,8 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Lỗi NullPointerException TaskService.isCurrentTask** khi đệ tử mới (NewPet) đi theo chủ qua map: đệ tử không có nhiệm vụ chính.
 - **Thông báo server khi nhặt đồ Thần Linh rơi từ quái**: "X vừa đánh quái may mắn nhận được 1 trang bị Quần Thần Linh". Mọi đồ quái rơi được đánh dấu "từ quái"; đồ boss chỉ tính khi rơi trong lúc boss chết.
 
+- **Sự kiện Phụ nữ Việt Nam 20/10** (13/10 - 27/10): Quy Lão "Đổi điểm sự kiện" 25 món theo ảnh (hộp Cađíc / Goku Day VIP, Hộp 20-11, Trứng Vàng, Rương Rồng Thần VIP, Khủng Long / Cân Đẩu Vân Thơ Mộng, Pet Hải Ly, Mèo thần tài, CT Himmel / Black Goku Rose / Frieren / Bunma rực rỡ / Pan VIP / Chi Chi giỗ tổ / Chi Chi hoa hồng xanh, Ba lô ngọc rồng, Dụng cụ học tập, Bảng đen, Ván bay sao băng, 3 bóng mờ, cờ Bư tập tạ, lồng đèn Tết).
+
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
 - **NroResTool v13:** **Dò bản đồ** (lấy cả map): nhân vật tự đi qua các cổng, mỗi map lưu ô gạch, vật trang trí nền (`item_bg_map_data`), hiệu ứng (`eff_map`), `info/<mã>.json` (tên, hành tinh, nền, cổng + chỗ đến, quái, NPC) và `map/maps.sql` (thêm / cập nhật `map_template`; cổng chỉ ghi khi đã biết hết chỗ đến). Mục **Bản đồ**: nhập mã map (vd 0-185), công cụ hỏi lần lượt từng map và lưu ô gạch vào `map/tile_map_data/<mã>`, dùng để thay map bị lỗi trong source. `tools/res_import.py` nhận thư mục này và chép vào `data/map/tile_map_data` (cần `--overwrite` khi map đã có; file cũ giữ lại thành `.bak`).
