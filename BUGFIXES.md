@@ -1833,6 +1833,8 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Rồng Xương**: hình rồng xương (hiệu ứng 51) đứng cố định trên bản đồ cạnh chỗ gọi, không bám sau lưng nhân vật; hành trang tự đóng khi rồng hiện. (v10 dùng lệnh gọi rồng loại 1, nhưng client hiện tại vẽ loại đó thành Rồng Namek nên không dùng được.)
 - **Lỗi lệch mã vật phẩm**: mã 2124 - 2127 bị xoá khỏi bảng, mà server và client tra vật phẩm theo vị trí, nên mọi món từ 2128 trở đi (3 cải trang đệ tử Ngũ Hành Sơn) tra sai / không thấy. Lấp chỗ trống bằng vật phẩm giữ chỗ (Đợt 114). Client tải lại dữ liệu (vsItem 28, vsData 27, vsSkill 2).
 
+- **Sa mạc hoang vu đứng hình (cả thông báo server cũng đứng)**: file ảnh quái Cađíc M bản x4 (`data/mob/x4/95`) có byte cuối = 2 (kiểu "boss mới") nhưng không kèm bảng khung hình. Client tra bảng rỗng nên lỗi ở mọi khung hình, vòng cập nhật dừng: quái đứng im, máu về 0 vẫn không chết, chữ chạy không chạy. Đổi byte về 0 như các quái thường.
+
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
 - **NroResTool v13:** **Dò bản đồ** (lấy cả map): nhân vật tự đi qua các cổng, mỗi map lưu ô gạch, vật trang trí nền (`item_bg_map_data`), hiệu ứng (`eff_map`), `info/<mã>.json` (tên, hành tinh, nền, cổng + chỗ đến, quái, NPC) và `map/maps.sql` (thêm / cập nhật `map_template`; cổng chỉ ghi khi đã biết hết chỗ đến). Mục **Bản đồ**: nhập mã map (vd 0-185), công cụ hỏi lần lượt từng map và lưu ô gạch vào `map/tile_map_data/<mã>`, dùng để thay map bị lỗi trong source. `tools/res_import.py` nhận thư mục này và chép vào `data/map/tile_map_data` (cần `--overwrite` khi map đã có; file cũ giữ lại thành `.bak`).
