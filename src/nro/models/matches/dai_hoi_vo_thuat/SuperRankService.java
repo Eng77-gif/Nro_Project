@@ -135,6 +135,20 @@ public class SuperRankService {
         return pl;
     }
 
+    /** Bản đang online (người chơi hoặc tài khoản bot) nếu có, không thì đọc từ DB. */
+    public Player onlineOrLoad(long id) {
+        Player p = getPlayer(id);
+        if (p == null) {
+            for (nro.models.Bot.Bot b : nro.models.Bot.BotWorld.gI().bots()) {
+                if (b.id == id && b.superRank != null) {
+                    p = b;
+                    break;
+                }
+            }
+        }
+        return p != null && p.superRank != null ? p : loadPlayer(id);
+    }
+
     public Player getPlayer(long id) {
         return Client.gI().getPlayer(id);
     }

@@ -172,8 +172,10 @@ public final class SuperRank implements Runnable {
     }
 
     private void updateResults(boolean playerWon) {
-        Player winner = SuperRankService.gI().loadPlayer(playerWon ? playerId : rivalId);
-        Player loser = SuperRankService.gI().loadPlayer(playerWon ? rivalId : playerId);
+        // nhân vật đang online (người chơi / bot) phải sửa đúng bản trong bộ nhớ: sửa bản đọc lại từ DB thì lần lưu tự động sau
+        // ghi đè hạng cũ lên (trước đây 2 người cùng hạng, khởi động lại xếp lại thì người vừa lên top 1 bị trả về top 2)
+        Player winner = SuperRankService.gI().onlineOrLoad(playerWon ? playerId : rivalId);
+        Player loser = SuperRankService.gI().onlineOrLoad(playerWon ? rivalId : playerId);
 
         winner.superRank.win++;
         loser.superRank.lose++;
