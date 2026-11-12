@@ -90,7 +90,7 @@ public class ItemTimeService {
             sendItemTime(player, 2758, (int) ((TIME_MAY_DO - (System.currentTimeMillis() - player.itemTime.lastTimeUseMayDo)) / 1000));
         }
         if (player.itemTime.isUseCoBonLa) {
-            sendItemTime(player, 13618, (int) ((TIME_CO_BON_LA - (System.currentTimeMillis() - player.itemTime.lastTimeUseCoBonLa)) / 1000));
+            sendItemTime(player, 13618, (int) (player.itemTime.coBonLaLeft() / 1000));
         }
         if (player.itemTime.isUseNuocMia1) {
             sendItemTime(player, 13462, (int) ((TIME_NUOC_MIA1 - (System.currentTimeMillis() - player.itemTime.lastTimeUseNuocMia1)) / 1000));

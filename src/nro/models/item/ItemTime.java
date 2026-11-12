@@ -20,6 +20,7 @@ public class ItemTime {
     public static final int TIME_MAY_DO = 1800000;
     public static final int TIME_MAY_DO2 = 1800000;
     public static final long TIME_CO_BON_LA = 30 * 60 * 1000L;
+    public static final long MAX_CO_BON_LA = 500 * 60 * 1000L; // cỏ bốn lá cộng dồn tối đa 500 phút
     public static final int TIME_KILIS = 3600000;
     public static final int TIME_NUOC_MIA1 = 600_000;
     public static final int TIME_NUOC_MIA2 = 600_000;
@@ -111,6 +112,23 @@ public class ItemTime {
     public long timeLengthKilis;
     public long totalCoBonLaTime;
     public long timeLengthCoBonLa;
+
+    /** Thời gian cỏ bốn lá còn lại (ms). */
+    public long coBonLaLeft() {
+        return isUseCoBonLa ? lastTimeUseCoBonLa + timeLengthCoBonLa - System.currentTimeMillis() : 0;
+    }
+
+    /** Dùng thêm 1 cỏ bốn lá: +30 phút cộng dồn, tối đa 500 phút. Trả về false nếu đã đầy. */
+    public boolean addCoBonLa() {
+        long left = Math.max(0, coBonLaLeft());
+        if (left + TIME_CO_BON_LA > MAX_CO_BON_LA) {
+            return false;
+        }
+        lastTimeUseCoBonLa = System.currentTimeMillis();
+        timeLengthCoBonLa = left + TIME_CO_BON_LA;
+        isUseCoBonLa = true;
+        return true;
+    }
 
     public ItemTime(Player player) {
         this.player = player;

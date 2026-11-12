@@ -928,6 +928,9 @@ public class ShopService {
             item = ItemService.gI().createNewItem((short) 521);
             item.itemOptions.addAll(Item.ItemOption.copyAll(is.options));
         }
+        if (item.template.id == 361 || item.template.id == 193) { // Gói 10 Rađa dò ngọc / Gói 10 viên Capsule: mua được 10 cái
+            item.quantity = 10;
+        }
         InventoryService.gI().addItemBag(player, item);
         InventoryService.gI().sendItemBags(player);
         Service.gI().sendThongBao(player, "Mua thành công " + is.temp.name);

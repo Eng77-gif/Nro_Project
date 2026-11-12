@@ -22,10 +22,12 @@ public class GokuSSJ extends Npc {
         if (canOpenNpc(player)) {
             switch (this.mapId) {
                 case 80 ->
-                    this.createOtherMenu(player, ConstNpc.BASE_MENU, "Ta mới hạ Fide, nhưng nó đã kịp đào 1 cái lỗ\nHành tinh này sắp nổ tung rồi\nMau lượn thôi",
-                            "Chuồn");
+                    this.createOtherMenu(player, ConstNpc.BASE_MENU, "Ta mới hạ Fide, nhưng nó đã kịp đào 1 cái lỗ, hành tinh này sắp nổ tung rồi.\n"
+                            + "Ta sẽ đưa con tới hành tinh Yardrat: hạ chiến binh ở đó nhặt Bí kiếp, đủ 9.999 thì gặp ta ở Yardart 3 đổi võ phục Yardrat",
+                            "Tới\nYardrat", "Ở lại");
                 case 131 ->
-                    this.createOtherMenu(player, ConstNpc.BASE_MENU, "Đây là đâu? Xong cmnr", "Bó tay", "Về chỗ cũ");
+                    this.createOtherMenu(player, ConstNpc.BASE_MENU, "Đây là hành tinh Yardrat.\nHạ chiến binh Yardrat để nhặt Bí kiếp, đi tiếp sang phải tới Yardart 3 gặp ta đổi võ phục",
+                            "OK", "Về\nNúi khỉ vàng");
                 default ->
                     super.openBaseMenu(player);
             }

@@ -333,8 +333,7 @@ public class UseItem {
                                 pl.maxTime = 5;
                                 Service.gI().Transport(pl);
                                 break;
-                            case 361:
-                                pl.idGo = (short) Util.nextInt(0, 6);
+                            case 361: // rađa dò ngọc: xem 7 viên ngọc Namếc ở map / khu nào, ai cầm, chọn viên để tới
                                 NgocRongNamecService.gI().menuCheckTeleNamekBall(pl);
                                 InventoryService.gI().subQuantityItemsBag(pl, item, 1);
                                 InventoryService.gI().sendItemBags(pl);
@@ -1659,9 +1658,11 @@ public class UseItem {
                 pl.itemTime.lastTimeUseMayDo = System.currentTimeMillis();
                 pl.itemTime.isUseMayDo = true;
                 break;
-            case 1635: // co bon la
-                pl.itemTime.lastTimeUseCoBonLa = System.currentTimeMillis();
-                pl.itemTime.isUseCoBonLa = true;
+            case 1635: // cỏ bốn lá: cộng dồn 30 phút mỗi lá, tối đa 500 phút
+                if (!pl.itemTime.addCoBonLa()) {
+                    Service.gI().sendThongBao(pl, "Cỏ bốn lá đã cộng dồn tối đa 500 phút");
+                    return;
+                }
                 break;
             case 2035: // Năng lượng E10: 10 phút KI +10%, SĐ +5%, giảm 5% HP
                 pl.e10Until = Math.max(pl.e10Until, System.currentTimeMillis()) + 600_000;

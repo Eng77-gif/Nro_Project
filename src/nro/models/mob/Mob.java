@@ -223,6 +223,19 @@ public class Mob {
         }
     }
 
+    /** Hệ số SKH: cỏ bốn lá x1,5; dùng cỏ bốn lá khi mặc đủ cải trang, ván bay, pet, đeo lưng thì x3. */
+    private static double skhLuckBoost(Player pl) {
+        if (pl.itemTime == null || !pl.itemTime.isUseCoBonLa) {
+            return 1;
+        }
+        java.util.List<Item> body = pl.inventory.itemsBody;
+        boolean full = body.size() > 9;
+        for (int slot : new int[]{5, 7, 8, 9}) { // cải trang, pet, đeo lưng, ván bay
+            full &= full && body.get(slot) != null && body.get(slot).isNotNullItem();
+        }
+        return full ? 3 : 1.5;
+    }
+
     public long getTiemNangForPlayer(Player pl, long dame) {
         int levelPlayer = Service.gI().getCurrLevel(pl);
         int levelMob = this.level;
@@ -428,6 +441,9 @@ public class Mob {
             // giữ nguyên dameMob
         }
 
+        if (player.setClothes != null && player.setClothes.ocTieu >= 5) { // 5 món Ốc Tiêu: bất tử khi đánh quái (quái không hạ được)
+            dameMob = Math.max(0, Math.min(dameMob, player.nPoint.hp - 1));
+        }
         long dame = player.injured(null, dameMob, false, true);
         this.sendMobAttackMe(player, dame);
         this.sendMobAttackPlayer(player);
@@ -631,7 +647,7 @@ public class Mob {
      * Trước đây chỉ đếm đồ đang mặc (bỏ sót bóng mờ, danh hiệu, thẻ) và công thức (p/100)^1.5*20 làm 10% may mắn chỉ còn +0,6%.
      */
     public static double luckFactor(Player player) {
-        int luck = player.nPoint == null ? 0 : Math.max(0, Math.min(200, player.nPoint.tlMayMan));
+        int luck = player.nPoint == null ? 0 : Math.max(0, Math.min(500, player.nPoint.tlMayMan));
         return 1 + luck / 100.0;
     }
 
@@ -831,18 +847,14 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapRiengTu(mapid)) {
-            int baseTileDrop = 6; // khu riêng tư (Vé riêng tư): SKH rơi gấp 3 map úp SKH ngoài
-            double tileDrop = baseTileDrop;
+            double tileDrop = 6; // khu riêng tư (Vé riêng tư): SKH rơi gấp 6 map úp SKH ngoài
 
             tileDrop *= luckFactor(player); // option 236: may mắn từ mọi nguồn
             tileDrop *= (1 + player.nPoint.tlRareMob / 100.0); // option 206: vật phẩm hiếm rơi từ quái
+            tileDrop *= skhLuckBoost(player); // cỏ bốn lá (+ đủ cải trang, ván bay, pet, đeo lưng)
 
-            if (player.itemTime.isUseCoBonLa) {
-                tileDrop *= 1.5;
-            }
-
-            // Check rơi đồ kích hoạt
-            if (Util.isTrue((int) tileDrop, 9999)) {
+            // Check rơi đồ kích hoạt (x100 để không mất phần lẻ khi nhân hệ số)
+            if (Util.isTrue((int) (tileDrop * 100), 999_900)) {
                 short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -864,18 +876,14 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapUpSKH(mapid)) {
-            int baseTileDrop = 2;
-            double tileDrop = baseTileDrop;
+            double tileDrop = 1; // map úp SKH ngoài: 1/9999 (trước 2), khó ra hơn
 
             tileDrop *= luckFactor(player); // option 236: may mắn từ mọi nguồn
             tileDrop *= (1 + player.nPoint.tlRareMob / 100.0); // option 206: vật phẩm hiếm rơi từ quái
+            tileDrop *= skhLuckBoost(player); // cỏ bốn lá (+ đủ cải trang, ván bay, pet, đeo lưng)
 
-            if (player.itemTime.isUseCoBonLa) {
-                tileDrop *= 1.5;
-            }
-
-            // Check rơi đồ kích hoạt
-            if (Util.isTrue((int) tileDrop, 9999)) {
+            // Check rơi đồ kích hoạt (x100 để không mất phần lẻ khi nhân hệ số)
+            if (Util.isTrue((int) (tileDrop * 100), 999_900)) {
                 short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);

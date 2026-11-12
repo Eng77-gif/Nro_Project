@@ -637,7 +637,7 @@ public class VietLoader {
             player.itemTime.lastTimeAnDanh2 = System.currentTimeMillis() - (ItemTime.TIME_ITEM - timeAnDanh2);
             player.itemTime.lastTimeOpenPower = System.currentTimeMillis() - (ItemTime.TIME_OPEN_POWER - timeOpenPower);
             player.itemTime.lastTimeUseMayDo = System.currentTimeMillis() - (ItemTime.TIME_MAY_DO - timeMayDo);
-            player.itemTime.lastTimeUseCoBonLa = System.currentTimeMillis() - (ItemTime.TIME_CO_BON_LA - timeCoBonLa);
+            player.itemTime.lastTimeUseCoBonLa = System.currentTimeMillis(); // cỏ bốn lá: lưu thời gian còn lại (cộng dồn tối đa 500 phút)
             player.itemTime.lastTimeUseKhoBauX2 = System.currentTimeMillis() - (ItemTime.TIME_MAY_DO2 - timeKhoBauX2);
             player.itemTime.lastTimeBuaSanta = System.currentTimeMillis() - (ItemTime.TIME_BUA_SANTA - timeBuaSanta);
             player.itemTime.lastTimeEatMeal = System.currentTimeMillis() - (ItemTime.TIME_EAT_MEAL - timeMeal);
@@ -676,7 +676,7 @@ public class VietLoader {
             player.itemTime.isEatMeal2 = timeMeal2 != 0;
             player.itemTime.isUseNCD = timeUseNCD != 0;
             player.itemTime.isUseCoBonLa = timeCoBonLa > 0;
-            player.itemTime.timeLengthCoBonLa = ItemTime.TIME_CO_BON_LA;
+            player.itemTime.timeLengthCoBonLa = Math.max(0, Math.min(ItemTime.MAX_CO_BON_LA, timeCoBonLa));
             player.itemTime.isUseKilis = timeKilis > 0;
             player.itemTime.lastTimeUseKilis = System.currentTimeMillis();
             player.itemTime.timeLengthKilis = Math.max(0, timeKilis);

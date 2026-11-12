@@ -190,9 +190,12 @@ public class NgocRongNamecService implements Runnable {
         if (p.idNRNM != -1) {
             return;
         }
+        if (p.idGo < 0 || p.idGo > 6) {
+            return;
+        }
         int idMAP = mapNrNamec[p.idGo];
         int idZone = zoneNrNamec[p.idGo];
-        Zone z = Manager.MAPS.get(idMAP).zones.get(idZone);
+        Zone z = idMAP < 0 || idZone < 0 ? null : Manager.MAPS.get(idMAP).zones.get(idZone);
         if (z != null && !z.items.isEmpty()) {
             for (int i = 0; i < z.items.size(); i++) {
                 ItemMap it = z.items.get(i);
@@ -446,15 +449,38 @@ public class NgocRongNamecService implements Runnable {
     }
 
     //Rồng Thần đã xuất hiện, không thể nhặt ngọc được nữa
-    public void menuCheckTeleNamekBall(Player pl) {
-        String nrnm = "";
-        for (int i = 0; i < 7; i++) {
-            nrnm += NgocRongNamecService.gI().getDis(pl, i, (short) (353 + i)) + "\n";
+    /** Viên ngọc Namếc thứ i đang ở đâu: "map khu z" (nằm dưới đất) hoặc "map khu z (người cầm)"; null nếu chưa xuất hiện. */
+    private String where(int i) {
+        try {
+            Player holder = idpNrNamec[i] == -1 ? null : Client.gI().getPlayer(idpNrNamec[i]);
+            if (holder != null && holder.zone != null) {
+                return holder.zone.map.mapName + " khu " + holder.zone.zoneId + " (" + holder.name + " đang cầm)";
+            }
+            if (mapNrNamec[i] >= 0 && zoneNrNamec[i] >= 0) {
+                return Manager.MAPS.get(mapNrNamec[i]).mapName + " khu " + zoneNrNamec[i];
+            }
+        } catch (Exception ignored) {
         }
-        if (pl.idNRNM != -1) {
-            NpcService.gI().createMenuConMeo(pl, ConstNpc.CONFIRM_TELE_NAMEC, 2294, nrnm.trim(), "Kết thúc");
+        return null;
+    }
+
+    /**
+     * Rađa dò ngọc: liệt kê map, khu của 7 viên ngọc rồng Namếc (ai đang cầm), chọn viên muốn dịch chuyển tới (miễn phí,
+     * rađa đã tốn 1 cái khi dùng).
+     */
+    public void menuCheckTeleNamekBall(Player pl) {
+        StringBuilder sb = new StringBuilder("Rađa dò ngọc rồng Namếc\n");
+        java.util.List<String> buttons = new java.util.ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            String w = where(i);
+            sb.append(i + 1).append(" sao: ").append(w == null ? "chưa xuất hiện" : w).append("\n");
+            buttons.add("Đến\n" + (i + 1) + " sao");
+        }
+        buttons.add("Đóng");
+        if (pl.idNRNM != -1) { // đang cầm ngọc Namếc thì không dịch chuyển được
+            NpcService.gI().createMenuConMeo(pl, ConstNpc.CONFIRM_TELE_NAMEC, 2294, sb.toString().trim() + "\nĐang cầm ngọc, không thể dịch chuyển", "Đóng");
             return;
         }
-        NpcService.gI().createMenuConMeo(pl, ConstNpc.CONFIRM_TELE_NAMEC, 2294, nrnm.trim(), "Đến ngay\nViên " + (pl.idGo + 1) + " Sao\n50 ngọc", "Kết thúc");
+        NpcService.gI().createMenuConMeo(pl, ConstNpc.CONFIRM_TELE_NAMEC, 2294, sb.toString().trim(), buttons.toArray(new String[0]));
     }
 }

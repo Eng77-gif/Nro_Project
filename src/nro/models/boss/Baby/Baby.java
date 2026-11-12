@@ -21,7 +21,8 @@ public class Baby extends Boss {
     }
 
     /**
-     * Mỗi con Baby chỉ rơi đúng 1 món: đồ thần linh (20%), đồ có ô sao pha lê (40%) hoặc sao pha lê cấp 2 (40%).
+     * Mỗi con Baby rơi đúng 1 phần thưởng: 50% vật phẩm cấp 2 (Cuồng nộ, Giáp Xên bọ hung, Bổ huyết, Ẩn danh 2) x5 - 10,
+     * 20% ngọc rồng 1 - 7 sao, 20% đồ thần linh có 1 - 5 ô sao pha lê, 10% đồ set Thần hủy diệt Champa.
      */
     @Override
     public void reward(Player plKill) {
@@ -29,30 +30,25 @@ public class Baby extends Boss {
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
         plKill.bossBabyDefeatParticipationCount++;
         int r = Util.nextInt(1, 100);
-        if (r <= 20) {
+        if (r <= 50) {
+            int[] lv2 = {1150, 1153, 1152, 1154};
+            Service.gI().dropItemMap(zone, new ItemMap(this.zone, lv2[Util.nextInt(0, lv2.length - 1)], Util.nextInt(5, 10), x, y, plKill.id));
+        } else if (r <= 70) {
+            Service.gI().dropItemMap(zone, new ItemMap(this.zone, Util.nextInt(14, 20), 1, x, y, plKill.id)); // ngọc rồng 1 - 7 sao
+        } else if (r <= 90) {
             ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
             if (it != null) {
+                it.options.removeIf(o -> o.optionTemplate != null && o.optionTemplate.id == 107);
+                it.options.add(new Item.ItemOption(107, Util.nextInt(1, 5)));
                 Service.gI().dropItemMap(zone, it);
-                return;
             }
+        } else {
+            int gear = nro.models.services.Event2026Service.randomSkhChampaGear();
+            ItemMap champa = new ItemMap(this.zone, gear, 1, x, y, plKill.id);
+            champa.options.addAll(ItemService.gI().getListOptionItemShop((short) gear));
+            nro.models.services.Event2026Service.addSkhChampaOptions(champa.options);
+            Service.gI().dropItemMap(zone, champa);
         }
-        if (r <= 60) {
-            int group = Util.nextInt(1, 100) <= 70 ? 0 : 1; // 70% áo / quần / giày, 30% găng / rada
-            int[][] drops = {
-                {230, 231, 232, 234, 235, 236, 238, 239, 240, 242, 243, 244, 246, 247, 248, 250, 251, 252, 266, 267, 268, 270, 271, 272, 274, 275, 276},
-                {254, 255, 256, 258, 259, 260, 262, 263, 264, 278, 279, 280}
-            };
-            int id = drops[group][Util.nextInt(0, drops[group].length - 1)];
-            ItemMap it = new ItemMap(this.zone, id, 1, x, y, plKill.id);
-            List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop((short) id);
-            ops.forEach(o -> o.param = (int) (o.param * Util.nextInt(100, 115) / 100.0));
-            it.options.addAll(ops);
-            int rand = Util.nextInt(1, 100); // ô sao pha lê: 60% 1 - 3, 30% 4 - 5, 10% 6
-            it.options.add(new Item.ItemOption(107, rand <= 60 ? Util.nextInt(1, 3) : rand <= 90 ? Util.nextInt(4, 5) : 6));
-            Service.gI().dropItemMap(zone, it);
-            return;
-        }
-        Service.gI().dropItemMap(zone, new ItemMap(this.zone, Util.nextInt(1416, 1422), 1, x, y, plKill.id)); // sao pha lê cấp 2
     }
 
     @Override

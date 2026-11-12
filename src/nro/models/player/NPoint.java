@@ -680,6 +680,10 @@ public class NPoint {
             this.tlHp.add(has(1842) ? 3 : 0);
             this.tlGiap += has(1843) ? 5 : 0;
         }
+        if (setCount(233) >= 5) { // 5 món SKH Gohan: +300% may mắn, +50% vàng rơi từ quái
+            this.tlMayMan += 300;
+            this.tlGold += 50;
+        }
         if (setCount(233) >= 5 && has(1921)) { // CT Pan VIP + đủ 5 món SKH Gohan: +20% SĐ, +50% may mắn
             this.tlDame.add(20);
             this.tlMayMan += 50;
@@ -2167,9 +2171,6 @@ public class NPoint {
                     percentDameIntrinsic = intrinsic.param1;
                 }
                 percentDameSkill = skillSelect.damage;
-                if (this.player.setClothes.ocTieu == 5) {
-                    percentXDame = 100;
-                }
                 break;
             case Skill.KAIOKEN:
                 percentDameSkill = skillSelect.damage;

@@ -706,10 +706,9 @@ public class NpcFactory {
                         }
                     }
                     case ConstNpc.CONFIRM_TELE_NAMEC -> {
-                        if (select == 0) {
+                        if (select >= 0 && select <= 6 && player.idNRNM == -1) { // rađa dò ngọc: chọn viên 1 - 7 sao để dịch chuyển tới
+                            player.idGo = (short) select;
                             NgocRongNamecService.gI().teleportToNrNamec(player);
-                            player.inventory.subGem(10);
-                            Service.gI().sendMoney(player);
                         }
                     }
                     case ConstNpc.MA_BAO_VE -> {
