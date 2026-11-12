@@ -173,6 +173,7 @@ public class CuongHoaLoSaoPhaLe {
             CombineService.gI().baHatMit.npcChat(player, "Chúc mừng con nhé, đã cường hóa lỗ thứ " + next);
         } else {
             CombineService.gI().sendEffectFailCombine(player);
+            CombineService.gI().baHatMit.npcChat(player, "Cường hóa lỗ thứ " + next + " thất bại rồi, chúc con may mắn lần sau");
         }
 
         InventoryService.gI().subQuantityItemsBag(player, hematite, 1);
@@ -180,7 +181,7 @@ public class CuongHoaLoSaoPhaLe {
         Service.gI().sendMoney(player);
         InventoryService.gI().sendItemBags(player);
         CombineService.gI().reOpenItemCombine(player);
-        CombineService.gI().sendEffectCombineDB(player, item.template.iconID);
+        // (đã bỏ hiệu ứng ghép ngọc rồng gửi sau cùng: nó đè lên hiệu ứng thất bại nên cường hoá hỏng vẫn hiện "Chúc mừng")
     }
 
 }

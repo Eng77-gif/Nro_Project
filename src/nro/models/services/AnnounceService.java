@@ -45,7 +45,7 @@ public class AnnounceService {
     }
 
     private void announce(Player pl) {
-        StringBuilder tops = new StringBuilder();
+        List<String> tops = new java.util.ArrayList<>();
         try {
             List<Object[]> hd = nro.models.database.PlayerExtraDAO.top("hdba_count", TOP_LIMIT);
             for (int i = 0; i < hd.size(); i++) {
@@ -64,18 +64,15 @@ public class AnnounceService {
                 }
             }
         }
-        if (tops.length() > 0) {
-            ChatGlobalService.gI().chatVip(pl, tops + " vừa đăng nhập!");
+        for (String t : tops) { // mỗi đua top 1 tin như bản chính thức: "TOP 8 Túi mù Halloween kiily888 vừa đăng nhập"
+            ChatGlobalService.gI().chatVip(pl, t + " " + pl.name + " vừa đăng nhập");
         }
     }
 
     private static final int TOP_LIMIT = 10;
 
-    private void append(StringBuilder sb, int rank, String name) {
-        if (sb.length() > 0) {
-            sb.append(", ");
-        }
-        sb.append("Top ").append(rank).append(" sự kiện ").append(name);
+    private void append(List<String> tops, int rank, String name) {
+        tops.add("TOP " + rank + " " + name);
     }
 
     // ------------------------------------------------------------------ nhặt set kích hoạt riêng từ quái
@@ -84,7 +81,7 @@ public class AnnounceService {
         if (pl == null || itemMap == null || !itemMap.fromMob || item == null || item.template == null || item.template.type > 4) {
             return;
         }
-        boolean skh = false;
+        String skh = null;
         for (Item.ItemOption io : item.itemOptions) {
             for (int id : SKH_RIENG) {
                 if (io.optionTemplate.id == id) { // 3 set riêng: báo kèm tên set
@@ -93,18 +90,19 @@ public class AnnounceService {
                 }
             }
             if (io.optionTemplate.name != null && io.optionTemplate.name.startsWith("Set ")) {
-                skh = true;
+                skh = " " + io.optionTemplate.name.replaceAll("\\s*[#%(].*$", "").trim(); // set cũ (Sôngôku, Kakarot...): kèm tên set, bỏ phần chỉ số
             }
         }
-        if (skh) { // set cũ (Sôngôku, Kakarot, Picolo...): không kèm tên set
-            announceSkh(pl, "");
+        if (skh != null) {
+            announceSkh(pl, skh);
         }
     }
 
     /** Báo song song: thông báo hệ thống (chạy chữ) và chat thế giới. */
     private void announceSkh(Player pl, String setName) {
-        ServerNotify.gI().notify(pl.name + " vừa đánh quái may mắn nhận được 1 trang bị Set kích hoạt" + setName);
-        ChatGlobalService.gI().chatVip(pl, "vừa đánh quái may mắn nhận được 1 trang bị Set kích hoạt" + setName);
+        String text = "[HT] " + pl.name + " vừa đánh quái may mắn nhận được 1 trang bị Set kích hoạt" + setName;
+        ServerNotify.gI().notify(text);
+        ChatGlobalService.gI().chatVip(pl, text); // tin thế giới gửi từ chính người nhặt, như bản chính thức
     }
 
     // ------------------------------------------------------------------ mở hộp

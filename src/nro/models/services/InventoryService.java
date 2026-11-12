@@ -930,7 +930,8 @@ public class InventoryService {
         if (tagHalloween(itemAdd)) {
             items.forEach(InventoryService::tagHalloween); // ô cũ cùng loại cũng có đủ dòng để gộp chung
         }
-        if (itemAdd.template != null && (Event2026Service.gI().isBox(itemAdd) || isGiftBox(itemAdd.template))) {
+        if (itemAdd.template != null && itemAdd.template.isUpToUp && (Event2026Service.gI().isBox(itemAdd) || isGiftBox(itemAdd.template))) {
+            // hộp tắt gộp (is_up_to_up = 0, vd. Capsule VIP) thì mỗi hộp 1 ô
             // hộp quà / túi mù / capsule: luôn gộp chung 1 ô, giữ hạn sử dụng của ô hộp đang có (hộp gộp vào lấy hạn hộp trước)
             mergeBoxStacks(items, itemAdd.template.id);
             for (Item it : items) {

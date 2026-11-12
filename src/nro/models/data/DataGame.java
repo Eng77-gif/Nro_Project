@@ -31,10 +31,10 @@ import nro.models.player_system.Template.BgItem;
 
 public class DataGame {
 
-    public static byte vsData = 26; // tăng khi thêm part/vật phẩm mới để client tải lại (25: ô gạch 33, 26: máy đo sức mạnh đứng yên)
+    public static byte vsData = 27; // tăng khi thêm part/vật phẩm mới để client tải lại (25: ô gạch 33, 26: máy đo sức mạnh đứng yên)
     public static byte vsMap = 6; // tăng khi thêm map / đổi mẫu NPC (5: hình King Furry, 6: Phòng thí nghiệm Myuu bản v10)
-    public static byte vsSkill = 1;
-    public static byte vsItem = 27; // tăng khi đổi item / bảng option để client tải lại (16: bảng option tối đa 255 dòng)
+    public static byte vsSkill = 2; // 2: mô tả chiêu thức thay chữ "null"
+    public static byte vsItem = 28; // tăng khi đổi item / bảng option để client tải lại (16: bảng option tối đa 255 dòng)
     public static int vsRes = 4; // tăng khi thêm file res để client tải lại (3: mount_80 Ván Rồng 7 sao, 4: lớp thú cưỡi còn thiếu)
     public static short maxSmallVersion = 32767;
 
@@ -154,7 +154,7 @@ public class DataGame {
                     msg.writer().writeByte(skillTemp.type);
                     msg.writer().writeShort(skillTemp.iconId);
                     msg.writer().writeUTF(skillTemp.damInfo);
-                    msg.writer().writeUTF("null");
+                    msg.writer().writeUTF(skillTemp.info == null || skillTemp.info.isEmpty() ? skillTemp.name : skillTemp.info); // trước gửi cứng "null"
                     if (skillTemp.id != 0) {
                         msg.writer().writeByte(skillTemp.skillss.size());
                         for (Skill skill : skillTemp.skillss) {

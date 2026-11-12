@@ -33,10 +33,20 @@ public class RongXuong {
     /** Hiệu ứng hình Rồng Xương trong data/effect (client không có hình rồng xương ở lệnh gọi rồng -83). */
     public static final int EFFECT_RONG_XUONG = 51;
     /**
-     * 0 (mặc định): gọi rồng như bộ ngọc 1 sao (lệnh gọi rồng của client: trời tối, rồng thần hiện lên, client tự đóng hành trang);
-     * 1: hình Rồng Namek; -1: chỉ hiện hiệu ứng 51 sau lưng (hành trang không tự đóng).
+     * -1 (mặc định): hình Rồng Xương (hiệu ứng 51) đứng cố định trên bản đồ tại chỗ gọi, như rồng thần bộ 1 sao đứng giữa cảnh, không
+     * bám sau lưng nhân vật; hành trang tự đóng. 0 / 1: lệnh gọi rồng của client (chỉ có hình Rồng thần Trái Đất / Namek).
      */
-    public static volatile int dragonType = 0;
+    public static volatile int dragonType = -1;
+    /** Rồng Xương đứng lệch sang bên cạnh chỗ gọi (không che nhân vật). */
+    private static final int DRAGON_OFFSET_X = 70;
+    /** Hiệu ứng trên bản đồ không gỡ được nên gửi từng đợt ngắn, rồng còn thì gửi tiếp (BONE_REFRESH_MS), rồng đi thì tự tắt. */
+    private static final int BONE_LOOPS = 60;
+    private static final long BONE_REFRESH_MS = 15_000;
+    private static final java.util.concurrent.ScheduledExecutorService BONE = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "rong-xuong");
+        t.setDaemon(true);
+        return t;
+    });
 
     private static final String SAY_1 = "Ta sẽ ban cho ngươi một điều ước, ngươi có 5 phút, hãy chọn đi:\n"
             + "1) Đổi cả 3 kỹ năng đầu của đệ tử\n(Lưu ý: Kỹ năng mới có cấp 1 và vẫn có thể trùng lại với kỹ năng vốn có).\n"
@@ -113,12 +123,12 @@ public class RongXuong {
     private static void sendDragon(Player pl, State st, boolean appear) {
         if (dragonType < 0) {
             if (appear) {
-                Service.gI().sendEffAllPlayer(pl, EFFECT_RONG_XUONG, 0, -1, 1, 1); // sau lưng nhân vật, lặp tới khi rồng đi
                 pl.isShenronAppear = true;
-            } else {
-                Service.gI().removeEffPlayer(pl, EFFECT_RONG_XUONG);
+                // tin của "Rồng Xương" (lệnh 38) làm client đóng hành trang như khi gọi rồng thần
+                NpcService.gI().createTutorial(pl, -1, "Rồng Xương đã xuất hiện, hãy ước đi!");
+                showBone(pl.id, st);
             }
-            return;
+            return; // rồng đi: không gửi tiếp, hình tự tắt sau đợt đang chạy
         }
         try {
             Message msg = new Message(-83);
@@ -138,6 +148,15 @@ public class RongXuong {
             msg.cleanup();
         } catch (Exception ignored) {
         }
+    }
+
+    private static void showBone(long playerId, State st) {
+        if (dragons.get(playerId) != st) {
+            return;
+        }
+        int x = st.x + DRAGON_OFFSET_X, y = st.zone.map.yPhysicInTop(x, st.y);
+        nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(st.zone, EFFECT_RONG_XUONG, 0, 1, x, y, BONE_LOOPS);
+        BONE.schedule(() -> showBone(playerId, st), BONE_REFRESH_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
 
     private static void page(Player pl, int p) {

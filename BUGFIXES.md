@@ -1822,6 +1822,16 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Cửa hàng ký gửi không mở trên client APK / PC (và J2ME từ 2.3.7):** client đọc thêm tên người ký gửi sau mỗi món (gói -44 loại 2 và -100), server không gửi nên hễ shop có hàng là client đọc lệch cả gói, không hiện gì (shop trống thì mở được nên khó phát hiện). Nay gửi tên người bán, client cũng hiện tên dưới món hàng.
 - **Đổi cờ không hiện bảng trên client APK "số lớn" (DragonBoy 2.4.9 / Unity gửi `|long`):** gói bảng cờ ghi chỉ số kiểu cũ (1 + 2 byte) trong khi client đọc 2 + 4 byte. Nay ghi theo giao thức của từng client.
 - Kiểm chứng bằng bộ đọc gói viết theo đúng mã nguồn client Unity 2.4.7 (đọc hết gói, không lệch byte nào) cho cả client thường và client số lớn.
+- **Đổi sách Tuyệt Kỹ** (Bà Hạt Mít) theo bản chính thức: 10 Cuốn sách cũ + 1 Kìm bấm giấy, 20% thành công (sách 1 dòng, 4% ra 2 dòng). Thêm con dấu: 100% và x5 tỉ lệ thêm dòng (20% ra 2 - 3 dòng). Thêm **Con dấu VIP** (vật phẩm mới 2131): 100%, tối thiểu 2 dòng (10% ra 3, 5% ra 4). Menu chỉ hiện nút cho loại con dấu đang có.
+- **Mô tả chiêu thức** trong bảng kỹ năng: server gửi cứng chữ "null"; nay lấy mô tả từ v10 (cột mới `skill_template.description`, vd. "Biến hình thành khỉ").
+- **Bảng đổi cờ**: dòng chỉ số 88 đổi tên như v10 "Cộng #% exp khi đánh quái" (cờ thường 5%, cờ xám 10%).
+- **Cửa hàng**: Phiếu sao vàng may mắn hiện "Không giao dịch, Thời gian sử dụng 1440 phút"; Năng lượng E10 hiện "KI +10%, Sức đánh +5%, Hiệu lực trong 10 phút, Không giao dịch".
+- **Sa mạc hoang vu**: quái Cađíc M đi lại như v10 (trước đứng im, vùng di chuyển 0).
+- **Thông báo top sự kiện khi đăng nhập**: mỗi đua top 1 tin thế giới từ chính người chơi, dạng "TOP 8 Túi mù Halloween kiily888 vừa đăng nhập". **Nhặt set kích hoạt**: "[HT] tên vừa đánh quái may mắn nhận được 1 trang bị Set kích hoạt Set ..." (kèm tên set, cả set cũ).
+- **Gộp vật phẩm**: 280 loại vật phẩm chuyển sang gộp chung 1 ô. Không gộp: áo, quần, găng, giày, rada / nhẫn, sách tuyệt kỹ, sách kỹ năng, bông tai Porata, capsule VIP, và đồ mặc được (cải trang, đeo lưng, thú cưỡi, pet, danh hiệu, giáp tập luyện, cờ) vì mặc vào sẽ mất cả chồng.
+- **Cường hoá ô sao pha lê thất bại vẫn báo "Chúc mừng"**: hiệu ứng ghép ngọc rồng gửi sau cùng đè lên hiệu ứng thất bại; đã bỏ, thất bại báo đúng.
+- **Rồng Xương**: hình rồng xương (hiệu ứng 51) đứng cố định trên bản đồ cạnh chỗ gọi, không bám sau lưng nhân vật; hành trang tự đóng khi rồng hiện. (v10 dùng lệnh gọi rồng loại 1, nhưng client hiện tại vẽ loại đó thành Rồng Namek nên không dùng được.)
+- **Lỗi lệch mã vật phẩm**: mã 2124 - 2127 bị xoá khỏi bảng, mà server và client tra vật phẩm theo vị trí, nên mọi món từ 2128 trở đi (3 cải trang đệ tử Ngũ Hành Sơn) tra sai / không thấy. Lấp chỗ trống bằng vật phẩm giữ chỗ (Đợt 114). Client tải lại dữ liệu (vsItem 28, vsData 27, vsSkill 2).
 
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).

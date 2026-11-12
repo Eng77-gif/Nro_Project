@@ -346,6 +346,7 @@ public final class Manager {
             nro.models.database.Dot111Migration.run(ConnectionDatabase);
             nro.models.database.Dot112Migration.run(ConnectionDatabase);
             nro.models.database.Dot113Migration.run(ConnectionDatabase);
+            nro.models.database.Dot114Migration.run(ConnectionDatabase);
             //load part
             ps = ConnectionDatabase.prepareStatement("select * from part");
             rs = ps.executeQuery();
@@ -486,6 +487,11 @@ public final class Manager {
                 skillTemplate.type = rs.getByte("type");
                 skillTemplate.iconId = rs.getShort("icon_id");
                 skillTemplate.damInfo = rs.getString("dam_info");
+                try {
+                    skillTemplate.info = rs.getString("description");
+                } catch (Exception ignored) {
+                    skillTemplate.info = "";
+                }
                 nClass.skillTemplatess.add(skillTemplate);
 
                 dataArray = (JSONArray) JSONValue.parse(

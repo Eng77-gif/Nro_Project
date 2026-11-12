@@ -157,6 +157,9 @@ public class Template {
         public List<Skill> skillss = new ArrayList<>();
 
         public String damInfo;
+
+        /** Mô tả chiêu (dòng đầu bảng kỹ năng, vd. "Biến hình thành khỉ"). */
+        public String info = "";
     }
 
     public static class Part {
