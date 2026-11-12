@@ -233,6 +233,7 @@ public class NPoint {
     private int flyMobCotNha, flyMobGheBay; // option 166 / 170: +#% SĐ lên quái khi bay cùng cải trang
     // hiệu ứng "ở gần cải trang khác loại" (145, 146, 150, 177, 179, 193, 196, 256), cập nhật mỗi 3 giây
     public int nearDame, nearHp, nearKi, nearSpeed, nearCrit;
+    public int nearGiap, nearNe, nearSdcm, nearPetDame; // cặp cải trang đứng gần nhau (updateNearSets)
     public int skhBeerus; // số món SKH Thần hủy diệt Beerus đang mặc (option 115)
     public int skhChampa; // số món SKH Thần hủy diệt Champa đang mặc (option 257)
 
@@ -560,6 +561,10 @@ public class NPoint {
      * Hiệu ứng đi cùng: Naruto + Pet Kuma, Sasuke + Cờ Vạn Hoa Đồng, Ván bay WC 2026 + Cờ World Cup 2026.
      */
     private void applySetBonus() {
+        // đệ tử của người mặc 1 trong 3 cải trang sói khi đủ 3 con đứng gần
+        if (this.player.isPet && this.player instanceof Pet pp && pp.master != null && pp.master.nPoint != null && pp.master.nPoint.nearPetDame > 0) {
+            this.tlDame.add(pp.master.nPoint.nearPetDame);
+        }
         // SKH Thần hủy diệt Beerus: 2 món +10% SĐ +10% STCM, 4 món +15%/+20%, 5 món +30%/+30%
         int skhDame = skhBeerus >= 5 ? 30 : skhBeerus >= 4 ? 15 : skhBeerus >= 2 ? 10 : 0;
         int skhSDCM = skhBeerus >= 5 ? 30 : skhBeerus >= 4 ? 20 : skhBeerus >= 2 ? 10 : 0;
@@ -876,8 +881,55 @@ public class NPoint {
                 }
             }
         }
-        if (cr != nearCrit) {
+        // cặp cải trang phải mặc 2 người: người mặc món này đứng gần (300px) người mặc món kia
+        int gi = 0, ne = 0, sc = 0, petD = 0;
+        int me = costumeId(player);
+        if (player.zone != null && !player.isPet && me > 0) {
+            java.util.Set<Integer> nearCt = new java.util.HashSet<>();
+            for (Player o : new java.util.ArrayList<>(player.zone.getNotBosses())) {
+                if (o != player && !o.isPet && !o.isNewPet && !o.isDie() && Util.getDistance(player, o) <= 300) {
+                    nearCt.add(costumeId(o));
+                }
+            }
+            if (me == 1700 && nearCt.contains(1698)) { // CT Hằng Nga gần CT Urôn Trư Bát Giới: giảm 10% sát thương
+                gi += 10;
+            }
+            if (me == 1708 && nearCt.contains(1709)) { // Android 21 Thân Thiện gần Android 21 Evil: +5% giảm sát thương
+                gi += 5;
+            }
+            if (me == 1886 && nearCt.contains(1889)) { // Póc Thỏ Đen gần Kirin chú Cuội: +10% né
+                ne += 10;
+            }
+            if (me == 1889 && nearCt.contains(1886)) { // Kirin chú Cuội gần Póc Thỏ Đen: +10% chí mạng
+                cr += 10;
+            }
+            if (me == 1999 && nearCt.contains(2005)) { // Gohan chiến binh gần Videl chiến binh: +5% giảm sát thương
+                gi += 5;
+            }
+            if (me == 2005 && nearCt.contains(1999)) { // Videl chiến binh gần Gohan chiến binh: +10% SĐ chí mạng
+                sc += 10;
+            }
+            if (me == 1732 && nearCt.contains(1731)) { // CT Black Goku gần Black Goku Rose: +5% HP
+                h += 5;
+            }
+            if (me >= 730 && me <= 732) { // 3 con sói (Basil, Lavender, Bergamo) đứng gần nhau: +10% tấn công cho đệ tử
+                int kinds = 1;
+                for (int w = 730; w <= 732; w++) {
+                    kinds += w != me && nearCt.contains(w) ? 1 : 0;
+                }
+                petD = kinds >= 3 ? 10 : 0;
+            }
+        }
+        if (cr != nearCrit || gi != nearGiap || ne != nearNe || sc != nearSdcm || petD != nearPetDame) {
             nearCrit = cr;
+            nearGiap = gi;
+            nearNe = ne;
+            nearSdcm = sc;
+            if (petD != nearPetDame && player.pet != null && player.pet.nPoint != null) {
+                nearPetDame = petD;
+                player.pet.nPoint.calPoint();
+            }
+            nearPetDame = petD;
             nearDame = Integer.MIN_VALUE; // buộc tính lại
         }
         if (d == nearDame && h == nearHp && k == nearKi && sp == nearSpeed) {
@@ -989,6 +1041,11 @@ public class NPoint {
         applyHiddenCombos();
         // CT Android 21 Evil ở gần người mặc CT Android 21 Thân Thiện: +10% chí mạng
         this.critAdd += nearCrit;
+        this.tlGiap += nearGiap;
+        this.tlNeDon += nearNe;
+        if (nearSdcm > 0) {
+            sdcm(nearSdcm);
+        }
         // Năng lượng E10 (10 phút): KI +10%, SĐ +5%, giảm 5% HP
         if (this.player.e10Until > System.currentTimeMillis()) {
             this.tlMp.add(10);

@@ -86,6 +86,44 @@ public class Item {
         }
     }
 
+    /** Dòng set của 6 bộ SKH cao cấp: Beerus, Gohan, Nail, Cađic M, Thần Vũ Trụ, Champa. */
+    private static boolean isTopSkhOpt(int id) {
+        return id == 115 || id == 233 || (id >= 237 && id <= 248) || (id >= 257 && id <= 260);
+    }
+
+    /**
+     * Đồ 6 bộ SKH cao cấp có dòng "Giá bán: 1 triệu vàng" (bán cho cửa hàng thu 1 triệu); riêng set Champa thêm
+     * "Số lần giao dịch còn lại: 3" (mỗi lần giao dịch trừ 1, về 0 thì không giao dịch được). Chỉ thêm khi còn thiếu.
+     */
+    public static void addTopSkhOptions(Item it) {
+        if (it == null || !it.isNotNullItem() || it.template.type > 4 || it.itemOptions == null) {
+            return;
+        }
+        boolean top = false, champa = false, price = false, trades = false;
+        for (ItemOption io : it.itemOptions) {
+            if (io.optionTemplate == null) {
+                continue;
+            }
+            int id = io.optionTemplate.id;
+            top |= isTopSkhOpt(id);
+            champa |= id >= 257 && id <= 260;
+            price |= id == 213;
+            trades |= id == 232;
+        }
+        if (top && !price) {
+            it.itemOptions.add(new ItemOption(213, 1));
+        }
+        if (champa && !trades) {
+            it.itemOptions.add(new ItemOption(232, 3));
+        }
+    }
+
+    public static void addTopSkhOptions(java.util.List<Item> items) {
+        for (Item it : items) {
+            addTopSkhOptions(it);
+        }
+    }
+
     public static class ItemOption {
 
         public int param;

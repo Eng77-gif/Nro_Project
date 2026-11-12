@@ -20,95 +20,39 @@ public class Baby extends Boss {
         super(BossID.BABY, BossesData.BABY, BossesData.BABY_2, BossesData.BABY_3);
     }
 
+    /**
+     * Mỗi con Baby chỉ rơi đúng 1 món: đồ thần linh (20%), đồ có ô sao pha lê (40%) hoặc sao pha lê cấp 2 (40%).
+     */
     @Override
     public void reward(Player plKill) {
-        int x = this.location.x; // đâyyyy
+        int x = this.location.x;
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
-        int drop = 190; // 100% rơi item ID 190
-        int quantity = Util.nextInt(20000, 30000);
-        // Tạo itemMap cho item ID 190
-        if (Util.isTrue(10, 100)) {
+        plKill.bossBabyDefeatParticipationCount++;
+        int r = Util.nextInt(1, 100);
+        if (r <= 20) {
             ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
             if (it != null) {
                 Service.gI().dropItemMap(zone, it);
+                return;
             }
         }
-        plKill.bossBabyDefeatParticipationCount++;
-        if (Util.isTrue(1, 100)) {
-            int[] costumes = {1762, 1763, 1764};
-            int costumeId = costumes[Util.nextInt(costumes.length)];
-
-            ItemMap itemMap = new ItemMap(this.zone, costumeId, 1, x, y, plKill.id);
-
-            itemMap.options.add(new Item.ItemOption(50, Util.nextInt(30, 40)));
-            itemMap.options.add(new Item.ItemOption(77, Util.nextInt(30, 40)));
-            itemMap.options.add(new Item.ItemOption(103, Util.nextInt(30, 40)));
-            itemMap.options.add(new Item.ItemOption(94, Util.nextInt(10, 20)));
-            itemMap.options.add(new Item.ItemOption(5, Util.nextInt(10, 20)));
-            itemMap.options.add(new Item.ItemOption(204, Util.nextInt(10, 20)));
-            itemMap.options.add(new Item.ItemOption(30, 0));
-            itemMap.options.add(new Item.ItemOption(93, Util.nextInt(2, 5)));
-
-            Service.gI().dropItemMap(this.zone, itemMap);
-        }
-        ItemMap itemMap = new ItemMap(this.zone, drop, quantity, x, y, plKill.id);
-        Item item = ItemService.gI().createNewItem((short) drop);
-        Service.gI().dropItemMap(zone, itemMap);
-        // Đồ có sao pha lê: 30% mỗi lần hạ (trước 5%)
-        if (Util.isTrue(30, 100)) {
-            int group = Util.nextInt(1, 100) <= 70 ? 0 : 1;  // 70% chọn Áo Quần Giày (group = 0), 30% chọn Găng Rada (group = 1)
-
-            // Các vật phẩm rơi từ nhóm Áo Quần Giày và Găng Rada
+        if (r <= 60) {
+            int group = Util.nextInt(1, 100) <= 70 ? 0 : 1; // 70% áo / quần / giày, 30% găng / rada
             int[][] drops = {
-                {230, 231, 232, 234, 235, 236, 238, 239, 240, 242, 243, 244, 246, 247, 248, 250, 251, 252, 266, 267, 268, 270, 271, 272, 274, 275, 276}, // Áo Quần Giày
-                {254, 255, 256, 258, 259, 260, 262, 263, 264, 278, 279, 280} // Găng Rada
+                {230, 231, 232, 234, 235, 236, 238, 239, 240, 242, 243, 244, 246, 247, 248, 250, 251, 252, 266, 267, 268, 270, 271, 272, 274, 275, 276},
+                {254, 255, 256, 258, 259, 260, 262, 263, 264, 278, 279, 280}
             };
-            // Chọn vật phẩm ngẫu nhiên từ nhóm đã chọn
-            int dropOptional = drops[group][Util.nextInt(0, drops[group].length - 1)];
-            // Tạo vật phẩm và thêm chỉ số shop
-            ItemMap optionalItemMap = new ItemMap(this.zone, dropOptional, 1, x, y, plKill.id);
-            Item optionalItem = ItemService.gI().createNewItem((short) dropOptional);
-            List<Item.ItemOption> optionalOps = ItemService.gI().getListOptionItemShop((short) dropOptional);
-            optionalOps.forEach(option -> option.param = (int) (option.param * Util.nextInt(100, 115) / 100.0));
-            optionalItemMap.options.addAll(optionalOps);
-            // Số ô sao pha lê: 60% 1-3 sao, 30% 4-5 sao, 10% 6 sao (trước 80 / 17 / 3)
-            int rand = Util.nextInt(1, 100);
-            int value;
-            if (rand <= 60) {
-                value = Util.nextInt(1, 3);
-            } else if (rand <= 90) {
-                value = Util.nextInt(4, 5);
-            } else {
-                value = 6;
-            }
-            optionalItemMap.options.add(new Item.ItemOption(107, value));
-            // Drop vật phẩm tùy chọn xuống bản đồ
-            Service.gI().dropItemMap(zone, optionalItemMap);
+            int id = drops[group][Util.nextInt(0, drops[group].length - 1)];
+            ItemMap it = new ItemMap(this.zone, id, 1, x, y, plKill.id);
+            List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop((short) id);
+            ops.forEach(o -> o.param = (int) (o.param * Util.nextInt(100, 115) / 100.0));
+            it.options.addAll(ops);
+            int rand = Util.nextInt(1, 100); // ô sao pha lê: 60% 1 - 3, 30% 4 - 5, 10% 6
+            it.options.add(new Item.ItemOption(107, rand <= 60 ? Util.nextInt(1, 3) : rand <= 90 ? Util.nextInt(4, 5) : 6));
+            Service.gI().dropItemMap(zone, it);
+            return;
         }
-        // Set Thần hủy diệt Champa: hành tinh / loại đồ ngẫu nhiên
-        if (Util.isTrue(10, 100)) {
-            int gear = nro.models.services.Event2026Service.randomSkhChampaGear();
-            ItemMap champa = new ItemMap(this.zone, gear, 1, x + Util.nextInt(-30, 30), y, plKill.id);
-            champa.options.addAll(ItemService.gI().getListOptionItemShop((short) gear));
-            nro.models.services.Event2026Service.addSkhChampaOptions(champa.options);
-            Service.gI().dropItemMap(zone, champa);
-        }
-        // Sao pha lê rơi nhiều: 3 - 6 viên mỗi lần, 30% thêm sao pha lê cấp 2
-        for (int i = Util.nextInt(3, 6); i > 0; i--) {
-            Service.gI().dropItemMap(zone, new ItemMap(this.zone, Util.nextInt(441, 447), 1, x + Util.nextInt(-60, 60), y, plKill.id));
-        }
-        if (Util.isTrue(30, 100)) {
-            Service.gI().dropItemMap(zone, new ItemMap(this.zone, Util.nextInt(1416, 1422), Util.nextInt(1, 3), x + Util.nextInt(-60, 60), y, plKill.id));
-        }
-        // 80% xác suất rơi ngọc rồng
-        if (Util.isTrue(10, 100)) {
-            int[] dropItems = {15, 16, 17, 18, 19, 20, 992};
-            int dropOptional = dropItems[Util.nextInt(0, dropItems.length - 1)];
-            // Tạo và rơi vật phẩm ngọc rồng hoặc item cấp 2
-            ItemMap optionalItemMap = new ItemMap(this.zone, dropOptional, Util.nextInt(1, 3), x, y, plKill.id);
-            Item optionalItem = ItemService.gI().createNewItem((short) dropOptional);
-            Service.gI().dropItemMap(zone, optionalItemMap);
-        }
+        Service.gI().dropItemMap(zone, new ItemMap(this.zone, Util.nextInt(1416, 1422), 1, x, y, plKill.id)); // sao pha lê cấp 2
     }
 
     @Override

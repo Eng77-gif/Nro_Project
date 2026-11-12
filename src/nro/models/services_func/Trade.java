@@ -240,7 +240,7 @@ public class Trade {
 
     private boolean isItemCannotTran(Item item) {
         for (Item.ItemOption io : item.itemOptions) {
-            if (io.optionTemplate.id == 30) {
+            if (io.optionTemplate.id == 30 || io.optionTemplate.id == 232 && io.param <= 0) { // 232: hết lượt giao dịch
                 return true;
             }
         }
@@ -460,6 +460,15 @@ public class Trade {
         if (tradeStatus != SUCCESS) {
             sendNotifyTrade(tradeStatus);
         } else {
+            for (List<Item> l : List.of(itemsTrade1, itemsTrade2)) {
+                for (Item item : l) { // set Champa: mỗi lần giao dịch trừ 1 lượt (bản sao trong giao dịch, huỷ thì đồ gốc giữ nguyên)
+                    for (Item.ItemOption io : item.itemOptions) {
+                        if (io.optionTemplate.id == 232 && io.param > 0) {
+                            io.param--;
+                        }
+                    }
+                }
+            }
             for (Item item : itemsTrade1) {
                 if (!shopBot(player2)) {
                     if (!InventoryService.gI().addItemList(itemsBag2, item)) {

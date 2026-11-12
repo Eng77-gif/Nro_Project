@@ -790,6 +790,7 @@ public class InventoryService {
     }
 
     public boolean addItemBag(Player player, Item item) {
+        Item.addTopSkhOptions(item); // đồ SKH cao cấp: giá bán 1 triệu, Champa 3 lần giao dịch
         //ngọc rồng đen
         if (ItemMapService.gI().isBlackBall(item.template.id)) {
             return BlackBallWarService.gI().pickBlackBall(player, item);

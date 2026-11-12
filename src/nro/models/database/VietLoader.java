@@ -1328,6 +1328,9 @@ public class VietLoader {
             Item.stripHiddenCombos(player.inventory.itemsBody);
             Item.stripHiddenCombos(player.inventory.itemsBag);
             Item.stripHiddenCombos(player.inventory.itemsBox);
+            Item.addTopSkhOptions(player.inventory.itemsBody);
+            Item.addTopSkhOptions(player.inventory.itemsBag);
+            Item.addTopSkhOptions(player.inventory.itemsBox);
             player.idMark.setLoadedAllDataPlayer(true);
         } catch (Exception e) {
             if (player != null) {

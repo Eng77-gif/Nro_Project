@@ -227,7 +227,7 @@ public class Mob {
         int levelPlayer = Service.gI().getCurrLevel(pl);
         int levelMob = this.level;
         int checkLevel = Math.abs(levelPlayer - this.level);
-        long tiemNang = (long) (dame + (point.getHpFull() * 0.0005));
+        long tiemNang = (long) ((dame + (point.getHpFull() * 0.0005)) / 3); // tiềm năng còn 1/3 sát thương (lên chậm hơn, khớp sức đánh quái)
         switch (this.tempId) {
             case 0:
                 tiemNang = 1;

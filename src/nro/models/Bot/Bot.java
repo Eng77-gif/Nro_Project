@@ -401,8 +401,12 @@ public class Bot extends Player {
         boolean changed = false;
         for (int t = 0; t < times; t++) {
             // như người chơi bấm cộng 10 điểm (NPoint.increasePoint): HP / KI +20 mỗi điểm, sức đánh +1 mỗi điểm; ưu tiên HP để sống được
-            int r = Util.nextInt(1, 100), point = 10;
-            if (r <= 50 || this.nPoint.hpg < this.nPoint.dameg * 10) {
+            // cân bằng như người chơi cày: HP gốc ~20 lần sức đánh gốc, KI ~ nửa HP, còn lại dồn sức đánh
+            // (trước đây cộng ngẫu nhiên, 65% vào HP / KI: 2,8 triệu sức mạnh mà sức đánh gốc 70, không qua nổi map thứ 3)
+            int point = 10;
+            boolean needHp = this.nPoint.hpg < this.nPoint.dameg * 20, needKi = !needHp && this.nPoint.mpg < this.nPoint.hpg / 2;
+            int r = needHp ? 1 : needKi ? 60 : 100;
+            if (r <= 50) {
                 int add = point * 20;
                 if (this.nPoint.hpg + add > this.nPoint.getHpMpLimit()
                         || !doUseTiemNang((long) point * (2L * (this.nPoint.hpg + 1000L) + add - 20) / 2)) {

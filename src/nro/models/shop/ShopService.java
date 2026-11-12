@@ -1110,6 +1110,10 @@ public class ShopService {
             }
             int quantity = item.quantity;
             int cost = item.template.gold;
+            int fixed = fixedPrice(item);
+            if (fixed > 0) { // dòng "Giá bán: # triệu vàng"
+                cost = fixed * 4;
+            }
             if (isGoldBar(item.template.id)) {
                 if (quantity >= 1) {
                     Input.gI().createFormBanSLL(pl, item.template.id);
@@ -1141,6 +1145,16 @@ public class ShopService {
                 }
             }
         }
+    }
+
+    /** Giá bán cố định từ dòng 213 "Giá bán: # triệu vàng" (vàng), 0 nếu không có. */
+    private static int fixedPrice(Item item) {
+        for (Item.ItemOption io : item.itemOptions) {
+            if (io.optionTemplate != null && io.optionTemplate.id == 213 && io.param > 0) {
+                return (int) Math.min(500, io.param) * 1_000_000;
+            }
+        }
+        return 0;
     }
 
     /** Thỏi vàng (457) / thỏi vàng NRJ (2032): bán đủ giá item_template.gold, không chia 4. */
@@ -1179,6 +1193,9 @@ public class ShopService {
             }
             int quantity = item.quantity;
             long cost = item.template.gold;
+            if (fixedPrice(item) > 0) { // dòng "Giá bán: # triệu vàng" (chia 4 ở dưới như giá thường)
+                cost = fixedPrice(item) * 4L;
+            }
             if (isGoldBar(item.template.id)) {
                 quantity = 1;
             } else {
