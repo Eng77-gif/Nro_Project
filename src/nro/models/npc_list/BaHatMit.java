@@ -38,16 +38,14 @@ public class BaHatMit extends Npc {
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
             switch (this.mapId) {
-                case 5 ->
-                    this.createOtherMenu(player, ConstNpc.BASE_MENU,
-                            "Ngươi tìm ta có việc gì?",
-                            "Chức năng\npha lê",
-                            "Chuyển hóa\nTrang bị",
-                            "Võ đài\nSinh tử",
-                            "Phân rã\nTrang bị\nKích hoạt",
-                            "Tái tạo\nCapsule\nKích hoạt",
-                            "Nhiệm vụ\nSao pha lê\n10"
-                    );
+                case 5 -> {
+                    java.util.List<String> m = new java.util.ArrayList<>(java.util.List.of("Chức năng\npha lê", "Chuyển hóa\nTrang bị",
+                            "Võ đài\nSinh tử", "Phân rã\nTrang bị\nKích hoạt", "Tái tạo\nCapsule\nKích hoạt"));
+                    if (nro.models.services.SaoPhaLe10Service.isEventTime()) { // sự kiện Sao pha lê 10 kết thúc thì ẩn mục này (mục cuối, không lệch số)
+                        m.add("Nhiệm vụ\nSao pha lê\n10");
+                    }
+                    this.createOtherMenu(player, ConstNpc.BASE_MENU, "Ngươi tìm ta có việc gì?", m.toArray(new String[0]));
+                }
 
                 case 112 -> {
                     if (Util.isAfterMidnight(player.lastTimePKVoDaiSinhTu)) {

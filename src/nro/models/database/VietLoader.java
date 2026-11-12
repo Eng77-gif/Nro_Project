@@ -82,6 +82,11 @@ public class VietLoader {
                 long lastTimeLogout = rs.getTimestamp("last_time_logout").getTime();
                 int secondsPass = (int) ((System.currentTimeMillis() - lastTimeLogout) / 1000);
                 long createTime = rs.getTimestamp("create_time").getTime();
+                long mamUntil = 0; // hạn mầm đã gia hạn (Gia hạn mầm ở Santa)
+                try {
+                    mamUntil = rs.getLong("mam_until");
+                } catch (Exception ignored) {
+                }
                 int deltaTime = (int) ((System.currentTimeMillis() - createTime) / 1000);
 
                 if (rs.getBoolean("ban")) {
@@ -125,8 +130,8 @@ public class VietLoader {
                                 player.thachdauwhis = rs.getInt("thachdauwhis");
                                 player.point_maydam = rs.getInt("point_maydam");
                                 player.total_damage_maydam = rs.getLong("total_damage_maydam");
-                                player.isNewMember = !Util.isTimeDifferenceGreaterThanNDays(createTime, 35);
-                                player.newMemberUntil = createTime + 35L * 86_400_000L;
+                                player.newMemberUntil = Math.max(createTime + 35L * 86_400_000L, mamUntil);
+                                player.isNewMember = player.hasMam();
                                 LocalManager.executeUpdate("update account set last_time_login = '" + new Timestamp(System.currentTimeMillis()) + "', ip_address = '" + session.ipAddress + "' where id = " + session.userId);
                             }
                         }
@@ -174,9 +179,14 @@ public class VietLoader {
             if (rs.first() && (player = loadPlayer(rs, true)) != null) {
                 player.isOffline = true;
                 try { // tài khoản bot: mầm theo ngày tạo tài khoản như người chơi
-                    LocalResultSet ac = LocalManager.executeQuery("select create_time from account where id = ?", rs.getInt("account_id"));
+                    LocalResultSet ac = LocalManager.executeQuery("select * from account where id = ?", rs.getInt("account_id"));
                     if (ac.first() && ac.getTimestamp("create_time") != null) {
-                        player.newMemberUntil = ac.getTimestamp("create_time").getTime() + 35L * 86_400_000L;
+                        long mu = 0;
+                        try {
+                            mu = ac.getLong("mam_until");
+                        } catch (Exception ignored) {
+                        }
+                        player.newMemberUntil = Math.max(ac.getTimestamp("create_time").getTime() + 35L * 86_400_000L, mu);
                         player.isNewMember = player.hasMam();
                     }
                     ac.dispose();

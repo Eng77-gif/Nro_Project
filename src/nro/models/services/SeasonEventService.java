@@ -127,6 +127,9 @@ public class SeasonEventService implements Runnable {
 
     // ------------------------------------------------------------------ nạp dữ liệu
     public synchronized void load() {
+        if (cooking.isEmpty()) {
+            loadCook();
+        }
         Map<Integer, Season> map = new LinkedHashMap<>();
         Map<Integer, Exchange> exMap = new LinkedHashMap<>();
         Map<Integer, Top> topMap = new LinkedHashMap<>();
@@ -1031,6 +1034,15 @@ public class SeasonEventService implements Runnable {
         if (list.isEmpty()) {
             return;
         }
+        long[] ck = cooking.get(pl.id);
+        if (ck != null && list.stream().anyMatch(SeasonEventService::isCook)) {
+            long left = ck[1] - System.currentTimeMillis();
+            if (left > 0) {
+                Service.gI().sendThongBao(pl, "Bánh chưa chín, quay lại sau " + Math.max(1, left / 1000) + " giây");
+            } else {
+                claimCook(pl);
+            }
+        }
         Season s = list.get(0).season;
         String[] opts = new String[list.size()];
         for (int i = 0; i < opts.length; i++) {
@@ -1159,6 +1171,85 @@ public class SeasonEventService implements Runnable {
     }
 
     /** Đổi / mua đồ sự kiện (Chi Chi, Quy Lão, shop sự kiện): không thông báo, vật phẩm hiện ngay trong hành trang. */
+    // ------------------------------------------------------------------ nồi bánh: chờ bánh chín
+    private static final long COOK_MS = 60_000;
+    private final Map<Long, long[]> cooking = new ConcurrentHashMap<>(); // playerId -> {exchange id, lúc chín}
+
+    private static boolean isCook(Exchange e) {
+        return e.group != null && (e.group.startsWith("Nấu") || e.group.startsWith("Làm\nbánh"));
+    }
+
+    private static void ensureCookTable(Connection con) throws Exception {
+        try (java.sql.Statement st = con.createStatement()) {
+            st.executeUpdate("create table if not exists season_event_cook (player_id bigint primary key, exchange_id int not null, ready_at bigint not null)");
+        }
+    }
+
+    private void saveCook(long playerId) {
+        long[] c = cooking.get(playerId);
+        try (Connection con = LocalManager.getConnection()) {
+            ensureCookTable(con);
+            try (PreparedStatement ps = con.prepareStatement(c == null ? "delete from season_event_cook where player_id = ?"
+                    : "replace into season_event_cook (player_id, exchange_id, ready_at) values (?, ?, ?)")) {
+                ps.setLong(1, playerId);
+                if (c != null) {
+                    ps.setInt(2, (int) c[0]);
+                    ps.setLong(3, c[1]);
+                }
+                ps.executeUpdate();
+            }
+        } catch (Exception ex) {
+            Logger.error("Lưu nồi bánh lỗi: " + ex.getMessage() + "\n");
+        }
+    }
+
+    /** Nạp bánh đang nấu (khi server khởi động lại vẫn nhận được bánh). */
+    private void loadCook() {
+        try (Connection con = LocalManager.getConnection()) {
+            ensureCookTable(con);
+            try (PreparedStatement ps = con.prepareStatement("select * from season_event_cook"); ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    cooking.put(rs.getLong("player_id"), new long[]{rs.getInt("exchange_id"), rs.getLong("ready_at")});
+                }
+            }
+        } catch (Exception ex) {
+            Logger.error("Nạp nồi bánh lỗi: " + ex.getMessage() + "\n");
+        }
+    }
+
+    private void claimCook(Player pl) {
+        long[] c = cooking.get(pl.id);
+        Exchange e = c == null ? null : exchanges.get((int) c[0]);
+        if (c == null) {
+            return;
+        }
+        if (InventoryService.gI().getCountEmptyBag(pl) < 2) {
+            Service.gI().sendThongBao(pl, "Bánh đã chín, cần 2 ô hành trang trống để nhận");
+            return;
+        }
+        cooking.remove(pl.id);
+        saveCook(pl.id);
+        if (e == null) {
+            return;
+        }
+        int qty = Util.nextInt(e.rewardQty, Math.max(e.rewardQty, e.rewardQtyMax));
+        InventoryService.gI().addItemBag(pl, noTrade(Event2026Service.gI().createItem(e.rewardItem, qty, 0)));
+        String msg = "Bánh đã chín thơm phức! Nhận được x" + qty + " " + ItemService.gI().getTemplate(e.rewardItem).name;
+        if (e.bonusItem > 0 && Util.isTrue(e.bonusRate, 100)) {
+            InventoryService.gI().addItemBag(pl, noTrade(Event2026Service.gI().createItem(e.bonusItem, 1, 0)));
+            msg += " và 1 " + ItemService.gI().getTemplate(e.bonusItem).name;
+        }
+        Top t = tops.get(e.topId);
+        if (t != null && e.topPoint > 0) {
+            addTopPoint(t, pl, e.topPoint);
+        }
+        if (e.eventPoint > 0) {
+            pl.event.addEventPoint(e.eventPoint);
+        }
+        InventoryService.gI().sendItemBags(pl);
+        Service.gI().sendThongBao(pl, msg);
+    }
+
     private void exchange(Player pl, Exchange e, int times) {
         synchronized (pl) {
             String rewardName = e.openNow ? "" : ItemService.gI().getTemplate(e.rewardItem).name;
@@ -1175,6 +1266,13 @@ public class SeasonEventService implements Runnable {
                 Service.gI().sendThongBao(pl, "Hành trang không đủ chỗ trống");
                 return;
             }
+            if (isCook(e)) {
+                if (cooking.containsKey(pl.id)) {
+                    Service.gI().sendThongBao(pl, "Nồi đang nấu bánh, hãy chờ bánh chín rồi nhận");
+                    return;
+                }
+                times = 1;
+            }
             if (maxTimes(pl, e) < times) {
                 Service.gI().sendThongBao(pl, "Không đủ nguyên liệu để đổi " + times + " lần");
                 return;
@@ -1187,6 +1285,14 @@ public class SeasonEventService implements Runnable {
             pl.inventory.ruby -= e.ruby * times;
             if (e.costPoint > 0) {
                 pl.event.subEventPoint(e.costPoint * times);
+            }
+            if (isCook(e)) { // nồi bánh (như v10): bánh chín sau 60 giây, quay lại nồi bánh nhận
+                cooking.put(pl.id, new long[]{e.id, System.currentTimeMillis() + COOK_MS});
+                saveCook(pl.id);
+                InventoryService.gI().sendItemBags(pl);
+                Service.gI().sendMoney(pl);
+                Service.gI().sendThongBao(pl, "Đang nấu " + e.name.replace("\n", " ") + ", 60 giây nữa bánh chín, quay lại nồi bánh để nhận");
+                return;
             }
             List<String> got = new ArrayList<>();
             int total = 0, bonus = 0;

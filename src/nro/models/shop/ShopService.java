@@ -921,6 +921,24 @@ public class ShopService {
             }
         }
 
+        // Gia hạn mầm (1703: 7 ngày, 1717: 15 ngày): mua là tự dùng, đệ tử báo hạn mới
+        if (itemTempId == 1703 || itemTempId == 1717) {
+            int days = itemTempId == 1717 ? 15 : 7;
+            player.newMemberUntil = Math.max(System.currentTimeMillis(), player.newMemberUntil) + days * 86_400_000L;
+            player.isNewMember = true;
+            try {
+                nro.models.data.LocalManager.executeUpdate("update account set mam_until = ? where id = ?", player.newMemberUntil, player.getSession().userId);
+            } catch (Exception e) {
+                nro.models.utils.Logger.error("Lưu gia hạn mầm lỗi: " + e.getMessage() + "\n");
+            }
+            String until = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new java.util.Date(player.newMemberUntil));
+            if (player.pet != null) {
+                Service.gI().chatJustForMe(player, player.pet, "Thời gian tìm set kích hoạt đến " + until);
+            }
+            Service.gI().sendThongBao(player, "Gia hạn mầm thêm " + days + " ngày, tìm set kích hoạt đến " + until);
+            return;
+        }
+
         // Tạo item và xử lý đặc biệt
         Item item = ItemService.gI().createItemFromItemShop(is);
         item = buyMagicPean(player, listDauThan, item);
