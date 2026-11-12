@@ -441,13 +441,30 @@ public class Mob {
             // giữ nguyên dameMob
         }
 
-        if (player.setClothes != null && player.setClothes.ocTieu >= 5) { // 5 món Ốc Tiêu: bất tử khi đánh quái (quái không hạ được)
+        if (ocTieuNear(player)) { // 5 món Ốc Tiêu: người mặc và người xung quanh (300px) bất tử khi đánh quái
             dameMob = Math.max(0, Math.min(dameMob, player.nPoint.hp - 1));
         }
         long dame = player.injured(null, dameMob, false, true);
         this.sendMobAttackMe(player, dame);
         this.sendMobAttackPlayer(player);
         this.phanSatThuong(player, dame);
+    }
+
+    /** Người bị quái đánh (hoặc người chơi đứng gần trong 300px) đang mặc đủ 5 món set Ốc Tiêu. */
+    private boolean ocTieuNear(Player target) {
+        if (target.setClothes != null && target.setClothes.ocTieu >= 5) {
+            return true;
+        }
+        if (this.zone == null) {
+            return false;
+        }
+        for (Player o : this.zone.getNotBosses()) {
+            if (o != null && o != target && !o.isPet && !o.isNewPet && !o.isDie() && o.setClothes != null && o.setClothes.ocTieu >= 5
+                    && Util.getDistance(target, o) <= 300) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void sendMobAttackMe(Player player, long dame) {
