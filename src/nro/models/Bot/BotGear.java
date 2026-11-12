@@ -178,7 +178,7 @@ final class BotGear {
     }
 
     /** Bot đã vào được ít nhất 1 map có NPC bán hàng này chưa (Santa / Urôn ở Đảo Kamê, Đảo Guru, Vách núi đen: sau nhiệm vụ 7). */
-    private static boolean reach(Bot b, int npcId) {
+    static boolean reach(Bot b, int npcId) {
         for (nro.models.map.Map m : Manager.MAPS) {
             for (nro.models.npc.Npc n : m.npcs) {
                 if (n.tempId == npcId && b.canGo(m.mapId)) {

@@ -1325,6 +1325,9 @@ public class VietLoader {
             player.nPoint.hp = plHp;
             player.nPoint.mp = plMp;
             PlayerExtraDAO.load(player);
+            Item.stripHiddenCombos(player.inventory.itemsBody);
+            Item.stripHiddenCombos(player.inventory.itemsBag);
+            Item.stripHiddenCombos(player.inventory.itemsBox);
             player.idMark.setLoadedAllDataPlayer(true);
         } catch (Exception e) {
             if (player != null) {

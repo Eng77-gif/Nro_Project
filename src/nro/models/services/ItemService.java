@@ -386,6 +386,8 @@ public class ItemService {
                     return 30;
                 case 1716:
                     return 40;
+                case 2006:
+                    return 50;
                 default:
                     return 0;
             }
@@ -404,6 +406,7 @@ public class ItemService {
                 case 531:
                 case 536:
                 case 1716:
+                case 2006:
                     return true;
                 default:
                     return false;

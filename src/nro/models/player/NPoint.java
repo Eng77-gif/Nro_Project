@@ -212,12 +212,8 @@ public class NPoint {
     public int tlAoThuat; // option 90: % sức đánh của Ảo Thuật
     public long rageUntil, lastTimeRage; // hiệu ứng Akaza
     public long aoThuatUntil, lastTimeAoThuat; // hiệu ứng Ảo Thuật
-    private int setHpWithPet, setSTCuoiWithFlag, setCritWithFlag; // option 172, 39, 91
-    private int setCritWithSkhBeerus, setSDCMWithXenHT, setGiapWithXenMax; // option 92, 169, 42
-    private int setAllWithBlackGoku; // option 264: đi cùng CT Black Goku tăng #% SĐ, HP, KI
     public int giamSDXungQuanh; // option 265: giảm #% sức đánh người xung quanh (tối đa 10 người)
     private static final int[] BLACK_GOKU = {1732, 1731, 1454, 904};
-    private int setSDCMWithLuoiHaiHong; // option 255
     public int tlNeCrit; // option 191: né chí mạng
     public int tlGiamHoiKhien; // option 183: giảm % thời gian hồi Khiên năng lượng
     public int tlGiamKhongChe; // option 227: giảm % thời gian bị khống chế khi đang dùng khiên
@@ -564,15 +560,6 @@ public class NPoint {
      * Hiệu ứng đi cùng: Naruto + Pet Kuma, Sasuke + Cờ Vạn Hoa Đồng, Ván bay WC 2026 + Cờ World Cup 2026.
      */
     private void applySetBonus() {
-        if (setHpWithPet > 0 && isWearing(PET_KUMA)) {
-            this.tlHp.add(setHpWithPet);
-        }
-        if (setSTCuoiWithFlag > 0 && isWearing(CO_VAN_HOA_DONG)) {
-            this.tlSTCuoi += setSTCuoiWithFlag;
-        }
-        if (setCritWithFlag > 0 && isWearing(CO_WORLD_CUP_2026)) {
-            this.critAdd += setCritWithFlag;
-        }
         // SKH Thần hủy diệt Beerus: 2 món +10% SĐ +10% STCM, 4 món +15%/+20%, 5 món +30%/+30%
         int skhDame = skhBeerus >= 5 ? 30 : skhBeerus >= 4 ? 15 : skhBeerus >= 2 ? 10 : 0;
         int skhSDCM = skhBeerus >= 5 ? 30 : skhBeerus >= 4 ? 20 : skhBeerus >= 2 ? 10 : 0;
@@ -588,22 +575,7 @@ public class NPoint {
             this.tlDameCrit.add(20);
             this.tlSDCM += 20;
         }
-        if (setCritWithSkhBeerus > 0 && skhBeerus >= 2) {
-            this.critAdd += setCritWithSkhBeerus;
-        }
-        if (setSDCMWithXenHT > 0 && isWearing(PET_XEN_HOAN_THIEN)) {
-            this.tlDameCrit.add(setSDCMWithXenHT);
-            this.tlSDCM += setSDCMWithXenHT;
-        }
         applyCompanionBonus();
-        if (setAllWithBlackGoku > 0 && in(BLACK_GOKU, costumeId(player))) {
-            this.tlDame.add(setAllWithBlackGoku);
-            this.tlHp.add(setAllWithBlackGoku);
-            this.tlMp.add(setAllWithBlackGoku);
-        }
-        if (setGiapWithXenMax > 0 && isWearing(PET_XEN_MAX)) {
-            this.tlGiap += setGiapWithXenMax;
-        }
         if (nearDame != 0) { // có thể âm (bị Poc Bikini giảm SĐ)
             this.tlDame.add(nearDame);
         }
@@ -621,13 +593,137 @@ public class NPoint {
             this.tlMp.add(nro.models.services.SaoPhaLe10Service.BONUS_KI);
             this.tlSTCuoi += nro.models.services.SaoPhaLe10Service.BONUS_ST_CUOI;
         }
-        if (setSDCMWithLuoiHaiHong > 0 && isWearing(LUOI_HAI_HONG)) {
-            this.tlDameCrit.add(setSDCMWithLuoiHaiHong);
-            this.tlSDCM += setSDCMWithLuoiHaiHong;
-        }
     }
 
     public static final int LUOI_HAI_HONG = 1702;
+
+    private boolean has(int id) {
+        return isWearing(id) || isFoot(id);
+    }
+
+    /** Số món (áo, quần, găng, giày, rada) có dòng set {@code opt}. */
+    private int setCount(int opt) {
+        int n = 0;
+        for (int i = 0; i < 5 && i < this.player.inventory.itemsBody.size(); i++) {
+            n += optParam(this.player.inventory.itemsBody.get(i), opt) > 0 ? 1 : 0;
+        }
+        return n;
+    }
+
+    /**
+     * Kích hoạt ẩn "Đi cùng ... tăng ..." (chỉ ghi trong mô tả vật phẩm, không thêm dòng chỉ số): tự cộng khi mặc đủ các món.
+     */
+    private void applyHiddenCombos() {
+        int ct = costumeId(player);
+        if (has(2026) && has(PET_KUMA)) { // CT Tuyền Qua Minh Nhân + Pet Cửu Vĩ Hồ: +7% HP
+            this.tlHp.add(7);
+        }
+        if (has(2027) && has(CO_VAN_HOA_DONG)) { // CT Vũ Trí Ba Tá Trợ + Cờ Vạn Hoa Đồng: +1% sát thương cuối
+            this.tlSTCuoi += 1;
+        }
+        if (has(2044) && has(CO_WORLD_CUP_2026)) { // Ván bay World Cup 2026 + Cờ World Cup 2026: +7% chí mạng
+            this.critAdd += 7;
+        }
+        if (has(2082) && skhBeerus >= 5) { // CT Berus + đủ 5 món SKH Beerus: +10% chí mạng
+            this.critAdd += 10;
+        }
+        if (has(1731) && has(LUOI_HAI_HONG)) { // CT Black Goku Rose + Lưỡi hái hồng: +5% SĐ chí mạng
+            sdcm(5);
+        }
+        if (has(1702) && in(BLACK_GOKU, ct)) { // Lưỡi hái hồng + CT Black Goku: +4% SĐ, HP, KI
+            this.tlDame.add(4);
+            this.tlHp.add(4);
+            this.tlMp.add(4);
+        }
+        if (has(2097) && has(PET_XEN_HOAN_THIEN)) { // Bóng mờ hoa hồng băng + Pet Xên hoàn thiện: +6% SĐ chí mạng
+            sdcm(6);
+        }
+        if (has(2096) && has(PET_XEN_MAX)) { // Bóng mờ hoa hồng đỏ + Pet Xên Max: +5% giảm sát thương
+            this.tlGiap += 5;
+        }
+        if (has(1676) && has(1680)) { // Phong hỏa luân + Hỏa tiêm thương: +5% SĐ, HP; Hỏa tiêm thương +10% chí mạng
+            this.tlDame.add(5);
+            this.tlHp.add(5);
+            this.critAdd += 10;
+        }
+        if (has(1714) && has(1713)) { // Pet Giru + Khủng Long Thơ Mộng: +15% chí mạng
+            this.critAdd += 15;
+        }
+        if (has(1705) && has(1714)) { // CT Chi Chi Võ Đài + Pet Giru: +15% SĐ chí mạng
+            sdcm(15);
+        }
+        if (has(1749) && has(1751)) { // Ván bay Cây Thông + Diều rồng băng: +4% giảm sát thương
+            this.tlGiap += 4;
+        }
+        if (has(1768) && has(1773)) { // Rắn bay + Đuôi rắn rực lửa: +10% SĐ chí mạng
+            sdcm(10);
+        }
+        if (has(1773) && has(1774)) { // Đuôi rắn rực lửa + Pet rắn cute: +5% giảm sát thương
+            this.tlGiap += 5;
+        }
+        if (has(1774) && has(1768)) { // Pet rắn cute + Rắn bay: +5% chí mạng
+            this.critAdd += 5;
+        }
+        if (has(1848)) { // Ván bay bạch tuộc + đeo lưng bạch tuộc
+            boolean xanh = isWearingAny(1841, 1844, 1882, 1883);
+            if (xanh || isWearingAny(1842, 1843)) {
+                this.tlDame.add(2);
+                this.tlHp.add(2);
+                this.tlMp.add(2);
+            }
+            this.critAdd += xanh ? 5 : 0;
+            this.tlHp.add(has(1842) ? 3 : 0);
+            this.tlGiap += has(1843) ? 5 : 0;
+        }
+        if (setCount(233) >= 5 && has(1921)) { // CT Pan VIP + đủ 5 món SKH Gohan: +20% SĐ, +50% may mắn
+            this.tlDame.add(20);
+            this.tlMayMan += 50;
+        }
+        if (has(1923) && has(1926)) { // Cú con cưng + CT Ác Ma Pico: +10% chí mạng, +7% SĐ, HP
+            this.critAdd += 10;
+            this.tlDame.add(7);
+            this.tlHp.add(7);
+        }
+        if (has(1941)) { // Ba lô ngọc rồng
+            if (ct == 1933 || ct == 1934) { // + CT Gohan / Videl học đường: +10% sát thương lên boss
+                this.tlDameBoss += 10;
+            }
+            if (has(1943)) { // + Bảng đen: +10% chí mạng, +7% SĐ, HP
+                this.critAdd += 10;
+                this.tlDame.add(7);
+                this.tlHp.add(7);
+            }
+        }
+        if (has(1956) && has(1951)) { // Pet tuần lộc ngố + Đeo lưng bông tuyết: +20% né
+            this.tlNeDon += 20;
+        }
+        if (has(1965)) { // Pháo hoa NRO
+            if (has(1962)) { // + Pet ngựa chiến: +10% sát thương lên boss
+                this.tlDameBoss += 10;
+            }
+            if (ct == 1937) { // + CT Giáo sư Bunma: +50% may mắn, +10% sát thương chuẩn
+                this.tlMayMan += 50;
+                this.tlSTChuan += 10;
+            }
+            if (has(1971)) { // + Bóng mờ NRO: +5% sát thương lên boss
+                this.tlDameBoss += 5;
+            }
+        }
+        if (has(1977) && has(1962)) { // Cá chép đồng tiền + Pet ngựa chiến: +8% SĐ chí mạng
+            sdcm(8);
+        }
+        if (has(1980) && isWearingAny(1983, 1993)) { // Pet Kirby + Cờ cớt hồng: +10% giảm sát thương
+            this.tlGiap += 10;
+        }
+        if (isWearingAny(1983, 1993) && (ct == 612 || ct == 914 || ct == 1982)) { // Cờ cớt hồng + CT Arale: +5% HP
+            this.tlHp.add(5);
+        }
+    }
+
+    private void sdcm(int v) {
+        this.tlDameCrit.add(v);
+        this.tlSDCM += v;
+    }
 
     /** Thời gian bị khống chế sau khi trừ option 227 (chỉ khi đang bật khiên năng lượng). */
     public int controlTime(int ms) {
@@ -879,8 +975,8 @@ public class NPoint {
             this.tlSDCM += 3;
             this.tlHp.add(10);
         }
-        // Thú cưỡi rồng Đen đi cùng Pet Rồng nhí: +5% né, +5% chí mạng
-        if (isWearing(1898) && isWearingAny(1813, 1814, 1815, 1816, 1817, 1818, 1819)) {
+        // Thú cưỡi rồng (Thiêng, Băng, Đen, Vô Cực) đi cùng Pet Rồng nhí: +5% né, +5% chí mạng
+        if (isWearingAny(1896, 1897, 1898, 1899) && isWearingAny(1813, 1814, 1815, 1816, 1817, 1818, 1819)) {
             this.tlNeDon += 5;
             this.critAdd += 5;
         }
@@ -890,6 +986,7 @@ public class NPoint {
             this.tlHp.add(2);
             this.tlMp.add(2);
         }
+        applyHiddenCombos();
         // CT Android 21 Evil ở gần người mặc CT Android 21 Thân Thiện: +10% chí mạng
         this.critAdd += nearCrit;
         // Năng lượng E10 (10 phút): KI +10%, SĐ +5%, giảm 5% HP
@@ -944,29 +1041,14 @@ public class NPoint {
             case 254: //Khi HP dưới 50% tăng #% sức đánh trong 3 giây
                 this.tlAkazaRage = Math.max(this.tlAkazaRage, io.param);
                 break;
-            case 172: //Đi cùng Pet Cửu Vĩ Hồ tăng #% HP
-                this.setHpWithPet += io.param;
-                break;
-            case 39: //Đi cùng Cờ Vạn Hoa Đồng tăng #% sát thương cuối
-                this.setSTCuoiWithFlag += io.param;
-                break;
             case 90: //Ảo Thuật
                 this.tlAoThuat = Math.max(this.tlAoThuat, io.param);
-                break;
-            case 91: //Đi cùng Cờ World Cup 2026 tăng #% chí mạng
-                this.setCritWithFlag += io.param;
-                break;
-            case 92: //Đi cùng SKH Beerus tăng #% chí mạng
-                this.setCritWithSkhBeerus += io.param;
                 break;
             case 115: //Set Thần hủy diệt Beerus
                 this.skhBeerus++;
                 break;
             case 257: //Set Thần hủy diệt Champa
                 this.skhChampa++;
-                break;
-            case 169: //Đi cùng Pet Xên hoàn thiện tăng #% sát thương chí mạng
-                this.setSDCMWithXenHT += io.param;
                 break;
             case 236: //+#% May mắn
                 this.tlMayMan += io.param;
@@ -1032,19 +1114,10 @@ public class NPoint {
             case 227: //Giảm #% tác dụng của các đòn khống chế khi dùng khiên năng lượng
                 this.tlGiamKhongChe += io.param;
                 break;
-            case 255: //Đi cùng Lưỡi hái hồng tăng #% sát thương chí mạng
-                this.setSDCMWithLuoiHaiHong += io.param;
-                break;
             case 256: //+#% sức đánh, tối đa 12% khi ở gần Lý Tiểu Nương : Hầu Gái xanh, hồng, bikini (tính trong updateNearSets)
-                break;
-            case 264: //Đi cùng CT Black Goku tăng #% SĐ, HP, KI
-                this.setAllWithBlackGoku += io.param;
                 break;
             case 265: //Giảm #% sức đánh người xung quanh
                 this.giamSDXungQuanh = Math.max(this.giamSDXungQuanh, io.param);
-                break;
-            case 42: //Đi cùng Pet Xên Max tăng #% giảm sát thương
-                this.setGiapWithXenMax += io.param;
                 break;
             case 2: //HP, KI+#000
                 this.hpAdd += io.param * 1000;
@@ -1875,12 +1948,6 @@ public class NPoint {
         this.tlTNSMDeTu = 0;
         this.tlAkazaRage = 0;
         this.tlAoThuat = 0;
-        this.setHpWithPet = 0;
-        this.setSTCuoiWithFlag = 0;
-        this.setCritWithFlag = 0;
-        this.setCritWithSkhBeerus = 0;
-        this.setSDCMWithXenHT = 0;
-        this.setSDCMWithLuoiHaiHong = 0;
         this.tlNeCrit = 0;
         this.kiHoiKhiBiDanh = 0;
         this.tlRareMob = 0;
@@ -1902,8 +1969,6 @@ public class NPoint {
         this.tlGiamHoiKhien = 0;
         this.tlGiamKhongChe = 0;
 
-        this.setGiapWithXenMax = 0;
-        this.setAllWithBlackGoku = 0;
         this.giamSDXungQuanh = 0;
         this.skhBeerus = 0;
         this.skhChampa = 0;

@@ -153,6 +153,8 @@ public class Bot extends Player {
             return true;
         }
         java.util.List<nro.models.mob.Mob> mobs = new java.util.ArrayList<>(m.zones.get(0).mobs);
+        // máy đo sức mạnh (2 tỷ HP, không đánh trả) ở Vách núi: trước đây làm map như "quá sức" nên bot kẹt nhiệm vụ 3.1
+        mobs.removeIf(x -> x.tempId == nro.models.consts.ConstMob.MAY_DO_SUC_MANH);
         if (mobs.isEmpty()) {
             return true;
         }

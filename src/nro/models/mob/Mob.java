@@ -831,7 +831,7 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapRiengTu(mapid)) {
-            int baseTileDrop = 2;
+            int baseTileDrop = 6; // khu riêng tư (Vé riêng tư): SKH rơi gấp 3 map úp SKH ngoài
             double tileDrop = baseTileDrop;
 
             tileDrop *= luckFactor(player); // option 236: may mắn từ mọi nguồn

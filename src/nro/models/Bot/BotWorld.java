@@ -681,8 +681,11 @@ public final class BotWorld {
             return;
         }
         endPk(b);
-        if (b.accountBot && b.playerTask != null && b.playerTask.taskMain != null && b.playerTask.taskMain.id <= 10) {
-            train(b); // người mới: làm nhiệm vụ đầu (BotQuest) trước đã
+        if (b.accountBot && b.playerTask != null && b.playerTask.taskMain != null
+                && (b.playerTask.taskMain.id <= 10 || BotQuest.gI().pending(b))) {
+            if (!"Làm nhiệm vụ".equals(b.activity)) {
+                train(b); // ưu tiên nhiệm vụ (BotQuest dẫn đi); chỉ khi bước nhiệm vụ cần sức mạnh / quá sức mới đi việc khác
+            }
             return;
         }
         b.stayMap = false;
@@ -696,6 +699,10 @@ public final class BotWorld {
             int r = Util.nextInt(1, 100);
             a = r <= 40 ? BotBrain.TRAIN : r <= 55 ? BotBrain.BOSS : r <= 63 ? BotBrain.BROLY
                     : r <= 73 && nrsd ? BotBrain.NRSD : r <= 81 ? BotBrain.SKH : r <= 90 ? BotBrain.PK : BotBrain.TRAIN;
+        }
+        if (a == BotBrain.TRAIN && b.accountBot && b.inventory.gold < 2_000_000_000L && Util.isTrue(35, 100) && upVang(b)) {
+            BotBrain.begin(b, a);
+            return; // thiếu vàng: đi úp vàng ở Ngục tù may mắn (Phiếu sao vàng may mắn)
         }
         switch (a) {
             case BotBrain.BOSS -> {
@@ -729,8 +736,77 @@ public final class BotWorld {
         }
     }
 
-    /** Úp set kích hoạt ở map úp SKH của hành tinh mình (đồ rơi hiếm, BotQuest tự mặc vào). */
+    private static final int NPC_SANTA = 39, VE_RIENG_TU = 1825, PHIEU_SAO_VANG = 2021;
+
+    /** Có sẵn trong hành trang, hoặc mua ở Santa bằng ngọc như người chơi (đã mở map có Santa, mua xong còn dư ngọc). */
+    private boolean ownOrBuy(Bot b, int itemId) {
+        nro.models.item.Item have = nro.models.services.InventoryService.gI().findItemBag(b, itemId);
+        if (have != null && have.isNotNullItem()) {
+            return true;
+        }
+        if (!BotGear.reach(b, NPC_SANTA) || nro.models.services.InventoryService.gI().getCountEmptyBag(b) <= 0) {
+            return false;
+        }
+        for (var shop : nro.models.server.Manager.SHOPS) {
+            if (!"SANTA".equals(shop.tagName)) {
+                continue;
+            }
+            for (var tab : shop.tabShops) {
+                for (var is : tab.itemShops) {
+                    if (is.temp != null && is.temp.id == itemId && is.typeSell == 1 && is.cost > 0 && b.inventory.gem >= is.cost * 2L) {
+                        b.inventory.gem -= is.cost;
+                        nro.models.item.Item it = ItemService.gI().createNewItem((short) itemId);
+                        it.itemOptions.addAll(ItemService.gI().getListOptionItemShop((short) itemId));
+                        return nro.models.services.InventoryService.gI().addItemBag(b, it);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private void stayAt(Bot b, int mapId, String activity) {
+        nro.models.map.Zone z = b.getRandomZone(mapId);
+        if (z == null) {
+            train(b);
+            return;
+        }
+        b.boss.prefer = null;
+        b.setMode(0);
+        b.activity = activity;
+        b.questMap = mapId;
+        b.questMob = -1;
+        b.stayMap = true; // vào bằng vé: đứng lại đánh, không tự đổi map
+        ChangeMapService.gI().goToMap(b, z);
+        b.zone.load_Me_To_Another(b);
+        b.mo1.lastTimeChanM = System.currentTimeMillis();
+    }
+
+    /** Úp vàng: ưu tiên dùng Phiếu sao vàng may mắn (Ngục tù may mắn, vàng rơi tới 500k / cục) khi đánh nổi quái ở đó. */
+    private boolean upVang(Bot b) {
+        int map = nro.models.map.service.MapService.MAP_NGUC_TU_MAY_MAN;
+        if (!b.strongEnough(map)) {
+            return false;
+        }
+        long now = System.currentTimeMillis();
+        if (b.luckyMapUntil <= now) {
+            if (!ownOrBuy(b, PHIEU_SAO_VANG)) {
+                return false;
+            }
+            nro.models.item.Item t = nro.models.services.InventoryService.gI().findItemBag(b, PHIEU_SAO_VANG);
+            nro.models.services.InventoryService.gI().subQuantityItemsBag(b, t, 1);
+            b.luckyMapUntil = now + 1440 * 60_000L;
+        }
+        stayAt(b, map, "Úp vàng");
+        return true;
+    }
+
+    /** Úp set kích hoạt: ưu tiên khu riêng tư (Vé riêng tư, SKH rơi gấp 3), không có vé thì map úp SKH của hành tinh mình. */
     private void upSkh(Bot b) {
+        if (ownOrBuy(b, VE_RIENG_TU) && b.strongEnough(164)) {
+            stayAt(b, 164, "Úp SKH (riêng tư)");
+            return;
+        }
         int[][] maps = {{1, 2, 3}, {8, 9, 11}, {15, 16, 17}};
         b.boss.prefer = null;
         b.setMode(0);

@@ -38,6 +38,12 @@ public class BotQuest {
     private static final int NPC_RUONG = 3, NPC_DAU_THAN = 4;
     private final Map<Long, Long> nextStep = new HashMap<>();
     private final Map<Long, long[]> stuck = new HashMap<>(); // bot id -> {mã bước (task * 100 + index), từ lúc nào}
+    private final Map<Long, Boolean> actionable = new java.util.concurrent.ConcurrentHashMap<>(); // bước hiện tại bot tự làm được không
+
+    /** Còn bước nhiệm vụ bot làm được ngay (không phải bước chờ sức mạnh / đang tạm nghỉ vì kẹt): ưu tiên làm trước các việc khác. */
+    public boolean pending(Bot b) {
+        return actionable.getOrDefault(b.id, true);
+    }
 
     public void tick(List<Bot> accountBots) {
         long now = System.currentTimeMillis();
@@ -89,8 +95,10 @@ public class BotQuest {
         long age = now - sk[1];
         if (age > 30 * 60_000L && age % (60 * 60_000L) > 30 * 60_000L) {
             b.activity = "Luyện tập"; // kẹt bước này quá 30 phút: chơi bình thường 30 phút rồi thử lại
+            actionable.put(b.id, false);
             return;
         }
+        actionable.put(b.id, true);
         int map = st.mapId;
         if (tm.id == 0 && tm.index == 0) {
             map = 39 + b.gender; // "Di chuyển tới mũi tên chỉ dẫn": Vách núi của hành tinh mình, đi sang phải
@@ -121,6 +129,7 @@ public class BotQuest {
         int target = mobMap >= 0 ? mobMap : map;
         if (target >= 0 && !b.strongEnough(target)) { // quái map nhiệm vụ quá mạnh: luyện thêm ở map hợp sức rồi mới tới
             b.activity = "Luyện tập";
+            actionable.put(b.id, false);
             if (!b.strongEnough(b.zone.map.mapId)) {
                 b.joinMap();
             }
@@ -145,9 +154,11 @@ public class BotQuest {
                 PlayerService.gI().playerMove(b, 700, b.zone.map.yPhysicInTop(700, 100)); // mũi tên chỉ dẫn ở bên phải
                 TaskService.gI().checkDoneTaskGoToMap(b, b.zone);
             } else {
-                for (nro.models.map.ItemMap it : new java.util.ArrayList<>(b.zone.items)) {
-                    if (it.playerId == -1 || it.playerId == b.id) { // vật phẩm nhiệm vụ (em bé, ngọc rồng...) bot nhặt được: đi tới nhặt
+                for (nro.models.map.ItemMap it : new java.util.ArrayList<>(b.zone.getItemMapsForPlayer(b))) {
+                    if (!it.isPickedUp && (it.playerId == -1 || it.playerId == b.id)) { // vật phẩm nhiệm vụ (em bé, ngọc rồng...): đi tới nhặt
                         PlayerService.gI().playerMove(b, it.x, it.y);
+                        // trước đây chỉ đi tới, còn nhặt thì chờ bùa thu hút (BotPemQuai) nên bot kẹt mãi ở bước 3.1 "khám phá vật thể lạ"
+                        nro.models.map.service.ItemMapService.gI().pickItem(b, it.itemMapId, false);
                         break;
                     }
                 }
@@ -155,6 +166,7 @@ public class BotQuest {
             return;
         }
         b.activity = "Luyện tập"; // đạt sức mạnh, dùng tiềm năng, vào bang...: cứ chơi bình thường
+        actionable.put(b.id, false);
     }
 
     private boolean goTo(Bot b, int mapId) {

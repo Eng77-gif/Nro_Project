@@ -75,6 +75,17 @@ public class Item {
         this.itemOptions = null;
     }
 
+    /** Dòng "Đi cùng ... tăng ..." cũ: giờ là kích hoạt ẩn (NPoint.applyHiddenCombos), gỡ khỏi đồ khi tải. */
+    public static final java.util.Set<Integer> HIDDEN_COMBO_OPTS = java.util.Set.of(39, 42, 91, 92, 169, 172, 255, 264);
+
+    public static void stripHiddenCombos(java.util.List<Item> items) {
+        for (Item it : items) {
+            if (it != null && it.itemOptions != null) {
+                it.itemOptions.removeIf(io -> io.optionTemplate != null && HIDDEN_COMBO_OPTS.contains(io.optionTemplate.id));
+            }
+        }
+    }
+
     public static class ItemOption {
 
         public int param;
