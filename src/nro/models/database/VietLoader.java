@@ -126,6 +126,7 @@ public class VietLoader {
                                 player.point_maydam = rs.getInt("point_maydam");
                                 player.total_damage_maydam = rs.getLong("total_damage_maydam");
                                 player.isNewMember = !Util.isTimeDifferenceGreaterThanNDays(createTime, 35);
+                                player.newMemberUntil = createTime + 35L * 86_400_000L;
                                 LocalManager.executeUpdate("update account set last_time_login = '" + new Timestamp(System.currentTimeMillis()) + "', ip_address = '" + session.ipAddress + "' where id = " + session.userId);
                             }
                         }
@@ -172,6 +173,15 @@ public class VietLoader {
             rs = LocalManager.executeQuery("select * from player where id = ? limit 1", id);
             if (rs.first() && (player = loadPlayer(rs, true)) != null) {
                 player.isOffline = true;
+                try { // tài khoản bot: mầm theo ngày tạo tài khoản như người chơi
+                    LocalResultSet ac = LocalManager.executeQuery("select create_time from account where id = ?", rs.getInt("account_id"));
+                    if (ac.first() && ac.getTimestamp("create_time") != null) {
+                        player.newMemberUntil = ac.getTimestamp("create_time").getTime() + 35L * 86_400_000L;
+                        player.isNewMember = player.hasMam();
+                    }
+                    ac.dispose();
+                } catch (Exception ignored) {
+                }
                 player.idMark.setLoadedAllDataPlayer(true);
             }
         } catch (Exception e) {

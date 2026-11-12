@@ -879,7 +879,8 @@ public class Mob {
                     it.options = ops;
                 }
 
-                int[] opsrand = ItemService.gI().randOptionItemKichHoat(player.gender);
+                // hết mầm (tài khoản quá 35 ngày): quái chỉ rơi set Gohan
+                int[] opsrand = player.hasMam() ? ItemService.gI().randOptionItemKichHoat(player.gender) : new int[]{233, 234};
                 for (int opId : opsrand) {
                     if (opId > 0) {
                         it.options.add(new Item.ItemOption(opId, 0));
@@ -908,7 +909,8 @@ public class Mob {
                     it.options = ops;
                 }
 
-                int[] opsrand = ItemService.gI().randOptionItemKichHoat(player.gender);
+                // hết mầm (tài khoản quá 35 ngày): quái chỉ rơi set Gohan
+                int[] opsrand = player.hasMam() ? ItemService.gI().randOptionItemKichHoat(player.gender) : new int[]{233, 234};
                 for (int opId : opsrand) {
                     if (opId > 0) {
                         it.options.add(new Item.ItemOption(opId, 0));
