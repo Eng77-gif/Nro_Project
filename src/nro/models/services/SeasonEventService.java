@@ -1460,6 +1460,14 @@ public class SeasonEventService implements Runnable {
         }
     }
 
+    /** Cộng điểm top theo mã top (vd boss sự kiện), chỉ khi sự kiện của top đó đang diễn ra. */
+    public void addTopPointById(int topId, Player pl, int pts) {
+        Top t = tops.get(topId);
+        if (t != null && pl != null && pl.isPl() && t.season != null && t.season.active) {
+            addTopPoint(t, pl, pts);
+        }
+    }
+
     private void addTopPoint(Top t, Player pl, int pts) {
         try {
             LocalManager.executeUpdate("INSERT INTO season_event_point (top_id, player_id, name, points) VALUES (?, ?, ?, ?) "

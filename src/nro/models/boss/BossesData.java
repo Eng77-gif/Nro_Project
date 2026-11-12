@@ -2620,6 +2620,19 @@ public class BossesData {
     );
 
     /** Trung Thu (source V10): Meowth, mỗi đòn mất 1 HP. */
+    /** Đội Hỏa Tiễn (source V10, sự kiện Pokémon): mỗi đòn 1 HP. */
+    public static final BossData MUSASHI = new BossData(
+            "Musashi", ConstPlayer.TRAI_DAT, new short[]{1863, 1864, 1865, -1, -1, -1}, 3000, new long[]{1500}, //hp (mỗi đòn 1 HP)
+            new int[]{5, 13, 20, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38},
+            new int[][]{{Skill.TROI, 1, 120000}, {Skill.MASENKO, 7, 1000}, {Skill.GALICK, 7, 1000}},
+            new String[]{}, new String[]{"|-1|Hahaha"}, new String[]{"|-1|Hahaha"}, REST_1_M);
+
+    public static final BossData KOCHIRO = new BossData(
+            "Kochiro", ConstPlayer.TRAI_DAT, new short[]{1860, 1861, 1862, -1, -1, -1}, 3000, new long[]{2000}, //hp (mỗi đòn 1 HP)
+            new int[]{5, 13, 20, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38},
+            new int[][]{{Skill.DEMON, 2, 1000}, {Skill.MASENKO, 3, 1000}},
+            new String[]{}, new String[]{}, new String[]{"|-1|Cay quá!", "|-1|Ta mà lại thua được sao?", "|-1|Hãy trả thù cho ta!"}, REST_1_M);
+
     public static final BossData MEOWTH = new BossData(
             "Meowth", //name
             ConstPlayer.TRAI_DAT, //gender

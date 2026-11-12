@@ -185,6 +185,8 @@ public class BossID {
     public static final int TUAN_LOC = -372;
     public static final int BE_NA = -373;
     public static final int THO_DAI_CA = -374;
+    public static final int KOCHIRO = -375;
+    public static final int MUSASHI = -376;
     public static final int MEOWTH = -377;
     public static final int RONG_NHI_1_SAO = -390; // -390 .. -396: rồng nhí 1 - 7 sao
     public static final int RONG_NHI_7_SAO = -396;

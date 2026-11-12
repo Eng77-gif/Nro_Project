@@ -353,6 +353,10 @@ public class BossManager implements Runnable {
                     new nro.models.boss.event.TrungThu.ThoDaiCa();
                 case BossID.MEOWTH ->
                     new nro.models.boss.event.TrungThu.Meowth();
+                case BossID.MUSASHI ->
+                    new nro.models.boss.event.TrungThu.Musashi();
+                case BossID.KOCHIRO ->
+                    new nro.models.boss.event.TrungThu.Kochiro();
                 case -390, -391, -392, -393, -394, -395, -396 ->
                     new nro.models.boss.event.HungVuong.RongNhi(BossID.RONG_NHI_1_SAO - bossID + 1);
                 case BossID.TUAN_LOC ->
