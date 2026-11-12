@@ -131,6 +131,7 @@ public class VietLoader {
                                 player.point_maydam = rs.getInt("point_maydam");
                                 player.total_damage_maydam = rs.getLong("total_damage_maydam");
                                 player.newMemberUntil = Math.max(createTime + 35L * 86_400_000L, mamUntil);
+                                player.mamExtended = mamUntil > 0; // mam_until chỉ có khi đã gia hạn
                                 player.isNewMember = player.hasMam();
                                 LocalManager.executeUpdate("update account set last_time_login = '" + new Timestamp(System.currentTimeMillis()) + "', ip_address = '" + session.ipAddress + "' where id = " + session.userId);
                             }

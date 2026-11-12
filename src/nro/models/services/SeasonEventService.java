@@ -832,7 +832,7 @@ public class SeasonEventService implements Runnable {
         if (pl == null || boss == null || boss.zone == null || !pl.isPl()) {
             return;
         }
-        if (isActive(SUMMER_3) && boss.id <= nro.models.boss.BossID.XEN_BO_HUNG && boss.id >= nro.models.boss.BossID.XEN_CON_7
+        if (isActive(SUMMER_3) && (boss.id == nro.models.boss.BossID.XEN_HE || boss.id <= nro.models.boss.BossID.XEN_BO_HUNG && boss.id >= nro.models.boss.BossID.XEN_CON_7)
                 && Util.isTrue(10, 100)) { // hè 3: boss Xên bọ hung / Siêu bọ hung / Xên con rơi set kích hoạt Gohan
             int temp = ItemService.gI().randTempItemKichHoat(pl.gender);
             int x = boss.location.x + Util.nextInt(-20, 20);
@@ -1010,8 +1010,8 @@ public class SeasonEventService implements Runnable {
         for (Season s : seasons.values()) {
             if (s.active) {
                 for (Exchange e : s.exchanges) {
-                    if (isShopGroup(e.group) || isPointGroup(e.group)) {
-                        continue; // bán trong cửa hàng Chi Chi / Quy Lão
+                    if (isShopGroup(e.group) || isPointGroup(e.group) || (isTicketGroup(e.group) && e.need.length == 1)) {
+                        continue; // bán trong cửa hàng Chi Chi / Quy Lão / cửa hàng đổi phiếu
                     }
                     for (int n : e.npcs) {
                         if (n == npcTemp) {
@@ -1055,6 +1055,8 @@ public class SeasonEventService implements Runnable {
             List<Exchange> list = npcExchanges(npc.tempId);
             if (select >= 0 && select < list.size()) {
                 openExchange(npc, pl, list.get(select));
+            } else if (select == list.size() && !ticketExchanges(npc.tempId).isEmpty()) {
+                openTicketShop(pl, npc.tempId);
             }
             return true;
         }
@@ -1080,7 +1082,8 @@ public class SeasonEventService implements Runnable {
 
     private void openNpcEvent(Npc npc, Player pl) {
         List<Exchange> list = npcExchanges(npc.tempId);
-        if (list.isEmpty()) {
+        List<Exchange> tickets = ticketExchanges(npc.tempId);
+        if (list.isEmpty() && tickets.isEmpty()) {
             return;
         }
         long[] ck = cooking.get(pl.id);
@@ -1092,10 +1095,13 @@ public class SeasonEventService implements Runnable {
                 claimCook(pl);
             }
         }
-        Season s = list.get(0).season;
-        String[] opts = new String[list.size()];
-        for (int i = 0; i < opts.length; i++) {
+        Season s = (list.isEmpty() ? tickets : list).get(0).season;
+        String[] opts = new String[list.size() + (tickets.isEmpty() ? 0 : 1)];
+        for (int i = 0; i < list.size(); i++) {
             opts[i] = list.get(i).name;
+        }
+        if (!tickets.isEmpty()) {
+            opts[list.size()] = "Đổi\n" + ItemService.gI().getTemplate(tickets.get(0).need[0][0]).name;
         }
         npc.createOtherMenu(pl, MENU_NPC, s.name + " vui vẻ\nTa có thể giúp gì cho con?", opts);
     }
@@ -2017,7 +2023,7 @@ public class SeasonEventService implements Runnable {
     // ------------------------------------------------------------------ Chi Chi / Quy Lão theo sự kiện (giống video)
     public static final int MIN_TOP_POINT = 10;
     public static final int CLAIM_DAYS = 7;
-    public static final String SHOP_CHICHI = "SK_CHICHI", SHOP_QUYLAO = "SK_QUYLAO";
+    public static final String SHOP_CHICHI = "SK_CHICHI", SHOP_QUYLAO = "SK_QUYLAO", SHOP_TICKET = "SK_TICKET";
     /** playerId -> (id vật phẩm -> công thức) của cửa hàng sự kiện đang mở */
     private final Map<Long, Map<Integer, Exchange>> shopOpen = new ConcurrentHashMap<>();
 
@@ -2031,6 +2037,62 @@ public class SeasonEventService implements Runnable {
 
     public static boolean isPointGroup(String g) {
         return plain(g).equals("đổi điểm");
+    }
+
+    /** Nhóm đổi bằng 1 loại vật phẩm (vd "Phiếu thức ăn"): hiện dạng cửa hàng, giá là số vật phẩm cần. */
+    public static boolean isTicketGroup(String g) {
+        return plain(g).startsWith("phiếu");
+    }
+
+    private List<Exchange> ticketExchanges(int npcTemp) {
+        List<Exchange> list = new ArrayList<>();
+        for (Season s : seasons.values()) {
+            if (s.active) {
+                for (Exchange e : s.exchanges) {
+                    if (isTicketGroup(e.group) && e.need.length == 1) {
+                        for (int n : e.npcs) {
+                            if (n == npcTemp) {
+                                list.add(e);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return list;
+    }
+
+    /** Cửa hàng đổi phiếu (như cửa hàng Chi Chi, tiền tệ là vật phẩm phiếu). */
+    public void openTicketShop(Player pl, int npcTemp) {
+        List<Exchange> list = ticketExchanges(npcTemp);
+        if (list.isEmpty()) {
+            Service.gI().sendThongBaoOK(pl, "Sự kiện đã kết thúc");
+            return;
+        }
+        nro.models.shop.Shop shop = new nro.models.shop.Shop();
+        shop.id = -1;
+        shop.npcId = (byte) npcTemp;
+        shop.tagName = SHOP_TICKET;
+        nro.models.shop.TabShop tab = new nro.models.shop.TabShop();
+        tab.shop = shop;
+        tab.id = -1;
+        tab.name = "Đổi\nphiếu";
+        Map<Integer, Exchange> map = new LinkedHashMap<>();
+        for (Exchange e : list) {
+            if (map.containsKey(e.rewardItem)) {
+                continue;
+            }
+            nro.models.shop.ItemShop is = shopItem(tab, e);
+            is.typeSell = 0;
+            is.iconSpec = ItemService.gI().getTemplate(e.need[0][0]).iconID;
+            is.cost = e.need[0][1];
+            tab.itemShops.add(is);
+            map.put(e.rewardItem, e);
+        }
+        shop.tabShops.add(tab);
+        shopOpen.put(pl.id, map);
+        nro.models.shop.ShopService.gI().openCustomSpecShop(pl, shop);
     }
 
     /** Nguyên liệu rơi của sự kiện (bí ngô, kẹo...): người chơi được ký gửi bán cho nhau ở Siêu thị. */
@@ -2077,10 +2139,7 @@ public class SeasonEventService implements Runnable {
             if (!ok || e.need.length > 0 || e.openNow || map.containsKey(e.rewardItem)) {
                 continue;
             }
-            nro.models.shop.ItemShop is = new nro.models.shop.ItemShop();
-            is.tabShop = tab;
-            is.id = e.id;
-            is.temp = ItemService.gI().getTemplate(e.rewardItem);
+            nro.models.shop.ItemShop is = shopItem(tab, e);
             if (quyLao) {
                 is.typeSell = 0; // trừ điểm sự kiện
                 is.iconSpec = ICON_EVENT_POINT; // giá hiện kèm icon ngôi sao (điểm), không phải đồng vàng
@@ -2095,21 +2154,6 @@ public class SeasonEventService implements Runnable {
                 is.typeSell = 0;
                 is.cost = (int) Math.min(Integer.MAX_VALUE, e.gold);
             }
-            try {
-                is.options.addAll(Event2026Service.gI().createItem(e.rewardItem, 1, e.rewardDays.length > 0 ? e.rewardDays[0] : 0).itemOptions);
-            } catch (Exception ignored) {
-            }
-            // dòng hạn dùng: "Hạn sử dụng X ngày", "Hạn sử dụng hoặc vĩnh viễn" (có tỉ lệ vĩnh viễn / nhiều mức ngày) hoặc "Vĩnh viễn"
-            is.options.removeIf(o -> o.optionTemplate != null && (o.optionTemplate.id == 93 || o.optionTemplate.id == 231 || o.optionTemplate.id == OPT_VINH_VIEN));
-            if (e.rewardDays.length == 1 && e.permRate <= 0) {
-                is.options.add(new Item.ItemOption(93, e.rewardDays[0]));
-            } else if (e.rewardDays.length > 0) {
-                is.options.add(new Item.ItemOption(231, 0));
-            } // vĩnh viễn: không hiện dòng nào (như bản chính thức)
-            Item probe = ItemService.gI().createNewItem((short) e.rewardItem);
-            probe.itemOptions.addAll(is.options);
-            is.options.clear();
-            is.options.addAll(noTrade(probe).itemOptions); // hiện "Không giao dịch" đúng như khi nhận
             tab.itemShops.add(is);
             map.put(e.rewardItem, e);
         }
@@ -2127,6 +2171,29 @@ public class SeasonEventService implements Runnable {
     }
 
     private static final int HALLOWEEN = 7;
+
+    /** Món trong cửa hàng sự kiện: chỉ số, dòng hạn dùng ("Hạn sử dụng X ngày" / "hoặc vĩnh viễn" / không dòng = vĩnh viễn), "Không giao dịch". */
+    private nro.models.shop.ItemShop shopItem(nro.models.shop.TabShop tab, Exchange e) {
+        nro.models.shop.ItemShop is = new nro.models.shop.ItemShop();
+        is.tabShop = tab;
+        is.id = e.id;
+        is.temp = ItemService.gI().getTemplate(e.rewardItem);
+        try {
+            is.options.addAll(Event2026Service.gI().createItem(e.rewardItem, 1, e.rewardDays.length > 0 ? e.rewardDays[0] : 0).itemOptions);
+        } catch (Exception ignored) {
+        }
+        is.options.removeIf(o -> o.optionTemplate != null && (o.optionTemplate.id == 93 || o.optionTemplate.id == 231 || o.optionTemplate.id == OPT_VINH_VIEN));
+        if (e.rewardDays.length == 1 && e.permRate <= 0) {
+            is.options.add(new Item.ItemOption(93, e.rewardDays[0]));
+        } else if (e.rewardDays.length > 0) {
+            is.options.add(new Item.ItemOption(231, 0));
+        }
+        Item probe = ItemService.gI().createNewItem((short) e.rewardItem);
+        probe.itemOptions.addAll(is.options);
+        is.options.clear();
+        is.options.addAll(noTrade(probe).itemOptions);
+        return is;
+    }
 
     /** Icon "điểm sự kiện" hiện cạnh giá ở cửa hàng đổi điểm Quy Lão (icon vật phẩm Ngôi sao). */
     public static final int ICON_EVENT_POINT = 14116; // đồng xu NRO như bản chính thức

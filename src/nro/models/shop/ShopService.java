@@ -115,7 +115,17 @@ public class ShopService {
         if (shop.tagName != null && (shop.tagName.equals("BUA_1H") || shop.tagName.equals("BUA_8H") || shop.tagName.equals("BUA_1M"))) {
             return this.resolveShopBua(player, new Shop(shop));
         }
-        return allGender ? new Shop(shop) : new Shop(shop, player);
+        Shop res = allGender ? new Shop(shop) : new Shop(shop, player);
+        if (!canExtendMam(player)) { // gia hạn mầm: mỗi tài khoản 1 lần, đã hết mầm thì không gia hạn được
+            for (TabShop t : res.tabShops) {
+                t.itemShops.removeIf(it -> it.temp != null && (it.temp.id == 1703 || it.temp.id == 1717));
+            }
+        }
+        return res;
+    }
+
+    private static boolean canExtendMam(Player player) {
+        return !player.mamExtended && player.hasMam();
     }
 
     private Shop resolveShopBua(Player player, Shop s) {
@@ -493,7 +503,8 @@ public class ShopService {
         } else if (tagName.equals(nro.models.services.SeasonEventService.SHOP_TOP_REWARD)) {
             nro.models.services.SeasonEventService.gI().topRewardAction(player, type, tempId);
             return;
-        } else if (tagName.equals(nro.models.services.SeasonEventService.SHOP_CHICHI) || tagName.equals(nro.models.services.SeasonEventService.SHOP_QUYLAO)) {
+        } else if (tagName.equals(nro.models.services.SeasonEventService.SHOP_CHICHI) || tagName.equals(nro.models.services.SeasonEventService.SHOP_QUYLAO)
+                || tagName.equals(nro.models.services.SeasonEventService.SHOP_TICKET)) {
             nro.models.services.SeasonEventService.gI().buyFromEventShop(player, tempId);
             return;
         }
@@ -914,6 +925,10 @@ public class ShopService {
             return;
         }
 
+        if ((itemTempId == 1703 || itemTempId == 1717) && !canExtendMam(player)) {
+            Service.gI().sendThongBao(player, player.mamExtended ? "Mỗi tài khoản chỉ được gia hạn mầm 1 lần" : "Tài khoản đã hết mầm, không thể gia hạn");
+            return;
+        }
         // Shop thường
         if (shop.typeShop == ShopService.NORMAL_SHOP) {
             if (!subMoneyByItemShop(player, is)) {
@@ -931,6 +946,10 @@ public class ShopService {
             int days = itemTempId == 1717 ? 15 : 7;
             player.newMemberUntil = Math.max(System.currentTimeMillis(), player.newMemberUntil) + days * 86_400_000L;
             player.isNewMember = true;
+            player.mamExtended = true;
+            String ann = player.name + " vừa gia hạn thời gian tìm set kích hoạt thêm " + days + " ngày tại Santa";
+            nro.models.server.ServerNotify.gI().notify(ann);
+            nro.models.services.ChatGlobalService.gI().chatVip(player, "[HT] " + ann);
             try {
                 nro.models.data.LocalManager.executeUpdate("update account set mam_until = ? where id = ?", player.newMemberUntil, player.getSession().userId);
             } catch (Exception e) {

@@ -1855,6 +1855,15 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 
 - **Mục phụ sự kiện hè 2025 (Đợt 128)**: khuyến mãi x3 giá trị thẻ nạp và x3 tiềm năng 2 ngày đầu mỗi đợt (07-08/06, 12-13/07 (tiềm năng đến 14/07), 16-17/08); Vòng quay Thượng Đế thêm Tanjiro / Inosuke / Zenitsu / Nezuko / Gậy phép Frieren (Hè 1, Hè 3) và Bạch tuộc hồng / CT Android 21 / Phượng hoàng lửa / Pic thợ lặn / Poc bikini (Hè 2), đua top vòng quay ngọc / vàng (Hè 2); mùa VIP Tori Bot theo tích nạp hè 3 (16/08 - 16/09); hành trang tối đa 90 ô, giảm 30% giá mở rộng hành trang / rương trong Hè 3.
 
+- **Đợt 129**:
+  - Bóng Poke / Bóng Ultra / Bóng Master mở ra Pet Pikachu, Charmander, Squirtle, Bulbasaur (Ultra / Master thêm MewTwo), vĩnh viễn 1% / 3% / 5%.
+  - Whis: nút "Đổi Phiếu thức ăn" mở cửa hàng như Chi Chi, giá tính bằng Phiếu thức ăn.
+  - Gia hạn mầm: xếp ngay sau Phiếu sao vàng, mỗi tài khoản gia hạn 1 lần (gia hạn rồi hoặc đã hết mầm thì không hiện), gia hạn xong thông báo server "X vừa gia hạn thời gian tìm set kích hoạt thêm N ngày tại Santa" và chat thế giới có "[HT]".
+  - Rađa dò vỏ Xên: dùng để vào Map Mùa hè (188, chép Ngọn núi phía bắc - map Xên con cấp 6) trong Hè 3; boss Xên Hoàn Thiện ở đó, hạ xong 1 tiếng sau ra lại, rơi vỏ Xên / set Gohan.
+  - Bỏ "Điểm danh" ở Bò Mộng (10.000 ngọc + 100 thỏi vàng / ngày).
+  - Sa mạc hoang vu trả lại như cũ (ô gạch 12, nền 11), vsMap 8.
+  - Bot làm nhiệm vụ: bước "tới map" (9.0 Lên đường, 12.0 Về nhà...) không được ghi vì bot dịch chuyển thẳng, không đi bộ trong map (kẹt nhiệm vụ 9); bước 0.0 Vách núi bị khoá tới nhiệm vụ 13 nên bot tạo ở nhà kẹt ở nhiệm vụ 0.
+
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
 - **NroResTool v13:** **Dò bản đồ** (lấy cả map): nhân vật tự đi qua các cổng, mỗi map lưu ô gạch, vật trang trí nền (`item_bg_map_data`), hiệu ứng (`eff_map`), `info/<mã>.json` (tên, hành tinh, nền, cổng + chỗ đến, quái, NPC) và `map/maps.sql` (thêm / cập nhật `map_template`; cổng chỉ ghi khi đã biết hết chỗ đến). Mục **Bản đồ**: nhập mã map (vd 0-185), công cụ hỏi lần lượt từng map và lưu ô gạch vào `map/tile_map_data/<mã>`, dùng để thay map bị lỗi trong source. `tools/res_import.py` nhận thư mục này và chép vào `data/map/tile_map_data` (cần `--overwrite` khi map đã có; file cũ giữ lại thành `.bak`).

@@ -88,6 +88,7 @@ public class Player implements Runnable {
     public String name;
     public byte gender;
     public boolean isNewMember;
+    public boolean mamExtended; // tài khoản đã gia hạn mầm (mỗi tài khoản 1 lần)
     public long newMemberUntil; // hết "mầm" (35 ngày từ ngày tạo tài khoản): còn mầm đánh quái mới rơi SKH (trừ set Gohan)
 
     /** Còn mầm (tài khoản tạo chưa đủ 35 ngày). */

@@ -2621,6 +2621,13 @@ public class BossesData {
 
     /** Trung Thu (source V10): Meowth, mỗi đòn mất 1 HP. */
     /** Đội Hỏa Tiễn (source V10, sự kiện Pokémon): mỗi đòn 1 HP. */
+    /** Sự kiện hè 3: Xên Hoàn Thiện ở map Mùa hè (188), hạ xong 1 tiếng sau xuất hiện lại. */
+    public static final BossData XEN_HE = new BossData(
+            "Xên Hoàn Thiện", ConstPlayer.XAYDA, new short[]{234, 235, 236, -1, -1, -1}, 35000, new long[]{150000000},
+            new int[]{188},
+            new int[][]{{Skill.KAMEJOKO, 7, 10000}, {Skill.GALICK, 7, 1000}},
+            new String[]{}, new String[]{}, new String[]{}, 3600);
+
     public static final BossData MUSASHI = new BossData(
             "Musashi", ConstPlayer.TRAI_DAT, new short[]{1863, 1864, 1865, -1, -1, -1}, 3000, new long[]{1500}, //hp (mỗi đòn 1 HP)
             new int[]{5, 13, 20, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38},

@@ -187,6 +187,7 @@ public class BossID {
     public static final int THO_DAI_CA = -374;
     public static final int KOCHIRO = -375;
     public static final int MUSASHI = -376;
+    public static final int XEN_HE = -378; // Xên hoàn thiện ở map Mùa hè (Rađa dò vỏ Xên), 1 tiếng / lần
     public static final int MEOWTH = -377;
     public static final int RONG_NHI_1_SAO = -390; // -390 .. -396: rồng nhí 1 - 7 sao
     public static final int RONG_NHI_7_SAO = -396;

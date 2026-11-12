@@ -32,7 +32,7 @@ public class BoMong extends Npc {
             if (canOpenNpc(player)) {
                 if (this.mapId == 47 || this.mapId == 84) {
                     this.createOtherMenu(player, ConstNpc.BASE_MENU,
-                            "Ngươi muốn có thêm ngọc thì chịu khó làm vài nhiệm vụ sẽ được ngọc thưởng", "Nhiệm vụ\nhàng ngày", "Nhiệm vụ\nthành tích", "Nạp Ngọc", "Điểm danh", "Từ chối");
+                            "Ngươi muốn có thêm ngọc thì chịu khó làm vài nhiệm vụ sẽ được ngọc thưởng", "Nhiệm vụ\nhàng ngày", "Nhiệm vụ\nthành tích", "Nạp Ngọc", "Từ chối"); // bỏ điểm danh (10.000 ngọc + 100 thỏi vàng / ngày) cho có tính cày
                 }
             }
         }
@@ -67,26 +67,6 @@ public class BoMong extends Npc {
                         }
                         case 2 -> {
                             Input.gI().createFormTradeGem(player);
-                        }
-                        case 3 -> {
-                            if (player.lastCheckIn != null) {
-                                LocalDate last = player.lastCheckIn.toLocalDate();
-                                LocalDate today = LocalDate.now();
-                                if (last.isEqual(today)) {
-                                    Service.gI().sendThongBao(player, "Bạn đã điểm danh hôm nay rồi!");
-                                    return;
-                                }
-                            }
-                            player.lastCheckIn = LocalDateTime.now();
-                            player.inventory.gem += 10000;
-                            Item item457 = ItemService.gI().createNewItem((short) 457);
-                            item457.quantity = 100;
-                            item457.itemOptions.add(new Item.ItemOption(30, 0));
-                            InventoryService.gI().addItemBag(player, item457);
-                            PlayerService.gI().sendInfoHpMpMoney(player);
-                            InventoryService.gI().sendItemBags(player);
-
-                            Service.gI().sendThongBao(player, "Điểm danh thành công! Bạn nhận được 10.000 ngọc và 100 thỏi vàng.");
                         }
 
                     }

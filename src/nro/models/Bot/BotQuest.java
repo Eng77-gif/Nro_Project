@@ -147,13 +147,21 @@ public class BotQuest {
         if (map >= 0) { // tới map (hệ thống tự ghi khi vào map)
             b.activity = "Làm nhiệm vụ";
             b.questMap = map; // ở lại map nhiệm vụ (đánh quái rơi đồ nhiệm vụ, nhặt vật phẩm...)
-            if (b.zone.map.mapId != map) {
-                goTo(b, map);
+            if (b.zone.map.mapId != map && !goTo(b, map) && tm.id == 0) {
+                // 0.0: Vách núi (39 - 41) khoá tới nhiệm vụ 13, người chơi mới xuất hiện sẵn ở đó; bot tạo ở nhà nên dịch chuyển thẳng tới
+                Zone z = b.getRandomZone(map);
+                if (z != null) {
+                    ChangeMapService.gI().goToMap(b, z);
+                    b.zone.load_Me_To_Another(b);
+                }
             }
             if (tm.id == 0 && tm.index == 0) {
                 PlayerService.gI().playerMove(b, 700, b.zone.map.yPhysicInTop(700, 100)); // mũi tên chỉ dẫn ở bên phải
                 TaskService.gI().checkDoneTaskGoToMap(b, b.zone);
             } else {
+                // bước "tới map" (vd 9.0 "Lên đường" tới Đảo Kamê / Đảo Guru / Vách núi đen): người chơi được ghi khi đi trong map,
+                // bot dịch chuyển thẳng tới nên phải tự ghi, trước đây bot kẹt mãi ở nhiệm vụ 9
+                TaskService.gI().checkDoneTaskGoToMap(b, b.zone);
                 for (nro.models.map.ItemMap it : new java.util.ArrayList<>(b.zone.getItemMapsForPlayer(b))) {
                     if (!it.isPickedUp && (it.playerId == -1 || it.playerId == b.id)) { // vật phẩm nhiệm vụ (em bé, ngọc rồng...): đi tới nhặt
                         PlayerService.gI().playerMove(b, it.x, it.y);

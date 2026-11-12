@@ -694,6 +694,15 @@ public class UseItem {
                             case 1825: // capule kich hoat
                                 UseItem.gI().MapRiengTu(pl, item);
                                 break;
+                            case 1666: // Rađa dò vỏ Xên: vào map Mùa hè (sự kiện hè 3), rađa không mất khi dùng
+                                if (!nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.SUMMER_3)) {
+                                    Service.gI().sendThongBao(pl, "Sự kiện hè 3 chưa diễn ra");
+                                } else if (pl.zone != null && pl.zone.map.mapId == nro.models.database.Dot129Migration.MAP_MUA_HE) {
+                                    Service.gI().sendThongBao(pl, "Bạn đang ở Map Mùa hè");
+                                } else {
+                                    ChangeMapService.gI().changeMapBySpaceShip(pl, nro.models.database.Dot129Migration.MAP_MUA_HE, -1, Util.nextInt(300, 900));
+                                }
+                                break;
                             case 2021: // Phiếu sao vàng may mắn: vào Ngục tù may mắn
                                 UseItem.gI().useLuckyTicket(pl, item);
                                 break;
