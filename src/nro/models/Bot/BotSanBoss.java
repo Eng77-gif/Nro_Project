@@ -43,7 +43,8 @@ public class BotSanBoss {
 
     public void GetBoss(int status) {
         if (this.bossAttack == null || this.bossAttack.isDie()) {
-            List<Boss> all = BossManager.gI().getBosses();
+            List<Boss> all = new ArrayList<>(BossManager.gI().getBosses());
+            all.addAll(nro.models.boss.Boss_Manager.BrolyManager.gI().getBosses()); // Broly / Super Broly nằm ở BrolyManager: trước đây bot "săn đệ" không bao giờ thấy Broly
             if (all.isEmpty()) {
                 giveUp();
                 return;

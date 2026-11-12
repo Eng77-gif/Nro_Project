@@ -1870,6 +1870,13 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
   - Map Mùa hè bỏ 2 cổng; Rađa dò vỏ Xên: mỗi lần dùng mất 1 rađa, được ở map 3 tiếng (dùng lại khi còn hạn không mất rađa), hết giờ tự về nhà.
   - Bot: bật bao nhiêu vào game bấy nhiêu (bỏ hẹn giờ vào ngẫu nhiên lúc mở server và thoát nghỉ theo ca - trước đây bật 200 chỉ ~160 vào); ưu tiên xin vào bang có sẵn, chỉ lập bang khi không còn bang nào còn chỗ; tên bang kiểu Ngọc Rồng.
 
+- **Bot chơi theo nhu cầu (Đợt 130)**: trước khi để "bộ não tự học" chọn, bot làm việc cần làm:
+  - chưa có đệ tử và đủ mạnh hạ Super Broly: đi đánh Broly (bị đánh lớn dần rồi hóa Super Broly, hạ được đệ). Trước đây bot "săn đệ" không bao giờ thấy Broly vì Broly / Super Broly nằm ở danh sách boss riêng (BrolyManager);
+  - NRSD đang mở và sức mạnh từ 2 tỉ: vào NRSD; sức mạnh từ 1 tỉ: săn boss lấy đồ;
+  - thiếu ngọc (dưới 20.000, sức mạnh từ 100 triệu): đi giải Siêu hạng (đánh 1 - 3 hạng trên, thắng theo so chỉ số, thắng thì đổi hạng, nhận ngọc theo hạng);
+  - thiếu vàng (dưới 1 tỉ, sức mạnh từ 50 triệu): đi ĐHVT lần thứ 23 (vàng theo số trận thắng);
+  - 10 phút / lần mua đồ tính đua top ở cửa hàng sự kiện (hộp Chi Chi...), chừa 5.000 ngọc / 500 triệu vàng.
+
 ## Công cụ
 - **NroRepoDownloader 1.2:** mặc định tải repo `Eng77-gif/Nro_Project`, nhánh `main` (trước là nro_dev_al / nhánh claude cũ đã bỏ).
 - **NroResTool v13:** **Dò bản đồ** (lấy cả map): nhân vật tự đi qua các cổng, mỗi map lưu ô gạch, vật trang trí nền (`item_bg_map_data`), hiệu ứng (`eff_map`), `info/<mã>.json` (tên, hành tinh, nền, cổng + chỗ đến, quái, NPC) và `map/maps.sql` (thêm / cập nhật `map_template`; cổng chỉ ghi khi đã biết hết chỗ đến). Mục **Bản đồ**: nhập mã map (vd 0-185), công cụ hỏi lần lượt từng map và lưu ô gạch vào `map/tile_map_data/<mã>`, dùng để thay map bị lỗi trong source. `tools/res_import.py` nhận thư mục này và chép vào `data/map/tile_map_data` (cần `--overwrite` khi map đã có; file cũ giữ lại thành `.bak`).

@@ -2229,6 +2229,29 @@ public class SeasonEventService implements Runnable {
         Service.gI().sendMoney(pl);
     }
 
+    /** Bot: mua đồ có tính điểm đua top ở cửa hàng sự kiện (hộp Chi Chi...) để leo top như người chơi, chừa lại ngọc / vàng. */
+    public void botBuyTopItems(Player pl) {
+        for (Season s : activeSeasons()) {
+            for (Exchange e : s.exchanges) {
+                if (e.topId <= 0 || !isShopGroup(e.group) || e.need.length > 0 || e.costPoint > 0) {
+                    continue;
+                }
+                int times;
+                if (e.gem > 0) {
+                    times = (int) Math.min(10, (pl.inventory.gem - 5_000L) / e.gem);
+                } else if (e.gold > 0) {
+                    times = (int) Math.min(10, (pl.inventory.gold - 500_000_000L) / e.gold);
+                } else {
+                    continue;
+                }
+                times = Math.min(times, maxTimes(pl, e));
+                if (times > 0 && InventoryService.gI().getCountEmptyBag(pl) > 2) {
+                    exchange(pl, e, times);
+                }
+            }
+        }
+    }
+
     /** Danh sách đua top cho panel. */
     public List<java.util.Map<String, Object>> panelTops() {
         List<java.util.Map<String, Object>> out = new ArrayList<>();

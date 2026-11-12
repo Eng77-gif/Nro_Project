@@ -188,6 +188,8 @@ public class Bot extends Player {
     }
 
     /** Tài khoản bot chỉ vào map người chơi cùng nhiệm vụ vào được (luật ChangeMapService.checkMapCanJoin: Namếc, tương lai, Cold...). */
+    public long lastShopTop, lastSieuHang, lastDhvt23; // lần gần nhất mua hộp đua top / đi giải Siêu hạng / ĐHVT 23
+
     public boolean canGo(int mapId) {
         if (!this.accountBot || (this.stayMap && mapId == this.questMap)) {
             return true;
