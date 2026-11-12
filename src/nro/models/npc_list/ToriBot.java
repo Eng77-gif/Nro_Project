@@ -16,8 +16,9 @@ import java.time.Duration;
 
 public class ToriBot extends Npc {
 
-    private static final LocalDateTime VIP_SEASON_START_DATE = LocalDateTime.of(LocalDate.now().getYear(), Month.JUNE, 5, 0, 0, 0);
-    private static final LocalDateTime VIP_SEASON_END_DATE = LocalDateTime.of(LocalDate.now().getYear(), Month.DECEMBER, 5, 23, 59, 59);
+    // tích nạp VIP theo sự kiện hè 3 (diễn đàn): 16/08 - 23:59 16/09
+    private static final LocalDateTime VIP_SEASON_START_DATE = LocalDateTime.of(LocalDate.now().getYear(), Month.AUGUST, 16, 0, 0, 0);
+    private static final LocalDateTime VIP_SEASON_END_DATE = LocalDateTime.of(LocalDate.now().getYear(), Month.SEPTEMBER, 16, 23, 59, 59);
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     public ToriBot(int mapId, int status, int cx, int cy, int tempId, int avartar) {
@@ -27,7 +28,7 @@ public class ToriBot extends Npc {
     @Override
     public void openBaseMenu(Player player) {
         LocalDateTime currentDateTime = LocalDateTime.now();
-        if (currentDateTime.isAfter(VIP_SEASON_END_DATE)) {
+        if (currentDateTime.isAfter(VIP_SEASON_END_DATE) || currentDateTime.isBefore(VIP_SEASON_START_DATE)) {
             this.createOtherMenu(player, 0, "Ngươi tìm ta có việc gì?", "Đóng");
         } else {
             int currentPurchases = player.vipPurchaseCount;
@@ -68,8 +69,8 @@ public class ToriBot extends Npc {
             return;
         }
         LocalDateTime currentDateTime = LocalDateTime.now();
-        if (currentDateTime.isAfter(VIP_SEASON_END_DATE)) {
-            Service.gI().sendThongBao(pl, "Mùa VIP đã kết thúc. Bạn không thể mua VIP vào lúc này.");
+        if (currentDateTime.isAfter(VIP_SEASON_END_DATE) || currentDateTime.isBefore(VIP_SEASON_START_DATE)) {
+            Service.gI().sendThongBao(pl, "Mùa VIP (tích nạp sự kiện hè, 16/08 - 16/09) chưa mở hoặc đã kết thúc.");
            // openBaseMenu(pl);
             return;
         }
@@ -108,8 +109,8 @@ public class ToriBot extends Npc {
 
     private void BuyVip(Player pl, int vipLevel, int cost) {
         LocalDateTime currentDateTime = LocalDateTime.now();
-        if (currentDateTime.isAfter(VIP_SEASON_END_DATE)) {
-            Service.gI().sendThongBao(pl, "Mùa VIP đã kết thúc. Bạn không thể mua VIP vào lúc này.");
+        if (currentDateTime.isAfter(VIP_SEASON_END_DATE) || currentDateTime.isBefore(VIP_SEASON_START_DATE)) {
+            Service.gI().sendThongBao(pl, "Mùa VIP (tích nạp sự kiện hè, 16/08 - 16/09) chưa mở hoặc đã kết thúc.");
             openBaseMenu(pl); // Mở lại menu mặc định
             return;
         }

@@ -2419,6 +2419,9 @@ public class NPoint {
                 }
             }
             tiemNang *= Manager.RATE_EXP_SERVER;
+            if (nro.models.services.SeasonEventService.gI().summerPromo(true)) {
+                tiemNang *= 3; // khuyến mãi x3 tiềm năng sự kiện hè
+            }
             tiemNang = calSubTNSM(tiemNang);
             if (tiemNang <= 0) {
                 tiemNang = 1;

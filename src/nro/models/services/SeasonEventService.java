@@ -721,6 +721,24 @@ public class SeasonEventService implements Runnable {
     }
 
     // ------------------------------------------------------------------ vật phẩm rơi
+    /**
+     * Khuyến mãi x3 sự kiện hè 2025 (theo diễn đàn), chỉ khi đợt đó đang chạy:
+     * nạp x3: 00:05 07/06 - 23:55 08/06, 00:05 12/07 - 23:55 13/07, 00:05 16/08 - 23:55 17/08;
+     * tiềm năng x3: như trên, riêng Hè 2 đến 23:55 14/07.
+     */
+    public boolean summerPromo(boolean tiemNang) {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        int[][] w = {{SUMMER_1, 6, 7, 6, 8}, {SUMMER_2, 7, 12, 7, tiemNang ? 14 : 13}, {SUMMER_3, 8, 16, 8, 17}};
+        for (int[] x : w) {
+            java.time.LocalDateTime from = java.time.LocalDateTime.of(now.getYear(), x[1], x[2], 0, 5);
+            java.time.LocalDateTime to = java.time.LocalDateTime.of(now.getYear(), x[3], x[4], 23, 55);
+            if (isActive(x[0]) && !now.isBefore(from) && !now.isAfter(to)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** Giới hạn theo ngày cho quà ngoài bảng rơi (nhiệm vụ hằng ngày, đăng nhập...): trả về số được nhận hôm nay (0 = đã đủ). */
     public int takeDaily(Player pl, String key, int max, int qty) {
         LocalDate t = today();

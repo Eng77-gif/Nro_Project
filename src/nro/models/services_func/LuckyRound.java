@@ -129,6 +129,7 @@ public class LuckyRound {
         } else {
             if (count + player.inventory.itemsBoxCrackBall.size() <= MAX_ITEM_IN_BOX) {
                 player.inventory.gem -= gemNeed;
+                nro.models.services.SeasonEventService.gI().addTopPointById(nro.models.database.Dot128Migration.TOP_VQ_NGOC, player, count); // hè 2: top vòng quay ngọc
                 List<Item> list = RewardService.gI().getListItemLuckyRound(player, count, true);
                 addItemToBox(player, list);
                 sendReward(player, list);
@@ -147,6 +148,7 @@ public class LuckyRound {
         } else {
             if (count + player.inventory.itemsBoxCrackBall.size() <= MAX_ITEM_IN_BOX) {
                 player.inventory.gold -= goldNeed;
+                nro.models.services.SeasonEventService.gI().addTopPointById(nro.models.database.Dot128Migration.TOP_VQ_VANG, player, count); // hè 2: top vòng quay vàng
                 boolean vip = vipUi.contains(player.id);
                 List<Item> list = RewardService.gI().getListItemLuckyRound(player, count, vip);
                 addItemToBox(player, list);

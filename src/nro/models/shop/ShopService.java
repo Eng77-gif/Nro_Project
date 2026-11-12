@@ -76,6 +76,11 @@ public class ShopService {
                                 item.cost = 1;
                             }
                             break;
+                        case 517:
+                        case 518: // mở rộng hành trang / rương đồ: giảm 30% trong sự kiện hè 3
+                            int base = item.temp.id == 517 ? 100 : 50_000_000;
+                            item.cost = nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.SUMMER_3) ? base * 7 / 10 : base;
+                            break;
                     }
                 }
             }

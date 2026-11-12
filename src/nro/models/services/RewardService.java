@@ -47,8 +47,24 @@ public class RewardService {
     public static final int SPECIAL_WHEEL_RATE = 3; // % mỗi ô quay
     public static final int SPECIAL_WHEEL_PERMANENT = 3; // % vĩnh viễn (x3)
 
+    /** Vòng quay Thượng Đế mùa hè 2025 (diễn đàn): Hè 1 / Hè 3 cải trang Thanh gươm diệt quỷ + Gậy phép Frieren; Hè 2 Bạch tuộc hồng, CT Android, Phượng hoàng lửa, Pic thợ lặn, Poc bikini. */
+    public static final int[] SUMMER_WHEEL_1_3 = {1087, 1088, 1089, 1090, 1091, 1571};
+    public static final int[] SUMMER_WHEEL_2 = {1842, 1708, 1144, 1234, 1235};
+
+    private static int[] summerWheel() {
+        SeasonEventService se = SeasonEventService.gI();
+        if (se.isActive(SeasonEventService.SUMMER_2)) {
+            return SUMMER_WHEEL_2;
+        }
+        return se.isActive(SeasonEventService.SUMMER_1) || se.isActive(SeasonEventService.SUMMER_3) ? SUMMER_WHEEL_1_3 : null;
+    }
+
     public Item createSpecialWheelItem() {
-        int id = SPECIAL_WHEEL_ITEMS[Util.nextInt(0, SPECIAL_WHEEL_ITEMS.length - 1)];
+        return createWheelItem(SPECIAL_WHEEL_ITEMS);
+    }
+
+    private Item createWheelItem(int[] pool) {
+        int id = pool[Util.nextInt(0, pool.length - 1)];
         Item it = ItemService.gI().createNewItem((short) id);
         it.itemOptions.clear();
         it.itemOptions.addAll(ItemService.gI().getListOptionItemShop((short) id));
@@ -112,6 +128,11 @@ public class RewardService {
                     list.add(createGioToWheelItem(player));
                     continue;
                 }
+            }
+            int[] summer = vip ? summerWheel() : null;
+            if (summer != null && Util.isTrue(SPECIAL_WHEEL_RATE, 100)) {
+                list.add(createWheelItem(summer));
+                continue;
             }
             if (vip && Util.isTrue(SPECIAL_WHEEL_RATE, 100)) {
                 list.add(createSpecialWheelItem());

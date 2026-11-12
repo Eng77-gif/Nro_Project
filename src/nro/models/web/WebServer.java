@@ -642,12 +642,14 @@ public class WebServer {
             return false;
         }
         int acc = intv(PanelApi.rows("select account_id from web_topup where id = ?", id).get(0).get("account_id"));
-        PanelApi.update("update account set vnd = vnd + ?, tongnap = tongnap + ? where id = ?", credit, credit, acc);
+        int bal = nro.models.services.SeasonEventService.gI().summerPromo(false) ? credit * 3 : credit; // khuyến mãi x3 giá trị thẻ nạp (sự kiện hè)
+        PanelApi.update("update account set vnd = vnd + ?, tongnap = tongnap + ? where id = ?", bal, credit, acc);
         Player on = Client.gI().getPlayerByUser(acc);
         if (on != null && on.getSession() != null) {
-            on.getSession().vnd += credit;
+            on.getSession().vnd += bal;
             on.getSession().tongnap += credit;
-            nro.models.services.Service.gI().sendThongBao(on, "Nạp thành công " + nro.models.utils.Util.numberToMoney(credit) + "đ vào tài khoản, đổi ra ngọc ở NPC nạp");
+            nro.models.services.Service.gI().sendThongBao(on, "Nạp thành công " + nro.models.utils.Util.numberToMoney(credit) + "đ vào tài khoản"
+                    + (bal > credit ? " (khuyến mãi x3: nhận " + nro.models.utils.Util.numberToMoney(bal) + "đ)" : "") + ", đổi ra ngọc ở NPC nạp");
         }
         return true;
     }

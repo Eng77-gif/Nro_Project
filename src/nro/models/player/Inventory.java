@@ -18,7 +18,7 @@ import nro.models.task.BadgesTaskService;
 public class Inventory {
 
     public static final long LIMIT_GOLD = 999_999_999_999_999L; // client 2.4.7 hiện vàng 8 byte
-    public static final int MAX_ITEMS_BAG = 80;
+    public static final int MAX_ITEMS_BAG = 90; // sự kiện hè 3: hành trang tối đa 90 ô
     public static final int MAX_ITEMS_BOX = 100;
     public Item trainArmor;
     public List<String> giftCode;
