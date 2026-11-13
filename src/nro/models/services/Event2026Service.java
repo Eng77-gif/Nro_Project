@@ -460,6 +460,9 @@ public class Event2026Service {
     public Item createItem(int id, int qty, int days) {
         Item it = ItemService.gI().createNewItem((short) id, qty);
         it.itemOptions.addAll(ItemService.gI().getListOptionItemShop((short) id));
+        if (ItemService.gI().isTrainArmor(it) && it.itemOptions.stream().noneMatch(io -> io.optionTemplate.id == 9)) {
+            it.itemOptions.add(new Item.ItemOption(9, 0)); // Hiệu lực trong # phút
+        }
         if (days > 0) {
             it.itemOptions.removeIf(io -> io.optionTemplate.id == 93);
             it.itemOptions.add(new Item.ItemOption(93, days));

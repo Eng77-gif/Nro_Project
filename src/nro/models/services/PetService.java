@@ -182,6 +182,13 @@ public class PetService {
         }
         pet.nPoint.calPoint();
         pet.nPoint.setFullHpMp();
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                Service.gI().chatJustForMe(player, player.pet, "Xin hãy thu nhận con làm đệ tử");
+            } catch (Exception e) {
+            }
+        }).start();
     }
 
     /** Ảnh mặt đệ tử 2 (khung đầu tiên của part đầu Uub / Kid Beer / Jiren) cho hiệu ứng mở như Capsule kì bí. */

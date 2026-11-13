@@ -1988,3 +1988,13 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Mức cộng tiềm năng tối đa của đệ tử 2 = mức của đệ tử 1 +30% (trần 747k / 33800). Giáp và chí mạng vẫn theo mức cũ.
 - Santa: chưa có đệ tử 2 thì ẩn "Đổi đệ tử 2"; đã có đệ tử 2 thì ẩn "Đổi đệ tử". Mua qua gói tin cũng bị chặn.
 - Dùng Bình hút năng lượng: hiện hiệu ứng mở giống Capsule kì bí (icon bình hút chuyển thành mặt đệ tử 2 mới), không còn câu chào / thông báo đổi đệ. "Đổi đệ tử 2" cũng không còn câu chào.
+
+### Đợt 139c: giáp tập luyện 5, map Phòng thí nghiệm, câu chào đệ tử 2
+
+- **Giáp tập luyện cấp 5** (thưởng sự kiện) thiếu dòng "Hiệu lực trong # phút", nên mặc tập mà tháo ra không được cộng sức đánh.
+  - Quà sự kiện giờ có sẵn dòng này.
+  - Giáp đã có trong hành trang sẽ tự được bổ sung khi mặc vào.
+- **Phòng thí nghiệm Myuu (166):** đi ngang vào chân bậc đá cao hơn thì rơi xuyên xuống đáy map.
+  - Nguyên nhân: bộ ô gạch 33 khai báo tường sai ô.
+  - Nay theo bố cục bộ 32: mép trái 1/6/11/16/21, mép phải 5/10/15/20/25. vsData 31 để client tải lại.
+- Đổi sang đệ tử 2: đệ lại nói "Xin hãy thu nhận con làm đệ tử" (vẫn giữ hiệu ứng mở như Capsule kì bí).

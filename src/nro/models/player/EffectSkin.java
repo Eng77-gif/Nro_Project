@@ -530,7 +530,11 @@ public class EffectSkin {
     private void updateTrainArmor() {
         if (Util.canDoWithTime(lastTimeAddTimeTrainArmor, 60000) && !Util.canDoWithTime(lastTimeAttack, 30000)) {
             if (this.player.nPoint.wearingTrainArmor) {
-                for (Item.ItemOption io : this.player.inventory.trainArmor.itemOptions) {
+                Item ta = this.player.inventory.trainArmor;
+                if (ta.itemOptions.stream().noneMatch(io -> io.optionTemplate.id == 9)) {
+                    ta.itemOptions.add(new Item.ItemOption(9, 0)); // giáp tập luyện tặng từ sự kiện (cấp 5) thiếu dòng "Hiệu lực trong # phút"
+                }
+                for (Item.ItemOption io : ta.itemOptions) {
                     if (io.optionTemplate.id == 9) {
                         if (io.param < 1000) {
                             io.param++;
