@@ -106,6 +106,12 @@ public class Service {
         }
     }
 
+    /**
+     * Con báo tin của client (InfoMe): mọi sendThongBao ("Bạn nhận được ...") hiện thành bong bóng của con này.
+     * 2 khung bay + ảnh mặt theo hành tinh: Trái Đất mèo trắng, Namếc con xanh, Xayda con tím (như v10).
+     */
+    public static final short[][] CON_MEO = {{281, 361, 351}, {512, 513, 536}, {514, 515, 537}};
+
     public void sendPetFollow(Player player, short smallId) {
         Message msg;
         try {
@@ -915,9 +921,10 @@ public class Service {
                 }
             }
             DataGame.sendHeadAvatar(msg);
-            msg.writer().writeShort(514);
-            msg.writer().writeShort(515);
-            msg.writer().writeShort(537);
+            short[] meo = CON_MEO[Math.max(0, Math.min(2, pl.gender))]; // con báo tin (nhặt / nhận vật phẩm...) theo hành tinh
+            msg.writer().writeShort(meo[0]);
+            msg.writer().writeShort(meo[1]);
+            msg.writer().writeShort(meo[2]);
             msg.writer().writeByte(pl.fusion.typeFusion != ConstPlayer.NON_FUSION ? 1 : 0);
             msg.writer().writeInt(pl.deltaTime);
             msg.writer().writeByte(pl.isNewMember ? 1 : 0);

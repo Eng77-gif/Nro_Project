@@ -956,8 +956,7 @@ public class ShopService {
                 nro.models.utils.Logger.error("Lưu gia hạn mầm lỗi: " + e.getMessage() + "\n");
             }
             String until = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new java.util.Date(player.newMemberUntil));
-            Service.gI().chatJustForMe(player, player, "Thời gian tìm set kích hoạt đến " + until); // bong bóng trên đầu, cạnh con bay theo
-            Service.gI().sendThongBao(player, "Gia hạn mầm thêm " + days + " ngày, tìm set kích hoạt đến " + until);
+            Service.gI().sendThongBao(player, "Gia hạn mầm thêm " + days + " ngày, tìm set kích hoạt đến " + until); // con báo tin nói
             return;
         }
 

@@ -92,17 +92,6 @@ public class Player implements Runnable {
     public long newMemberUntil; // hết "mầm" (35 ngày từ ngày tạo tài khoản): còn mầm đánh quái mới rơi SKH (trừ set Gohan)
 
     /** Còn mầm (tài khoản tạo chưa đủ 35 ngày). */
-    /**
-     * Ai nhắc hạn tìm set kích hoạt: con chim / rồng chibi bay theo chỉ là hình client tự vẽ (gói 31), client 2.4.x không
-     * vẽ bong bóng chat cho nó, nên bong bóng hiện trên đầu nhân vật, ngay cạnh con bay theo; vào map được 3 giây mới nhắc.
-     */
-    public Player mamSpeaker() {
-        if (mamWaitSince == 0) {
-            mamWaitSince = System.currentTimeMillis();
-        }
-        return zone != null && Util.canDoWithTime(mamWaitSince, 3000) ? this : null;
-    }
-
     public boolean hasMam() {
         return System.currentTimeMillis() < newMemberUntil;
     }
@@ -303,7 +292,6 @@ public class Player implements Runnable {
     public long luckyMapUntil;
     private long lastLuckyMapCheck;
     private boolean mamNoticed; // đã nhắc hạn mầm trong lần đăng nhập này
-    private long mamWaitSince; // lúc bắt đầu chờ thú cưng vào map để nhắc hạn mầm
     public long timePKVDST;
 
     public int binhChonHatMit;
@@ -522,10 +510,9 @@ public class Player implements Runnable {
                     if (fusion != null) {
                         fusion.update();
                     }
-                    Player mamBird = !mamNoticed && isPl() && hasMam() ? mamSpeaker() : null;
-                    if (mamBird != null) {
-                        mamNoticed = true; // còn mầm: nhắc hạn tìm set kích hoạt 1 lần mỗi lần đăng nhập (bong bóng cạnh con bay theo)
-                        Service.gI().chatJustForMe(this, mamBird, "Thời gian tìm set kích hoạt đến "
+                    if (!mamNoticed && isPl() && hasMam()) {
+                        mamNoticed = true; // còn mầm: con báo tin theo hành tinh (mèo / con tím...) nhắc hạn tìm set kích hoạt 1 lần mỗi lần đăng nhập
+                        Service.gI().sendThongBao(this, "Thời gian tìm set kích hoạt đến "
                                 + new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new java.util.Date(newMemberUntil)));
                     }
                     if (isPl() && Util.canDoWithTime(lastLuckyMapCheck, 5000)) {
