@@ -204,6 +204,7 @@ public class PanelApi {
             case "box/save" -> boxSave(b);
             case "box/delete" -> boxDelete(b);
             case "nrsd/page" -> nrsdPage(q);
+            case "pets/page" -> petsPage(q);
             case "web/posts/page" -> webPosts(q);
             case "web/post" -> webPost(intv(q.get("id")));
             case "web/post/reply" -> webReply(b);
@@ -1475,6 +1476,131 @@ public class PanelApi {
             r.put("avatar", avatarOf(r.remove("head"), r.remove("items_body")));
         }
         return out;
+    }
+
+    private static final String[] PET_TYPE = {"Đệ tử", "Mabư", "Uub (đệ tử 2)", "Kid Beer (đệ tử 2)", "Kid Jiren (đệ tử 2)"};
+    private static final String[] PLANET = {"Trái Đất", "Namếc", "Xayda"};
+
+    private static String skillName(int id) {
+        for (nro.models.skill.NClass c : new ArrayList<>(Manager.NCLASS)) {
+            for (nro.models.player_system.Template.SkillTemplate t : c.skillTemplatess) {
+                if (t.id == id) {
+                    return t.name;
+                }
+            }
+        }
+        return "Chiêu " + id;
+    }
+
+    /** Đầu đệ tử cho ảnh đại diện (giống Pet.getHead khi không mặc cải trang). */
+    private static int petHead(int type, int gender, long power) {
+        int[] vip = {-1, 297, 946, 1422, 876};
+        if (type >= 1 && type <= 4) {
+            return vip[type];
+        }
+        int g = Math.max(0, Math.min(2, gender));
+        return power < 1_500_000 ? new int[]{285, 288, 282}[g] : new int[]{304, 305, 303}[g];
+    }
+
+    /** Đệ tử của các tài khoản: người đang online lấy dữ liệu trực tiếp, còn lại đọc cột pet trong database. */
+    private Object petsPage(Map<String, String> q) throws Exception {
+        StringBuilder w = new StringBuilder("from player p where p.pet is not null and p.pet like '[%' and length(p.pet) > 10 and (p.name like ? escape '!' or p.id = ?)");
+        List<Object> args = new ArrayList<>(List.of(like(q), idOf(q)));
+        String type = str(q.getOrDefault("type", ""));
+        if (type.matches("[0-4]")) {
+            w.append(" and p.pet like ?");
+            args.add("[\"[" + type + ",%");
+        } else if ("vip".equals(type)) {
+            w.append(" and (p.pet like '[\"[2,%' or p.pet like '[\"[3,%' or p.pet like '[\"[4,%')");
+        }
+        Map<String, Object> out = paged(q, "select p.id player_id, p.name player_name, p.gender, p.head, p.items_body, p.pet", w.toString(), "p.id desc", args.toArray());
+        for (Object o : (List<?>) out.get("rows")) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> r = (Map<String, Object>) o;
+            r.put("avatar", avatarOf(r.remove("head"), r.remove("items_body")));
+            String raw = str(r.remove("pet"));
+            long pid = ((Number) r.get("player_id")).longValue();
+            Player on = Client.gI().getPlayerByID((int) pid);
+            if (on == null) {
+                on = nro.models.Bot.BotWorld.gI().find(pid);
+            }
+            List<Map<String, Object>> skills = new ArrayList<>();
+            List<Map<String, Object>> items = new ArrayList<>();
+            if (on != null && on.pet != null) {
+                nro.models.player.Pet pet = on.pet;
+                nro.models.player.NPoint n = pet.nPoint;
+                fillPet(r, pet.typePet, pet.gender, pet.name, n.power, n.hpg, n.mpg, n.dameg, n.defg, n.critg, n.hpMax, n.mpMax, n.dame);
+                r.put("online", true);
+                for (nro.models.skill.Skill sk : pet.playerSkill.skills) {
+                    if (sk != null && sk.template != null && sk.template.id >= 0) {
+                        skills.add(Map.of("name", sk.template.name, "level", sk.point, "icon", sk.template.iconId));
+                    }
+                }
+                for (Item it : pet.inventory.itemsBody) {
+                    if (it != null && it.isNotNullItem()) {
+                        items.add(Map.of("name", it.template.name, "icon", (int) it.template.iconID, "info", it.getInfo()));
+                    }
+                }
+            } else {
+                JsonArray a = arr(raw);
+                if (a == null || a.size() < 4) {
+                    continue;
+                }
+                JsonArray h = arr(a.get(0).getAsString()), st = arr(a.get(1).getAsString());
+                fillPet(r, h.get(0).getAsInt(), h.get(1).getAsInt(), h.get(2).getAsString(), st.get(1).getAsLong(), st.get(5).getAsLong(), st.get(6).getAsLong(),
+                        st.get(7).getAsLong(), st.get(8).getAsLong(), st.get(9).getAsLong(), -1, -1, -1);
+                r.put("online", false);
+                JsonArray sks = arr(a.get(3).getAsString());
+                for (int i = 0; sks != null && i < sks.size(); i++) {
+                    JsonArray sk = arr(sks.get(i).getAsString());
+                    int id = sk.get(0).getAsInt(), lv = sk.get(1).getAsInt();
+                    if (id >= 0 && lv > 0) {
+                        skills.add(Map.of("name", skillName(id), "level", lv, "icon", skillIcon(id)));
+                    }
+                }
+                JsonArray body = arr(a.get(2).getAsString());
+                for (int i = 0; body != null && i < body.size(); i++) {
+                    JsonArray it = arr(body.get(i).getAsString());
+                    int tid = it.get(0).getAsInt();
+                    nro.models.player_system.Template.ItemTemplate t = tid >= 0 ? ItemService.gI().getTemplate(tid) : null;
+                    if (t != null) {
+                        items.add(Map.of("name", t.name, "icon", (int) t.iconID, "info", ""));
+                    }
+                }
+            }
+            r.put("skills", skills);
+            r.put("items", items);
+        }
+        return out;
+    }
+
+    private static int skillIcon(int id) {
+        for (nro.models.skill.NClass c : new ArrayList<>(Manager.NCLASS)) {
+            for (nro.models.player_system.Template.SkillTemplate t : c.skillTemplatess) {
+                if (t.id == id) {
+                    return t.iconId;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private static void fillPet(Map<String, Object> r, int type, int gender, String name, long power, long hpg, long mpg, long dameg, long defg, long critg,
+            long hpMax, long mpMax, long dame) {
+        r.put("pet_name", name.startsWith("$") ? name.substring(1) : name);
+        r.put("type", type);
+        r.put("type_name", type >= 0 && type < PET_TYPE.length ? PET_TYPE[type] : "Loại " + type);
+        r.put("planet", PLANET[Math.max(0, Math.min(2, gender))]);
+        r.put("power", power);
+        r.put("hpg", hpg);
+        r.put("mpg", mpg);
+        r.put("dameg", dameg);
+        r.put("def", defg * 4);
+        r.put("crit", critg);
+        r.put("hpMax", hpMax);
+        r.put("mpMax", mpMax);
+        r.put("dame", dame);
+        r.put("pet_avatar", avatarOfHead(petHead(type, gender, power)));
     }
 
     /** Tổng quan: số trận hôm nay / 7 ngày, bang và người thắng nhiều nhất 30 ngày, danh sách giải đặc biệt kèm người thắng. */

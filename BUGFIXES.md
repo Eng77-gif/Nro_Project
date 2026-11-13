@@ -2055,3 +2055,16 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Áp dụng khi đệ lên sức mạnh mở chiêu, khi ước rồng đổi chiêu đệ, và khi ước Rồng Xương đổi chiêu (trước chọn đều 1/3).
 - Đệ tử 2 vẫn có bộ chiêu cố định theo hành tinh như video.
 - Hạ thêm: chiêu 2 Kamejoko 5% (Masenko 50%, Antomic 45%); chiêu 3 Thái dương hạ san 5%, Tái tạo năng lượng 5%, Kaioken 90%; chiêu 4 Biến khỉ 2% (Đẻ trứng 73%, Khiên 25%).
+- Chốt lại theo yêu cầu: mỗi chiêu ngon **13%**.
+  - Chiêu 2: Kamejoko 13%, Masenko 44%, Antomic 43%.
+  - Chiêu 3: Thái dương hạ san 13%, Tái tạo năng lượng 13%, Kaioken 74%.
+  - Chiêu 4: Biến khỉ 13%, Đẻ trứng 62%, Khiên năng lượng 25%.
+
+### Đợt 139g: web panel mục Đệ tử
+
+- Mục mới **Người chơi > Đệ tử** (API `pets/page`): danh sách đệ tử của mọi tài khoản, tìm theo tên / ID nhân vật, lọc theo loại đệ (đệ tử 2, đệ thường, Mabư, Uub, Kid Beer, Kid Jiren).
+- Mỗi dòng hiện:
+  - sư phụ (bấm để mở hồ sơ), ảnh đệ, loại đệ + hành tinh, sức mạnh
+  - chỉ số gốc HP / KI / sức đánh / giáp / chí mạng; đang online thì thêm chỉ số đang có
+  - các chiêu kèm cấp, đồ đang mặc
+- Người đang online lấy dữ liệu trực tiếp, còn lại đọc từ database.
