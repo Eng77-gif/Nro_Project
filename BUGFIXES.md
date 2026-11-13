@@ -2120,3 +2120,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Rơi từ cả 3 boss trên (trước chỉ Ma trơi, Dơi), tỉ lệ 50%, cần có Giỏ đựng ngọc bí.
   - Giỏ không còn mất lúc boss chết mà **mất khi nhặt** Bí ngô (`ItemMap.needItem`, `Zone.pickItem`).
 - **Máy dò Ngọc rồng sự kiện (1115):** trước dùng không có tác dụng. Nay mỗi máy 30 phút (cộng dồn) x2 tỉ lệ rơi Bí ngô 1-7 sao từ boss, có ô thời gian. Thời gian còn lại mất khi thoát game.
+- Năng lượng E10 và Máy dò Ngọc rồng sự kiện **không mất thời gian còn lại khi thoát game**: lưu ở `data_item_time` ô 30 (E10) và ô 31 (máy dò), trước đây 2 ô này để trống là 0. Đã thử: dùng xong thoát, vào lại vẫn còn máy dò 1794 giây, E10 591 giây.

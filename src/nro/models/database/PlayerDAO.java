@@ -630,8 +630,8 @@ public class PlayerDAO {
                 dataArray.add((player.itemTime.isUseNuocMia2 ? (ItemTime.TIME_NUOC_MIA2 - (System.currentTimeMillis() - player.itemTime.lastTimeUseNuocMia2)) : 0));
                 dataArray.add((player.itemTime.isUseNuocMia3 ? (ItemTime.TIME_NUOC_MIA3 - (System.currentTimeMillis() - player.itemTime.lastTimeUseNuocMia3)) : 0));
                 dataArray.add((player.itemTime.isUseKilis ? Math.max(0, player.itemTime.lastTimeUseKilis + player.itemTime.timeLengthKilis - System.currentTimeMillis()) : 0));
-                dataArray.add(0);
-                dataArray.add(0);
+                dataArray.add(Math.max(0, player.e10Until - System.currentTimeMillis())); // 30: Năng lượng E10 còn lại
+                dataArray.add(Math.max(0, player.mayDoNrskUntil - System.currentTimeMillis())); // 31: Máy dò Ngọc rồng sự kiện còn lại
                 String itemTime = dataArray.toJSONString();
                 dataArray.clear();
 

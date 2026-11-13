@@ -701,6 +701,9 @@ public class VietLoader {
             player.itemTime.isUseKilis = timeKilis > 0;
             player.itemTime.lastTimeUseKilis = System.currentTimeMillis();
             player.itemTime.timeLengthKilis = Math.max(0, timeKilis);
+            // E10, Máy dò Ngọc rồng sự kiện: thoát game không mất thời gian còn lại
+            player.e10Until = System.currentTimeMillis() + Math.max(0, Math.min(86_400_000L, itemTimeAt(dataArray, 30)));
+            player.mayDoNrskUntil = System.currentTimeMillis() + Math.max(0, Math.min(86_400_000L, itemTimeAt(dataArray, 31)));
             player.itemTime.isUseNuocMia1 = timeNuocMia1 > 0;
             player.itemTime.isUseNuocMia2 = timeNuocMia2 > 0;
             player.itemTime.isUseNuocMia3 = timeNuocMia3 > 0;
