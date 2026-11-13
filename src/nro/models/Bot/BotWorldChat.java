@@ -87,6 +87,16 @@ public final class BotWorldChat {
         nextAt = now + Util.nextInt(60, 180) * 1000L;
     }
 
+    /** Nói ngay 1 câu (panel giao việc), bỏ qua nhịp chung. */
+    static synchronized void sayNow(Bot b) {
+        String t = make(b);
+        if (t != null) {
+            b.inventory.gem = Math.max(b.inventory.gem, 5); // lệnh admin: không bị chặn vì thiếu ngọc / chờ 30 giây
+            b.idMark.setLastTimeChatGlobal(0);
+            nro.models.services.ChatGlobalService.gI().chat(b, t);
+        }
+    }
+
     private static String reply(Bot b, String name, String said) {
         for (String[] r : REPLY) {
             if (r[0].isEmpty() || said.contains(r[0])) {

@@ -2168,3 +2168,17 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - **Đáp người chơi thật:** người chơi thật chat thế giới thì khoảng 35% có 1 bot đáp lại sau 5 - 25 giây, theo từ khoá (boss, bang, nrsd, bán, mua, pk, chào) hoặc câu chung.
 - Chat thế giới của bot không còn phụ thuộc quyền "Ép sao, bông tai..."; chỉ theo quyền Chat.
 - Đã thử: 7 phút chạy máy thử ra các câu khác nhau như "khuya rồi còn ai on không haha", "ai đi khí gas không", "vừa lên 7,8 Tr sức mạnh =))", cách nhau 1 - 3 phút. Chưa thử phần bot đáp người chơi thật.
+
+### Đợt 139v: giao việc cho từng bot
+- Nút "Quyền" ở danh sách bot đổi thành "Điều khiển", thêm mục **Giao việc** (`bot/job`):
+  - **Việc có thể giao:** Luyện tập, Làm nhiệm vụ, Săn boss, Săn đệ, NRSD (lúc đang mở), Úp SKH / doanh trại, PK, Úp vàng, Giải Siêu hạng / ĐHVT 23, Hirudegarn / Kilis / bông tai.
+  - Có thể đặt số phút (0 = làm đến khi đổi). Nút "Trả về tự do".
+  - Bot làm đúng việc được giao, bỏ qua quyền và giới hạn số bot (`BotWorld.doJob`, gọi đầu `switchActivity`). Giao xong bot đổi việc ngay lượt kế.
+  - Chỉ giữ trong bộ nhớ: khởi động lại server thì bot về tự do.
+- **Làm ngay 1 lần** (`bot/once`, chạy ở luồng bot `socialTick`):
+  - Mua & mở hộp đua top: `botBuyTopItems` rồi mở hộp quà; cần đủ ngọc / vàng và đang có đua top.
+  - Mở hết hộp quà trong hành trang.
+  - Sắm / mặc đồ tốt nhất: `BotGear.stepNow`, bỏ thời gian chờ.
+  - Chat thế giới 1 câu: bỏ nhịp chung và thời gian chờ 30 giây.
+- Tách đoạn bắt đầu hoạt động thành `startAction` để dùng chung cho bộ não và giao việc.
+- Đã thử: giao PK 5 phút cho bot brolydark thì 10 giây sau đang "PK"; trả về tự do; việc sai tên bị từ chối; bot chưa vào game thì báo "Bot chưa vào game"; lệnh chat 1 câu ra chat thế giới; giao diện hộp Điều khiển không lỗi JS.

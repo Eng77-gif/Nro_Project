@@ -87,6 +87,27 @@ public class BotEndgame {
         }
     }
 
+    /** Mở liền tối đa max hộp quà (panel giao việc). */
+    static void openBoxes(Bot b, int max) {
+        for (int i = 0; i < max; i++) {
+            int before = boxCount(b);
+            useBoxes(b);
+            if (before == 0 || boxCount(b) >= before) {
+                return; // hết hộp / đầy hành trang
+            }
+        }
+    }
+
+    private static int boxCount(Bot b) {
+        int n = 0;
+        for (Item it : b.inventory.itemsBag) {
+            if (it != null && it.isNotNullItem() && boxes != null && boxes.contains((int) it.template.id)) {
+                n += it.quantity;
+            }
+        }
+        return n;
+    }
+
     /** Nhiệm vụ "Thu thập Capsule kì bí": mua máy dò (5 triệu vàng như cửa hàng) và bật để quái rơi capsule. */
     private static void mayDo(Bot b) {
         if (b.playerTask == null || b.playerTask.taskMain == null || b.playerTask.taskMain.id != 29 || b.playerTask.taskMain.index != 1

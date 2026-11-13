@@ -313,6 +313,115 @@ public final class BotWorld {
         return allow(b, k) && underLimit(b, k);
     }
 
+    // ------------------------------------------------------------------ giao việc cho 1 bot (panel > Bot > Điều khiển)
+    public static final String[][] JOBS = {{"train", "Luyện tập"}, {"quest", "Làm nhiệm vụ"}, {"boss", "Săn boss"}, {"broly", "Săn đệ (Broly)"},
+        {"nrsd", "Ngọc Rồng Sao Đen (lúc đang mở)"}, {"skh", "Úp set kích hoạt / doanh trại"}, {"pk", "PK người chơi"},
+        {"upvang", "Úp vàng (Ngục tù may mắn)"}, {"special", "Giải Siêu hạng / ĐHVT lần 23"}, {"endgame", "Hirudegarn, hút Kilis, up bông tai"}};
+    public static final String[][] ONCE = {{"shoptop", "Mua & mở hộp đua top"}, {"openbox", "Mở hết hộp quà trong hành trang"},
+        {"gear", "Sắm / mặc đồ tốt nhất"}, {"chat", "Chat thế giới 1 câu"}};
+    /** bot id -> {việc, hết hạn (ms, 0 = đến khi đổi)}. Chỉ giữ trong bộ nhớ: khởi động lại server thì bot về tự do. */
+    private static final Map<Long, Object[]> JOB = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Map<Long, java.util.Queue<String>> ONCE_Q = new java.util.concurrent.ConcurrentHashMap<>();
+
+    static String jobOf(long id) {
+        Object[] j = JOB.get(id);
+        if (j == null) {
+            return null;
+        }
+        long until = (long) j[1];
+        if (until > 0 && System.currentTimeMillis() > until) {
+            JOB.remove(id);
+            return null;
+        }
+        return (String) j[0];
+    }
+
+    /** Giao việc: job rỗng / "auto" = trả về tự do; minutes 0 = làm đến khi đổi. Bot đổi việc ở lượt kế (vài giây). */
+    public void setJob(long id, String job, int minutes) {
+        if (job == null || job.isBlank() || "auto".equals(job)) {
+            JOB.remove(id);
+        } else {
+            if (java.util.Arrays.stream(JOBS).noneMatch(x -> x[0].equals(job))) {
+                throw new IllegalArgumentException("Không có việc " + job);
+            }
+            JOB.put(id, new Object[]{job, minutes > 0 ? System.currentTimeMillis() + minutes * 60_000L : 0L});
+        }
+        long[] ns = nextSwitch.get(id);
+        if (ns != null) {
+            ns[0] = 0; // đổi việc ngay lượt kế
+        }
+    }
+
+    /** Việc làm ngay 1 lần (chạy ở luồng bot, lượt socialTick kế). */
+    public void queueOnce(long id, String action) {
+        if (java.util.Arrays.stream(ONCE).noneMatch(x -> x[0].equals(action))) {
+            throw new IllegalArgumentException("Không có việc " + action);
+        }
+        if (find(id) == null) {
+            throw new IllegalStateException("Bot chưa vào game");
+        }
+        ONCE_Q.computeIfAbsent(id, x -> new java.util.concurrent.ConcurrentLinkedQueue<>()).add(action);
+    }
+
+    public java.util.Map<String, Object> jobInfo(long id) {
+        java.util.Map<String, Object> m = new java.util.LinkedHashMap<>();
+        String j = jobOf(id);
+        Object[] raw = JOB.get(id);
+        m.put("job", j == null ? "auto" : j);
+        m.put("until", raw == null ? 0 : raw[1]);
+        Bot b = find(id);
+        m.put("online", b != null);
+        m.put("activity", b == null ? "" : b.activity);
+        m.put("jobs", JOBS);
+        m.put("once", ONCE);
+        return m;
+    }
+
+    private void doJob(Bot b, String job) {
+        switch (job) {
+            case "boss" -> startAction(b, BotBrain.BOSS);
+            case "broly" -> startAction(b, BotBrain.BROLY);
+            case "nrsd" -> startAction(b, nro.models.utils.TimeUtil.isBlackBallWarOpen() ? BotBrain.NRSD : BotBrain.TRAIN);
+            case "skh" -> startAction(b, BotBrain.SKH);
+            case "pk" -> startAction(b, BotBrain.PK);
+            case "upvang" -> {
+                if (!upVang(b)) {
+                    train(b);
+                }
+            }
+            case "special" -> {
+                if (!planSpecial(b, System.currentTimeMillis())) {
+                    train(b);
+                }
+            }
+            case "endgame" -> {
+                if (!BotEndgame.pickActivity(b)) {
+                    train(b);
+                }
+            }
+            default -> train(b); // train, quest (BotQuest dẫn đi làm nhiệm vụ khi đang luyện tập)
+        }
+    }
+
+    private void runOnce(Bot b) {
+        java.util.Queue<String> q = ONCE_Q.get(b.id);
+        String a = q == null ? null : q.poll();
+        if (a == null) {
+            return;
+        }
+        switch (a) {
+            case "shoptop" -> {
+                nro.models.services.SeasonEventService.gI().botBuyTopItems(b);
+                BotEndgame.openBoxes(b, 30);
+            }
+            case "openbox" -> BotEndgame.openBoxes(b, 30);
+            case "gear" -> BotGear.stepNow(b);
+            case "chat" -> BotWorldChat.sayNow(b);
+            default -> {
+            }
+        }
+    }
+
     public List<Bot> bots() {
         List<Bot> out = new ArrayList<>();
         for (Bot b : new ArrayList<>(BotManager.gI().bot)) {
@@ -358,6 +467,13 @@ public final class BotWorld {
         lastSocial = now;
         List<Bot> acc = new ArrayList<>(bots());
         acc.removeIf(x -> !x.accountBot);
+        for (Bot b : acc) {
+            try {
+                runOnce(b);
+            } catch (Exception e) {
+                logError(b, e);
+            }
+        }
         clan.tick(acc.stream().filter(x -> allow(x, "clan")).toList());
         BotTrade.gI().tick(acc.stream().filter(x -> allow(x, "trade")).toList());
         BotQuest.gI().tick(acc);
@@ -907,6 +1023,11 @@ public final class BotWorld {
             return;
         }
         endPk(b);
+        String job = jobOf(b.id);
+        if (job != null) {
+            doJob(b, job); // admin giao việc trên panel: làm đúng việc đó, bỏ qua quyền / giới hạn
+            return;
+        }
         if (b.accountBot && b.playerTask != null && b.playerTask.taskMain != null && b.playerTask.taskMain.id > 10) {
             long now = System.currentTimeMillis(); // xen giữa lúc làm nhiệm vụ như người chơi: mua hộp đua top, đi giải Siêu hạng / ĐHVT 23
             if (allow(b, "shoptop") && now - b.lastShopTop > 10 * 60_000L) {
@@ -956,6 +1077,11 @@ public final class BotWorld {
             BotBrain.begin(b, a);
             return; // thiếu vàng: đi úp vàng ở Ngục tù may mắn (Phiếu sao vàng may mắn)
         }
+        startAction(b, a);
+    }
+
+    /** Bắt đầu 1 hoạt động của bộ não (BotBrain.TRAIN..PK). */
+    private void startAction(Bot b, int a) {
         switch (a) {
             case BotBrain.BOSS -> {
                 b.boss.prefer = null;

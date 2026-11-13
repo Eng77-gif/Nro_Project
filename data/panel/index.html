@@ -423,7 +423,7 @@ async function page_bots(){
       <td data-l="Sức mạnh / nhiệm vụ"><div>${powerLabel(a.power)}<div class="power-progress"><span style="width:${Math.max(0,Math.min(100,100*(Number(a.power)||0)/maxP))}%"></span></div><div class="character-meta">Nhiệm vụ <b>${esc(a.task||'—')}</b></div></div></td>
       <td data-l="Vị trí / bang"><div class="bot-map"><div class="where-name">${esc(a.map||'Chưa vào bản đồ')}</div><div class="character-meta">${esc(a.clan||'Chưa có bang')}</div></div></td>
       <td data-l="Vàng"><span style="font-variant-numeric:tabular-nums;font-weight:550">${a.gold!=null?fmt(a.gold):'—'}</span></td>
-      <td data-l="Thao tác"><div class="bot-actions"><button class="s bot-inspect" data-v="${Number(a.id)}">Xem hành trang</button><button class="s" data-pm="${Number(a.id)}" data-nm="${esc(a.name)}">Quyền</button><button class="s" data-e="${Number(a.id)}" data-on="${a.enabled?0:1}">${a.enabled?'Tắt bot':'Bật bot'}</button><button class="s d" data-x="${Number(a.id)}">Xoá bot</button></div></td></tr>`).join('')}</tbody></table>`:recordEmpty('Không có bot phù hợp','Thử đổi bộ lọc hoặc mở Tạo bot mới để thêm nhân vật.','bot');
+      <td data-l="Thao tác"><div class="bot-actions"><button class="s bot-inspect" data-v="${Number(a.id)}">Xem hành trang</button><button class="s" data-pm="${Number(a.id)}" data-nm="${esc(a.name)}">Điều khiển</button><button class="s" data-e="${Number(a.id)}" data-on="${a.enabled?0:1}">${a.enabled?'Tắt bot':'Bật bot'}</button><button class="s d" data-x="${Number(a.id)}">Xoá bot</button></div></td></tr>`).join('')}</tbody></table>`:recordEmpty('Không có bot phù hợp','Thử đổi bộ lọc hoặc mở Tạo bot mới để thêm nhân vật.','bot');
     document.querySelectorAll('#btb [data-e]').forEach(b=>b.onclick=()=>act(()=>api('bot/account',{id:+b.dataset.e,on:+b.dataset.on}),'Đã lưu').then(pull));
     document.querySelectorAll('#btb [data-v]').forEach(b=>b.onclick=()=>openPlayer(+b.dataset.v));
     document.querySelectorAll('#btb [data-pm]').forEach(b=>b.onclick=()=>botPerm(+b.dataset.pm,b.dataset.nm));
@@ -447,14 +447,26 @@ async function page_bots(){
     const cfg=k=>{const h=document.querySelector(`#bperm [data-h="${k}"]`),l=document.querySelector(`#bperm [data-l="${k}"]`);act(()=>api('bot/permcfg',{k,hours:h.value.trim(),limit:l?+l.value||0:0}),'Đã lưu khung giờ / giới hạn').then(x=>{if(x&&x.perms)permDraw(x)})};
     document.querySelectorAll('#bperm [data-h],#bperm [data-l]').forEach(i=>i.onchange=()=>cfg(i.dataset.h||i.dataset.l));
     document.querySelectorAll('#bperm [data-preset]').forEach(b=>b.onclick=()=>{if(confirm('Áp mẫu "'+b.dataset.preset+'" cho cài đặt chung của toàn bộ bot?'))act(()=>api('bot/preset',{name:b.dataset.preset}),'Đã áp mẫu '+b.dataset.preset).then(x=>{if(x&&x.perms)permDraw(x)})})};
-  const botPerm=async(id,name)=>{const m=modal(`<h3>Quyền riêng: ${esc(name)}</h3><p class="mute" style="font-size:12px">"Theo chung" dùng cài đặt chung của toàn bộ bot. Khung giờ và giới hạn số bot vẫn theo cài đặt chung.</p><div id="bpm">Đang tải...</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="bpm_x">Đóng</button></div>`);
+  const botPerm=async(id,name)=>{const m=modal(`<h3>Điều khiển bot: ${esc(name)}</h3>
+      <div class="section-head"><h3 style="font-size:14px">Giao việc</h3><span class="mute" style="font-size:10px" id="bjs"></span></div>
+      <div class="perm-presets"><select id="bjj" aria-label="Việc"></select><label style="display:flex;align-items:center;gap:6px">trong <input id="bjm" type="number" min="0" placeholder="0" style="width:70px"> phút</label><button id="bjgo">Giao việc</button><button class="s" id="bjfree">Trả về tự do</button></div>
+      <p class="mute" style="font-size:11px;margin:0 0 6px">Bot làm đúng việc được giao (bỏ qua quyền và giới hạn), 0 phút = làm đến khi đổi. Khởi động lại server thì bot về tự do.</p>
+      <div class="perm-presets" id="bjo"><span class="bulk-label">Làm ngay 1 lần</span></div>
+      <div class="section-head" style="margin-top:10px"><h3 style="font-size:14px">Quyền riêng</h3></div>
+      <p class="mute" style="font-size:12px">"Theo chung" dùng cài đặt chung của toàn bộ bot. Khung giờ và giới hạn số bot vẫn theo cài đặt chung.</p><div id="bpm">Đang tải...</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="bpm_x">Đóng</button></div>`);
     m.querySelector('#bpm_x').onclick=()=>m.remove();
     const draw=r=>{m.querySelector('#bpm').innerHTML=`<div class="perm-presets">${r.presets.map(n=>`<button class="s" data-pp="${esc(n)}">${esc(n)}</button>`).join('')}<button class="s d" data-pr="1">Theo chung hết</button></div>`
       +r.perms.map(p=>`<div class="perm-row perm-own"><span>${esc(p.name)}</span><select data-bp="${esc(p.k)}" aria-label="${esc(p.name)}"><option value="-1" ${p.own==null?'selected':''}>Theo chung (${p.on?'được':'cấm'})</option><option value="1" ${p.own===true?'selected':''}>Cho phép</option><option value="0" ${p.own===false?'selected':''}>Cấm</option></select></div>`).join('');
       m.querySelectorAll('[data-bp]').forEach(x=>x.onchange=()=>act(()=>api('bot/perm',{id,k:x.dataset.bp,on:+x.value}),'Đã lưu').then(y=>{if(y&&y.perms)draw(y)}));
       m.querySelectorAll('[data-pp]').forEach(x=>x.onclick=()=>act(()=>api('bot/preset',{id,name:x.dataset.pp}),'Đã áp mẫu '+x.dataset.pp).then(y=>{if(y&&y.perms)draw(y)}));
       m.querySelector('[data-pr]').onclick=()=>act(()=>api('bot/permreset',{id}),'Bot này theo cài đặt chung').then(y=>{if(y&&y.perms)draw(y)})};
-    try{draw(await api('bot/perms?id='+id))}catch(e){m.querySelector('#bpm').textContent=e.message}};
+    const jobDraw=j=>{const sel=m.querySelector('#bjj');sel.innerHTML='<option value="auto">Tự do (bot tự chọn)</option>'+j.jobs.map(x=>`<option value="${esc(x[0])}" ${x[0]===j.job?'selected':''}>${esc(x[1])}</option>`).join('');
+      const nm=(j.jobs.find(x=>x[0]===j.job)||[0,'Tự do'])[1];m.querySelector('#bjs').textContent=(j.online?'Đang: '+(j.activity||'—'):'Bot chưa vào game')+' · Việc giao: '+nm+(j.until>0?' (đến '+new Date(j.until).toLocaleTimeString('vi-VN')+')':'');
+      const o=m.querySelector('#bjo');if(!o.dataset.ok){o.dataset.ok=1;o.insertAdjacentHTML('beforeend',j.once.map(x=>`<button class="s" data-once="${esc(x[0])}">${esc(x[1])}</button>`).join(''));
+        o.querySelectorAll('[data-once]').forEach(x=>x.onclick=()=>act(()=>api('bot/once',{id,action:x.dataset.once})))}};
+    m.querySelector('#bjgo').onclick=()=>act(()=>api('bot/job',{id,job:m.querySelector('#bjj').value,minutes:+m.querySelector('#bjm').value||0}),'Đã giao việc, bot đổi việc trong vài giây').then(j=>{if(j&&j.jobs)jobDraw(j)});
+    m.querySelector('#bjfree').onclick=()=>act(()=>api('bot/job',{id,job:'auto'}),'Bot về tự do').then(j=>{if(j&&j.jobs)jobDraw(j)});
+    try{jobDraw(await api('bot/job?id='+id));draw(await api('bot/perms?id='+id))}catch(e){m.querySelector('#bpm').textContent=e.message}};
   api('bot/perms').then(permDraw).catch(()=>{});
   $('#ba_on').onclick=()=>act(()=>api('bot/all',{on:1}),'Đã bật tất cả bot').then(pull);
   $('#ba_delall').onclick=()=>{if(prompt('Xoá HẲN mọi tài khoản bot (nhân vật, hành trang, không khôi phục được). Bang do bot làm chủ sẽ nhường cho người thật, không còn người thật thì giải tán.\nGõ XOA HET để xác nhận:')==='XOA HET')act(()=>api('bot/deleteall',{confirm:'XOA HET'})).then(pull)};

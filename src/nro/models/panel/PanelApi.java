@@ -134,6 +134,18 @@ public class PanelApi {
                 }
                 yield nro.models.Bot.BotWorld.perms(id);
             }
+            case "bot/job" -> {
+                long id = lng(b.getOrDefault("id", q.getOrDefault("id", "0")));
+                if ("POST".equals(method)) {
+                    nro.models.Bot.BotWorld.gI().setJob(id, str(b.get("job")), (int) lng(b.getOrDefault("minutes", 0)));
+                }
+                yield nro.models.Bot.BotWorld.gI().jobInfo(id);
+            }
+            case "bot/once" -> {
+                long id = lng(b.get("id"));
+                nro.models.Bot.BotWorld.gI().queueOnce(id, str(b.get("action")));
+                yield Map.of("ok", true, "note", "Đã giao, bot làm trong vài giây");
+            }
             case "bot/permcfg" -> {
                 nro.models.Bot.BotWorld.setConfig(str(b.get("k")), (int) lng(b.getOrDefault("limit", 0)), str(b.getOrDefault("hours", "")));
                 yield nro.models.Bot.BotWorld.perms(0);

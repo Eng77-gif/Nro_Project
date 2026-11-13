@@ -25,6 +25,12 @@ final class BotGear {
     private BotGear() {
     }
 
+    /** Làm ngay, bỏ qua thời gian chờ (panel giao việc). */
+    static void stepNow(Bot b) {
+        next.remove(b.id);
+        step(b);
+    }
+
     static void step(Bot b) {
         long now = System.currentTimeMillis();
         if (now < next.getOrDefault(b.id, 0L)) {
