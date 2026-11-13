@@ -2088,3 +2088,9 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 - **Nguyên nhân:** chibi bay theo người chơi được bốc 20% **mỗi giây**, nên chibi hết 10 phút là vài giây sau lại có con mới, gần như lúc nào cũng có. Chibi bay đúng chỗ con báo tin nên che mất con báo tin (nhìn như mất thông báo).
 - **Sửa:** nay mỗi phút chỉ bốc 1 lần với tỉ lệ 3%, trung bình khoảng 33 phút mới gặp 1 con.
+
+### Đợt 139k: Cađíc M vừa phải, con báo tin khi đổi quà cửa hàng sự kiện
+
+- **Cađíc M (95, 118):** vùng 100px tốc độ 1 thì đi lê thê, chồng lên nhau. Nay vùng 50px, tốc độ 2 (như quái đi lại thường). vsData 34.
+- **Đổi quà ở cửa hàng sự kiện (Quy Lão, Chi Chi...):** "Bạn nhận được ..." trước gửi dạng nhân vật tự chat (`chatJustForMe(pl, pl)`). Client chỉ vẽ con báo tin cho thông báo không gắn nhân vật, nên chỉ có bong bóng chữ. Nay gửi bằng `sendThongBao` để con báo tin nói.
+- Kiểm tra: gói đăng nhập gửi đúng con báo tin theo hành tinh (Trái Đất 281/361/351). Ảnh ghép Big x2/x3/x4 đúng hình mèo trắng / chim xanh / dơi tím. Con rồng xanh ở ảnh trước là chibi (icon 5001), không phải con báo tin.
