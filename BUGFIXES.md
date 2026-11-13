@@ -1925,3 +1925,15 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Chi tiết bang (bấm thẻ):** cấp bang, Kho báu / Rắn độc / Khí gas đã qua, doanh trại hôm nay, ngọc NRSD 30 ngày, danh sách thành viên (chức vụ, sức mạnh, đóng góp, ngày vào bang).
 - **Quản lý:** sửa tên / khẩu hiệu / cấp / số thành viên tối đa, đổi chức vụ (đặt bang chủ mới thì bang chủ cũ thành phó bang), đuổi thành viên (cả khi offline), giải tán bang (phải gõ đúng tên bang).
 - File: `panel/PanelClan.java` (mới), `panel/PanelApi.java`, `data/panel/index.html`.
+
+## Đợt 135: panel — trau chuốt các trang còn sơ sài
+
+- **Bảng xếp hạng:** tab theo loại bảng, thẻ tổng quan (số người, dẫn đầu, trung bình top 10, tổng), bục top 3 có avatar, danh sách có thanh so với top 1 và khoảng cách với hạng trên, tìm trong bảng.
+- **Thông báo & quà:** chọn kiểu thông báo kèm mô tả, đếm ký tự, xem trước; tặng quà gọn theo ô; EXP có nút nhanh x1/x2/x3/x5/x10; danh sách thông báo gần đây.
+- **Bảo trì:** thẻ trạng thái / online / RAM / thời gian chạy, lưới công cụ (lưu, nạp lại sự kiện, nạp lại shop, gỡ chặn IP), đếm ngược bảo trì có nút chọn nhanh.
+- **Nhật ký thao tác:** tách thành bảng (lúc, IP, thao tác có màu, chi tiết), lọc theo nội dung và loại thao tác, thẻ thống kê.
+- **Nạp thẻ:** thống kê thẻ / tiền thành công, hiện tên tài khoản, nhà mạng, trạng thái có màu, lọc.
+- **Bản đồ:** thẻ thống kê, lọc theo hành tinh, sắp theo số người / NPC, chỉ map có người.
+- **Quái, Ký gửi, Tài khoản:** kiểu di chuyển của quái, HP rút gọn; ký gửi hiện giá + trạng thái đang bán / đã bán; tài khoản chưa đăng nhập không còn hiện ngày 2002.
+- **Truy vấn SQL:** câu lệnh mẫu, Ctrl+Enter, số dòng + thời gian chạy, tải kết quả CSV.
+- File: `data/panel/index.html`, `panel/PanelApi.java` (nạp thẻ kèm tên tài khoản).

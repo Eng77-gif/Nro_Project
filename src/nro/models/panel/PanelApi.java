@@ -244,7 +244,7 @@ public class PanelApi {
             case "logs" -> PanelServer.LOG.since(lng(q.getOrDefault("since", "0")));
             case "audit" -> audit();
             case "sql" -> sql(str(b.get("query")));
-            case "napthe" -> rows("select * from napthe order by id desc limit 300");
+            case "napthe" -> rows("select n.*, a.username from napthe n left join account a on a.id = n.user_nap order by n.id desc limit 300");
             case "config" -> config();
             case "config/save" -> configSave(b);
             case "maps" -> maps();
