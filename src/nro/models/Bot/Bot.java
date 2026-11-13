@@ -60,43 +60,23 @@ public class Bot extends Player {
         if (this.questMap >= 0) {
             return this.questMap;
         }
-        if (!this.accountBot || Util.isTrue(20, 100)) {
-            return pickTierMap(); // bot giả lập / 1/5 số lần: chọn ngẫu nhiên để còn khám phá map
+        if (!this.accountBot) {
+            return pickTierMap(); // bot giả lập: chọn ngẫu nhiên
         }
-        int best = pickTierMap();
-        for (int t = 0; t < 2; t++) { // rút thêm 2 map hợp sức, lấy map bot đã thấy lên nhanh nhất (BotLearn)
-            int m = pickTierMap();
-            if (BotLearn.score(m) > BotLearn.score(best)) {
-                best = m;
-            }
-        }
-        return best;
+        int m = BotLearn.choose(this, BotLearn.candidates(this, this::pickTierMap)); // tài khoản bot: map đã học là lên nhanh nhất (BotLearn)
+        return m >= 0 ? m : pickTierMap();
     }
 
-    /** Ghi nhận lượt ở map cũ trước khi đổi map (BotLearn chấm điểm map). */
-    private void learnLeave() {
-        if (this.accountBot && this.zone != null && this.zone.map.mapId == this.learnMap && this.nPoint != null) {
-            BotLearn.record(this.learnMap, this.nPoint.power - this.learnPower, System.currentTimeMillis() - this.learnSince, this.deathTotal - this.learnDeaths);
-        }
-    }
-
-    private void learnEnter() {
-        if (this.zone != null && this.nPoint != null) {
-            this.learnMap = this.zone.map.mapId;
-            this.learnPower = this.nPoint.power;
-            this.learnSince = System.currentTimeMillis();
-            this.learnDeaths = this.deathTotal;
-        }
-    }
-
-    private int learnMap = -1, learnDeaths, deathTotal;
+    int learnMap = -1, learnTier, learnDeaths; // lượt luyện tập đang ghi của BotLearn
+    long learnPower, learnGold, learnSince;
+    private long lastLearnTick;
+    private int deathTotal;
     int brainAction = -1, brainTier, brainDeaths; // lượt đang chạy của BotBrain
     long brainPower, brainAt, brainGold, brainGem;
 
     int deaths() {
         return deathTotal;
     }
-    private long learnPower, learnSince;
 
     private int pickTierMap() {
         Random random = new Random();
@@ -226,10 +206,8 @@ public class Bot extends Player {
         }
         Zone zone = getRandomZone(mapId);
         if (zone != null) {
-            learnLeave();
             ChangeMapService.gI().goToMap(this, zone);
             this.zone.load_Me_To_Another(this);
-            learnEnter();
             this.mo1.lastTimeChanM = System.currentTimeMillis();
         }
     }
@@ -322,6 +300,10 @@ public class Bot extends Player {
         }
         super.update();
         this.increasePoint();
+        if (this.accountBot && System.currentTimeMillis() - this.lastLearnTick > 15_000) {
+            this.lastLearnTick = System.currentTimeMillis();
+            BotLearn.tick(this); // ghi / chấm lượt luyện tập ở map (BotLearn)
+        }
         switch (this.type) {
             case 0:
                 this.mo1.update();

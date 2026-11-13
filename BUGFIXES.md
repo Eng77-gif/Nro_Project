@@ -1909,3 +1909,11 @@ Boss sự kiện khác của V10: Tuần Lộc (Giáng sinh), Bé Na (Tết), Th
 - **Thùng rác:** 99 Rác đổi 1 Thùng rác (bấm Sử dụng Rác). Đeo vào, 2 dòng chỉ số ẩn mở ra 2 chỉ số ngẫu nhiên khác nhau (thử nhân phẩm): sức đánh %, HP %, KI %, chí mạng, sức đánh chí mạng, né đòn, giảm sát thương, phản sát thương, hồi HP / KI mỗi 30 giây, tiềm năng sức mạnh, vàng từ quái. Rác rơi lại ở quái (tối đa 99 / ngày), boss Đội Hỏa Tiễn rơi 5 - 10 Rác.
 - **Bỏ thông báo "Bạn vừa nhận được 1 chỉ số Kilis!"** khi đánh quái ở map Cađíc (chỉ số vẫn cộng như cũ).
 - **Thông báo khi mua / đổi ở cửa hàng sự kiện (Chi Chi, Quy Lão...)** như bản chính thức (video hướng dẫn sự kiện hè 2): chữ "Bạn nhận được ..." hiện trên đầu nhân vật (chỉ mình thấy), không ghi số ngày hạn dùng hay "vĩnh viễn", nhận 1 món thì không ghi "x1".
+
+## Đợt 133: làm lại Bot learn (bot tự rút kinh nghiệm chọn map luyện tập)
+Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạnh tăng tuyệt đối dùng chung mọi bot (map của bot 100 tỷ luôn "tốt nhất"), chỉ ghi được khi bot tự đổi map luyện tập (bị kéo đi săn boss, nhiệm vụ... là mất lượt), map chưa thử luôn được điểm cao nhất, mỗi lần chỉ so 3 map ngẫu nhiên.
+- **Kinh nghiệm theo bậc sức mạnh** (như BotBrain): mỗi bậc có bảng map riêng, bậc ít dữ liệu mượn kinh nghiệm 2 bậc kề bên.
+- **Ghi lượt chắc chắn:** cứ 15 giây kiểm tra, bot đang luyện tập / làm nhiệm vụ ở map nào thì ghi lượt, rời map hoặc đổi việc là chấm ngay (từ 1 phút trở lên).
+- **Điểm nhiều mục tiêu:** 8·log10(1 + ‰ sức mạnh tăng / phút) + 2·log10(1 + vàng / phút / 1 Tr) − 4 · số lần chết / phút.
+- **Chọn map:** gom các map hợp sức, bỏ map chưa đi được / quá mạnh, chọn theo UCB1 (điểm + thưởng cho map ít thử), 10% ngẫu nhiên để khám phá.
+- Lưu bảng bot_map_learn 5 phút / lần. Panel trang AI: "Map luyện tập tốt nhất" hiện 3 map tốt nhất của từng bậc sức mạnh; nút "Học lại từ đầu" xoá cả kinh nghiệm chọn map.

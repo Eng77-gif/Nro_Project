@@ -234,6 +234,7 @@ public final class BotBrain {
         }
         episodes = 0;
         RECENT.clear();
+        BotLearn.reset(); // học lại cả kinh nghiệm chọn map
         try {
             LocalManager.executeUpdate("delete from bot_brain");
         } catch (Exception e) {
@@ -271,7 +272,7 @@ public final class BotBrain {
         m.put("table", rows);
         List<double[]> rec = new ArrayList<>(RECENT);
         m.put("recent", rec.subList(Math.max(0, rec.size() - 120), rec.size()));
-        m.put("maps", BotLearn.top(15));
+        m.put("maps", BotLearn.top(36)); // 3 map tốt nhất của mỗi bậc sức mạnh
         return m;
     }
 }
