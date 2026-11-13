@@ -549,8 +549,9 @@ public class Player implements Runnable {
                     if (this.nPoint.timeXinbatoBuff + 10_000 < System.currentTimeMillis()) {
                         this.nPoint.tlNeDonBuffXinbato = 0;
                     }
-                    if (this.isPl() && !this.isBot && !this.isDie() && this.effectSkill != null && !this.effectSkill.isChibi && Util.canDoWithTime(lastTimeChibi, 1000)) {
-                        if (Util.isTrue(20, 100) && !MapService.gI().isMapBlackBallWar(this.zone.map.mapId)) {
+                    if (this.isPl() && !this.isBot && !this.isDie() && this.effectSkill != null && !this.effectSkill.isChibi && Util.canDoWithTime(lastTimeChibi, 60_000)) {
+                        // trước 20% mỗi giây: chibi gần như lúc nào cũng bay theo, che con báo tin; nay mỗi phút 3% (trung bình ~33 phút mới gặp 1 con)
+                        if (Util.isTrue(3, 100) && !MapService.gI().isMapBlackBallWar(this.zone.map.mapId)) {
                             EffectSkillService.gI().setChibi(this, 600000);
                         }
                         lastTimeChibi = System.currentTimeMillis();

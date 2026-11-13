@@ -2083,3 +2083,8 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 - **Nguyên nhân:** client cho quái đi qua lại trong ±`range_move` pixel quanh điểm xuất phát (Mob.cs). 33px quá ngắn so với thân Cađíc M, vừa nhích đã chạm mép quay đầu nên nhìn như xoay vòng.
 - **Sửa:** cả 2 mẫu Cađíc M (95 và 118) nới vùng đi lên 100px (Dot133Migration, chạy mỗi lần khởi động). vsData 33 để client tải lại.
+
+### Đợt 139j: chibi xuất hiện ít, con báo tin hết bị che
+
+- **Nguyên nhân:** chibi bay theo người chơi được bốc 20% **mỗi giây**, nên chibi hết 10 phút là vài giây sau lại có con mới, gần như lúc nào cũng có. Chibi bay đúng chỗ con báo tin nên che mất con báo tin (nhìn như mất thông báo).
+- **Sửa:** nay mỗi phút chỉ bốc 1 lần với tỉ lệ 3%, trung bình khoảng 33 phút mới gặp 1 con.
