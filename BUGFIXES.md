@@ -1998,3 +1998,37 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Nguyên nhân: bộ ô gạch 33 khai báo tường sai ô.
   - Nay theo bố cục bộ 32: mép trái 1/6/11/16/21, mép phải 5/10/15/20/25. vsData 31 để client tải lại.
 - Đổi sang đệ tử 2: đệ lại nói "Xin hãy thu nhận con làm đệ tử" (vẫn giữ hiệu ứng mở như Capsule kì bí).
+
+### Đợt 139d: Santa xếp đúng theo ảnh bản chính thức
+
+- **Cửa hàng** (Dot139Migration, chạy mỗi lần khởi động), từ trên xuống:
+  1. Mảnh vỡ bông tai 49 (số lượng 10)
+  2. Đá xanh lam 149
+  3. Nâng kỹ năng 4/3/2/1 đệ tử (500/150... như cũ)
+  4. Đổi đệ tử 100 (chỉ người có đệ tử 1 thấy)
+  5. Đặt tên đệ tử 20
+  6. Đổi đệ tử 2 999 (chỉ người có đệ tử 2 thấy)
+  7. Thỏi vàng 37tr vàng
+  8. Rađa kho báu 2
+  9. Cap thời trang 5 ngày 150tr vàng, Cap thời trang 7 ngày 99
+  10. Lọ nước phép 50
+  11. Cá Chà Bá 1999 (SĐ+12%)
+  12. Bìa sách 10tr vàng
+  13. Kìm bấm giấy 20 ngọc, Bùa giám định 20 ngọc
+  14. Môtô Bun ma 2499 (HP+7%)
+  15. Chìa khóa vàng 2
+  16. Cánh thiên thần 3 (Đệ) 5999 (2 dòng chỉ số ẩn, dành cho đệ tử 2)
+  17. Khẩu trang 2 (tấn công +10% khi đánh quái)
+  - Trang sách cũ không còn bán ở tab này.
+- **Hỗ trợ** (Dot133Migration.HO_TRO), từ trên xuống:
+  1. Năng lượng E10
+  2. Phiếu sao vàng may mắn
+  3. Gia hạn mầm
+  4. Giáp tập luyện cấp 4
+  5. Loa to thế giới, Loa to liên vũ trụ
+  6. Cỏ bốn lá
+  7. Bùa x2 tn,sm đệ tử
+  8. Tự động luyện tập 1/2/3
+  9. Giáp tập luyện 1/2/3 (ngọc), Giáp tập luyện 1/2/3 (vàng)
+  10. Vé riêng tư
+  - Loa to và Bùa x2 có dòng "Không thể giao dịch".

@@ -20,8 +20,8 @@ public class Dot133Migration {
      * Cửa hàng Santa tab "Hỗ trợ" (34) xếp theo create_time giảm dần (ShopDAO): đặt lại để món cùng nhóm đứng cạnh nhau.
      * {temp_id, type_sell} theo thứ tự từ trên xuống; type_sell 1 ngọc, 0 vàng.
      */
-    static final int[][] HO_TRO = {{521, 1}, {1523, 1}, {1524, 1}, {529, 1}, {530, 1}, {531, 1}, {1716, 1}, {534, 0}, {535, 0}, {536, 0},
-        {1635, 1}, {1628, 1}, {2035, 1}, {2021, 1}, {1717, 1}, {1703, 1}, {1652, 1}, {1653, 1}, {1825, 1}};
+    static final int[][] HO_TRO = {{2035, 1}, {2021, 1}, {1717, 1}, {1703, 1}, {1716, 1}, {1652, 1}, {1653, 1}, {1635, 1}, {1628, 1},
+        {521, 1}, {1523, 1}, {1524, 1}, {529, 1}, {530, 1}, {531, 1}, {534, 0}, {535, 0}, {536, 0}, {1825, 1}}; // theo ảnh bản chính thức
 
     static void sortHoTro(Connection con) throws Exception {
         for (int i = 0; i < HO_TRO.length; i++) {
@@ -35,6 +35,11 @@ public class Dot133Migration {
             // Cađíc M đi lại như v10 (loại 1, vùng 33, tốc độ 1): vùng 0 làm client cho nó quay qua quay lại tại chỗ liên tục
             update(con, "update mob_template set type = 1, range_move = 33, speed = 1 where id = 95 and (type <> 1 or range_move <> 33 or speed <> 1)");
             sortHoTro(con);
+            // Loa to, Bùa x2 đệ tử: dòng "Không thể giao dịch" như bản chính thức
+            for (int id : new int[]{1628, 1652, 1653}) {
+                update(con, "insert into item_shop_option (item_shop_id, option_id, param) select s.id, 30, 0 from item_shop s where s.tab_id = 34 and s.temp_id = " + id
+                        + " and not exists (select 1 from item_shop_option o where o.item_shop_id = s.id and o.option_id = 30)");
+            }
             if (exists(con, "select 1 from server_migration where name = 'dot133_cadic_co4la'")) {
                 return;
             }
