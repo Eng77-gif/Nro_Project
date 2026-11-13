@@ -121,7 +121,16 @@ public class ShopService {
                 t.itemShops.removeIf(it -> it.temp != null && (it.temp.id == 1703 || it.temp.id == 1717));
             }
         }
+        // đã có đệ tử 2 thì ẩn "Đổi đệ tử", chưa có thì ẩn "Đổi đệ tử 2"
+        int hidePet = hiddenPetItem(player);
+        for (TabShop t : res.tabShops) {
+            t.itemShops.removeIf(it -> it.temp != null && it.temp.id == hidePet);
+        }
         return res;
+    }
+
+    private static int hiddenPetItem(Player player) {
+        return nro.models.services.PetService.isPet2(player.pet) ? 401 : 1890;
     }
 
     private static boolean canExtendMam(Player player) {
@@ -925,6 +934,10 @@ public class ShopService {
             return;
         }
 
+        if (itemTempId == hiddenPetItem(player)) {
+            Service.gI().sendThongBao(player, itemTempId == 401 ? "Bạn đã có đệ tử 2" : "Chỉ dùng được khi đã có đệ tử 2");
+            return;
+        }
         if ((itemTempId == 1703 || itemTempId == 1717) && !canExtendMam(player)) {
             Service.gI().sendThongBao(player, player.mamExtended ? "Mỗi tài khoản chỉ được gia hạn mầm 1 lần" : "Tài khoản đã hết mầm, không thể gia hạn");
             return;

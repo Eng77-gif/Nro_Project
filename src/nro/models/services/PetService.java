@@ -2,6 +2,7 @@ package nro.models.services;
 
 import nro.models.consts.ConstPlayer;
 import nro.models.player.NewPet;
+import nro.models.player.NPoint;
 import nro.models.player.Pet;
 import nro.models.player.Player;
 import nro.models.map.service.ChangeMapService;
@@ -130,6 +131,8 @@ public class PetService {
         {Skill.GALICK, Skill.MASENKO, Skill.KAIOKEN, Skill.DE_TRUNG}};
     /** Hình dạng theo hành tinh: Trái Đất Uub (2), Namếc Jiren (4), Xayda Kid Beer (3). */
     static final byte[] PET2_TYPE = {2, 4, 3};
+    /** Chỉ số gốc tối đa của đệ tử 2 (= mốc cuối của đệ tử 1 +30%). */
+    public static final int PET2_HPMP_MAX = 747_000, PET2_DAME_MAX = 33_800;
 
     public static boolean isPet2(Pet pet) {
         return pet != null && (pet.typePet == 2 || pet.typePet == 3 || pet.typePet == 4);
@@ -139,10 +142,16 @@ public class PetService {
     public void createPet2(Player player) {
         long power = 40_000_000_000L;
         byte limitPower = 0;
+        long[] base = null; // hp, mp, dame, def, crit gốc của đệ mới
         if (player.pet != null) {
-            limitPower = player.pet.nPoint.limitPower;
-            if (isPet2(player.pet)) {
-                power = Math.max(power, player.pet.nPoint.power);
+            NPoint o = player.pet.nPoint;
+            limitPower = o.limitPower;
+            if (isPet2(player.pet)) { // đổi lại đệ tử 2: giữ sức mạnh và chỉ số gốc
+                power = Math.max(power, o.power);
+                base = new long[]{o.hpg, o.mpg, o.dameg, o.defg, o.critg};
+            } else { // từ đệ tử 1: chỉ số gốc +30%, tối đa HP/KI 747k, sức đánh 33800
+                base = new long[]{Math.min(PET2_HPMP_MAX, o.hpg * 13 / 10), Math.min(PET2_HPMP_MAX, o.mpg * 13 / 10),
+                    Math.min(PET2_DAME_MAX, o.dameg * 13 / 10), o.defg * 13 / 10, o.critg * 13 / 10};
             }
             if (player.fusion.typeFusion != ConstPlayer.NON_FUSION) {
                 player.pet.unFusion();
@@ -157,6 +166,13 @@ public class PetService {
         Pet pet = player.pet;
         pet.nPoint.power = power;
         pet.nPoint.limitPower = limitPower;
+        if (base != null) {
+            pet.nPoint.hpg = base[0];
+            pet.nPoint.mpg = base[1];
+            pet.nPoint.dameg = base[2];
+            pet.nPoint.defg = base[3];
+            pet.nPoint.critg = (int) base[4];
+        }
         pet.playerSkill.skills.clear();
         for (byte id : PET2_SKILLS[gender]) {
             pet.playerSkill.skills.add(SkillUtil.createSkill(id, 1));

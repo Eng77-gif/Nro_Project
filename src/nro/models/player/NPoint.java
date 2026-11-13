@@ -2527,7 +2527,22 @@ public class NPoint {
         }
     }
 
+    private boolean isPet2() {
+        return this.player instanceof Pet p && nro.models.services.PetService.isPet2(p);
+    }
+
+    /** Đệ tử 2: mốc đệ tử 1 +30%, tối đa HP/KI 747k, sức đánh 33800. */
     public int getHpMpLimit() {
+        int v = hpMpLimitBase();
+        return isPet2() ? Math.min(nro.models.services.PetService.PET2_HPMP_MAX, v * 13 / 10) : v;
+    }
+
+    public int getDameLimit() {
+        int v = dameLimitBase();
+        return isPet2() ? Math.min(nro.models.services.PetService.PET2_DAME_MAX, v * 13 / 10) : v;
+    }
+
+    private int hpMpLimitBase() {
         switch (limitPower) {
             case 0:
                 return 220000;
@@ -2554,7 +2569,7 @@ public class NPoint {
         }
     }
 
-    public int getDameLimit() {
+    private int dameLimitBase() {
         switch (limitPower) {
             case 0:
                 return 11000;

@@ -1979,3 +1979,11 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Nhập OK thì đổi sang đệ tử 2 khác ngẫu nhiên, giữ sức mạnh.
   - Chỉ dùng được khi đã có đệ tử 2 và đệ không mặc đồ.
 - Bot tự thu đồ của đệ về hành trang trước khi dùng bình hút.
+
+### Đợt 139b: chỉ số đệ tử 2 theo đệ tử 1, ẩn món đổi đệ trong Santa
+
+- Đổi đệ tử 1 sang đệ tử 2 (Bình hút năng lượng): HP, KI, sức đánh, giáp, chí mạng gốc = của đệ tử 1 +30%.
+  - HP và KI gốc tối đa 747k, sức đánh gốc tối đa 33800.
+  - Đổi lại bằng "Đổi đệ tử 2" thì giữ nguyên chỉ số gốc, không cộng 30% lần nữa.
+- Mức cộng tiềm năng tối đa của đệ tử 2 = mức của đệ tử 1 +30% (trần 747k / 33800). Giáp và chí mạng vẫn theo mức cũ.
+- Santa: chưa có đệ tử 2 thì ẩn "Đổi đệ tử 2"; đã có đệ tử 2 thì ẩn "Đổi đệ tử". Mua qua gói tin cũng bị chặn.
