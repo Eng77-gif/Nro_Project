@@ -2094,3 +2094,9 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Cađíc M (95, 118):** vùng 100px tốc độ 1 thì đi lê thê, chồng lên nhau. Nay vùng 50px, tốc độ 2 (như quái đi lại thường). vsData 34.
 - **Đổi quà ở cửa hàng sự kiện (Quy Lão, Chi Chi...):** "Bạn nhận được ..." trước gửi dạng nhân vật tự chat (`chatJustForMe(pl, pl)`). Client chỉ vẽ con báo tin cho thông báo không gắn nhân vật, nên chỉ có bong bóng chữ. Nay gửi bằng `sendThongBao` để con báo tin nói.
 - Kiểm tra: gói đăng nhập gửi đúng con báo tin theo hành tinh (Trái Đất 281/361/351). Ảnh ghép Big x2/x3/x4 đúng hình mèo trắng / chim xanh / dơi tím. Con rồng xanh ở ảnh trước là chibi (icon 5001), không phải con báo tin.
+
+### Đợt 139l: Cađíc M — lỗi gốc là client không tải lại mẫu quái
+
+- Mẫu quái (loại, vùng đi, tốc độ) gửi trong gói bản đồ (`DataGame.updateMap`), gắn với **vsMap** chứ không phải vsData. Các lần chỉnh vùng / tốc độ Cađíc M trước đó không tới được client: client vẫn dùng mẫu quái cũ đã lưu.
+- Nay Cađíc M (95, 118) để như đa số quái đi lại: vùng 33px, tốc độ 2. vsMap 9 để client tải lại thật.
+- Đã kiểm tra: gói bản đồ gửi về có vsMap 9, Cađíc M hp 6.000.000, vùng 33, tốc độ 2.
