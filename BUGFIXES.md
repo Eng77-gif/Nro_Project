@@ -1987,3 +1987,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Đổi lại bằng "Đổi đệ tử 2" thì giữ nguyên chỉ số gốc, không cộng 30% lần nữa.
 - Mức cộng tiềm năng tối đa của đệ tử 2 = mức của đệ tử 1 +30% (trần 747k / 33800). Giáp và chí mạng vẫn theo mức cũ.
 - Santa: chưa có đệ tử 2 thì ẩn "Đổi đệ tử 2"; đã có đệ tử 2 thì ẩn "Đổi đệ tử". Mua qua gói tin cũng bị chặn.
+- Dùng Bình hút năng lượng: hiện hiệu ứng mở giống Capsule kì bí (icon bình hút chuyển thành mặt đệ tử 2 mới), không còn câu chào / thông báo đổi đệ. "Đổi đệ tử 2" cũng không còn câu chào.

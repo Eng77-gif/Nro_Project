@@ -1444,9 +1444,12 @@ public class UseItem {
         if (player.mabuEgg != null) {
             player.mabuEgg.destroyEgg(); // trứng Mabư dùng làm điều kiện, đổi đệ tử 2 thì trứng mất
         }
+        short jarIcon = item.template.iconID;
         InventoryService.gI().removeItemBag(player, item);
         InventoryService.gI().sendItemBags(player);
         PetService.gI().createPet2(player);
+        // hiệu ứng mở như Capsule kì bí (bình hút -> mặt đệ tử 2), không thông báo đổi đệ
+        nro.models.combine.CombineService.gI().sendEffectOpenItem(player, jarIcon, PetService.pet2HeadIcon(player.pet));
     }
 
     /** Đệ tử còn mặc đồ thì không đổi (như bản gốc): báo và trả true. */

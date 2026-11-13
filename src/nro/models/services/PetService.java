@@ -182,13 +182,11 @@ public class PetService {
         }
         pet.nPoint.calPoint();
         pet.nPoint.setFullHpMp();
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                Service.gI().chatJustForMe(player, player.pet, "Xin hãy thu nhận tao làm đệ tử");
-            } catch (Exception e) {
-            }
-        }).start();
+    }
+
+    /** Ảnh mặt đệ tử 2 (khung đầu tiên của part đầu Uub / Kid Beer / Jiren) cho hiệu ứng mở như Capsule kì bí. */
+    public static short pet2HeadIcon(Pet pet) {
+        return (short) (pet.typePet == 3 ? 12793 : pet.typePet == 4 ? 8063 : 11625);
     }
 
     public void changeNormalPet(Player player, int gender) {
