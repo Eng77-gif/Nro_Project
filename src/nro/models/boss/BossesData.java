@@ -2629,13 +2629,13 @@ public class BossesData {
             new String[]{}, new String[]{}, new String[]{}, 3600);
 
     public static final BossData MUSASHI = new BossData(
-            "Musashi", ConstPlayer.TRAI_DAT, new short[]{1863, 1864, 1865, -1, -1, -1}, 3000, new long[]{1500}, //hp (mỗi đòn 1 HP)
+            "Musashi", ConstPlayer.TRAI_DAT, new short[]{2361, 2362, 2363, -1, -1, -1}, 30000, new long[]{40_000_000}, // hình Cải trang Musashi
             new int[]{5, 13, 20, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38},
             new int[][]{{Skill.TROI, 1, 120000}, {Skill.MASENKO, 7, 1000}, {Skill.GALICK, 7, 1000}},
             new String[]{}, new String[]{"|-1|Hahaha"}, new String[]{"|-1|Hahaha"}, REST_1_M);
 
     public static final BossData KOCHIRO = new BossData(
-            "Kochiro", ConstPlayer.TRAI_DAT, new short[]{1860, 1861, 1862, -1, -1, -1}, 3000, new long[]{2000}, //hp (mỗi đòn 1 HP)
+            "Kochiro", ConstPlayer.TRAI_DAT, new short[]{2358, 2359, 2360, -1, -1, -1}, 30000, new long[]{100_000_000}, // hình Cải trang Kochiro
             new int[]{5, 13, 20, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38},
             new int[][]{{Skill.DEMON, 2, 1000}, {Skill.MASENKO, 3, 1000}},
             new String[]{}, new String[]{}, new String[]{"|-1|Cay quá!", "|-1|Ta mà lại thua được sao?", "|-1|Hãy trả thù cho ta!"}, REST_1_M);
@@ -2643,9 +2643,9 @@ public class BossesData {
     public static final BossData MEOWTH = new BossData(
             "Meowth", //name
             ConstPlayer.TRAI_DAT, //gender
-            new short[]{1866, 1867, 1868, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
-            17000, //dame
-            new long[]{2000}, //hp (mỗi đòn 1 HP)
+            new short[]{2316, 2317, 2318, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}: hình Pet Meowth
+            30000, //dame
+            new long[]{100_000_000}, //hp (video sự kiện hè 3: Meowth ~97 triệu HP, đánh mất máu thật)
             new int[]{5, 13, 20, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38}, //map join
             new int[][]{{Skill.DEMON, 7, 1000}, {Skill.MASENKO, 7, 1000}},
             new String[]{}, //text chat 1

@@ -888,6 +888,19 @@ public class UseItem {
                             case 726:
                                 UseItem.gI().ItemManhGiay(pl, item);
                                 break;
+                            case 1895: // Rác (sự kiện hè 3): đổi lấy Thùng rác, 2 dòng chỉ số ẩn hiện ra khi đeo
+                                if (InventoryService.gI().getCountEmptyBag(pl) <= 0) {
+                                    Service.gI().sendThongBao(pl, "Hành trang không đủ chỗ trống");
+                                    break;
+                                }
+                                InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+                                Item trash = ItemService.gI().createNewItem((short) 1891);
+                                trash.itemOptions.add(new Item.ItemOption(210, 2));
+                                trash.itemOptions.add(new Item.ItemOption(30, 0));
+                                InventoryService.gI().addItemBag(pl, trash);
+                                InventoryService.gI().sendItemBags(pl);
+                                Service.gI().sendThongBao(pl, "Bạn nhận được Thùng rác");
+                                break;
                             case 727:
                             case 728:
                                 UseItem.gI().ItemSieuThanThuy(pl, item);
