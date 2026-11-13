@@ -36,7 +36,6 @@ public class BotEndgame {
         dressPet(b);
         useBoxes(b);
         mayDo(b);
-        worldChat(b);
         flag(b);
     }
 
@@ -105,19 +104,11 @@ public class BotEndgame {
         }
     }
 
-    private static final String[] WORLD_CHAT = {"ai pt săn boss không ae", "bán đồ thần giá rẻ, ib", "cần tìm bang hoạt động ae ơi",
-        "đi NRSD tối nay không mọi người", "ai up bông tai cùng không", "server vui ghê", "mua đá nâng cấp số lượng lớn",
-        "tuyển thành viên bang, ae vào chơi cùng", "có ai biết Hirudegarn mấy giờ ra không", "pk không ae"};
-
-    /** Thỉnh thoảng chat thế giới (tốn ngọc như người chơi, thiếu ngọc đổi tiềm năng). */
-    private static void worldChat(Bot b) {
-        if (b.nPoint.power <= 1_500_000 || !Util.isTrue(1, 150)) {
-            return; // khoảng 1 lần / 40 phút mỗi bot
+    /** Chat thế giới (tốn ngọc như người chơi, thiếu ngọc đổi tiềm năng); câu và nhịp do BotWorldChat lo. */
+    static void worldChat(Bot b) {
+        if (b.nPoint.power > 1_500_000 && (b.inventory.gem >= 5 || payGemTo(b, 5))) {
+            BotWorldChat.tick(b);
         }
-        if (b.inventory.gem < 5 && !payGemTo(b, 5)) {
-            return;
-        }
-        nro.models.services.ChatGlobalService.gI().chat(b, WORLD_CHAT[Util.nextInt(0, WORLD_CHAT.length - 1)]);
     }
 
     private static boolean payGemTo(Bot b, int n) {

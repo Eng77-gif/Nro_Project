@@ -2157,3 +2157,14 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - API panel: `bot/perms?id=`, `bot/perm` (thêm `id`, `on: -1` = theo chung), `bot/permcfg`, `bot/preset`, `bot/permreset`.
 - Đã thử: đặt / đọc khung giờ và giới hạn; khung giờ sai bị từ chối và không đổi gì; quyền riêng, mẫu cài sẵn cho 1 bot, reset; giao diện panel và hộp Quyền không lỗi JS.
 - Chưa thử: giới hạn số bot săn boss lúc chạy thật, vì bot máy thử còn cấp thấp, chỉ luyện tập / làm nhiệm vụ.
+
+### Đợt 139u: chat thế giới của bot không lặp nữa
+- Trước: 10 câu cố định, mỗi bot khoảng 40 phút 1 câu. Nhiều bot cộng lại thành kênh thế giới lặp liên tục.
+- Nay `BotWorldChat`:
+  - **Ghép câu từ mẫu:** 7 nhóm (rủ săn boss, rủ đi cùng, mua bán, bang hội, kể chuyện / khoe, hỏi han, tán gẫu), khoảng 60 mẫu.
+  - **Điền theo tình huống thật của bot:** bản đồ, khu, việc đang làm, tên bang, sức mạnh, giờ trong ngày, tên boss và vật phẩm ngẫu nhiên, cộng đuôi câu ("ae", "nha", ":))"...).
+  - **Không lặp:** không nói lại câu trùng 60 câu gần nhất.
+  - **Nhịp chung:** cả server tối đa 1 câu bot mỗi 1 - 3 phút, nhiều bot cũng không dồn kênh.
+  - **Đáp người chơi thật:** người chơi thật chat thế giới thì khoảng 35% có 1 bot đáp lại sau 5 - 25 giây, theo từ khoá (boss, bang, nrsd, bán, mua, pk, chào) hoặc câu chung.
+- Chat thế giới của bot không còn phụ thuộc quyền "Ép sao, bông tai..."; chỉ theo quyền Chat.
+- Đã thử: 7 phút chạy máy thử ra các câu khác nhau như "khuya rồi còn ai on không haha", "ai đi khí gas không", "vừa lên 7,8 Tr sức mạnh =))", cách nhau 1 - 3 phút. Chưa thử phần bot đáp người chơi thật.

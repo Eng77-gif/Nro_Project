@@ -90,6 +90,7 @@ public class ChatGlobalService implements Runnable {
                     Service.gI().sendMoney(player);
                     player.idMark.setLastTimeChatGlobal(System.currentTimeMillis());
                     waitingChat.add(new ChatGlobal(player, text.length() > 100 ? text.substring(0, 100) : text));
+                    nro.models.Bot.BotWorldChat.onPlayerChat(player, text); // bot thỉnh thoảng đáp lại người chơi thật
                 } else {
                     Service.gI().sendThongBao(player, "Sức mạnh phải ít nhất 1tr5 sức mạnh mới có thể chat thế giới");
                 }
