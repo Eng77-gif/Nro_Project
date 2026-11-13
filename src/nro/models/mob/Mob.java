@@ -223,8 +223,7 @@ public class Mob {
                         }
 
                         if (updated) {
-                            InventoryService.gI().sendItemBags(plAtt);
-                            Service.gI().sendThongBao(plAtt, "Bạn vừa nhận được 1 chỉ số Kilis!");
+                            InventoryService.gI().sendItemBags(plAtt); // không báo "nhận được 1 chỉ số Kilis" (theo yêu cầu)
                         }
                     }
                 }

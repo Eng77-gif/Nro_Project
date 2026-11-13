@@ -1372,7 +1372,7 @@ public class SeasonEventService implements Runnable {
                                 days = e.rewardDays[Util.nextInt(0, e.rewardDays.length - 1)];
                             }
                             InventoryService.gI().addItemBag(pl, noTrade(Event2026Service.gI().createItem(e.rewardItem, 1, days)));
-                            got.add(rewardName + (e.rewardDays.length > 0 ? (days > 0 ? " (" + days + " ngày)" : " (vĩnh viễn)") : ""));
+                            got.add(rewardName); // không ghi số ngày trong thông báo (hạn dùng xem ở vật phẩm)
                         }
                     }
                 }
@@ -1407,6 +1407,8 @@ public class SeasonEventService implements Runnable {
                         ServerNotify.gI().notify("Chúc mừng " + pl.name + " đã ước được " + g + " tại Bà Hạt Mít");
                     }
                 }
+            } else if (!got.isEmpty() && pl.isPl()) { // mua / đổi ở cửa hàng sự kiện (Chi Chi, Quy Lão...): như bản chính thức, chữ trên đầu nhân vật
+                Service.gI().chatJustForMe(pl, pl, ("Bạn nhận được " + String.join(", ", got)).replaceAll(" \\((\\d+ ngày|vĩnh viễn)\\)", "").replaceAll("(được |, )x1 ", "$1"));
             }
         }
     }
