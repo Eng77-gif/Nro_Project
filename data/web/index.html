@@ -10,80 +10,97 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0b1020;--bg2:#111a33;--card:#141f3d;--card2:#1a2850;--line:#26365f;--text:#eef2ff;--mute:#9aa8cc;
-  --orange:#ff8a1f;--orange2:#ffb347;--gold:#ffd25e;--blue:#3fa9ff;--green:#3ddc84;--red:#ff5d6c;--violet:#a98bff;
-  --r:16px;--shadow:0 10px 30px rgba(0,0,0,.35);
+  --bg:#faf6ee;--bg2:#f3ebdc;--card:#fffdf8;--card2:#f6eddf;--line:#ebddcb;--text:#38291f;--mute:#88715e;
+  --orange:#ed8a27;--orange2:#bf5c0e;--gold:#b5720c;--blue:#2f7fc4;--green:#2e9b5c;--red:#c8423f;--violet:#7a5cc8;
+  --brown:#54301c;--r:14px;--shadow:0 6px 18px rgba(84,48,28,.08);
 }
 *{box-sizing:border-box}
 html{overflow-x:clip}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 "Be Vietnam Pro",system-ui,sans-serif;min-height:100vh;
-  background-image:radial-gradient(1200px 600px at 80% -10%,rgba(255,138,31,.18),transparent 60%),radial-gradient(900px 500px at -10% 10%,rgba(63,169,255,.14),transparent 60%)}
-a{color:var(--orange2);text-decoration:none}a:hover{text-decoration:underline}
-h1,h2,h3{font-family:"Baloo 2",cursive;line-height:1.15;margin:0 0 .4em}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 "Be Vietnam Pro",Arial,Helvetica,sans-serif;min-height:100vh}
+a{color:var(--orange2);text-decoration:none}a:hover{color:#bf5c0e}a:hover{text-decoration:underline}
+h1,h2,h3{font-family:"Be Vietnam Pro",Arial,sans-serif;font-weight:800;line-height:1.2;margin:0 0 .4em;color:var(--text)}
 img{max-width:100%}
 button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
 .wrap{max-width:1180px;margin:0 auto;padding:0 16px}
 .mute{color:var(--mute)}
 .pix{image-rendering:pixelated}
 
-/* ---------- đầu trang ---------- */
-header{position:sticky;top:0;z-index:20;background:rgba(11,16,32,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.bar{display:flex;align-items:center;gap:14px;height:64px}
-.logo{display:flex;align-items:center;gap:10px;font-family:"Baloo 2";font-weight:800;font-size:22px;color:var(--text);white-space:nowrap}
-.logo:hover{text-decoration:none}
-.logo .ball{width:34px;height:34px}
-.logo b{color:var(--orange)}
-nav.main{display:flex;gap:2px;margin-left:auto}
-nav.main a{color:var(--mute);padding:8px 11px;border-radius:10px;font-weight:600;font-size:14px;white-space:nowrap}
-nav.main a:hover{color:var(--text);background:var(--card);text-decoration:none}
-nav.main a.on{color:var(--text);background:var(--card2)}
-nav.main a.nap{color:#1b1200;background:linear-gradient(135deg,var(--gold),var(--orange))}
+/* ---------- đầu trang (theo bản thiết kế cộng đồng) ---------- */
+.health{background:#352217;color:#d4bd9d;font-size:11px;letter-spacing:1px}
+.health .wrap{display:flex;justify-content:space-between;gap:10px;padding-top:6px;padding-bottom:6px}
+header{position:sticky;top:0;z-index:20;background:var(--brown);box-shadow:0 2px 10px rgba(53,34,23,.25)}
+.bar{display:flex;align-items:center;gap:14px;height:76px}
+.logo{display:flex;align-items:center;gap:10px;color:#f8e5cb;font-weight:800;white-space:nowrap}
+.logo:hover{text-decoration:none;color:#fff}
+.logo img{width:156px;height:50px;object-fit:contain}
+.logo span{position:absolute;left:-9999px}
+nav.main{display:flex;gap:4px;margin-left:auto}
+nav.main a{color:#f8e5cb;padding:9px 13px;border-radius:8px;font-weight:600;font-size:13px;white-space:nowrap}
+nav.main a:hover{background:#68432c;color:#fff;text-decoration:none}
+nav.main a.on{background:#f6a039;color:#412713}
+nav.main a.nap{border:1px solid #bd8550;color:#ffe0ab}
+nav.main a.nap.on{background:#f6a039;color:#412713;border-color:#f6a039}
+.acc .name{color:#f8e5cb!important}.acc .name b{color:#ffc574!important}
 .acc{display:flex;align-items:center;gap:8px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:10px 18px;font-weight:700;cursor:pointer;
   background:var(--card2);color:var(--text);border:1px solid var(--line);transition:transform .12s,filter .12s;text-decoration:none!important}
 .btn:hover{filter:brightness(1.12)}.btn:active{transform:translateY(1px)}
-.btn.p{background:linear-gradient(135deg,var(--gold),var(--orange));color:#1b1200;border:0;box-shadow:0 6px 18px rgba(255,138,31,.35)}
-.btn.b{background:linear-gradient(135deg,#6cc4ff,var(--blue));color:#04121f;border:0}
+.btn.p{background:#f6a039;color:#412713;border:0;box-shadow:0 6px 16px rgba(237,138,39,.3)}
+.btn.b{background:var(--brown);color:#ffe0ab;border:0}
 .btn.s{padding:6px 12px;font-size:13px;border-radius:10px}
 .btn:disabled{opacity:.55;cursor:not-allowed}
-.menu-btn{display:none;margin-left:auto;background:none;border:1px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer}
+.menu-btn{display:none;margin-left:auto;background:none;border:1px solid #bd8550;color:#f8e5cb;border-radius:10px;padding:7px 10px;cursor:pointer}
 
 /* ---------- khung chung ---------- */
 main{padding:28px 16px 60px;min-height:calc(100vh - 140px)}
-.card{background:linear-gradient(180deg,var(--card),#121b36);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+main.wrap{padding-top:28px;padding-bottom:60px}
+.grid>*,.news-grid>*{min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
 .grid{display:grid;gap:18px}
 .g2{grid-template-columns:1.6fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
 .sec-title{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:34px 0 14px}
 .sec-title h2{font-size:28px;margin:0}
-.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange2);font-weight:700}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#a0663a;font-weight:700}
 .tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid var(--line);background:var(--bg2);white-space:nowrap}
-.tag.s0{color:var(--gold);border-color:rgba(255,210,94,.4)}.tag.s1{color:var(--blue);border-color:rgba(63,169,255,.4)}
-.tag.s2{color:var(--green);border-color:rgba(61,220,132,.4)}.tag.s3{color:var(--red);border-color:rgba(255,93,108,.4)}
+.tag.s0{color:var(--gold);border-color:#e7c98f}.tag.s1{color:var(--blue);border-color:#a9cbea}
+.tag.s2{color:var(--green);border-color:#9fd3b4}.tag.s3{color:var(--red);border-color:#e6a9a7}
 .empty{text-align:center;padding:30px 10px;color:var(--mute)}
 
 /* ---------- trang chủ ---------- */
-.hero{position:relative;overflow:hidden;border-radius:24px;padding:56px 40px;border:1px solid var(--line);
-  background:radial-gradient(500px 300px at 85% 30%,rgba(255,179,71,.35),transparent 70%),linear-gradient(135deg,#1a2a5c 0%,#0f1733 60%,#1b1030 100%)}
-.hero h1{font-size:clamp(34px,6vw,62px);margin:8px 0 10px;text-shadow:0 4px 0 rgba(0,0,0,.35)}
-.hero h1 span{background:linear-gradient(180deg,var(--gold),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero h1{max-width:700px;position:relative}
-.hero p{max-width:540px;position:relative;color:#cfd8f5;font-size:17px;margin:0 0 22px}
-.hero .cta{display:flex;flex-wrap:wrap;gap:12px}
-.balls{position:absolute;right:30px;top:50%;transform:translateY(-50%);width:330px;height:330px}
-.balls img{position:absolute;width:64px;height:64px;filter:drop-shadow(0 8px 16px rgba(255,138,31,.45));animation:float 4s ease-in-out infinite}
-@keyframes float{50%{transform:translateY(-10px)}}
-@media (prefers-reduced-motion:reduce){.balls img{animation:none}}
-.online-dot{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:rgba(61,220,132,.12);color:var(--green);font-weight:700;font-size:14px}
-.online-dot::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(61,220,132,.25)}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;gap:12px;align-items:center}
-.stat img{width:40px;height:40px}
-.stat b{display:block;font-family:"Baloo 2";font-size:26px;line-height:1}
-.stat span{color:var(--mute);font-size:13px}
+.game-hero{min-height:365px;position:relative;border-radius:15px;overflow:hidden;background:#312936;display:flex;align-items:center}
+.game-hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.game-hero:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#221c24ed 0%,#29212cac 38%,#29212c05 75%),linear-gradient(0deg,#18191b55,transparent 40%)}
+.hero-content{position:relative;z-index:1;padding:42px;max-width:620px;color:#fff}
+.hero-kicker{font-size:11px;letter-spacing:2px;color:#ffc574;font-weight:700;text-transform:uppercase}
+.game-hero h1{font-size:clamp(30px,5vw,46px);color:#fff;margin:10px 0 12px;line-height:1.15}
+.game-hero h1 em{font-style:normal;color:#ffb44f}
+.game-hero p{color:#efe3d4;font-size:15px;margin:0 0 22px}
+.game-hero .cta{display:flex;flex-wrap:wrap;gap:12px}
+.game-hero .btn{border-radius:8px}
+.game-hero .btn.ghost{background:transparent;color:#fff;border:1px solid #ffffff66}
+.hero-caption{position:absolute;right:26px;bottom:18px;z-index:1;font-size:10px;letter-spacing:3px;color:#ffffffaa}
+.online-dot{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:#ffffff1f;color:#c9f5d6;font-weight:700;font-size:13px;margin-bottom:6px}
+.online-dot::before{content:"";width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 4px rgba(61,220,132,.25)}
+.quick-links{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
+.quick-links a{display:flex;align-items:center;gap:14px;padding:18px 16px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:var(--text)}
+.quick-links a:hover{border-color:var(--orange);text-decoration:none;transform:translateY(-2px)}
+.quick-links .qi{width:40px;height:40px;border-radius:9px;display:grid;place-items:center;background:#f6e6cf;font-size:20px;flex:none}
+.quick-links b{display:block;font-size:14px}.quick-links small{color:var(--mute);font-size:12px}
+.quick-links i{margin-left:auto;font-style:normal;color:#b49a82}
+.news-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.news{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.news-art{aspect-ratio:2/1;background:#2b2230;overflow:hidden}
+.news-art img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.news-content{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px}
+.news-content .tag{align-self:flex-start;font-size:10px;letter-spacing:1px;color:#a0663a;border-color:#ecd2b3;background:#fbf0e1}
+.news-content h3{font-size:17px;margin:0}
+.news-content p{margin:0;color:var(--mute);font-size:13px;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.welcome{background:#f4e6d0;border:1px solid #e6cfaf;border-radius:14px;padding:22px}
+.welcome h2{font-size:26px}
 .event{display:flex;flex-direction:column;gap:6px}
-.event h3{font-size:22px;color:var(--gold);margin:0}
-.event p{margin:0;color:#cfd8f5;white-space:pre-line;font-size:14px}
+.event h3{font-size:20px;color:var(--orange2);margin:0}
+.event p{margin:0;color:var(--mute);white-space:pre-line;font-size:14px}
 .rank{list-style:none;margin:0;padding:0}
 .rank li{display:flex;align-items:center;gap:12px;padding:9px 4px;border-bottom:1px dashed var(--line)}
 .rank li:last-child{border:0}
@@ -92,7 +109,7 @@ main{padding:28px 16px 60px;min-height:calc(100vh - 140px)}
 .rank li:nth-child(2) .no{background:linear-gradient(135deg,#f1f5ff,#b8c4dd);color:#1b2335}
 .rank li:nth-child(3) .no{background:linear-gradient(135deg,#ffd2a8,#d9864a);color:#2e1500}
 .rank .nm{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rank .pw{font-family:"Baloo 2";color:var(--orange2);font-size:17px}
+.rank .pw{font-weight:800;color:var(--orange2);font-size:15px}
 .planet{font-size:12px;color:var(--mute)}
 .quick a{display:flex;gap:14px;align-items:center;padding:16px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--text)}
 .quick a:hover{border-color:var(--orange);text-decoration:none;transform:translateY(-2px)}
@@ -103,16 +120,16 @@ main{padding:28px 16px 60px;min-height:calc(100vh - 140px)}
 .feature{display:flex;gap:14px}
 .feature .ico{width:52px;height:52px;flex:none;border-radius:14px;background:var(--bg2);display:grid;place-items:center;font-size:26px;border:1px solid var(--line)}
 .feature h3{font-size:20px;margin:0 0 4px}
-.feature p{margin:0;color:#cfd8f5;font-size:14px}
+.feature p{margin:0;color:var(--mute);font-size:14px}
 .planets .card{text-align:center}
 .planets .card h3{font-size:24px}
-.planets .em{font-size:44px}
+.planets .em{width:64px;height:64px;object-fit:contain;display:block;margin:0 auto 8px}
 .rules li{margin:6px 0}
 
 /* ---------- diễn đàn, phiếu ---------- */
 .list{display:flex;flex-direction:column}
 .item{display:flex;gap:14px;align-items:center;padding:14px 6px;border-bottom:1px solid var(--line);color:var(--text)}
-.item:hover{background:rgba(255,255,255,.02);text-decoration:none}
+.item:hover{background:#fbf3e6;text-decoration:none}
 .item:last-child{border:0}
 .item .t{flex:1;min-width:0}
 .item .t b{display:block;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -121,9 +138,9 @@ main{padding:28px 16px 60px;min-height:calc(100vh - 140px)}
 .item .n b{display:block;font-size:18px;color:var(--text)}
 .pin{color:var(--gold);font-size:12px;font-weight:700;margin-right:6px}
 .pager{display:flex;gap:6px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.post-body{white-space:pre-wrap;word-break:break-word;font-size:15px;color:#dde4fb}
+.post-body{white-space:pre-wrap;word-break:break-word;font-size:15px;color:var(--text)}
 .reply{padding:14px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);margin-top:12px}
-.reply.admin{border-color:rgba(255,138,31,.55);background:linear-gradient(180deg,rgba(255,138,31,.10),var(--bg2))}
+.reply.admin{border-color:#e9b27a;background:#fdf0de}
 .reply .who{font-weight:700;font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .reply .who .mute{font-weight:400;font-size:12px}
 form .f{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
@@ -140,54 +157,55 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange);outline:none}
 /* ---------- nạp ---------- */
 .tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
 .tabs button{border:1px solid var(--line);background:var(--card);padding:10px 18px;border-radius:12px;font-weight:700;cursor:pointer}
-.tabs button.on{background:linear-gradient(135deg,var(--gold),var(--orange));color:#1b1200;border-color:transparent}
+.tabs button.on{background:#f6a039;color:#412713;border-color:transparent}
 .amounts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .amounts button{padding:14px 6px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);cursor:pointer;font-weight:700}
-.amounts button.on{border-color:var(--orange);background:rgba(255,138,31,.12);color:var(--orange2)}
+.amounts button.on{border-color:var(--orange);background:#fdebd2;color:var(--orange2)}
 .qr{display:grid;grid-template-columns:240px 1fr;gap:20px;align-items:start}
 .qr img{width:240px;border-radius:14px;background:#fff;padding:8px}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
 .kv dt{color:var(--mute)}.kv dd{margin:0;font-weight:700;word-break:break-all}
 .copy{margin-left:6px;font-size:12px;padding:2px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card2);cursor:pointer}
-.balance{display:flex;gap:16px;align-items:center;padding:16px;border-radius:14px;background:linear-gradient(135deg,rgba(255,210,94,.14),rgba(255,138,31,.06));border:1px solid rgba(255,179,71,.35)}
+.balance{display:flex;gap:16px;align-items:center;padding:16px;border-radius:14px;background:#f8ead3;border:1px solid #e9cda4}
 .balance img{width:44px;height:44px}
-.balance .big{font-family:"Baloo 2";font-size:28px;color:var(--gold);line-height:1}
+.balance .big{font-weight:800;font-size:26px;color:var(--orange2);line-height:1.1}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
 th{color:var(--mute);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
 .tw{overflow-x:auto}
 
 /* ---------- hộp thoại, thông báo ---------- */
-.modal{position:fixed;inset:0;background:rgba(3,6,15,.72);display:grid;place-items:center;z-index:50;padding:16px}
+.modal{position:fixed;inset:0;background:rgba(53,34,23,.55);display:grid;place-items:center;z-index:50;padding:16px}
 .modal .card{width:100%;max-width:420px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;padding:12px 20px;border-radius:12px;background:var(--card2);border:1px solid var(--line);box-shadow:var(--shadow);font-weight:600;max-width:calc(100% - 32px)}
-.toast.err{border-color:var(--red);color:#ffd1d6}
-footer{border-top:1px solid var(--line);padding:26px 0;color:var(--mute);font-size:13px}
+.toast.err{border-color:var(--red);color:var(--red)}
+footer{background:#352217;padding:26px 0;color:#d4bd9d;font-size:13px;margin-top:20px}
 footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 
 @media (max-width:980px){
   .g2,.g3{grid-template-columns:1fr}.g4,.stats{grid-template-columns:repeat(2,1fr)}
-  .balls{opacity:.25;right:-80px}
-  nav.main{display:none;position:absolute;top:64px;left:0;right:0;flex-direction:column;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px}
+  nav.main{display:none;position:absolute;top:76px;left:0;right:0;flex-direction:column;background:var(--brown);padding:10px 16px}
+  .quick-links,.news-grid{grid-template-columns:1fr 1fr}
   nav.main.open{display:flex}
   .menu-btn{display:block}
   .acc{margin-left:0}
 }
 @media (max-width:600px){
-  .hero{padding:36px 20px}.g4,.stats{grid-template-columns:1fr 1fr}
+  .hero-content{padding:28px 20px}.hero-caption{display:none}.g4,.stats{grid-template-columns:1fr 1fr}
+  .quick-links,.news-grid{grid-template-columns:1fr}.health .wrap span+span{display:none}.logo img{width:120px}
   .qr{grid-template-columns:1fr}.qr img{width:100%;max-width:280px}
   .amounts{grid-template-columns:repeat(2,1fr)}
   .item .n{display:none}
   .acc .name{display:none}
-  .logo span{display:none}
 }
 </style>
 </head>
 <body>
 <a href="#main" class="mute" style="position:absolute;left:-999px">Bỏ qua tới nội dung</a>
+<div class="health"><div class="wrap"><span>CỘNG ĐỒNG NGỌC RỒNG ONLINE</span><span>Chơi vui · Kết nối · Cùng trưởng thành</span></div></div>
 <header>
   <div class="wrap bar">
-    <a class="logo" href="#/"><img class="ball pix" src="/icon/422" alt=""><span id="sv-name">Ngọc Rồng</span></a>
+    <a class="logo" href="#/"><img src="/assets/logo.png" alt="Chú Bé Rồng Online" width="156" height="50"><span id="sv-name">Ngọc Rồng</span></a>
     <button class="menu-btn" aria-label="Mở menu" onclick="document.querySelector('nav.main').classList.toggle('open')">☰</button>
     <nav class="main" aria-label="Điều hướng chính">
       <a href="#/" data-r="">Trang chủ</a>
@@ -258,31 +276,32 @@ addEventListener('hashchange',route);
 async function home(){
   const s=info=await api('status');
   const dl=s.download||{};
-  const balls=[[419,'8%','4%'],[420,'55%','0%'],[421,'78%','28%'],[422,'38%','36%'],[423,'2%','52%'],[424,'62%','66%'],[425,'28%','78%']];
+  const dlHref=dl.apk||dl.pc||dl.ios||'#/gioi-thieu';
+  const art=n=>/halloween|hlw|bí ngô/i.test(n)?'event-halloween.png':/20\/10|tháng 10|phụ nữ/i.test(n)?'event-october.png':'hero.png';
+  const ql=[[dlHref,'🎮','Tải game','Android · PC · iOS'],['#/nap','💎','Nạp ngọc','1đ = 1 ngọc'],['#/dien-dan','💬','Diễn đàn','Trao đổi, tìm đồng đội'],['#/bao-loi','🛠️','Trung tâm hỗ trợ','Báo lỗi, tố cáo, góp ý']];
   $('#main').innerHTML=`
-  <section class="hero">
-    <div class="balls" aria-hidden="true">${balls.map((b,i)=>`<img class="pix" src="/icon/${b[0]}" alt="" style="left:${b[1]};top:${b[2]};animation-delay:${i*.4}s">`).join('')}</div>
-    <span class="online-dot">${money(s.online)} người đang chơi</span>
-    <h1>Thu thập đủ <span>7 viên ngọc rồng</span><br>ước nguyện cùng ${esc(s.name)}</h1>
-    <p>Phiêu lưu khắp Trái Đất, Namek và Xayda: luyện công, săn boss, giành Ngọc Rồng Sao Đen cùng bang hội và tham gia sự kiện mỗi mùa.</p>
-    <div class="cta">
-      ${dl.apk?`<a class="btn p" href="${esc(dl.apk)}" rel="noopener">⬇ Tải cho Android</a>`:''}
-      ${dl.pc?`<a class="btn b" href="${esc(dl.pc)}" rel="noopener">⬇ Bản PC</a>`:''}
-      ${dl.ios?`<a class="btn" href="${esc(dl.ios)}" rel="noopener">⬇ Bản iOS</a>`:''}
-      <a class="btn ${dl.apk?'':'p'}" href="#/nap">💎 Nạp ngọc</a>
-      <a class="btn" href="#/gioi-thieu">Tìm hiểu thêm</a>
+  <section class="game-hero">
+    <img src="/assets/hero.png" alt="">
+    <div class="hero-content">
+      <span class="online-dot">${money(s.online)} người đang chơi</span>
+      <div class="hero-kicker">${s.events.length?'Sự kiện đang diễn ra':'Máy chủ '+esc(s.name)}</div>
+      <h1>Hẹn nhau ở <em>thế giới ngọc rồng</em></h1>
+      <p>Phiêu lưu khắp Trái Đất, Namek và Xayda: luyện công, săn boss, giành Ngọc Rồng Sao Đen cùng bang hội và tham gia sự kiện mỗi mùa.</p>
+      <div class="cta">
+        ${dl.apk?`<a class="btn p" href="${esc(dl.apk)}" rel="noopener">⬇ Tải cho Android</a>`:''}
+        ${dl.pc?`<a class="btn b" href="${esc(dl.pc)}" rel="noopener">⬇ Bản PC</a>`:''}
+        ${dl.ios?`<a class="btn ghost" href="${esc(dl.ios)}" rel="noopener">⬇ Bản iOS</a>`:''}
+        <a class="btn ${dl.apk?'ghost':'p'}" href="#/nap">💎 Nạp ngọc</a>
+        <a class="btn ghost" href="#/gioi-thieu">Tìm hiểu thêm</a>
+      </div>
     </div>
+    <div class="hero-caption">${money(s.accounts)} TÀI KHOẢN · ${money(s.events.length)} SỰ KIỆN</div>
   </section>
-  <div class="stats">
-    <div class="stat"><img class="pix" src="/icon/422" alt=""><div><b>${money(s.online)}</b><span>Đang trực tuyến</span></div></div>
-    <div class="stat"><img class="pix" src="/icon/4028" alt=""><div><b>${money(s.accounts)}</b><span>Tài khoản</span></div></div>
-    <div class="stat"><img class="pix" src="/icon/7743" alt=""><div><b>${money(s.events.length)}</b><span>Sự kiện đang chạy</span></div></div>
-    <div class="stat"><img class="pix" src="/icon/932" alt=""><div><b>1đ = 1</b><span>ngọc khi nạp</span></div></div>
-  </div>
+  <nav class="quick-links" aria-label="Lối tắt">${ql.map(q=>`<a href="${esc(q[0])}"${q[0].startsWith('#')?'':' rel="noopener"'}><span class="qi" aria-hidden="true">${q[1]}</span><span><b>${q[2]}</b><small>${q[3]}</small></span><i aria-hidden="true">›</i></a>`).join('')}</nav>
   <div class="grid g2" style="margin-top:8px">
     <div>
       <div class="sec-title"><div><div class="eyebrow">Đang diễn ra</div><h2>Sự kiện</h2></div></div>
-      ${s.events.length?`<div class="grid">${s.events.map(e=>`<article class="card event"><span class="tag s0" style="align-self:flex-start">${e.end?'Đến hết '+esc(e.end.split('-').reverse().join('/')):'Đang chạy'}</span><h3>${esc(e.name)}</h3><p>${esc(e.description)}</p></article>`).join('')}</div>`
+      ${s.events.length?`<div class="news-grid">${s.events.map(e=>`<article class="news"><div class="news-art"><img src="/assets/${art(e.name)}" alt="" loading="lazy"></div><div class="news-content"><span class="tag">${e.end?'ĐẾN HẾT '+esc(e.end.split('-').reverse().join('/')):'ĐANG CHẠY'}</span><h3>${esc(e.name)}</h3><p>${esc(e.description)}</p></div></article>`).join('')}</div>`
         :`<div class="card empty">Hiện chưa có sự kiện, hẹn bạn mùa sau!</div>`}
       <div class="sec-title"><div><div class="eyebrow">Cộng đồng</div><h2>Bài mới trên diễn đàn</h2></div><a href="#/dien-dan">Xem tất cả →</a></div>
       <div class="card list">${s.news.length?s.news.map(postRow).join(''):'<div class="empty">Chưa có bài nào, hãy là người mở đầu!</div>'}</div>
@@ -290,6 +309,11 @@ async function home(){
     <aside>
       <div class="sec-title"><div><div class="eyebrow">Bảng vàng</div><h2>Top sức mạnh</h2></div></div>
       <div class="card"><ol class="rank">${s.top.map((p,i)=>`<li><span class="no">${i+1}</span><span class="nm">${esc(p.name)}<div class="planet">${PLANET[p.gender]||''}</div></span><span class="pw">${power(p.power)}</span></li>`).join('')||'<li class="mute">Chưa có dữ liệu</li>'}</ol></div>
+      <div class="welcome" style="margin-top:18px">
+        <div class="eyebrow">Chào mừng</div><h2>Bạn mới đến?</h2>
+        <p class="mute">Chọn hành tinh, nhận đệ tử và gia nhập bang hội để cùng săn ngọc rồng.</p>
+        <a class="btn p" href="#/gioi-thieu">Bắt đầu tại đây</a>
+      </div>
       <div class="sec-title"><div><div class="eyebrow">Hỗ trợ</div><h2>Cần giúp đỡ?</h2></div></div>
       <div class="grid quick">
         ${['report','bug','idea'].map(k=>`<a href="#/${{report:'to-cao',bug:'bao-loi',idea:'gop-y'}[k]}"><span class="ico" style="background:${KIND[k][2]}22">${KIND[k][1]}</span><div><b>${KIND[k][0]}</b><span>${{report:'Hack, lừa đảo, ngôn từ xấu',bug:'Lỗi game, mất đồ, kẹt map',idea:'Ý tưởng cho máy chủ'}[k]}</span></div></a>`).join('')}
@@ -310,9 +334,9 @@ async function about(){
   <div class="page-head"><span class="ico" style="background:#3fa9ff22">📖</span><div><h1>Giới thiệu</h1><p>${esc(name)} là máy chủ Ngọc Rồng Online, lối chơi quen thuộc, cân bằng và nhiều sự kiện.</p></div></div>
   <div class="sec-title"><div><div class="eyebrow">Chọn hành tinh</div><h2>Ba chủng tộc</h2></div></div>
   <div class="grid g3 planets">
-    <div class="card"><div class="em">🌍</div><h3>Trái Đất</h3><p class="mute">Cân bằng, chiêu Kamejoko và Thái Dương Hạ San, dễ chơi cho người mới.</p></div>
-    <div class="card"><div class="em">🟢</div><h3>Namek</h3><p class="mute">Hồi phục và hỗ trợ đồng đội, đệ tử mạnh, chiêu Masenko.</p></div>
-    <div class="card"><div class="em">🔥</div><h3>Xayda</h3><p class="mute">Sát thương cao, biến khỉ, chiêu Galick và Kaioken.</p></div>
+    <div class="card"><img class="em pix" src="/assets/traidat.gif" alt=""><h3>Trái Đất</h3><p class="mute">Cân bằng, chiêu Kamejoko và Thái Dương Hạ San, dễ chơi cho người mới.</p></div>
+    <div class="card"><img class="em pix" src="/assets/namek.gif" alt=""><h3>Namek</h3><p class="mute">Hồi phục và hỗ trợ đồng đội, đệ tử mạnh, chiêu Masenko.</p></div>
+    <div class="card"><img class="em pix" src="/assets/xayda.gif" alt=""><h3>Xayda</h3><p class="mute">Sát thương cao, biến khỉ, chiêu Galick và Kaioken.</p></div>
   </div>
   <div class="sec-title"><div><div class="eyebrow">Có gì để chơi</div><h2>Tính năng nổi bật</h2></div></div>
   <div class="grid g2" style="grid-template-columns:1fr 1fr">${feat.map(f=>`<div class="card feature"><span class="ico">${f[0]}</span><div><h3>${f[1]}</h3><p>${f[2]}</p></div></div>`).join('')}</div>

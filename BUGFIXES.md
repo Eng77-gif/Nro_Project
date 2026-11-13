@@ -2121,3 +2121,8 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Giỏ không còn mất lúc boss chết mà **mất khi nhặt** Bí ngô (`ItemMap.needItem`, `Zone.pickItem`).
 - **Máy dò Ngọc rồng sự kiện (1115):** trước dùng không có tác dụng. Nay mỗi máy 30 phút (cộng dồn) x2 tỉ lệ rơi Bí ngô 1-7 sao từ boss, có ô thời gian. Thời gian còn lại mất khi thoát game.
 - Năng lượng E10 và Máy dò Ngọc rồng sự kiện **không mất thời gian còn lại khi thoát game**: lưu ở `data_item_time` ô 30 (E10) và ô 31 (máy dò), trước đây 2 ô này để trống là 0. Đã thử: dùng xong thoát, vào lại vẫn còn máy dò 1794 giây, E10 591 giây.
+
+### Đợt 139o: trang web người chơi theo giao diện cộng đồng (nền kem, đầu trang nâu)
+- `data/web/index.html` đổi sang giao diện từ bản mẫu anh gửi: nền kem, thanh trên cùng, đầu trang nâu với logo "Chú Bé Rồng", menu dạng nút (mục đang mở màu cam, Nạp ngọc viền). Trang chủ có ảnh lớn lễ hội, nút tải game / nạp / tìm hiểu, 4 lối tắt (Tải game, Nạp ngọc, Diễn đàn, Trung tâm hỗ trợ), sự kiện dạng thẻ có ảnh, top sức mạnh và thẻ chào mừng. Trang Giới thiệu dùng ảnh động 3 hành tinh. Chân trang nâu đậm. Mọi chức năng cũ (đăng nhập, diễn đàn, phiếu, nạp QR / thẻ cào) giữ nguyên.
+- Ảnh giao diện để trong `data/web/assets/`, server web phục vụ qua `/assets/<tên>`. Chỉ nhận tên file gồm chữ, số, `_` và `-` với đuôi png / gif / jpg / webp, nên không đọc được file ngoài thư mục này.
+- Đã thử: trang chủ, giới thiệu, nạp và diễn đàn trên máy tính và điện thoại (390px) không lỗi JS và không tràn ngang; `/assets/..%2fx.png` và `/assets/a.html` trả về 404.

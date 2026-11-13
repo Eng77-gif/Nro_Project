@@ -106,6 +106,16 @@ public class WebServer {
                 api(ex, path.substring(5));
             } else if (path.startsWith("/icon/")) {
                 PanelServer.serveIcon(ex, path.substring(6));
+            } else if (path.startsWith("/assets/")) { // ảnh giao diện (data/web/assets), chỉ tên file chữ / số
+                String name = path.substring(8);
+                File f = new File("data/web/assets", name);
+                if (!name.matches("[A-Za-z0-9_-]+\\.(png|gif|jpg|webp)") || !f.isFile()) {
+                    PanelServer.sendText(ex, 404, "text/plain; charset=utf-8", "Không có".getBytes(StandardCharsets.UTF_8));
+                    return;
+                }
+                String type = name.endsWith(".gif") ? "image/gif" : name.endsWith(".jpg") ? "image/jpeg" : name.endsWith(".webp") ? "image/webp" : "image/png";
+                ex.getResponseHeaders().add("Cache-Control", "public, max-age=86400");
+                PanelServer.sendText(ex, 200, type, Files.readAllBytes(f.toPath()));
             } else if (path.equals("/callback/card")) {
                 cardCallback(ex);
             } else if (path.equals("/callback/sepay")) {
