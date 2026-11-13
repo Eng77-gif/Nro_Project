@@ -294,7 +294,7 @@ public class WebServer {
 
     private List<Map<String, Object>> topPower() throws Exception {
         List<Map<String, Object>> out = new ArrayList<>();
-        for (Map<String, Object> r : PanelApi.rows("select p.name, p.gender, p.data_point from player p where p.account_id not in "
+        for (Map<String, Object> r : PanelApi.rows("select p.name, p.gender, p.data_point from player p where p." + nro.models.server.Manager.NOT_ADMIN + " and p.account_id not in "
                 + "(select pl.account_id from bot_account b join player pl on pl.id = b.player_id)")) {
             try {
                 @SuppressWarnings("deprecation") JsonArray pt = new JsonParser().parse(String.valueOf(r.get("data_point"))).getAsJsonArray();

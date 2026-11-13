@@ -53,7 +53,7 @@ public class MyClanTopBanDoKhoBau {
                 + "FROM player "
                 + "WHERE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(thanhTichBang, ',', 2), ',', -1), ']', 1) AS SIGNED) > 0 "
                 + "AND id = ? "
-                + "ORDER BY so2 DESC, so1 ASC LIMIT 100")) {
+                + "AND " + nro.models.server.Manager.NOT_ADMIN + " ORDER BY so2 DESC, so1 ASC LIMIT 100")) {
 
             ps.setInt(1, idLeader);
 

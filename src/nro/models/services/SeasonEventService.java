@@ -1526,6 +1526,9 @@ public class SeasonEventService implements Runnable {
     }
 
     private void addTopPoint(Top t, Player pl, int pts) {
+        if (pl.isAdmin()) { // tài khoản admin không lên bảng xếp hạng nào
+            return;
+        }
         try {
             LocalManager.executeUpdate("INSERT INTO season_event_point (top_id, player_id, name, points) VALUES (?, ?, ?, ?) "
                     + "ON DUPLICATE KEY UPDATE points = points + VALUES(points), name = VALUES(name)", t.id, pl.id, pl.name, pts);

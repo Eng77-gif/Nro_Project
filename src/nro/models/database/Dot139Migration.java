@@ -37,8 +37,26 @@ public class Dot139Migration {
         {764, 2, 1, 19, 10}, // Khẩu trang
     };
 
+    /** Tài khoản admin không lên bảng xếp hạng nào: xoá điểm đua top sự kiện và chỗ trong bảng Siêu hạng (các hạng sau dồn lên). */
+    static void removeAdminFromRanks(Connection con) throws Exception {
+        String admins = "select p.id from player p join account a on a.id = p.account_id where a.is_admin = 1";
+        update(con, "delete from season_event_point where top_id > 0 and player_id in (" + admins + ")");
+        java.util.List<Integer> ranks = new java.util.ArrayList<>();
+        try (java.sql.PreparedStatement ps = con.prepareStatement("select rank from super_rank where rank > 0 and player_id in (" + admins + ") order by rank desc");
+                java.sql.ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                ranks.add(rs.getInt(1));
+            }
+        }
+        for (int r : ranks) { // từ hạng thấp lên để dồn hạng không lệch
+            update(con, "delete from super_rank where rank = " + r);
+            update(con, "update super_rank set rank = rank - 1 where rank > " + r);
+        }
+    }
+
     public static void run(Connection con) {
         try {
+            removeAdminFromRanks(con);
             // hình Uub (part 946-948) bị ghi đè bằng hình khác: trả lại như v10, ảnh đại diện 8617
             update(con, "update part set data = '[[8586,4,7],[8587,2,5],[2955,0,0]]' where id = 946");
             update(con, "update part set data = '[[8588,2,6],[8589,1,4],[8590,-1,2],[8591,1,2],[8592,1,1],[8593,2,2],[8594,1,2],[8595,3,4],[8596,3,7],[8597,1,8],[8598,1,3],[8599,1,3],[8600,2,6],[8601,2,3],[8602,2,5],[8603,0,2],[2955,0,0]]' where id = 947");

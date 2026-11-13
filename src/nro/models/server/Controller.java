@@ -946,7 +946,7 @@ public class Controller implements IMessageHandler {
             Service.gI().sendNangDong(player);
             Service.gI().sendHavePet(player);
             Service.gI().sendTopRank(player);
-            if (player.superRank != null && player.superRank.rank < 1) {
+            if (player.superRank != null && player.superRank.rank < 1 && !player.isAdmin()) { // admin không vào bảng Siêu hạng
                 synchronized (SuperRankDAO.class) { // nhiều người đăng nhập cùng lúc từng lấy cùng 1 hạng (hạng cao nhất + 1)
                     player.superRank.rank = SuperRankDAO.getRank((int) player.id);
                     player.superRank.lastRewardTime = System.currentTimeMillis();

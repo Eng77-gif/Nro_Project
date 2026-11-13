@@ -228,7 +228,7 @@ public class PanelApi {
             case "seasons" -> seasons();
             case "server" -> serverInfo();
             case "eventtops" -> SeasonEventService.gI().panelTops();
-            case "eventtop" -> rows("select e.player_id id, e.name, e.points from season_event_point e where e.top_id = ? order by e.points desc, e.player_id limit 100", intv(q.get("id")));
+            case "eventtop" -> rows("select e.player_id id, e.name, e.points from season_event_point e where e.top_id = ? and e.player_id not in (select id from player where not (" + Manager.NOT_ADMIN + ")) order by e.points desc, e.player_id limit 100", intv(q.get("id")));
             case "radar" -> radarList();
             case "radar/save" -> radarSave(b);
             case "badges" -> rows("select b.id, b.idEffect effect, b.idItem item, b.NAME name, b.Options options, t.icon_id icon, t.description descr from data_badges b left join item_template t on t.id = b.idItem order by b.id");
@@ -2337,14 +2337,14 @@ public class PanelApi {
 
     private Object tops(String kind) throws Exception {
         return switch (kind) {
-            case "sukien" -> rows("select id, name, point_sukien point from player order by point_sukien desc limit 100");
-            case "sukien1" -> rows("select id, name, point_sukien1 point from player order by point_sukien1 desc limit 100");
-            case "sukien2" -> rows("select id, name, point_sukien2 point from player order by point_sukien2 desc limit 100");
-            case "hopden" -> rows("select e.player_id id, p.name, e.hdba_count point from player_extra e join player p on p.id=e.player_id order by e.hdba_count desc limit 100");
-            case "naptien" -> rows("select a.id, a.username name, a.tongnap point from account a order by a.tongnap desc limit 100");
+            case "sukien" -> rows("select id, name, point_sukien point from player where " + Manager.NOT_ADMIN + " order by point_sukien desc limit 100");
+            case "sukien1" -> rows("select id, name, point_sukien1 point from player where " + Manager.NOT_ADMIN + " order by point_sukien1 desc limit 100");
+            case "sukien2" -> rows("select id, name, point_sukien2 point from player where " + Manager.NOT_ADMIN + " order by point_sukien2 desc limit 100");
+            case "hopden" -> rows("select e.player_id id, p.name, e.hdba_count point from player_extra e join player p on p.id=e.player_id where p." + Manager.NOT_ADMIN + " order by e.hdba_count desc limit 100");
+            case "naptien" -> rows("select a.id, a.username name, a.tongnap point from account a where a.is_admin = 0 order by a.tongnap desc limit 100");
             default -> {
                 List<Map<String, Object>> out = new ArrayList<>();
-                for (Map<String, Object> r : rows("select id, name, gender, head, items_body, data_point from player")) {
+                for (Map<String, Object> r : rows("select id, name, gender, head, items_body, data_point from player where " + Manager.NOT_ADMIN)) {
                     JsonArray pt = arr(r.get("data_point"));
                     long power = pt != null && pt.size() > 1 ? pt.get(1).getAsLong() : 0;
                     Map<String, Object> row = new LinkedHashMap<>(Map.of("id", r.get("id"), "name", r.get("name"), "point", power, "gender", r.get("gender")));

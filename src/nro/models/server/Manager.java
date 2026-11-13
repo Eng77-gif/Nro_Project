@@ -115,14 +115,16 @@ public final class Manager {
     public static List<TOP> Topsukien2 = new ArrayList<>();
     public static List<TOP> Topwhis;
     public static List<TOP> Topmaydam;
-    public static final String queryTopmaydam = "SELECT id, point_maydam, total_damage_maydam FROM player ORDER BY point_maydam DESC LIMIT 100";
-    public static final String queryTopsukien1 = "SELECT id, point_sukien1 FROM player ORDER BY point_sukien1 DESC LIMIT 100";
-    public static final String queryTopsukien2 = "SELECT id, point_sukien2 FROM player ORDER BY point_sukien2 DESC LIMIT 100";
-    public static final String queryTopwhis = "SELECT id, thachdauwhis FROM player ORDER BY thachdauwhis DESC LIMIT 100";
+    /** Điều kiện SQL trên bảng player: bỏ nhân vật của tài khoản admin khỏi mọi bảng xếp hạng. */
+    public static final String NOT_ADMIN = "account_id not in (select id from account where is_admin = 1)";
+    public static final String queryTopmaydam = "SELECT id, point_maydam, total_damage_maydam FROM player WHERE " + NOT_ADMIN + " ORDER BY point_maydam DESC LIMIT 100";
+    public static final String queryTopsukien1 = "SELECT id, point_sukien1 FROM player WHERE " + NOT_ADMIN + " ORDER BY point_sukien1 DESC LIMIT 100";
+    public static final String queryTopsukien2 = "SELECT id, point_sukien2 FROM player WHERE " + NOT_ADMIN + " ORDER BY point_sukien2 DESC LIMIT 100";
+    public static final String queryTopwhis = "SELECT id, thachdauwhis FROM player WHERE " + NOT_ADMIN + " ORDER BY thachdauwhis DESC LIMIT 100";
     // Võ đài sinh tử: lệ phí thỏi vàng tăng 10 sau mỗi lần thách đấu trong ngày => số lượt = phí / 10
     public static final String queryTopVDST = "SELECT id, CAST(JSON_EXTRACT(vodaisinhtu, '$[1]') AS INT) DIV 10 AS luot FROM player"
-            + " WHERE JSON_VALID(vodaisinhtu) AND CAST(JSON_EXTRACT(vodaisinhtu, '$[1]') AS INT) > 0 ORDER BY luot DESC LIMIT 100";
-    public static final String queryTopsukien = "SELECT id, point_sukien FROM player ORDER BY point_sukien DESC LIMIT 100";
+            + " WHERE " + NOT_ADMIN + " AND JSON_VALID(vodaisinhtu) AND CAST(JSON_EXTRACT(vodaisinhtu, '$[1]') AS INT) > 0 ORDER BY luot DESC LIMIT 100";
+    public static final String queryTopsukien = "SELECT id, point_sukien FROM player WHERE " + NOT_ADMIN + " ORDER BY point_sukien DESC LIMIT 100";
     public static boolean isTopMaydamChanged = false;
     public static boolean isTopSukienChanged = false;
     public static boolean isTopSukien1Changed = false;

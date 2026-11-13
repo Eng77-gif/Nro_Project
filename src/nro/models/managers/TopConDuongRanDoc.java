@@ -40,7 +40,7 @@ public class TopConDuongRanDoc {
                 + "CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(thanhTichCDRD, ',', 4), ',', -1) AS SIGNED) AS so4 "
                 + "FROM player "
                 + "WHERE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(thanhTichCDRD, ',', 2), ',', -1), ']', 1) AS SIGNED) > 0 "
-                + "ORDER BY so2 DESC, so1 ASC LIMIT 100")) {
+                + "AND " + nro.models.server.Manager.NOT_ADMIN + " ORDER BY so2 DESC, so1 ASC LIMIT 100")) {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {

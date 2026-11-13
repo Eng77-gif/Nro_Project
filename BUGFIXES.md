@@ -2068,3 +2068,13 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - chỉ số gốc HP / KI / sức đánh / giáp / chí mạng; đang online thì thêm chỉ số đang có
   - các chiêu kèm cấp, đồ đang mặc
 - Người đang online lấy dữ liệu trực tiếp, còn lại đọc từ database.
+
+### Đợt 139h: tài khoản admin không lên bảng xếp hạng nào
+
+- **Trong game:** loại nhân vật của tài khoản `is_admin = 1` (`Manager.NOT_ADMIN`) khỏi các top:
+  - máy đấm (Trái Đất / Namếc / Xayda), thách đấu Whis, Võ đài sinh tử, top sự kiện cũ
+  - top bang Bản đồ kho báu / Khí gas / Con đường rắn độc
+- **Đua top sự kiện theo mùa:** admin không được cộng điểm. Điểm cũ của admin bị xoá khi khởi động.
+- **Siêu hạng:** admin không được xếp hạng khi đăng nhập. Chỗ cũ của admin bị xoá và các hạng sau dồn lên (Dot139Migration).
+- **Web panel:** Bảng xếp hạng (sức mạnh, nạp, sự kiện, hộp đen) và đua top sự kiện không còn admin.
+- **Trang web người chơi:** top sức mạnh không còn admin.
