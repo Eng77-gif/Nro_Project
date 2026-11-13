@@ -286,7 +286,7 @@ public class Player implements Runnable {
     public long hlwPetX3Until, hlwSelfX3Until, hlwHpUntil, hlwKiUntil, hlwDameUntil;
     public int wishCrit; // số lần ước +1% chí mạng gốc ở Rồng thần siêu cấp (tối đa 5)
     /** Pet Ma tốc độ: hết bất tử lúc này; Năng lượng E10: hết hiệu lực lúc này */
-    public long batTuUntil, e10Until;
+    public long batTuUntil, e10Until, mayDoNrskUntil; // mayDoNrskUntil: Máy dò Ngọc rồng sự kiện (x2 tỉ lệ rơi Bí ngô 1-7 sao)
     private boolean e10Active;
     /** Hạn vào Ngục tù may mắn (Phiếu sao vàng may mắn) */
     public long luckyMapUntil;

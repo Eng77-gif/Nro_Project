@@ -848,6 +848,7 @@ public class UseItem {
                             case 1532:
                             case 1628:
                             case 2035: // Năng lượng E10: dùng như cuồng nộ / bổ huyết (mất 1, hiện ô thời gian)
+                            case 1115: // Máy dò Ngọc rồng sự kiện
 
                                 useItemTime(pl, item);
                                 break;
@@ -1686,6 +1687,9 @@ public class UseItem {
                     Service.gI().sendThongBao(pl, "Cỏ bốn lá đã cộng dồn tối đa 500 phút");
                     return;
                 }
+                break;
+            case 1115: // Máy dò Ngọc rồng sự kiện: 30 phút x2 tỉ lệ rơi Bí ngô 1-7 sao từ boss (cộng dồn)
+                pl.mayDoNrskUntil = Math.max(pl.mayDoNrskUntil, System.currentTimeMillis()) + 1_800_000;
                 break;
             case 2035: // Năng lượng E10: 10 phút KI +10%, SĐ +5%, giảm 5% HP
                 pl.e10Until = Math.max(pl.e10Until, System.currentTimeMillis()) + 600_000;

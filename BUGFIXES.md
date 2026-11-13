@@ -2108,3 +2108,15 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Nay x4/95 dùng nguyên dữ liệu x4/118: loại 2 + bảng 7 động tác. Đã kiểm tra bảng đọc trọn 83/83 byte theo `readFrameBoss` của client, không lặp lại lỗi đứng hình.
 - Client không lưu ảnh quái, đăng nhập lại là nhận ảnh mới.
 - Thu hẹp vùng đi Cađíc M (95, 118) xuống 20px, tốc độ 2 giữ nguyên. vsMap 10. Đã kiểm tra gói bản đồ gửi về vùng 20.
+
+### Đợt 139n: cho phép bot làm gì, boss Halloween rơi đồ hiếm, máy dò NR sự kiện, giỏ đựng ngọc bí
+
+- **Panel > Bot > Cho phép bot làm gì:** bật / tắt từng việc, lưu ở `bot_setting` (`allow_<việc>`), API `bot/perms`, `bot/perm`. Tắt việc nào thì bot không chọn việc đó nữa; tắt hết thì bot vẫn đi luyện tập. Các việc:
+  - luyện tập, săn boss, săn đệ (Broly), NRSD, úp set kích hoạt / doanh trại, PK
+  - làm nhiệm vụ, giải Siêu hạng / ĐHVT 23, Hirudegarn / hút Kilis / up bông tai
+  - úp vàng, mua hộp đua top
+- **Boss Halloween Ma trơi, Dơi, Bí ma** (đã có trong sự kiện Halloween, mỗi loại 10 con): hạ boss có 20% rơi CT Lý Tiểu Nương Bikini (1512) hoặc Pet Đầu Quỷ (2114), hạn 7-15 ngày, 5% vĩnh viễn.
+- **Bí ngô 1-7 sao (ngọc rồng bí):**
+  - Rơi từ cả 3 boss trên (trước chỉ Ma trơi, Dơi), tỉ lệ 50%, cần có Giỏ đựng ngọc bí.
+  - Giỏ không còn mất lúc boss chết mà **mất khi nhặt** Bí ngô (`ItemMap.needItem`, `Zone.pickItem`).
+- **Máy dò Ngọc rồng sự kiện (1115):** trước dùng không có tác dụng. Nay mỗi máy 30 phút (cộng dồn) x2 tỉ lệ rơi Bí ngô 1-7 sao từ boss, có ô thời gian. Thời gian còn lại mất khi thoát game.

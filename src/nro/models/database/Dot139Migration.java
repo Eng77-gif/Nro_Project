@@ -57,6 +57,12 @@ public class Dot139Migration {
     public static void run(Connection con) {
         try {
             removeAdminFromRanks(con);
+            if (!exists(con, "select 1 from server_migration where name = 'dot139n_halloween'")) {
+                // Bí ngô 1-7 sao từ cả 3 boss Ma trơi / Dơi / Bí ma (cần Giỏ đựng ngọc bí, giỏ mất khi nhặt), 50%; Máy dò NR sự kiện x2
+                update(con, "update season_event_drop set mobs = '-350,-349,-351', rate = 5000 where event_id = 7 and item_id = 702 and need_item = 1348");
+                update(con, "update item_template set description = '30 phút: x2 tỉ lệ rơi Bí ngô 1-7 sao từ boss sự kiện (cộng dồn)' where id = 1115");
+                update(con, "insert ignore into server_migration (name) values ('dot139n_halloween')");
+            }
             // hình Uub (part 946-948) bị ghi đè bằng hình khác: trả lại như v10, ảnh đại diện 8617
             update(con, "update part set data = '[[8586,4,7],[8587,2,5],[2955,0,0]]' where id = 946");
             update(con, "update part set data = '[[8588,2,6],[8589,1,4],[8590,-1,2],[8591,1,2],[8592,1,1],[8593,2,2],[8594,1,2],[8595,3,4],[8596,3,7],[8597,1,8],[8598,1,3],[8599,1,3],[8600,2,6],[8601,2,3],[8602,2,5],[8603,0,2],[2955,0,0]]' where id = 947");

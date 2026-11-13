@@ -60,6 +60,11 @@ public final class BotWorld {
                     + " head smallint not null, body smallint not null, leg smallint not null, flag smallint not null, power bigint not null,"
                     + " tiem_nang bigint not null, hpg bigint not null, mpg bigint not null, dameg bigint not null)");
             st.executeUpdate("create table if not exists bot_setting (k varchar(32) primary key, v varchar(64) not null)");
+            try (ResultSet rs = st.executeQuery("select k, v from bot_setting where k like 'allow\\_%'")) {
+                while (rs.next()) {
+                    ALLOW.put(rs.getString(1).substring(6), !"0".equals(rs.getString(2)));
+                }
+            }
             BotLearn.load();
             BotBrain.load();
             st.executeUpdate("create table if not exists bot_account (player_id bigint primary key, account_id int not null default 0)");
@@ -91,6 +96,52 @@ public final class BotWorld {
             LocalManager.executeUpdate("replace into bot_setting (k, v) values ('count', ?)", String.valueOf(target));
         } catch (Exception ignored) {
         }
+    }
+
+    /** Việc bot được phép làm (panel > Bot > Cho phép bot làm gì), lưu ở bot_setting (allow_<khoá> = 0/1), mặc định được làm hết. */
+    public static final String[][] PERMS = {
+        {"train", "Luyện tập (đánh quái)"}, {"boss", "Săn boss"}, {"broly", "Săn đệ (đánh Broly)"}, {"nrsd", "Ngọc Rồng Sao Đen"},
+        {"skh", "Úp set kích hoạt / đi doanh trại"}, {"pk", "PK người chơi"}, {"quest", "Làm nhiệm vụ"},
+        {"special", "Giải Siêu hạng / ĐHVT lần 23"}, {"endgame", "Hirudegarn, hút Kilis, up bông tai"},
+        {"upvang", "Úp vàng (Ngục tù may mắn)"}, {"shoptop", "Mua hộp đua top sự kiện"}};
+    private static final java.util.Map<String, Boolean> ALLOW = new java.util.concurrent.ConcurrentHashMap<>();
+
+    public static boolean allow(String k) {
+        return ALLOW.getOrDefault(k, true);
+    }
+
+    public static void setAllow(String k, boolean on) {
+        for (String[] p : PERMS) {
+            if (p[0].equals(k)) {
+                ALLOW.put(k, on);
+                try {
+                    LocalManager.executeUpdate("replace into bot_setting (k, v) values (?, ?)", "allow_" + k, on ? "1" : "0");
+                } catch (Exception ignored) {
+                }
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Không có việc " + k);
+    }
+
+    public static List<java.util.Map<String, Object>> perms() {
+        List<java.util.Map<String, Object>> out = new ArrayList<>();
+        for (String[] p : PERMS) {
+            out.add(java.util.Map.of("k", p[0], "name", p[1], "on", allow(p[0])));
+        }
+        return out;
+    }
+
+    /** Hoạt động của bộ não (BotBrain.TRAIN..PK) có được phép không. */
+    private static boolean allowAction(int a) {
+        return switch (a) {
+            case BotBrain.BOSS -> allow("boss");
+            case BotBrain.BROLY -> allow("broly");
+            case BotBrain.NRSD -> allow("nrsd");
+            case BotBrain.SKH -> allow("skh");
+            case BotBrain.PK -> allow("pk");
+            default -> allow("train");
+        };
     }
 
     public List<Bot> bots() {
@@ -689,15 +740,15 @@ public final class BotWorld {
         endPk(b);
         if (b.accountBot && b.playerTask != null && b.playerTask.taskMain != null && b.playerTask.taskMain.id > 10) {
             long now = System.currentTimeMillis(); // xen giữa lúc làm nhiệm vụ như người chơi: mua hộp đua top, đi giải Siêu hạng / ĐHVT 23
-            if (now - b.lastShopTop > 10 * 60_000L) {
+            if (allow("shoptop") && now - b.lastShopTop > 10 * 60_000L) {
                 b.lastShopTop = now;
                 nro.models.services.SeasonEventService.gI().botBuyTopItems(b);
             }
-            if (planSpecial(b, now)) {
+            if (allow("special") && planSpecial(b, now)) {
                 return;
             }
         }
-        if (b.accountBot && b.playerTask != null && b.playerTask.taskMain != null
+        if (allow("quest") && b.accountBot && b.playerTask != null && b.playerTask.taskMain != null
                 && (b.playerTask.taskMain.id <= 10 || BotQuest.gI().pending(b))) {
             if (!"Làm nhiệm vụ".equals(b.activity)) {
                 train(b); // ưu tiên nhiệm vụ (BotQuest dẫn đi); chỉ khi bước nhiệm vụ cần sức mạnh / quá sức mới đi việc khác
@@ -706,20 +757,33 @@ public final class BotWorld {
         }
         b.stayMap = false;
         BotBrain.end(b); // chấm điểm việc vừa làm (bộ não tự học)
-        if (b.accountBot && BotEndgame.pickActivity(b)) {
+        if (b.accountBot && allow("endgame") && BotEndgame.pickActivity(b)) {
             return; // Hirudegarn 22h, hút Kilis, up mảnh bông tai
         }
         boolean nrsd = nro.models.utils.TimeUtil.isBlackBallWarOpen();
         int a = b.accountBot ? plan(b, nrsd) : -1; // làm theo nhu cầu trước, bộ não tự học chỉ chọn khi không có việc cần làm
+        if (a >= 0 && !allowAction(a)) {
+            a = -1;
+        }
         if (a < 0) {
-            a = BotBrain.pick(b, new boolean[]{true, true, true, nrsd, true, true});
+            a = BotBrain.pick(b, new boolean[]{allow("train"), allow("boss"), allow("broly"), nrsd && allow("nrsd"), allow("skh"), allow("pk")});
         }
         if (a < 0) { // bộ não tắt: chọn ngẫu nhiên như trước
             int r = Util.nextInt(1, 100);
             a = r <= 40 ? BotBrain.TRAIN : r <= 55 ? BotBrain.BOSS : r <= 63 ? BotBrain.BROLY
                     : r <= 73 && nrsd ? BotBrain.NRSD : r <= 81 ? BotBrain.SKH : r <= 90 ? BotBrain.PK : BotBrain.TRAIN;
         }
-        if (a == BotBrain.TRAIN && b.accountBot && b.inventory.gold < 2_000_000_000L && Util.isTrue(35, 100) && upVang(b)) {
+        if (!allowAction(a)) { // việc bị tắt trên panel: lấy việc được phép đầu tiên, không còn việc nào thì vẫn luyện tập
+            int pick = BotBrain.TRAIN;
+            for (int x = 0; x < BotBrain.ACTIONS.length; x++) {
+                if (allowAction(x) && (x != BotBrain.NRSD || nrsd)) {
+                    pick = x;
+                    break;
+                }
+            }
+            a = pick;
+        }
+        if (a == BotBrain.TRAIN && allow("upvang") && b.accountBot && b.inventory.gold < 2_000_000_000L && Util.isTrue(35, 100) && upVang(b)) {
             BotBrain.begin(b, a);
             return; // thiếu vàng: đi úp vàng ở Ngục tù may mắn (Phiếu sao vàng may mắn)
         }

@@ -31,6 +31,7 @@ public class ItemMap {
     public boolean isBlackBall;
     public boolean isNamecBall;
     public volatile boolean isPickedUp;
+    public int needItem; // cần vật phẩm này trong hành trang mới nhặt được, nhặt thì mất 1 (Giỏ đựng ngọc bí)
     public boolean fromMob; // rơi từ quái (thông báo nhặt set kích hoạt riêng)
     public String fromBoss; // tên boss vừa chết tại khu này (rơi trong lúc boss chết, 300ms) - thông báo nhặt đồ boss
     public String id;

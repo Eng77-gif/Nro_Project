@@ -25,6 +25,7 @@ public class MaTroi extends Boss {
         ItemMap it = new ItemMap(this.zone, 585, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x,
                 this.location.y - 24), plKill.id);
         Service.gI().dropItemMap(this.zone, it);
+        nro.models.services.SeasonEventService.dropHalloweenRare(this, plKill); // CT Lý Tiểu Nương Bikini / Pet Đầu Quỷ
     }
 
     public void halloween(Player player) {

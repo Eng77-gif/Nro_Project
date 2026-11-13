@@ -851,19 +851,46 @@ public class SeasonEventService implements Runnable {
                 continue;
             }
             for (Drop d : s.drops) {
-                if (d.fromBoss && matches(d, pl, (int) boss.id) && Util.isTrue(rareRate(d.rate, pl.nPoint.tlRareBoss), 10000)) {
+                int rate = rareRate(d.rate, pl.nPoint.tlRareBoss);
+                if (d.itemId >= 702 && d.itemId <= 708 && pl.mayDoNrskUntil > System.currentTimeMillis()) {
+                    rate = Math.min(10000, rate * 2); // Máy dò Ngọc rồng sự kiện: x2 tỉ lệ rơi Bí ngô 1-7 sao
+                }
+                if (d.fromBoss && matches(d, pl, (int) boss.id) && Util.isTrue(rate, 10000)) {
                     int qty = takeDaily(pl, d, Util.nextInt(d.qtyMin, d.qtyMax));
-                    if (qty <= 0 || !useNeed(pl, d, qty)) {
+                    if (qty <= 0) {
+                        continue;
+                    }
+                    if (d.needItem > 0 && InventoryService.gI().findItemBag(pl, d.needItem) == null) { // cần giỏ mới rơi, giỏ chỉ mất khi nhặt (Zone.pickItem)
+                        daily.computeIfPresent(pl.id + ":" + d.itemId, (k, v) -> Math.max(0, v - qty));
+                        Service.gI().sendThongBao(pl, "Cần có " + ItemService.gI().getTemplate(d.needItem).name + " để nhặt " + ItemService.gI().getTemplate(d.itemId).name);
                         continue;
                     }
                     int x = boss.location.x + Util.nextInt(-20, 20);
                     ItemMap it = new ItemMap(boss.zone, pickItem(d), qty, x,
                             boss.zone.map.yPhysicInTop(x, boss.location.y - 24), pl.id);
+                    it.needItem = d.needItem;
                     Service.gI().dropItemMap(boss.zone, it);
                 }
             }
         }
     }
+
+    /** Boss Halloween Ma trơi / Dơi / Bí ma: rơi CT Lý Tiểu Nương Bikini hoặc Pet Đầu Quỷ, hạn 7-15 ngày, có tỉ lệ vĩnh viễn. */
+    public static void dropHalloweenRare(Boss boss, Player pl) {
+        if (boss == null || boss.zone == null || pl == null || !pl.isPl() || !Util.isTrue(HLW_RARE_RATE, 100)) {
+            return;
+        }
+        int id = Util.isTrue(50, 100) ? 1512 : 2114;
+        int days = Util.isTrue(HLW_PERM_RATE, 100) ? 0 : Util.nextInt(7, 15);
+        Item item = noTrade(Event2026Service.gI().createItem(id, 1, days));
+        int x = boss.location.x + Util.nextInt(-20, 20);
+        ItemMap it = new ItemMap(boss.zone, id, 1, x, boss.zone.map.yPhysicInTop(x, boss.location.y - 24), pl.id);
+        it.options = item.itemOptions;
+        Service.gI().dropItemMap(boss.zone, it);
+    }
+
+    /** % hạ boss Ma trơi / Dơi / Bí ma rơi CT Lý Tiểu Nương Bikini hoặc Pet Đầu Quỷ; % trong số đó là vĩnh viễn. */
+    static final int HLW_RARE_RATE = 20, HLW_PERM_RATE = 5;
 
     // ------------------------------------------------------------------ NPC
     public boolean hasActive() {

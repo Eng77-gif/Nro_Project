@@ -124,6 +124,11 @@ public class PanelApi {
                 nro.models.Bot.BotWorld.gI().setAllAccountBots(lng(b.getOrDefault("on", 1)) != 0);
                 yield Map.of("ok", true);
             }
+            case "bot/perms" -> nro.models.Bot.BotWorld.perms();
+            case "bot/perm" -> {
+                nro.models.Bot.BotWorld.setAllow(str(b.get("k")), lng(b.getOrDefault("on", 1)) != 0);
+                yield Map.of("ok", true, "perms", nro.models.Bot.BotWorld.perms());
+            }
             case "bot/set" -> {
                 nro.models.Bot.BotWorld.gI().setTarget(intv(b.get("count")));
                 yield Map.of("ok", true);

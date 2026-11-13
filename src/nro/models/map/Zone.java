@@ -345,6 +345,14 @@ public class Zone {
                             Item item = ItemService.gI().createItemFromItemMap(itemMap);
                             boolean picked = false;  // Variable to track if the item was successfully picked
 
+                            if (itemMap.needItem > 0) { // Bí ngô từ boss Halloween: nhặt vào Giỏ đựng ngọc bí, giỏ mất
+                                Item need = InventoryService.gI().findItemBag(player, itemMap.needItem);
+                                if (need == null) {
+                                    Service.gI().sendThongBao(player, "Cần có " + ItemService.gI().getTemplate(itemMap.needItem).name + " để nhặt " + item.template.name);
+                                    return;
+                                }
+                                InventoryService.gI().subQuantityItemsBag(player, need, 1);
+                            }
                             if (item.template.id == 648) {
                                 if (!InventoryService.gI().findItemTatVoGiangSinh(player)) {
                                     Service.gI().sendThongBao(player, "Cần thêm Tất,vớ giáng sinh");
