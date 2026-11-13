@@ -2032,3 +2032,14 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   9. Giáp tập luyện 1/2/3 (ngọc), Giáp tập luyện 1/2/3 (vàng)
   10. Vé riêng tư
   - Loa to và Bùa x2 có dòng "Không thể giao dịch".
+
+### Đợt 139e: Vé riêng tư, Môtô Bun ma, hình Uub, avatar Kid Jiren
+
+- **Hỗ trợ:** Vé riêng tư lên trên Gia hạn mầm, chỉ người còn mầm mới thấy và mua được.
+- **Môtô Bun ma** theo ảnh bản chính thức: HP+7%, KI+7%, Dùng để bay không tốn KI, 1 dòng chỉ số ẩn.
+- **Đệ Uub vỡ hình:** part 946-948 (đầu/thân/chân Uub) đã bị ghi đè bằng hình khác (icon 11625…).
+  - Nay trả lại như v10 (icon 8586-8616), ảnh đại diện 8617.
+  - vsData 32 để client tải lại.
+- **Kid Jiren:** đầu trong bảng đệ quá to do ảnh đại diện 8094 bản x2/x3/x4 bị phóng gấp 3 lần (x2 là 306×264).
+  - Nay đúng tỉ lệ với bản x1 (x2 102×88).
+  - vsRes 6 để client tải lại ảnh.

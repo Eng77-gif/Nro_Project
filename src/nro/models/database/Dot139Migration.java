@@ -31,7 +31,7 @@ public class Dot139Migration {
         {1282, 10_000_000, 0}, // Bìa sách
         {1285, 20, 1, 30, 0}, // Kìm bấm giấy
         {1284, 20, 1, 30, 0}, // Bùa giám định
-        {1541, 2499, 1, 77, 7}, // Môtô Bun ma
+        {1541, 2499, 1, 77, 7, 103, 7, 84, 0, 210, 1}, // Môtô Bun ma
         {1561, 2, 1, 30, 0}, // Chìa khóa vàng
         {1932, 5999, 1, 210, 2, 267, 0, 30, 0}, // Cánh thiên thần 3 (Đệ)
         {764, 2, 1, 19, 10}, // Khẩu trang
@@ -39,7 +39,12 @@ public class Dot139Migration {
 
     public static void run(Connection con) {
         try {
-            boolean first = !exists(con, "select 1 from server_migration where name = 'dot139b_cua_hang'");
+            // hình Uub (part 946-948) bị ghi đè bằng hình khác: trả lại như v10, ảnh đại diện 8617
+            update(con, "update part set data = '[[8586,4,7],[8587,2,5],[2955,0,0]]' where id = 946");
+            update(con, "update part set data = '[[8588,2,6],[8589,1,4],[8590,-1,2],[8591,1,2],[8592,1,1],[8593,2,2],[8594,1,2],[8595,3,4],[8596,3,7],[8597,1,8],[8598,1,3],[8599,1,3],[8600,2,6],[8601,2,3],[8602,2,5],[8603,0,2],[2955,0,0]]' where id = 947");
+            update(con, "update part set data = '[[8604,9,9],[8605,1,4],[8606,0,3],[8607,1,2],[8608,0,2],[8609,2,2],[8610,0,4],[8611,3,9],[8612,0,7],[8613,1,3],[8614,1,5],[8615,0,8],[8616,0,7],[2955,0,0]]' where id = 948");
+            update(con, "update head_avatar set avatar_id = 8617 where head_id = 946");
+            boolean first = !exists(con, "select 1 from server_migration where name = 'dot139c_cua_hang'");
             StringBuilder keep = new StringBuilder();
             for (int i = 0; i < CUA_HANG.length; i++) {
                 int[] r = CUA_HANG[i];
@@ -61,7 +66,7 @@ public class Dot139Migration {
             // món không có trong ảnh (Trang sách cũ...) thì không bán ở tab này
             update(con, "update item_shop set is_sell = 0 where tab_id = 17 and temp_id not in (" + keep + ")");
             if (first) {
-                update(con, "insert ignore into server_migration (name) values ('dot139b_cua_hang')");
+                update(con, "insert ignore into server_migration (name) values ('dot139c_cua_hang')");
                 Logger.success("Đợt 139: xếp lại Santa Cửa hàng theo ảnh\n");
             }
         } catch (Exception e) {

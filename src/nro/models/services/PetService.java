@@ -193,7 +193,7 @@ public class PetService {
 
     /** Ảnh mặt đệ tử 2 (khung đầu tiên của part đầu Uub / Kid Beer / Jiren) cho hiệu ứng mở như Capsule kì bí. */
     public static short pet2HeadIcon(Pet pet) {
-        return (short) (pet.typePet == 3 ? 12793 : pet.typePet == 4 ? 8063 : 11625);
+        return (short) (pet.typePet == 3 ? 12793 : pet.typePet == 4 ? 8063 : 8586);
     }
 
     public void changeNormalPet(Player player, int gender) {

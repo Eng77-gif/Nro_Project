@@ -121,6 +121,11 @@ public class ShopService {
                 t.itemShops.removeIf(it -> it.temp != null && (it.temp.id == 1703 || it.temp.id == 1717));
             }
         }
+        if (!player.hasMam()) { // Vé riêng tư chỉ người còn mầm mới thấy
+            for (TabShop t : res.tabShops) {
+                t.itemShops.removeIf(it -> it.temp != null && it.temp.id == 1825);
+            }
+        }
         // đã có đệ tử 2 thì ẩn "Đổi đệ tử", chưa có thì ẩn "Đổi đệ tử 2"
         int hidePet = hiddenPetItem(player);
         for (TabShop t : res.tabShops) {
@@ -934,6 +939,10 @@ public class ShopService {
             return;
         }
 
+        if (itemTempId == 1825 && !player.hasMam()) {
+            Service.gI().sendThongBao(player, "Tài khoản đã hết mầm");
+            return;
+        }
         if (itemTempId == hiddenPetItem(player)) {
             Service.gI().sendThongBao(player, itemTempId == 401 ? "Bạn đã có đệ tử 2" : "Chỉ dùng được khi đã có đệ tử 2");
             return;
