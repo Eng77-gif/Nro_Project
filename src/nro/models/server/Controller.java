@@ -440,7 +440,7 @@ public class Controller implements IMessageHandler {
                         }
                         int shenronType = player.zone.shenronType;
                         if (idT == 25 && shenronType != -1 && player.zone.map.mapId != 0 && player.zone.map.mapId != 7 && player.zone.map.mapId != 14) {
-                            idT = shenronType == 1 ? 59 : shenronType == 0 ? 59 : 60;
+                            idT = shenronType >= 50 ? shenronType : shenronType == 1 ? 59 : shenronType == 0 ? 59 : 60; // >= 50: mã hình rồng (Rồng Xương 51)
                         }
                         DataGame.sendEffectTemplate(_session, effId, idT);
                     }

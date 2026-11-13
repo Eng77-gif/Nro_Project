@@ -37,16 +37,6 @@ public class RongXuong {
      * bám sau lưng nhân vật; hành trang tự đóng. 0 / 1: lệnh gọi rồng của client (chỉ có hình Rồng thần Trái Đất / Namek).
      */
     public static volatile int dragonType = -1;
-    /**
-     * Hiệu ứng trên bản đồ không gỡ được nên gửi từng đợt ngắn, rồng còn thì gửi tiếp, rồng đi thì tắt sau tối đa 1 đợt.
-     * Client cập nhật 50 lần / giây, hình rồng 12 khung -> 13 vòng ~ 3,1 giây, khớp chu kỳ gửi lại 3 giây.
-     */
-    private static final int BONE_LOOPS = 13;
-    private static final long BONE_REFRESH_MS = 3_000;
-    /** Chờ quả cầu sáng + chớp trắng của client xong mới hiện rồng. */
-    private static final long BONE_DELAY_MS = 1_500;
-    /** Chỗ đặt hình rồng Trái Đất của client (ngoài màn hình) khi vẽ Rồng Xương. */
-    private static final int DRAGON_HIDE_X = -2000;
     private static final java.util.concurrent.ScheduledExecutorService BONE = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "rong-xuong");
         t.setDaemon(true);
@@ -126,41 +116,45 @@ public class RongXuong {
     }
 
     /**
-     * Như bản chính thức: lệnh gọi rồng của client (-83) cho quả cầu sáng (hiệu ứng 20), chớp trắng, trời tối; client chỉ có hình
-     * rồng Trái Đất / Namếc nên đặt nó ra ngoài màn hình (DRAGON_HIDE_X) và vẽ Rồng Xương (hiệu ứng 51) đúng chỗ sau khi chớp xong.
-     * Rồng đi: -83 loại 1 -> chớp trắng, trời sáng lại; hình rồng xương gửi từng đợt ngắn nên tắt ngay sau đó.
+     * Như Rồng Băng: lệnh gọi rồng loại 1 (client: quả cầu sáng, chớp trắng, trời tối, vẽ hiệu ứng 25); zone.shenronType = 51 để khi
+     * client xin dữ liệu hiệu ứng 25 thì server trả hình Rồng Xương (Controller -66). Đẩy luôn hình rồng xương cho hiệu ứng 25 phòng
+     * client đã nhớ sẵn hình rồng Namếc; rồng đi thì trả lại hình gốc.
      */
     private static void sendDragon(Player pl, State st, boolean appear) {
         try {
             Message msg = new Message(-83);
             msg.writer().writeByte(appear ? 0 : 1);
             if (appear) {
+                st.zone.shenronType = EFFECT_RONG_XUONG;
                 msg.writer().writeShort(st.zone.map.mapId);
                 msg.writer().writeShort(st.zone.map.bgId);
                 msg.writer().writeByte(st.zone.zoneId);
                 msg.writer().writeInt((int) pl.id);
                 msg.writer().writeUTF("null");
-                msg.writer().writeShort(dragonType < 0 ? DRAGON_HIDE_X : st.x);
+                msg.writer().writeShort(st.x);
                 msg.writer().writeShort(st.y);
-                msg.writer().writeByte(Math.max(0, dragonType));
+                msg.writer().writeByte(dragonType < 0 ? 1 : dragonType);
                 pl.isShenronAppear = true;
             }
             Service.gI().sendMessAllPlayerInMap(pl, msg);
             msg.cleanup();
         } catch (Exception ignored) {
         }
-        if (appear && dragonType < 0) {
-            BONE.schedule(() -> showBone(pl.id, st), BONE_DELAY_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
+        final Zone z = st.zone;
+        if (appear) {
+            BONE.schedule(() -> pushEffect25(z, EFFECT_RONG_XUONG), 2_500, java.util.concurrent.TimeUnit.MILLISECONDS);
+        } else {
+            z.shenronType = -1;
+            BONE.schedule(() -> pushEffect25(z, 25), 2_500, java.util.concurrent.TimeUnit.MILLISECONDS);
         }
     }
 
-    private static void showBone(long playerId, State st) {
-        if (dragons.get(playerId) != st) {
-            return;
+    private static void pushEffect25(Zone z, int img) {
+        for (Player p : z.getPlayers()) {
+            if (p != null && p.isPl() && p.getSession() != null) {
+                nro.models.data.DataGame.sendEffectTemplate(p.getSession(), 25, img);
+            }
         }
-        // như client vẽ rồng thần (Effect 17 ở lớp 2, cao hơn chỗ gọi 77)
-        nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(st.zone, EFFECT_RONG_XUONG, 2, BONE_LOOPS, st.x, st.y - 77, 1);
-        BONE.schedule(() -> showBone(playerId, st), BONE_REFRESH_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
 
     private static void page(Player pl, int p) {
