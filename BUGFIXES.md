@@ -1944,6 +1944,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Siêu hạng (map 113):** người chơi bị đối thủ hạ không chết thật nữa mà thua như ĐHVT 23 → trận kết thúc ngay và được đưa xuống đài (trước đây chết rồi vẫn đứng trên đài).
 - **Danh sách Siêu hạng:** thông tin từng người như bản chính thức: `HP / Sức đánh / Giáp / Win x Lose y` + 3 trận gần nhất ("Hạ abc 2gi trước"), thay cho "1:1". Lịch sử chỉ giữ 5 trận.
 - **Chat thế giới:** chỉ hiện cải trang + avatar, không hiện đeo lưng.
-- **Nhắc hạn tìm set kích hoạt (mầm):** thú cưng bay theo (ô pet) nhắc thay cho đệ tử; không đeo thú cưng thì đệ tử nhắc như cũ.
+- **Nhắc hạn tìm set kích hoạt (mầm):** không để đệ tử nhắc nữa; bong bóng hiện trên đầu nhân vật, ngay cạnh con bay theo (chim / rồng chibi). Client 2.4.x không vẽ bong bóng chat cho con bay theo (gói 31, chỉ là hình) nên không cho chính nó nói được.
 - **Panel → Tài khoản:** nút Xoá (gõ đúng tên tài khoản để xác nhận): xoá tài khoản + mọi nhân vật và dữ liệu đi kèm (player_extra, siêu hạng, ký gửi, sự kiện...), đưa nhân vật ra khỏi bang. Không xoá tài khoản bot và nhân vật đang là bang chủ; đang online thì bị kick trước.
 - File: `player/Player.java`, `server/Manager.java`, `matches/dai_hoi_vo_thuat/SuperRank.java`, `SuperRankService.java`, `database/SuperRankDAO.java`, `player/SuperRank.java`, `services/ChatGlobalService.java`, `shop/ShopService.java`, `panel/PanelApi.java`, `data/panel/index.html`, `tools/aura_merge.py`, `data/img_by_name/*`.

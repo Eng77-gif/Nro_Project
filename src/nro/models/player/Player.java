@@ -93,22 +93,14 @@ public class Player implements Runnable {
 
     /** Còn mầm (tài khoản tạo chưa đủ 35 ngày). */
     /**
-     * Ai nhắc hạn tìm set kích hoạt: thú cưng đang bay theo (ô pet), không đeo thú cưng thì đệ tử.
-     * Đeo thú cưng mà nó chưa vào map thì chờ (null), để lời nhắc không bị đệ tử nói mất.
+     * Ai nhắc hạn tìm set kích hoạt: con chim / rồng chibi bay theo chỉ là hình client tự vẽ (gói 31), client 2.4.x không
+     * vẽ bong bóng chat cho nó, nên bong bóng hiện trên đầu nhân vật, ngay cạnh con bay theo; vào map được 3 giây mới nhắc.
      */
     public Player mamSpeaker() {
-        if (newPet != null && newPet.zone != null && newPet.zone == zone) {
-            return newPet;
-        }
-        boolean wearsPet = inventory != null && inventory.itemsBody.size() > 7 && inventory.itemsBody.get(7) != null
-                && inventory.itemsBody.get(7).isNotNullItem() && inventory.itemsBody.get(7).template.type != 25;
         if (mamWaitSince == 0) {
             mamWaitSince = System.currentTimeMillis();
         }
-        if (wearsPet && Util.canDoWithTime(mamWaitSince, 15000)) {
-            wearsPet = false; // vào game 15 giây mà thú cưng vẫn chưa hiện (pet không có hình bay theo): để đệ tử nhắc
-        }
-        return !wearsPet && pet != null && pet.zone != null && pet.zone == zone ? pet : null;
+        return zone != null && Util.canDoWithTime(mamWaitSince, 3000) ? this : null;
     }
 
     public boolean hasMam() {
@@ -532,7 +524,7 @@ public class Player implements Runnable {
                     }
                     Player mamBird = !mamNoticed && isPl() && hasMam() ? mamSpeaker() : null;
                     if (mamBird != null) {
-                        mamNoticed = true; // còn mầm: thú cưng (con chim bay theo) nhắc hạn tìm set kích hoạt 1 lần mỗi lần đăng nhập
+                        mamNoticed = true; // còn mầm: nhắc hạn tìm set kích hoạt 1 lần mỗi lần đăng nhập (bong bóng cạnh con bay theo)
                         Service.gI().chatJustForMe(this, mamBird, "Thời gian tìm set kích hoạt đến "
                                 + new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new java.util.Date(newMemberUntil)));
                     }
