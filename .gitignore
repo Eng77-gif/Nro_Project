@@ -16,3 +16,4 @@ admin/
 cloudflare/public/
 cloudflare/.wrangler/
 srv.log
+logs/
