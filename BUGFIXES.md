@@ -1918,7 +1918,7 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Chọn map:** gom các map hợp sức, bỏ map chưa đi được / quá mạnh, chọn theo UCB1 (điểm + thưởng cho map ít thử), 10% ngẫu nhiên để khám phá.
 - Lưu bảng bot_map_learn 5 phút / lần. Panel trang AI: "Map luyện tập tốt nhất" hiện 3 map tốt nhất của từng bậc sức mạnh; nút "Học lại từ đầu" xoá cả kinh nghiệm chọn map.
 
-## Panel: trang Bang hội làm lại
+## Đợt 134: panel — trang Bang hội làm lại
 
 - **Tổng quan:** số bang, thành viên, đang online, tổng sức mạnh; tìm theo tên bang / bang chủ / ID, sắp xếp theo sức mạnh / thành viên / cấp / ngày lập.
 - **Thẻ bang:** hạng, cờ bang, cấp, khẩu hiệu, bang chủ (avatar), thành viên / online / bot / sức mạnh, 5 gương mặt thành viên.
