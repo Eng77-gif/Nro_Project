@@ -795,6 +795,16 @@ public final class Manager {
             while (rs.next()) {
                 IMAGES_BY_NAME.put(rs.getString("name"), rs.getByte("n_frame"));
             }
+            // aura gộp 2 lớp (tools/aura_merge.py): "tên số_khung" mỗi dòng
+            java.io.File auraMerged = new java.io.File("data/img_by_name/aura_merged.txt");
+            if (auraMerged.exists()) {
+                for (String line : java.nio.file.Files.readAllLines(auraMerged.toPath())) {
+                    String[] p = line.trim().split("\\s+");
+                    if (p.length == 2) {
+                        IMAGES_BY_NAME.put(p[0], Byte.parseByte(p[1]));
+                    }
+                }
+            }
             Logger.success(Logger.RED + "Successfully loaded images by name (" + IMAGES_BY_NAME.size() + ")\n");
 
             //Load mount

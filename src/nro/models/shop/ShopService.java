@@ -956,8 +956,9 @@ public class ShopService {
                 nro.models.utils.Logger.error("Lưu gia hạn mầm lỗi: " + e.getMessage() + "\n");
             }
             String until = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new java.util.Date(player.newMemberUntil));
-            if (player.pet != null) {
-                Service.gI().chatJustForMe(player, player.pet, "Thời gian tìm set kích hoạt đến " + until);
+            Player bird = player.newPet != null && player.newPet.zone == player.zone ? player.newPet : player.pet;
+            if (bird != null) {
+                Service.gI().chatJustForMe(player, bird, "Thời gian tìm set kích hoạt đến " + until);
             }
             Service.gI().sendThongBao(player, "Gia hạn mầm thêm " + days + " ngày, tìm set kích hoạt đến " + until);
             return;

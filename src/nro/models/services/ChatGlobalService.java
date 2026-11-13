@@ -166,7 +166,7 @@ public class ChatGlobalService implements Runnable {
             this.head = player.getHead();
             this.body = player.getBody();
             this.leg = player.getLeg();
-            this.bag = player.getFlagBag();
+            this.bag = -1; // chat thế giới chỉ hiện cải trang + avatar, không hiện đeo lưng / pet
             this.text = text;
         }
 

@@ -92,6 +92,25 @@ public class Player implements Runnable {
     public long newMemberUntil; // hết "mầm" (35 ngày từ ngày tạo tài khoản): còn mầm đánh quái mới rơi SKH (trừ set Gohan)
 
     /** Còn mầm (tài khoản tạo chưa đủ 35 ngày). */
+    /**
+     * Ai nhắc hạn tìm set kích hoạt: thú cưng đang bay theo (ô pet), không đeo thú cưng thì đệ tử.
+     * Đeo thú cưng mà nó chưa vào map thì chờ (null), để lời nhắc không bị đệ tử nói mất.
+     */
+    public Player mamSpeaker() {
+        if (newPet != null && newPet.zone != null && newPet.zone == zone) {
+            return newPet;
+        }
+        boolean wearsPet = inventory != null && inventory.itemsBody.size() > 7 && inventory.itemsBody.get(7) != null
+                && inventory.itemsBody.get(7).isNotNullItem() && inventory.itemsBody.get(7).template.type != 25;
+        if (mamWaitSince == 0) {
+            mamWaitSince = System.currentTimeMillis();
+        }
+        if (wearsPet && Util.canDoWithTime(mamWaitSince, 15000)) {
+            wearsPet = false; // vào game 15 giây mà thú cưng vẫn chưa hiện (pet không có hình bay theo): để đệ tử nhắc
+        }
+        return !wearsPet && pet != null && pet.zone != null && pet.zone == zone ? pet : null;
+    }
+
     public boolean hasMam() {
         return System.currentTimeMillis() < newMemberUntil;
     }
@@ -292,6 +311,7 @@ public class Player implements Runnable {
     public long luckyMapUntil;
     private long lastLuckyMapCheck;
     private boolean mamNoticed; // đã nhắc hạn mầm trong lần đăng nhập này
+    private long mamWaitSince; // lúc bắt đầu chờ thú cưng vào map để nhắc hạn mầm
     public long timePKVDST;
 
     public int binhChonHatMit;
@@ -510,9 +530,10 @@ public class Player implements Runnable {
                     if (fusion != null) {
                         fusion.update();
                     }
-                    if (!mamNoticed && isPl() && hasMam() && pet != null && pet.zone != null && pet.zone == zone) {
-                        mamNoticed = true; // còn mầm: đệ tử nhắc hạn tìm set kích hoạt 1 lần mỗi lần đăng nhập (bong bóng chat như bản chính thức)
-                        Service.gI().chatJustForMe(this, pet, "Thời gian tìm set kích hoạt đến "
+                    Player mamBird = !mamNoticed && isPl() && hasMam() ? mamSpeaker() : null;
+                    if (mamBird != null) {
+                        mamNoticed = true; // còn mầm: thú cưng (con chim bay theo) nhắc hạn tìm set kích hoạt 1 lần mỗi lần đăng nhập
+                        Service.gI().chatJustForMe(this, mamBird, "Thời gian tìm set kích hoạt đến "
                                 + new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new java.util.Date(newMemberUntil)));
                     }
                     if (isPl() && Util.canDoWithTime(lastLuckyMapCheck, 5000)) {
@@ -798,7 +819,16 @@ public class Player implements Runnable {
         return -1;
     }
 
+    /**
+     * Aura gửi cho client: bản gộp 2 lớp (id + 1000, tools/aura_merge.py) để ô "Hào quang đặc biệt" bật là hiện, tắt là ẩn
+     * (client chỉ vẽ lớp sau khi bật, lớp trước khi tắt; nhiều aura chỉ có lớp trước nên trước đây bị ngược).
+     */
     public short getAura() {
+        short a = getAuraRaw();
+        return a >= 0 && a < 1000 && nro.models.server.Manager.IMAGES_BY_NAME.containsKey("aura_" + (a + 1000) + "_0") ? (short) (a + 1000) : a;
+    }
+
+    public short getAuraRaw() {
         if (!isPl()) {
             return -1;
         }
@@ -1348,6 +1378,11 @@ public class Player implements Runnable {
                 damage = this.nPoint.hp - 1;
             }
 
+            if (this.zone.map.mapId == 113 && this.isPKDHVT && plAtt != null && plAtt.isBoss && damage >= this.nPoint.hp) {
+                // Siêu hạng: hết máu là thua (như ĐHVT 23), không chết thật -> trận kết thúc và được đưa xuống đài
+                this.lostByDeath = true;
+                return 0;
+            }
             if (this.zone.map.mapId == 129) {
                 if (damage >= this.nPoint.hp) {
                     this.lostByDeath = true;

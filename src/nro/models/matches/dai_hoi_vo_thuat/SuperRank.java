@@ -227,6 +227,7 @@ public final class SuperRank implements Runnable {
 
         if (player != null) {
             player.isPKDHVT = false;
+            player.lostByDeath = false;
         }
 
         if (rival != null) {

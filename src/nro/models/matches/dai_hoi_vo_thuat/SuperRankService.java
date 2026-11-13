@@ -154,18 +154,10 @@ public class SuperRankService {
     }
 
     public String textInfo(Player pl) {
-        pl.setClothes.setup();
-        if (pl.pet != null) {
-            pl.pet.setClothes.setup();
-        }
-        pl.nPoint.calPoint();
-        String text = "HP " + Util.formatNumber(pl.nPoint.hpMax) + "\n";
-        text += "Sức đánh " + Util.formatNumber(pl.nPoint.dame) + "\n";
-        text += "Giáp " + Util.formatNumber(pl.nPoint.def) + "\n";
-        text += pl.superRank.win + ":" + pl.superRank.lose;
-        return text;
+        return textInfoNew(pl);
     }
 
+    /** Như bản chính thức: HP, sức đánh, giáp, "Win x Lose y", 3 trận gần nhất (mới nhất trước). */
     public String textInfoNew(Player pl) {
         if (pl == null || pl.nPoint == null) {
             return "Không xác định!";
@@ -175,18 +167,13 @@ public class SuperRankService {
             pl.pet.setClothes.setup();
         }
         pl.nPoint.calPoint();
-        StringBuilder text = new StringBuilder("HP: " + Util.formatNumber(pl.nPoint.hpMax) + "\n");
-        text.append("Sức đánh: ").append(Util.formatNumber(pl.nPoint.dame)).append("\n");
-        text.append("Giáp: ").append(Util.formatNumber(pl.nPoint.def)).append("\n");
-        if (pl.superRank.history.isEmpty()) {
-            text.append("Thắng/Thua: ").append(pl.superRank.win).append("/").append(pl.superRank.lose);
-        } else {
-            text.append(pl.superRank.win).append(":").append(pl.superRank.lose);
-        }
-        for (int i = 0; i < pl.superRank.history.size(); i++) {
-            String history = pl.superRank.history.get(i);
-            long lastTime = pl.superRank.lastTime.get(i);
-            text.append("\n").append(history).append(" ").append(TimeUtil.getTimeLeft(lastTime));
+        StringBuilder text = new StringBuilder("HP " + Util.formatNumber(pl.nPoint.hpMax) + "\n");
+        text.append("Sức đánh ").append(Util.formatNumber(pl.nPoint.dame)).append("\n");
+        text.append("Giáp ").append(Util.formatNumber(pl.nPoint.def)).append("\n");
+        text.append("Win ").append(pl.superRank.win).append(" Lose ").append(pl.superRank.lose);
+        for (int i = pl.superRank.history.size() - 1, n = 0; i >= 0 && n < 3; i--, n++) {
+            text.append("\n").append(pl.superRank.history.get(i).replaceAll("\\[\\d+\\]", "")).append(" ")
+                    .append(TimeUtil.getTimeLeft(pl.superRank.lastTime.get(i)));
         }
         return text.toString();
     }

@@ -176,6 +176,7 @@ public class PanelApi {
                 yield pagedList(list, q);
             }
             case "account/update" -> accountUpdate(b);
+            case "account/delete" -> accountDelete(b);
             case "items/page" -> itemsPage(q);
             case "items" -> items(q.getOrDefault("q", ""), q.getOrDefault("type", ""));
             case "item" -> item(intv(q.get("id")));
@@ -946,6 +947,100 @@ public class PanelApi {
         return Map.of("ok", true);
     }
 
+    /**
+     * Xoá hẳn 1 tài khoản và các nhân vật của nó (gõ đúng tên tài khoản để xác nhận). Không xoá tài khoản bot (xoá ở trang Bot)
+     * và nhân vật đang là bang chủ (chuyển bang chủ / giải tán bang trước). Đang online thì bị kick, lưu xong mới xoá.
+     */
+    private static nro.models.clan.Clan clanOrNull(int id) {
+        for (nro.models.clan.Clan c : Manager.CLANS) {
+            if (c.id == id) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    private Object accountDelete(Map<String, Object> b) throws Exception {
+        long id = lng(b.get("id"));
+        List<Map<String, Object>> acc = rows("select username from account where id = ?", id);
+        if (acc.isEmpty()) {
+            throw new IllegalArgumentException("Không có tài khoản này");
+        }
+        String user = String.valueOf(acc.get(0).get("username"));
+        if (!user.equals(str(b.get("confirm")).trim())) {
+            throw new IllegalArgumentException("Gõ đúng tên tài khoản \"" + user + "\" để xác nhận xoá");
+        }
+        if (!rows("select 1 from bot_account where account_id = ? limit 1", id).isEmpty()) {
+            throw new IllegalArgumentException("Đây là tài khoản bot, hãy xoá ở trang Bot");
+        }
+        List<Map<String, Object>> pls = rows("select id, name, clan_id from player where account_id = ?", id);
+        for (Map<String, Object> r : pls) {
+            int clanId = intv(r.get("clan_id"));
+            nro.models.clan.Clan c = clanOrNull(clanId);
+            nro.models.clan.ClanMember cm = c == null ? null : c.getClanMember(intv(r.get("id")));
+            if (cm != null && cm.role == nro.models.clan.Clan.LEADER) {
+                throw new IllegalArgumentException(r.get("name") + " đang là bang chủ " + c.name + ": chuyển bang chủ hoặc giải tán bang trước");
+            }
+        }
+        boolean kicked = false;
+        for (Player p : onlinePlayers()) {
+            if (p.session != null && p.session.userId == id) {
+                Client.gI().kickSession(p.session);
+                kicked = true;
+            }
+        }
+        if (kicked) {
+            Thread.sleep(2000); // chờ lưu khi thoát xong, kẻo bản lưu ghi lại sau khi xoá
+        }
+        for (Map<String, Object> r : pls) {
+            int clanId = intv(r.get("clan_id"));
+            nro.models.clan.Clan c = clanOrNull(clanId);
+            if (c != null && c.getClanMember(intv(r.get("id"))) != null) {
+                PanelClan.kick(clanId, intv(r.get("id")));
+            }
+        }
+        java.util.Set<Integer> pids = new java.util.HashSet<>();
+        for (Map<String, Object> r : pls) {
+            pids.add(intv(r.get("id")));
+        }
+        // đồ ký gửi nằm trong bộ nhớ, lần lưu sau ghi lại cả bảng: bỏ khỏi bộ nhớ chứ xoá DB không đủ
+        nro.models.shop_ky_gui.ConsignShopManager.gI().listItem.removeIf(it -> pids.contains(it.player_sell));
+        try (java.sql.Connection con = nro.models.data.LocalManager.getConnection()) {
+            con.setAutoCommit(false);
+            try {
+                for (Map<String, Object> r : pls) {
+                    long pid = lng(r.get("id"));
+                    for (String t : new String[]{"player_extra", "super_rank", "shop_ky_gui", "box_pity", "season_event_point",
+                        "season_event_cook", "season_event_reward_item", "season_event_reward_pending"}) {
+                        try (java.sql.PreparedStatement ps = con.prepareStatement("delete from " + t + " where player_id = ?")) {
+                            ps.setLong(1, pid);
+                            ps.executeUpdate();
+                        } catch (java.sql.SQLException missingTable) {
+                            if (!"42S02".equals(missingTable.getSQLState())) {
+                                throw missingTable;
+                            }
+                        }
+                    }
+                }
+                try (java.sql.PreparedStatement ps = con.prepareStatement("delete from player where account_id = ?")) {
+                    ps.setLong(1, id);
+                    ps.executeUpdate();
+                }
+                try (java.sql.PreparedStatement ps = con.prepareStatement("delete from account where id = ?")) {
+                    ps.setLong(1, id);
+                    ps.executeUpdate();
+                }
+                con.commit();
+            } catch (Exception e) {
+                con.rollback();
+                throw e;
+            } finally {
+                con.setAutoCommit(true);
+            }
+        }
+        return Map.of("ok", true, "note", "Đã xoá tài khoản " + user + " và " + pls.size() + " nhân vật");
+    }
+
     // ------------------------------------------------------------------ item
 
     private Object items(String kw,String type){return itemsList(kw,type,300);}
@@ -1559,7 +1654,7 @@ public class PanelApi {
         if (af != null) {
             for (java.io.File f : af) {
                 java.util.regex.Matcher mt = java.util.regex.Pattern.compile("^aura_(\\d+)_\\d+\\.png$").matcher(f.getName());
-                if (mt.find() && !mt.group(1).equals("999")) {
+                if (mt.find() && !mt.group(1).equals("999") && Integer.parseInt(mt.group(1)) < 1000) { // >= 1000: bản gộp 2 lớp (tools/aura_merge.py)
                     aura.add(Integer.parseInt(mt.group(1)));
                 }
             }

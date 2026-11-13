@@ -1937,3 +1937,13 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Quái, Ký gửi, Tài khoản:** kiểu di chuyển của quái, HP rút gọn; ký gửi hiện giá + trạng thái đang bán / đã bán; tài khoản chưa đăng nhập không còn hiện ngày 2002.
 - **Truy vấn SQL:** câu lệnh mẫu, Ctrl+Enter, số dòng + thời gian chạy, tải kết quả CSV.
 - File: `data/panel/index.html`, `panel/PanelApi.java` (nạp thẻ kèm tên tài khoản).
+
+## Đợt 136: hào quang, Siêu hạng, chat thế giới, chim nhắc set kích hoạt, xoá tài khoản
+
+- **Hào quang đặc biệt bị ngược:** client chỉ vẽ lớp sau (`aura_X_0`) khi ô "Hào quang đặc biệt" được tích, lớp trước (`aura_X_1`) khi bỏ tích; phần lớn aura (thẻ radar...) chỉ có lớp trước nên tích thì mất, bỏ tích lại hiện. Gộp 2 lớp thành `aura_<X+1000>_0` (lớp trước để ảnh trống), server gửi id + 1000 (`Player.getAura`) → tích là hiện, bỏ tích là ẩn. Dùng id mới để máy người chơi tải ảnh mới, không vướng ảnh cũ đã lưu. Công cụ: `tools/aura_merge.py` (tự dò số khung, kết quả ở `data/img_by_name/aura_merged.txt`).
+- **Siêu hạng (map 113):** người chơi bị đối thủ hạ không chết thật nữa mà thua như ĐHVT 23 → trận kết thúc ngay và được đưa xuống đài (trước đây chết rồi vẫn đứng trên đài).
+- **Danh sách Siêu hạng:** thông tin từng người như bản chính thức: `HP / Sức đánh / Giáp / Win x Lose y` + 3 trận gần nhất ("Hạ abc 2gi trước"), thay cho "1:1". Lịch sử chỉ giữ 5 trận.
+- **Chat thế giới:** chỉ hiện cải trang + avatar, không hiện đeo lưng.
+- **Nhắc hạn tìm set kích hoạt (mầm):** thú cưng bay theo (ô pet) nhắc thay cho đệ tử; không đeo thú cưng thì đệ tử nhắc như cũ.
+- **Panel → Tài khoản:** nút Xoá (gõ đúng tên tài khoản để xác nhận): xoá tài khoản + mọi nhân vật và dữ liệu đi kèm (player_extra, siêu hạng, ký gửi, sự kiện...), đưa nhân vật ra khỏi bang. Không xoá tài khoản bot và nhân vật đang là bang chủ; đang online thì bị kick trước.
+- File: `player/Player.java`, `server/Manager.java`, `matches/dai_hoi_vo_thuat/SuperRank.java`, `SuperRankService.java`, `database/SuperRankDAO.java`, `player/SuperRank.java`, `services/ChatGlobalService.java`, `shop/ShopService.java`, `panel/PanelApi.java`, `data/panel/index.html`, `tools/aura_merge.py`, `data/img_by_name/*`.

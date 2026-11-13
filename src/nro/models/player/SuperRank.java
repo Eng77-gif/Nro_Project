@@ -33,9 +33,9 @@ public class SuperRank {
     }
 
     public void history(String text, long lastTime) {
-        if (this.history.size() > 4) {
-            // this.history.removeFirst();
-            // this.lastTime.removeFirst();
+        while (this.history.size() >= 5) { // giữ 5 trận gần nhất, không phình mãi trong DB
+            this.history.remove(0);
+            this.lastTime.remove(0);
         }
         this.history.add(text);
         this.lastTime.add(lastTime);

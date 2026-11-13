@@ -102,26 +102,20 @@ public class SuperRankDAO {
                     superRankbuilder.setHead(((Long) info.get("head")).intValue());
                     superRankbuilder.setBody(((Long) info.get("body")).intValue());
                     superRankbuilder.setLeg(((Long) info.get("leg")).intValue());
-                    text.append("HP: ").append(Util.formatNumber(((Long) info.get("hp")).intValue())).append("\n");
-                    text.append("Sức đánh: ").append(Util.formatNumber(((Long) info.get("dame")).intValue())).append("\n");
-                    text.append("Giáp: ").append(Util.formatNumber(((Long) info.get("def")).intValue())).append("\n");
+                    text.append("HP ").append(Util.formatNumber(((Number) info.get("hp")).longValue())).append("\n");
+                    text.append("Sức đánh ").append(Util.formatNumber(((Number) info.get("dame")).longValue())).append("\n");
+                    text.append("Giáp ").append(Util.formatNumber(((Number) info.get("def")).longValue())).append("\n");
                 }
             } catch (Exception e) {
             }
-
-            JSONArray historyList;
-
+            // như bản chính thức: "Win x Lose y" rồi 3 trận gần nhất, mới nhất trước ("Hạ abc 2gi trước")
+            text.append("Win ").append(rs.getInt("win")).append(" Lose ").append(rs.getInt("lose"));
             try {
-                historyList = (JSONArray) parser.parse(rs.getString("history"));
-                if (historyList != null) {
-                    text.append(rs.getInt("win")).append(":").append(rs.getInt("lose"));
-                    for (Object obj : historyList) {
-                        JSONObject history = (JSONObject) obj;
-                        text.append("\n").append((String) history.get("event")).append(" ")
-                                .append(TimeUtil.getTimeLeft((Long) history.get("timestamp")));
-                    }
-                } else {
-                    text.append("Thắng/Thua: ").append(rs.getInt("win")).append("/").append(rs.getInt("lose"));
+                JSONArray historyList = (JSONArray) parser.parse(rs.getString("history"));
+                for (int i = historyList == null ? -1 : historyList.size() - 1, n = 0; i >= 0 && n < 3; i--, n++) {
+                    JSONObject history = (JSONObject) historyList.get(i);
+                    text.append("\n").append(String.valueOf(history.get("event")).replaceAll("\\[\\d+\\]", "")).append(" ")
+                            .append(TimeUtil.getTimeLeft(((Number) history.get("timestamp")).longValue()));
                 }
             } catch (Exception e) {
             }
