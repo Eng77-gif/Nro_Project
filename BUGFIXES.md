@@ -1963,3 +1963,19 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Gói 10 Rađa dò ngọc (loại 25) bị nhét vào ô sách tuyệt kỹ:** vật phẩm loại 25 tự mặc vào ô 10 trước khi xử lý theo id. Nay gói rađa chỉ mở bảng vị trí 7 viên ngọc Namếc, không mặc.
 - **Bot mang ngọc rồng Namếc sang map khác:** bot đổi map bằng đường riêng (goToMap) không kiểm tra ngọc. Nay ra khỏi vùng ngọc Namếc thì rơi ngọc lại như người chơi, đi trong vùng thì cập nhật vị trí ngọc cho rađa.
 - File: `services_func/UseItem.java`, `services/ItemTimeService.java`, `map/service/ChangeMapService.java`, `database/Dot133Migration.java`.
+
+## Đợt 139: làm lại đổi đệ tử 2 theo video
+
+- **Bình hút năng lượng** (3000 Kilis, đệ ≥ 40 tỷ): đệ còn mặc đồ thì báo "Hãy thu lại trang bị từ đệ tử trước khi đổi." (con báo tin), không đổi.
+- Đệ tử 2 có **hành tinh ngẫu nhiên**, hình theo hành tinh: Trái Đất = Uub, Namếc = Jiren, Xayda = Kid Beer (trước lấy hành tinh của sư phụ nên hình và hành tinh lệch nhau).
+- Lúc mới đổi: 40 tỷ sức mạnh ("Thần <hành tinh> cấp 2"), HP/KI 650000, sức đánh 31200, giáp 2204, chí mạng 6.
+- 4 chiêu cấp 1 theo hành tinh:
+  - Trái Đất: Dragon, Kamejoko, Tái tạo năng lượng, Đẻ trứng
+  - Namếc: Demon, Antomic, Tái tạo năng lượng, Khiên năng lượng
+  - Xayda: Galick, Masenko, Kaioken, Đẻ trứng
+- Chiêu 5 mở ở **60 tỷ** (trước là 40 tỷ), ô khoá ghi "Cần 60 tỉ sức mạnh để mở".
+- **Đổi đệ tử 2** (Santa > Cửa hàng, 999 ngọc, đứng sau "Đặt tên đệ tử", Dot139Migration):
+  - Khi dùng, hiện ô nhập "Bạn có chắc muốn đổi đệ tử ? / Hãy thu lại trang bị của đệ tử trước. / Nhập OK để xác nhận:".
+  - Nhập OK thì đổi sang đệ tử 2 khác ngẫu nhiên, giữ sức mạnh.
+  - Chỉ dùng được khi đã có đệ tử 2 và đệ không mặc đồ.
+- Bot tự thu đồ của đệ về hành trang trước khi dùng bình hút.

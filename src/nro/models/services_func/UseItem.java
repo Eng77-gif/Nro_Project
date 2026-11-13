@@ -881,6 +881,9 @@ public class UseItem {
                             case 401: //đổi đệ tử
                                 changePet(pl, item);
                                 break;
+                            case 1890: //đổi đệ tử 2
+                                Input.gI().createFormChangePet2(pl);
+                                break;
                             case 402: //sách nâng chiêu 1 đệ tử
                             case 403: //sách nâng chiêu 2 đệ tử
                             case 404: //sách nâng chiêu 3 đệ tử
@@ -1405,6 +1408,14 @@ public class UseItem {
 
     /** Tài khoản bot dùng bình hút năng lượng đổi đệ tử 2 (cùng điều kiện như người chơi). */
     public void botChangePet(Player bot, Item item) {
+        // bot tự thu đồ của đệ về hành trang trước khi đổi (người chơi phải tự thu)
+        java.util.List<Item> body = bot.pet.inventory.itemsBody;
+        for (int i = 0; i < body.size(); i++) {
+            if (body.get(i).isNotNullItem() && InventoryService.gI().getCountEmptyBag(bot) > 0
+                    && InventoryService.gI().addItemBag(bot, body.get(i))) {
+                body.set(i, ItemService.gI().createItemNull());
+            }
+        }
         changePetRamdom(bot, item);
     }
 
@@ -1423,32 +1434,48 @@ public class UseItem {
             Service.gI().sendThongBao(player, "Cần có đệ tử đạt 40 tỷ sức mạnh để đổi đệ tử 2!");
             return;
         }
-        if (player.pet.typePet == 2 || player.pet.typePet == 3 || player.pet.typePet == 4) {
+        if (PetService.isPet2(player.pet)) {
             Service.gI().sendThongBao(player, "Bạn đã có đệ tử 2");
+            return;
+        }
+        if (petWearing(player)) {
             return;
         }
         if (player.mabuEgg != null) {
             player.mabuEgg.destroyEgg(); // trứng Mabư dùng làm điều kiện, đổi đệ tử 2 thì trứng mất
         }
-
-        int[] petTypes = {2, 3, 4};
-        int randomType = petTypes[rand.nextInt(petTypes.length)];
-        switch (randomType) {
-            case 2:
-                PetService.gI().createUubPet(player);
-                break;
-            case 3:
-                PetService.gI().createKidBeerPet(player);
-                break;
-            case 4:
-                PetService.gI().createJirenPet(player);
-                break;
-        }
-
         InventoryService.gI().removeItemBag(player, item);
         InventoryService.gI().sendItemBags(player);
+        PetService.gI().createPet2(player);
+    }
 
-        Service.gI().sendThongBao(player, "Bạn đã nhận được đệ tử 2 (khởi đầu 40 tỷ sức mạnh)!");
+    /** Đệ tử còn mặc đồ thì không đổi (như bản gốc): báo và trả true. */
+    private boolean petWearing(Player player) {
+        for (Item it : player.pet.inventory.itemsBody) {
+            if (it != null && it.isNotNullItem()) {
+                Service.gI().sendThongBao(player, "Hãy thu lại trang bị từ đệ tử trước khi đổi.");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Đổi đệ tử 2 (Santa 999 ngọc): xác nhận bằng ô nhập "OK" rồi đổi sang đệ tử 2 hành tinh khác ngẫu nhiên. */
+    public void confirmChangePet2(Player player) {
+        Item item = InventoryService.gI().findItemBag(player, 1890);
+        if (item == null || player.pet == null) {
+            return;
+        }
+        if (!PetService.isPet2(player.pet)) {
+            Service.gI().sendThongBao(player, "Chỉ dùng được khi đã có đệ tử 2");
+            return;
+        }
+        if (petWearing(player)) {
+            return;
+        }
+        InventoryService.gI().subQuantityItemsBag(player, item, 1);
+        InventoryService.gI().sendItemBags(player);
+        PetService.gI().createPet2(player);
     }
 
     private void eatGrapes(Player pl, Item item) {

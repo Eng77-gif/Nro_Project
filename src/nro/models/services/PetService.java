@@ -5,6 +5,7 @@ import nro.models.player.NewPet;
 import nro.models.player.Pet;
 import nro.models.player.Player;
 import nro.models.map.service.ChangeMapService;
+import nro.models.skill.Skill;
 import nro.models.utils.SkillUtil;
 import nro.models.utils.Util;
 
@@ -117,6 +118,58 @@ public class PetService {
                 }
                 Thread.sleep(1000);
                 Service.gI().chatJustForMe(player, player.pet, "Hãy hợp tác với ta, Kakarot!");
+            } catch (Exception e) {
+            }
+        }).start();
+    }
+
+    /** Chiêu 1-4 (cấp 1) của đệ tử 2 theo hành tinh: Trái Đất, Namếc, Xayda; chiêu 5 mở ở 60 tỷ sức mạnh (Pet.updatePower). */
+    static final byte[][] PET2_SKILLS = {
+        {Skill.DRAGON, Skill.KAMEJOKO, Skill.TAI_TAO_NANG_LUONG, Skill.DE_TRUNG},
+        {Skill.DEMON, Skill.ANTOMIC, Skill.TAI_TAO_NANG_LUONG, Skill.KHIEN_NANG_LUONG},
+        {Skill.GALICK, Skill.MASENKO, Skill.KAIOKEN, Skill.DE_TRUNG}};
+    /** Hình dạng theo hành tinh: Trái Đất Uub (2), Namếc Jiren (4), Xayda Kid Beer (3). */
+    static final byte[] PET2_TYPE = {2, 4, 3};
+
+    public static boolean isPet2(Pet pet) {
+        return pet != null && (pet.typePet == 2 || pet.typePet == 3 || pet.typePet == 4);
+    }
+
+    /** Thay đệ tử hiện tại bằng đệ tử 2 hành tinh ngẫu nhiên (Bình hút năng lượng / Đổi đệ tử 2): 40 tỷ, giữ sức mạnh nếu đã là đệ tử 2 cao hơn. */
+    public void createPet2(Player player) {
+        long power = 40_000_000_000L;
+        byte limitPower = 0;
+        if (player.pet != null) {
+            limitPower = player.pet.nPoint.limitPower;
+            if (isPet2(player.pet)) {
+                power = Math.max(power, player.pet.nPoint.power);
+            }
+            if (player.fusion.typeFusion != ConstPlayer.NON_FUSION) {
+                player.pet.unFusion();
+            }
+            ChangeMapService.gI().exitMap(player.pet);
+            player.pet.dispose();
+            player.pet = null;
+        }
+        byte gender = (byte) Util.nextInt(0, 2);
+        byte type = PET2_TYPE[gender];
+        createNewPet(player, false, type == 2, type == 3, type == 4, gender);
+        Pet pet = player.pet;
+        pet.nPoint.power = power;
+        pet.nPoint.limitPower = limitPower;
+        pet.playerSkill.skills.clear();
+        for (byte id : PET2_SKILLS[gender]) {
+            pet.playerSkill.skills.add(SkillUtil.createSkill(id, 1));
+        }
+        for (int i = 0; i < 3; i++) {
+            pet.playerSkill.skills.add(SkillUtil.createEmptySkill());
+        }
+        pet.nPoint.calPoint();
+        pet.nPoint.setFullHpMp();
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                Service.gI().chatJustForMe(player, player.pet, "Xin hãy thu nhận tao làm đệ tử");
             } catch (Exception e) {
             }
         }).start();
@@ -248,31 +301,31 @@ public class PetService {
 
     private int[] getDataPetUub() {
         int[] petData = new int[5];
-        petData[0] = 400_000; // hp
-        petData[1] = 400_000; // mp
-        petData[2] = 20_000;  // dame
-        petData[3] = Util.nextInt(9, 50); //def
-        petData[4] = Util.nextInt(0, 2); //crit
+        petData[0] = 650_000; // hp (đệ tử 2 theo video: HP/KI 650000, sức đánh 31200, giáp 2204, chí mạng 6) // hp
+        petData[1] = 650_000; // mp // mp
+        petData[2] = 31_200; // dame  // dame
+        petData[3] = 551; // def gốc (NPoint: giáp = gốc x4 = 2204) //def
+        petData[4] = 6; // crit //crit
         return petData;
     }
 
     private int[] getDataPetKidBeer() {
         int[] petData = new int[5];
-        petData[0] = 400_000; // hp
-        petData[1] = 400_000; // mp
-        petData[2] = 20_000;  // dame
-        petData[3] = Util.nextInt(9, 50); //def
-        petData[4] = Util.nextInt(0, 2); //crit
+        petData[0] = 650_000; // hp (đệ tử 2 theo video: HP/KI 650000, sức đánh 31200, giáp 2204, chí mạng 6) // hp
+        petData[1] = 650_000; // mp // mp
+        petData[2] = 31_200; // dame  // dame
+        petData[3] = 551; // def gốc (NPoint: giáp = gốc x4 = 2204) //def
+        petData[4] = 6; // crit //crit
         return petData;
     }
     
     private int[] getDataPetJiren() {
         int[] petData = new int[5];
-        petData[0] = 400_000; // hp
-        petData[1] = 400_000; // mp
-        petData[2] = 20_000;  // dame
-        petData[3] = Util.nextInt(9, 50); //def
-        petData[4] = Util.nextInt(0, 2); //crit
+        petData[0] = 650_000; // hp (đệ tử 2 theo video: HP/KI 650000, sức đánh 31200, giáp 2204, chí mạng 6) // hp
+        petData[1] = 650_000; // mp // mp
+        petData[2] = 31_200; // dame  // dame
+        petData[3] = 551; // def gốc (NPoint: giáp = gốc x4 = 2204) //def
+        petData[4] = 6; // crit //crit
         return petData;
     }
 

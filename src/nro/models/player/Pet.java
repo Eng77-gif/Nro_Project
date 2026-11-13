@@ -986,7 +986,7 @@ public class Pet extends Player {
                     }
                     break;
                 case 4:
-                    if ((this.typePet == 2 || this.typePet == 3 || this.typePet == 4) && this.nPoint.power >= 40000000000L) {
+                    if ((this.typePet == 2 || this.typePet == 3 || this.typePet == 4) && this.nPoint.power >= 60000000000L) {
                         openSkill5();
                     }
                     break;

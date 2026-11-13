@@ -62,6 +62,7 @@ public class Input {
     public static final int CHOOSE_LEVEL_KGHD = 510;
     public static final int CHOOSE_LEVEL_CDRD = 511;
     public static final int DISSOLUTION_CLAN = 513;
+    public static final int DOI_DE_TU_2 = 1890;
     public static final int TANG_NGOC_HONG = 514;
     public static final int SELECT_LUCKYNUMBER = 514;
     public static final byte NUMERIC = 0;
@@ -604,6 +605,11 @@ public class Input {
                         }
                     }
                 }
+                case DOI_DE_TU_2 -> {
+                    if (text[0].trim().equalsIgnoreCase("OK")) {
+                        UseItem.gI().confirmChangePet2(player);
+                    }
+                }
                 case DISSOLUTION_CLAN -> {
                     String xacNhan = text[0];
                     Clan clan;
@@ -748,6 +754,10 @@ public class Input {
 
     public void createFormGiaiTanBangHoi(Player pl) {
         createForm(pl, DISSOLUTION_CLAN, "Nhập OK để xác nhận giải tán bang hội.", new SubInput("", ANY));
+    }
+
+    public void createFormChangePet2(Player pl) {
+        createForm(pl, DOI_DE_TU_2, "Bạn có chắc muốn đổi đệ tử ?\nHãy thu lại trang bị của đệ tử trước.\nNhập OK để xác nhận:", new SubInput("", ANY));
     }
 
     public void createFormConSoMayMan_Gold(Player pl) {
