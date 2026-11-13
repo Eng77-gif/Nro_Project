@@ -15,3 +15,4 @@ admin/
 # Cloudflare Pages: thư mục gom tự sinh
 cloudflare/public/
 cloudflare/.wrangler/
+srv.log
