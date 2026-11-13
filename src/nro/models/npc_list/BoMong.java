@@ -13,7 +13,6 @@ import nro.models.services.ItemService;
 import nro.models.services.PlayerService;
 import nro.models.services.Service;
 import nro.models.services.TaskService;
-import nro.models.services_func.Input;
 
 /**
  *
@@ -32,7 +31,7 @@ public class BoMong extends Npc {
             if (canOpenNpc(player)) {
                 if (this.mapId == 47 || this.mapId == 84) {
                     this.createOtherMenu(player, ConstNpc.BASE_MENU,
-                            "Ngươi muốn có thêm ngọc thì chịu khó làm vài nhiệm vụ sẽ được ngọc thưởng", "Nhiệm vụ\nhàng ngày", "Nhiệm vụ\nthành tích", "Nạp Ngọc", "Từ chối"); // bỏ điểm danh (10.000 ngọc + 100 thỏi vàng / ngày) cho có tính cày
+                            "Ngươi muốn có thêm ngọc thì chịu khó làm vài nhiệm vụ sẽ được ngọc thưởng", "Nhiệm vụ\nhàng ngày", "Nhiệm vụ\nthành tích", "Từ chối"); // bỏ Nạp Ngọc (đổi số dư ra ngọc) // bỏ điểm danh (10.000 ngọc + 100 thỏi vàng / ngày) cho có tính cày
                 }
             }
         }
@@ -64,9 +63,6 @@ public class BoMong extends Npc {
                         }
                         case 1 -> {
                             AchievementService.gI().openAchievementUI(player);
-                        }
-                        case 2 -> {
-                            Input.gI().createFormTradeGem(player);
                         }
 
                     }

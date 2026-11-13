@@ -2131,3 +2131,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - NPC Bò Mộng (Đổi ngọc) nay đổi theo bảng: 10.000đ = 13 ngọc, 20.000đ = 32, 50.000đ = 91, 100.000đ = 195, 200.000đ = 455, 500.000đ = 1.430, 1.000.000đ = 3.250. Trong đợt khuyến mãi nạp x3 dùng cột X3: 32 / 82 / 231 / 495 / 1.155 / 3.630 / 8.250. Chỉ nhận đúng 7 mệnh giá này, bảng hiện ngay trong khung nhập (`Input.NAP_GEM`). Vé tặng ngọc và điểm sự kiện vẫn tặng như cũ.
 - Khuyến mãi x3 không còn nhân số dư lúc nạp trên web (trước đây nạp 10.000đ được cộng 30.000đ). Nay số dư cộng đúng số tiền nạp, x3 tính lúc đổi ngọc, để không bị nhân 2 lần.
 - Trang Nạp ngọc trên web có bảng giá (mệnh giá / X1 / X3); ô lối tắt ở trang chủ đổi thành "10.000đ = 13 ngọc".
+
+### Đợt 139q: bỏ Nạp Ngọc ở Bò Mộng
+- Menu Bò Mộng (map 47 / 84) chỉ còn Nhiệm vụ hàng ngày, Nhiệm vụ thành tích, Từ chối. Không còn nút đổi số dư ra ngọc ở đây.
