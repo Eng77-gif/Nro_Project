@@ -44,6 +44,9 @@ public class ChatGlobalService implements Runnable {
     }
 
     public void chat1(Player player, String text) {
+        if (!nro.models.Bot.BotWorld.allow(player, "chat")) {
+            return;
+        }
         player.idMark.setLastTimeChatGlobal(System.currentTimeMillis());
         waitingChat.add(new ChatGlobal(player, text.length() > 100 ? text.substring(0, 100) : text));
     }
@@ -61,6 +64,9 @@ public class ChatGlobalService implements Runnable {
     }
 
     public void chat(Player player, String text) {
+        if (!nro.models.Bot.BotWorld.allow(player, "chat")) {
+            return; // bot bị tắt quyền chat trên panel
+        }
         if (waitingChat.size() >= COUNT_WAIT) {
             Service.gI().sendThongBao(player, "Kênh thế giới hiện đang quá tải, không thể chat lúc này");
             return;

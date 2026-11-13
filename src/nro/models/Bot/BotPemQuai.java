@@ -276,7 +276,7 @@ public class BotPemQuai {
         if (this.bot == null || this.bot.zone == null || this.bot.zone.items == null) {
             return;
         }
-        if (isPickingItem) {
+        if (isPickingItem || !BotWorld.allow(this.bot, "pickup")) {
             return;
         }
 

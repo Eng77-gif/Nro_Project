@@ -170,6 +170,10 @@ public class BotTrade {
     // ------------------------------------------------------------------ giao dịch với người chơi
     /** Người chơi mời giao dịch: bot rảnh thì nhận. */
     public void onInvite(Player pl, Bot bot) {
+        if (!BotWorld.allow(bot, "trade")) {
+            Service.gI().chat(bot, "mình không giao dịch đâu");
+            return;
+        }
         if (bot.isDie() || BotClan.inDungeon(bot) || nro.models.services_func.TransactionService.gI().check(bot) || !Util.isTrue(85, 100)) {
             Service.gI().chat(bot, "đang bận, lát nhé");
             return;

@@ -64,9 +64,13 @@ public class BotQuest {
                 }
                 learnSkills(b);
                 openIntrinsic(b);
-                BotEndgame.step(b);
+                if (BotWorld.allow(b, "life")) {
+                    BotEndgame.step(b);
+                }
                 wearSkh(b);
-                BotGear.step(b); // mặc đồ tốt nhất, sắm cải trang / pet / đeo lưng / ván bay, nâng chiêu đệ tử
+                if (BotWorld.allow(b, "gear")) {
+                    BotGear.step(b);
+                } // mặc đồ tốt nhất, sắm cải trang / pet / đeo lưng / ván bay, nâng chiêu đệ tử
                 if ("Luyện tập".equals(b.activity) || "Làm nhiệm vụ".equals(b.activity)) {
                     quest(b);
                 }

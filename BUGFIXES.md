@@ -2145,3 +2145,15 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Nạp lúc nhân vật offline: ngọc giữ ở cột mới `web_topup.gem_pending`, không ghi thẳng vào `data_inventory` nữa. Khi vào game (`Controller`, sau thông báo đăng nhập) `WebServer.claimPendingGem` cộng hết và báo "Bạn đã nạp # ngọc vào tài khoản". Mỗi phiếu chỉ lấy 1 lần (`update ... where gem_pending > 0`). Bỏ được rủi ro lần lưu lúc thoát game ghi đè số ngọc; tài khoản chưa có nhân vật cũng nhận ngọc khi tạo xong và vào game.
 - Cột thêm tự động lúc khởi động (`Dot139Migration`).
 - Đã thử: duyệt 100.000đ khi offline thì `gem_pending` = 195. Đăng nhập: hiện "Bạn đã nạp 195 ngọc vào tài khoản", ngọc 705.426 lên 705.621, `gem_pending` về 0.
+
+### Đợt 139t: nâng cấp "Cho phép bot làm gì"
+- **Thêm 6 quyền** (tổng 17): Buôn bán (ký gửi, nhận giao dịch với người chơi), Bang hội & doanh trại, Chat (bản đồ + thế giới), Sắm / mặc đồ, nâng chiêu đệ, chế đồ thiên sứ (`BotGear.step`), Ép sao, bông tai, đổi đệ, mở hộp quà (`BotEndgame.step`), Nhặt đồ dưới đất.
+  - Tắt Buôn bán: bot từ chối giao dịch ("mình không giao dịch đâu").
+  - Tắt Chat: chặn ở `Service.chat` / `ChatGlobalService.chat`, chat1 nếu người nói là bot.
+- **Khung giờ cho từng việc** (vd `20-23`, `22-2` là qua đêm; để trống là cả ngày): ngoài giờ bot không chọn việc đó.
+- **Tối đa số bot làm cùng lúc** cho Săn boss, Săn đệ, NRSD, Úp SKH, PK: đủ số thì bot khác chọn việc khác.
+- **Quyền riêng từng bot:** nút "Quyền" ở danh sách bot. Mỗi việc chọn Theo chung / Cho phép / Cấm, lưu ở bảng `bot_perm`, đè lên cài đặt chung.
+- **Mẫu cài sẵn** (cho chung hoặc từng bot): Bật hết, Chỉ cày, Săn boss, Hiếu chiến, Buôn bán & giao lưu, Tắt hết (chỉ luyện tập). Có nút "Theo chung hết" cho từng bot.
+- API panel: `bot/perms?id=`, `bot/perm` (thêm `id`, `on: -1` = theo chung), `bot/permcfg`, `bot/preset`, `bot/permreset`.
+- Đã thử: đặt / đọc khung giờ và giới hạn; khung giờ sai bị từ chối và không đổi gì; quyền riêng, mẫu cài sẵn cho 1 bot, reset; giao diện panel và hộp Quyền không lỗi JS.
+- Chưa thử: giới hạn số bot săn boss lúc chạy thật, vì bot máy thử còn cấp thấp, chỉ luyện tập / làm nhiệm vụ.

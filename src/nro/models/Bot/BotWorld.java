@@ -60,9 +60,25 @@ public final class BotWorld {
                     + " head smallint not null, body smallint not null, leg smallint not null, flag smallint not null, power bigint not null,"
                     + " tiem_nang bigint not null, hpg bigint not null, mpg bigint not null, dameg bigint not null)");
             st.executeUpdate("create table if not exists bot_setting (k varchar(32) primary key, v varchar(64) not null)");
-            try (ResultSet rs = st.executeQuery("select k, v from bot_setting where k like 'allow\\_%'")) {
+            try (ResultSet rs = st.executeQuery("select k, v from bot_setting where k like 'allow\\_%' or k like 'limit\\_%' or k like 'hours\\_%'")) {
                 while (rs.next()) {
-                    ALLOW.put(rs.getString(1).substring(6), !"0".equals(rs.getString(2)));
+                    String k = rs.getString(1), v = rs.getString(2);
+                    if (k.startsWith("allow_")) {
+                        ALLOW.put(k.substring(6), !"0".equals(v));
+                    } else if (k.startsWith("limit_")) {
+                        LIMIT.put(k.substring(6), Integer.parseInt(v));
+                    } else {
+                        int[] h = parseHours(v);
+                        if (h != null) {
+                            HOURS.put(k.substring(6), h);
+                        }
+                    }
+                }
+            }
+            st.executeUpdate("create table if not exists bot_perm (player_id bigint not null, k varchar(16) not null, v tinyint not null, primary key (player_id, k))");
+            try (ResultSet rs = st.executeQuery("select player_id, k, v from bot_perm")) {
+                while (rs.next()) {
+                    BOT_ALLOW.computeIfAbsent(rs.getLong(1), x -> new java.util.concurrent.ConcurrentHashMap<>()).put(rs.getString(2), rs.getInt(3) != 0);
                 }
             }
             BotLearn.load();
@@ -98,50 +114,203 @@ public final class BotWorld {
         }
     }
 
-    /** Việc bot được phép làm (panel > Bot > Cho phép bot làm gì), lưu ở bot_setting (allow_<khoá> = 0/1), mặc định được làm hết. */
+    /**
+     * Việc bot được phép làm (panel > Bot > Cho phép bot làm gì). Cài đặt chung lưu ở bot_setting (allow_/limit_/hours_<khoá>),
+     * riêng từng bot ở bot_perm (đè lên cài đặt chung). Mặc định được làm hết, không giới hạn.
+     */
     public static final String[][] PERMS = {
         {"train", "Luyện tập (đánh quái)"}, {"boss", "Săn boss"}, {"broly", "Săn đệ (đánh Broly)"}, {"nrsd", "Ngọc Rồng Sao Đen"},
-        {"skh", "Úp set kích hoạt / đi doanh trại"}, {"pk", "PK người chơi"}, {"quest", "Làm nhiệm vụ"},
+        {"skh", "Úp set kích hoạt"}, {"pk", "PK người chơi"}, {"quest", "Làm nhiệm vụ"},
         {"special", "Giải Siêu hạng / ĐHVT lần 23"}, {"endgame", "Hirudegarn, hút Kilis, up bông tai"},
-        {"upvang", "Úp vàng (Ngục tù may mắn)"}, {"shoptop", "Mua hộp đua top sự kiện"}};
-    private static final java.util.Map<String, Boolean> ALLOW = new java.util.concurrent.ConcurrentHashMap<>();
+        {"upvang", "Úp vàng (Ngục tù may mắn)"}, {"shoptop", "Mua hộp đua top sự kiện"},
+        {"trade", "Buôn bán: ký gửi, giao dịch với người chơi"}, {"clan", "Bang hội & doanh trại"}, {"chat", "Chat (bản đồ, thế giới)"},
+        {"gear", "Sắm / mặc đồ, nâng chiêu đệ, chế đồ thiên sứ"}, {"life", "Ép sao, bông tai, đổi đệ, mở hộp quà"}, {"pickup", "Nhặt đồ dưới đất"}};
+    /** Việc giới hạn được số bot làm cùng lúc: khoá -> tên hoạt động (b.activity). */
+    static final java.util.Map<String, String> LIMIT_ACT = java.util.Map.of("boss", "Săn boss", "broly", "Săn đệ (Broly)", "nrsd", "NRSD",
+            "skh", "Úp SKH", "pk", "PK");
+    /** Mẫu cài sẵn: tên -> các việc được bật (việc khác tắt). */
+    static final java.util.Map<String, String[]> PRESETS = new java.util.LinkedHashMap<>();
 
-    public static boolean allow(String k) {
-        return ALLOW.getOrDefault(k, true);
+    static {
+        PRESETS.put("Bật hết", null);
+        PRESETS.put("Chỉ cày", new String[]{"train", "quest", "skh", "upvang", "gear", "life", "pickup", "shoptop"});
+        PRESETS.put("Săn boss", new String[]{"train", "boss", "broly", "endgame", "gear", "life", "pickup"});
+        PRESETS.put("Hiếu chiến", new String[]{"train", "pk", "nrsd", "clan", "special", "gear", "pickup", "chat"});
+        PRESETS.put("Buôn bán & giao lưu", new String[]{"train", "quest", "trade", "clan", "chat", "gear"});
+        PRESETS.put("Tắt hết (chỉ luyện tập)", new String[]{"train"});
+    }
+    private static final java.util.Map<String, Boolean> ALLOW = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Map<Long, java.util.Map<String, Boolean>> BOT_ALLOW = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Map<String, Integer> LIMIT = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Map<String, int[]> HOURS = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** "20-23" -> {20, 23} (từ 20:00 đến hết 23:59; từ > đến thì qua đêm), sai định dạng -> null. */
+    static int[] parseHours(String v) {
+        if (v == null || !v.trim().matches("\\d{1,2}\\s*-\\s*\\d{1,2}")) {
+            return null;
+        }
+        String[] x = v.split("-");
+        int a = Integer.parseInt(x[0].trim()), c = Integer.parseInt(x[1].trim());
+        return a > 23 || c > 23 ? null : new int[]{a, c};
     }
 
-    public static void setAllow(String k, boolean on) {
+    static boolean inHours(int[] h, int hour) {
+        return h == null || (h[0] <= h[1] ? hour >= h[0] && hour <= h[1] : hour >= h[0] || hour <= h[1]);
+    }
+
+    private static void checkKey(String k) {
         for (String[] p : PERMS) {
             if (p[0].equals(k)) {
-                ALLOW.put(k, on);
-                try {
-                    LocalManager.executeUpdate("replace into bot_setting (k, v) values (?, ?)", "allow_" + k, on ? "1" : "0");
-                } catch (Exception ignored) {
-                }
                 return;
             }
         }
         throw new IllegalArgumentException("Không có việc " + k);
     }
 
-    public static List<java.util.Map<String, Object>> perms() {
-        List<java.util.Map<String, Object>> out = new ArrayList<>();
-        for (String[] p : PERMS) {
-            out.add(java.util.Map.of("k", p[0], "name", p[1], "on", allow(p[0])));
-        }
-        return out;
+    /** Cài đặt chung (không tính riêng từng bot, khung giờ). */
+    public static boolean allow(String k) {
+        return ALLOW.getOrDefault(k, true);
     }
 
-    /** Hoạt động của bộ não (BotBrain.TRAIN..PK) có được phép không. */
-    private static boolean allowAction(int a) {
-        return switch (a) {
-            case BotBrain.BOSS -> allow("boss");
-            case BotBrain.BROLY -> allow("broly");
-            case BotBrain.NRSD -> allow("nrsd");
-            case BotBrain.SKH -> allow("skh");
-            case BotBrain.PK -> allow("pk");
-            default -> allow("train");
+    /** Bot này có được làm việc k lúc này không: riêng bot > cài đặt chung, rồi khung giờ. Không phải bot thì luôn được. */
+    public static boolean allow(nro.models.player.Player p, String k) {
+        if (!(p instanceof Bot)) {
+            return true;
+        }
+        java.util.Map<String, Boolean> own = BOT_ALLOW.get(p.id);
+        Boolean o = own == null ? null : own.get(k);
+        if (!(o != null ? o : allow(k))) {
+            return false;
+        }
+        return inHours(HOURS.get(k), java.time.LocalTime.now().getHour());
+    }
+
+    /** Còn chỗ trong giới hạn số bot cùng làm việc k không (không tính chính bot b). */
+    boolean underLimit(Bot b, String k) {
+        Integer lim = LIMIT.get(k);
+        String act = LIMIT_ACT.get(k);
+        if (lim == null || lim <= 0 || act == null) {
+            return true;
+        }
+        int n = 0;
+        for (Bot x : bots()) {
+            if (x != b && act.equals(x.activity)) {
+                n++;
+            }
+        }
+        return n < lim;
+    }
+
+    public static void setAllow(String k, boolean on) {
+        checkKey(k);
+        ALLOW.put(k, on);
+        save("allow_" + k, on ? "1" : "0");
+    }
+
+    /** Riêng 1 bot: on = 1 cho phép, 0 cấm, -1 theo cài đặt chung. */
+    public static void setBotAllow(long id, String k, int on) {
+        checkKey(k);
+        java.util.Map<String, Boolean> own = BOT_ALLOW.computeIfAbsent(id, x -> new java.util.concurrent.ConcurrentHashMap<>());
+        try {
+            if (on < 0) {
+                own.remove(k);
+                LocalManager.executeUpdate("delete from bot_perm where player_id = ? and k = ?", id, k);
+            } else {
+                own.put(k, on != 0);
+                LocalManager.executeUpdate("replace into bot_perm (player_id, k, v) values (?, ?, ?)", id, k, on != 0 ? 1 : 0);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Không lưu được: " + e.getMessage());
+        }
+    }
+
+    /** Giới hạn số bot cùng lúc (0 = không giới hạn) và khung giờ ("" = cả ngày) của việc k. */
+    public static void setConfig(String k, int limit, String hours) {
+        checkKey(k);
+        int[] h = parseHours(hours);
+        if (hours != null && !hours.isBlank() && h == null) {
+            throw new IllegalArgumentException("Khung giờ dạng 20-23 (giờ 0 - 23)");
+        }
+        if (limit > 0 && LIMIT_ACT.containsKey(k)) {
+            LIMIT.put(k, limit);
+        } else {
+            LIMIT.remove(k);
+        }
+        save("limit_" + k, String.valueOf(Math.max(0, limit)));
+        if (h == null) {
+            HOURS.remove(k);
+        } else {
+            HOURS.put(k, h);
+        }
+        save("hours_" + k, h == null ? "" : h[0] + "-" + h[1]);
+    }
+
+    /** Áp mẫu cài sẵn cho cài đặt chung (id <= 0) hoặc riêng 1 bot. */
+    public static void applyPreset(String name, long id) {
+        if (!PRESETS.containsKey(name)) {
+            throw new IllegalArgumentException("Không có mẫu " + name);
+        }
+        java.util.Set<String> on = PRESETS.get(name) == null ? null : java.util.Set.of(PRESETS.get(name));
+        for (String[] p : PERMS) {
+            boolean v = on == null || on.contains(p[0]);
+            if (id > 0) {
+                setBotAllow(id, p[0], v ? 1 : 0);
+            } else {
+                setAllow(p[0], v);
+            }
+        }
+    }
+
+    /** Bỏ hết cài đặt riêng của 1 bot (theo cài đặt chung). */
+    public static void resetBot(long id) {
+        BOT_ALLOW.remove(id);
+        try {
+            LocalManager.executeUpdate("delete from bot_perm where player_id = ?", id);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private static void save(String k, String v) {
+        try {
+            LocalManager.executeUpdate("replace into bot_setting (k, v) values (?, ?)", k, v);
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Danh sách việc cho panel: cài đặt chung kèm giới hạn / khung giờ; id > 0 thì kèm cài đặt riêng của bot đó (own: null = theo chung). */
+    public static java.util.Map<String, Object> perms(long id) {
+        List<java.util.Map<String, Object>> out = new ArrayList<>();
+        java.util.Map<String, Boolean> own = id > 0 ? BOT_ALLOW.getOrDefault(id, java.util.Map.of()) : java.util.Map.of();
+        for (String[] p : PERMS) {
+            java.util.Map<String, Object> m = new java.util.LinkedHashMap<>();
+            m.put("k", p[0]);
+            m.put("name", p[1]);
+            m.put("on", allow(p[0]));
+            m.put("limitable", LIMIT_ACT.containsKey(p[0]));
+            m.put("limit", LIMIT.getOrDefault(p[0], 0));
+            int[] h = HOURS.get(p[0]);
+            m.put("hours", h == null ? "" : h[0] + "-" + h[1]);
+            m.put("own", own.get(p[0]));
+            out.add(m);
+        }
+        java.util.Map<String, Object> r = new java.util.LinkedHashMap<>();
+        r.put("perms", out);
+        r.put("presets", new ArrayList<>(PRESETS.keySet()));
+        r.put("custom", BOT_ALLOW.entrySet().stream().filter(e -> !e.getValue().isEmpty()).map(java.util.Map.Entry::getKey).toList());
+        return r;
+    }
+
+    /** Hoạt động của bộ não (BotBrain.TRAIN..PK) bot này có được làm không (quyền, khung giờ, giới hạn số bot). */
+    private boolean allowAction(Bot b, int a) {
+        String k = switch (a) {
+            case BotBrain.BOSS -> "boss";
+            case BotBrain.BROLY -> "broly";
+            case BotBrain.NRSD -> "nrsd";
+            case BotBrain.SKH -> "skh";
+            case BotBrain.PK -> "pk";
+            default -> "train";
         };
+        return allow(b, k) && underLimit(b, k);
     }
 
     public List<Bot> bots() {
@@ -189,8 +358,8 @@ public final class BotWorld {
         lastSocial = now;
         List<Bot> acc = new ArrayList<>(bots());
         acc.removeIf(x -> !x.accountBot);
-        clan.tick(acc);
-        BotTrade.gI().tick(acc);
+        clan.tick(acc.stream().filter(x -> allow(x, "clan")).toList());
+        BotTrade.gI().tick(acc.stream().filter(x -> allow(x, "trade")).toList());
         BotQuest.gI().tick(acc);
     }
 
@@ -740,15 +909,15 @@ public final class BotWorld {
         endPk(b);
         if (b.accountBot && b.playerTask != null && b.playerTask.taskMain != null && b.playerTask.taskMain.id > 10) {
             long now = System.currentTimeMillis(); // xen giữa lúc làm nhiệm vụ như người chơi: mua hộp đua top, đi giải Siêu hạng / ĐHVT 23
-            if (allow("shoptop") && now - b.lastShopTop > 10 * 60_000L) {
+            if (allow(b, "shoptop") && now - b.lastShopTop > 10 * 60_000L) {
                 b.lastShopTop = now;
                 nro.models.services.SeasonEventService.gI().botBuyTopItems(b);
             }
-            if (allow("special") && planSpecial(b, now)) {
+            if (allow(b, "special") && planSpecial(b, now)) {
                 return;
             }
         }
-        if (allow("quest") && b.accountBot && b.playerTask != null && b.playerTask.taskMain != null
+        if (allow(b, "quest") && b.accountBot && b.playerTask != null && b.playerTask.taskMain != null
                 && (b.playerTask.taskMain.id <= 10 || BotQuest.gI().pending(b))) {
             if (!"Làm nhiệm vụ".equals(b.activity)) {
                 train(b); // ưu tiên nhiệm vụ (BotQuest dẫn đi); chỉ khi bước nhiệm vụ cần sức mạnh / quá sức mới đi việc khác
@@ -757,33 +926,33 @@ public final class BotWorld {
         }
         b.stayMap = false;
         BotBrain.end(b); // chấm điểm việc vừa làm (bộ não tự học)
-        if (b.accountBot && allow("endgame") && BotEndgame.pickActivity(b)) {
+        if (b.accountBot && allow(b, "endgame") && BotEndgame.pickActivity(b)) {
             return; // Hirudegarn 22h, hút Kilis, up mảnh bông tai
         }
         boolean nrsd = nro.models.utils.TimeUtil.isBlackBallWarOpen();
         int a = b.accountBot ? plan(b, nrsd) : -1; // làm theo nhu cầu trước, bộ não tự học chỉ chọn khi không có việc cần làm
-        if (a >= 0 && !allowAction(a)) {
+        if (a >= 0 && !allowAction(b, a)) {
             a = -1;
         }
         if (a < 0) {
-            a = BotBrain.pick(b, new boolean[]{allow("train"), allow("boss"), allow("broly"), nrsd && allow("nrsd"), allow("skh"), allow("pk")});
+            a = BotBrain.pick(b, new boolean[]{allowAction(b, BotBrain.TRAIN), allowAction(b, BotBrain.BOSS), allowAction(b, BotBrain.BROLY), nrsd && allowAction(b, BotBrain.NRSD), allowAction(b, BotBrain.SKH), allowAction(b, BotBrain.PK)});
         }
         if (a < 0) { // bộ não tắt: chọn ngẫu nhiên như trước
             int r = Util.nextInt(1, 100);
             a = r <= 40 ? BotBrain.TRAIN : r <= 55 ? BotBrain.BOSS : r <= 63 ? BotBrain.BROLY
                     : r <= 73 && nrsd ? BotBrain.NRSD : r <= 81 ? BotBrain.SKH : r <= 90 ? BotBrain.PK : BotBrain.TRAIN;
         }
-        if (!allowAction(a)) { // việc bị tắt trên panel: lấy việc được phép đầu tiên, không còn việc nào thì vẫn luyện tập
+        if (!allowAction(b, a)) { // việc bị tắt trên panel: lấy việc được phép đầu tiên, không còn việc nào thì vẫn luyện tập
             int pick = BotBrain.TRAIN;
             for (int x = 0; x < BotBrain.ACTIONS.length; x++) {
-                if (allowAction(x) && (x != BotBrain.NRSD || nrsd)) {
+                if (allowAction(b, x) && (x != BotBrain.NRSD || nrsd)) {
                     pick = x;
                     break;
                 }
             }
             a = pick;
         }
-        if (a == BotBrain.TRAIN && allow("upvang") && b.accountBot && b.inventory.gold < 2_000_000_000L && Util.isTrue(35, 100) && upVang(b)) {
+        if (a == BotBrain.TRAIN && allow(b, "upvang") && b.accountBot && b.inventory.gold < 2_000_000_000L && Util.isTrue(35, 100) && upVang(b)) {
             BotBrain.begin(b, a);
             return; // thiếu vàng: đi úp vàng ở Ngục tù may mắn (Phiếu sao vàng may mắn)
         }

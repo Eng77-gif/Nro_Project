@@ -690,6 +690,9 @@ public class Service {
     }
 
     public void chat(Player player, String text) {
+        if (!nro.models.Bot.BotWorld.allow(player, "chat")) {
+            return; // bot bị tắt quyền chat trên panel
+        }
         if (text.equals("part")) {
             Manager.loadPart();
             DataGame.updateData(player.getSession());

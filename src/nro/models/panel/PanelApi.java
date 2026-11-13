@@ -124,10 +124,29 @@ public class PanelApi {
                 nro.models.Bot.BotWorld.gI().setAllAccountBots(lng(b.getOrDefault("on", 1)) != 0);
                 yield Map.of("ok", true);
             }
-            case "bot/perms" -> nro.models.Bot.BotWorld.perms();
-            case "bot/perm" -> {
-                nro.models.Bot.BotWorld.setAllow(str(b.get("k")), lng(b.getOrDefault("on", 1)) != 0);
-                yield Map.of("ok", true, "perms", nro.models.Bot.BotWorld.perms());
+            case "bot/perms" -> nro.models.Bot.BotWorld.perms(lng(q.getOrDefault("id", "0")));
+            case "bot/perm" -> { // id > 0: riêng 1 bot (on -1 = theo cài đặt chung)
+                long id = lng(b.getOrDefault("id", 0));
+                if (id > 0) {
+                    nro.models.Bot.BotWorld.setBotAllow(id, str(b.get("k")), (int) lng(b.getOrDefault("on", 1)));
+                } else {
+                    nro.models.Bot.BotWorld.setAllow(str(b.get("k")), lng(b.getOrDefault("on", 1)) != 0);
+                }
+                yield nro.models.Bot.BotWorld.perms(id);
+            }
+            case "bot/permcfg" -> {
+                nro.models.Bot.BotWorld.setConfig(str(b.get("k")), (int) lng(b.getOrDefault("limit", 0)), str(b.getOrDefault("hours", "")));
+                yield nro.models.Bot.BotWorld.perms(0);
+            }
+            case "bot/preset" -> {
+                long id = lng(b.getOrDefault("id", 0));
+                nro.models.Bot.BotWorld.applyPreset(str(b.get("name")), id);
+                yield nro.models.Bot.BotWorld.perms(id);
+            }
+            case "bot/permreset" -> {
+                long id = lng(b.get("id"));
+                nro.models.Bot.BotWorld.resetBot(id);
+                yield nro.models.Bot.BotWorld.perms(id);
             }
             case "bot/set" -> {
                 nro.models.Bot.BotWorld.gI().setTarget(intv(b.get("count")));
