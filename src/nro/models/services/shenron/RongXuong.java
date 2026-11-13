@@ -269,7 +269,7 @@ public class RongXuong {
     }
 
     /** Tỉ lệ như Pet.openSkill2/3: Kamejoko, Thái dương hạ san, Tái tạo năng lượng (combo) hiếm hẳn. */
-    private static final int[][] WEIGHTS = {{34, 33, 33}, {8, 46, 46}, {8, 8, 84}};
+    private static final int[][] WEIGHTS = {{34, 33, 33}, {5, 50, 45}, {5, 5, 90}};
 
     /** Đổi 3 kỹ năng đầu của đệ tử: kỹ năng mới cấp 1, có thể trùng kỹ năng cũ. */
     private static void rerollPetSkills(Player pl) {

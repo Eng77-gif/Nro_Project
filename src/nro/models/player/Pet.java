@@ -998,7 +998,7 @@ public class Pet extends Player {
         Skill currentSkill = this.playerSkill.skills.get(1);
         Skill skill = null;
 
-        int[] tiLe = {8, 46, 46}; // Kamejoko (combo) hiếm hẳn
+        int[] tiLe = {5, 50, 45}; // Kamejoko (combo) hiếm hẳn
         byte[] skills = {Skill.KAMEJOKO, Skill.MASENKO, Skill.ANTOMIC};
 
         int totalTiLe = 0;
@@ -1036,7 +1036,7 @@ public class Pet extends Player {
     public void openSkill3() {
         Skill skill = null;
 
-        int[] tiLe = {8, 8, 84}; // Thái dương hạ san, Tái tạo năng lượng (combo) hiếm hẳn
+        int[] tiLe = {5, 5, 90}; // Thái dương hạ san, Tái tạo năng lượng (combo) hiếm hẳn
         byte[] skills = {Skill.THAI_DUONG_HA_SAN, Skill.TAI_TAO_NANG_LUONG, Skill.KAIOKEN};
 
         int totalTiLe = 0;
@@ -1059,8 +1059,8 @@ public class Pet extends Player {
 
     public void openSkill4() {
         Skill skill = null;
-        int tiLeBienKhi = 3; // Biến khỉ (combo) hiếm hẳn
-        int tiLeDeTrung = 72;
+        int tiLeBienKhi = 2; // Biến khỉ (combo) hiếm hẳn
+        int tiLeDeTrung = 73;
         int tiLeKNL = 25;
 
         int rd = Util.nextInt(1, 100);

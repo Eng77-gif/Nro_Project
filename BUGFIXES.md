@@ -2054,3 +2054,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 - Áp dụng khi đệ lên sức mạnh mở chiêu, khi ước rồng đổi chiêu đệ, và khi ước Rồng Xương đổi chiêu (trước chọn đều 1/3).
 - Đệ tử 2 vẫn có bộ chiêu cố định theo hành tinh như video.
+- Hạ thêm: chiêu 2 Kamejoko 5% (Masenko 50%, Antomic 45%); chiêu 3 Thái dương hạ san 5%, Tái tạo năng lượng 5%, Kaioken 90%; chiêu 4 Biến khỉ 2% (Đẻ trứng 73%, Khiên 25%).
