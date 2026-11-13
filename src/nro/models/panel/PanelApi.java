@@ -1451,7 +1451,7 @@ public class PanelApi {
         if (!nro.models.web.WebServer.approve(id, amount, "Admin duyệt")) {
             throw new IllegalStateException("Yêu cầu đã được xử lý trước đó");
         }
-        return Map.of("ok", true, "note", "Đã cộng " + amount + "đ");
+        return Map.of("ok", true, "note", "Đã duyệt " + amount + "đ, cộng " + nro.models.services_func.Input.napGem(amount) + " ngọc");
     }
 
     // ------------------------------------------------------------------ ngọc rồng sao đen

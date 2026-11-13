@@ -2134,3 +2134,9 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ### Đợt 139q: bỏ Nạp Ngọc ở Bò Mộng
 - Menu Bò Mộng (map 47 / 84) chỉ còn Nhiệm vụ hàng ngày, Nhiệm vụ thành tích, Từ chối. Không còn nút đổi số dư ra ngọc ở đây.
+
+### Đợt 139r: nạp trên web cộng ngọc thẳng vào nhân vật
+- Duyệt nạp (SePay tự duyệt, thẻ cào, admin duyệt trên panel) nay cộng ngọc xanh thẳng vào nhân vật theo bảng giá (`Input.NAP_GEM`, cột X3 khi khuyến mãi nạp x3). Số tiền không tròn mệnh giá được chia theo mệnh giá lớn trước (30.000đ = 32 + 13 ngọc). Phần lẻ dưới 10.000đ để lại ở số dư (`account.vnd`); `tongnap` vẫn cộng đủ số tiền.
+- Đang online: trong game báo "Bạn đã nạp # ngọc vào tài khoản". Đang offline: cộng vào `data_inventory` của nhân vật. Tài khoản chưa có nhân vật: giữ toàn bộ tiền ở số dư như trước.
+- Bỏ form đổi ngọc cũ (`TRADE_GEM`). Ghi chú phiếu nạp và kết quả duyệt trên panel ghi rõ số ngọc đã cộng. Trang Nạp ngọc trên web sửa lời giải thích.
+- Đã thử: duyệt 35.000đ cho tài khoản offline thì ngọc 1.899 lên 1.944 (+45), số dư còn 5.000đ, tổng nạp 35.000đ.

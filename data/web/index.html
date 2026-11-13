@@ -399,11 +399,11 @@ async function postPage(id){
 
 /* ---------- nạp ngọc ---------- */
 const NAP_GEM=[[10000,13,32],[20000,32,82],[50000,91,231],[100000,195,495],[200000,455,1155],[500000,1430,3630],[1000000,3250,8250]];
-function napTable(){return `<div class="card" style="margin-bottom:18px"><h2 style="font-size:20px">Bảng giá nạp</h2><table class="nap-tb"><thead><tr><th>Mệnh giá</th><th>X1 nạp</th><th>X3 nạp</th></tr></thead><tbody>${NAP_GEM.map(r=>`<tr><td>${money(r[0])}đ</td><td><img class="pix" src="/icon/932" alt="">${money(r[1])}</td><td><img class="pix" src="/icon/932" alt="">${money(r[2])}</td></tr>`).join('')}</tbody></table><p class="mute" style="margin:8px 0 0;font-size:13px">Cột X3 áp dụng trong đợt khuyến mãi nạp x3. Đổi ở NPC nạp, chỉ nhận đúng các mệnh giá trên.</p></div>`}
+function napTable(){return `<div class="card" style="margin-bottom:18px"><h2 style="font-size:20px">Bảng giá nạp</h2><table class="nap-tb"><thead><tr><th>Mệnh giá</th><th>X1 nạp</th><th>X3 nạp</th></tr></thead><tbody>${NAP_GEM.map(r=>`<tr><td>${money(r[0])}đ</td><td><img class="pix" src="/icon/932" alt="">${money(r[1])}</td><td><img class="pix" src="/icon/932" alt="">${money(r[2])}</td></tr>`).join('')}</tbody></table><p class="mute" style="margin:8px 0 0;font-size:13px">Cột X3 áp dụng trong đợt khuyến mãi nạp x3. Số tiền khác được tính theo các mệnh giá trên (vd 30.000đ = 32 + 13 ngọc), phần lẻ dưới 10.000đ giữ ở số dư.</p></div>`}
 let napTab='bank',napAmount=50000;
 async function topup(){
   const t=await api('topup/info');
-  const head=`<div class="page-head"><span class="ico" style="background:#ffd25e22"><img class="pix" src="/icon/932" alt="" style="width:40px"></span><div><h1>Nạp ngọc</h1><p>Tiền nạp vào số dư tài khoản, vào game gặp NPC nạp để đổi ra ngọc xanh theo bảng giá hoặc thỏi vàng.</p></div></div>`+napTable();
+  const head=`<div class="page-head"><span class="ico" style="background:#ffd25e22"><img class="pix" src="/icon/932" alt="" style="width:40px"></span><div><h1>Nạp ngọc</h1><p>Nạp thành công là ngọc xanh được cộng thẳng vào nhân vật theo bảng giá, trong game sẽ báo "Bạn đã nạp … ngọc vào tài khoản".</p></div></div>`+napTable();
   if(!me){$('#main').innerHTML=head+needLogin('nạp ngọc');return}
   if(!t.bank&&!t.card)napTab='none';else if(napTab==='bank'&&!t.bank)napTab='card';else if(napTab==='card'&&!t.card)napTab='bank';
   $('#main').innerHTML=head+`

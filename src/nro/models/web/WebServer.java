@@ -648,18 +648,35 @@ public class WebServer {
      * người đang online. Trả về false nếu yêu cầu đã được xử lý trước đó.
      */
     public static boolean approve(int id, int credit, String note) throws Exception {
-        if (credit <= 0 || PanelApi.update("update web_topup set status = 1, credited = ?, note = ?, updated_at = now() where id = ? and status = 0", credit, note, id) <= 0) {
+        int gem = credit > 0 ? nro.models.services_func.Input.napGem(credit) : 0;
+        int rest = credit - nro.models.services_func.Input.napGemUsed(credit); // phần lẻ dưới 10.000đ để lại số dư
+        if (credit <= 0 || PanelApi.update("update web_topup set status = 1, credited = ?, note = ?, updated_at = now() where id = ? and status = 0",
+                credit, note + (gem > 0 ? ", cộng " + gem + " ngọc" : ""), id) <= 0) {
             return false;
         }
         int acc = intv(PanelApi.rows("select account_id from web_topup where id = ?", id).get(0).get("account_id"));
-        int bal = credit; // khuyến mãi x3 nay tính lúc đổi ngọc ở NPC (bảng giá nạp, Input.NAP_GEM)
-        PanelApi.update("update account set vnd = vnd + ?, tongnap = tongnap + ? where id = ?", bal, credit, acc);
         Player on = Client.gI().getPlayerByUser(acc);
-        if (on != null && on.getSession() != null) {
-            on.getSession().vnd += bal;
-            on.getSession().tongnap += credit;
-            nro.models.services.Service.gI().sendThongBao(on, "Nạp thành công " + nro.models.utils.Util.numberToMoney(credit) + "đ vào tài khoản"
-                    + (bal > credit ? " (khuyến mãi x3: nhận " + nro.models.utils.Util.numberToMoney(bal) + "đ)" : "") + ", đổi ra ngọc ở NPC nạp");
+        List<Map<String, Object>> pl = on != null ? List.of() : PanelApi.rows("select id, data_inventory from player where account_id = ? limit 1", acc);
+        if (on == null && pl.isEmpty()) {
+            rest = credit; // chưa có nhân vật: giữ cả số tiền ở số dư
+            gem = 0;
+        }
+        PanelApi.update("update account set vnd = vnd + ?, tongnap = tongnap + ? where id = ?", rest, credit, acc);
+        if (on != null) {
+            if (on.getSession() != null) {
+                on.getSession().vnd += rest;
+                on.getSession().tongnap += credit;
+            }
+            if (gem > 0) {
+                on.inventory.gem += gem;
+                nro.models.services.Service.gI().sendMoney(on);
+                nro.models.services.Service.gI().sendThongBao(on, "Bạn đã nạp " + nro.models.utils.Util.numberToMoney(gem) + " ngọc vào tài khoản");
+            }
+        } else if (gem > 0) {
+            // shortcut: nếu nhân vật thoát game đúng lúc này, lần lưu khi thoát có thể ghi đè số ngọc vừa cộng; hiếm, chưa khoá chung
+            JsonArray inv = new JsonParser().parse(String.valueOf(pl.get(0).get("data_inventory"))).getAsJsonArray();
+            inv.set(1, new com.google.gson.JsonPrimitive(inv.get(1).getAsLong() + gem));
+            PanelApi.update("update player set data_inventory = ? where id = ?", inv.toString(), pl.get(0).get("id"));
         }
         return true;
     }
