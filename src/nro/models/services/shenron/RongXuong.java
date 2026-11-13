@@ -38,11 +38,15 @@ public class RongXuong {
      */
     public static volatile int dragonType = -1;
     /**
-     * Hiệu ứng trên bản đồ không gỡ được nên gửi từng đợt ngắn, rồng còn thì gửi tiếp, rồng đi thì tự tắt.
-     * Client cập nhật ~50 lần / giây, hình rồng 12 khung -> 42 vòng ~ 10 giây, khớp chu kỳ gửi lại.
+     * Hiệu ứng trên bản đồ không gỡ được nên gửi từng đợt ngắn, rồng còn thì gửi tiếp, rồng đi thì tắt sau tối đa 1 đợt.
+     * Client cập nhật 50 lần / giây, hình rồng 12 khung -> 13 vòng ~ 3,1 giây, khớp chu kỳ gửi lại 3 giây.
      */
-    private static final int BONE_LOOPS = 42;
-    private static final long BONE_REFRESH_MS = 10_000;
+    private static final int BONE_LOOPS = 13;
+    private static final long BONE_REFRESH_MS = 3_000;
+    /** Chờ quả cầu sáng + chớp trắng của client xong mới hiện rồng. */
+    private static final long BONE_DELAY_MS = 1_500;
+    /** Chỗ đặt hình rồng Trái Đất của client (ngoài màn hình) khi vẽ Rồng Xương. */
+    private static final int DRAGON_HIDE_X = -2000;
     private static final java.util.concurrent.ScheduledExecutorService BONE = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "rong-xuong");
         t.setDaemon(true);
@@ -121,16 +125,12 @@ public class RongXuong {
         page(pl, 1);
     }
 
+    /**
+     * Như bản chính thức: lệnh gọi rồng của client (-83) cho quả cầu sáng (hiệu ứng 20), chớp trắng, trời tối; client chỉ có hình
+     * rồng Trái Đất / Namếc nên đặt nó ra ngoài màn hình (DRAGON_HIDE_X) và vẽ Rồng Xương (hiệu ứng 51) đúng chỗ sau khi chớp xong.
+     * Rồng đi: -83 loại 1 -> chớp trắng, trời sáng lại; hình rồng xương gửi từng đợt ngắn nên tắt ngay sau đó.
+     */
     private static void sendDragon(Player pl, State st, boolean appear) {
-        if (dragonType < 0) {
-            if (appear) {
-                pl.isShenronAppear = true;
-                // tin của "Rồng Xương" (lệnh 38) làm client đóng hành trang như khi gọi rồng thần
-                NpcService.gI().createTutorial(pl, -1, "Rồng Xương đã xuất hiện, hãy ước đi!");
-                showBone(pl.id, st);
-            }
-            return; // rồng đi: không gửi tiếp, hình tự tắt sau đợt đang chạy
-        }
         try {
             Message msg = new Message(-83);
             msg.writer().writeByte(appear ? 0 : 1);
@@ -140,14 +140,17 @@ public class RongXuong {
                 msg.writer().writeByte(st.zone.zoneId);
                 msg.writer().writeInt((int) pl.id);
                 msg.writer().writeUTF("null");
-                msg.writer().writeShort(st.x);
+                msg.writer().writeShort(dragonType < 0 ? DRAGON_HIDE_X : st.x);
                 msg.writer().writeShort(st.y);
-                msg.writer().writeByte(dragonType);
+                msg.writer().writeByte(Math.max(0, dragonType));
                 pl.isShenronAppear = true;
             }
             Service.gI().sendMessAllPlayerInMap(pl, msg);
             msg.cleanup();
         } catch (Exception ignored) {
+        }
+        if (appear && dragonType < 0) {
+            BONE.schedule(() -> showBone(pl.id, st), BONE_DELAY_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
         }
     }
 
@@ -155,7 +158,7 @@ public class RongXuong {
         if (dragons.get(playerId) != st) {
             return;
         }
-        // như client vẽ rồng thần (Effect 17 ở lớp 2, cao hơn chỗ gọi 77): lớp 0 client không vẽ nên trước đây rồng không hiện
+        // như client vẽ rồng thần (Effect 17 ở lớp 2, cao hơn chỗ gọi 77)
         nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(st.zone, EFFECT_RONG_XUONG, 2, BONE_LOOPS, st.x, st.y - 77, 1);
         BONE.schedule(() -> showBone(playerId, st), BONE_REFRESH_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
