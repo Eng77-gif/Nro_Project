@@ -1280,9 +1280,14 @@ public class InventoryService {
             if (io.optionTemplate.id == 210) {
                 int option210Index = i;
                 item.itemOptions.remove(i);
-                if (item.template.id == 1891) { // Thùng rác (hè 3): 2 dòng ẩn mở ra Sức đánh +10..17%, Chí mạng +5..11% (video: SĐ+13%, CM+6%)
-                    item.itemOptions.add(option210Index, new Item.ItemOption(14, nro.models.utils.Util.nextInt(5, 11)));
-                    item.itemOptions.add(option210Index, new Item.ItemOption(50, nro.models.utils.Util.nextInt(10, 17)));
+                if (item.template.id == 1891) { // Thùng rác (hè 3): mỗi dòng ẩn mở ra 1 chỉ số ngẫu nhiên khác nhau (thử nhân phẩm)
+                    int[][] pool = {{50, 8, 17}, {77, 8, 17}, {103, 8, 17}, {14, 3, 11}, {5, 5, 15}, {108, 3, 10},
+                        {94, 3, 10}, {97, 3, 10}, {80, 3, 8}, {81, 3, 8}, {101, 5, 20}, {100, 5, 20}};
+                    List<int[]> left = new ArrayList<>(java.util.Arrays.asList(pool));
+                    for (int k = 0; k < io.param && !left.isEmpty(); k++) {
+                        int[] o = left.remove(nro.models.utils.Util.nextInt(0, left.size() - 1));
+                        item.itemOptions.add(option210Index + k, new Item.ItemOption(o[0], nro.models.utils.Util.nextInt(o[1], o[2])));
+                    }
                     break;
                 }
                 int numberOfOptionsToAdd = io.param;

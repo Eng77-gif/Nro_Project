@@ -13,7 +13,7 @@ import static nro.models.database.Dot77Migration.update;
  *   CT Black Goku Rose 999, Vé nhiệm vụ tháng VIP 999 (40 ngày).
  * - Cửa hàng Chi Chi: Pet Zịt vàng bối rối 1,5 tỉ vàng, Bóng Ultra 99 ngọc, Bóng Poke 20 triệu vàng, Hộp quà Goku Day 10 ngọc,
  *   Hộp quà Cađíc 20 triệu vàng, Rađa dò vỏ Xên 2 ngọc, Túi đựng vỏ Xên bọ hung 2 ngọc.
- * - Rác rơi từ Musashi / Kochiro / Meowth (không còn rơi ở quái), bấm Sử dụng đổi được Thùng rác (UseItem); bỏ mục "Dọn rác" 999 Rác.
+ * - Rác rơi ở quái (tối đa 99 / ngày) và Musashi / Kochiro / Meowth (5 - 10), bấm Sử dụng: 99 Rác đổi 1 Thùng rác (UseItem); bỏ mục "Dọn rác" 999 Rác.
  *
  * @author Việt
  */
@@ -23,6 +23,11 @@ public class Dot132Migration {
 
     public static void run(Connection con) {
         try {
+            // 99 Rác đổi 1 Thùng rác: quái rơi Rác lại (tối đa 99 / ngày), boss Đội Hỏa Tiễn rơi thêm 5 - 10
+            if (!exists(con, "select 1 from season_event_drop where event_id = " + SUMMER_3 + " and item_id = 1895 and source = 'mob'")) {
+                update(con, "insert into season_event_drop (event_id, item_id, rate, qty_min, qty_max, source, daily_max, item_to, need_item, mobs, maps) values ("
+                        + SUMMER_3 + ", 1895, 300, 1, 1, 'mob', 99, 0, 0, '', '')");
+            }
             if (exists(con, "select 1 from server_migration where name = 'dot132_he3_video'")) {
                 return;
             }
@@ -44,7 +49,6 @@ public class Dot132Migration {
             for (Object[] r : cc) {
                 update(con, c + "(" + ev + ", 'Cửa\\nhàng', '" + r[0] + "', " + r[1] + ", " + r[2] + ", " + r[3] + ", 1, '" + r[4] + "', '" + CHI_CHI + "')");
             }
-            update(con, "delete from season_event_drop where event_id = " + ev + " and item_id = 1895 and source = 'mob'");
             update(con, "insert into server_migration (name) values ('dot132_he3_video')");
             Logger.success("Đợt 132: sự kiện hè 3 theo video (Quy Lão Đổi thường, cửa hàng Chi Chi, Rác đổi Thùng rác)\n");
         } catch (Exception e) {

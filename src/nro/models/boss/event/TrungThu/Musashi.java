@@ -54,7 +54,7 @@ public class Musashi extends Boss {
         }
         Service.gI().dropItemMap(this.zone, it);
         if (Util.isTrue(50, 100)) { // Rác (hạn 33 ngày): bấm Sử dụng đổi Thùng rác
-            ItemMap r = new ItemMap(this.zone, 1895, 1, x + 10, y, plKill.id);
+            ItemMap r = new ItemMap(this.zone, 1895, Util.nextInt(5, 10), x + 10, y, plKill.id);
             r.options.add(new ItemOption(93, 33));
             r.options.add(new ItemOption(30, 0));
             Service.gI().dropItemMap(this.zone, r);
