@@ -2140,3 +2140,8 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Đang online: trong game báo "Bạn đã nạp # ngọc vào tài khoản". Đang offline: cộng vào `data_inventory` của nhân vật. Tài khoản chưa có nhân vật: giữ toàn bộ tiền ở số dư như trước.
 - Bỏ form đổi ngọc cũ (`TRADE_GEM`). Ghi chú phiếu nạp và kết quả duyệt trên panel ghi rõ số ngọc đã cộng. Trang Nạp ngọc trên web sửa lời giải thích.
 - Đã thử: duyệt 35.000đ cho tài khoản offline thì ngọc 1.899 lên 1.944 (+45), số dư còn 5.000đ, tổng nạp 35.000đ.
+
+### Đợt 139s: nạp lúc offline, vào game mới cộng ngọc và báo
+- Nạp lúc nhân vật offline: ngọc giữ ở cột mới `web_topup.gem_pending`, không ghi thẳng vào `data_inventory` nữa. Khi vào game (`Controller`, sau thông báo đăng nhập) `WebServer.claimPendingGem` cộng hết và báo "Bạn đã nạp # ngọc vào tài khoản". Mỗi phiếu chỉ lấy 1 lần (`update ... where gem_pending > 0`). Bỏ được rủi ro lần lưu lúc thoát game ghi đè số ngọc; tài khoản chưa có nhân vật cũng nhận ngọc khi tạo xong và vào game.
+- Cột thêm tự động lúc khởi động (`Dot139Migration`).
+- Đã thử: duyệt 100.000đ khi offline thì `gem_pending` = 195. Đăng nhập: hiện "Bạn đã nạp 195 ngọc vào tài khoản", ngọc 705.426 lên 705.621, `gem_pending` về 0.

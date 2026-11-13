@@ -789,6 +789,7 @@ public class Controller implements IMessageHandler {
                             // -70 thông báo bigmessage
                             sendThongBaoServer(player);
                             nro.models.services.AnnounceService.gI().onLogin(player);
+                            nro.models.web.WebServer.claimPendingGem(player);
 
                             if (TaskService.gI().getIdTask(player) == ConstTask.TASK_0_0) {
                                 NpcService.gI().createTutorial(player, -1,

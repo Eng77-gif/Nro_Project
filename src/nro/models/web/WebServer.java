@@ -648,18 +648,21 @@ public class WebServer {
      * người đang online. Trả về false nếu yêu cầu đã được xử lý trước đó.
      */
     public static boolean approve(int id, int credit, String note) throws Exception {
-        int gem = credit > 0 ? nro.models.services_func.Input.napGem(credit) : 0;
-        int rest = credit - nro.models.services_func.Input.napGemUsed(credit); // phần lẻ dưới 10.000đ để lại số dư
-        if (credit <= 0 || PanelApi.update("update web_topup set status = 1, credited = ?, note = ?, updated_at = now() where id = ? and status = 0",
-                credit, note + (gem > 0 ? ", cộng " + gem + " ngọc" : ""), id) <= 0) {
+        if (credit <= 0) {
             return false;
         }
-        int acc = intv(PanelApi.rows("select account_id from web_topup where id = ?", id).get(0).get("account_id"));
+        int gem = nro.models.services_func.Input.napGem(credit);
+        int rest = credit - nro.models.services_func.Input.napGemUsed(credit); // phần lẻ dưới 10.000đ để lại số dư
+        List<Map<String, Object>> r = PanelApi.rows("select account_id from web_topup where id = ?", id);
+        if (r.isEmpty()) {
+            return false;
+        }
+        int acc = intv(r.get(0).get("account_id"));
         Player on = Client.gI().getPlayerByUser(acc);
-        List<Map<String, Object>> pl = on != null ? List.of() : PanelApi.rows("select id, data_inventory from player where account_id = ? limit 1", acc);
-        if (on == null && pl.isEmpty()) {
-            rest = credit; // chưa có nhân vật: giữ cả số tiền ở số dư
-            gem = 0;
+        // offline: ngọc chờ ở gem_pending, cộng + báo khi đăng nhập (claimPendingGem)
+        if (PanelApi.update("update web_topup set status = 1, credited = ?, gem_pending = ?, note = ?, updated_at = now() where id = ? and status = 0",
+                credit, on == null ? gem : 0, note + (gem > 0 ? ", " + gem + " ngọc" : ""), id) <= 0) {
+            return false;
         }
         PanelApi.update("update account set vnd = vnd + ?, tongnap = tongnap + ? where id = ?", rest, credit, acc);
         if (on != null) {
@@ -667,18 +670,36 @@ public class WebServer {
                 on.getSession().vnd += rest;
                 on.getSession().tongnap += credit;
             }
-            if (gem > 0) {
-                on.inventory.gem += gem;
-                nro.models.services.Service.gI().sendMoney(on);
-                nro.models.services.Service.gI().sendThongBao(on, "Bạn đã nạp " + nro.models.utils.Util.numberToMoney(gem) + " ngọc vào tài khoản");
-            }
-        } else if (gem > 0) {
-            // shortcut: nếu nhân vật thoát game đúng lúc này, lần lưu khi thoát có thể ghi đè số ngọc vừa cộng; hiếm, chưa khoá chung
-            JsonArray inv = new JsonParser().parse(String.valueOf(pl.get(0).get("data_inventory"))).getAsJsonArray();
-            inv.set(1, new com.google.gson.JsonPrimitive(inv.get(1).getAsLong() + gem));
-            PanelApi.update("update player set data_inventory = ? where id = ?", inv.toString(), pl.get(0).get("id"));
+            giveGem(on, gem);
         }
         return true;
+    }
+
+    /** Gọi khi nhân vật vào game: cộng ngọc của các lần nạp lúc offline rồi báo. */
+    public static void claimPendingGem(Player pl) {
+        if (pl == null || pl.getSession() == null) {
+            return;
+        }
+        try {
+            int total = 0;
+            for (Map<String, Object> r : PanelApi.rows("select id, gem_pending from web_topup where account_id = ? and gem_pending > 0", pl.getSession().userId)) {
+                if (PanelApi.update("update web_topup set gem_pending = 0 where id = ? and gem_pending > 0", r.get("id")) > 0) {
+                    total += intv(r.get("gem_pending"));
+                }
+            }
+            giveGem(pl, total);
+        } catch (Exception e) {
+            nro.models.utils.Logger.error("Cộng ngọc nạp chờ: " + e.getMessage() + "\n");
+        }
+    }
+
+    private static void giveGem(Player pl, int gem) {
+        if (gem <= 0) {
+            return;
+        }
+        pl.inventory.gem += gem;
+        nro.models.services.Service.gI().sendMoney(pl);
+        nro.models.services.Service.gI().sendThongBao(pl, "Bạn đã nạp " + nro.models.utils.Util.numberToMoney(gem) + " ngọc vào tài khoản");
     }
 
     // ------------------------------------------------------------------ tiện ích

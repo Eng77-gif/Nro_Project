@@ -56,6 +56,7 @@ public class Dot139Migration {
 
     public static void run(Connection con) {
         try {
+            update(con, "alter table web_topup add column if not exists gem_pending int not null default 0"); // ngọc nạp lúc offline, cộng khi đăng nhập
             removeAdminFromRanks(con);
             if (!exists(con, "select 1 from server_migration where name = 'dot139n_halloween'")) {
                 // Bí ngô 1-7 sao từ cả 3 boss Ma trơi / Dơi / Bí ma (cần Giỏ đựng ngọc bí, giỏ mất khi nhặt), 50%; Máy dò NR sự kiện x2
