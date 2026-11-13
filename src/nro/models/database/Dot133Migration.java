@@ -33,7 +33,9 @@ public class Dot133Migration {
     public static void run(Connection con) {
         try {
             // Cađíc M đi lại như v10 (loại 1, vùng 33, tốc độ 1): vùng 0 làm client cho nó quay qua quay lại tại chỗ liên tục
-            update(con, "update mob_template set type = 1, range_move = 33, speed = 1 where id = 95 and (type <> 1 or range_move <> 33 or speed <> 1)");
+            // vùng đi 33px quá ngắn so với thân Cađíc M: vừa nhích đã chạm mép quay đầu, nhìn như quay vòng; nới 100px (client giới hạn 127)
+            update(con, "update mob_template set type = 1, range_move = 100, speed = 1 where id = 95 and (type <> 1 or range_move <> 100 or speed <> 1)");
+            update(con, "update mob_template set range_move = 100 where id = 118 and range_move <> 100");
             sortHoTro(con);
             // Loa to, Bùa x2 đệ tử: dòng "Không thể giao dịch" như bản chính thức
             for (int id : new int[]{1628, 1652, 1653}) {

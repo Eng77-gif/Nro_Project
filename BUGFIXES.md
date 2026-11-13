@@ -2078,3 +2078,8 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Siêu hạng:** admin không được xếp hạng khi đăng nhập. Chỗ cũ của admin bị xoá và các hạng sau dồn lên (Dot139Migration).
 - **Web panel:** Bảng xếp hạng (sức mạnh, nạp, sự kiện, hộp đen) và đua top sự kiện không còn admin.
 - **Trang web người chơi:** top sức mạnh không còn admin.
+
+### Đợt 139i: Cađíc M hết quay vòng vòng
+
+- **Nguyên nhân:** client cho quái đi qua lại trong ±`range_move` pixel quanh điểm xuất phát (Mob.cs). 33px quá ngắn so với thân Cađíc M, vừa nhích đã chạm mép quay đầu nên nhìn như xoay vòng.
+- **Sửa:** cả 2 mẫu Cađíc M (95 và 118) nới vùng đi lên 100px (Dot133Migration, chạy mỗi lần khởi động). vsData 33 để client tải lại.

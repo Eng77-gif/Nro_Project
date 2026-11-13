@@ -31,7 +31,7 @@ import nro.models.player_system.Template.BgItem;
 
 public class DataGame {
 
-    public static byte vsData = 32; // tăng khi thêm part/vật phẩm mới để client tải lại (32: hình Uub như v10, 25: ô gạch 33, 26: máy đo sức mạnh đứng yên, 28: viền ô gạch 33 thành tường, 30: Cađíc M đi lại như v10, 31: tường mép bậc đá bộ ô gạch 33)
+    public static byte vsData = 33; // tăng khi thêm part/vật phẩm mới để client tải lại (33: Cađíc M vùng đi 100, 32: hình Uub như v10, 25: ô gạch 33, 26: máy đo sức mạnh đứng yên, 28: viền ô gạch 33 thành tường, 30: Cađíc M đi lại như v10, 31: tường mép bậc đá bộ ô gạch 33)
     public static byte vsMap = 8; // tăng khi thêm map / đổi mẫu NPC (5: hình King Furry, 6: Phòng thí nghiệm Myuu bản v10, 7 - 8: Sa mạc hoang vu đổi nền rồi trả lại như cũ)
     public static byte vsSkill = 2; // 2: mô tả chiêu thức thay chữ "null"
     public static byte vsItem = 28; // tăng khi đổi item / bảng option để client tải lại (16: bảng option tối đa 255 dòng)
