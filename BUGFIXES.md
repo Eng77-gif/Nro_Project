@@ -2100,3 +2100,10 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Mẫu quái (loại, vùng đi, tốc độ) gửi trong gói bản đồ (`DataGame.updateMap`), gắn với **vsMap** chứ không phải vsData. Các lần chỉnh vùng / tốc độ Cađíc M trước đó không tới được client: client vẫn dùng mẫu quái cũ đã lưu.
 - Nay Cađíc M (95, 118) để như đa số quái đi lại: vùng 33px, tốc độ 2. vsMap 9 để client tải lại thật.
 - Đã kiểm tra: gói bản đồ gửi về có vsMap 9, Cađíc M hp 6.000.000, vùng 33, tốc độ 2.
+
+### Đợt 139m: Cađíc M đi giật giật (ảnh x4)
+
+- `data/mob/x4/95` là bộ hình mới (giống mẫu 118). Bộ hình này cần bảng khung hình riêng cho đứng / đi / đánh (byte loại 2 + bảng).
+- Đợt sửa map đứng hình trước chỉ đổi byte về 0 mà không chép bảng. Client dùng thứ tự khung mặc định không khớp bộ hình: lúc đi nhảy lẫn sang tư thế khoanh tay, nhìn giật giật.
+- Nay x4/95 dùng nguyên dữ liệu x4/118: loại 2 + bảng 7 động tác. Đã kiểm tra bảng đọc trọn 83/83 byte theo `readFrameBoss` của client, không lặp lại lỗi đứng hình.
+- Client không lưu ảnh quái, đăng nhập lại là nhận ảnh mới.
