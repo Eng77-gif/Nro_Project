@@ -1955,3 +1955,11 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Cađíc M (Sa mạc hoang vu) quay vòng vòng:** vùng di chuyển bị ép về 0 mỗi lần khởi động (Đợt 125) nên client cho quái đi qua lại tại chỗ, quay đầu liên tục. Trả về như v10: quái đi lại (loại 1), vùng di chuyển 33, tốc độ 1 như các quái thường; bỏ lệnh ép về 0 (vsData 30 để client tải lại).
 - **Mô tả Cỏ bốn lá** đúng tác dụng thật: "30 phút/lá (cộng dồn tối đa 500 phút): +50% rơi đồ kích hoạt từ quái" (cột mô tả tối đa 75 ký tự; mặc đủ cải trang, pet, đeo lưng, ván bay thì x3).
 - File: `services/shenron/RongXuong.java`, `map/Zone.java`, `database/Dot133Migration.java`, `server/Manager.java`, `data/DataGame.java`.
+
+## Đợt 138: shop Hỗ trợ, E10, gói rađa dò ngọc, bot cầm ngọc Namếc
+
+- **Cửa hàng Santa tab Hỗ trợ xếp lại theo nhóm:** Tự động luyện tập 1-3, Giáp tập luyện 1-4 (ngọc), Giáp tập luyện 1-3 (vàng), Cỏ bốn lá, Bùa x2, Năng lượng E10, Phiếu sao vàng, Gia hạn mầm, Loa thế giới, Loa liên vũ trụ, Vé riêng tư (Dot133Migration.sortHoTro, đặt create_time vì shop xếp theo cột này).
+- **Năng lượng E10 bấm Sử dụng không có tác dụng:** id 2035 thiếu trong danh sách vật phẩm thời gian. Nay dùng như Cuồng nộ / Bổ huyết: mất 1 cái, hiện ô thời gian 10 phút (cộng dồn), có lại khi đổi map / vào lại.
+- **Gói 10 Rađa dò ngọc (loại 25) bị nhét vào ô sách tuyệt kỹ:** vật phẩm loại 25 tự mặc vào ô 10 trước khi xử lý theo id. Nay gói rađa chỉ mở bảng vị trí 7 viên ngọc Namếc, không mặc.
+- **Bot mang ngọc rồng Namếc sang map khác:** bot đổi map bằng đường riêng (goToMap) không kiểm tra ngọc. Nay ra khỏi vùng ngọc Namếc thì rơi ngọc lại như người chơi, đi trong vùng thì cập nhật vị trí ngọc cho rađa.
+- File: `services_func/UseItem.java`, `services/ItemTimeService.java`, `map/service/ChangeMapService.java`, `database/Dot133Migration.java`.

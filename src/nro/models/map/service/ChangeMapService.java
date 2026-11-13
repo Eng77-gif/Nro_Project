@@ -776,6 +776,17 @@ public class ChangeMapService {
 
     public void goToMap(Player player, Zone zoneJoin) {
         Zone oldZone = player.zone;
+        // đường đi này không qua changeMap (bot, đệ tử, dịch chuyển của hệ thống): cầm ngọc rồng Namếc ra khỏi vùng ngọc thì rơi lại
+        if (player.idNRNM != -1 && oldZone != null && zoneJoin != null) {
+            if (!NgocRongNamecService.gI().isMapNRNM(zoneJoin.map.mapId)) {
+                NgocRongNamecService.gI().dropNamekBall(player);
+            } else {
+                int i = player.idNRNM - 353;
+                NgocRongNamecService.gI().mapNrNamec[i] = zoneJoin.map.mapId;
+                NgocRongNamecService.gI().nameNrNamec[i] = zoneJoin.map.mapName;
+                NgocRongNamecService.gI().zoneNrNamec[i] = (byte) zoneJoin.zoneId;
+            }
+        }
         if (oldZone != null) {
             this.exitMap(player);
             if (player.mobMe != null) {

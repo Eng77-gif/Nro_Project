@@ -322,7 +322,8 @@ public class UseItem {
                     case 25: {
                         // Các id bên dưới tự mặc trong switch theo id; nếu mặc ở đây nữa thì
                         // lần mặc thứ 2 sẽ mặc lại đồ cũ vừa bị tháo ra.
-                        if (!SELF_EQUIP_IDS.contains((int) item.template.id)) {
+                        // 361 Gói rađa dò ngọc (loại 25) là vật phẩm dùng, không mặc: trước đây bị nhét vào ô sách tuyệt kỹ
+                        if (!SELF_EQUIP_IDS.contains((int) item.template.id) && item.template.id != 361) {
                             InventoryService.gI().itemBagToBody(pl, indexBag);
                         }
                     }
@@ -846,6 +847,7 @@ public class UseItem {
                             case 1233:
                             case 1532:
                             case 1628:
+                            case 2035: // Năng lượng E10: dùng như cuồng nộ / bổ huyết (mất 1, hiện ô thời gian)
 
                                 useItemTime(pl, item);
                                 break;
@@ -1657,7 +1659,8 @@ public class UseItem {
                 break;
             case 2035: // Năng lượng E10: 10 phút KI +10%, SĐ +5%, giảm 5% HP
                 pl.e10Until = Math.max(pl.e10Until, System.currentTimeMillis()) + 600_000;
-                ItemTimeService.gI().sendItemTime(pl, item.template.iconID, (int) ((pl.e10Until - System.currentTimeMillis()) / 1000));
+                pl.nPoint.calPoint();
+                Service.gI().point(pl);
                 break;
             case 1614: // nuoc mia 1
                 if (pl.itemTime.isUseNuocMia2 || pl.itemTime.isUseNuocMia3) {
