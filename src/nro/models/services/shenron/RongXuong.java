@@ -268,6 +268,9 @@ public class RongXuong {
         leave(pl, "Điều ước " + st.wish + " của các con đã được thực hiện...tạm biệt");
     }
 
+    /** Tỉ lệ như Pet.openSkill2/3: Kamejoko, Thái dương hạ san, Tái tạo năng lượng (combo) hiếm hẳn. */
+    private static final int[][] WEIGHTS = {{34, 33, 33}, {8, 46, 46}, {8, 8, 84}};
+
     /** Đổi 3 kỹ năng đầu của đệ tử: kỹ năng mới cấp 1, có thể trùng kỹ năng cũ. */
     private static void rerollPetSkills(Player pl) {
         byte[][] pools = {
@@ -279,7 +282,10 @@ public class RongXuong {
             if (old == null || old.skillId == -1) {
                 continue;
             }
-            Skill sk = SkillUtil.createSkill(pools[i][Util.nextInt(0, pools[i].length - 1)], 1);
+            int[] w = WEIGHTS[i];
+            int r = Util.nextInt(1, w[0] + w[1] + w[2]);
+            int k = r <= w[0] ? 0 : r <= w[0] + w[1] ? 1 : 2;
+            Skill sk = SkillUtil.createSkill(pools[i][k], 1);
             if (sk != null) {
                 pl.pet.playerSkill.skills.set(i, sk);
             }

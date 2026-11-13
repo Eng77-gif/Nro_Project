@@ -2043,3 +2043,14 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Kid Jiren:** đầu trong bảng đệ quá to do ảnh đại diện 8094 bản x2/x3/x4 bị phóng gấp 3 lần (x2 là 306×264).
   - Nay đúng tỉ lệ với bản x1 (x2 102×88).
   - vsRes 6 để client tải lại ảnh.
+
+### Đợt 139f: chiêu combo của đệ tử khó ra hơn rõ rệt
+
+| Ô chiêu | Trước | Nay |
+|---|---|---|
+| Chiêu 2 | Kamejoko / Masenko / Antomic 33/33/34% | 8/46/46% |
+| Chiêu 3 | Thái dương hạ san / Tái tạo năng lượng / Kaioken 30/40/30% | 8/8/84% |
+| Chiêu 4 | Biến khỉ / Đẻ trứng / Khiên năng lượng 10/70/20% | 3/72/25% |
+
+- Áp dụng khi đệ lên sức mạnh mở chiêu, khi ước rồng đổi chiêu đệ, và khi ước Rồng Xương đổi chiêu (trước chọn đều 1/3).
+- Đệ tử 2 vẫn có bộ chiêu cố định theo hành tinh như video.
