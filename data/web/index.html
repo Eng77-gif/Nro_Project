@@ -117,6 +117,10 @@ main.wrap{padding-top:28px;padding-bottom:60px}
 .quick b{display:block;font-size:16px}.quick span{color:var(--mute);font-size:13px}
 
 /* ---------- giới thiệu ---------- */
+.nap-tb{width:100%;border-collapse:separate;border-spacing:0 6px;font-weight:700}
+.nap-tb th{background:var(--brown);color:#ffe0ab;padding:8px;font-size:13px;text-align:center}.nap-tb th:first-child{border-radius:8px 0 0 8px}.nap-tb th:last-child{border-radius:0 8px 8px 0}
+.nap-tb td{background:#f8ead3;padding:7px 10px;text-align:center}.nap-tb td:first-child{border-radius:8px 0 0 8px}.nap-tb td:last-child{border-radius:0 8px 8px 0}
+.nap-tb img{width:18px;height:18px;vertical-align:-3px;margin-right:6px}
 .feature{display:flex;gap:14px}
 .feature .ico{width:52px;height:52px;flex:none;border-radius:14px;background:var(--bg2);display:grid;place-items:center;font-size:26px;border:1px solid var(--line)}
 .feature h3{font-size:20px;margin:0 0 4px}
@@ -278,7 +282,7 @@ async function home(){
   const dl=s.download||{};
   const dlHref=dl.apk||dl.pc||dl.ios||'#/gioi-thieu';
   const art=n=>/halloween|hlw|bí ngô/i.test(n)?'event-halloween.png':/20\/10|tháng 10|phụ nữ/i.test(n)?'event-october.png':'hero.png';
-  const ql=[[dlHref,'🎮','Tải game','Android · PC · iOS'],['#/nap','💎','Nạp ngọc','1đ = 1 ngọc'],['#/dien-dan','💬','Diễn đàn','Trao đổi, tìm đồng đội'],['#/bao-loi','🛠️','Trung tâm hỗ trợ','Báo lỗi, tố cáo, góp ý']];
+  const ql=[[dlHref,'🎮','Tải game','Android · PC · iOS'],['#/nap','💎','Nạp ngọc','10.000đ = 13 ngọc'],['#/dien-dan','💬','Diễn đàn','Trao đổi, tìm đồng đội'],['#/bao-loi','🛠️','Trung tâm hỗ trợ','Báo lỗi, tố cáo, góp ý']];
   $('#main').innerHTML=`
   <section class="game-hero">
     <img src="/assets/hero.png" alt="">
@@ -394,10 +398,12 @@ async function postPage(id){
   const f=$('#rf');if(f)f.onsubmit=async e=>{e.preventDefault();if(await act(()=>api('post/reply',{id:p.id,content:$('#rc').value}),'Đã gửi'))postPage(id)}}
 
 /* ---------- nạp ngọc ---------- */
+const NAP_GEM=[[10000,13,32],[20000,32,82],[50000,91,231],[100000,195,495],[200000,455,1155],[500000,1430,3630],[1000000,3250,8250]];
+function napTable(){return `<div class="card" style="margin-bottom:18px"><h2 style="font-size:20px">Bảng giá nạp</h2><table class="nap-tb"><thead><tr><th>Mệnh giá</th><th>X1 nạp</th><th>X3 nạp</th></tr></thead><tbody>${NAP_GEM.map(r=>`<tr><td>${money(r[0])}đ</td><td><img class="pix" src="/icon/932" alt="">${money(r[1])}</td><td><img class="pix" src="/icon/932" alt="">${money(r[2])}</td></tr>`).join('')}</tbody></table><p class="mute" style="margin:8px 0 0;font-size:13px">Cột X3 áp dụng trong đợt khuyến mãi nạp x3. Đổi ở NPC nạp, chỉ nhận đúng các mệnh giá trên.</p></div>`}
 let napTab='bank',napAmount=50000;
 async function topup(){
   const t=await api('topup/info');
-  const head=`<div class="page-head"><span class="ico" style="background:#ffd25e22"><img class="pix" src="/icon/932" alt="" style="width:40px"></span><div><h1>Nạp ngọc</h1><p>Tiền nạp vào số dư tài khoản, vào game gặp NPC nạp để đổi ra ngọc xanh (1đ = 1 ngọc) hoặc thỏi vàng.</p></div></div>`;
+  const head=`<div class="page-head"><span class="ico" style="background:#ffd25e22"><img class="pix" src="/icon/932" alt="" style="width:40px"></span><div><h1>Nạp ngọc</h1><p>Tiền nạp vào số dư tài khoản, vào game gặp NPC nạp để đổi ra ngọc xanh theo bảng giá hoặc thỏi vàng.</p></div></div>`+napTable();
   if(!me){$('#main').innerHTML=head+needLogin('nạp ngọc');return}
   if(!t.bank&&!t.card)napTab='none';else if(napTab==='bank'&&!t.bank)napTab='card';else if(napTab==='card'&&!t.card)napTab='bank';
   $('#main').innerHTML=head+`

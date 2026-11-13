@@ -2126,3 +2126,8 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - `data/web/index.html` đổi sang giao diện từ bản mẫu anh gửi: nền kem, thanh trên cùng, đầu trang nâu với logo "Chú Bé Rồng", menu dạng nút (mục đang mở màu cam, Nạp ngọc viền). Trang chủ có ảnh lớn lễ hội, nút tải game / nạp / tìm hiểu, 4 lối tắt (Tải game, Nạp ngọc, Diễn đàn, Trung tâm hỗ trợ), sự kiện dạng thẻ có ảnh, top sức mạnh và thẻ chào mừng. Trang Giới thiệu dùng ảnh động 3 hành tinh. Chân trang nâu đậm. Mọi chức năng cũ (đăng nhập, diễn đàn, phiếu, nạp QR / thẻ cào) giữ nguyên.
 - Ảnh giao diện để trong `data/web/assets/`, server web phục vụ qua `/assets/<tên>`. Chỉ nhận tên file gồm chữ, số, `_` và `-` với đuôi png / gif / jpg / webp, nên không đọc được file ngoài thư mục này.
 - Đã thử: trang chủ, giới thiệu, nạp và diễn đàn trên máy tính và điện thoại (390px) không lỗi JS và không tràn ngang; `/assets/..%2fx.png` và `/assets/a.html` trả về 404.
+
+### Đợt 139p: bảng giá nạp ngọc theo ảnh "Bảng giá nạp"
+- NPC Bò Mộng (Đổi ngọc) nay đổi theo bảng: 10.000đ = 13 ngọc, 20.000đ = 32, 50.000đ = 91, 100.000đ = 195, 200.000đ = 455, 500.000đ = 1.430, 1.000.000đ = 3.250. Trong đợt khuyến mãi nạp x3 dùng cột X3: 32 / 82 / 231 / 495 / 1.155 / 3.630 / 8.250. Chỉ nhận đúng 7 mệnh giá này, bảng hiện ngay trong khung nhập (`Input.NAP_GEM`). Vé tặng ngọc và điểm sự kiện vẫn tặng như cũ.
+- Khuyến mãi x3 không còn nhân số dư lúc nạp trên web (trước đây nạp 10.000đ được cộng 30.000đ). Nay số dư cộng đúng số tiền nạp, x3 tính lúc đổi ngọc, để không bị nhân 2 lần.
+- Trang Nạp ngọc trên web có bảng giá (mệnh giá / X1 / X3); ô lối tắt ở trang chủ đổi thành "10.000đ = 13 ngọc".

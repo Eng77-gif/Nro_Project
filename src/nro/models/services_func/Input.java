@@ -195,9 +195,10 @@ public class Input {
                 }
 
                 case TRADE_GEM -> {
-                    int quantity = Integer.parseInt(text[0]);
-                    if (quantity < 10000 || quantity > 5_000_000) {
-                        Service.gI().sendThongBao(player, "Tối thiểu 10.000Đ và tối đa 5.000.000Đ");
+                    int quantity = Integer.parseInt(text[0].trim().replace(".", "").replace(",", ""));
+                    int gem = napGem(quantity);
+                    if (gem <= 0) {
+                        Service.gI().sendThongBao(player, "Chỉ nhận mệnh giá 10.000, 20.000, 50.000, 100.000, 200.000, 500.000 hoặc 1.000.000Đ");
                         break;
                     }
                     if (player.getSession().vnd < quantity) {
@@ -208,7 +209,7 @@ public class Input {
                             break;
                         }
 
-                        player.inventory.gem += quantity;
+                        player.inventory.gem += gem;
                         Service.gI().sendMoney(player);
 
                         int soLuongVe = (quantity / 10000) * 10;
@@ -224,7 +225,7 @@ public class Input {
                         player.event.addEventPoint(eventPointBonus);
 
                         Service.gI().sendThongBao(player, "Bạn nhận thêm " + eventPointBonus + " điểm sự kiện!");
-                        Service.gI().sendThongBao(player, "Đã nạp thành công. Bạn nhận được " + quantity + " ngọc và " + soLuongVe + " vé tặng ngọc.");
+                        Service.gI().sendThongBao(player, "Đã nạp thành công. Bạn nhận được " + gem + " ngọc và " + soLuongVe + " vé tặng ngọc.");
                     }
                 }
 
@@ -713,8 +714,29 @@ public class Input {
         createForm(pl, TRADE_GOLD, "Tỉ lệ quy đổi: 10.000 vnđ = 40 Thỏi vàng \n Số dư hiện tại: " + pl.getSession().vnd, new SubInput("Số lượng", NUMERIC));
     }
 
+    /** Bảng giá nạp: mệnh giá (đ), ngọc x1, ngọc x3 (khi khuyến mãi nạp x3). */
+    public static final int[][] NAP_GEM = {{10_000, 13, 32}, {20_000, 32, 82}, {50_000, 91, 231}, {100_000, 195, 495},
+        {200_000, 455, 1155}, {500_000, 1430, 3630}, {1_000_000, 3250, 8250}};
+
+    /** Số ngọc nhận được khi đổi đúng 1 mệnh giá trong bảng, 0 nếu không phải mệnh giá hợp lệ. */
+    public static int napGem(int vnd) {
+        boolean x3 = nro.models.services.SeasonEventService.gI().summerPromo(false);
+        for (int[] r : NAP_GEM) {
+            if (r[0] == vnd) {
+                return x3 ? r[2] : r[1];
+            }
+        }
+        return 0;
+    }
+
     public void createFormTradeGem(Player pl) {
-        createForm(pl, TRADE_GEM, "Tỉ lệ quy đổi: 10.000 vnđ = 10000 ngọc \n Số dư hiện tại: " + pl.getSession().vnd, new SubInput("Số lượng", NUMERIC));
+        boolean x3 = nro.models.services.SeasonEventService.gI().summerPromo(false);
+        StringBuilder sb = new StringBuilder("Bảng giá nạp" + (x3 ? " (đang khuyến mãi X3)" : "") + ":\n");
+        for (int[] r : NAP_GEM) {
+            sb.append(Util.numberToMoney(r[0])).append("đ = ").append(x3 ? r[2] : r[1]).append(" ngọc\n");
+        }
+        sb.append("Số dư hiện tại: ").append(Util.numberToMoney(pl.getSession().vnd)).append("đ");
+        createForm(pl, TRADE_GEM, sb.toString(), new SubInput("Mệnh giá", NUMERIC));
     }
 
     public void createFormChangeName(Player pl, Player plChanged) {
