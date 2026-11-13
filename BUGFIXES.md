@@ -1917,3 +1917,11 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Điểm nhiều mục tiêu:** 8·log10(1 + ‰ sức mạnh tăng / phút) + 2·log10(1 + vàng / phút / 1 Tr) − 4 · số lần chết / phút.
 - **Chọn map:** gom các map hợp sức, bỏ map chưa đi được / quá mạnh, chọn theo UCB1 (điểm + thưởng cho map ít thử), 10% ngẫu nhiên để khám phá.
 - Lưu bảng bot_map_learn 5 phút / lần. Panel trang AI: "Map luyện tập tốt nhất" hiện 3 map tốt nhất của từng bậc sức mạnh; nút "Học lại từ đầu" xoá cả kinh nghiệm chọn map.
+
+## Panel: trang Bang hội làm lại
+
+- **Tổng quan:** số bang, thành viên, đang online, tổng sức mạnh; tìm theo tên bang / bang chủ / ID, sắp xếp theo sức mạnh / thành viên / cấp / ngày lập.
+- **Thẻ bang:** hạng, cờ bang, cấp, khẩu hiệu, bang chủ (avatar), thành viên / online / bot / sức mạnh, 5 gương mặt thành viên.
+- **Chi tiết bang (bấm thẻ):** cấp bang, Kho báu / Rắn độc / Khí gas đã qua, doanh trại hôm nay, ngọc NRSD 30 ngày, danh sách thành viên (chức vụ, sức mạnh, đóng góp, ngày vào bang).
+- **Quản lý:** sửa tên / khẩu hiệu / cấp / số thành viên tối đa, đổi chức vụ (đặt bang chủ mới thì bang chủ cũ thành phó bang), đuổi thành viên (cả khi offline), giải tán bang (phải gõ đúng tên bang).
+- File: `panel/PanelClan.java` (mới), `panel/PanelApi.java`, `data/panel/index.html`.

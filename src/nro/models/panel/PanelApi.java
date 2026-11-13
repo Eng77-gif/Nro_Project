@@ -257,6 +257,12 @@ public class PanelApi {
             case "giveall" -> giveAll(b);
             case "exprate" -> expRate(b);
             case "tops" -> tops(str(q.getOrDefault("kind", "power")));
+            case "clans/live" -> PanelClan.list(q.getOrDefault("q", ""));
+            case "clan/detail" -> PanelClan.detail(intv(q.get("id")));
+            case "clan/edit" -> PanelClan.edit(b);
+            case "clan/kick" -> PanelClan.kick(intv(b.get("id")), intv(b.get("member")));
+            case "clan/role" -> PanelClan.role(intv(b.get("id")), intv(b.get("member")), intv(b.get("role")));
+            case "clan/dissolve" -> PanelClan.dissolve(intv(b.get("id")), str(b.get("confirm")));
             case "clans" -> rows("select id, NAME name, slogan, power_point, max_member, clan_point, LEVEL level, create_time from clan order by power_point desc limit 300");
             case "kygui" -> rows("select k.id, k.player_id, p.name player, k.item_id, t.name, t.icon_id, k.gold, k.gem, k.quantity, k.isBuy from shop_ky_gui k left join player p on p.id=k.player_id left join item_template t on t.id=k.item_id order by k.id desc limit 300");
             case "flags" -> PanelLooks.flags();
