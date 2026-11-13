@@ -18,14 +18,15 @@ public class Dot133Migration {
 
     public static void run(Connection con) {
         try {
+            // Cađíc M đi lại như v10 (loại 1, vùng 33, tốc độ 1): vùng 0 làm client cho nó quay qua quay lại tại chỗ liên tục
+            update(con, "update mob_template set type = 1, range_move = 33, speed = 1 where id = 95 and (type <> 1 or range_move <> 33 or speed <> 1)");
             if (exists(con, "select 1 from server_migration where name = 'dot133_cadic_co4la'")) {
                 return;
             }
-            update(con, "update mob_template set type = 0 where id = 95");
             // cột description tối đa 75 ký tự; mặc đủ cải trang, pet, đeo lưng, ván bay thì x3 (Mob.skhLuckBoost)
             update(con, "update item_template set description = '30 phút/lá (cộng dồn tối đa 500 phút): +50% rơi đồ kích hoạt từ quái' where id = 1635");
             update(con, "insert into server_migration (name) values ('dot133_cadic_co4la')");
-            Logger.success("Đợt 133: Cađíc M đứng yên hẳn (loại 0), mô tả Cỏ bốn lá\n");
+            Logger.success("Đợt 133: mô tả Cỏ bốn lá\n");
         } catch (Exception e) {
             Logger.error("Đợt 133: " + e.getMessage() + "\n");
         }

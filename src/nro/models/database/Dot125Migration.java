@@ -21,7 +21,6 @@ public class Dot125Migration {
 
     public static void run(Connection con) {
         try {
-            update(con, "update mob_template set range_move = 0 where id = 95"); // Cađíc M đứng yên như cũ (đi lại thì cứ đi tới đi lui quanh người chơi)
             renumberSuperRank(con);
         } catch (Exception e) {
             Logger.error("Đợt 125: " + e.getMessage() + "\n");
