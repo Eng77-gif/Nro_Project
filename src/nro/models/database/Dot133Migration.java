@@ -33,8 +33,8 @@ public class Dot133Migration {
     public static void run(Connection con) {
         try {
             // Cađíc M đi lại như v10 (loại 1, vùng 33, tốc độ 1): vùng 0 làm client cho nó quay qua quay lại tại chỗ liên tục
-            // Cađíc M: như đa số quái đi lại (vùng 33px, tốc độ 2). Mẫu quái gửi cùng gói bản đồ nên phải tăng DataGame.vsMap thì client mới tải lại
-            update(con, "update mob_template set type = 1, range_move = 33, speed = 2 where id in (95, 118) and (type <> 1 or range_move <> 33 or speed <> 2)");
+            // Cađíc M: vùng 20px (hẹp hơn quái thường 33px theo yêu cầu), tốc độ 2. Mẫu quái gửi cùng gói bản đồ nên phải tăng DataGame.vsMap thì client mới tải lại
+            update(con, "update mob_template set type = 1, range_move = 20, speed = 2 where id in (95, 118) and (type <> 1 or range_move <> 20 or speed <> 2)");
             sortHoTro(con);
             // Loa to, Bùa x2 đệ tử: dòng "Không thể giao dịch" như bản chính thức
             for (int id : new int[]{1628, 1652, 1653}) {

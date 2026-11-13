@@ -2107,3 +2107,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Đợt sửa map đứng hình trước chỉ đổi byte về 0 mà không chép bảng. Client dùng thứ tự khung mặc định không khớp bộ hình: lúc đi nhảy lẫn sang tư thế khoanh tay, nhìn giật giật.
 - Nay x4/95 dùng nguyên dữ liệu x4/118: loại 2 + bảng 7 động tác. Đã kiểm tra bảng đọc trọn 83/83 byte theo `readFrameBoss` của client, không lặp lại lỗi đứng hình.
 - Client không lưu ảnh quái, đăng nhập lại là nhận ảnh mới.
+- Thu hẹp vùng đi Cađíc M (95, 118) xuống 20px, tốc độ 2 giữ nguyên. vsMap 10. Đã kiểm tra gói bản đồ gửi về vùng 20.
