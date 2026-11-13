@@ -37,11 +37,12 @@ public class RongXuong {
      * bám sau lưng nhân vật; hành trang tự đóng. 0 / 1: lệnh gọi rồng của client (chỉ có hình Rồng thần Trái Đất / Namek).
      */
     public static volatile int dragonType = -1;
-    /** Rồng Xương đứng lệch sang bên cạnh chỗ gọi (không che nhân vật). */
-    private static final int DRAGON_OFFSET_X = 70;
-    /** Hiệu ứng trên bản đồ không gỡ được nên gửi từng đợt ngắn, rồng còn thì gửi tiếp (BONE_REFRESH_MS), rồng đi thì tự tắt. */
-    private static final int BONE_LOOPS = 60;
-    private static final long BONE_REFRESH_MS = 15_000;
+    /**
+     * Hiệu ứng trên bản đồ không gỡ được nên gửi từng đợt ngắn, rồng còn thì gửi tiếp, rồng đi thì tự tắt.
+     * Client cập nhật ~50 lần / giây, hình rồng 12 khung -> 42 vòng ~ 10 giây, khớp chu kỳ gửi lại.
+     */
+    private static final int BONE_LOOPS = 42;
+    private static final long BONE_REFRESH_MS = 10_000;
     private static final java.util.concurrent.ScheduledExecutorService BONE = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "rong-xuong");
         t.setDaemon(true);
@@ -154,8 +155,8 @@ public class RongXuong {
         if (dragons.get(playerId) != st) {
             return;
         }
-        int x = st.x + DRAGON_OFFSET_X, y = st.zone.map.yPhysicInTop(x, st.y);
-        nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(st.zone, EFFECT_RONG_XUONG, 0, 1, x, y, BONE_LOOPS);
+        // như client vẽ rồng thần (Effect 17 ở lớp 2, cao hơn chỗ gọi 77): lớp 0 client không vẽ nên trước đây rồng không hiện
+        nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(st.zone, EFFECT_RONG_XUONG, 2, BONE_LOOPS, st.x, st.y - 77, 1);
         BONE.schedule(() -> showBone(playerId, st), BONE_REFRESH_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
 
@@ -212,7 +213,7 @@ public class RongXuong {
 
     private static void confirm(Player pl, State st, int wish) {
         st.wish = wish;
-        NpcService.gI().createMenuRongThieng(pl, MENU_CONFIRM, "Ngươi có chắc muốn ước điều ước " + wish + "?", "Điều\nước " + wish, "Từ chối");
+        NpcService.gI().createMenuRongThieng(pl, MENU_CONFIRM, "Ngươi có chắc muốn ước ?", "Điều\nước " + wish, "Từ chối");
     }
 
     private static void doWish(Player pl, State st) {
@@ -305,7 +306,7 @@ public class RongXuong {
         if (st == null) {
             return;
         }
-        NpcService.gI().createTutorial(pl, 0, text);
+        Service.gI().sendThongBaoOK(pl, text); // khung giấy có nút OK như bản chính thức
         sendDragon(pl, st, false);
         pl.isShenronAppear = false;
     }

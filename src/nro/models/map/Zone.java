@@ -372,7 +372,11 @@ public class Zone {
                                                 case 78 ->
                                                     msg.writer().writeUTF("Wow, một cậu bé dễ thương!");
                                                 default -> {
+                                                    // như v10: trang bị "... ngon...", vật phẩm khác "Bạn nhận được ..." (trước đây vật phẩm khác
+                                                    // thiếu hẳn dòng chữ, client đọc lệch gói nên không hiện thông báo nhặt)
                                                     if (item.template.type >= 0 && item.template.type < 5) {
+                                                        msg.writer().writeUTF(item.template.name + " ngon...");
+                                                    } else {
                                                         msg.writer().writeUTF("Bạn nhận được " + item.template.name);
                                                     }
                                                     if (item.template.id == 648) {

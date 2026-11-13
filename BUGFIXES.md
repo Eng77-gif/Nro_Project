@@ -1947,3 +1947,11 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Con báo tin theo hành tinh + nhắc hạn set kích hoạt:** con báo tin của client (bong bóng "Bạn nhận được ..." khi nhặt / nhận vật phẩm) trước đây là con tím Xayda cho mọi hành tinh; nay Trái Đất là mèo trắng (281/361/351), Namếc con xanh (512/513/536), Xayda con tím (514/515/537) như v10 (`Service.CON_MEO`). Lời nhắc "Thời gian tìm set kích hoạt đến ..." (mầm) do chính con này nói thay cho đệ tử.
 - **Panel → Tài khoản:** nút Xoá (gõ đúng tên tài khoản để xác nhận): xoá tài khoản + mọi nhân vật và dữ liệu đi kèm (player_extra, siêu hạng, ký gửi, sự kiện...), đưa nhân vật ra khỏi bang. Không xoá tài khoản bot và nhân vật đang là bang chủ; đang online thì bị kick trước.
 - File: `player/Player.java`, `server/Manager.java`, `matches/dai_hoi_vo_thuat/SuperRank.java`, `SuperRankService.java`, `database/SuperRankDAO.java`, `player/SuperRank.java`, `services/ChatGlobalService.java`, `shop/ShopService.java`, `panel/PanelApi.java`, `data/panel/index.html`, `tools/aura_merge.py`, `data/img_by_name/*`.
+
+## Đợt 137: Rồng Xương hiện hình, thông báo nhặt vật phẩm, Cađíc M hết quay đầu, mô tả Cỏ bốn lá
+
+- **Rồng Xương không hiện hình:** hình rồng (hiệu ứng 51) gửi ở lớp 0, client chỉ vẽ hiệu ứng lớp 1 - 4 nên rồng không bao giờ hiện. Nay gửi lớp 2, cao hơn chỗ gọi 77 như client vẽ rồng thần (Effect 17); 42 vòng ~ 10 giây, gửi lại mỗi 10 giây, rồng đi thì tắt trong vòng 10 giây. Câu xác nhận "Ngươi có chắc muốn ước ?", lời chào cuối hiện khung giấy có nút OK như video.
+- **Thông báo nhặt vật phẩm (như v10, trừ vàng / ngọc / hồng ngọc):** gói nhặt (-20) với vật phẩm không phải trang bị thiếu hẳn dòng chữ nên client đọc lệch, không hiện "Bạn nhận được ..."; nay trang bị "<tên> ngon...", vật phẩm khác "Bạn nhận được <tên>" (con báo tin nói).
+- **Cađíc M (Sa mạc hoang vu) quay 2 đầu liên tục:** quái loại 1 "đi lại" với vùng di chuyển 0 nên client cho nó đi qua lại tại chỗ; đổi sang loại 0 đứng yên như máy đo sức mạnh (vsData 29 để client tải lại).
+- **Mô tả Cỏ bốn lá** đúng tác dụng thật: "30 phút/lá (cộng dồn tối đa 500 phút): +50% rơi đồ kích hoạt từ quái" (cột mô tả tối đa 75 ký tự; mặc đủ cải trang, pet, đeo lưng, ván bay thì x3).
+- File: `services/shenron/RongXuong.java`, `map/Zone.java`, `database/Dot133Migration.java`, `server/Manager.java`, `data/DataGame.java`.
