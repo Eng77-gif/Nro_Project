@@ -148,10 +148,10 @@ SePay đọc biến động số dư tài khoản ngân hàng và gọi về ser
    - Không bắt buộc: server tự đọc `NAP<số>` trong nội dung.
 3. **Tích hợp WebHooks** → **Thêm webhooks**:
    - Sự kiện: **Có tiền vào**.
-   - Gọi đến URL: `https://ten-mien-cua-anh/callback/sepay`.
+   - Gọi đến URL: `https://ten-mien-cua-anh/callback/sepay`. Chưa có tên miền riêng thì dùng link Worker, ví dụ `https://nro-web.dov77471.workers.dev/callback/sepay` (Worker chuyển tiếp về server game kèm header Authorization).
    - Kiểu chứng thực: **API Key**. Tạo một chuỗi ngẫu nhiên dài (vd. 40 ký tự) và dán vào ô API Key.
    - Bỏ qua nếu không có mã thanh toán: **Không**. Server vẫn lưu giao dịch để anh xem.
-4. Dán cùng chuỗi đó vào `Config.properties` rồi khởi động lại server:
+4. Dán cùng chuỗi đó vào panel → **Cấu hình** → `web.sepay.apikey` → Lưu (có hiệu lực ngay), hoặc sửa tay `Config.properties`:
    ```properties
    web.sepay.apikey=chuoi-ngau-nhien-cua-anh
    ```

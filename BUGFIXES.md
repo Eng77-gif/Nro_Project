@@ -2203,3 +2203,10 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Panel > Cấu hình sửa được thêm:** `event.active`, link tải game, ngân hàng, SePay API key, cổng thẻ cào. Ẩn giá trị (`******`) cả các khoá bí mật (`web.proxy.key`, `*apikey`, `*partner_key`), trước đây chỉ ẩn mật khẩu.
 - Nạp qua web (ngân hàng, thẻ) áp dụng ngay sau khi lưu, nhờ Đợt 139x.
 - Đã thử: xoá các mục web.* khỏi Config.properties máy thử rồi khởi động thì được thêm lại đủ kèm ghi chú. Lưu ngân hàng ở panel thì `topup/info` có chuyển khoản ngay, không khởi động lại.
+
+### Đợt 139z: lỗi NullPointerException ở giải Siêu hạng, webhook SePay qua Cloudflare Worker
+- **Lỗi trong ảnh** (`Service.setPos0` ← `SuperRank.handleMatchStart`, "Cannot assign field x because location is null"): người chơi thoát game đúng lúc trận Siêu hạng bắt đầu, nhân vật đã bị huỷ (location = null) nhưng trận vẫn chạy và lỗi lặp mỗi giây.
+  - Nay `handleMatchStart` kiểm tra trước: người chơi đã thoát thì tính thua và kết thúc trận, đối thủ mất thì tính thắng.
+  - `setPos0` bỏ qua nhân vật null / đã huỷ.
+- **Webhook SePay qua Cloudflare:** Worker và Pages chuyển tiếp thêm `/callback/*` (SePay, cổng thẻ cào) về server game, kèm header `Authorization` (SePay gửi `Apikey <key>`). Không có tên miền riêng thì dùng `https://nro-web.dov77471.workers.dev/callback/sepay`. Hướng dẫn SePay cập nhật: dán API key ở panel > Cấu hình, có hiệu lực ngay.
+- Đã thử: webhook sai key trả 401; đúng key, không có mã NAP thì trả 200 và lưu giao dịch. Worker đã đưa lên Cloudflare.

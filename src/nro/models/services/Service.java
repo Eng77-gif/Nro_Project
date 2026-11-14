@@ -1717,6 +1717,9 @@ public class Service {
     }
 
     public void setPos0(Player player, int x, int y) {
+        if (player == null || player.location == null) {
+            return; // nhân vật đã thoát / bị huỷ
+        }
         player.location.x = x;
         player.location.y = y;
         Message msg;

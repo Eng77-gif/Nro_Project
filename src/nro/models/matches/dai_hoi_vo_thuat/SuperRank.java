@@ -110,6 +110,14 @@ public final class SuperRank implements Runnable {
     }
 
     private void handleMatchStart() {
+        if (player == null || player.location == null || player.zone == null) {
+            handleLose(); // người chơi thoát game lúc chờ vào trận (location đã bị huỷ)
+            return;
+        }
+        if (rival == null || rival.location == null || rival.zone == null) {
+            handleWin();
+            return;
+        }
         switch (timeUp++) {
             case 0 -> {
                 Service.gI().sendThongBao(player, "Trận đấu bắt đầu");

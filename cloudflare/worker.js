@@ -41,7 +41,7 @@ const HEADERS = {
 export default {
   async fetch(request, env) {
     const path = new URL(request.url).pathname;
-    if (path.startsWith('/api/') || path.startsWith('/icon/')) return proxy({ request, env });
+    if (path.startsWith('/api/') || path.startsWith('/icon/') || path.startsWith('/callback/')) return proxy({ request, env }); // callback: webhook SePay, cổng thẻ cào
     if (path.startsWith('/assets/')) {
       const name = path.slice(8), data = Object.hasOwn(ASSETS, name) ? ASSETS[name] : null;
       if (!data) return new Response('Not found', { status: 404 });

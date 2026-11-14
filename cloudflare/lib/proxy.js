@@ -6,7 +6,7 @@ export async function proxy({ request, env }) {
   if (!backend) return json(503, 'Trang web chưa cấu hình BACKEND_URL');
   const url = new URL(request.url);
   const headers = new Headers();
-  for (const h of ['content-type', 'x-token']) {
+  for (const h of ['content-type', 'x-token', 'authorization']) { // authorization: webhook SePay (Apikey ...)
     const v = request.headers.get(h);
     if (v) headers.set(h, v);
   }
