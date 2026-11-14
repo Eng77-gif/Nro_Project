@@ -61,6 +61,12 @@ a.feed-body{display:block;color:inherit}
 .hist td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
 .hist small{display:block;color:var(--muted);font-size:10px}
 @media(max-width:700px){.hist thead{display:none}.hist,.hist tbody{display:block}.hist tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:9px 0;border-bottom:1px solid var(--line)}.hist td{border:0;padding:0}.hist td:nth-child(3){order:2;text-align:right;font-weight:700}.hist td:nth-child(2){order:3}.hist td:nth-child(4){order:4;text-align:right}}
+.nap-tb{width:100%;border-collapse:separate;border-spacing:0 6px;font-weight:700;font-size:14px}
+.nap-tb th{background:#54301c;color:#ffe0ab;padding:8px;font-size:12px;letter-spacing:1px;text-align:center}
+.nap-tb th:first-child{border-radius:8px 0 0 8px}.nap-tb th:last-child{border-radius:0 8px 8px 0}
+.nap-tb td{background:#f8ead3;padding:7px 6px;text-align:center;white-space:nowrap}
+.nap-tb td:first-child{border-radius:8px 0 0 8px}.nap-tb td:last-child{border-radius:0 8px 8px 0}
+.nap-tb img{width:16px;height:16px;vertical-align:-3px;margin-right:5px;image-rendering:pixelated}
 .me-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:-6px 0 18px}
 .me-chips span{background:#f5ead6;border:1px solid #ebdabe;border-radius:999px;padding:5px 13px;font-size:11px;color:#8a6947}
 .me-chips b{color:#70442b}
@@ -235,6 +241,9 @@ async function gems(){
     <section class="store-section"><div class="step-title"><span>02</span><div><h2>Chọn gói ngọc</h2><p>Khuyến mãi nạp x3 tự áp dụng theo cột X3.</p></div></div>
       <div class="gems luxury-gems">${packs.map((p,i)=>`<button type="button" class="gem ${i===napPack?'selected':''}" data-pk="${i}" aria-pressed="${i===napPack}"><span class="selection-tick" aria-hidden="true">${ic('check',12)}</span><span class="gem-art" aria-hidden="true">${ic('gem',34)}</span><strong>${money(p[1])} <small>ngọc</small></strong><span class="gem-x3">X3: ${money(p[2])} ngọc</span><span class="gem-price">${money(p[0])} <small>đ</small></span></button>`).join('')}</div>
       <p class="price-note">Chuyển khoản số tiền khác được cộng theo các mệnh giá trên (30.000đ = 32 + 13 ngọc).</p></section>
+    <section class="store-section"><div class="step-title"><span>${ic('gem',14)}</span><div><h2>Bảng giá nạp</h2><p>Số ngọc nhận được theo từng mệnh giá.</p></div></div>
+      <table class="nap-tb"><thead><tr><th>MỆNH GIÁ</th><th>X1 NẠP</th><th>X3 NẠP</th></tr></thead><tbody>${NAP_GEM.map(r=>`<tr><td>${money(r[0])}đ</td><td><img src="/icon/932" alt="">${money(r[1])}</td><td><img src="/icon/932" alt="">${money(r[2])}</td></tr>`).join('')}</tbody></table>
+      <p class="price-note">X3 áp dụng trong đợt khuyến mãi nạp x3. Số tiền khác cộng theo các mệnh giá trên (30.000đ = 32 + 13 ngọc).</p></section>
     <section class="store-help"><span>${ic('info',18)}</span><p>Cần trợ giúp? <a href="#/bao-loi">Gửi yêu cầu hỗ trợ ${ic('external',12)}</a><br>Chuyển khoản đúng số tiền và đúng nội dung để được cộng tự động.</p></section></div>
   <aside class="order-column"><section class="order-card"><div class="order-top"><span class="eyebrow">LỰA CHỌN CỦA BẠN</span><h2>Chi tiết gói ngọc</h2><span class="order-mark">${ic('gem',60)}</span></div><div class="order-content">
     <div class="order-gem"><span>${ic('gem',22)}</span><div><b>${money(sel[1])} ngọc</b><small>Khuyến mãi x3: ${money(sel[2])} ngọc</small></div></div>
