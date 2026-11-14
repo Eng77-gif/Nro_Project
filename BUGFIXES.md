@@ -2196,3 +2196,10 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Nay tab Thẻ cào luôn mở: chưa có cổng thì ghi chú "ban quản trị kiểm tra rồi cộng ngọc", admin duyệt ở panel.
   - Web server tự đọc lại `Config.properties` khi file đổi, nên điền tài khoản ngân hàng ở panel > Cấu hình là có chuyển khoản QR ngay, không cần khởi động lại.
 - Đã thử (390px và 1280px, đã đăng nhập): không tràn ngang, không lỗi JS.
+
+### Đợt 139y: Config.properties trên VPS tự có mục cấu hình mới
+- **Nguyên nhân:** bộ tải repo cố ý giữ nguyên `Config.properties` trên máy (cấu hình riêng, `-keep`). Vì vậy mục mới (`web.bank.*`, `web.card.*`, `web.download.*`, `web.sepay.apikey`...) không bao giờ có trên VPS, panel > Cấu hình cũng không hiện để điền.
+- **Thêm `Config.default.properties`** (mẫu, bộ tải repo cập nhật bình thường). Mỗi lần khởi động `ConfigMerge` thêm vào cuối `Config.properties` các mục mẫu có mà file chưa có, kèm dòng ghi chú ngay phía trên, dưới dòng `#--- Them tu dong ... ---`. Không sửa mục đã có.
+- **Panel > Cấu hình sửa được thêm:** `event.active`, link tải game, ngân hàng, SePay API key, cổng thẻ cào. Ẩn giá trị (`******`) cả các khoá bí mật (`web.proxy.key`, `*apikey`, `*partner_key`), trước đây chỉ ẩn mật khẩu.
+- Nạp qua web (ngân hàng, thẻ) áp dụng ngay sau khi lưu, nhờ Đợt 139x.
+- Đã thử: xoá các mục web.* khỏi Config.properties máy thử rồi khởi động thì được thêm lại đủ kèm ghi chú. Lưu ngân hàng ở panel thì `topup/info` có chuyển khoản ngay, không khởi động lại.

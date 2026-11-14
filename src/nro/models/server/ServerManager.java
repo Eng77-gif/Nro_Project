@@ -84,6 +84,7 @@ public class ServerManager {
             System.exit(1);
             return;
         }
+        nro.models.utils.ConfigMerge.run(); // thêm mục cấu hình mới vào Config.properties (bộ tải repo không ghi đè file này)
         try {
             timeStart = TimeUtil.getTimeNow("dd/MM/yyyy HH:mm:ss");
             //ShopTab.loadItem();

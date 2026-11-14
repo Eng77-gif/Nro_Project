@@ -2130,14 +2130,20 @@ public class PanelApi {
     }
 
     private static final List<String> EDITABLE = List.of("server.name", "server.expserver", "server.maxplayer", "server.maxperip", "server.waitlogin",
-            "panel.port", "panel.host", "panel.user", "panel.pass", "panel.enable", "admin.xuyengiap");
+            "panel.port", "panel.host", "panel.user", "panel.pass", "panel.enable", "admin.xuyengiap", "event.active",
+            "web.download.apk", "web.download.pc", "web.download.ios", "web.bank.code", "web.bank.account", "web.bank.owner",
+            "web.sepay.apikey", "web.card.url", "web.card.partner_id", "web.card.partner_key", "web.card.rate");
+
+    private static boolean secret(String k) {
+        return k.contains("pass") || k.endsWith("key") || k.endsWith("apikey");
+    }
 
     private Object config() throws Exception {
         Properties p = loadConfig();
         Map<String, Object> m = new LinkedHashMap<>();
         for (String k : p.stringPropertyNames().stream().sorted().toList()) {
             String v = p.getProperty(k);
-            m.put(k, k.contains("pass") ? (v.isEmpty() ? "" : "******") : v);
+            m.put(k, secret(k) ? (v.isEmpty() ? "" : "******") : v);
         }
         return Map.of("values", m, "editable", EDITABLE);
     }
@@ -2178,7 +2184,7 @@ public class PanelApi {
             } catch (NumberFormatException ignored) {
             }
         }
-        return Map.of("ok", true, "note", "Đã lưu Config.properties (admin.xuyengiap áp dụng ngay, mục khác cần khởi động lại server)");
+        return Map.of("ok", true, "note", "Đã lưu Config.properties (admin.xuyengiap, nạp qua web áp dụng ngay, mục khác cần khởi động lại server)");
     }
 
     private static Properties loadConfig() throws Exception {
