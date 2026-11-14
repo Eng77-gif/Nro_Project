@@ -2224,6 +2224,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Thêm cấu hình `web.download.jar`, `web.download.play` (panel > Cấu hình sửa được).
 - Thêm ảnh của bản mẫu vào `data/web/assets`: gif_maphongba, gif_gif_Saiyain, gif_supber_kame, ip, play.
 - Đã thử: 6 trang × máy tính / điện thoại (390px), có đăng nhập và không, không lỗi JS, không tràn ngang; lọc / tìm diễn đàn qua API.
-- (Đợt 140, bổ sung) Giữ lại bảng giá nạp kiểu cũ (đầu bảng nâu: Mệnh giá / X1 nạp / X3 nạp, biểu tượng ngọc) trong trang Nạp ngọc mới, ngay dưới phần chọn gói. Chưa đăng nhập cũng xem được.
+- (Đợt 140, bổ sung) Bảng giá nạp kiểu cũ: đã thêm rồi bỏ theo ý anh (trùng với các gói ngọc, mỗi gói đã ghi số ngọc X1 / X3).
 - (Đợt 140, sửa) Trên Cloudflare mất ảnh nhân vật / nút iPhone / Google Play: danh sách ảnh trong `cloudflare/worker.js` viết cứng từ lần trước, thiếu 5 ảnh mới. Nay `deploy_worker.sh` tự tạo `assets_index.js` theo thư mục `data/web/assets` mỗi lần đưa lên, nên thêm ảnh mới không phải sửa Worker nữa. Đã đưa lên lại, đủ 16 ảnh.
 - (Đợt 140, sửa) Thay mọi biểu tượng ngọc vẽ nét (SVG) bằng hình ngọc xanh trong game (`/icon/932`, giữ nét pixel): nút Nạp ngọc trên thanh menu, ô lối tắt trang chủ, các gói ngọc, thẻ "Chi tiết gói ngọc", tiêu đề bảng giá.
