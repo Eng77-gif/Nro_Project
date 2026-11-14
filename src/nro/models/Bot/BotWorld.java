@@ -1254,12 +1254,24 @@ public final class BotWorld {
         b.boss.prefer = null;
         b.setMode(-1); // không đánh quái / boss
         b.stayMap = true;
-        b.activity = allow(b, "life") || allow(b, "gear") ? "Mở hộp quà, ép sao" : "Nghỉ ở nhà";
-        nro.models.map.Map m = nro.models.map.service.MapService.gI().getMapById(21 + Math.max(0, Math.min(2, b.gender)));
-        if (m != null && !m.zones.isEmpty() && (b.zone == null || b.zone.map.mapId != m.mapId)) {
-            ChangeMapService.gI().goToMap(b, m.zones.get(0));
-            m.zones.get(0).load_Me_To_Another(b);
+        boolean life = allow(b, "life") || allow(b, "gear");
+        b.activity = life ? "Mở hộp quà, ép sao" : "Nghỉ ở nhà";
+        // mở hộp / ép sao / mua hộp đua top: ra Đảo Kamê đứng cạnh Bà Hạt Mít như người chơi; không thì về nhà
+        nro.models.map.Map m = nro.models.map.service.MapService.gI().getMapById(life ? 5 : 21 + Math.max(0, Math.min(2, b.gender)));
+        if (m == null || m.zones.isEmpty() || (b.zone != null && b.zone.map.mapId == m.mapId)) {
+            return;
         }
+        nro.models.map.Zone z = m.zones.get(Util.nextInt(0, m.zones.size() - 1));
+        if (z.isFullPlayer()) {
+            z = m.zones.get(0);
+        }
+        nro.models.npc.Npc npc = life ? m.npcs.stream().filter(n -> n.tempId == nro.models.consts.ConstNpc.BA_HAT_MIT).findFirst().orElse(null) : null;
+        ChangeMapService.gI().goToMap(b, z); // đường chuyển map dành cho bot (như goNrsd)
+        if (npc != null) {
+            b.location.x = npc.cx + Util.nextInt(-80, 80);
+            b.location.y = npc.cy;
+        }
+        z.load_Me_To_Another(b);
     }
 
     private void train(Bot b) {
