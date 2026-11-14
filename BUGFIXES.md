@@ -2227,3 +2227,9 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - (Đợt 140, bổ sung) Bảng giá nạp kiểu cũ: đã thêm rồi bỏ theo ý anh (trùng với các gói ngọc, mỗi gói đã ghi số ngọc X1 / X3).
 - (Đợt 140, sửa) Trên Cloudflare mất ảnh nhân vật / nút iPhone / Google Play: danh sách ảnh trong `cloudflare/worker.js` viết cứng từ lần trước, thiếu 5 ảnh mới. Nay `deploy_worker.sh` tự tạo `assets_index.js` theo thư mục `data/web/assets` mỗi lần đưa lên, nên thêm ảnh mới không phải sửa Worker nữa. Đã đưa lên lại, đủ 16 ảnh.
 - (Đợt 140, sửa) Thay mọi biểu tượng ngọc vẽ nét (SVG) bằng hình ngọc xanh trong game (`/icon/932`, giữ nét pixel): nút Nạp ngọc trên thanh menu, ô lối tắt trang chủ, các gói ngọc, thẻ "Chi tiết gói ngọc", tiêu đề bảng giá.
+
+### Đợt 140b: bật / tắt khuyến mãi nạp X3 trên panel
+- Panel > Nạp qua web có ô **Khuyến mãi nạp X3** (hỏi xác nhận trước khi đổi). Lưu ở `Config.properties` (`web.nap.x3=true/false`, mục mới tự thêm qua Config.default.properties), có hiệu lực ngay, không cần khởi động lại.
+- Đang bật: mọi lần nạp (SePay tự duyệt, thẻ cào, admin duyệt, ngọc chờ lúc offline) cộng ngọc theo cột X3 (`Input.napX3()`: bật tay hoặc đợt x3 sự kiện hè).
+- Trang Nạp ngọc của người chơi: hiện dải "Đang khuyến mãi nạp X3", các gói và thẻ chi tiết hiện số ngọc X3 (kèm số thường). Lúc tắt thì ghi số ngọc khi có X3.
+- Đã thử: bật X3 rồi duyệt 10.000đ thì cộng 32 ngọc; tắt thì `topup/info` báo x3 = false. Ô bật / tắt trên panel và dải thông báo trên web hiện đúng.

@@ -252,6 +252,12 @@ public class PanelApi {
                     "from web_bank_txn where (content like ? escape '!' or ifnull(reference_code,'') like ? escape '!')" + ("1".equals(q.get("unmatched")) ? " and topup_id is null" : ""),
                     "id desc", like(q), like(q));
             case "web/topup/approve" -> webTopupApprove(b);
+            case "web/napx3" -> { // bật / tắt khuyến mãi nạp x3 (lưu web.nap.x3, có hiệu lực ngay)
+                if ("POST".equals(method)) {
+                    configSave(Map.of("values", Map.of("web.nap.x3", lng(b.getOrDefault("on", 0)) != 0 ? "true" : "false")));
+                }
+                yield Map.of("on", nro.models.web.WebServer.napX3(), "active", nro.models.services_func.Input.napX3());
+            }
             case "web/topup/reject" -> Map.of("ok", update("update web_topup set status=2, note=?, updated_at=now() where id=? and status=0", str(b.getOrDefault("note", "Admin từ chối")), lng(b.get("id"))) > 0, "note", "Đã từ chối");
             case "nrsd/summary" -> nrsdSummary();
             case "nrsd/tournament/save" -> nrsdTournamentSave(b);
@@ -2132,7 +2138,7 @@ public class PanelApi {
     private static final List<String> EDITABLE = List.of("server.name", "server.expserver", "server.maxplayer", "server.maxperip", "server.waitlogin",
             "panel.port", "panel.host", "panel.user", "panel.pass", "panel.enable", "admin.xuyengiap", "event.active",
             "web.download.apk", "web.download.pc", "web.download.ios", "web.download.jar", "web.download.play", "web.bank.code", "web.bank.account", "web.bank.owner",
-            "web.sepay.apikey", "web.card.url", "web.card.partner_id", "web.card.partner_key", "web.card.rate");
+            "web.sepay.apikey", "web.card.url", "web.card.partner_id", "web.card.partner_key", "web.card.rate", "web.nap.x3");
 
     private static boolean secret(String k) {
         return k.contains("pass") || k.endsWith("key") || k.endsWith("apikey");

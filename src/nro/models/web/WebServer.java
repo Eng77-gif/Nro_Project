@@ -61,6 +61,11 @@ public class WebServer {
     private record Session(int accountId, String username, long expire) {
     }
 
+    /** Khuyến mãi nạp x3 bật tay trên panel (web.nap.x3=true trong Config.properties). */
+    public static boolean napX3() {
+        return "true".equalsIgnoreCase(gI().conf("web.nap.x3"));
+    }
+
     public static WebServer gI() {
         if (instance == null) {
             instance = new WebServer();
@@ -489,6 +494,7 @@ public class WebServer {
         m.put("cardAuto", !conf("web.card.partner_id").isEmpty() && !conf("web.card.partner_key").isEmpty());
         m.put("bankAmounts", List.of(10000, 20000, 50000, 100000, 200000, 500000, 1000000));
         m.put("cardRate", cardRate());
+        m.put("x3", nro.models.services_func.Input.napX3());
         m.put("amounts", List.of(10000, 20000, 50000, 100000, 200000, 500000));
         m.put("telcos", List.of("VIETTEL", "VINAPHONE", "MOBIFONE", "VNMOBI", "ZING", "GATE"));
         return m;

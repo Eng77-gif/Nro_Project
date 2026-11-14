@@ -683,9 +683,14 @@ public class Input {
     public static final int[][] NAP_GEM = {{10_000, 13, 32}, {20_000, 32, 82}, {50_000, 91, 231}, {100_000, 195, 495},
         {200_000, 455, 1155}, {500_000, 1430, 3630}, {1_000_000, 3250, 8250}};
 
+    /** Đang khuyến mãi nạp x3: bật tay trên panel hoặc đợt x3 sự kiện hè. */
+    public static boolean napX3() {
+        return nro.models.web.WebServer.napX3() || nro.models.services.SeasonEventService.gI().summerPromo(false);
+    }
+
     /** Số ngọc khi nạp vnd đồng: chia theo mệnh giá lớn nhất trước (vd 30.000đ = 20.000 + 10.000), phần lẻ dưới 10.000đ không tính. */
     public static int napGem(int vnd) {
-        int col = nro.models.services.SeasonEventService.gI().summerPromo(false) ? 2 : 1;
+        int col = napX3() ? 2 : 1;
         int gem = 0;
         for (int k = NAP_GEM.length - 1; k >= 0; k--) {
             gem += (vnd / NAP_GEM[k][0]) * NAP_GEM[k][col];
