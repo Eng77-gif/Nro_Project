@@ -2225,3 +2225,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Thêm ảnh của bản mẫu vào `data/web/assets`: gif_maphongba, gif_gif_Saiyain, gif_supber_kame, ip, play.
 - Đã thử: 6 trang × máy tính / điện thoại (390px), có đăng nhập và không, không lỗi JS, không tràn ngang; lọc / tìm diễn đàn qua API.
 - (Đợt 140, bổ sung) Giữ lại bảng giá nạp kiểu cũ (đầu bảng nâu: Mệnh giá / X1 nạp / X3 nạp, biểu tượng ngọc) trong trang Nạp ngọc mới, ngay dưới phần chọn gói. Chưa đăng nhập cũng xem được.
+- (Đợt 140, sửa) Trên Cloudflare mất ảnh nhân vật / nút iPhone / Google Play: danh sách ảnh trong `cloudflare/worker.js` viết cứng từ lần trước, thiếu 5 ảnh mới. Nay `deploy_worker.sh` tự tạo `assets_index.js` theo thư mục `data/web/assets` mỗi lần đưa lên, nên thêm ảnh mới không phải sửa Worker nữa. Đã đưa lên lại, đủ 16 ảnh.
