@@ -2182,3 +2182,9 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Chat thế giới 1 câu: bỏ nhịp chung và thời gian chờ 30 giây.
 - Tách đoạn bắt đầu hoạt động thành `startAction` để dùng chung cho bộ não và giao việc.
 - Đã thử: giao PK 5 phút cho bot brolydark thì 10 giây sau đang "PK"; trả về tự do; việc sai tên bị từ chối; bot chưa vào game thì báo "Bot chưa vào game"; lệnh chat 1 câu ra chat thế giới; giao diện hộp Điều khiển không lỗi JS.
+
+### Đợt 139w: đưa giao diện web mới lên Cloudflare Worker
+- `cloudflare/worker.js` đóng gói luôn ảnh giao diện `data/web/assets/*` và phục vụ ở `/assets/<tên>` (chỉ tên có trong danh sách, `Object.hasOwn`). Trước đây Worker chỉ có `index.html`, nên giao diện mới mất logo / ảnh trên Cloudflare.
+- `deploy_worker.sh`: bỏ trống `PROXY_KEY` thì giữ `BACKEND_URL` / `PROXY_KEY` đã đặt trên Cloudflare (`keep_bindings`), chỉ cập nhật giao diện. Mỗi lần chạy tự gửi kèm ảnh trong `data/web/assets`.
+- `build.sh` (Cloudflare Pages) chép thêm `assets/` vào `public/`.
+- Đã đưa lên worker `nro-web` (13/11 23:59 UTC). Kiểm tra qua API: bản trên Cloudflare có giao diện mới (`game-hero`, bảng giá nạp) và đủ 11 ảnh; 2 biến `BACKEND_URL`, `PROXY_KEY` vẫn còn.

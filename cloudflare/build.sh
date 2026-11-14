@@ -5,5 +5,6 @@ cd "$(dirname "$0")"
 rm -rf public
 mkdir -p public
 cp ../data/web/index.html public/index.html
+cp -r ../data/web/assets public/assets
 cp static/_headers public/_headers
 echo "Đã gom trang web vào cloudflare/public"
