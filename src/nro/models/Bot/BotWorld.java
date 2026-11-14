@@ -140,6 +140,8 @@ public final class BotWorld {
         PRESETS.put("Tắt hết (chỉ luyện tập)", new String[]{"train"});
     }
     private static final java.util.Map<String, Boolean> ALLOW = new java.util.concurrent.ConcurrentHashMap<>();
+    /** Đổi quyền trên panel: lượt tick kế mọi bot chọn lại việc (không đợi 3 - 10 phút). */
+    private static volatile boolean KICK;
     private static final java.util.Map<Long, java.util.Map<String, Boolean>> BOT_ALLOW = new java.util.concurrent.ConcurrentHashMap<>();
     private static final java.util.Map<String, Integer> LIMIT = new java.util.concurrent.ConcurrentHashMap<>();
     private static final java.util.Map<String, int[]> HOURS = new java.util.concurrent.ConcurrentHashMap<>();
@@ -202,6 +204,7 @@ public final class BotWorld {
     }
 
     public static void setAllow(String k, boolean on) {
+        KICK = true;
         checkKey(k);
         ALLOW.put(k, on);
         save("allow_" + k, on ? "1" : "0");
@@ -209,6 +212,7 @@ public final class BotWorld {
 
     /** Riêng 1 bot: on = 1 cho phép, 0 cấm, -1 theo cài đặt chung. */
     public static void setBotAllow(long id, String k, int on) {
+        KICK = true;
         checkKey(k);
         java.util.Map<String, Boolean> own = BOT_ALLOW.computeIfAbsent(id, x -> new java.util.concurrent.ConcurrentHashMap<>());
         try {
@@ -226,6 +230,7 @@ public final class BotWorld {
 
     /** Giới hạn số bot cùng lúc (0 = không giới hạn) và khung giờ ("" = cả ngày) của việc k. */
     public static void setConfig(String k, int limit, String hours) {
+        KICK = true;
         checkKey(k);
         int[] h = parseHours(hours);
         if (hours != null && !hours.isBlank() && h == null) {
@@ -263,6 +268,7 @@ public final class BotWorld {
 
     /** Bỏ hết cài đặt riêng của 1 bot (theo cài đặt chung). */
     public static void resetBot(long id) {
+        KICK = true;
         BOT_ALLOW.remove(id);
         try {
             LocalManager.executeUpdate("delete from bot_perm where player_id = ?", id);
@@ -502,6 +508,8 @@ public final class BotWorld {
             }
         }
         long now = System.currentTimeMillis();
+        boolean kick = KICK; // vừa đổi quyền trên panel: mọi bot chọn lại việc ngay
+        KICK = false;
         for (Bot b : bots()) {
             if (b.awayUntil > 0) {
                 if (now >= b.awayUntil) {
@@ -516,8 +524,8 @@ public final class BotWorld {
             if (!b.accountBot) {
                 grow(b); // bot tài khoản lên sức mạnh thật bằng đánh quái, không cộng ảo
             }
-            long[] ns = nextSwitch.computeIfAbsent(b.id, k -> new long[]{now + Util.nextInt(120, 420) * 1000L});
-            if (now >= ns[0]) {
+            long[] ns = nextSwitch.computeIfAbsent(b.id, k -> new long[]{now + Util.nextInt(5, 30) * 1000L}); // bot mới vào: chọn việc theo quyền sớm
+            if (kick || now >= ns[0]) {
                 switchActivity(b);
                 ns[0] = now + Util.nextInt(180, 600) * 1000L;
             }
@@ -1063,13 +1071,17 @@ public final class BotWorld {
             a = r <= 40 ? BotBrain.TRAIN : r <= 55 ? BotBrain.BOSS : r <= 63 ? BotBrain.BROLY
                     : r <= 73 && nrsd ? BotBrain.NRSD : r <= 81 ? BotBrain.SKH : r <= 90 ? BotBrain.PK : BotBrain.TRAIN;
         }
-        if (!allowAction(b, a)) { // việc bị tắt trên panel: lấy việc được phép đầu tiên, không còn việc nào thì vẫn luyện tập
-            int pick = BotBrain.TRAIN;
+        if (!allowAction(b, a)) { // việc bị tắt trên panel: lấy việc được phép đầu tiên, không còn việc nào thì về nhà
+            int pick = -1;
             for (int x = 0; x < BotBrain.ACTIONS.length; x++) {
                 if (allowAction(b, x) && (x != BotBrain.NRSD || nrsd)) {
                     pick = x;
                     break;
                 }
+            }
+            if (pick < 0) {
+                stayHome(b);
+                return;
             }
             a = pick;
         }
@@ -1234,6 +1246,20 @@ public final class BotWorld {
         b.questMob = -1;
         b.activity = "Úp SKH";
         b.joinMap();
+    }
+
+    /** Không còn việc nào được phép: về nhà đứng; có quyền "life" / "gear" thì ở nhà mở hộp quà, ép sao, sắm đồ (BotQuest.tick). */
+    private void stayHome(Bot b) {
+        endPk(b);
+        b.boss.prefer = null;
+        b.setMode(-1); // không đánh quái / boss
+        b.stayMap = true;
+        b.activity = allow(b, "life") || allow(b, "gear") ? "Mở hộp quà, ép sao" : "Nghỉ ở nhà";
+        nro.models.map.Map m = nro.models.map.service.MapService.gI().getMapById(21 + Math.max(0, Math.min(2, b.gender)));
+        if (m != null && !m.zones.isEmpty() && (b.zone == null || b.zone.map.mapId != m.mapId)) {
+            ChangeMapService.gI().goToMap(b, m.zones.get(0));
+            m.zones.get(0).load_Me_To_Another(b);
+        }
     }
 
     private void train(Bot b) {

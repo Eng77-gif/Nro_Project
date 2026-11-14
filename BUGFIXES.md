@@ -2233,3 +2233,12 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Đang bật: mọi lần nạp (SePay tự duyệt, thẻ cào, admin duyệt, ngọc chờ lúc offline) cộng ngọc theo cột X3 (`Input.napX3()`: bật tay hoặc đợt x3 sự kiện hè).
 - Trang Nạp ngọc của người chơi: hiện dải "Đang khuyến mãi nạp X3", các gói và thẻ chi tiết hiện số ngọc X3 (kèm số thường). Lúc tắt thì ghi số ngọc khi có X3.
 - Đã thử: bật X3 rồi duyệt 10.000đ thì cộng 32 ngọc; tắt thì `topup/info` báo x3 = false. Ô bật / tắt trên panel và dải thông báo trên web hiện đúng.
+
+### Đợt 140c: quyền bot có tác dụng ngay, tắt Luyện tập là bot thôi luyện tập
+- **Lỗi:** tắt hết việc (kể cả Luyện tập), chỉ để "Ép sao, bông tai, đổi đệ, mở hộp quà", bot vẫn hiện "Luyện tập". Hai nguyên nhân:
+  - Không còn việc nào được phép thì code ép bot về Luyện tập.
+  - Quyền mới chỉ áp khi bot tự đổi việc (3 - 10 phút / lần).
+- **Sửa:**
+  - Không còn việc nào được phép thì bot về nhà (map 21 - 23 theo hành tinh), đứng yên, không đánh quái (`stayHome`, mode -1). Có quyền "life" / "gear" thì hoạt động là "Mở hộp quà, ép sao" (ở nhà vẫn mở hộp, ép sao, sắm đồ mỗi 15 giây), không thì "Nghỉ ở nhà".
+  - Đổi quyền trên panel (bật/tắt, mẫu cài sẵn, quyền riêng, khung giờ / giới hạn) thì lượt kế mọi bot chọn lại việc ngay (`KICK`). Bot mới vào game chọn việc sau 5 - 30 giây thay vì 2 - 7 phút.
+- Đã thử (7 bot): chỉ bật "life" thì 30 giây sau cả 7 bot "Mở hộp quà, ép sao"; tắt nốt thì "Nghỉ ở nhà"; bật hết thì về Luyện tập / Làm nhiệm vụ.
