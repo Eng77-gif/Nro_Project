@@ -2188,3 +2188,11 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - `deploy_worker.sh`: bỏ trống `PROXY_KEY` thì giữ `BACKEND_URL` / `PROXY_KEY` đã đặt trên Cloudflare (`keep_bindings`), chỉ cập nhật giao diện. Mỗi lần chạy tự gửi kèm ảnh trong `data/web/assets`.
 - `build.sh` (Cloudflare Pages) chép thêm `assets/` vào `public/`.
 - Đã đưa lên worker `nro-web` (13/11 23:59 UTC). Kiểm tra qua API: bản trên Cloudflare có giao diện mới (`game-hero`, bảng giá nạp) và đủ 11 ảnh; 2 biến `BACKEND_URL`, `PROXY_KEY` vẫn còn.
+
+### Đợt 139x: trang Nạp ngọc gọn lại, sửa tràn ngang trên điện thoại, "Máy chủ chưa mở nạp"
+- **Tràn ngang khi đã đăng nhập:** ô số dư to (số dư + tổng nạp cỡ chữ lớn, không xuống dòng) đẩy trang rộng hơn màn hình. Nay thay bằng các nhãn nhỏ tự xuống dòng: Tài khoản, Tổng đã nạp, Số dư (chỉ hiện khi còn số dư cũ / tiền lẻ). Đầu trang chỉ còn tên tài khoản.
+- **Bố cục:** khung nạp nằm trước, bảng giá gọn hơn nằm cạnh (máy tính) hoặc bên dưới (điện thoại), lịch sử nạp ở cuối. Trên điện thoại lịch sử hiện từng thẻ (giờ, số tiền / cách, trạng thái) thay vì bảng bị cắt. 2 nút "Chuyển khoản" / "Thẻ cào" nằm cùng hàng. Chuyển khoản có thêm mệnh giá 1.000.000đ.
+- **"Máy chủ chưa mở nạp":** VPS chưa điền `web.bank.code/account/owner`. Thẻ cào cũng bị ẩn vì chưa có cổng gạch thẻ, trong khi cấu hình ghi "để trống partner = admin tự kiểm tra thẻ".
+  - Nay tab Thẻ cào luôn mở: chưa có cổng thì ghi chú "ban quản trị kiểm tra rồi cộng ngọc", admin duyệt ở panel.
+  - Web server tự đọc lại `Config.properties` khi file đổi, nên điền tài khoản ngân hàng ở panel > Cấu hình là có chuyển khoản QR ngay, không cần khởi động lại.
+- Đã thử (390px và 1280px, đã đăng nhập): không tràn ngang, không lỗi JS.

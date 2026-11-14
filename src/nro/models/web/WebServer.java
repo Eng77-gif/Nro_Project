@@ -93,7 +93,26 @@ public class WebServer {
         }
     }
 
+    private long cfgTime;
+
+    /** Đọc Config.properties, tự nạp lại khi file đổi (sửa trên panel > Cấu hình là nạp / ngân hàng có hiệu lực ngay). */
     private String conf(String k) {
+        File f = new File("Config.properties");
+        if (f.lastModified() != cfgTime) {
+            synchronized (cfg) {
+                if (f.lastModified() != cfgTime) {
+                    try (InputStream in = new FileInputStream(f)) {
+                        Properties p = new Properties();
+                        p.load(new java.io.InputStreamReader(in, StandardCharsets.UTF_8));
+                        cfg.clear();
+                        cfg.putAll(p);
+                        cfgTime = f.lastModified();
+                    } catch (Exception e) {
+                        cfgTime = f.lastModified(); // file lỗi: giữ cấu hình cũ, không đọc lại liên tục
+                    }
+                }
+            }
+        }
         return cfg.getProperty(k, "").trim();
     }
 
@@ -444,7 +463,9 @@ public class WebServer {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("bank", conf("web.bank.code").isEmpty() || conf("web.bank.account").isEmpty() ? null
                 : Map.of("code", conf("web.bank.code"), "account", conf("web.bank.account"), "owner", conf("web.bank.owner")));
-        m.put("card", !conf("web.card.partner_id").isEmpty() && !conf("web.card.partner_key").isEmpty());
+        m.put("card", true); // chưa có cổng gạch thẻ thì admin tự kiểm tra thẻ trên panel (Config.properties: "De trong partner = admin tu kiem tra the")
+        m.put("cardAuto", !conf("web.card.partner_id").isEmpty() && !conf("web.card.partner_key").isEmpty());
+        m.put("bankAmounts", List.of(10000, 20000, 50000, 100000, 200000, 500000, 1000000));
         m.put("cardRate", cardRate());
         m.put("amounts", List.of(10000, 20000, 50000, 100000, 200000, 500000));
         m.put("telcos", List.of("VIETTEL", "VINAPHONE", "MOBIFONE", "VNMOBI", "ZING", "GATE"));

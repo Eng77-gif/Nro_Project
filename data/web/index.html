@@ -117,10 +117,14 @@ main.wrap{padding-top:28px;padding-bottom:60px}
 .quick b{display:block;font-size:16px}.quick span{color:var(--mute);font-size:13px}
 
 /* ---------- giới thiệu ---------- */
-.nap-tb{width:100%;border-collapse:separate;border-spacing:0 6px;font-weight:700}
-.nap-tb th{background:var(--brown);color:#ffe0ab;padding:8px;font-size:13px;text-align:center}.nap-tb th:first-child{border-radius:8px 0 0 8px}.nap-tb th:last-child{border-radius:0 8px 8px 0}
-.nap-tb td{background:#f8ead3;padding:7px 10px;text-align:center}.nap-tb td:first-child{border-radius:8px 0 0 8px}.nap-tb td:last-child{border-radius:0 8px 8px 0}
-.nap-tb img{width:18px;height:18px;vertical-align:-3px;margin-right:6px}
+.nap-tb{width:100%;border-collapse:separate;border-spacing:0 4px;font-weight:700;font-size:14px}
+.nap-tb th{background:var(--brown);color:#ffe0ab;padding:6px;font-size:12px;text-align:center}.nap-tb th:first-child{border-radius:8px 0 0 8px}.nap-tb th:last-child{border-radius:0 8px 8px 0}
+.nap-tb td{background:#f8ead3;padding:5px 6px;text-align:center;white-space:nowrap}.nap-tb td:first-child{border-radius:8px 0 0 8px}.nap-tb td:last-child{border-radius:0 8px 8px 0}
+.nap-tb img{width:15px;height:15px;vertical-align:-2px;margin-right:4px}
+.nap-me{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.nap-me span{background:#f8ead3;border:1px solid #e9cda4;border-radius:999px;padding:6px 14px;font-size:13px;color:var(--mute)}
+.nap-me b{color:var(--orange2)}
+.nap-grid>*{min-width:0}
 .feature{display:flex;gap:14px}
 .feature .ico{width:52px;height:52px;flex:none;border-radius:14px;background:var(--bg2);display:grid;place-items:center;font-size:26px;border:1px solid var(--line)}
 .feature h3{font-size:20px;margin:0 0 4px}
@@ -159,9 +163,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange);outline:none}
 .page-head p{margin:2px 0 0;color:var(--mute)}
 
 /* ---------- nạp ---------- */
-.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.tabs{display:flex;gap:8px;margin-bottom:18px}
+.tabs button{flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hist .tw{overflow:visible}
 .tabs button{border:1px solid var(--line);background:var(--card);padding:10px 18px;border-radius:12px;font-weight:700;cursor:pointer}
 .tabs button.on{background:#f6a039;color:#412713;border-color:transparent}
+@media(max-width:560px){.tabs>button{padding:10px 6px;font-size:14px}#hist thead{display:none}#hist table,#hist tbody{display:block}#hist tr{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--line)}#hist td{border:0;padding:0}#hist td:nth-child(1){order:1}#hist td:nth-child(3){order:2;text-align:right;font-weight:700}#hist td:nth-child(2){order:3;color:var(--mute);font-size:13px}#hist td:nth-child(4){order:4;text-align:right}}
 .amounts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .amounts button{padding:14px 6px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);cursor:pointer;font-weight:700}
 .amounts button.on{border-color:var(--orange);background:#fdebd2;color:var(--orange2)}
@@ -248,7 +255,7 @@ async function act(fn,ok){try{const r=await fn();if(ok)toast(ok);return r}catch(
 
 /* ---------- tài khoản ---------- */
 function drawAcc(){
-  $('#acc').innerHTML=me?`<span class="name mute" style="font-size:13px">${esc(me.username)} · <b style="color:var(--gold)">${money(me.vnd)}đ</b></span><button class="btn s" onclick="logout()">Thoát</button>`
+  $('#acc').innerHTML=me?`<span class="name mute" style="font-size:13px">${esc(me.username)}</span><button class="btn s" onclick="logout()">Thoát</button>`
     :`<button class="btn s p" onclick="loginBox()">Đăng nhập</button>`}
 async function loadMe(){if(!token){me=null;drawAcc();return}try{me=await api('me')}catch(e){me=null}drawAcc()}
 function loginBox(after){
@@ -399,29 +406,30 @@ async function postPage(id){
 
 /* ---------- nạp ngọc ---------- */
 const NAP_GEM=[[10000,13,32],[20000,32,82],[50000,91,231],[100000,195,495],[200000,455,1155],[500000,1430,3630],[1000000,3250,8250]];
-function napTable(){return `<div class="card" style="margin-bottom:18px"><h2 style="font-size:20px">Bảng giá nạp</h2><table class="nap-tb"><thead><tr><th>Mệnh giá</th><th>X1 nạp</th><th>X3 nạp</th></tr></thead><tbody>${NAP_GEM.map(r=>`<tr><td>${money(r[0])}đ</td><td><img class="pix" src="/icon/932" alt="">${money(r[1])}</td><td><img class="pix" src="/icon/932" alt="">${money(r[2])}</td></tr>`).join('')}</tbody></table><p class="mute" style="margin:8px 0 0;font-size:13px">Cột X3 áp dụng trong đợt khuyến mãi nạp x3. Số tiền khác được tính theo các mệnh giá trên (vd 30.000đ = 32 + 13 ngọc), phần lẻ dưới 10.000đ giữ ở số dư.</p></div>`}
+function napTable(){return `<div class="card" style="margin-bottom:18px"><h2 style="font-size:18px">Bảng giá nạp</h2><table class="nap-tb"><thead><tr><th>Mệnh giá</th><th>X1 nạp</th><th>X3 nạp</th></tr></thead><tbody>${NAP_GEM.map(r=>`<tr><td>${money(r[0])}đ</td><td><img class="pix" src="/icon/932" alt="">${money(r[1])}</td><td><img class="pix" src="/icon/932" alt="">${money(r[2])}</td></tr>`).join('')}</tbody></table><p class="mute" style="margin:8px 0 0;font-size:13px">X3 áp dụng trong đợt khuyến mãi nạp x3. Số tiền khác cộng theo các mệnh giá trên (30.000đ = 32 + 13 ngọc).</p></div>`}
 let napTab='bank',napAmount=50000;
 async function topup(){
   const t=await api('topup/info');
-  const head=`<div class="page-head"><span class="ico" style="background:#ffd25e22"><img class="pix" src="/icon/932" alt="" style="width:40px"></span><div><h1>Nạp ngọc</h1><p>Nạp thành công là ngọc xanh được cộng thẳng vào nhân vật theo bảng giá, trong game sẽ báo "Bạn đã nạp … ngọc vào tài khoản".</p></div></div>`+napTable();
-  if(!me){$('#main').innerHTML=head+needLogin('nạp ngọc');return}
+  const head=`<div class="page-head"><span class="ico" style="background:#ffd25e22"><img class="pix" src="/icon/932" alt="" style="width:40px"></span><div><h1>Nạp ngọc</h1><p>Nạp xong ngọc xanh được cộng thẳng vào nhân vật theo bảng giá.</p></div></div>`;
+  if(!me){$('#main').innerHTML=head+napTable()+needLogin('nạp ngọc');return}
   if(!t.bank&&!t.card)napTab='none';else if(napTab==='bank'&&!t.bank)napTab='card';else if(napTab==='card'&&!t.card)napTab='bank';
   $('#main').innerHTML=head+`
-  <div class="balance" style="margin-bottom:18px"><img class="pix" src="/icon/4028" alt=""><div><span class="mute">Số dư của <b>${esc(me.username)}</b></span><br><b class="big">${money(me.vnd)}đ</b></div><div style="margin-left:auto;text-align:right"><span class="mute">Tổng đã nạp</span><br><b class="big" style="font-size:20px">${money(me.tongnap)}đ</b></div></div>
-  <div class="grid g2">
+  <div class="nap-me"><span>Tài khoản <b>${esc(me.username)}</b></span><span>Tổng đã nạp <b>${money(me.tongnap)}đ</b></span>${me.vnd>0?`<span title="Số dư cũ / phần lẻ chưa quy ra ngọc">Số dư <b>${money(me.vnd)}đ</b></span>`:''}</div>
+  <div class="grid g2 nap-grid">
     <div class="card">
-      <div class="tabs" role="tablist">${t.bank?`<button role="tab" class="${napTab==='bank'?'on':''}" onclick="napTab='bank';topup()">🏦 Chuyển khoản QR</button>`:''}${t.card?`<button role="tab" class="${napTab==='card'?'on':''}" onclick="napTab='card';topup()">💳 Thẻ cào</button>`:''}</div>
+      ${napTab==='none'?'':`<div class="tabs" role="tablist">${t.bank?`<button role="tab" class="${napTab==='bank'?'on':''}" onclick="napTab='bank';topup()">🏦 Chuyển khoản</button>`:''}${t.card?`<button role="tab" class="${napTab==='card'?'on':''}" onclick="napTab='card';topup()">💳 Thẻ cào</button>`:''}</div>`}
       <div id="napbox"></div>
     </div>
-    <div class="card"><h2 style="font-size:22px">Lịch sử nạp</h2><div id="hist"></div></div>
-  </div>`;
+    <div>${napTable()}</div>
+  </div>
+  <div class="card" style="margin-top:18px"><h2 style="font-size:20px">Lịch sử nạp</h2><div id="hist"></div></div>`;
   await drawHist();
   const box=$('#napbox');
   if(napTab==='none'){box.innerHTML='<div class="empty">Máy chủ chưa mở nạp. Vui lòng quay lại sau.</div>';return}
   drawNap(t,box)}
 async function drawHist(){const hist=await api('topup/history');$('#hist').innerHTML=hist.length?`<div class="tw"><table><thead><tr><th>Lúc</th><th>Cách</th><th>Số tiền</th><th>Trạng thái</th></tr></thead><tbody>${hist.map(h=>`<tr><td>${esc(h.created_at)}</td><td>${h.method==='bank'?'Chuyển khoản':esc(h.telco)}</td><td>${money(h.amount)}đ${h.status===1&&h.credited!==h.amount?`<div class="hint">nhận ${money(h.credited)}đ</div>`:''}</td><td><span class="tag s${[0,2,3][h.status]}">${TOP_STATUS[h.status]}</span>${h.note?`<div class="hint">${esc(h.note)}</div>`:''}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Chưa có giao dịch.</div>'}
 function drawNap(t,box){
-  const amounts=`<div class="f"><span>Mệnh giá</span><div class="amounts">${t.amounts.map(a=>`<button type="button" class="${a===napAmount?'on':''}" onclick="napAmount=${a};this.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===this))">${money(a)}đ</button>`).join('')}</div></div>`;
+  const amounts=`<div class="f"><span>Mệnh giá</span><div class="amounts">${(napTab==='bank'&&t.bankAmounts||t.amounts).map(a=>`<button type="button" class="${a===napAmount?'on':''}" onclick="napAmount=${a};this.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===this))">${money(a)}đ</button>`).join('')}</div></div>`;
   if(napTab==='bank'){
     box.innerHTML=`<form id="bf">${amounts}<div class="f"><label for="ba">Hoặc nhập số tiền khác</label><input id="ba" type="number" min="10000" step="1000" placeholder="Tối thiểu 10.000đ"></div>
       <button class="btn p" style="width:100%">Tạo mã QR chuyển khoản</button><p class="hint">Chuyển đúng số tiền và đúng nội dung, ban quản trị kiểm tra rồi cộng tiền (thường trong vài phút).</p></form><div id="qrbox"></div>`;
@@ -437,7 +445,7 @@ function drawNap(t,box){
     box.innerHTML=`<form id="cf"><div class="f"><label for="ct">Nhà mạng</label><select id="ct">${t.telcos.map(x=>`<option>${x}</option>`).join('')}</select></div>${amounts}
       <div class="f"><label for="cs">Số seri</label><input id="cs" inputmode="numeric" maxlength="20" required autocomplete="off"></div>
       <div class="f"><label for="cc">Mã thẻ</label><input id="cc" inputmode="numeric" maxlength="20" required autocomplete="off"></div>
-      <button class="btn p" style="width:100%">Nạp thẻ</button><p class="hint">Chọn đúng mệnh giá, sai mệnh giá có thể mất thẻ.${t.cardRate<100?` Thẻ cào nhận ${t.cardRate}% mệnh giá.`:''}</p></form>`;
+      <button class="btn p" style="width:100%">Nạp thẻ</button><p class="hint">Chọn đúng mệnh giá, sai mệnh giá có thể mất thẻ.${t.cardRate<100?` Thẻ cào nhận ${t.cardRate}% mệnh giá.`:''}${t.cardAuto?'':' Thẻ được ban quản trị kiểm tra rồi cộng ngọc (thường trong vài phút).'}</p></form>`;
     $('#cf').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;
       const r=await act(()=>api('topup/card',{telco:$('#ct').value,amount:napAmount,serial:$('#cs').value,code:$('#cc').value}),'Đã gửi thẻ, đang chờ xử lý');b.disabled=false;
       if(r){await loadMe();topup()}}}}
