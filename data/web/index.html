@@ -2,458 +2,270 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Cổng cộng đồng Ngọc Rồng Online: tải game, nạp ngọc, diễn đàn, báo lỗi, tố cáo, góp ý.">
 <title>Ngọc Rồng Online</title>
-<meta name="description" content="Trang chủ máy chủ Ngọc Rồng Online: tải game, sự kiện, diễn đàn, hỗ trợ và nạp ngọc.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#faf6ee;--bg2:#f3ebdc;--card:#fffdf8;--card2:#f6eddf;--line:#ebddcb;--text:#38291f;--mute:#88715e;
-  --orange:#ed8a27;--orange2:#bf5c0e;--gold:#b5720c;--blue:#2f7fc4;--green:#2e9b5c;--red:#c8423f;--violet:#7a5cc8;
-  --brown:#54301c;--r:14px;--shadow:0 6px 18px rgba(84,48,28,.08);
-}
-*{box-sizing:border-box}
-html{overflow-x:clip}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 "Be Vietnam Pro",Arial,Helvetica,sans-serif;min-height:100vh}
-a{color:var(--orange2);text-decoration:none}a:hover{color:#bf5c0e}a:hover{text-decoration:underline}
-h1,h2,h3{font-family:"Be Vietnam Pro",Arial,sans-serif;font-weight:800;line-height:1.2;margin:0 0 .4em;color:var(--text)}
-img{max-width:100%}
-button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
-.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
-.mute{color:var(--mute)}
-.pix{image-rendering:pixelated}
+:root{--ink:#38291f;--muted:#88715e;--orange:#ed8a27;--brown:#54301c;--line:#ebddcb;--paper:#faf6ee}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px Arial,Helvetica,sans-serif;line-height:1.6}a{color:inherit;text-decoration:none}a:hover{color:#bf5c0e}button,input,select,textarea{font:inherit}button,a{touch-action:manipulation}button{cursor:pointer}.site{width:100%;margin:auto}.health{background:#352217;color:#d4bd9d;display:flex;justify-content:space-between;padding:7px max(24px,calc((100% - 1120px)/2));font-size:10px;letter-spacing:1px}header{background:#54301c;padding:14px max(24px,calc((100% - 1120px)/2));display:flex;align-items:center;justify-content:space-between;gap:25px}.brand{display:flex;flex:none}.brand img{object-fit:contain;width:156px;height:50px}header nav{display:flex;align-items:center;gap:6px}header nav a{white-space:nowrap;color:#f8e5cb;padding:10px 14px;font-size:12px;font-weight:600;border-radius:7px}header nav a:hover{background:#68432c}header nav a.active{background:#f6a039;color:#412713}header nav a:last-child{border:1px solid #bd8550;color:#ffe0ab}.preview-label{font-size:10px;color:#8d7359;text-align:center;padding:7px 16px;border-bottom:1px solid var(--line);background:#f3ebdc}main{max-width:1168px;margin:auto;padding:28px 24px 45px;min-height:500px}.game-hero{min-height:365px;position:relative;border-radius:15px;overflow:hidden;background:#312936;display:flex;align-items:center}.game-hero>img{position:absolute;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}.game-hero:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#221c24ed 0%,#29212cac 38%,#29212c05 75%),linear-gradient(0deg,#18191b55,transparent 40%)}.hero-content{position:relative;z-index:1;padding:42px;color:#fff5e5}.hero-kicker{font-size:10px;letter-spacing:1.7px;color:#f6bf70;font-weight:bold}.hero-content h1{font-size:39px;line-height:1.18;letter-spacing:-1.4px;margin:16px 0}.hero-content h1 em{font-style:normal;color:#ffbf61}.hero-content p{font-size:13px;line-height:1.8;color:#eadacc;margin:0 0 23px}.hero-actions{display:flex;gap:10px}.button{display:inline-flex;align-items:center;justify-content:center;border:1px solid #e68c35;background:#f3a142;color:#412511;border-radius:7px;padding:11px 18px;font-size:12px;font-weight:700;min-height:42px}.button:hover{background:#ffb75f;color:#412511}.button.ghost{background:#ffffff10;border-color:#d6c3b65c;color:#fff4e1}.button.green{background:#70442b;color:#fff3e3;border-color:#70442b}.hero-caption{position:absolute;bottom:20px;right:24px;color:#fff4dc;font-size:9px;letter-spacing:2px;z-index:1}.quick-links{display:grid;grid-template-columns:repeat(4,1fr);margin:20px 0 42px;gap:12px}.quick-links a{background:#fffdfa;border:1px solid var(--line);border-radius:10px;padding:17px 15px;display:flex;align-items:center;gap:12px}.quick-icon{display:grid;place-items:center;font-size:24px;color:#a7682f;background:#faedda;width:40px;height:42px;border-radius:8px}.quick-links b{display:block;font-size:13px}.quick-links small{display:block;font-size:10px;color:var(--muted);margin-top:3px}.quick-links i{margin-left:auto;color:#b4a089;font-style:normal}.home-layout{display:grid;grid-template-columns:minmax(0,1fr) 265px;gap:27px}.heading-row{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}.eyebrow{font-size:9px;letter-spacing:1.6px;color:#a2764c;font-weight:700}.heading-row h2{margin:5px 0 0;font-size:25px;letter-spacing:-.6px}.heading-row>a{font-size:11px;color:#a5672b;white-space:nowrap}.tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin-bottom:20px}.tabs button{background:transparent;border:0;border-bottom:2px solid transparent;padding:0 0 12px;color:var(--muted);font-size:12px}.tabs button.active{border-color:#cf7b28;color:#a35314;font-weight:bold}.news-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.news{background:#fffdfa;border:1px solid var(--line);border-radius:11px;overflow:hidden;padding:0;text-align:left;color:var(--ink)}.news:hover{border-color:#cfa97a;box-shadow:0 6px 20px #70442b0b}.news-art{height:190px;background:#f3dfc1;overflow:hidden}.news-art img{width:100%;height:100%;object-fit:cover;object-position:center 25%}.news-content{padding:18px}.tag{font-size:9px;letter-spacing:1px;color:#b86d28;font-weight:bold}.news h3{margin:9px 0 14px;font-size:15px;line-height:1.55}.muted{font-size:11px;color:var(--muted);line-height:1.7}.news .muted{display:flex;justify-content:space-between;gap:8px;border-top:1px solid #f1e7db;padding-top:12px;font-size:10px}.read-more{color:#a15c27;white-space:nowrap}.welcome-card{background:#f3e3c7;border:1px solid #e9d7b9;border-radius:12px;padding:25px;overflow:hidden}.welcome-card h2{font-size:28px;line-height:1.2;margin:12px 0;letter-spacing:-.7px}.welcome-card p{font-size:12px;color:#8b6b46;line-height:1.8}.welcome-card>a{font-size:12px;font-weight:700;color:#976028}.mini-characters{display:flex;height:120px;align-items:end;margin:12px -10px -24px}.mini-characters img{width:50%;height:120px;object-fit:contain;image-rendering:pixelated}.sidebar-help{border:1px solid var(--line);border-radius:11px;background:#fffdfa;padding:20px;margin-top:18px}.sidebar-help h3{font-size:13px;margin:0 0 12px}.sidebar-help a{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:12px;color:#94643e}.sidebar-help p{font-size:11px;color:var(--muted);margin:16px 0 0}.bottom-invite{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:30px 34px;background:#eee4d3;border:1px solid #e7d7bf;border-radius:12px;margin-top:32px}.bottom-invite h2{font-size:23px;margin:8px 0}.bottom-invite p{font-size:12px;color:var(--muted);margin:0}footer{border-top:1px solid #e8dbc7;background:#f0e8db;padding:24px;text-align:center;font-size:10px;line-height:1.9;color:#90765d}footer b{font-size:11px;color:#735035;letter-spacing:1px}footer p{margin:5px 0}footer a{color:#86592d}.page-title{padding:12px 0 25px}.page-title h1{font-size:30px;letter-spacing:-.8px;margin:8px 0}.page-title p{font-size:13px;margin:0}.community-tabs{display:flex;gap:5px;border:1px solid var(--line);border-radius:9px;padding:6px;background:#fffdfa;margin-bottom:20px}.community-tabs a{padding:10px 20px;font-size:13px}.community-tabs a.active{background:#f7e5c9;color:#9d5d25;border-radius:5px}.notice{background:#f5ead6;border:1px solid #ebdabe;border-radius:7px;padding:12px 15px;font-size:12px;line-height:1.7;margin-bottom:18px;color:#8a6947}.columns{display:grid;grid-template-columns:minmax(0,1fr) 265px;gap:24px}.panel{background:#fffdfa;padding:25px;border:1px solid var(--line);border-radius:11px}.side-card{background:#f4e8d3;border:1px solid #e7d7bd;border-radius:10px;padding:22px}.side-card h3{font-size:16px;margin:0 0 12px}.side-card p{font-size:12px;line-height:1.8}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}label{display:block;font-size:12px;font-weight:600;margin-bottom:18px}input,select,textarea{display:block;width:100%;border:1px solid #d9c8b1;border-radius:6px;background:#fffdf9;color:#38291f;padding:11px;margin-top:7px;min-width:0}textarea{resize:vertical;min-height:150px}.form-actions{display:flex;flex-wrap:wrap;gap:9px}.status{color:#547744;font-size:12px;line-height:1.8}.section-head{display:flex;gap:15px;justify-content:space-between;align-items:center;margin:20px 0}.section-head input{width:65%;max-width:420px!important}.section-head .button{white-space:nowrap}#topics{padding:0;background:none;border:0;max-width:780px;margin:auto}.forum-row{background:#fffdfa;border:1px solid var(--line);border-radius:12px;margin-bottom:18px;padding:22px;display:flex;gap:12px;align-items:flex-start}.forum-row>.icon{display:grid;place-items:center;width:34px;height:34px;flex-shrink:0;background:#f8e6cb;color:#ad6926;border:1px solid #e5c89e;border-radius:8px}.forum-row>button{padding:0;border:0;background:none;min-width:0;flex:1;text-align:left;color:var(--ink)}.forum-row h3{font-size:16px;margin:4px 0 8px}.topic-cover{display:block;width:100%;max-height:500px;object-fit:contain;background:#f8f0e3;border-radius:7px;margin-top:15px}.topic-read{display:block;border-top:1px solid var(--line);font-size:12px;color:#a0612d;margin-top:17px;padding-top:12px}.downloads{display:flex;justify-content:center;flex-wrap:wrap;gap:22px;background:#fffdfa;border:1px solid var(--line);border-radius:10px;padding:20px}.downloads a{text-align:center}.downloads img{height:35px;display:block}.downloads small{font-size:10px;color:var(--muted)}.support-links{text-align:center;padding:15px;font-size:12px;color:#9d693a}.classic-section{background:#fffdfa;border:1px solid var(--line);border-radius:11px;padding:25px;margin:18px 0}.classic-section h2{font-size:23px;margin:0 0 15px}.classic-section h3{font-size:15px}.classic-section p,.classic-section li{font-size:13px;color:#7f6856;line-height:1.9}.characters{display:flex;justify-content:center;gap:20px}.characters figure{text-align:center;margin:10px;flex:1}.characters img{max-width:100%;height:140px;object-fit:contain}.characters figcaption{font-size:12px;color:var(--muted)}.center{text-align:center}.help-menu{display:flex;flex-wrap:wrap;gap:15px;color:#a96931;font-size:12px}.gems{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.gem{background:#fffaf1;border:2px solid #e9dcc8;border-radius:9px;padding:18px 9px;color:var(--ink)}.gem.selected{border-color:#cf8b38;background:#fff0d8}.diamond{font-size:28px;color:#469a72}.gem strong{display:block;margin:7px 0;font-size:17px}dialog{width:calc(100% - 32px);max-width:550px;border:1px solid #d9c4a7;border-radius:13px;background:#fffaf2;color:var(--ink);padding:30px;max-height:85vh;overflow:auto}dialog::backdrop{background:#281c13b0;backdrop-filter:blur(4px)}dialog h2{font-size:21px;padding-right:10px}.close{position:absolute;right:12px;top:8px;border:0;background:none;font-size:26px;color:#8e6a4b}#dialog-body p{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.button.small{font-size:12px}a:focus-visible,button:focus-visible{outline:3px solid #ce8535;outline-offset:3px}@media(max-width:1000px){header{gap:14px;padding:12px 24px;flex-wrap:wrap}header nav{flex:1;justify-content:flex-end;gap:2px}header nav a{padding:9px;font-size:11px}.brand img{width:125px;height:42px}.home-layout{grid-template-columns:minmax(0,1fr) 230px;gap:20px}.quick-links a{padding:13px;gap:8px}.quick-links i{display:none}.quick-links small{font-size:9px}.columns{grid-template-columns:minmax(0,1fr) 230px}.hero-content{padding:32px}.news-art{height:155px}}@media(max-width:700px){.health{padding:5px 16px;font-size:8px}.health span:last-child{display:none}header{padding:10px 16px;gap:7px;justify-content:center}.brand img{width:132px;height:43px}header nav{flex-basis:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:3px}header nav a{text-align:center;font-size:11px;padding:7px 3px}header nav a:last-child{grid-column:span 2}.preview-label{font-size:9px;padding:6px 8px}main{padding:16px 16px 28px}.game-hero{min-height:315px;border-radius:11px;align-items:flex-end}.game-hero>img{object-position:58% center}.game-hero:after{background:linear-gradient(0deg,#211b25f5 0%,#211b25bf 42%,#211b2505 100%)}.hero-content{padding:22px;width:100%}.hero-kicker{font-size:8px;letter-spacing:1px}.hero-content h1{font-size:29px;letter-spacing:-.8px;margin:10px 0;line-height:1.2}.hero-content p{font-size:11px;margin-bottom:16px;max-width:290px}.hero-actions{gap:8px}.hero-actions .button{font-size:10px;padding:9px 12px;min-height:38px}.hero-caption,.desktop-only{display:none}.quick-links{grid-template-columns:1fr 1fr;gap:9px;margin:14px 0 28px}.quick-links a{padding:12px;gap:9px}.quick-links b{font-size:11px}.quick-links small{font-size:9px}.quick-icon{width:33px;height:36px;font-size:21px}.home-layout{grid-template-columns:1fr}.home-sidebar{display:grid;grid-template-columns:1fr 1fr;gap:12px}.welcome-card{padding:17px}.welcome-card h2{font-size:23px}.welcome-card p{font-size:11px}.welcome-card>a{font-size:10px}.mini-characters{height:90px;margin-bottom:-17px}.mini-characters img{height:90px}.sidebar-help{margin:0;padding:16px}.sidebar-help h3{font-size:12px}.sidebar-help a{font-size:11px}.sidebar-help p{font-size:10px}.heading-row{gap:8px}.heading-row h2{font-size:22px}.heading-row>a{font-size:10px}.eyebrow{font-size:8px;letter-spacing:1px}.news-grid{gap:12px}.news-art{height:155px}.news-content{padding:12px}.news h3{font-size:13px;margin:8px 0 12px}.news .muted{font-size:9px;display:block}.read-more{display:block;margin-top:6px}.tag{font-size:8px}.tabs{gap:21px}.tabs button{font-size:11px}.bottom-invite{padding:22px;flex-direction:column;align-items:flex-start;margin-top:24px;gap:16px}.bottom-invite h2{font-size:22px}.bottom-invite p{font-size:11px}.columns{grid-template-columns:1fr;gap:14px}.panel{padding:18px}.form-grid{grid-template-columns:1fr;gap:0}.community-tabs a{padding:9px 0;flex:1;text-align:center;font-size:12px}.forum-row{padding:15px;gap:9px}.forum-row h3{font-size:14px}.forum-row>.icon{width:28px;height:28px;font-size:12px}.topic-cover{max-height:none}.page-title h1{font-size:27px}.gems{gap:8px;grid-template-columns:repeat(2,1fr)}.downloads{gap:15px}.downloads a{width:27%;}.downloads img{max-width:100%;object-fit:contain;height:32px;margin:auto}.classic-section{padding:19px}.classic-section h2{font-size:21px}.characters{gap:4px}.characters figure{margin:3px}.characters img{height:100px}.section-head .button{padding:9px;font-size:11px}.section-head input{font-size:12px}input,select,textarea{font-size:16px}.hero-actions{flex-wrap:wrap}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
-/* ---------- đầu trang (theo bản thiết kế cộng đồng) ---------- */
-.health{background:#352217;color:#d4bd9d;font-size:11px;letter-spacing:1px}
-.health .wrap{display:flex;justify-content:space-between;gap:10px;padding-top:6px;padding-bottom:6px}
-header{position:sticky;top:0;z-index:20;background:var(--brown);box-shadow:0 2px 10px rgba(53,34,23,.25)}
-.bar{display:flex;align-items:center;gap:14px;height:76px}
-.logo{display:flex;align-items:center;gap:10px;color:#f8e5cb;font-weight:800;white-space:nowrap}
-.logo:hover{text-decoration:none;color:#fff}
-.logo img{width:156px;height:50px;object-fit:contain}
-.logo span{position:absolute;left:-9999px}
-nav.main{display:flex;gap:4px;margin-left:auto}
-nav.main a{color:#f8e5cb;padding:9px 13px;border-radius:8px;font-weight:600;font-size:13px;white-space:nowrap}
-nav.main a:hover{background:#68432c;color:#fff;text-decoration:none}
-nav.main a.on{background:#f6a039;color:#412713}
-nav.main a.nap{border:1px solid #bd8550;color:#ffe0ab}
-nav.main a.nap.on{background:#f6a039;color:#412713;border-color:#f6a039}
-.acc .name{color:#f8e5cb!important}.acc .name b{color:#ffc574!important}
-.acc{display:flex;align-items:center;gap:8px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:10px 18px;font-weight:700;cursor:pointer;
-  background:var(--card2);color:var(--text);border:1px solid var(--line);transition:transform .12s,filter .12s;text-decoration:none!important}
-.btn:hover{filter:brightness(1.12)}.btn:active{transform:translateY(1px)}
-.btn.p{background:#f6a039;color:#412713;border:0;box-shadow:0 6px 16px rgba(237,138,39,.3)}
-.btn.b{background:var(--brown);color:#ffe0ab;border:0}
-.btn.s{padding:6px 12px;font-size:13px;border-radius:10px}
-.btn:disabled{opacity:.55;cursor:not-allowed}
-.menu-btn{display:none;margin-left:auto;background:none;border:1px solid #bd8550;color:#f8e5cb;border-radius:10px;padding:7px 10px;cursor:pointer}
+@media(max-width:700px){header nav a:last-child{grid-column:auto}}
+/* Community and gemstone store */
+.forum-intro{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:16px 0 30px}.forum-intro h1,.store-heading h1{font-size:36px;line-height:1.2;letter-spacing:-1.2px;margin:12px 0}.forum-intro p,.store-heading>p{font-size:13px;color:var(--muted);margin:0}.forum-intro>.button{background:#503522;border-color:#503522;color:#fff3df;padding:12px 20px}.forum-layout{display:grid;grid-template-columns:215px minmax(0,1fr);gap:38px;margin-top:30px}.forum-sidebar{align-self:start;position:sticky;top:24px;padding:8px 0}.rail-label{font-size:9px;letter-spacing:1.8px;color:#a48e76;margin:0 12px 14px;display:block;font-weight:700}.forum-categories{display:flex;flex-direction:column;gap:5px}.forum-categories button{display:flex;gap:13px;align-items:center;text-align:left;background:transparent;color:#806b57;border:1px solid transparent;border-radius:8px;padding:12px;font-size:12px}.forum-categories button span{font-size:17px;line-height:1;color:#b39775}.forum-categories button.active{background:#fffdfa;border-color:#e6d8c3;box-shadow:0 3px 8px #51362305;color:#68401f;font-weight:700}.forum-categories button.active span{color:#b97835}.rail-divider{height:1px;background:var(--line);margin:24px 12px}.rail-link{display:flex;justify-content:space-between;color:#917657;font-size:11px;padding:10px 12px}.community-note{margin:26px 0 0;background:#eee3cf;padding:22px;border-radius:10px}.community-note>span{display:block;color:#a47841;font-size:26px;margin-bottom:10px}.community-note b{font-size:14px;line-height:1.5}.community-note p{font-size:11px;color:#9a7d5a;margin-bottom:0}.forum-search{display:flex;align-items:center;gap:12px;background:#fffdfa;border:1px solid var(--line);border-radius:9px;padding:0 16px}.forum-search>span{font-size:26px;color:#a08a70}.forum-search input{background:none;border:0;margin:0;padding:14px 0;font-size:12px;outline-offset:4px}.feed-heading{display:flex;align-items:center;justify-content:space-between;padding:22px 0 14px}.feed-heading h2{font-size:16px;margin:0;letter-spacing:-.2px}.feed-heading>span{font-size:10px;color:#a28d75}.forum-main #topics{max-width:none}.feed-card{background:#fffdf9;border:1px solid #e9decd;border-radius:12px;margin-bottom:20px;overflow:hidden;box-shadow:0 4px 20px #51362303}.feed-author{display:flex;align-items:center;gap:10px;padding:20px 23px 15px}.author-avatar{display:grid;place-items:center;width:37px;height:37px;flex-shrink:0;border-radius:10px;background:#543720;color:#efc98c;font-size:12px;font-weight:bold;border:2px solid #e1c8a4}.feed-author b{display:block;font-size:12px;color:#604228}.feed-author small{display:block;font-size:9px;color:#b29a7f;margin-top:2px}.feed-badge{margin-left:auto;white-space:nowrap;border:1px solid #ead8bd;background:#fcf3e4;color:#a5733c;padding:4px 9px;border-radius:20px;font-size:9px}.feed-body{display:block;width:100%;padding:0 23px;border:0;background:none;text-align:left;color:var(--ink)}.feed-body h3{font-size:19px;letter-spacing:-.3px;line-height:1.5;margin:0 0 9px}.feed-body p{font-size:12px;color:#99816b;line-height:1.8;margin:0 0 18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.feed-image{width:100%;height:245px;object-fit:cover;object-position:center 30%;display:block;border-radius:8px;background:#f5ead6}.feed-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:18px 23px 0;padding:13px 0;border-top:1px solid #eee5d7}.feed-footer>span{font-size:8px;letter-spacing:1px;color:#b7a28b}.feed-footer button{border:0;background:none;padding:5px 0;font-size:11px;font-weight:600;color:#976435}.local-caption{text-align:center;font-size:10px;color:#ad987e;margin:24px 0}.feed-empty{padding:65px 25px;text-align:center;border:1px dashed #d6c3a9;border-radius:12px;background:#fffaf2}.feed-empty h3{font-size:17px}.feed-empty p{font-size:12px;color:var(--muted)}.store-heading{text-align:center;padding:18px 0 25px}.store-steps{display:flex;align-items:center;justify-content:center;gap:22px;margin:0 0 35px;font-size:11px;color:#ae9a83}.store-steps span{display:flex;align-items:center;gap:8px}.store-steps i{font-style:normal;font-size:9px;border:1px solid #d9cbb7;border-radius:50%;width:24px;height:24px;display:grid;place-items:center}.store-steps .current{color:#75512e}.store-steps .current i{background:#65472c;color:#fff3df;border-color:#65472c}.store-steps>b{font-weight:normal;color:#d1bfaa}.store-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start}.store-form{min-width:0}.store-section{border:1px solid #e6dbca;background:#fffdf9;border-radius:12px;padding:25px 26px;margin-bottom:18px}.step-title{display:flex;gap:14px;align-items:flex-start;margin-bottom:22px}.step-title>span{display:grid;place-items:center;background:#f4ebdc;color:#a68153;width:31px;height:31px;flex:none;border-radius:8px;font-size:10px}.step-title h2{font-size:17px;margin:1px 0 4px;letter-spacing:-.3px}.step-title p{font-size:11px;margin:0;color:#aa9277}.store-form .form-grid{gap:18px}.store-form label{font-size:11px;color:#8a7058;margin-bottom:0}.store-form input,.store-form select{background:#fffcf7;border-color:#e2d5c2;font-size:12px;padding:13px 11px}.luxury-gems{gap:12px;margin:0}.luxury-gems .gem{position:relative;border:1px solid #e8dccb;background:#fffcf6;padding:19px 8px 16px;transition:border-color .15s,background .15s;min-height:164px}.luxury-gems .gem:hover{border-color:#c0985d;background:#fff8e9}.luxury-gems .gem.selected{border:1px solid #ab884d;box-shadow:0 0 0 1px #ab884d;background:#fff8e8}.selection-tick{position:absolute;top:8px;right:9px;border:1px solid #dfd2bd;color:transparent;background:#fffaf0;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;font-size:10px}.selected .selection-tick{background:#a98247;border-color:#a98247;color:white}.gem-art{display:flex;justify-content:center;align-items:center;height:58px}.gem-art>span{font-size:49px;color:#60a790;line-height:1;text-shadow:2px 2px #286956,-2px -2px #b9dec7,0 7px 14px #2e655627;transform:rotate(-10deg)}.luxury-gems .gem strong{font-size:22px;letter-spacing:-.7px;line-height:1.4;margin:9px 0 12px}.luxury-gems .gem strong small{font-size:10px;letter-spacing:0;color:#a48b6d;font-weight:400}.gem-price{display:block;border-top:1px solid #ece1cd;padding-top:10px;font-size:13px;color:#8e7049}.gem-price small{font-size:11px}.price-note{text-align:center;font-size:9px;color:#baa68b;margin:18px 0 0}.store-help{display:flex;gap:13px;padding:3px 14px;color:#ac9274}.store-help>span{font-size:19px}.store-help p{font-size:11px;margin:0;line-height:1.9}.store-help a{font-weight:600;color:#8b6435}.order-column{position:sticky;top:24px}.order-card{border:1px solid #e0d2bc;border-radius:13px;background:#fffdf9;overflow:hidden;box-shadow:0 10px 30px #543b1e08}.order-top{background:#37483e;padding:25px;position:relative;overflow:hidden;color:#f5ead4}.order-top .eyebrow{color:#b5b79b;font-size:8px;letter-spacing:1.8px}.order-top h2{font-size:21px;margin:8px 0 0;letter-spacing:-.4px}.order-mark{position:absolute;right:11px;top:-25px;font-size:126px;color:#a8b99f1a;line-height:1}.order-content{padding:25px}.order-gem{display:flex;gap:15px;align-items:center;margin-bottom:25px}.order-gem>span{display:grid;place-items:center;width:50px;height:50px;border:1px solid #d8e4d7;background:#ecf2e7;border-radius:10px;font-size:29px;color:#59947b;text-shadow:1px 1px #2c6152}.order-gem b{font-size:18px;color:#4c543f;display:block}.order-gem small{font-size:10px;color:#ae987a}.order-content dl{border-top:1px dashed #e1d4c0;border-bottom:1px dashed #e1d4c0;padding:12px 0;margin:0}.order-content dl>div{display:flex;justify-content:space-between;gap:16px;padding:7px 0;font-size:11px}.order-content dt{color:#b19a7e;white-space:nowrap}.order-content dd{margin:0;color:#776449;text-align:right;overflow-wrap:anywhere;max-width:65%}.order-total{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:25px 0}.order-total>span{font-size:11px;color:#9e8566}.order-total strong{font-size:23px;letter-spacing:-.7px;color:#5b452a}.order-total small{font-size:13px}.order-submit{display:flex;width:100%;justify-content:space-between;padding:13px 17px;background:#59432b;border-color:#59432b;color:#ffefcf;font-size:12px}.order-submit:hover{background:#745736;color:#ffefcf}.order-disclaimer{font-size:9px;color:#b29d80;text-align:center;margin:13px 0 0;line-height:1.7}.store-faq{border-bottom:1px solid #e5d9c5;margin:0 5px;padding:16px 0}.store-faq summary{cursor:pointer;font-size:11px;color:#977b58}.store-faq p{font-size:11px;color:#ab9171;line-height:1.8}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.forum-intro+.community-tabs{background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:0;gap:25px}.forum-intro+.community-tabs a{padding:10px 0 14px;color:#a18667;font-size:12px}.forum-intro+.community-tabs a[href='#forum']{border-bottom:2px solid #a67538;color:#72502c}.store-steps .current{cursor:default}@media(max-width:1000px){.store-layout{grid-template-columns:minmax(0,1fr) 300px;gap:20px}.store-section{padding:22px}.luxury-gems{grid-template-columns:repeat(2,1fr)}.forum-layout{grid-template-columns:190px minmax(0,1fr);gap:25px}.order-content{padding:22px}}@media(max-width:700px){.forum-intro{padding:13px 0 24px;align-items:flex-start;flex-direction:column;gap:17px}.forum-intro h1,.store-heading h1{font-size:29px;letter-spacing:-.9px;margin:11px 0}.forum-intro p,.store-heading>p{font-size:12px;line-height:1.8}.forum-intro>.button{font-size:11px;padding:10px 17px;min-height:40px}.forum-intro+.community-tabs{gap:0}.forum-intro+.community-tabs a{flex:1;padding:11px 0;text-align:center}.forum-layout{display:flex;flex-direction:column;gap:20px;margin-top:20px}.forum-sidebar{position:static;padding:0;overflow:hidden}.forum-sidebar>.rail-label,.rail-divider,.rail-link,.community-note{display:none}.forum-categories{flex-direction:row;overflow-x:auto;padding:2px 0 8px;gap:7px;scrollbar-width:thin}.forum-categories button{flex-shrink:0;padding:9px 11px;font-size:11px;background:#f2eada;border:1px solid #e5d9c5;gap:6px}.forum-categories button span{font-size:13px}.forum-search input{font-size:16px;padding:12px 0}.forum-search{padding:0 12px}.feed-heading{padding-top:18px}.feed-heading h2{font-size:15px}.feed-author{padding:16px 16px 14px;gap:9px}.feed-author b{font-size:11px}.feed-author small{font-size:8px}.feed-badge{font-size:8px;padding:3px 7px}.author-avatar{width:32px;height:32px;font-size:10px}.feed-body{padding:0 16px}.feed-body h3{font-size:17px}.feed-body p{font-size:11px;margin-bottom:14px}.feed-image{height:210px;object-position:center 28%}.feed-footer{margin:15px 16px 0;gap:6px}.feed-footer>span{font-size:7px;letter-spacing:.5px}.feed-footer button{font-size:10px;min-height:32px}.local-caption{font-size:9px;line-height:1.8}.store-heading{padding:12px 4px 24px}.store-steps{gap:13px;font-size:10px;margin-bottom:25px}.store-steps span{gap:6px}.store-steps i{width:22px;height:22px;font-size:8px}.store-layout{grid-template-columns:1fr;gap:20px}.store-section{padding:20px 17px;border-radius:11px;margin-bottom:14px}.step-title{gap:11px;margin-bottom:21px}.step-title h2{font-size:16px}.step-title p{font-size:10px}.store-form .form-grid{gap:15px}.store-form input,.store-form select{font-size:16px;padding:12px 10px}.store-form label{font-size:11px}.luxury-gems{grid-template-columns:repeat(2,1fr);gap:12px}.luxury-gems .gem{min-height:157px;padding:15px 9px}.luxury-gems .gem strong{font-size:23px}.gem-art{height:51px}.gem-art>span{font-size:45px}.gem-price{font-size:13px}.order-column{position:static}.order-top{padding:22px}.order-top h2{font-size:21px}.order-content{padding:22px}.order-content dl>div{font-size:12px}.order-total strong{font-size:27px}.order-submit{font-size:13px;min-height:48px}.order-disclaimer{font-size:10px}.store-help{padding:4px 8px}.store-faq summary{font-size:12px;min-height:24px}.store-faq p{font-size:12px}}
+/* Member identity and authentication */
+.forum-intro{padding:30px 32px;margin:0 0 22px;border:1px solid #e6d7bf;border-radius:14px;background:radial-gradient(ellipse at top right,#e6d2aa75,transparent 60%),linear-gradient(120deg,#fffdf8,#f4ebda);position:relative}.forum-intro h1{color:#4d3824;font-size:35px}.forum-intro .eyebrow{color:#a28358}.forum-account-area{display:flex;flex-direction:column;align-items:flex-end;gap:14px;flex-shrink:0}#account-actions{display:flex;align-items:center;gap:8px}.account-button{font-size:11px;background:#fffaf2;color:#8e6b3c;border:1px solid #d8c6a6;border-radius:6px;padding:8px 13px;min-height:35px}.account-button.filled{background:#ede0c7;border-color:#cfb98e;color:#765226}.signed-in-label{font-size:10px;color:#657951}.forum-account-area>#new-topic{background:#543d26;color:#ffefd3;border-color:#543d26;padding:11px 21px;box-shadow:0 4px 12px #64462812}.member-panel{background:#fffdf8;border:1px solid #e5d7bf;border-radius:12px;margin:0 0 25px;padding:23px 16px 18px;text-align:center;box-shadow:0 4px 15px #6b4c2404}.member-emblem{display:grid;place-items:center;width:51px;height:51px;border:1px solid #d7bd8e;background:linear-gradient(145deg,#f6ebce,#d9bd87);border-radius:50%;margin:0 auto 15px;color:#806035;font-size:27px;box-shadow:0 0 0 5px #faf4e7}.member-panel .rail-label{font-size:8px;letter-spacing:1.3px;margin:0;color:#b29870}.member-panel h3{font-size:17px;color:#725232;margin:7px 0;overflow-wrap:anywhere}.member-panel p{font-size:11px;line-height:1.8;color:#ae9475;margin:0 0 18px}.member-panel small{font-size:8px;color:#b9a68b;display:block;margin-top:15px}.member-panel .button{width:100%;background:#5d472e;border-color:#5d472e;color:#fff0d8;font-size:11px;min-height:38px}.member-register{display:block;width:100%;background:none;border:0;padding:12px 0 0;font-size:9px;line-height:1.7;color:#b29876}.member-register b{display:block;color:#9e773f;font-size:11px}.member-panel .member-logout{background:#f3ebdb;color:#947348;border-color:#ded0b5}.forum-main .feed-card{border-radius:13px;box-shadow:0 5px 22px #5d402205}.forum-main .feed-badge{border-color:#e3d3b3;background:#faf2e2}.auth-dialog{max-width:475px;border:1px solid #d6c09c;background:#fffdf8;padding:30px 34px;box-shadow:0 30px 100px #21190d45}.auth-heading{text-align:center;padding:0 0 18px}.auth-emblem{display:grid;place-items:center;margin:0 auto 15px;width:50px;height:50px;background:linear-gradient(140deg,#f6eacb,#d8b77a);border:1px solid #d2b47a;border-radius:13px;color:#80602e;font-size:29px}.auth-heading .eyebrow{font-size:8px;letter-spacing:1.6px}.auth-heading h2{font-size:24px;letter-spacing:-.6px;line-height:1.3;margin:10px 0;padding:0;color:#674a2b}.auth-heading p{font-size:11px!important;color:#a78c6c;margin:0}.auth-switch{display:flex;background:#f1e9d9;border:1px solid #e9ddc8;border-radius:8px;padding:4px;gap:4px;margin-bottom:17px}.auth-switch button{flex:1;border:0;background:none;font-size:12px;color:#a28b69;border-radius:5px;padding:9px}.auth-switch button.active{background:#fffdf7;color:#825b2e;box-shadow:0 2px 5px #6d51230b;font-weight:600}.auth-demo-note{font-size:10px;color:#a68b69;line-height:1.7;padding:10px 12px;border-left:2px solid #c6aa79;background:#f9f3e7;margin-bottom:18px}#auth-form label{font-size:11px;color:#8f7452;margin-bottom:15px}#auth-form input{border-color:#ded0b8;background:#fffcf6;padding:11px 12px;font-size:13px}#auth-form input:focus{outline:2px solid #bfa271;outline-offset:1px}.password-field{position:relative}.password-field input{padding-right:57px!important}.password-field button{position:absolute;right:7px;top:7px;bottom:7px;border:0;background:#f2e8d5;border-radius:4px;color:#947448;font-size:10px;padding:0 10px}.auth-consent{display:flex;align-items:flex-start;gap:8px;font-weight:400;line-height:1.7}.auth-consent input{width:15px;height:15px;flex:0 0 15px;margin:2px 0!important;padding:0!important;accent-color:#926b38}.auth-consent span{font-size:10px;color:#a18b6b}#auth-error{font-size:11px;color:#b04d38;line-height:1.6;margin:8px 0 12px}.auth-submit{display:flex;width:100%;justify-content:space-between;background:#5f482e;color:#fff1d4;border-color:#5f482e;min-height:45px;padding:12px 17px}.auth-submit:hover{background:#7a5b36;color:#fff1d4}.auth-submit:disabled{opacity:.6;cursor:wait}.auth-dialog .close{right:12px;top:8px;color:#ab916c}.member-panel #member-name{word-break:break-word}@media(max-width:1000px){.forum-intro{padding:25px}.forum-intro h1{font-size:30px}}@media(max-width:700px){.forum-intro{padding:23px 20px;margin-bottom:20px;gap:20px}.forum-intro h1{font-size:28px;line-height:1.2}.forum-intro p{font-size:11px;max-width:260px}.forum-account-area{width:100%;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.forum-account-area>#new-topic{font-size:10px;padding:9px 12px;min-height:37px}#account-actions{gap:6px}.account-button{font-size:10px;padding:8px 10px;min-height:35px}.signed-in-label{font-size:9px}.forum-sidebar .member-panel{display:grid;grid-template-columns:43px 1fr;column-gap:13px;text-align:left;padding:17px;margin-bottom:18px;border-radius:10px}.member-emblem{grid-column:1;grid-row:1/4;width:39px;height:39px;font-size:23px;margin:4px 0;box-shadow:0 0 0 3px #faf4e7}.member-panel .rail-label{display:block;grid-column:2;margin:0;font-size:7px}.member-panel h3{grid-column:2;font-size:16px;margin:3px 0}.member-panel p{grid-column:2;font-size:10px;line-height:1.7;margin:3px 0 11px}.member-panel #member-actions{grid-column:2;display:flex;align-items:center;gap:12px}.member-panel .button{width:auto;padding:7px 13px;font-size:10px;min-height:33px}.member-register{padding:0;width:auto;text-align:left;font-size:8px}.member-register b{font-size:10px}.member-panel small{grid-column:2;margin-top:10px;font-size:8px}.auth-dialog{padding:27px 23px;max-height:88vh;width:calc(100% - 28px);border-radius:14px}.auth-heading{padding-bottom:15px}.auth-heading h2{font-size:23px}.auth-heading p{font-size:11px!important}.auth-emblem{width:43px;height:43px;font-size:25px;margin-bottom:13px}#auth-form input{font-size:16px}#auth-form label{font-size:12px}.password-field button{font-size:11px}.auth-demo-note{font-size:10px}.auth-consent span{font-size:11px}.auth-submit{min-height:47px}.forum-main .feed-image{height:220px}}@media(max-width:370px){.forum-account-area{gap:12px}.forum-account-area>#new-topic{width:100%}#account-actions{width:100%}.account-button{flex:1}.member-panel #member-actions{flex-wrap:wrap}}
+.access-gate{max-width:620px;margin:35px auto;padding:42px 30px;text-align:center;background:#fffdf8;border:1px solid #e3d4bc;border-radius:15px;box-shadow:0 10px 35px #684b2406}.gate-icon{display:grid;place-items:center;width:64px;height:64px;border-radius:18px;background:#f2e6ce;border:1px solid #ddc59c;color:#8b683a;font-size:34px;margin:0 auto 22px}.access-gate .eyebrow{display:block}.access-gate h2{font-size:27px;letter-spacing:-.6px;color:#604529;margin:12px 0}.access-gate p{max-width:420px;margin:0 auto 24px;font-size:13px;line-height:1.9;color:#a08564}.gate-actions{display:flex;justify-content:center;gap:10px}.access-gate small{display:block;color:#b4a082;font-size:10px;margin-top:20px}.support-session{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:15px 0;font-size:11px;color:#8b775b}.admin-tag{display:inline-flex;align-items:center;vertical-align:middle;font-size:8px!important;letter-spacing:.7px;line-height:1;padding:5px 7px;margin-left:5px;border:1px solid #bc8f45;border-radius:4px;background:linear-gradient(110deg,#f4e0af,#e9c97e);color:#76501e;font-weight:800;white-space:nowrap}.compose-admin{background:#faf0d8;border:1px solid #e1c89b;border-radius:6px;padding:12px;margin:15px 0;font-size:11px;color:#927347;line-height:1.8}.compose-admin .admin-tag{margin:0 7px 0 0}.admin-preview{text-align:left;margin-top:16px;border-top:1px solid #eee1cc;padding-top:12px}.admin-preview summary{cursor:pointer;font-size:9px;color:#aa906b}.admin-preview p{font-size:10px;margin:10px 0;line-height:1.7}.admin-preview button{width:100%;border:1px dashed #c8af81;border-radius:5px;background:#f6ecd7;color:#93713c;padding:8px;font-size:10px}.feed-author b .admin-tag{font-size:7px!important;padding:4px 5px}@media(max-width:700px){.access-gate{padding:30px 20px;margin:23px 0}.access-gate h2{font-size:24px}.access-gate p{font-size:12px}.gate-actions{flex-wrap:wrap}.gate-actions .button{font-size:11px}.support-session{font-size:10px}.member-panel .admin-preview{grid-column:1/-1}.member-panel .admin-preview p{display:block;font-size:10px}.admin-preview button{max-width:220px}.feed-author b .admin-tag{display:inline-block;margin-left:3px;font-size:6px!important;padding:3px 4px}}
+/* Shared 24px SVG icon system */
+.ui-icon{width:18px;height:18px;display:inline-block;vertical-align:middle;flex:none;overflow:visible;pointer-events:none}a>.ui-icon,button>.ui-icon{margin-right:6px}a>.ui-icon:last-child,button>.ui-icon:last-child{margin-right:0;margin-left:5px}button>.ui-icon:only-child,a>.ui-icon:only-child{margin:0}.button,.account-button{gap:7px}.button>.ui-icon{margin:0;width:16px;height:16px}header nav a,.community-tabs a{display:inline-flex;align-items:center;justify-content:center;gap:6px}header nav a>.ui-icon,.community-tabs a>.ui-icon{margin:0;width:15px;height:15px;opacity:.8}.quick-icon .ui-icon{width:22px;height:22px}.quick-links i .ui-icon{width:14px;height:14px}.quick-icon{border:1px solid #ead8bd;background:linear-gradient(145deg,#fcf4e8,#f1e0c5);box-shadow:inset 0 1px 0 #ffffffc0}.hero-actions .ui-icon{width:15px;height:15px}.forum-categories button>span{display:flex}.forum-categories .ui-icon{width:17px;height:17px}.forum-search>.ui-icon,.forum-search>span>.ui-icon{width:19px;height:19px}.member-emblem .ui-icon{width:26px;height:26px;stroke-width:1.4}.auth-emblem .ui-icon{width:27px;height:27px;stroke-width:1.4}.gate-icon .ui-icon{width:29px;height:29px}.community-note>span>.ui-icon{width:25px;height:25px}.signed-in-label .ui-icon{width:12px;height:12px}.store-help .ui-icon{width:19px;height:19px}.selection-tick .ui-icon{width:11px;height:11px;stroke-width:2.5}.gem-art>span{display:flex;align-items:center;justify-content:center;text-shadow:none;transform:none}.gem-art .ui-icon{width:47px;height:47px;color:#4a977e;stroke-width:1.15;filter:drop-shadow(0 5px 5px #30614b20)}.selected .gem-art .ui-icon{color:#327f66;filter:drop-shadow(0 5px 7px #326f5128)}.order-gem>span{text-shadow:none}.order-gem .ui-icon{width:30px;height:30px;stroke-width:1.3}.order-mark .ui-icon{width:124px;height:124px;stroke-width:1}.order-mark{top:-9px;right:-17px;transform:rotate(12deg)}.close{display:grid;place-items:center;width:32px;height:32px;border-radius:7px}.close:hover{background:#f2e6d1}.close .ui-icon{width:19px;height:19px;margin:0!important}.read-more .ui-icon,.feed-footer .ui-icon,.sidebar-help .ui-icon,.rail-link .ui-icon{width:13px;height:13px}.auth-switch button{display:flex;align-items:center;justify-content:center}.password-field button{display:flex;align-items:center;justify-content:center;gap:4px;padding:0 8px}.password-field button .ui-icon{width:14px;height:14px;margin:0}.password-field input{padding-right:78px!important}.store-faq summary,.admin-preview summary{list-style:none;display:flex;align-items:center;gap:9px}.store-faq summary::-webkit-details-marker,.admin-preview summary::-webkit-details-marker{display:none}.store-faq summary .ui-icon,.admin-preview summary .ui-icon{width:13px;height:13px;transition:transform .15s}details[open]>summary>.ui-icon{transform:rotate(180deg)}.support-session .account-button{display:inline-flex;align-items:center}#member-actions .button{display:inline-flex;align-items:center;justify-content:center}.member-register .ui-icon{width:12px;height:12px}.bottom-invite .button .ui-icon{width:15px;height:15px}@media(max-width:700px){header nav a{gap:4px}header nav a>.ui-icon{width:13px;height:13px}.community-tabs a{gap:5px}.community-tabs a>.ui-icon{width:14px;height:14px}.quick-icon .ui-icon{width:20px;height:20px}.gem-art .ui-icon{width:43px;height:43px}.member-emblem .ui-icon{width:22px;height:22px}.forum-categories .ui-icon{width:14px;height:14px}.auth-submit .ui-icon{width:17px;height:17px}}
 
-/* ---------- khung chung ---------- */
-main{padding:28px 16px 60px;min-height:calc(100vh - 140px)}
-main.wrap{padding-top:28px;padding-bottom:60px}
-.grid>*,.news-grid>*{min-width:0}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
-.grid{display:grid;gap:18px}
-.g2{grid-template-columns:1.6fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
-.sec-title{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:34px 0 14px}
-.sec-title h2{font-size:28px;margin:0}
-.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#a0663a;font-weight:700}
-.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid var(--line);background:var(--bg2);white-space:nowrap}
-.tag.s0{color:var(--gold);border-color:#e7c98f}.tag.s1{color:var(--blue);border-color:#a9cbea}
-.tag.s2{color:var(--green);border-color:#9fd3b4}.tag.s3{color:var(--red);border-color:#e6a9a7}
-.empty{text-align:center;padding:30px 10px;color:var(--mute)}
+/* ---- bổ sung cho dữ liệu thật (đăng nhập, phiếu, bài viết, nạp) ---- */
+a{color:inherit;text-decoration:none}
+.hdr-acc{display:flex;align-items:center;gap:6px}
+header nav{order:2;margin-left:auto}.hdr-acc{order:3}
+.hdr-acc .who{color:#ffe0ab;font-size:12px;font-weight:700;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hdr-acc button{border:1px solid #bd8550;background:transparent;color:#ffe0ab;border-radius:7px;padding:9px 13px;font-size:12px;font-weight:700;cursor:pointer}
+.hdr-acc button.fill{background:#f6a039;color:#412713;border-color:#f6a039}
+@media(max-width:700px){header{justify-content:space-between}.hdr-acc button{padding:7px 10px;font-size:11px}header nav{order:3}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#3a2a1d;color:#fff4e1;padding:11px 18px;border-radius:9px;z-index:99;font-size:13px;box-shadow:0 10px 30px #0004;max-width:90vw}
+.toast.err{background:#9c3a2c}
+.loading,.empty-box{text-align:center;color:var(--muted);padding:40px 16px}
+.feed-body{text-align:left}
+a.feed-body{display:block;color:inherit}
+.feed-meta-row{display:flex;gap:12px;font-size:10px;color:#a48e76}
+.pager{display:flex;gap:6px;justify-content:center;margin:16px 0}
+.pager button{border:1px solid var(--line);background:#fffdf8;border-radius:6px;padding:6px 11px;cursor:pointer}
+.pager button.on{background:#70442b;color:#fff3e3;border-color:#70442b}
+.post-body{white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.75}
+.reply{background:#fffdfa;border:1px solid var(--line);border-radius:11px;padding:14px 18px;margin-top:10px}
+.reply.admin{background:#fbf1e2;border-color:#e6c9a0}
+.reply .who{font-weight:700;font-size:13px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.reply .who small{font-weight:400;color:var(--muted)}
+.st{display:inline-block;font-size:10px;font-weight:700;border-radius:999px;padding:2px 9px;border:1px solid #e3cfb2;background:#fbf0e1;color:#9a6a3a}
+.st.s1{color:#2f6fa8;border-color:#b6cfe6;background:#eef5fb}.st.s2{color:#3f7d4e;border-color:#b9d8c1;background:#eef7f0}.st.s3{color:#a2463a;border-color:#e6bdb6;background:#fbefed}
+.tickets{display:flex;flex-direction:column;gap:2px}
+.tickets a{display:block;padding:10px 0;border-bottom:1px solid var(--line)}
+.tickets a b{display:block;font-size:13px}
+.tickets a small{color:var(--muted);font-size:11px}
+.pay-switch{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pay-switch button{border:1px solid #e3d3bc;background:#fffdf8;border-radius:9px;padding:14px;font-weight:700;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:8px}
+@media(max-width:700px){.pay-switch button{font-size:13px;padding:12px 6px}}
+.pay-switch button.on{border-color:#b58a4c;background:#fff6e4;box-shadow:inset 0 0 0 1px #b58a4c}
+.gem .gem-x3{display:block;font-size:10px;color:#3f7d4e;margin-top:2px}
+.qr-box{text-align:center;margin-top:14px}
+.qr-box img{width:220px;max-width:100%;border-radius:10px;border:1px solid var(--line);background:#fff}
+.qr-box dl{text-align:left;margin:12px 0 0}
+.qr-box dl div{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed #e3d3bc;font-size:12px}
+.qr-box dd{margin:0;font-weight:700;text-align:right;word-break:break-all}
+.copy{border:1px solid #d9c8b1;background:#fffaf2;border-radius:5px;font-size:10px;padding:2px 7px;margin-left:6px;cursor:pointer}
+.hist{width:100%;border-collapse:collapse;font-size:12px}
+.hist th{text-align:left;color:#a48e76;font-size:10px;letter-spacing:1px;padding:8px 6px;border-bottom:1px solid var(--line)}
+.hist td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.hist small{display:block;color:var(--muted);font-size:10px}
+@media(max-width:700px){.hist thead{display:none}.hist,.hist tbody{display:block}.hist tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:9px 0;border-bottom:1px solid var(--line)}.hist td{border:0;padding:0}.hist td:nth-child(3){order:2;text-align:right;font-weight:700}.hist td:nth-child(2){order:3}.hist td:nth-child(4){order:4;text-align:right}}
+.me-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:-6px 0 18px}
+.me-chips span{background:#f5ead6;border:1px solid #ebdabe;border-radius:999px;padding:5px 13px;font-size:11px;color:#8a6947}
+.me-chips b{color:#70442b}
+.ev-desc{white-space:pre-line}
 
-/* ---------- trang chủ ---------- */
-.game-hero{min-height:365px;position:relative;border-radius:15px;overflow:hidden;background:#312936;display:flex;align-items:center}
-.game-hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
-.game-hero:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#221c24ed 0%,#29212cac 38%,#29212c05 75%),linear-gradient(0deg,#18191b55,transparent 40%)}
-.hero-content{position:relative;z-index:1;padding:42px;max-width:620px;color:#fff}
-.hero-kicker{font-size:11px;letter-spacing:2px;color:#ffc574;font-weight:700;text-transform:uppercase}
-.game-hero h1{font-size:clamp(30px,5vw,46px);color:#fff;margin:10px 0 12px;line-height:1.15}
-.game-hero h1 em{font-style:normal;color:#ffb44f}
-.game-hero p{color:#efe3d4;font-size:15px;margin:0 0 22px}
-.game-hero .cta{display:flex;flex-wrap:wrap;gap:12px}
-.game-hero .btn{border-radius:8px}
-.game-hero .btn.ghost{background:transparent;color:#fff;border:1px solid #ffffff66}
-.hero-caption{position:absolute;right:26px;bottom:18px;z-index:1;font-size:10px;letter-spacing:3px;color:#ffffffaa}
-.online-dot{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:#ffffff1f;color:#c9f5d6;font-weight:700;font-size:13px;margin-bottom:6px}
-.online-dot::before{content:"";width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 4px rgba(61,220,132,.25)}
-.quick-links{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
-.quick-links a{display:flex;align-items:center;gap:14px;padding:18px 16px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:var(--text)}
-.quick-links a:hover{border-color:var(--orange);text-decoration:none;transform:translateY(-2px)}
-.quick-links .qi{width:40px;height:40px;border-radius:9px;display:grid;place-items:center;background:#f6e6cf;font-size:20px;flex:none}
-.quick-links b{display:block;font-size:14px}.quick-links small{color:var(--mute);font-size:12px}
-.quick-links i{margin-left:auto;font-style:normal;color:#b49a82}
-.news-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.news{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
-.news-art{aspect-ratio:2/1;background:#2b2230;overflow:hidden}
-.news-art img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
-.news-content{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px}
-.news-content .tag{align-self:flex-start;font-size:10px;letter-spacing:1px;color:#a0663a;border-color:#ecd2b3;background:#fbf0e1}
-.news-content h3{font-size:17px;margin:0}
-.news-content p{margin:0;color:var(--mute);font-size:13px;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
-.welcome{background:#f4e6d0;border:1px solid #e6cfaf;border-radius:14px;padding:22px}
-.welcome h2{font-size:26px}
-.event{display:flex;flex-direction:column;gap:6px}
-.event h3{font-size:20px;color:var(--orange2);margin:0}
-.event p{margin:0;color:var(--mute);white-space:pre-line;font-size:14px}
-.rank{list-style:none;margin:0;padding:0}
-.rank li{display:flex;align-items:center;gap:12px;padding:9px 4px;border-bottom:1px dashed var(--line)}
-.rank li:last-child{border:0}
-.rank .no{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--bg2);font-size:13px;flex:none}
-.rank li:nth-child(1) .no{background:linear-gradient(135deg,#fff3b0,#ffc83d);color:#3a2700}
-.rank li:nth-child(2) .no{background:linear-gradient(135deg,#f1f5ff,#b8c4dd);color:#1b2335}
-.rank li:nth-child(3) .no{background:linear-gradient(135deg,#ffd2a8,#d9864a);color:#2e1500}
-.rank .nm{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rank .pw{font-weight:800;color:var(--orange2);font-size:15px}
-.planet{font-size:12px;color:var(--mute)}
-.quick a{display:flex;gap:14px;align-items:center;padding:16px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--text)}
-.quick a:hover{border-color:var(--orange);text-decoration:none;transform:translateY(-2px)}
-.quick .ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:24px;flex:none}
-.quick b{display:block;font-size:16px}.quick span{color:var(--mute);font-size:13px}
-
-/* ---------- giới thiệu ---------- */
-.nap-tb{width:100%;border-collapse:separate;border-spacing:0 4px;font-weight:700;font-size:14px}
-.nap-tb th{background:var(--brown);color:#ffe0ab;padding:6px;font-size:12px;text-align:center}.nap-tb th:first-child{border-radius:8px 0 0 8px}.nap-tb th:last-child{border-radius:0 8px 8px 0}
-.nap-tb td{background:#f8ead3;padding:5px 6px;text-align:center;white-space:nowrap}.nap-tb td:first-child{border-radius:8px 0 0 8px}.nap-tb td:last-child{border-radius:0 8px 8px 0}
-.nap-tb img{width:15px;height:15px;vertical-align:-2px;margin-right:4px}
-.nap-me{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-.nap-me span{background:#f8ead3;border:1px solid #e9cda4;border-radius:999px;padding:6px 14px;font-size:13px;color:var(--mute)}
-.nap-me b{color:var(--orange2)}
-.nap-grid>*{min-width:0}
-.feature{display:flex;gap:14px}
-.feature .ico{width:52px;height:52px;flex:none;border-radius:14px;background:var(--bg2);display:grid;place-items:center;font-size:26px;border:1px solid var(--line)}
-.feature h3{font-size:20px;margin:0 0 4px}
-.feature p{margin:0;color:var(--mute);font-size:14px}
-.planets .card{text-align:center}
-.planets .card h3{font-size:24px}
-.planets .em{width:64px;height:64px;object-fit:contain;display:block;margin:0 auto 8px}
-.rules li{margin:6px 0}
-
-/* ---------- diễn đàn, phiếu ---------- */
-.list{display:flex;flex-direction:column}
-.item{display:flex;gap:14px;align-items:center;padding:14px 6px;border-bottom:1px solid var(--line);color:var(--text)}
-.item:hover{background:#fbf3e6;text-decoration:none}
-.item:last-child{border:0}
-.item .t{flex:1;min-width:0}
-.item .t b{display:block;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.item .t span{font-size:13px;color:var(--mute)}
-.item .n{text-align:center;min-width:60px;font-size:13px;color:var(--mute)}
-.item .n b{display:block;font-size:18px;color:var(--text)}
-.pin{color:var(--gold);font-size:12px;font-weight:700;margin-right:6px}
-.pager{display:flex;gap:6px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.post-body{white-space:pre-wrap;word-break:break-word;font-size:15px;color:var(--text)}
-.reply{padding:14px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);margin-top:12px}
-.reply.admin{border-color:#e9b27a;background:#fdf0de}
-.reply .who{font-weight:700;font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.reply .who .mute{font-weight:400;font-size:12px}
-form .f{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-form label,.f>span{font-weight:600;font-size:14px}
-input,select,textarea{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:11px 13px;width:100%}
-textarea{min-height:150px;resize:vertical}
-input:focus,select:focus,textarea:focus{border-color:var(--orange);outline:none}
-.hint{font-size:12px;color:var(--mute)}
-.page-head{display:flex;gap:18px;align-items:center;margin-bottom:22px}
-.page-head .ico{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;font-size:34px;flex:none}
-.page-head h1{font-size:36px;margin:0}
-.page-head p{margin:2px 0 0;color:var(--mute)}
-
-/* ---------- nạp ---------- */
-.tabs{display:flex;gap:8px;margin-bottom:18px}
-.tabs button{flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#hist .tw{overflow:visible}
-.tabs button{border:1px solid var(--line);background:var(--card);padding:10px 18px;border-radius:12px;font-weight:700;cursor:pointer}
-.tabs button.on{background:#f6a039;color:#412713;border-color:transparent}
-@media(max-width:560px){.tabs>button{padding:10px 6px;font-size:14px}#hist thead{display:none}#hist table,#hist tbody{display:block}#hist tr{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--line)}#hist td{border:0;padding:0}#hist td:nth-child(1){order:1}#hist td:nth-child(3){order:2;text-align:right;font-weight:700}#hist td:nth-child(2){order:3;color:var(--mute);font-size:13px}#hist td:nth-child(4){order:4;text-align:right}}
-.amounts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.amounts button{padding:14px 6px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);cursor:pointer;font-weight:700}
-.amounts button.on{border-color:var(--orange);background:#fdebd2;color:var(--orange2)}
-.qr{display:grid;grid-template-columns:240px 1fr;gap:20px;align-items:start}
-.qr img{width:240px;border-radius:14px;background:#fff;padding:8px}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
-.kv dt{color:var(--mute)}.kv dd{margin:0;font-weight:700;word-break:break-all}
-.copy{margin-left:6px;font-size:12px;padding:2px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card2);cursor:pointer}
-.balance{display:flex;gap:16px;align-items:center;padding:16px;border-radius:14px;background:#f8ead3;border:1px solid #e9cda4}
-.balance img{width:44px;height:44px}
-.balance .big{font-weight:800;font-size:26px;color:var(--orange2);line-height:1.1}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
-th{color:var(--mute);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
-.tw{overflow-x:auto}
-
-/* ---------- hộp thoại, thông báo ---------- */
-.modal{position:fixed;inset:0;background:rgba(53,34,23,.55);display:grid;place-items:center;z-index:50;padding:16px}
-.modal .card{width:100%;max-width:420px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;padding:12px 20px;border-radius:12px;background:var(--card2);border:1px solid var(--line);box-shadow:var(--shadow);font-weight:600;max-width:calc(100% - 32px)}
-.toast.err{border-color:var(--red);color:var(--red)}
-footer{background:#352217;padding:26px 0;color:#d4bd9d;font-size:13px;margin-top:20px}
-footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
-
-@media (max-width:980px){
-  .g2,.g3{grid-template-columns:1fr}.g4,.stats{grid-template-columns:repeat(2,1fr)}
-  nav.main{display:none;position:absolute;top:76px;left:0;right:0;flex-direction:column;background:var(--brown);padding:10px 16px}
-  .quick-links,.news-grid{grid-template-columns:1fr 1fr}
-  nav.main.open{display:flex}
-  .menu-btn{display:block}
-  .acc{margin-left:0}
-}
-@media (max-width:600px){
-  .hero-content{padding:28px 20px}.hero-caption{display:none}.g4,.stats{grid-template-columns:1fr 1fr}
-  .quick-links,.news-grid{grid-template-columns:1fr}.health .wrap span+span{display:none}.logo img{width:120px}
-  .qr{grid-template-columns:1fr}.qr img{width:100%;max-width:280px}
-  .amounts{grid-template-columns:repeat(2,1fr)}
-  .item .n{display:none}
-  .acc .name{display:none}
-}
 </style>
 </head>
 <body>
-<a href="#main" class="mute" style="position:absolute;left:-999px">Bỏ qua tới nội dung</a>
-<div class="health"><div class="wrap"><span>CỘNG ĐỒNG NGỌC RỒNG ONLINE</span><span>Chơi vui · Kết nối · Cùng trưởng thành</span></div></div>
-<header>
-  <div class="wrap bar">
-    <a class="logo" href="#/"><img src="/assets/logo.png" alt="Chú Bé Rồng Online" width="156" height="50"><span id="sv-name">Ngọc Rồng</span></a>
-    <button class="menu-btn" aria-label="Mở menu" onclick="document.querySelector('nav.main').classList.toggle('open')">☰</button>
-    <nav class="main" aria-label="Điều hướng chính">
-      <a href="#/" data-r="">Trang chủ</a>
-      <a href="#/gioi-thieu" data-r="gioi-thieu">Giới thiệu</a>
-      <a href="#/dien-dan" data-r="dien-dan">Diễn đàn</a>
-      <a href="#/to-cao" data-r="to-cao">Tố cáo</a>
-      <a href="#/bao-loi" data-r="bao-loi">Báo lỗi</a>
-      <a href="#/gop-y" data-r="gop-y">Góp ý</a>
-      <a href="#/nap" data-r="nap" class="nap">Nạp ngọc</a>
-    </nav>
-    <div class="acc" id="acc"></div>
-  </div>
-</header>
-<main id="main" class="wrap" tabindex="-1"></main>
-<footer><div class="wrap"><span>© <span id="ft-name">Ngọc Rồng</span> · Máy chủ Ngọc Rồng Online</span><span>Chơi game có trách nhiệm · Không mua bán tài khoản ngoài</span></div></footer>
-
+<div class="site">
+<div class="health"><span>CỘNG ĐỒNG NGỌC RỒNG ONLINE</span><span>Chơi vui · Kết nối · Cùng trưởng thành</span></div>
+<header><a class="brand" href="#/"><img src="/assets/logo.png" width="156" height="50" alt="Chú Bé Rồng Online"></a>
+<div class="hdr-acc" id="acc"></div>
+<nav aria-label="Điều hướng chính"><a href="#/" data-r="home"><svg class="ui-icon icon-home" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-8h6v8"/></svg>Trang chủ</a><a href="#/gioi-thieu" data-r="about"><svg class="ui-icon icon-book" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v15M3 4c4-1 6 0 9 2 3-2 5-3 9-2v15c-4-1-6 0-9 2-3-2-5-3-9-2Z"/></svg>Giới thiệu</a><a href="#/dien-dan" data-r="forum"><svg class="ui-icon icon-chat" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 1-8 8H5l-3 3V11a9 9 0 0 1 18 0Z"/><path d="M7 9h8M7 13h5"/></svg>Diễn đàn</a><a href="#/nap" data-r="gems"><svg class="ui-icon icon-gem" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 8 4-5h10l4 5-9 13Z" fill="currentColor" fill-opacity=".12"/><path d="M3 8h18M7 3l5 18 5-18M7 3l5 5 5-5"/></svg>Nạp ngọc</a></nav></header>
+<main id="app" tabindex="-1"><div class="loading">Đang tải…</div></main>
+<noscript><p style="padding:16px;text-align:center">Hãy bật JavaScript để sử dụng trang web.</p></noscript>
+<footer><p><b>NGỌC RỒNG ONLINE — <span class="sv-name">CỔNG CỘNG ĐỒNG</span></b></p><p>Trò chơi dành cho người từ 12 tuổi trở lên. Chơi quá 180 phút một ngày sẽ ảnh hưởng xấu đến sức khỏe.</p><a href="#/">Trang chủ</a> · <a href="#/bao-loi">Báo lỗi</a> · <a href="#/gop-y">Liên hệ &amp; góp ý</a></footer>
+</div>
+<dialog id="dialog"><button class="close" aria-label="Đóng">×</button><div id="dialog-body"></div></dialog>
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>Number(n||0).toLocaleString('vi-VN');
-const power=n=>{n=Number(n||0);return n>=1e9?(n/1e9).toFixed(n>=1e11?0:1).replace('.',',')+' tỷ':n>=1e6?(n/1e6).toFixed(0)+' tr':money(n)};
-const PLANET=['Trái Đất','Namek','Xayda'];
-const KIND={forum:['Diễn đàn','💬','#3fa9ff'],report:['Tố cáo','🚨','#ff5d6c'],bug:['Báo lỗi','🐞','#ffb347'],idea:['Góp ý','💡','#3ddc84']};
 const STATUS=['Mới gửi','Đang xử lý','Đã xử lý','Từ chối'];
 const TOP_STATUS=['Đang chờ','Thành công','Thất bại'];
-let token=localStorage.getItem('nro_token')||'',me=null,info=null;
+const NAP_GEM=[[10000,13,32],[20000,32,82],[50000,91,231],[100000,195,495],[200000,455,1155],[500000,1430,3630],[1000000,3250,8250]];
+const ICON={arrow:'<path d="M4 12h15m-6-6 6 6-6 6"/>',external:'<path d="M6 18 18 6M6 6h12v12"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="m5 12 4 4L19 6"/>',search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/>',download:'<path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4"/>',chat:'<path d="M20 11a8 8 0 0 1-8 8H5l-3 3V11a9 9 0 0 1 18 0Z"/><path d="M7 9h8M7 13h5"/>',gem:'<path d="m3 8 4-5h10l4 5-9 13Z" fill="currentColor" fill-opacity=".12"/><path d="M3 8h18M7 3l5 18 5-18M7 3l5 5 5-5"/>',shield:'<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z"/><path d="m8 11 3 3 5-5"/>',flag:'<path d="M5 21V3m0 1c5-4 9 4 14 0v10c-5 4-9-4-14 0"/>',book:'<path d="M12 5v15M3 4c4-1 6 0 9 2 3-2 5-3 9-2v15c-4-1-6 0-9 2-3-2-5-3-9-2Z"/>',document:'<path d="M5 3h10l4 4v14H5ZM14 3v5h5M8 12h8M8 16h6"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',spark:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v.2"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',lock:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/>',home:'<path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-8h6v8"/>',login:'<path d="M13 3h7v18h-7M3 12h12m-4-4 4 4-4 4"/>',logout:'<path d="M11 3H4v18h7M10 12h11m-4-4 4 4-4 4"/>',chevron:'<path d="m6 9 6 6 6-6"/>',bug:'<path d="M8 8h8v9a4 4 0 0 1-8 0ZM9 8V6a3 3 0 0 1 6 0v2M3 10l5 2m8 0 5-2M3 16h5m8 0h5M5 22l4-3m6 0 4 3M12 8v12"/>',card:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',bank:'<path d="m3 9 9-5 9 5M5 10v8M9 10v8M15 10v8M19 10v8M3 20h18"/>'};
+const ic=(n,s=20)=>`<svg class="ui-icon icon-${n}" viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICON[n]||ICON.spark}</svg>`;
+let token='',me=null,info=null;
+try{token=localStorage.getItem('nro_token')||''}catch(e){}
 
 async function api(path,body){
   const r=await fetch('/api/'+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json','X-Token':token},body:body?JSON.stringify(body):undefined});
-  const d=await r.json().catch(()=>({error:'Lỗi kết nối'}));
-  if(r.status===401&&token){token='';localStorage.removeItem('nro_token');me=null;drawAcc()}
+  const d=await r.json().catch(()=>({error:'Lỗi kết nối máy chủ'}));
+  if(r.status===401&&token){token='';try{localStorage.removeItem('nro_token')}catch(e){}me=null;drawAcc()}
   if(!r.ok)throw new Error(d.error||'Có lỗi xảy ra');
   return d}
-function toast(msg,err){const t=document.createElement('div');t.className='toast'+(err?' err':'');t.setAttribute('role','status');t.textContent=msg;document.body.append(t);setTimeout(()=>t.remove(),3200)}
+function toast(msg,err){const t=document.createElement('div');t.className='toast'+(err?' err':'');t.setAttribute('role','status');t.textContent=msg;document.body.append(t);setTimeout(()=>t.remove(),3500)}
 async function act(fn,ok){try{const r=await fn();if(ok)toast(ok);return r}catch(e){toast(e.message,1)}}
+async function getInfo(){if(!info)info=await api('status');return info}
 
-/* ---------- tài khoản ---------- */
+/* ---------- tài khoản (tài khoản chơi game) ---------- */
 function drawAcc(){
-  $('#acc').innerHTML=me?`<span class="name mute" style="font-size:13px">${esc(me.username)}</span><button class="btn s" onclick="logout()">Thoát</button>`
-    :`<button class="btn s p" onclick="loginBox()">Đăng nhập</button>`}
+  $('#acc').innerHTML=me?`<span class="who" title="${esc(me.username)}">${ic('user',14)} ${esc(me.username)}</span><button type="button" onclick="logout()">Thoát</button>`
+    :`<button type="button" class="fill" onclick="loginBox()">${ic('login',14)} Đăng nhập</button>`}
 async function loadMe(){if(!token){me=null;drawAcc();return}try{me=await api('me')}catch(e){me=null}drawAcc()}
 function loginBox(after){
-  const m=document.createElement('div');m.className='modal';
-  m.innerHTML=`<form class="card" aria-labelledby="lg-t"><h2 id="lg-t" style="font-size:28px">Đăng nhập</h2><p class="mute" style="margin-top:0">Dùng tài khoản và mật khẩu chơi game.</p>
-    <div class="f"><label for="lu">Tài khoản</label><input id="lu" autocomplete="username" maxlength="20" required></div>
-    <div class="f"><label for="lp">Mật khẩu</label><input id="lp" type="password" autocomplete="current-password" maxlength="100" required></div>
-    <div style="display:flex;gap:10px;justify-content:flex-end"><button type="button" class="btn" id="lc">Huỷ</button><button class="btn p">Đăng nhập</button></div></form>`;
-  m.onclick=e=>{if(e.target===m)m.remove()};
-  m.querySelector('#lc').onclick=()=>m.remove();
-  m.querySelector('form').onsubmit=async e=>{e.preventDefault();const r=await act(()=>api('login',{user:$('#lu').value,pass:$('#lp').value}));
-    if(r){token=r.token;localStorage.setItem('nro_token',token);m.remove();await loadMe();toast('Xin chào '+me.username);(after||route)()}};
-  document.body.append(m);$('#lu').focus()}
-async function logout(){await api('logout',{}).catch(()=>{});token='';localStorage.removeItem('nro_token');me=null;drawAcc();route()}
-function needLogin(what){return `<div class="card empty"><p style="font-size:40px;margin:0">🔐</p><h3>Đăng nhập để ${esc(what)}</h3><p>Dùng tài khoản chơi game của bạn.</p><button class="btn p" onclick="loginBox()">Đăng nhập</button></div>`}
+  const d=$('#dialog');
+  $('#dialog-body').innerHTML=`<div class="auth-heading"><div class="auth-emblem">${ic('spark')}</div><span class="eyebrow">CỘNG ĐỒNG NGỌC RỒNG</span><h2>Chào mừng chiến binh trở lại.</h2><p>Đăng nhập bằng tài khoản và mật khẩu chơi game.</p></div>
+    <form id="auth-form"><label>Tài khoản<input id="lu" required maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+    <label>Mật khẩu<input id="lp" type="password" required maxlength="100" autocomplete="current-password"></label>
+    <button class="button green" style="width:100%">${ic('login',16)}&nbsp;Đăng nhập</button><p class="status" id="auth-error" role="alert"></p></form>`;
+  d.showModal();$('#lu').focus();
+  $('#auth-form').onsubmit=async e=>{e.preventDefault();
+    try{const r=await api('login',{user:$('#lu').value.trim(),pass:$('#lp').value});token=r.token;try{localStorage.setItem('nro_token',token)}catch(x){}
+      d.close();await loadMe();toast('Xin chào '+me.username);(after||route)()}catch(x){$('#auth-error').textContent=x.message;$('#auth-error').style.color='#a2463a'}}}
+async function logout(){await api('logout',{}).catch(()=>{});token='';try{localStorage.removeItem('nro_token')}catch(e){}me=null;drawAcc();route()}
 
 /* ---------- định tuyến ---------- */
-const ROUTES={'':home,'gioi-thieu':about,'dien-dan':()=>board('forum'),'to-cao':()=>board('report'),'bao-loi':()=>board('bug'),'gop-y':()=>board('idea'),'nap':topup,'bai':postPage};
+const NAV={'':'home','gioi-thieu':'about','dien-dan':'forum','bai':'forum','nap':'gems','bao-loi':'forum','to-cao':'forum','gop-y':'forum'};
+const ROUTES={'':home,'gioi-thieu':about,'dien-dan':()=>forum(),'to-cao':()=>support('report'),'bao-loi':()=>support('bug'),'gop-y':()=>support('idea'),'nap':gems,'bai':postPage};
 async function route(){
-  const parts=location.hash.replace(/^#\/?/,'').split('/'),key=parts[0]||'';
-  document.querySelectorAll('nav.main a').forEach(a=>a.classList.toggle('on',a.dataset.r===key||(key==='bai'&&a.dataset.r==='dien-dan')));
-  $('nav.main').classList.remove('open');
-  const fn=ROUTES[key]||home;$('#main').innerHTML='<div class="empty">Đang tải…</div>';
-  try{await fn(parts[1])}catch(e){$('#main').innerHTML=`<div class="card empty"><h3>Không tải được trang</h3><p>${esc(e.message)}</p></div>`}
+  const parts=location.hash.replace(/^#\/?/,'').split('/'),key=ROUTES[parts[0]]?parts[0]:'';
+  document.querySelectorAll('header nav a').forEach(a=>a.classList.toggle('active',a.dataset.r===NAV[key]));
+  if($('#dialog').open)$('#dialog').close();
+  $('#app').innerHTML='<div class="loading">Đang tải…</div>';
+  try{await ROUTES[key](parts[1])}catch(e){$('#app').innerHTML=`<section class="access-gate"><span class="gate-icon">${ic('info')}</span><h2>Không tải được trang</h2><p>${esc(e.message)}</p></section>`}
   window.scrollTo(0,0)}
 addEventListener('hashchange',route);
 
 /* ---------- trang chủ ---------- */
+const evArt=n=>/halloween|hlw|bí ngô|ma/i.test(n)?'event-halloween.png':/20\/10|tháng 10|phụ nữ|8\/3/i.test(n)?'event-october.png':'hero.png';
+let homeFilter='Tất cả';
+function newsCards(s){
+  const ev=s.events.map(e=>({type:'Sự kiện',title:e.name,text:e.description,art:evArt(e.name),meta:e.end?'Đến hết '+e.end.split('-').reverse().join('/'):'Đang diễn ra',href:'#/dien-dan'}));
+  const posts=s.news.map(p=>({type:p.is_admin||p.pinned?'Thông báo':'Thảo luận',title:p.title,text:p.excerpt||'',art:p.is_admin||p.pinned?'event-october.png':'hero.png',meta:esc(p.author)+' · '+esc(p.created_at),href:'#/bai/'+Number(p.id)}));
+  const all=[...ev,...posts].filter(x=>homeFilter==='Tất cả'||x.type===homeFilter);
+  return all.length?all.map(x=>`<a class="news" href="${x.href}"><div class="news-art"><img src="/assets/${x.art}" alt="" loading="lazy"></div><div class="news-content"><span class="tag">${esc(x.type.toUpperCase())}</span><h3>${esc(x.title)}</h3><span class="muted">${x.meta} <span class="read-more">Đọc bài ${ic('external',14)}</span></span></div></a>`).join('')
+    :`<div class="feed-empty"><h3>Chưa có bài phù hợp</h3><p>Chọn "Tất cả" hoặc vào diễn đàn để xem thêm.</p></div>`}
 async function home(){
-  const s=info=await api('status');
-  const dl=s.download||{};
-  const dlHref=dl.apk||dl.pc||dl.ios||'#/gioi-thieu';
-  const art=n=>/halloween|hlw|bí ngô/i.test(n)?'event-halloween.png':/20\/10|tháng 10|phụ nữ/i.test(n)?'event-october.png':'hero.png';
-  const ql=[[dlHref,'🎮','Tải game','Android · PC · iOS'],['#/nap','💎','Nạp ngọc','10.000đ = 13 ngọc'],['#/dien-dan','💬','Diễn đàn','Trao đổi, tìm đồng đội'],['#/bao-loi','🛠️','Trung tâm hỗ trợ','Báo lỗi, tố cáo, góp ý']];
-  $('#main').innerHTML=`
-  <section class="game-hero">
-    <img src="/assets/hero.png" alt="">
-    <div class="hero-content">
-      <span class="online-dot">${money(s.online)} người đang chơi</span>
-      <div class="hero-kicker">${s.events.length?'Sự kiện đang diễn ra':'Máy chủ '+esc(s.name)}</div>
-      <h1>Hẹn nhau ở <em>thế giới ngọc rồng</em></h1>
-      <p>Phiêu lưu khắp Trái Đất, Namek và Xayda: luyện công, săn boss, giành Ngọc Rồng Sao Đen cùng bang hội và tham gia sự kiện mỗi mùa.</p>
-      <div class="cta">
-        ${dl.apk?`<a class="btn p" href="${esc(dl.apk)}" rel="noopener">⬇ Tải cho Android</a>`:''}
-        ${dl.pc?`<a class="btn b" href="${esc(dl.pc)}" rel="noopener">⬇ Bản PC</a>`:''}
-        ${dl.ios?`<a class="btn ghost" href="${esc(dl.ios)}" rel="noopener">⬇ Bản iOS</a>`:''}
-        <a class="btn ${dl.apk?'ghost':'p'}" href="#/nap">💎 Nạp ngọc</a>
-        <a class="btn ghost" href="#/gioi-thieu">Tìm hiểu thêm</a>
-      </div>
-    </div>
-    <div class="hero-caption">${money(s.accounts)} TÀI KHOẢN · ${money(s.events.length)} SỰ KIỆN</div>
-  </section>
-  <nav class="quick-links" aria-label="Lối tắt">${ql.map(q=>`<a href="${esc(q[0])}"${q[0].startsWith('#')?'':' rel="noopener"'}><span class="qi" aria-hidden="true">${q[1]}</span><span><b>${q[2]}</b><small>${q[3]}</small></span><i aria-hidden="true">›</i></a>`).join('')}</nav>
-  <div class="grid g2" style="margin-top:8px">
-    <div>
-      <div class="sec-title"><div><div class="eyebrow">Đang diễn ra</div><h2>Sự kiện</h2></div></div>
-      ${s.events.length?`<div class="news-grid">${s.events.map(e=>`<article class="news"><div class="news-art"><img src="/assets/${art(e.name)}" alt="" loading="lazy"></div><div class="news-content"><span class="tag">${e.end?'ĐẾN HẾT '+esc(e.end.split('-').reverse().join('/')):'ĐANG CHẠY'}</span><h3>${esc(e.name)}</h3><p>${esc(e.description)}</p></div></article>`).join('')}</div>`
-        :`<div class="card empty">Hiện chưa có sự kiện, hẹn bạn mùa sau!</div>`}
-      <div class="sec-title"><div><div class="eyebrow">Cộng đồng</div><h2>Bài mới trên diễn đàn</h2></div><a href="#/dien-dan">Xem tất cả →</a></div>
-      <div class="card list">${s.news.length?s.news.map(postRow).join(''):'<div class="empty">Chưa có bài nào, hãy là người mở đầu!</div>'}</div>
-    </div>
-    <aside>
-      <div class="sec-title"><div><div class="eyebrow">Bảng vàng</div><h2>Top sức mạnh</h2></div></div>
-      <div class="card"><ol class="rank">${s.top.map((p,i)=>`<li><span class="no">${i+1}</span><span class="nm">${esc(p.name)}<div class="planet">${PLANET[p.gender]||''}</div></span><span class="pw">${power(p.power)}</span></li>`).join('')||'<li class="mute">Chưa có dữ liệu</li>'}</ol></div>
-      <div class="welcome" style="margin-top:18px">
-        <div class="eyebrow">Chào mừng</div><h2>Bạn mới đến?</h2>
-        <p class="mute">Chọn hành tinh, nhận đệ tử và gia nhập bang hội để cùng săn ngọc rồng.</p>
-        <a class="btn p" href="#/gioi-thieu">Bắt đầu tại đây</a>
-      </div>
-      <div class="sec-title"><div><div class="eyebrow">Hỗ trợ</div><h2>Cần giúp đỡ?</h2></div></div>
-      <div class="grid quick">
-        ${['report','bug','idea'].map(k=>`<a href="#/${{report:'to-cao',bug:'bao-loi',idea:'gop-y'}[k]}"><span class="ico" style="background:${KIND[k][2]}22">${KIND[k][1]}</span><div><b>${KIND[k][0]}</b><span>${{report:'Hack, lừa đảo, ngôn từ xấu',bug:'Lỗi game, mất đồ, kẹt map',idea:'Ý tưởng cho máy chủ'}[k]}</span></div></a>`).join('')}
-      </div>
-    </aside>
-  </div>`}
+  const s=await getInfo();
+  $('#app').innerHTML=`<section class="game-hero"><img src="/assets/hero.png" alt="Lễ hội trong thế giới Ngọc Rồng"><div class="hero-content"><span class="hero-kicker">${money(s.online)} CHIẾN BINH ĐANG ONLINE · ${esc(String(s.name||'').toUpperCase())}</span><h1>Hẹn nhau ở<br><em>thế giới Ngọc Rồng.</em></h1><p>Khám phá, luyện tập và tìm những người đồng đội<br class="desktop-only"> cùng bạn viết tiếp câu chuyện của mình.</p><div class="hero-actions"><a class="button" href="#/dien-dan">Khám phá cộng đồng&nbsp;${ic('external',15)}</a><a class="button ghost" href="#/gioi-thieu">Tìm hiểu game</a></div></div><span class="hero-caption">MỘT THẾ GIỚI · VÔ VÀN KỶ NIỆM</span></section>
+  <div class="quick-links"><a href="#/gioi-thieu"><span class="quick-icon">${ic('download')}</span><span><b>Tải game</b><small>Chọn phiên bản của bạn</small></span><i>${ic('external',14)}</i></a><a href="#/nap"><span class="quick-icon">${ic('gem')}</span><span><b>Nạp ngọc</b><small>10.000đ = 13 ngọc</small></span><i>${ic('external',14)}</i></a><a href="#/dien-dan"><span class="quick-icon">${ic('chat')}</span><span><b>Diễn đàn</b><small>Gặp gỡ các chiến binh</small></span><i>${ic('external',14)}</i></a><a href="#/bao-loi"><span class="quick-icon">${ic('flag')}</span><span><b>Trung tâm hỗ trợ</b><small>Luôn có nơi lắng nghe</small></span><i>${ic('external',14)}</i></a></div>
+  <div class="home-layout"><section class="news-section"><div class="heading-row"><div><span class="eyebrow">CHUYỆN TRONG THẾ GIỚI RỒNG</span><h2>Bảng tin cộng đồng</h2></div><a href="#/dien-dan">Xem diễn đàn ${ic('external',14)}</a></div>
+    <div class="tabs">${['Tất cả','Thông báo','Sự kiện','Thảo luận'].map(x=>`<button class="${x===homeFilter?'active':''}" data-filter="${x}">${x}</button>`).join('')}</div><div id="news" class="news-grid">${newsCards(s)}</div></section>
+    <aside class="home-sidebar"><section class="welcome-card"><span class="eyebrow">CHÀO MỪNG CHIẾN BINH</span><h2>Mới đến<br>Ngọc Rồng?</h2><p>Bắt đầu từ những điều đơn giản. Hành trình lớn luôn có một bước đầu tiên.</p><a href="#/gioi-thieu">Hướng dẫn bắt đầu ${ic('arrow',15)}</a><div class="mini-characters"><img src="/assets/gif_maphongba.gif" alt="Nhân vật Ngọc Rồng"><img src="/assets/gif_gif_Saiyain.gif" alt="Chiến binh Xayda"></div></section>
+    <section class="sidebar-help"><h3>Cùng xây dựng cộng đồng</h3><a href="#/to-cao">Tố cáo vi phạm <span>${ic('external',14)}</span></a><a href="#/bao-loi">Báo lỗi trò chơi <span>${ic('external',14)}</span></a><a href="#/gop-y">Chia sẻ góp ý <span>${ic('external',14)}</span></a><p>Tôn trọng nhau, chơi công bằng<br>và cùng nhau tiến xa hơn.</p></section></aside></div>
+  <section class="bottom-invite"><div><span class="eyebrow">KHÔNG AI PHẢI CHIẾN ĐẤU MỘT MÌNH</span><h2>Đồng đội đang chờ bạn.</h2><p>Một câu hỏi, một kinh nghiệm, một người bạn mới.</p></div><a class="button" href="#/dien-dan">Vào diễn đàn&nbsp;${ic('arrow',15)}</a></section>`;
+  document.querySelectorAll('.tabs [data-filter]').forEach(b=>b.onclick=()=>{homeFilter=b.dataset.filter;document.querySelectorAll('.tabs [data-filter]').forEach(x=>x.classList.toggle('active',x===b));$('#news').innerHTML=newsCards(s)})}
 
 /* ---------- giới thiệu ---------- */
 async function about(){
-  const name=info?.name||'Ngọc Rồng';
-  const feat=[['⚔️','Luyện công & săn boss','Đánh quái, mộc nhân, tự động luyện tập; săn Broly, Fide, Cooler, Xên bọ hung, Black Goku và boss sự kiện.'],
-    ['🌑','Ngọc Rồng Sao Đen','20h00 - 21h00 mỗi ngày: các bang tranh giành 7 viên ngọc sao đen, giữ ngọc 5 phút để nhận buff cả bang.'],
-    ['🥋','Đại hội võ thuật','Thi đấu đối kháng, leo hạng, nhận quà theo vòng và danh hiệu cao thủ.'],
-    ['🏯','Doanh trại & Kho báu','Cùng bang vượt Doanh trại Độc Nhãn, Bản đồ kho báu dưới biển, Khí gas hủy diệt.'],
-    ['🐉','Đệ tử & bông tai Porata','Thu nhận đệ tử, nâng chiêu, hợp thể bằng bông tai Porata cấp 1 - 3.'],
-    ['🎉','Sự kiện mỗi mùa','Tết, Trung Thu, Halloween, Giáng sinh... với đua top, rồng thần và quà độc quyền.']];
-  $('#main').innerHTML=`
-  <div class="page-head"><span class="ico" style="background:#3fa9ff22">📖</span><div><h1>Giới thiệu</h1><p>${esc(name)} là máy chủ Ngọc Rồng Online, lối chơi quen thuộc, cân bằng và nhiều sự kiện.</p></div></div>
-  <div class="sec-title"><div><div class="eyebrow">Chọn hành tinh</div><h2>Ba chủng tộc</h2></div></div>
-  <div class="grid g3 planets">
-    <div class="card"><img class="em pix" src="/assets/traidat.gif" alt=""><h3>Trái Đất</h3><p class="mute">Cân bằng, chiêu Kamejoko và Thái Dương Hạ San, dễ chơi cho người mới.</p></div>
-    <div class="card"><img class="em pix" src="/assets/namek.gif" alt=""><h3>Namek</h3><p class="mute">Hồi phục và hỗ trợ đồng đội, đệ tử mạnh, chiêu Masenko.</p></div>
-    <div class="card"><img class="em pix" src="/assets/xayda.gif" alt=""><h3>Xayda</h3><p class="mute">Sát thương cao, biến khỉ, chiêu Galick và Kaioken.</p></div>
-  </div>
-  <div class="sec-title"><div><div class="eyebrow">Có gì để chơi</div><h2>Tính năng nổi bật</h2></div></div>
-  <div class="grid g2" style="grid-template-columns:1fr 1fr">${feat.map(f=>`<div class="card feature"><span class="ico">${f[0]}</span><div><h3>${f[1]}</h3><p>${f[2]}</p></div></div>`).join('')}</div>
-  <div class="sec-title"><div><div class="eyebrow">Cùng giữ máy chủ sạch</div><h2>Luật chơi</h2></div></div>
-  <div class="card"><ul class="rules">
-    <li>Không dùng phần mềm thứ ba, hack, auto ngoài tính năng có sẵn trong game.</li>
-    <li>Không lừa đảo, mua bán tài khoản, vật phẩm bằng tiền thật ngoài kênh nạp chính thức.</li>
-    <li>Không xúc phạm, phân biệt, spam trên kênh chat thế giới và diễn đàn.</li>
-    <li>Gặp lỗi game hãy <a href="#/bao-loi">báo lỗi</a>, không lợi dụng lỗi để trục lợi.</li>
-    <li>Thấy vi phạm hãy <a href="#/to-cao">tố cáo</a> kèm bằng chứng, ban quản trị sẽ xử lý.</li>
-  </ul></div>`}
+  const s=await getInfo(),dl=s.download||{};
+  const plat=[['jar.png','Java',dl.jar],['android.png','Android',dl.apk],['play.png','Google Play',dl.play],['pc.png','Máy tính',dl.pc],['ip.png','iPhone',dl.ios]].filter(x=>x[2]);
+  $('#app').innerHTML=`<section class="downloads" aria-label="Tải game">${plat.map(([img,name,url])=>`<a href="${esc(url)}" target="_blank" rel="noopener"><img src="/assets/${img}" alt="Tải ${name}" height="35"><small>${name}</small></a>`).join('')}<a href="#/nap"><img src="/assets/napngoc.png" alt="Nạp ngọc" height="35"><small>Nạp ngọc</small></a></section>
+  ${plat.length?'':'<p class="center muted" style="font-size:12px;margin:-6px 0 10px">Link tải game sẽ được cập nhật sớm.</p>'}
+  <div class="support-links"><a href="#/to-cao">Tố cáo vi phạm</a> · <a href="#/bao-loi">Báo lỗi game</a> · <a href="#/gop-y">Đóng góp ý kiến</a></div>
+  <section class="classic-section"><h2>Giới thiệu</h2><p>Bước vào thế giới Ngọc Rồng, lựa chọn nhân vật đến từ Trái Đất, Namek hoặc Xayda và bắt đầu cuộc phiêu lưu cùng bạn bè.</p><p>Luyện công, săn boss, giành Ngọc Rồng Sao Đen cùng bang hội, thu nhận đệ tử và tham gia sự kiện mỗi mùa. Cộng đồng là nơi tìm đồng đội, trao đổi kinh nghiệm và chia sẻ những khoảnh khắc đáng nhớ.</p><h3>Ba hành tinh — ba hành trình</h3><ul><li><b>Trái Đất:</b> cân bằng, chiêu Kamejoko và Thái Dương Hạ San, dễ chơi cho người mới.</li><li><b>Namek:</b> hồi phục và hỗ trợ đồng đội, đệ tử mạnh, chiêu Masenko.</li><li><b>Xayda:</b> sát thương cao, biến khỉ, chiêu Galick và Kaioken.</li></ul><div class="characters"><figure><img src="/assets/gif_maphongba.gif" alt="Nhân vật thi triển chiêu thức"><figcaption>Luyện tập</figcaption></figure><figure><img src="/assets/gif_gif_Saiyain.gif" alt="Chiến binh Xayda biến hình"><figcaption>Bứt phá</figcaption></figure><figure><img src="/assets/gif_supber_kame.gif" alt="Nhân vật sử dụng kỹ năng năng lượng"><figcaption>Chinh phục</figcaption></figure></div></section>
+  <section class="classic-section"><h2>Luật chơi</h2><ul><li>Không dùng phần mềm thứ ba, hack, auto ngoài tính năng có sẵn trong game.</li><li>Không lừa đảo, mua bán tài khoản, vật phẩm bằng tiền thật ngoài kênh nạp chính thức.</li><li>Không xúc phạm, phân biệt, spam trên kênh chat thế giới và diễn đàn.</li><li>Gặp lỗi game hãy <a href="#/bao-loi"><b>báo lỗi</b></a>, không lợi dụng lỗi để trục lợi.</li><li>Thấy vi phạm hãy <a href="#/to-cao"><b>tố cáo</b></a> kèm bằng chứng, ban quản trị sẽ xử lý.</li></ul><div class="help-menu"><a href="#/dien-dan">Tham gia diễn đàn »</a><a href="#/gop-y">Chia sẻ góp ý »</a></div></section>`}
 
-/* ---------- diễn đàn & phiếu ---------- */
-const BOARD={forum:{route:'dien-dan',title:'Diễn đàn',desc:'Trao đổi kinh nghiệm, tìm đồng đội, khoe đồ cùng cộng đồng.',btn:'Đăng bài',list:'Bài viết'},
-  report:{route:'to-cao',title:'Tố cáo',desc:'Báo người chơi hack, lừa đảo, xúc phạm. Chỉ bạn và ban quản trị xem được phiếu.',btn:'Gửi tố cáo',list:'Phiếu tố cáo của bạn'},
-  bug:{route:'bao-loi',title:'Báo lỗi',desc:'Lỗi game, mất đồ, kẹt bản đồ, sai chỉ số. Ghi càng rõ càng sửa nhanh.',btn:'Gửi báo lỗi',list:'Báo lỗi của bạn'},
-  idea:{route:'gop-y',title:'Góp ý',desc:'Ý tưởng tính năng, sự kiện, cân bằng game cho máy chủ.',btn:'Gửi góp ý',list:'Góp ý của bạn'}};
-function postRow(p){
-  const k=p.kind||'forum';
-  return `<a class="item" href="#/bai/${Number(p.id)}"><span class="ico" aria-hidden="true" style="font-size:22px">${KIND[k]?.[1]||'💬'}</span>
-    <div class="t"><b>${p.pinned?'<span class="pin">📌 GHIM</span>':''}${esc(p.title)}</b><span>${esc(p.author)}${p.target?' · tố cáo <b style="color:var(--red)">'+esc(p.target)+'</b>':''} · ${esc(p.updated_at||p.created_at)}</span></div>
-    ${p.status!==undefined&&k!=='forum'?`<span class="tag s${p.status}">${STATUS[p.status]}</span>`:''}
-    <div class="n"><b>${money(p.replies)}</b>trả lời</div></a>`}
-async function board(kind,page=1){
-  const B=BOARD[kind];
-  const head=`<div class="page-head"><span class="ico" style="background:${KIND[kind][2]}22">${KIND[kind][1]}</span><div><h1>${B.title}</h1><p>${B.desc}</p></div></div>`;
-  const form=me?`<form class="card" id="pf"><h2 style="font-size:24px">${B.btn}</h2>
-      ${kind==='report'?'<div class="f"><label for="pt">Tên nhân vật bị tố cáo</label><input id="pt" maxlength="64" required></div>':''}
-      <div class="f"><label for="ph">Tiêu đề</label><input id="ph" maxlength="150" minlength="4" required placeholder="${{forum:'Ví dụ: Kinh nghiệm up đệ tử nhanh',report:'Ví dụ: Lừa giao dịch ở Siêu thị',bug:'Ví dụ: Kẹt ở bản đồ Doanh trại',idea:'Ví dụ: Thêm sự kiện câu cá'}[kind]}"></div>
-      <div class="f"><label for="pc">Nội dung</label><textarea id="pc" maxlength="5000" minlength="10" required placeholder="${{forum:'Chia sẻ của bạn…',report:'Thời gian, khu vực, diễn biến, bằng chứng (link ảnh / video)…',bug:'Bạn đang làm gì, ở bản đồ / khu nào, lỗi hiện ra sao, có mất đồ không…',idea:'Mô tả ý tưởng và lý do…'}[kind]}"></textarea><span class="hint">Tối đa 5.000 ký tự. Dán link ảnh / video làm bằng chứng nếu có.</span></div>
-      <button class="btn p">${B.btn}</button></form>`:needLogin(kind==='forum'?'đăng bài':'gửi phiếu');
-  if(kind!=='forum'&&!me){$('#main').innerHTML=head+form;return}
-  const d=await api(`posts?kind=${kind}&page=${page}`);
-  const list=`<div class="card"><h2 style="font-size:24px">${B.list} <span class="mute" style="font-size:16px">(${money(d.total)})</span></h2>
-    <div class="list">${d.rows.length?d.rows.map(r=>postRow({...r,kind})).join(''):'<div class="empty">Chưa có gì ở đây.</div>'}</div>
-    ${d.pages>1?`<div class="pager">${Array.from({length:d.pages},(_,i)=>`<button class="btn s ${i+1===d.page?'p':''}" onclick="board('${kind}',${i+1})">${i+1}</button>`).join('')}</div>`:''}</div>`;
-  $('#main').innerHTML=head+`<div class="grid g2">${kind==='forum'?list+form:form+list}</div>`;
-  const f=$('#pf');if(f)f.onsubmit=async e=>{e.preventDefault();const b=f.querySelector('button');b.disabled=true;
-    const r=await act(()=>api('post/create',{kind,title:$('#ph').value,content:$('#pc').value,target:$('#pt')?.value||''}),'Đã gửi');b.disabled=false;
-    if(r)location.hash='#/bai/'+r.id}}
+/* ---------- diễn đàn ---------- */
+const NAMES={forum:'Diễn đàn',bug:'Báo lỗi',report:'Tố cáo',idea:'Góp ý'};
+const communityTabs=k=>`<nav class="community-tabs" aria-label="Cộng đồng">${[['dien-dan','forum','chat','Diễn đàn'],['bao-loi','bug','bug','Báo lỗi'],['to-cao','report','flag','Tố cáo'],['gop-y','idea','chat','Góp ý']].map(([r,kk,i,n])=>`<a href="#/${r}" class="${k===kk?'active':''}">${ic(i,16)}${n}</a>`).join('')}</nav>`;
+let fCat='all',fQ='',fPage=1;
+function memberPanel(){return `<section class="member-panel"><div class="member-emblem">${ic('spark')}</div><span class="rail-label">GÓC CHIẾN BINH</span><h3>${me?esc(me.username):'Chào bạn mới!'}</h3><p>${me?'Chia sẻ kinh nghiệm, tìm đồng đội và theo dõi phiếu hỗ trợ của bạn.':'Đăng nhập bằng tài khoản game để viết bài và bình luận.'}</p>${me?`<button class="button member-logout" onclick="logout()">${ic('logout',16)}&nbsp;Đăng xuất</button>`:`<button class="button" onclick="loginBox()">${ic('login',16)}&nbsp;Đăng nhập</button>`}<small>Dùng tài khoản chơi game</small></section>`}
+async function forum(){
+  $('#app').innerHTML=`<section class="forum-intro"><div><span class="eyebrow">NGỌC RỒNG / CỘNG ĐỒNG</span><h1>Nơi chiến binh hội tụ.</h1><p>Chia sẻ một kinh nghiệm. Tìm thêm một người đồng đội.</p></div><div class="forum-account-area"><div id="account-actions">${me?`<span class="signed-in-label">● ${esc(me.username)}</span>`:`<button class="account-button" onclick="loginBox()">${ic('login',15)} Đăng nhập</button>`}</div><button class="button" id="new-topic">${ic('plus',15)}&nbsp;Viết bài mới</button></div></section>
+  ${communityTabs('forum')}
+  <div class="forum-layout"><aside class="forum-sidebar">${memberPanel()}<span class="rail-label">KHÁM PHÁ</span><div class="forum-categories">${[['all','grid','Tất cả bài viết'],['admin','flag','Từ ban quản trị'],['events','spark','Sự kiện'],['mine','document','Bài viết của tôi']].map(([k,i,l])=>`<button data-category="${k}" class="${k===fCat?'active':''}" aria-pressed="${k===fCat}"><span>${ic(i,16)}</span>${l}</button>`).join('')}</div><div class="rail-divider"></div><span class="rail-label">CẦN HỖ TRỢ?</span><a href="#/bao-loi" class="rail-link">Báo lỗi trò chơi <span>${ic('external',14)}</span></a><a href="#/to-cao" class="rail-link">Tố cáo vi phạm <span>${ic('external',14)}</span></a><a href="#/gop-y" class="rail-link">Gửi góp ý <span>${ic('external',14)}</span></a><div class="community-note"><span>${ic('shield')}</span><b>Một cộng đồng tốt<br>bắt đầu từ bạn.</b><p>Tôn trọng người khác và chia sẻ những điều hữu ích.</p></div></aside>
+  <section class="forum-main"><div class="forum-search"><span aria-hidden="true">${ic('search',18)}</span><input id="search" type="search" aria-label="Tìm bài viết" placeholder="Tìm bài viết, hướng dẫn, sự kiện…" value="${esc(fQ)}"></div><div class="feed-heading"><h2 id="feed-title">Tất cả bài viết</h2><span id="feed-count" aria-live="polite"></span></div><div id="topics"><div class="loading">Đang tải…</div></div><div id="fpager"></div></section></div>`;
+  $('#new-topic').onclick=()=>me?topicBox():loginBox(topicBox);
+  document.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{fCat=b.dataset.category;fPage=1;document.querySelectorAll('[data-category]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',x===b)});loadTopics()});
+  let t;$('#search').oninput=e=>{clearTimeout(t);t=setTimeout(()=>{fQ=e.target.value.trim();fPage=1;loadTopics()},350)};
+  await loadTopics()}
+async function loadTopics(){
+  const el=$('#topics'),title={all:'Tất cả bài viết',admin:'Từ ban quản trị',events:'Sự kiện đang diễn ra',mine:'Bài viết của tôi'}[fCat];$('#feed-title').textContent=title;
+  if(fCat==='events'){const s=await getInfo();const ev=s.events.filter(e=>!fQ||(e.name+e.description).toLowerCase().includes(fQ.toLowerCase()));$('#feed-count').textContent=ev.length+' sự kiện';$('#fpager').innerHTML='';
+    el.innerHTML=ev.length?ev.map(e=>`<article class="feed-card"><div class="feed-author"><span class="author-avatar">NR</span><div><b>${esc(s.name)} <span class="admin-tag">ADMIN</span></b><small>Sự kiện trong game · ${e.end?'đến hết '+esc(e.end.split('-').reverse().join('/')):'đang diễn ra'}</small></div><span class="feed-badge">Sự kiện</span></div><div class="feed-body"><h3>${esc(e.name)}</h3><p class="ev-desc">${esc(e.description)}</p><img class="feed-image" src="/assets/${evArt(e.name)}" alt="" loading="lazy"></div><div class="feed-footer"><span>ĐANG DIỄN RA TRONG GAME</span></div></article>`).join(''):'<div class="feed-empty"><h3>Hiện chưa có sự kiện</h3><p>Hẹn bạn mùa sau!</p></div>';return}
+  if(fCat==='mine'&&!me){el.innerHTML=`<div class="feed-empty"><h3>Đăng nhập để xem bài của bạn</h3><p><button class="button" onclick="loginBox()">Đăng nhập</button></p></div>`;$('#feed-count').textContent='';$('#fpager').innerHTML='';return}
+  const d=await api(`posts?kind=forum&page=${fPage}&f=${fCat==='all'?'':fCat}&q=${encodeURIComponent(fQ)}`);
+  $('#feed-count').textContent=money(d.total)+' bài viết';
+  el.innerHTML=d.rows.length?d.rows.map(p=>`<article class="feed-card"><div class="feed-author"><span class="author-avatar">${esc((p.author||'?').slice(0,2).toUpperCase())}</span><div><b>${esc(p.author)}${p.is_admin?' <span class="admin-tag">ADMIN</span>':''}</b><small>${p.is_admin?'Ban quản trị':'Thành viên'} · ${esc(p.updated_at||p.created_at)}</small></div><span class="feed-badge">${p.pinned?'Ghim':p.is_admin?'Thông báo':'Thảo luận'}</span></div><a class="feed-body" href="#/bai/${Number(p.id)}"><h3>${esc(p.title)}</h3><p>${esc(p.excerpt||'')}${(p.excerpt||'').length>=240?'…':''}</p></a><div class="feed-footer"><span>${money(p.replies)} BÌNH LUẬN</span><a href="#/bai/${Number(p.id)}">Đọc bài viết ${ic('external',14)}</a></div></article>`).join('')
+    :`<div class="feed-empty"><h3>Chưa có bài viết phù hợp</h3><p>${fCat==='mine'?'Chọn "Viết bài mới" để chia sẻ câu chuyện đầu tiên của bạn.':'Thử từ khóa khác hoặc chọn Tất cả bài viết.'}</p></div>`;
+  $('#fpager').innerHTML=d.pages>1?`<div class="pager">${Array.from({length:d.pages},(_,i)=>`<button class="${i+1===d.page?'on':''}" data-p="${i+1}">${i+1}</button>`).join('')}</div>`:'';
+  document.querySelectorAll('#fpager [data-p]').forEach(b=>b.onclick=()=>{fPage=+b.dataset.p;loadTopics();window.scrollTo(0,0)})}
+function topicBox(){
+  $('#dialog-body').innerHTML=`<h2>Viết bài mới</h2><form id="tf"><label>Tiêu đề<input id="tt" required minlength="4" maxlength="150" placeholder="Ví dụ: Kinh nghiệm up đệ tử nhanh"></label><label>Nội dung<textarea id="tc" required minlength="10" maxlength="5000" rows="8" placeholder="Chia sẻ của bạn…"></textarea></label><button class="button green" style="width:100%">Đăng bài</button></form>`;
+  $('#dialog').showModal();$('#tt').focus();
+  $('#tf').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;const r=await act(()=>api('post/create',{kind:'forum',title:$('#tt').value,content:$('#tc').value}),'Đã đăng bài');b.disabled=false;if(r){$('#dialog').close();location.hash='#/bai/'+r.id}}}
 async function postPage(id){
   const p=await api('post?id='+encodeURIComponent(id||''));
-  const B=BOARD[p.kind];
-  $('#main').innerHTML=`<p><a href="#/${B.route}">← ${B.title}</a></p>
-  <article class="card">
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px"><span class="tag" style="color:${KIND[p.kind][2]}">${KIND[p.kind][1]} ${B.title}</span>${p.kind!=='forum'?`<span class="tag s${p.status}">${STATUS[p.status]}</span>`:''}${p.pinned?'<span class="tag s0">📌 Ghim</span>':''}</div>
-    <h1 style="font-size:32px">${esc(p.title)}</h1>
-    <p class="mute" style="margin-top:0">${esc(p.author)} · ${esc(p.created_at)}${p.target?` · Nhân vật bị tố cáo: <b style="color:var(--red)">${esc(p.target)}</b>`:''}</p>
-    <div class="post-body">${esc(p.content)}</div>
-  </article>
-  <h2 style="margin:24px 0 4px;font-size:24px">${money(p.replyList.length)} trả lời</h2>
-  ${p.replyList.map(r=>`<div class="reply ${r.is_admin?'admin':''}"><div class="who">${r.is_admin?'🛡️ ':''}${esc(r.author)}${r.is_admin?' <span class="tag s0">Ban quản trị</span>':''}<span class="mute">${esc(r.created_at)}</span></div><div class="post-body" style="margin-top:6px">${esc(r.content)}</div></div>`).join('')}
-  ${me?`<form class="card" id="rf" style="margin-top:16px"><div class="f"><label for="rc">${p.kind==='forum'?'Bình luận':'Bổ sung thông tin'}</label><textarea id="rc" maxlength="2000" minlength="2" required style="min-height:100px"></textarea></div><button class="btn p">Gửi</button></form>`
-    :`<div style="margin-top:16px">${needLogin('bình luận')}</div>`}`;
+  const back={forum:'dien-dan',bug:'bao-loi',report:'to-cao',idea:'gop-y'}[p.kind];
+  $('#app').innerHTML=`<div class="page-title"><div class="eyebrow"><a href="#/${back}">← ${NAMES[p.kind]}</a></div><h1>${esc(p.title)}</h1><p class="muted">${esc(p.author)} · ${esc(p.created_at)}${p.target?` · Nhân vật bị tố cáo: <b>${esc(p.target)}</b>`:''} ${p.kind!=='forum'?`<span class="st s${p.status}">${STATUS[p.status]}</span>`:''}</p></div>
+  ${communityTabs(p.kind)}
+  <section class="classic-section"><div class="post-body">${esc(p.content)}</div></section>
+  <h2 style="font-size:18px;margin:22px 0 4px">${money(p.replyList.length)} ${p.kind==='forum'?'bình luận':'phản hồi'}</h2>
+  ${p.replyList.map(r=>`<div class="reply ${r.is_admin?'admin':''}"><div class="who">${esc(r.author)}${r.is_admin?' <span class="admin-tag">ADMIN</span>':''}<small>${esc(r.created_at)}</small></div><div class="post-body" style="margin-top:6px">${esc(r.content)}</div></div>`).join('')}
+  ${me?`<form class="panel" id="rf" style="margin-top:16px"><label>${p.kind==='forum'?'Bình luận':'Bổ sung thông tin'}<textarea id="rc" maxlength="2000" minlength="2" required rows="4"></textarea></label><button class="button green">Gửi</button></form>`
+    :`<p style="margin-top:16px"><button class="button" onclick="loginBox()">Đăng nhập để bình luận</button></p>`}`;
   const f=$('#rf');if(f)f.onsubmit=async e=>{e.preventDefault();if(await act(()=>api('post/reply',{id:p.id,content:$('#rc').value}),'Đã gửi'))postPage(id)}}
 
+/* ---------- tố cáo / báo lỗi / góp ý ---------- */
+const SUP={report:['Giúp giữ gìn một cộng đồng công bằng và văn minh.','Tố cáo có trách nhiệm','Cung cấp tên nhân vật, thời gian và bằng chứng rõ ràng (link ảnh / video). Chỉ bạn và ban quản trị xem được phiếu.'],
+  bug:['Mô tả sự cố để hành trình của bạn trở nên trọn vẹn hơn.','Thông tin hữu ích','Ghi rõ thiết bị, bản đồ / khu, thời điểm gặp lỗi và thao tác trước khi sự cố xuất hiện. Có mất đồ thì ghi tên vật phẩm.'],
+  idea:['Mọi ý tưởng đều xứng đáng được lắng nghe.','Cùng xây dựng Ngọc Rồng','Bạn muốn cải thiện điều gì? Hãy chia sẻ vấn đề hiện tại, ý tưởng của bạn và lợi ích dành cho cộng đồng.']};
+async function support(k){
+  const head=`<div class="page-title"><div class="eyebrow">Cộng đồng chiến binh</div><h1>${NAMES[k]}</h1><p class="muted">${me?SUP[k][0]:'Trung tâm hỗ trợ dành cho thành viên.'}</p></div>${communityTabs(k)}`;
+  if(!me){$('#app').innerHTML=head+`<section class="access-gate"><span class="gate-icon">${ic('lock')}</span><span class="eyebrow">DÀNH CHO THÀNH VIÊN</span><h2>Đăng nhập để tiếp tục</h2><p>Bạn cần đăng nhập để sử dụng mục ${NAMES[k]}. Sau khi đăng nhập, bạn sẽ quay lại đúng mục này.</p><div class="gate-actions"><button class="button green" onclick="loginBox()">${ic('login',16)}&nbsp;Đăng nhập</button></div><small>Dùng tài khoản và mật khẩu chơi game.</small></section>`;return}
+  const d=await api(`posts?kind=${k}&page=1`);
+  $('#app').innerHTML=head+`<div class="columns"><form class="panel" id="sf">${k==='report'?'<label>Nhân vật bị tố cáo<input id="st" required maxlength="64" placeholder="Tên nhân vật cần báo cáo"></label>':''}
+    <label>Tiêu đề<input id="sh" required minlength="4" maxlength="150" placeholder="Tóm tắt nội dung của bạn"></label>
+    <label>${k==='bug'?'Các bước tái hiện lỗi':'Nội dung chi tiết'}<textarea id="sc" required minlength="10" maxlength="5000" rows="7" placeholder="Mô tả chi tiết… Dán link ảnh / video làm bằng chứng nếu có."></textarea></label>
+    <div class="form-actions"><button class="button green" type="submit">Gửi ${NAMES[k].toLowerCase()}</button></div><p role="status" class="status" id="form-status"></p></form>
+    <aside class="side-card" style="align-self:start"><h3>${SUP[k][1]}</h3><p class="muted">${SUP[k][2]}</p><h3 style="margin-top:18px">Phiếu của bạn (${money(d.total)})</h3><div class="tickets">${d.rows.length?d.rows.map(r=>`<a href="#/bai/${Number(r.id)}"><b>${esc(r.title)}</b><small>${esc(r.created_at)} · <span class="st s${r.status}">${STATUS[r.status]}</span>${r.replies?' · '+money(r.replies)+' phản hồi':''}</small></a>`).join(''):'<p class="muted" style="font-size:12px">Chưa có phiếu nào.</p>'}</div></aside></div>`;
+  $('#sf').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;
+    const r=await act(()=>api('post/create',{kind:k,title:$('#sh').value,content:$('#sc').value,target:$('#st')?.value||''}),'Đã gửi, ban quản trị sẽ phản hồi sớm');b.disabled=false;if(r)location.hash='#/bai/'+r.id}}
+
 /* ---------- nạp ngọc ---------- */
-const NAP_GEM=[[10000,13,32],[20000,32,82],[50000,91,231],[100000,195,495],[200000,455,1155],[500000,1430,3630],[1000000,3250,8250]];
-function napTable(){return `<div class="card" style="margin-bottom:18px"><h2 style="font-size:18px">Bảng giá nạp</h2><table class="nap-tb"><thead><tr><th>Mệnh giá</th><th>X1 nạp</th><th>X3 nạp</th></tr></thead><tbody>${NAP_GEM.map(r=>`<tr><td>${money(r[0])}đ</td><td><img class="pix" src="/icon/932" alt="">${money(r[1])}</td><td><img class="pix" src="/icon/932" alt="">${money(r[2])}</td></tr>`).join('')}</tbody></table><p class="mute" style="margin:8px 0 0;font-size:13px">X3 áp dụng trong đợt khuyến mãi nạp x3. Số tiền khác cộng theo các mệnh giá trên (30.000đ = 32 + 13 ngọc).</p></div>`}
-let napTab='bank',napAmount=50000;
-async function topup(){
+let napMethod='bank',napPack=2;
+async function gems(){
   const t=await api('topup/info');
-  const head=`<div class="page-head"><span class="ico" style="background:#ffd25e22"><img class="pix" src="/icon/932" alt="" style="width:40px"></span><div><h1>Nạp ngọc</h1><p>Nạp xong ngọc xanh được cộng thẳng vào nhân vật theo bảng giá.</p></div></div>`;
-  if(!me){$('#main').innerHTML=head+napTable()+needLogin('nạp ngọc');return}
-  if(!t.bank&&!t.card)napTab='none';else if(napTab==='bank'&&!t.bank)napTab='card';else if(napTab==='card'&&!t.card)napTab='bank';
-  $('#main').innerHTML=head+`
-  <div class="nap-me"><span>Tài khoản <b>${esc(me.username)}</b></span><span>Tổng đã nạp <b>${money(me.tongnap)}đ</b></span>${me.vnd>0?`<span title="Số dư cũ / phần lẻ chưa quy ra ngọc">Số dư <b>${money(me.vnd)}đ</b></span>`:''}</div>
-  <div class="grid g2 nap-grid">
-    <div class="card">
-      ${napTab==='none'?'':`<div class="tabs" role="tablist">${t.bank?`<button role="tab" class="${napTab==='bank'?'on':''}" onclick="napTab='bank';topup()">🏦 Chuyển khoản</button>`:''}${t.card?`<button role="tab" class="${napTab==='card'?'on':''}" onclick="napTab='card';topup()">💳 Thẻ cào</button>`:''}</div>`}
-      <div id="napbox"></div>
-    </div>
-    <div>${napTable()}</div>
-  </div>
-  <div class="card" style="margin-top:18px"><h2 style="font-size:20px">Lịch sử nạp</h2><div id="hist"></div></div>`;
-  await drawHist();
-  const box=$('#napbox');
-  if(napTab==='none'){box.innerHTML='<div class="empty">Máy chủ chưa mở nạp. Vui lòng quay lại sau.</div>';return}
-  drawNap(t,box)}
-async function drawHist(){const hist=await api('topup/history');$('#hist').innerHTML=hist.length?`<div class="tw"><table><thead><tr><th>Lúc</th><th>Cách</th><th>Số tiền</th><th>Trạng thái</th></tr></thead><tbody>${hist.map(h=>`<tr><td>${esc(h.created_at)}</td><td>${h.method==='bank'?'Chuyển khoản':esc(h.telco)}</td><td>${money(h.amount)}đ${h.status===1&&h.credited!==h.amount?`<div class="hint">nhận ${money(h.credited)}đ</div>`:''}</td><td><span class="tag s${[0,2,3][h.status]}">${TOP_STATUS[h.status]}</span>${h.note?`<div class="hint">${esc(h.note)}</div>`:''}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Chưa có giao dịch.</div>'}
-function drawNap(t,box){
-  const amounts=`<div class="f"><span>Mệnh giá</span><div class="amounts">${(napTab==='bank'&&t.bankAmounts||t.amounts).map(a=>`<button type="button" class="${a===napAmount?'on':''}" onclick="napAmount=${a};this.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===this))">${money(a)}đ</button>`).join('')}</div></div>`;
-  if(napTab==='bank'){
-    box.innerHTML=`<form id="bf">${amounts}<div class="f"><label for="ba">Hoặc nhập số tiền khác</label><input id="ba" type="number" min="10000" step="1000" placeholder="Tối thiểu 10.000đ"></div>
-      <button class="btn p" style="width:100%">Tạo mã QR chuyển khoản</button><p class="hint">Chuyển đúng số tiền và đúng nội dung, ban quản trị kiểm tra rồi cộng tiền (thường trong vài phút).</p></form><div id="qrbox"></div>`;
-    $('#bf').onsubmit=async e=>{e.preventDefault();const amount=Number($('#ba').value)||napAmount;
-      const r=await act(()=>api('topup/bank',{amount}));if(!r)return;
-      const qr=`https://img.vietqr.io/image/${encodeURIComponent(r.bank)}-${encodeURIComponent(r.account)}-compact2.png?amount=${r.amount}&addInfo=${encodeURIComponent(r.memo)}&accountName=${encodeURIComponent(r.owner||'')}`;
-      $('#qrbox').innerHTML=`<div class="qr" style="margin-top:18px"><img src="${esc(qr)}" alt="Mã QR chuyển khoản ${money(r.amount)}đ"><dl class="kv">
-        <dt>Ngân hàng</dt><dd>${esc(r.bank)}</dd><dt>Số tài khoản</dt><dd>${esc(r.account)} <button type="button" class="copy" data-c="${esc(r.account)}">Chép</button></dd>
-        <dt>Chủ tài khoản</dt><dd>${esc(r.owner||'')}</dd><dt>Số tiền</dt><dd style="color:var(--gold)">${money(r.amount)}đ</dd>
-        <dt>Nội dung</dt><dd style="color:var(--orange2)">${esc(r.memo)} <button type="button" class="copy" data-c="${esc(r.memo)}">Chép</button></dd></dl></div>`;
-      $('#qrbox').querySelectorAll('.copy').forEach(b=>b.onclick=()=>navigator.clipboard.writeText(b.dataset.c).then(()=>toast('Đã chép')));drawHist()}}
-  else{
-    box.innerHTML=`<form id="cf"><div class="f"><label for="ct">Nhà mạng</label><select id="ct">${t.telcos.map(x=>`<option>${x}</option>`).join('')}</select></div>${amounts}
-      <div class="f"><label for="cs">Số seri</label><input id="cs" inputmode="numeric" maxlength="20" required autocomplete="off"></div>
-      <div class="f"><label for="cc">Mã thẻ</label><input id="cc" inputmode="numeric" maxlength="20" required autocomplete="off"></div>
-      <button class="btn p" style="width:100%">Nạp thẻ</button><p class="hint">Chọn đúng mệnh giá, sai mệnh giá có thể mất thẻ.${t.cardRate<100?` Thẻ cào nhận ${t.cardRate}% mệnh giá.`:''}${t.cardAuto?'':' Thẻ được ban quản trị kiểm tra rồi cộng ngọc (thường trong vài phút).'}</p></form>`;
-    $('#cf').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;
-      const r=await act(()=>api('topup/card',{telco:$('#ct').value,amount:napAmount,serial:$('#cs').value,code:$('#cc').value}),'Đã gửi thẻ, đang chờ xử lý');b.disabled=false;
-      if(r){await loadMe();topup()}}}}
+  if(napMethod==='bank'&&!t.bank)napMethod='card';
+  const packs=napMethod==='card'?NAP_GEM.filter(p=>(t.amounts||[]).includes(p[0])):NAP_GEM;
+  if(napPack>=packs.length)napPack=0;
+  const sel=packs[napPack]||NAP_GEM[0];
+  $('#app').innerHTML=`<section class="store-heading"><span class="eyebrow">NGỌC RỒNG / NẠP NGỌC</span><h1>Tiếp sức hành trình.</h1><p>Chọn cách nạp và gói ngọc, ngọc được cộng thẳng vào nhân vật.</p></section>
+  ${me?`<div class="me-chips"><span>Tài khoản <b>${esc(me.username)}</b></span><span>Tổng đã nạp <b>${money(me.tongnap)}đ</b></span>${me.vnd>0?`<span>Số dư <b>${money(me.vnd)}đ</b></span>`:''}</div>`:''}
+  <div class="store-steps"><span class="current"><i>01</i> Cách nạp</span><b>—</b><span class="${me?'current':''}"><i>02</i> Gói ngọc</span><b>—</b><span><i>03</i> Thanh toán</span></div>
+  <div class="store-layout"><div class="store-form">
+    <section class="store-section"><div class="step-title"><span>01</span><div><h2>Nạp bằng cách nào?</h2><p>${t.bank||t.card?'Chuyển khoản QR được duyệt tự động; thẻ cào được kiểm tra rồi cộng ngọc.':'Máy chủ chưa mở nạp, vui lòng quay lại sau.'}</p></div></div>
+      <div class="pay-switch">${t.bank?`<button type="button" data-m="bank" class="${napMethod==='bank'?'on':''}">${ic('bank',18)} Chuyển khoản QR</button>`:''}${t.card?`<button type="button" data-m="card" class="${napMethod==='card'?'on':''}">${ic('card',18)} Thẻ cào</button>`:''}</div>
+      ${napMethod==='card'&&t.card?`<div class="form-grid" style="margin-top:16px"><label>Nhà mạng<select id="ct">${t.telcos.map(x=>`<option>${x}</option>`).join('')}</select></label><label>Số seri<input id="cs" inputmode="numeric" maxlength="20" autocomplete="off"></label></div><label>Mã thẻ<input id="cc" inputmode="numeric" maxlength="20" autocomplete="off"></label><p class="price-note" style="text-align:left">Chọn đúng mệnh giá thẻ ở bước 02, sai mệnh giá có thể mất thẻ.${t.cardRate<100?' Thẻ cào nhận '+t.cardRate+'% mệnh giá.':''}</p>`:''}</section>
+    <section class="store-section"><div class="step-title"><span>02</span><div><h2>Chọn gói ngọc</h2><p>Khuyến mãi nạp x3 tự áp dụng theo cột X3.</p></div></div>
+      <div class="gems luxury-gems">${packs.map((p,i)=>`<button type="button" class="gem ${i===napPack?'selected':''}" data-pk="${i}" aria-pressed="${i===napPack}"><span class="selection-tick" aria-hidden="true">${ic('check',12)}</span><span class="gem-art" aria-hidden="true">${ic('gem',34)}</span><strong>${money(p[1])} <small>ngọc</small></strong><span class="gem-x3">X3: ${money(p[2])} ngọc</span><span class="gem-price">${money(p[0])} <small>đ</small></span></button>`).join('')}</div>
+      <p class="price-note">Chuyển khoản số tiền khác được cộng theo các mệnh giá trên (30.000đ = 32 + 13 ngọc).</p></section>
+    <section class="store-help"><span>${ic('info',18)}</span><p>Cần trợ giúp? <a href="#/bao-loi">Gửi yêu cầu hỗ trợ ${ic('external',12)}</a><br>Chuyển khoản đúng số tiền và đúng nội dung để được cộng tự động.</p></section></div>
+  <aside class="order-column"><section class="order-card"><div class="order-top"><span class="eyebrow">LỰA CHỌN CỦA BẠN</span><h2>Chi tiết gói ngọc</h2><span class="order-mark">${ic('gem',60)}</span></div><div class="order-content">
+    <div class="order-gem"><span>${ic('gem',22)}</span><div><b>${money(sel[1])} ngọc</b><small>Khuyến mãi x3: ${money(sel[2])} ngọc</small></div></div>
+    <dl><div><dt>Tài khoản</dt><dd>${me?esc(me.username):'Chưa đăng nhập'}</dd></div><div><dt>Cách nạp</dt><dd>${napMethod==='bank'?'Chuyển khoản QR':'Thẻ cào'}</dd></div></dl>
+    <div class="order-total"><span>Tổng thanh toán</span><strong>${money(sel[0])} <small>đ</small></strong></div>
+    <button class="button order-submit" type="button" id="paygo" ${t.bank||t.card?'':'disabled'}>${!me?'Đăng nhập để nạp':napMethod==='bank'?'Tạo mã QR chuyển khoản':'Nạp thẻ'} <span>${ic('arrow',16)}</span></button>
+    <div id="qrbox"></div><p class="order-disclaimer">${napMethod==='bank'?'Chuyển đúng nội dung, ngọc được cộng sau vài giây.':'Thẻ được kiểm tra rồi cộng ngọc, thường trong vài phút.'}</p></div></section>
+    <details class="store-faq"><summary>Bao lâu thì nhận được ngọc?</summary><p>Chuyển khoản đúng số tiền và nội dung: vài giây. Thẻ cào: sau khi thẻ được kiểm tra. Đang online sẽ thấy thông báo "Bạn đã nạp … ngọc vào tài khoản", đang offline thì nhận khi vào game.</p></details>
+    <details class="store-faq"><summary>Chuyển sai nội dung thì sao?</summary><p>Tiền vẫn được ghi nhận nhưng không tự cộng. Hãy gửi Báo lỗi kèm ảnh giao dịch để ban quản trị kiểm tra.</p></details></aside></div>
+  <section class="store-section" style="margin-top:22px"><div class="step-title"><span>03</span><div><h2>Lịch sử nạp</h2><p>Các yêu cầu nạp gần đây của bạn.</p></div></div><div id="hist">${me?'<div class="loading">Đang tải…</div>':'<p class="muted" style="font-size:12px">Đăng nhập để xem lịch sử nạp.</p>'}</div></section>`;
+  document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{napMethod=b.dataset.m;gems()});
+  document.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{napPack=+b.dataset.pk;gems()});
+  $('#paygo').onclick=()=>{if(!me)return loginBox();napMethod==='bank'?payBank(sel[0]):payCard(sel[0])};
+  if(me)drawHist()}
+async function payBank(amount){
+  const r=await act(()=>api('topup/bank',{amount}));if(!r)return;
+  const qr=`https://img.vietqr.io/image/${encodeURIComponent(r.bank)}-${encodeURIComponent(r.account)}-compact2.png?amount=${r.amount}&addInfo=${encodeURIComponent(r.memo)}&accountName=${encodeURIComponent(r.owner||'')}`;
+  $('#qrbox').innerHTML=`<div class="qr-box"><img src="${esc(qr)}" alt="Mã QR chuyển khoản ${money(r.amount)}đ"><dl><div><dt>Ngân hàng</dt><dd>${esc(r.bank)}</dd></div><div><dt>Số tài khoản</dt><dd>${esc(r.account)}<button type="button" class="copy" data-c="${esc(r.account)}">Chép</button></dd></div><div><dt>Chủ tài khoản</dt><dd>${esc(r.owner||'')}</dd></div><div><dt>Số tiền</dt><dd>${money(r.amount)}đ</dd></div><div><dt>Nội dung</dt><dd>${esc(r.memo)}<button type="button" class="copy" data-c="${esc(r.memo)}">Chép</button></dd></div></dl></div>`;
+  $('#qrbox').querySelectorAll('.copy').forEach(b=>b.onclick=()=>navigator.clipboard.writeText(b.dataset.c).then(()=>toast('Đã chép')));drawHist()}
+async function payCard(amount){
+  const s=$('#cs').value.trim(),c=$('#cc').value.trim();if(!s||!c)return toast('Nhập số seri và mã thẻ',1);
+  const b=$('#paygo');b.disabled=true;const r=await act(()=>api('topup/card',{telco:$('#ct').value,amount,serial:s,code:c}),'Đã gửi thẻ, đang chờ xử lý');b.disabled=false;
+  if(r){await loadMe();gems()}}
+async function drawHist(){const h=await api('topup/history').catch(()=>[]);$('#hist').innerHTML=h.length?`<table class="hist"><thead><tr><th>Lúc</th><th>Cách</th><th>Số tiền</th><th>Trạng thái</th></tr></thead><tbody>${h.map(x=>`<tr><td>${esc(x.created_at)}</td><td>${x.method==='bank'?'Chuyển khoản':esc(x.telco)}</td><td>${money(x.amount)}đ</td><td><span class="st s${[0,2,3][x.status]}">${TOP_STATUS[x.status]}</span>${x.note?`<small>${esc(x.note)}</small>`:''}</td></tr>`).join('')}</tbody></table>`:'<p class="muted" style="font-size:12px">Chưa có giao dịch.</p>'}
 
 /* ---------- khởi động ---------- */
-(async()=>{
-  try{info=await api('status');document.title=info.name+' · Ngọc Rồng Online';$('#sv-name').innerHTML='Ngọc Rồng <b>'+esc(info.name)+'</b>';$('#ft-name').textContent=info.name}catch(e){}
+$('#dialog .close').onclick=()=>$('#dialog').close();
+$('#dialog').addEventListener('click',e=>{if(e.target===$('#dialog'))$('#dialog').close()});
+(async()=>{try{const s=await getInfo();document.title=s.name+' · Ngọc Rồng Online';document.querySelectorAll('.sv-name').forEach(e=>e.textContent=s.name)}catch(e){}
   await loadMe();route()})();
+
 </script>
 </body>
 </html>

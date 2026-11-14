@@ -307,14 +307,16 @@ public class WebServer {
         m.put("name", serverName);
         m.put("online", Client.gI().getPlayers().size());
         m.put("accounts", PanelApi.rows("select count(*) n from account").get(0).get("n"));
-        m.put("download", Map.of("apk", conf("web.download.apk"), "pc", conf("web.download.pc"), "ios", conf("web.download.ios")));
+        m.put("download", Map.of("apk", conf("web.download.apk"), "pc", conf("web.download.pc"), "ios", conf("web.download.ios"),
+                "jar", conf("web.download.jar"), "play", conf("web.download.play")));
         List<Map<String, Object>> events = new ArrayList<>();
         for (SeasonEventService.Season e : SeasonEventService.gI().activeSeasons()) {
             events.add(Map.of("name", e.name, "description", e.description == null ? "" : e.description, "end", e.end == null ? "" : e.end.toString()));
         }
         m.put("events", events);
         m.put("top", topPower());
-        m.put("news", PanelApi.rows("select id, kind, title, author, replies, date_format(created_at, '%d/%m/%Y') created_at from web_post "
+        m.put("news", PanelApi.rows("select id, kind, title, author, replies, pinned, left(content, 160) excerpt, "
+                + "coalesce((select is_admin from account where account.id = web_post.account_id), 0) is_admin, date_format(created_at, '%d/%m/%Y') created_at from web_post "
                 + "where kind = 'forum' order by pinned desc, id desc limit 6"));
         statusCache = m;
         statusAt = System.currentTimeMillis();
@@ -390,12 +392,32 @@ public class WebServer {
         }
         int size = 15, page = Math.max(1, intv(q.getOrDefault("page", "1")));
         String where = kind.equals("forum") ? "kind = 'forum'" : "kind = ? and account_id = " + s.accountId;
-        Object[] args = kind.equals("forum") ? new Object[0] : new Object[]{kind};
+        List<Object> argl = new ArrayList<>();
+        if (!kind.equals("forum")) {
+            argl.add(kind);
+        }
+        String f = str(q.get("f")), kw = str(q.get("q")).trim();
+        if (kind.equals("forum") && f.equals("admin")) { // bài của ban quản trị
+            where += " and account_id in (select id from account where is_admin = 1)";
+        } else if (kind.equals("forum") && f.equals("mine")) {
+            if (s == null) {
+                throw new ApiError(401, "Đăng nhập để xem bài của bạn");
+            }
+            where += " and account_id = " + s.accountId;
+        }
+        if (!kw.isEmpty()) {
+            String like = "%" + kw.replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
+            where += " and (title like ? escape '!' or content like ? escape '!')";
+            argl.add(like);
+            argl.add(like);
+        }
+        Object[] args = argl.toArray();
         long total = ((Number) PanelApi.rows("select count(*) n from web_post where " + where, args).get(0).get("n")).longValue();
         List<Object> a = new ArrayList<>(List.of(args));
         a.add(size);
         a.add((page - 1) * size);
-        List<Map<String, Object>> rows = PanelApi.rows("select id, title, author, target, status, pinned, replies, date_format(created_at, '%d/%m/%Y %H:%i') created_at, "
+        List<Map<String, Object>> rows = PanelApi.rows("select id, title, author, target, status, pinned, replies, left(content, 240) excerpt, "
+                + "coalesce((select is_admin from account where account.id = web_post.account_id), 0) is_admin, date_format(created_at, '%d/%m/%Y %H:%i') created_at, "
                 + "date_format(updated_at, '%d/%m/%Y %H:%i') updated_at from web_post where " + where + " order by pinned desc, updated_at desc limit ? offset ?", a.toArray());
         return Map.of("rows", rows, "page", page, "pages", Math.max(1, (total + size - 1) / size), "total", total);
     }

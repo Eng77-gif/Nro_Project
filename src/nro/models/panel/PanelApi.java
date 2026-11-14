@@ -2131,7 +2131,7 @@ public class PanelApi {
 
     private static final List<String> EDITABLE = List.of("server.name", "server.expserver", "server.maxplayer", "server.maxperip", "server.waitlogin",
             "panel.port", "panel.host", "panel.user", "panel.pass", "panel.enable", "admin.xuyengiap", "event.active",
-            "web.download.apk", "web.download.pc", "web.download.ios", "web.bank.code", "web.bank.account", "web.bank.owner",
+            "web.download.apk", "web.download.pc", "web.download.ios", "web.download.jar", "web.download.play", "web.bank.code", "web.bank.account", "web.bank.owner",
             "web.sepay.apikey", "web.card.url", "web.card.partner_id", "web.card.partner_key", "web.card.rate");
 
     private static boolean secret(String k) {

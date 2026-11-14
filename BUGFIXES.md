@@ -2210,3 +2210,17 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - `setPos0` bỏ qua nhân vật null / đã huỷ.
 - **Webhook SePay qua Cloudflare:** Worker và Pages chuyển tiếp thêm `/callback/*` (SePay, cổng thẻ cào) về server game, kèm header `Authorization` (SePay gửi `Apikey <key>`). Không có tên miền riêng thì dùng `https://nro-web.dov77471.workers.dev/callback/sepay`. Hướng dẫn SePay cập nhật: dán API key ở panel > Cấu hình, có hiệu lực ngay.
 - Đã thử: webhook sai key trả 401; đúng key, không có mã NAP thì trả 200 và lưu giao dịch. Worker đã đưa lên Cloudflare.
+
+### Đợt 140: trang web người chơi bố trí đúng theo bản mẫu (file zip anh gửi)
+- `data/web/index.html` dựng lại theo cấu trúc bản mẫu: dùng nguyên CSS của bản mẫu, cùng thanh đầu trang, cùng bố cục từng trang. Toàn bộ chức năng thật giữ nguyên.
+  - **Đầu trang:** 4 mục Trang chủ / Giới thiệu / Diễn đàn / Nạp ngọc, kèm nút Đăng nhập / tên tài khoản + Thoát.
+  - **Trang chủ:** ảnh lớn lễ hội (số người online), 4 lối tắt, "Bảng tin cộng đồng" lọc Tất cả / Thông báo / Sự kiện / Thảo luận (sự kiện đang chạy + bài diễn đàn mới), thẻ "Mới đến Ngọc Rồng?" có ảnh động, "Cùng xây dựng cộng đồng", "Đồng đội đang chờ bạn".
+  - **Giới thiệu:** hàng nút tải game (Java, Android, Google Play, Máy tính, iPhone; chỉ hiện nút đã có link), Nạp ngọc; giới thiệu 3 hành tinh kèm 3 ảnh động; luật chơi.
+  - **Diễn đàn:** khung "Nơi chiến binh hội tụ." + Viết bài mới, tab Diễn đàn / Báo lỗi / Tố cáo / Góp ý, cột trái (Góc chiến binh, Khám phá: Tất cả / Từ ban quản trị / Sự kiện / Bài viết của tôi), ô tìm kiếm, thẻ bài viết có tác giả, nhãn ADMIN, đoạn trích, số bình luận. Có phân trang.
+  - **Báo lỗi / Tố cáo / Góp ý:** chưa đăng nhập hiện khung "Đăng nhập để tiếp tục" như bản mẫu; đã đăng nhập hiện biểu mẫu thật + danh sách phiếu của mình và trạng thái.
+  - **Nạp ngọc:** "Tiếp sức hành trình.", bước 01 cách nạp (Chuyển khoản QR / Thẻ cào, thẻ cào có nhà mạng, seri, mã thẻ), bước 02 chọn gói ngọc theo bảng giá (kèm số ngọc X3), thẻ "Chi tiết gói ngọc" bên phải với nút Tạo mã QR / Nạp thẻ (mã QR hiện ngay trong thẻ), lịch sử nạp, câu hỏi thường gặp.
+- **Server:**
+  - `posts` thêm lọc `f=admin|mine`, tìm `q` (tiêu đề / nội dung), trả `excerpt`, `is_admin`. Bảng tin trang chủ trả thêm `excerpt`, `pinned`, `is_admin`.
+  - Thêm cấu hình `web.download.jar`, `web.download.play` (panel > Cấu hình sửa được).
+- Thêm ảnh của bản mẫu vào `data/web/assets`: gif_maphongba, gif_gif_Saiyain, gif_supber_kame, ip, play.
+- Đã thử: 6 trang × máy tính / điện thoại (390px), có đăng nhập và không, không lỗi JS, không tràn ngang; lọc / tìm diễn đàn qua API.
