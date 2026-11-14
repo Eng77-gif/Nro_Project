@@ -66,6 +66,36 @@ public class WebServer {
         return "true".equalsIgnoreCase(gI().conf("web.nap.x3"));
     }
 
+    /** Panel > Gửi thử webhook: gọi đúng link webhook công khai (web.public.url, vd Worker Cloudflare) như SePay. */
+    public static Map<String, Object> testSepay() {
+        String base = gI().conf("web.public.url").replaceAll("/+$", ""), key = gI().conf("web.sepay.apikey");
+        Map<String, Object> r = new LinkedHashMap<>();
+        r.put("url", base.isEmpty() ? "" : base + "/callback/sepay");
+        if (base.isEmpty()) {
+            r.put("ok", false);
+            r.put("message", "Chưa điền web.public.url (link trang web, vd https://nro-web.dov77471.workers.dev) ở panel > Cấu hình");
+            return r;
+        }
+        if (key.isEmpty()) {
+            r.put("ok", false);
+            r.put("message", "Chưa điền web.sepay.apikey ở panel > Cấu hình");
+            return r;
+        }
+        try {
+            HttpResponse<String> res = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build().send(HttpRequest.newBuilder(URI.create(base + "/callback/sepay"))
+                    .timeout(Duration.ofSeconds(20)).header("Content-Type", "application/json").header("Authorization", "Apikey " + key)
+                    .POST(HttpRequest.BodyPublishers.ofString("{\"test\":true}")).build(), HttpResponse.BodyHandlers.ofString());
+            boolean ok = res.statusCode() == 200 && res.body().contains("OK");
+            r.put("ok", ok);
+            r.put("message", ok ? "Webhook thông suốt: từ " + base + " về tới server, API Key đúng. Điền đúng link này ở SePay."
+                    : "Gọi được nhưng lỗi HTTP " + res.statusCode() + ": " + (res.body().length() > 200 ? res.body().substring(0, 200) : res.body()));
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Không gọi được " + base + ": " + e.getMessage());
+        }
+        return r;
+    }
+
     public static WebServer gI() {
         if (instance == null) {
             instance = new WebServer();
@@ -632,17 +662,39 @@ public class WebServer {
      * tiền vào có nội dung "NAP<mã>" thì tự duyệt yêu cầu nạp chuyển khoản đó theo số tiền thật nhận được. Mọi giao dịch được lưu ở
      * web_bank_txn theo mã giao dịch SePay để gửi lại nhiều lần cũng chỉ cộng 1 lần; giao dịch không khớp để admin xem trên panel.
      */
+    /** 30 lần gọi webhook SePay gần nhất (cả lần bị từ chối) để xem trên panel. */
+    public static final java.util.Deque<Map<String, Object>> SEPAY_LOG = new java.util.concurrent.ConcurrentLinkedDeque<>();
+
+    private static void hookLog(int code, String msg) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("time", java.time.LocalDateTime.now().withNano(0).toString().replace('T', ' '));
+        m.put("code", code);
+        m.put("message", msg);
+        SEPAY_LOG.addFirst(m);
+        while (SEPAY_LOG.size() > 30) {
+            SEPAY_LOG.pollLast();
+        }
+    }
+
     private void sepayCallback(HttpExchange ex) throws Exception {
         String key = conf("web.sepay.apikey"), auth = Objects.toString(ex.getRequestHeaders().getFirst("Authorization"), "").trim();
         String given = auth.toLowerCase().startsWith("apikey ") ? auth.substring(7).trim() : auth;
         if (key.isEmpty() || !"POST".equals(ex.getRequestMethod())
                 || !MessageDigest.isEqual(key.getBytes(StandardCharsets.UTF_8), given.getBytes(StandardCharsets.UTF_8))) {
+            hookLog(401, key.isEmpty() ? "Từ chối: chưa điền web.sepay.apikey (panel > Cấu hình)"
+                    : auth.isEmpty() ? "Từ chối: không có header Authorization (SePay chưa chọn chứng thực API Key?)" : "Từ chối: sai API Key (khác web.sepay.apikey)");
             send(ex, 401, Map.of("success", false, "message", "sai API key"));
             return;
         }
         Map<String, Object> t = GSON.fromJson(new String(ex.getRequestBody().readNBytes(32_000), StandardCharsets.UTF_8), new TypeToken<Map<String, Object>>() {
         }.getType());
+        if (t != null && Boolean.TRUE.equals(t.get("test"))) { // panel > Gửi thử webhook: đi đúng đường SePay, không ghi giao dịch
+            hookLog(200, "Thử webhook từ panel: tới nơi, API Key đúng");
+            send(ex, 200, Map.of("success", true, "message", "OK"));
+            return;
+        }
         if (t == null || t.get("id") == null) {
+            hookLog(400, "Thiếu dữ liệu giao dịch");
             send(ex, 400, Map.of("success", false, "message", "thiếu dữ liệu"));
             return;
         }
@@ -658,6 +710,7 @@ public class WebServer {
             if (dup.getErrorCode() != 1062 && !(dup instanceof java.sql.SQLIntegrityConstraintViolationException)) {
                 throw dup;
             }
+            hookLog(200, "Giao dịch " + txId + " đã xử lý trước đó (SePay gửi lại)");
             send(ex, 200, Map.of("success", true, "message", "đã xử lý trước đó")); // SePay gửi lại giao dịch đã nhận
             return;
         }
@@ -679,6 +732,7 @@ public class WebServer {
             result = "Giao dịch tiền ra";
         }
         PanelApi.update("update web_bank_txn set result = ? where sepay_id = ?", result, txId);
+        hookLog(200, "Giao dịch " + txId + " (" + amount + "đ): " + result);
         send(ex, 200, Map.of("success", true, "message", result));
     }
 

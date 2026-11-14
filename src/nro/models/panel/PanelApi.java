@@ -252,6 +252,8 @@ public class PanelApi {
                     "from web_bank_txn where (content like ? escape '!' or ifnull(reference_code,'') like ? escape '!')" + ("1".equals(q.get("unmatched")) ? " and topup_id is null" : ""),
                     "id desc", like(q), like(q));
             case "web/topup/approve" -> webTopupApprove(b);
+            case "web/sepay/log" -> Map.of("log", new ArrayList<>(nro.models.web.WebServer.SEPAY_LOG));
+            case "web/sepay/test" -> nro.models.web.WebServer.testSepay();
             case "web/napx3" -> { // bật / tắt khuyến mãi nạp x3 (lưu web.nap.x3, có hiệu lực ngay)
                 if ("POST".equals(method)) {
                     configSave(Map.of("values", Map.of("web.nap.x3", lng(b.getOrDefault("on", 0)) != 0 ? "true" : "false")));
@@ -2138,7 +2140,7 @@ public class PanelApi {
     private static final List<String> EDITABLE = List.of("server.name", "server.expserver", "server.maxplayer", "server.maxperip", "server.waitlogin",
             "panel.port", "panel.host", "panel.user", "panel.pass", "panel.enable", "admin.xuyengiap", "event.active",
             "web.download.apk", "web.download.pc", "web.download.ios", "web.download.jar", "web.download.play", "web.bank.code", "web.bank.account", "web.bank.owner",
-            "web.sepay.apikey", "web.card.url", "web.card.partner_id", "web.card.partner_key", "web.card.rate", "web.nap.x3");
+            "web.sepay.apikey", "web.card.url", "web.card.partner_id", "web.card.partner_key", "web.card.rate", "web.nap.x3", "web.public.url");
 
     private static boolean secret(String k) {
         return k.contains("pass") || k.endsWith("key") || k.endsWith("apikey");

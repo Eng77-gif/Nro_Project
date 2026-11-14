@@ -2242,3 +2242,12 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Không còn việc nào được phép thì bot về nhà (map 21 - 23 theo hành tinh), đứng yên, không đánh quái (`stayHome`, mode -1). Có quyền "life" / "gear" thì hoạt động là "Mở hộp quà, ép sao" (ở nhà vẫn mở hộp, ép sao, sắm đồ mỗi 15 giây), không thì "Nghỉ ở nhà".
   - Đổi quyền trên panel (bật/tắt, mẫu cài sẵn, quyền riêng, khung giờ / giới hạn) thì lượt kế mọi bot chọn lại việc ngay (`KICK`). Bot mới vào game chọn việc sau 5 - 30 giây thay vì 2 - 7 phút.
 - Đã thử (7 bot): chỉ bật "life" thì 30 giây sau cả 7 bot "Mở hộp quà, ép sao"; tắt nốt thì "Nghỉ ở nhà"; bật hết thì về Luyện tập / Làm nhiệm vụ.
+
+### Đợt 140d: kiểm tra webhook SePay ngay trên panel
+- Webhook SePay đi SePay → link trang web (Cloudflare Worker) → VPS:8080 → server. Trước đây webhook bị từ chối (chưa điền key / sai key / thiếu header) hoặc không tới nơi đều không để lại dấu vết.
+- Panel > Nạp qua web có mục **Webhook SePay**:
+  - Nút **Gửi thử webhook**: server tự gọi `web.public.url` + `/callback/sepay` kèm `Authorization: Apikey <web.sepay.apikey>`, đi đúng đường SePay gọi, rồi báo thông hay đứt và lý do. Gói thử có `"test": true`, không ghi giao dịch.
+  - Hiện đúng link cần điền ở SePay.
+  - **Nhật ký 30 lần gọi gần nhất** (cả lần bị từ chối): chưa điền web.sepay.apikey / không có header Authorization / sai API Key / kết quả từng giao dịch.
+- Thêm cấu hình `web.public.url` (link trang web công khai, sửa ở panel > Cấu hình).
+- Đã thử: chưa điền link thì báo chưa điền; điền đúng thì "Webhook thông suốt"; gọi thiếu header / sai key thì nhật ký ghi đúng lý do. Worker trên Cloudflare đã có chuyển tiếp `/callback/` kèm header Authorization.
