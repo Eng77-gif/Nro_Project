@@ -66,8 +66,7 @@ public class BotQuest {
                 openIntrinsic(b);
                 if (BotWorld.allow(b, "life")) {
                     BotEndgame.step(b);
-                    if ("Mở hộp quà, ép sao".equals(b.activity) && now - b.lastShopTop > 10 * 60_000L) {
-                        b.lastShopTop = now; // đứng ở Đảo Kamê: mua hộp đua top sự kiện rồi mở dần
+                    if ("Mở hộp quà, ép sao".equals(b.activity)) { // đứng ở Đảo Kamê: đủ ngọc / vàng là mua hộp đua top (botBuyTopItems tự kiểm tra tiền, chỗ trống)
                         nro.models.services.SeasonEventService.gI().botBuyTopItems(b);
                     }
                 }
