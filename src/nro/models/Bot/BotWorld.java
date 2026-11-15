@@ -1050,9 +1050,10 @@ public final class BotWorld {
             return; // sắp hết ngọc: làm nhiệm vụ hằng ngày Bò Mộng trước (thưởng ngọc)
         }
         if (allow(b, "quest") && b.accountBot && b.playerTask != null && b.playerTask.taskMain != null
-                && (b.playerTask.taskMain.id <= 10 || BotQuest.gI().pending(b))) {
+                && (b.playerTask.taskMain.id <= 10 || BotQuest.gI().pending(b) || !allowAction(b, BotBrain.TRAIN))) {
             if (!"Làm nhiệm vụ".equals(b.activity)) {
-                train(b); // ưu tiên nhiệm vụ (BotQuest dẫn đi); chỉ khi bước nhiệm vụ cần sức mạnh / quá sức mới đi việc khác
+                train(b); // ưu tiên nhiệm vụ (BotQuest dẫn đi); bước cần sức mạnh thì đánh quái lên sức mạnh cho nhiệm vụ
+                b.activity = "Làm nhiệm vụ";
             }
             return;
         }
@@ -1335,7 +1336,7 @@ public final class BotWorld {
         b.boss.prefer = null;
         b.setMode(-1); // không đánh quái / boss
         b.stayMap = true;
-        boolean life = allow(b, "life") || allow(b, "gear");
+        boolean life = allow(b, "life") || allow(b, "gear") || allow(b, "shoptop");
         b.activity = life ? "Mở hộp quà, ép sao" : "Nghỉ ở nhà";
         // mở hộp / ép sao / mua hộp đua top: ra Đảo Kamê đứng cạnh Bà Hạt Mít như người chơi; không thì về nhà
         nro.models.map.Map m = nro.models.map.service.MapService.gI().getMapById(life ? 5 : 21 + Math.max(0, Math.min(2, b.gender)));

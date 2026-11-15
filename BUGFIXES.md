@@ -2267,3 +2267,15 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Thêm quyền **"Nhiệm vụ hằng ngày (Bò Mộng, thưởng ngọc)"** vào panel > Bot (mẫu Chỉ cày, Săn boss có sẵn).
 - `TaskService`: bảng quái của 58 mẫu nhiệm vụ gom thành `SIDE_TASK_MOB` (thay chuỗi 58 điều kiện), dùng chung cho người chơi và bot; kết quả đếm như cũ.
 - Đã thử: hạ ngọc 5 bot về 0 thì 3 bot chuyển "Nhiệm vụ hằng ngày" (đúng map có quái cần đánh); kamevn làm xong nhận thưởng (4.033 → 4.142 ngọc).
+
+### Đợt 140f: sửa 3 quyền bot "không có tác dụng"
+- **Mua hộp đua top** (chỉ bật quyền này): trước đây bot về nhà đứng. Nay bot ra Đảo Kamê (như chế độ mở hộp), đủ ngọc / vàng là mua hộp đua top, mua xong mở luôn (tối đa 10 hộp mỗi 15 giây). Cần đang có đua top sự kiện.
+- **Làm nhiệm vụ** (tắt Luyện tập): trước đây bot hiện "Luyện tập". Hai nguyên nhân:
+  - Nhánh nhiệm vụ chỉ chạy khi bước nhiệm vụ làm được ngay.
+  - BotQuest ghi "Luyện tập" ở các bước cần lên sức mạnh.
+  - Nay tắt Luyện tập mà bật Làm nhiệm vụ thì bot luôn theo nhiệm vụ chính; bước cần sức mạnh vẫn đánh quái để lên, nhưng ghi đúng "Làm nhiệm vụ".
+- **Săn đệ (Broly)**: trước đây hạ Broly xong bot bỏ đi. Hai nguyên nhân:
+  - Super Broly chưa kịp hiện thì bot không thấy boss nào nên về luyện tập.
+  - Super Broly máu 15 tỷ bị bộ lọc "boss quá sức" (máu > sát thương × 500) loại.
+  - Nay hạ Broly xong bot đứng chờ Super Broly tại chỗ tối đa 2 phút. Khi đi săn đệ, Broly / Super Broly không bị loại vì máu dày (vẫn giữ điều kiện boss không đánh chết bot quá nhanh).
+- Đã thử (7 bot): chỉ bật Làm nhiệm vụ thì cả 7 "Làm nhiệm vụ"; chỉ bật Mua hộp đua top thì cả 7 ra Đảo Kamê. Máy thử không có Broly / đua top đang chạy nên chưa thấy cảnh hạ Super Broly và mua hộp thật.

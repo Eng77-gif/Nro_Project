@@ -66,9 +66,12 @@ public class BotQuest {
                 openIntrinsic(b);
                 if (BotWorld.allow(b, "life")) {
                     BotEndgame.step(b);
-                    if ("Mở hộp quà, ép sao".equals(b.activity)) { // đứng ở Đảo Kamê: đủ ngọc / vàng là mua hộp đua top (botBuyTopItems tự kiểm tra tiền, chỗ trống)
+                }
+                if ("Mở hộp quà, ép sao".equals(b.activity)) { // đứng ở Đảo Kamê: đủ ngọc / vàng là mua hộp đua top (botBuyTopItems tự kiểm tra tiền, chỗ trống), mở ngay
+                    if (BotWorld.allow(b, "shoptop")) {
                         nro.models.services.SeasonEventService.gI().botBuyTopItems(b);
                     }
+                    BotEndgame.openBoxes(b, 10);
                 }
                 BotEndgame.worldChat(b); // quyền Chat kiểm ở ChatGlobalService
                 BotWorld.gI().dailyTick(b);
@@ -86,6 +89,11 @@ public class BotQuest {
     }
 
     // ------------------------------------------------------------------ nhiệm vụ
+    /** Bước nhiệm vụ cần lên sức mạnh / đang chờ: tắt Luyện tập trên panel thì vẫn ghi là đang làm nhiệm vụ (đánh quái cho nhiệm vụ). */
+    private static String trainLabel(Bot b) {
+        return BotWorld.allow(b, "train") ? "Luyện tập" : "Làm nhiệm vụ";
+    }
+
     private void quest(Bot b) {
         b.questMap = -1;
         b.questMob = -1;
@@ -103,7 +111,7 @@ public class BotQuest {
         }
         long age = now - sk[1];
         if (age > 30 * 60_000L && age % (60 * 60_000L) > 30 * 60_000L) {
-            b.activity = "Luyện tập"; // kẹt bước này quá 30 phút: chơi bình thường 30 phút rồi thử lại
+            b.activity = trainLabel(b); // kẹt bước này quá 30 phút: chơi bình thường 30 phút rồi thử lại
             actionable.put(b.id, false);
             return;
         }
@@ -113,14 +121,14 @@ public class BotQuest {
         }
         if (tm.id == 17 && tm.index == 1) { // nhiệm vụ thử thách: đấu giải đại hội võ thuật (Nhi đồng, Siêu cấp, Ngoại hạng) như người chơi
             if (!BotArena.startDhvt(b)) {
-                b.activity = "Luyện tập"; // chưa tới giờ đăng ký / chưa đủ ngọc: luyện tiếp rồi thử lại
+                b.activity = trainLabel(b); // chưa tới giờ đăng ký / chưa đủ ngọc: luyện tiếp rồi thử lại
                 actionable.put(b.id, false);
             }
             return;
         }
         if (tm.id == 18 && tm.index >= 7 && tm.index <= 9) { // nhiệm vụ cam go: dùng mảnh giấy, hạ đệ tử Ma Vương và Pôcôlô
             if (!BotArena.startMaVuong(b)) {
-                b.activity = "Luyện tập";
+                b.activity = trainLabel(b);
                 actionable.put(b.id, false);
             }
             return;
@@ -154,7 +162,7 @@ public class BotQuest {
         int mobMap = mobId < 0 ? -1 : mobMap(b, mobId);
         int target = mobMap >= 0 ? mobMap : map;
         if (target >= 0 && !b.strongEnough(target)) { // quái map nhiệm vụ quá mạnh: luyện thêm ở map hợp sức rồi mới tới
-            b.activity = "Luyện tập";
+            b.activity = trainLabel(b);
             actionable.put(b.id, false);
             if (!b.strongEnough(b.zone.map.mapId)) {
                 b.joinMap();
@@ -199,7 +207,7 @@ public class BotQuest {
             }
             return;
         }
-        b.activity = "Luyện tập"; // đạt sức mạnh, dùng tiềm năng, vào bang...: cứ chơi bình thường
+        b.activity = trainLabel(b); // đạt sức mạnh, dùng tiềm năng, vào bang...: cứ chơi bình thường
         actionable.put(b.id, false);
     }
 
