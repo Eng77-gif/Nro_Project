@@ -2333,3 +2333,7 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## Đồ thần linh rơi ở Ngục tù và Hành tinh thực vật
 - Trước chỉ Cold rơi đồ thần linh (1/50.000). Nay Ngục tù (155, Ngục tù may mắn) và Hành tinh thực vật (160-163) cùng tỉ lệ. Mảnh thiên sứ + Bí kíp tuyệt kỹ ở Ngục tù giữ nguyên (nguồn duy nhất cho Whis).
+
+## Bí kíp tuyệt kỹ rơi mọi map khi đủ 40 tỉ sức mạnh
+- Trước chỉ rơi ở Ngục tù, ai cũng nhặt được. Nay rơi mọi map nhưng chỉ khi sức mạnh (của sư phụ nếu đệ tử đánh) từ 40 tỉ; tỉ lệ giữ nguyên (10% x may mắn, đủ set hủy diệt 20%). Mô tả item 1229 cập nhật.
+- Mảnh áo/quần/giày/nhẫn/găng giữ nguyên: chỉ rơi ở Ngục tù khi mặc đủ 5 món hủy diệt.

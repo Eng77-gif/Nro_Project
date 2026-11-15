@@ -1097,8 +1097,11 @@ public class Mob {
                 list.add(new ItemMap(zone, Util.nextInt(1066, 1070), 1, x, yEnd, player.id));
             }
         }
-        if ((Util.isTrue((int) Math.round(10 * luckFactor(player)), 100) || (player.isActive() && player.setClothes.checkSetDes() && Util.isTrue(20, 100))) && MapService.gI().isMapNgucTu(mapid)) {
-            list.add(new ItemMap(zone, 1229, 1, x, yEnd, player.id));
+        // Bí kíp tuyệt kỹ: mọi map, chỉ khi sức mạnh từ 40 tỉ (đệ tử đánh thì tính theo sư phụ)
+        Player bkOwner = player.isPet ? ((Pet) player).master : player;
+        if (bkOwner != null && bkOwner.nPoint.power >= 40_000_000_000L
+                && (Util.isTrue((int) Math.round(10 * luckFactor(bkOwner)), 100) || (bkOwner.isActive() && bkOwner.setClothes.checkSetDes() && Util.isTrue(20, 100)))) {
+            list.add(new ItemMap(zone, 1229, 1, x, yEnd, bkOwner.id));
         }
 
         if ((Util.isTrue(10, 100) && MapService.gI().isMapNguHanhSon(mapid))) {

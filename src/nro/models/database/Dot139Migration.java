@@ -61,6 +61,7 @@ public class Dot139Migration {
             // mô tả đúng nguyên văn bản chính thức (ảnh shop Santa); tác dụng thật: Mob.skhLuckBoost / Mob.getItemMobReward / NPoint
             update(con, "update item_template set description = 'Trong vòng tối đa 30 phút +100% cơ hội rơi vật phẩm hiếm, +50% vàng từ quái' where id = 1635");
             update(con, "update item_template set description = 'Trong vòng tối đa 30 phút x2 sức mạnh và tiềm năng của đệ tử' where id = 1628");
+            update(con, "update item_template set description = 'Sức mạnh từ 40 tỉ rơi ở mọi map. Gặp Whis tại hành tinh Bill' where id = 1229");
             if (!exists(con, "select 1 from server_migration where name = 'dot141_only_halloween'")) {
                 // chỉ giữ sự kiện Halloween: tắt lịch tự chạy và bỏ bật tay của mọi sự kiện khác (dữ liệu giữ nguyên để mở lại sau)
                 update(con, "update season_event set enabled = 0 where id <> 7");
