@@ -2330,3 +2330,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## Giới hạn may mắn ở Ngục tù
 - Mob.luckFactor (chỉ dùng ở Ngục tù: vàng Ngục tù may mắn, đồ 1066-1070, item 1229) trước tăng thẳng (+500% may mắn = x6, rơi 60%/con). Nay tăng chậm dần như SKH: +100% → x1,67, +300% → x2,2, +500% → x2,43, không quá x3.
+
+## Đồ thần linh rơi ở Ngục tù và Hành tinh thực vật
+- Trước chỉ Cold rơi đồ thần linh (1/50.000). Nay Ngục tù (155, Ngục tù may mắn) và Hành tinh thực vật (160-163) cùng tỉ lệ. Mảnh thiên sứ + Bí kíp tuyệt kỹ ở Ngục tù giữ nguyên (nguồn duy nhất cho Whis).

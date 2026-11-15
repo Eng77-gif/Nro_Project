@@ -1026,7 +1026,8 @@ public class Mob {
         }
 
         //========================Đồ Thần + Thức Ăn========================
-        if (MapService.gI().isMapCold(mapid)) {
+        // đồ thần linh: Cold, Ngục tù, Hành tinh thực vật cùng tỉ lệ 1/50.000
+        if (MapService.gI().isMapCold(mapid) || MapService.gI().isMapNgucTu(mapid) || MapService.gI().isMapHanhTinhThucVat(mapid)) {
             if (player.isPet) {
                 player = ((Pet) player).master;
             }
