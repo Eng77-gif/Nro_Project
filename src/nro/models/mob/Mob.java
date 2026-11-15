@@ -241,7 +241,7 @@ public class Mob {
         for (int slot : new int[]{5, 7, 8, 9}) { // cải trang, pet, đeo lưng, ván bay
             full &= full && body.get(slot) != null && body.get(slot).isNotNullItem();
         }
-        return full ? 3 : 1.5;
+        return full ? 3 : 2; // +100% vật phẩm hiếm
     }
 
     public long getTiemNangForPlayer(Player pl, long dame) {
@@ -1122,6 +1122,13 @@ public class Mob {
 
         nro.models.services.SeasonEventService.gI().addMobDrops(list, player, zone, x, yEnd, this.tempId);
         nro.models.services.NguHanhSonService.gI().onMobKilled(player);
+        if (player.itemTime.isUseCoBonLa) { // cỏ bốn lá: +50% vàng từ quái
+            for (ItemMap it : list) {
+                if (it.itemTemplate != null && (it.itemTemplate.id == 76 || (it.itemTemplate.id >= 188 && it.itemTemplate.id <= 190))) {
+                    it.quantity = (int) Math.min(Integer.MAX_VALUE, it.quantity * 3L / 2);
+                }
+            }
+        }
         return list;
 
     }

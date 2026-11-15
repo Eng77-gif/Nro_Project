@@ -2319,3 +2319,7 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Thêm **giao việc cho các bot đang lọc** (`bot/jobs`, cả nhóm cùng lúc, có số phút) và "Trả tất cả về tự do".
   - Danh sách hiện "📌 Giao: ..." ở bot đang được giao việc; lọc trạng thái có thêm "Đang được giao việc".
 - Đã thử: giao Săn boss cho cả 7 bot, theo dõi 3 phút (6 lần) thì cả 7 vẫn "Săn boss"; trả về tự do bình thường. Trang Bot mới không lỗi JS.
+
+## Mô tả Cỏ bốn lá / Bùa x2 đệ tử đúng nguyên văn ảnh
+- 1635 Cỏ bốn lá: "Trong vòng tối đa 30 phút +100% cơ hội rơi vật phẩm hiếm, +50% vàng từ quái". Tác dụng sửa theo: SKH x2 (đủ CT/pet/đeo lưng/ván bay vẫn x3), vàng rơi từ quái +50%.
+- 1628 Bùa x2 tn,sm đệ tử: "Trong vòng tối đa 30 phút x2 sức mạnh và tiềm năng của đệ tử".
