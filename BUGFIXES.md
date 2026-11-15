@@ -2279,3 +2279,12 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Super Broly máu 15 tỷ bị bộ lọc "boss quá sức" (máu > sát thương × 500) loại.
   - Nay hạ Broly xong bot đứng chờ Super Broly tại chỗ tối đa 2 phút. Khi đi săn đệ, Broly / Super Broly không bị loại vì máu dày (vẫn giữ điều kiện boss không đánh chết bot quá nhanh).
 - Đã thử (7 bot): chỉ bật Làm nhiệm vụ thì cả 7 "Làm nhiệm vụ"; chỉ bật Mua hộp đua top thì cả 7 ra Đảo Kamê. Máy thử không có Broly / đua top đang chạy nên chưa thấy cảnh hạ Super Broly và mua hộp thật.
+
+### Đợt 140g: bot làm bước "Tiêu diệt boss" của nhiệm vụ chính (kẹt nhiệm vụ 21), nhiều bot cùng đánh Super Broly
+- **Kẹt nhiệm vụ 21:** NV 21 là "Tiêu diệt Kuku / Mập Đầu Đinh / Rambo" (người hạ boss mới được ghi). BotQuest không biết bước đánh boss nên cho bot luyện tập mãi.
+  - Nay bước "Tiêu diệt <tên boss>" (bỏ "cấp N" / "hoàn thiện", lấy tên trong ngoặc như "Số 2 (Android 19)") tìm boss cùng tên đang sống rồi đi săn đúng boss đó (`BotQuest.questBoss`).
+  - Boss chưa xuất hiện thì bot làm việc khác, 15 giây kiểm tra lại. Xong bước thì bot thôi chế độ săn boss.
+  - Áp dụng cho mọi nhiệm vụ đánh boss: 16, 21, 22, 23, 25 - 30.
+- **Nhiều bot cùng đánh Super Broly:** mỗi lượt BotWorld, Super Broly đang sống thì gọi thêm bot rảnh tới vây, tối đa 8 bot / 1 Super Broly (`rallySuperBroly`).
+  - Bot được gọi phải đang Luyện tập / Săn boss / Nghỉ ở nhà, có quyền Săn đệ, HP ≥ 2 triệu và sức đánh ≥ 80.000, tới được map, không đang được admin giao việc.
+- Đã thử: gọi Kuku trên panel thì bot đang NV 21.0 tự tới hạ Kuku, lên 21.1 rồi đi tìm Mập Đầu Đinh. Gọi Super Broly: 7 bot máy thử chưa đủ HP / sức đánh nên chưa ai được gọi, chưa xem được cảnh vây đánh thật.

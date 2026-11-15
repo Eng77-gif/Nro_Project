@@ -159,6 +159,22 @@ public class BotQuest {
         int mobId = tm.id == 8 && tm.index == 1 ? new int[]{11, 12, 10}[Math.max(0, Math.min(2, b.gender))] // ngọc 7 sao rơi từ quái mẹ (Mob: TASK_8_1)
                 : tm.id == 29 && tm.index == 1 ? 58 // capsule kì bí rơi từ Xên con (58 - 65) khi bật máy dò (BotEndgame.mayDo)
                 : mobId(st.name);
+        if (mobId < 0 && map < 0) { // "Tiêu diệt Kuku / Số 4 / Fide cấp 1...": đi săn đúng boss đó (người hạ boss mới được ghi nhiệm vụ)
+            nro.models.boss.Boss boss = questBoss(st.name);
+            if (boss != null) {
+                b.activity = "Làm nhiệm vụ";
+                if (b.getMode() != 2 || b.boss.prefer == null || !b.boss.prefer.equals(boss.name)) {
+                    b.boss.prefer = boss.name;
+                    b.boss.bossAttack = null;
+                    b.setMode(2);
+                }
+                return;
+            }
+        }
+        if (b.getMode() == 2) { // xong bước đánh boss: về đánh quái / đi tiếp
+            b.boss.prefer = null;
+            b.setMode(0);
+        }
         int mobMap = mobId < 0 ? -1 : mobMap(b, mobId);
         int target = mobMap >= 0 ? mobMap : map;
         if (target >= 0 && !b.strongEnough(target)) { // quái map nhiệm vụ quá mạnh: luyện thêm ở map hợp sức rồi mới tới
@@ -277,6 +293,30 @@ public class BotQuest {
     }
 
     /** Loại quái có tên dài nhất nằm trong tên bước nhiệm vụ ("Đánh 3 con khủng long mẹ" -> khủng long mẹ), -1 nếu không có. */
+    /** Boss đang sống ứng với bước "Tiêu diệt <tên boss>" (bỏ "cấp N", lấy tên trong ngoặc nếu có), null nếu chưa xuất hiện. */
+    static nro.models.boss.Boss questBoss(String step) {
+        String s = step == null ? "" : step.toLowerCase().trim();
+        for (String p : new String[]{"tiêu diệt ", "hạ "}) {
+            if (s.startsWith(p)) {
+                s = s.substring(p.length()).trim();
+            }
+        }
+        if (s.isEmpty() || Character.isDigit(s.charAt(0))) {
+            return null; // "Tiêu diệt 30 con heo": bước đánh quái
+        }
+        String inner = s.contains("(") && s.contains(")") ? s.substring(s.indexOf('(') + 1, s.indexOf(')')).trim() : "";
+        String head = s.replaceAll("\\(.*\\)", "").replaceAll("cấp \\d+|hoàn thiện", "").trim();
+        List<nro.models.boss.Boss> all = new java.util.ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
+        all.addAll(nro.models.boss.Boss_Manager.BrolyManager.gI().getBosses());
+        for (nro.models.boss.Boss x : all) {
+            String n = x == null || x.name == null ? "" : x.name.toLowerCase();
+            if (!n.isEmpty() && !x.isDie() && x.zone != null && (n.equals(head) || n.equals(inner) || (!head.isEmpty() && n.startsWith(head)))) {
+                return x;
+            }
+        }
+        return null;
+    }
+
     private static int mobId(String step) {
         if (step == null) {
             return -1;

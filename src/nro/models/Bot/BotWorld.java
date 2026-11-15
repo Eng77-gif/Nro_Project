@@ -510,6 +510,7 @@ public final class BotWorld {
         long now = System.currentTimeMillis();
         boolean kick = KICK; // vừa đổi quyền trên panel: mọi bot chọn lại việc ngay
         KICK = false;
+        rallySuperBroly();
         for (Bot b : bots()) {
             if (b.awayUntil > 0) {
                 if (now >= b.awayUntil) {
@@ -1253,6 +1254,38 @@ public final class BotWorld {
         b.questMob = -1;
         b.activity = "Úp SKH";
         b.joinMap();
+    }
+
+    /** Số bot tối đa cùng vây đánh 1 Super Broly (máu 15 tỷ, 1 bot đánh không xuể). */
+    static final int SUPER_BROLY_GANG = 8;
+
+    /** Super Broly đang sống: gọi thêm bot rảnh (luyện tập / săn boss / nghỉ) đủ sức tới cùng đánh. */
+    private void rallySuperBroly() {
+        for (nro.models.boss.Boss sb : new ArrayList<>(nro.models.boss.Boss_Manager.BrolyManager.gI().getBosses())) {
+            if (sb == null || sb.isDie() || sb.zone == null || sb.name == null || !sb.name.toLowerCase().contains("super")) {
+                continue;
+            }
+            int n = 0;
+            List<Bot> free = new ArrayList<>();
+            for (Bot b : bots()) {
+                if (b.getMode() == 2 && b.boss.prefer != null && sb.name.equals(b.boss.prefer)) {
+                    n++;
+                } else if (b.accountBot && b.zone != null && !b.isDie() && allow(b, "broly") && canBeatBroly(b) && b.canGo(sb.zone.map.mapId)
+                        && jobOf(b.id) == null && !BotArena.inArena(b) && !BotClan.inDungeon(b)
+                        && ("Luyện tập".equals(b.activity) || "Săn boss".equals(b.activity) || "Nghỉ ở nhà".equals(b.activity))) {
+                    free.add(b);
+                }
+            }
+            java.util.Collections.shuffle(free);
+            for (int i = 0; i < free.size() && n < SUPER_BROLY_GANG; i++, n++) {
+                Bot b = free.get(i);
+                b.boss.prefer = sb.name;
+                b.boss.bossAttack = null;
+                b.stayMap = false;
+                b.setMode(2);
+                b.activity = "Săn đệ (Broly)";
+            }
+        }
     }
 
     static final String DAILY = "Nhiệm vụ hằng ngày";
