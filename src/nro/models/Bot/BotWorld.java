@@ -121,7 +121,7 @@ public final class BotWorld {
     public static final String[][] PERMS = {
         {"train", "Luyện tập (đánh quái)"}, {"boss", "Săn boss"}, {"broly", "Săn đệ (đánh Broly)"}, {"nrsd", "Ngọc Rồng Sao Đen"},
         {"skh", "Úp set kích hoạt"}, {"pk", "PK người chơi"}, {"quest", "Làm nhiệm vụ"},
-        {"special", "Giải Siêu hạng / ĐHVT lần 23"}, {"endgame", "Hirudegarn, hút Kilis, up bông tai"},
+        {"daily", "Nhiệm vụ hằng ngày (Bò Mộng, thưởng ngọc)"}, {"special", "Giải Siêu hạng / ĐHVT lần 23"}, {"endgame", "Hirudegarn, hút Kilis, up bông tai"},
         {"upvang", "Úp vàng (Ngục tù may mắn)"}, {"shoptop", "Mua hộp đua top sự kiện"},
         {"trade", "Buôn bán: ký gửi, giao dịch với người chơi"}, {"clan", "Bang hội & doanh trại"}, {"chat", "Chat (bản đồ, thế giới)"},
         {"gear", "Sắm / mặc đồ, nâng chiêu đệ, chế đồ thiên sứ"}, {"life", "Ép sao, bông tai, đổi đệ, mở hộp quà"}, {"pickup", "Nhặt đồ dưới đất"}};
@@ -133,8 +133,8 @@ public final class BotWorld {
 
     static {
         PRESETS.put("Bật hết", null);
-        PRESETS.put("Chỉ cày", new String[]{"train", "quest", "skh", "upvang", "gear", "life", "pickup", "shoptop"});
-        PRESETS.put("Săn boss", new String[]{"train", "boss", "broly", "endgame", "gear", "life", "pickup"});
+        PRESETS.put("Chỉ cày", new String[]{"train", "quest", "daily", "skh", "upvang", "gear", "life", "pickup", "shoptop"});
+        PRESETS.put("Săn boss", new String[]{"train", "daily", "boss", "broly", "endgame", "gear", "life", "pickup"});
         PRESETS.put("Hiếu chiến", new String[]{"train", "pk", "nrsd", "clan", "special", "gear", "pickup", "chat"});
         PRESETS.put("Buôn bán & giao lưu", new String[]{"train", "quest", "trade", "clan", "chat", "gear"});
         PRESETS.put("Tắt hết (chỉ luyện tập)", new String[]{"train"});
@@ -1046,6 +1046,9 @@ public final class BotWorld {
                 return;
             }
         }
+        if (planDaily(b, true)) {
+            return; // sắp hết ngọc: làm nhiệm vụ hằng ngày Bò Mộng trước (thưởng ngọc)
+        }
         if (allow(b, "quest") && b.accountBot && b.playerTask != null && b.playerTask.taskMain != null
                 && (b.playerTask.taskMain.id <= 10 || BotQuest.gI().pending(b))) {
             if (!"Làm nhiệm vụ".equals(b.activity)) {
@@ -1054,6 +1057,9 @@ public final class BotWorld {
             return;
         }
         b.stayMap = false;
+        if (planDaily(b, false)) {
+            return;
+        }
         BotBrain.end(b); // chấm điểm việc vừa làm (bộ não tự học)
         if (b.accountBot && allow(b, "endgame") && BotEndgame.pickActivity(b)) {
             return; // Hirudegarn 22h, hút Kilis, up mảnh bông tai
@@ -1246,6 +1252,81 @@ public final class BotWorld {
         b.questMob = -1;
         b.activity = "Úp SKH";
         b.joinMap();
+    }
+
+    static final String DAILY = "Nhiệm vụ hằng ngày";
+
+    /**
+     * Nhiệm vụ hằng ngày Bò Mộng (thưởng ngọc): nhận theo sức mạnh, đi map có loại quái cần đánh, xong thì trả rồi nhận tiếp.
+     * urgent: chỉ làm khi sắp hết ngọc (< 50.000); không thì 1/3 số lần đổi việc.
+     */
+    boolean planDaily(Bot b, boolean urgent) {
+        if (!b.accountBot || !allow(b, "daily") || b.playerTask == null || b.playerTask.sideTask == null) {
+            return false;
+        }
+        nro.models.task.SideTask st = b.playerTask.sideTask;
+        st.renew();
+        if (st.template != null && st.isDone()) {
+            nro.models.services.TaskService.gI().paySideTask(b);
+            if (st.template != null) {
+                return false; // hành trang đầy, chưa trả được
+            }
+        }
+        if (st.template == null) {
+            if (st.leftTask <= 0 || !(b.inventory.gem < 50_000 || (!urgent && Util.isTrue(1, 3))) || !BotGear.reach(b, nro.models.consts.ConstNpc.BO_MONG)) {
+                return false;
+            }
+            long p = b.nPoint.power;
+            nro.models.services.TaskService.gI().changeSideTask(b, p >= 20_000_000_000L ? nro.models.consts.ConstTask.VERY_HARD
+                    : p >= 1_000_000_000L ? nro.models.consts.ConstTask.HARD : p >= 50_000_000L ? nro.models.consts.ConstTask.NORMAL : nro.models.consts.ConstTask.EASY);
+            if (st.template == null) {
+                return false;
+            }
+        }
+        int t = st.template.id, mob = t >= 0 && t < nro.models.services.TaskService.SIDE_TASK_MOB.length ? nro.models.services.TaskService.SIDE_TASK_MOB[t] : -1;
+        int map = mob < 0 ? -1 : dailyMap(b, mob);
+        if (map < 0) { // nhặt vàng / quái ở map chưa tới được: huỷ như người chơi rồi để lượt sau nhận nhiệm vụ khác
+            nro.models.services.TaskService.gI().removeSideTask(b);
+            return false;
+        }
+        endPk(b);
+        b.boss.prefer = null;
+        b.stayMap = false;
+        b.questMap = map;
+        b.questMob = mob;
+        b.setMode(0);
+        b.activity = DAILY;
+        if (b.zone == null || b.zone.map.mapId != map) {
+            b.joinMap();
+        }
+        return true;
+    }
+
+    /** Map bot tới được, đánh nổi, có loại quái mob. */
+    private static int dailyMap(Bot b, int mob) {
+        for (nro.models.map.Map m : Manager.MAPS) {
+            if (m.zones.isEmpty() || !b.canGo(m.mapId) || !b.strongEnough(m.mapId)) {
+                continue;
+            }
+            for (nro.models.mob.Mob x : m.zones.get(0).mobs) {
+                if (x.tempId == mob) {
+                    return m.mapId;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /** Gọi mỗi lượt BotQuest (15 giây): làm xong nhiệm vụ hằng ngày thì trả và nhận tiếp ngay. */
+    void dailyTick(Bot b) {
+        if (DAILY.equals(b.activity) && b.playerTask != null && b.playerTask.sideTask.template != null && b.playerTask.sideTask.isDone()) {
+            if (!planDaily(b, false) && !DAILY.equals(b.activity)) {
+                return;
+            }
+            if (b.playerTask.sideTask.template == null) {
+                train(b); // hết lượt / chưa nhận được: về luyện tập, lần đổi việc sau chọn lại
+            }
+        }
     }
 
     /** Không còn việc nào được phép: về nhà đứng; có quyền "life" / "gear" thì ở nhà mở hộp quà, ép sao, sắm đồ (BotQuest.tick). */

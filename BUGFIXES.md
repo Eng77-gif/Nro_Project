@@ -2252,3 +2252,18 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Thêm cấu hình `web.public.url` (link trang web công khai, sửa ở panel > Cấu hình).
 - Đã thử: chưa điền link thì báo chưa điền; điền đúng thì "Webhook thông suốt"; gọi thiếu header / sai key thì nhật ký ghi đúng lý do. Worker trên Cloudflare đã có chuyển tiếp `/callback/` kèm header Authorization.
 - (Đợt 140c, sửa) Chế độ "Mở hộp quà, ép sao" không về nhà nữa mà ra **Đảo Kamê** (khu ngẫu nhiên, đứng cạnh Bà Hạt Mít). Ở đó bot ép sao, mở hộp quà (mỗi 15 giây), và đủ ngọc / vàng là mua hộp đua top sự kiện ngay (`botBuyTopItems`, mỗi lượt 15 giây, tối đa 10 hộp / món / lượt) rồi mở dần. Chỉ chế độ "Nghỉ ở nhà" mới về nhà. Đã thử: 7 bot ra Đảo Kamê ở các khu khác nhau; tắt quyền thì về Nhà Gôhan / Moori / Broly.
+
+### Đợt 140e: bot làm nhiệm vụ hằng ngày Bò Mộng (thưởng ngọc)
+- Trước đây bot không biết nhận / làm nhiệm vụ hằng ngày nên hết ngọc dần.
+- Nay (`BotWorld.planDaily`):
+  - **Nhận nhiệm vụ** theo sức mạnh (bot đã tới được map Bò Mộng): dưới 50 triệu Dễ, từ 50 triệu Bình thường, từ 1 tỷ Khó, từ 20 tỷ Cực khó.
+  - **Làm:** đi map tới được, đánh nổi, có loại quái cần đánh; ưu tiên đánh loại quái đó (`questMap` / `questMob`).
+  - **Xong** thì trả nhận vàng + ngọc rồi nhận tiếp ngay (`dailyTick`, mỗi 15 giây).
+  - Nhiệm vụ nhặt vàng hoặc quái ở map chưa tới được thì huỷ như người chơi rồi nhận cái khác.
+- **Khi nào làm:**
+  - Bot dưới 50.000 ngọc: ưu tiên trước cả nhiệm vụ chính.
+  - Đủ ngọc: 1/3 số lần đổi việc.
+  - Đang dở nhiệm vụ thì làm cho xong.
+- Thêm quyền **"Nhiệm vụ hằng ngày (Bò Mộng, thưởng ngọc)"** vào panel > Bot (mẫu Chỉ cày, Săn boss có sẵn).
+- `TaskService`: bảng quái của 58 mẫu nhiệm vụ gom thành `SIDE_TASK_MOB` (thay chuỗi 58 điều kiện), dùng chung cho người chơi và bot; kết quả đếm như cũ.
+- Đã thử: hạ ngọc 5 bot về 0 thì 3 bot chuyển "Nhiệm vụ hằng ngày" (đúng map có quái cần đánh); kamevn làm xong nhận thưởng (4.033 → 4.142 ngọc).

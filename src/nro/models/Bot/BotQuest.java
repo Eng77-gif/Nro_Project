@@ -71,6 +71,7 @@ public class BotQuest {
                     }
                 }
                 BotEndgame.worldChat(b); // quyền Chat kiểm ở ChatGlobalService
+                BotWorld.gI().dailyTick(b);
                 wearSkh(b);
                 if (BotWorld.allow(b, "gear")) {
                     BotGear.step(b);

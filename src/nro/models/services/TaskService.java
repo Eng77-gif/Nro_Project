@@ -1483,66 +1483,23 @@ public class TaskService {
         }
     }
 
+    /** Quái cần đánh của nhiệm vụ hằng ngày theo id mẫu (0 - 57); mẫu 58 là nhặt vàng. */
+    public static final int[] SIDE_TASK_MOB = {
+        ConstMob.KHUNG_LONG, ConstMob.LON_LOI, ConstMob.QUY_DAT, ConstMob.KHUNG_LONG_ME, ConstMob.LON_LOI_ME, ConstMob.QUY_DAT_ME,
+        ConstMob.THAN_LAN_BAY, ConstMob.PHI_LONG, ConstMob.QUY_BAY, ConstMob.THAN_LAN_ME, ConstMob.PHI_LONG_ME, ConstMob.QUY_BAY_ME,
+        ConstMob.HEO_RUNG, ConstMob.HEO_DA_XANH, ConstMob.HEO_XAYDA, ConstMob.OC_MUON_HON, ConstMob.OC_SEN, ConstMob.HEO_XAYDA_ME,
+        ConstMob.KHONG_TAC, ConstMob.QUY_DAU_TO, ConstMob.QUY_DIA_NGUC, ConstMob.HEO_RUNG_ME, ConstMob.HEO_XANH_ME, ConstMob.ALIEN,
+        ConstMob.TAMBOURINE, ConstMob.DRUM, ConstMob.AKKUMAN, ConstMob.NAPPA, ConstMob.SOLDIER, ConstMob.APPULE,
+        ConstMob.RASPBERRY, ConstMob.THAN_LAN_XANH, ConstMob.QUY_DAU_NHON, ConstMob.QUY_DAU_VANG, ConstMob.QUY_DA_TIM, ConstMob.QUY_GIA,
+        ConstMob.CA_SAU, ConstMob.DOI_DA_XANH, ConstMob.QUY_CHIM, ConstMob.LINH_DAU_TROC, ConstMob.LINH_TAI_DAI, ConstMob.LINH_VU_TRU,
+        ConstMob.KHI_LONG_DEN, ConstMob.KHI_GIAP_SAT, ConstMob.KHI_LONG_DO, ConstMob.KHI_LONG_VANG, ConstMob.XEN_CON_CAP_1, ConstMob.XEN_CON_CAP_2,
+        ConstMob.XEN_CON_CAP_3, ConstMob.XEN_CON_CAP_4, ConstMob.XEN_CON_CAP_5, ConstMob.XEN_CON_CAP_6, ConstMob.XEN_CON_CAP_7, ConstMob.XEN_CON_CAP_8,
+        ConstMob.TAI_TIM, ConstMob.ABO, ConstMob.KADO, ConstMob.DA_XANH};
+
     public void checkDoneSideTaskKillMob(Player player, Mob mob) {
         if (player.playerTask != null && player.playerTask.sideTask.template != null) {
-            if ((player.playerTask.sideTask.template.id == 0 && mob.tempId == ConstMob.KHUNG_LONG)
-                    || (player.playerTask.sideTask.template.id == 1 && mob.tempId == ConstMob.LON_LOI)
-                    || (player.playerTask.sideTask.template.id == 2 && mob.tempId == ConstMob.QUY_DAT)
-                    || (player.playerTask.sideTask.template.id == 3 && mob.tempId == ConstMob.KHUNG_LONG_ME)
-                    || (player.playerTask.sideTask.template.id == 4 && mob.tempId == ConstMob.LON_LOI_ME)
-                    || (player.playerTask.sideTask.template.id == 5 && mob.tempId == ConstMob.QUY_DAT_ME)
-                    || (player.playerTask.sideTask.template.id == 6 && mob.tempId == ConstMob.THAN_LAN_BAY)
-                    || (player.playerTask.sideTask.template.id == 7 && mob.tempId == ConstMob.PHI_LONG)
-                    || (player.playerTask.sideTask.template.id == 8 && mob.tempId == ConstMob.QUY_BAY)
-                    || (player.playerTask.sideTask.template.id == 9 && mob.tempId == ConstMob.THAN_LAN_ME)
-                    || (player.playerTask.sideTask.template.id == 10 && mob.tempId == ConstMob.PHI_LONG_ME)
-                    || (player.playerTask.sideTask.template.id == 11 && mob.tempId == ConstMob.QUY_BAY_ME)
-                    || (player.playerTask.sideTask.template.id == 12 && mob.tempId == ConstMob.HEO_RUNG)
-                    || (player.playerTask.sideTask.template.id == 13 && mob.tempId == ConstMob.HEO_DA_XANH)
-                    || (player.playerTask.sideTask.template.id == 14 && mob.tempId == ConstMob.HEO_XAYDA)
-                    || (player.playerTask.sideTask.template.id == 15 && mob.tempId == ConstMob.OC_MUON_HON)
-                    || (player.playerTask.sideTask.template.id == 16 && mob.tempId == ConstMob.OC_SEN)
-                    || (player.playerTask.sideTask.template.id == 17 && mob.tempId == ConstMob.HEO_XAYDA_ME)
-                    || (player.playerTask.sideTask.template.id == 18 && mob.tempId == ConstMob.KHONG_TAC)
-                    || (player.playerTask.sideTask.template.id == 19 && mob.tempId == ConstMob.QUY_DAU_TO)
-                    || (player.playerTask.sideTask.template.id == 20 && mob.tempId == ConstMob.QUY_DIA_NGUC)
-                    || (player.playerTask.sideTask.template.id == 21 && mob.tempId == ConstMob.HEO_RUNG_ME)
-                    || (player.playerTask.sideTask.template.id == 22 && mob.tempId == ConstMob.HEO_XANH_ME)
-                    || (player.playerTask.sideTask.template.id == 23 && mob.tempId == ConstMob.ALIEN)
-                    || (player.playerTask.sideTask.template.id == 24 && mob.tempId == ConstMob.TAMBOURINE)
-                    || (player.playerTask.sideTask.template.id == 25 && mob.tempId == ConstMob.DRUM)
-                    || (player.playerTask.sideTask.template.id == 26 && mob.tempId == ConstMob.AKKUMAN)
-                    || (player.playerTask.sideTask.template.id == 27 && mob.tempId == ConstMob.NAPPA)
-                    || (player.playerTask.sideTask.template.id == 28 && mob.tempId == ConstMob.SOLDIER)
-                    || (player.playerTask.sideTask.template.id == 29 && mob.tempId == ConstMob.APPULE)
-                    || (player.playerTask.sideTask.template.id == 30 && mob.tempId == ConstMob.RASPBERRY)
-                    || (player.playerTask.sideTask.template.id == 31 && mob.tempId == ConstMob.THAN_LAN_XANH)
-                    || (player.playerTask.sideTask.template.id == 32 && mob.tempId == ConstMob.QUY_DAU_NHON)
-                    || (player.playerTask.sideTask.template.id == 33 && mob.tempId == ConstMob.QUY_DAU_VANG)
-                    || (player.playerTask.sideTask.template.id == 34 && mob.tempId == ConstMob.QUY_DA_TIM)
-                    || (player.playerTask.sideTask.template.id == 35 && mob.tempId == ConstMob.QUY_GIA)
-                    || (player.playerTask.sideTask.template.id == 36 && mob.tempId == ConstMob.CA_SAU)
-                    || (player.playerTask.sideTask.template.id == 37 && mob.tempId == ConstMob.DOI_DA_XANH)
-                    || (player.playerTask.sideTask.template.id == 38 && mob.tempId == ConstMob.QUY_CHIM)
-                    || (player.playerTask.sideTask.template.id == 39 && mob.tempId == ConstMob.LINH_DAU_TROC)
-                    || (player.playerTask.sideTask.template.id == 40 && mob.tempId == ConstMob.LINH_TAI_DAI)
-                    || (player.playerTask.sideTask.template.id == 41 && mob.tempId == ConstMob.LINH_VU_TRU)
-                    || (player.playerTask.sideTask.template.id == 42 && mob.tempId == ConstMob.KHI_LONG_DEN)
-                    || (player.playerTask.sideTask.template.id == 43 && mob.tempId == ConstMob.KHI_GIAP_SAT)
-                    || (player.playerTask.sideTask.template.id == 44 && mob.tempId == ConstMob.KHI_LONG_DO)
-                    || (player.playerTask.sideTask.template.id == 45 && mob.tempId == ConstMob.KHI_LONG_VANG)
-                    || (player.playerTask.sideTask.template.id == 46 && mob.tempId == ConstMob.XEN_CON_CAP_1)
-                    || (player.playerTask.sideTask.template.id == 47 && mob.tempId == ConstMob.XEN_CON_CAP_2)
-                    || (player.playerTask.sideTask.template.id == 48 && mob.tempId == ConstMob.XEN_CON_CAP_3)
-                    || (player.playerTask.sideTask.template.id == 49 && mob.tempId == ConstMob.XEN_CON_CAP_4)
-                    || (player.playerTask.sideTask.template.id == 50 && mob.tempId == ConstMob.XEN_CON_CAP_5)
-                    || (player.playerTask.sideTask.template.id == 51 && mob.tempId == ConstMob.XEN_CON_CAP_6)
-                    || (player.playerTask.sideTask.template.id == 52 && mob.tempId == ConstMob.XEN_CON_CAP_7)
-                    || (player.playerTask.sideTask.template.id == 53 && mob.tempId == ConstMob.XEN_CON_CAP_8)
-                    || (player.playerTask.sideTask.template.id == 54 && mob.tempId == ConstMob.TAI_TIM)
-                    || (player.playerTask.sideTask.template.id == 55 && mob.tempId == ConstMob.ABO)
-                    || (player.playerTask.sideTask.template.id == 56 && mob.tempId == ConstMob.KADO)
-                    || (player.playerTask.sideTask.template.id == 57 && mob.tempId == ConstMob.DA_XANH)) {
+            int t = player.playerTask.sideTask.template.id;
+            if (t >= 0 && t < SIDE_TASK_MOB.length && mob.tempId == SIDE_TASK_MOB[t]) {
                 player.playerTask.sideTask.count++;
                 notifyProcessSideTask(player);
             }
