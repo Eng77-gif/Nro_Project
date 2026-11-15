@@ -44,6 +44,9 @@ public class BotSanBoss {
     private long waitSuperUntil;
 
     public void GetBoss(int status) {
+        if (status == 0 && (this.bossAttack == null || this.bossAttack.isDie()) && System.currentTimeMillis() < nextTry) {
+            return;
+        }
         if (this.bossAttack == null || this.bossAttack.isDie()) {
             if (prefer != null && this.bossAttack != null && this.bossAttack.isDie() && this.bossAttack.name != null
                     && this.bossAttack.name.toLowerCase().contains("broly") && !this.bossAttack.name.toLowerCase().contains("super")) {
@@ -106,7 +109,14 @@ public class BotSanBoss {
     }
 
     /** Không tìm được boss: bot của BotWorld quay về luyện tập, bot gọi tay thì rời game như cũ. */
+    private long nextTry;
+
     private void giveUp() {
+        String job = BotWorld.jobOf(this.bot.id);
+        if (this.bot.worldBot && ("boss".equals(job) || "broly".equals(job))) {
+            nextTry = System.currentTimeMillis() + 10_000; // admin giao săn boss: chưa có boss thì đứng chờ, 10 giây tìm lại, không bỏ đi luyện tập
+            return;
+        }
         if (this.bot.worldBot) {
             this.prefer = null;
             this.bot.setMode(0);

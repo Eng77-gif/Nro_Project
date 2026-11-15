@@ -141,6 +141,17 @@ public class PanelApi {
                 }
                 yield nro.models.Bot.BotWorld.gI().jobInfo(id);
             }
+            case "bot/jobs" -> { // giao việc cho nhiều bot cùng lúc (danh sách id đang lọc trên panel)
+                Object ids = b.get("ids");
+                int n = 0;
+                if (ids instanceof List<?> l) {
+                    for (Object o : l) {
+                        nro.models.Bot.BotWorld.gI().setJob(lng(o), str(b.get("job")), (int) lng(b.getOrDefault("minutes", 0)));
+                        n++;
+                    }
+                }
+                yield Map.of("ok", true, "note", "Đã giao việc cho " + n + " bot");
+            }
             case "bot/once" -> {
                 long id = lng(b.get("id"));
                 nro.models.Bot.BotWorld.gI().queueOnce(id, str(b.get("action")));
@@ -832,6 +843,7 @@ public class PanelApi {
             m.put("task", bot != null && bot.playerTask != null && bot.playerTask.taskMain != null ? bot.playerTask.taskMain.id + "." + bot.playerTask.taskMain.index : "");
             m.put("gold", bot != null ? bot.inventory.gold : null);
             m.put("activity", bot != null ? bot.activity : "");
+            m.put("job", nro.models.Bot.BotWorld.jobName(pid));
             m.put("power", bot != null ? bot.nPoint.power : null);
             m.put("map", bot != null && bot.zone != null ? bot.zone.map.mapName + " khu " + bot.zone.zoneId : "");
             m.put("hp", bot != null ? bot.nPoint.hp : null);

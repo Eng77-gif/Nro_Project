@@ -329,6 +329,20 @@ public final class BotWorld {
     private static final Map<Long, Object[]> JOB = new java.util.concurrent.ConcurrentHashMap<>();
     private static final Map<Long, java.util.Queue<String>> ONCE_Q = new java.util.concurrent.ConcurrentHashMap<>();
 
+    /** Tên việc admin đang giao cho bot (rỗng = tự do), cho panel. */
+    public static String jobName(long id) {
+        String j = jobOf(id);
+        if (j == null) {
+            return "";
+        }
+        for (String[] x : JOBS) {
+            if (x[0].equals(j)) {
+                return x[1];
+            }
+        }
+        return j;
+    }
+
     static String jobOf(long id) {
         Object[] j = JOB.get(id);
         if (j == null) {
@@ -383,7 +397,28 @@ public final class BotWorld {
         return m;
     }
 
+    /** Hoạt động bot đang có ngay sau khi nhận việc admin giao (để biết bị kéo sang việc khác). */
+    private static final Map<Long, String> JOB_ACT = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private static boolean sameJobActivity(String job, String act, String want) {
+        if (act == null) {
+            return false;
+        }
+        if ("quest".equals(job) || "train".equals(job)) { // nhiệm vụ: BotQuest đổi qua lại giữa luyện tập (lên sức mạnh) và làm nhiệm vụ
+            return act.equals("Luyện tập") || act.equals("Làm nhiệm vụ");
+        }
+        if ("skh".equals(job)) {
+            return act.startsWith("Úp SKH") || act.equals("Doanh trại");
+        }
+        return act.equals(want);
+    }
+
     private void doJob(Bot b, String job) {
+        doJob0(b, job);
+        JOB_ACT.put(b.id, b.activity == null ? "" : b.activity);
+    }
+
+    private void doJob0(Bot b, String job) {
         switch (job) {
             case "boss" -> startAction(b, BotBrain.BOSS);
             case "broly" -> startAction(b, BotBrain.BROLY);
@@ -480,7 +515,7 @@ public final class BotWorld {
                 logError(b, e);
             }
         }
-        clan.tick(acc.stream().filter(x -> allow(x, "clan")).toList());
+        clan.tick(acc.stream().filter(x -> allow(x, "clan") && (jobOf(x.id) == null || "skh".equals(jobOf(x.id)))).toList());
         BotTrade.gI().tick(acc.stream().filter(x -> allow(x, "trade")).toList());
         BotQuest.gI().tick(acc);
     }
@@ -526,7 +561,11 @@ public final class BotWorld {
                 grow(b); // bot tài khoản lên sức mạnh thật bằng đánh quái, không cộng ảo
             }
             long[] ns = nextSwitch.computeIfAbsent(b.id, k -> new long[]{now + Util.nextInt(5, 30) * 1000L}); // bot mới vào: chọn việc theo quyền sớm
-            if (kick || now >= ns[0]) {
+            String job = jobOf(b.id);
+            if (job != null && !sameJobActivity(job, b.activity, JOB_ACT.get(b.id))) {
+                switchActivity(b); // bị việc khác (PK, nhiệm vụ, bang...) kéo đi: quay lại việc admin giao ngay
+                ns[0] = now + Util.nextInt(180, 600) * 1000L;
+            } else if (kick || now >= ns[0]) {
                 switchActivity(b);
                 ns[0] = now + Util.nextInt(180, 600) * 1000L;
             }
@@ -1446,7 +1485,8 @@ public final class BotWorld {
     private void startPk(Bot b) {
         List<Bot> others = new ArrayList<>();
         for (Bot o : bots()) {
-            if (o != b && o.zone != null && o.awayUntil == 0 && o.pkTarget == null && !"NRSD".equals(o.activity)) {
+            if (o != b && o.zone != null && o.awayUntil == 0 && o.pkTarget == null && !"NRSD".equals(o.activity)
+                    && (jobOf(o.id) == null || "pk".equals(jobOf(o.id))) && allow(o, "pk")) { // bot đang được giao việc / tắt PK: không bị kéo đi PK
                 others.add(o);
             }
         }

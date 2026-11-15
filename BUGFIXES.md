@@ -2306,3 +2306,16 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - `SeasonEventService.runSet` chỉ cho sự kiện trong `ONLY_EVENTS` (= {7}) chạy, nên bật tay trên panel / lệnh admin / `event.active` cũng không mở lại được sự kiện khác. NPC, quái, rơi đồ, đổi quà, đua top của các sự kiện đó không xuất hiện; trang chủ chỉ còn Halloween.
 - Dữ liệu sự kiện (NPC, rơi đồ, đổi quà, đua top...) **không xoá**: mở lại sự kiện nào thì thêm id vào `ONLY_EVENTS` và bật lại trên panel.
 - Đã thử: khởi động lại thì chỉ Halloween bật, `season_event_force` trống, `/api/status` chỉ còn "Halloween".
+
+### Đợt 141b: bot làm đúng 100% việc admin giao, sắp xếp lại trang Bot trên panel
+- **Bot bị kéo khỏi việc được giao.** Trước đây việc giao chỉ áp lúc bot tự đổi việc (3 - 10 phút), giữa chừng bị nhiều chỗ khác giành mất. Nay:
+  - **Giữ việc:** ghi lại hoạt động ngay khi bot nhận việc (`JOB_ACT`). Mỗi lượt BotWorld (10 giây) thấy bot làm khác là cho quay lại việc được giao ngay. Việc nhiệm vụ / luyện tập coi "Luyện tập" và "Làm nhiệm vụ" là một; Úp SKH coi cả "Doanh trại" là một.
+  - **PK:** bot khác không kéo bot đang được giao việc (trừ việc PK) hoặc bot đã tắt quyền PK đi PK.
+  - **Bang:** bang hội / doanh trại không kéo bot đang được giao việc (trừ việc Úp SKH / doanh trại).
+  - **Nhiệm vụ chính:** BotQuest không tự dẫn bot đi làm nhiệm vụ khi bot được giao việc khác.
+  - **Săn boss / Săn đệ:** chưa có boss thì bot đứng chờ, 10 giây tìm lại, không bỏ về luyện tập.
+  - **Super Broly:** gọi vây đánh không lấy bot đang được giao việc (đã có từ Đợt 140g).
+- **Panel > Bot** chia tab: Danh sách & giao việc, Hoạt động, Quyền & mẫu, Tạo bot, Nhật ký lỗi (nhớ tab đang mở).
+  - Thêm **giao việc cho các bot đang lọc** (`bot/jobs`, cả nhóm cùng lúc, có số phút) và "Trả tất cả về tự do".
+  - Danh sách hiện "📌 Giao: ..." ở bot đang được giao việc; lọc trạng thái có thêm "Đang được giao việc".
+- Đã thử: giao Săn boss cho cả 7 bot, theo dõi 3 phút (6 lần) thì cả 7 vẫn "Săn boss"; trả về tự do bình thường. Trang Bot mới không lỗi JS.
