@@ -684,12 +684,12 @@ public class Mob {
     }
 
     /**
-     * Hệ số may mắn (option 236) cho tỉ lệ rơi đồ hiếm: +1% may mắn = +1% tỉ lệ, tối đa +200%.
-     * Trước đây chỉ đếm đồ đang mặc (bỏ sót bóng mờ, danh hiệu, thẻ) và công thức (p/100)^1.5*20 làm 10% may mắn chỉ còn +0,6%.
+     * Hệ số may mắn (option 236) cho đồ rơi ở Ngục tù: tăng chậm dần, tối đa x3 (may mắn cao không có nghĩa là rơi chắc chắn).
      */
     public static double luckFactor(Player player) {
+        // giảm dần như SKH (skhBonus): +100% → x1,67, +300% → x2,2, +500% → x2,43, không quá x3 (trước +500% = x6)
         int luck = player.nPoint == null ? 0 : Math.max(0, Math.min(500, player.nPoint.tlMayMan));
-        return 1 + luck / 100.0;
+        return 1 + 2.0 * luck / (luck + 200);
     }
 
     public List<ItemMap> getItemMobReward(Player player, int x, int yEnd) {

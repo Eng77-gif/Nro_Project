@@ -2327,3 +2327,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 ## Bùa x2 đệ tử đúng x2; SKH từ quái khó hơn
 - Bùa x2 tn,sm đệ tử trước cộng thêm 2 lần (thành x3), nay đúng x2.
 - Rơi SKH (map úp SKH ngoài, khu riêng tư): may mắn, vật phẩm hiếm, cỏ bốn lá trước NHÂN với nhau (5 món Gohan + cỏ đủ bộ = x12). Nay cộng lại rồi giảm dần: +100% → x1,67, +300% → x2,2, +500% → x2,43, tối đa x3 (Mob.skhBonus).
+
+## Giới hạn may mắn ở Ngục tù
+- Mob.luckFactor (chỉ dùng ở Ngục tù: vàng Ngục tù may mắn, đồ 1066-1070, item 1229) trước tăng thẳng (+500% may mắn = x6, rơi 60%/con). Nay tăng chậm dần như SKH: +100% → x1,67, +300% → x2,2, +500% → x2,43, không quá x3.
