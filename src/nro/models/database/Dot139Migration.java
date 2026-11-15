@@ -58,6 +58,12 @@ public class Dot139Migration {
         try {
             update(con, "alter table web_topup add column if not exists gem_pending int not null default 0"); // ngọc nạp lúc offline, cộng khi đăng nhập
             removeAdminFromRanks(con);
+            if (!exists(con, "select 1 from server_migration where name = 'dot141_only_halloween'")) {
+                // chỉ giữ sự kiện Halloween: tắt lịch tự chạy và bỏ bật tay của mọi sự kiện khác (dữ liệu giữ nguyên để mở lại sau)
+                update(con, "update season_event set enabled = 0 where id <> 7");
+                update(con, "delete from season_event_force where event_id <> 7");
+                update(con, "insert ignore into server_migration (name) values ('dot141_only_halloween')");
+            }
             if (!exists(con, "select 1 from server_migration where name = 'dot139n_halloween'")) {
                 // Bí ngô 1-7 sao từ cả 3 boss Ma trơi / Dơi / Bí ma (cần Giỏ đựng ngọc bí, giỏ mất khi nhặt), 50%; Máy dò NR sự kiện x2
                 update(con, "update season_event_drop set mobs = '-350,-349,-351', rate = 5000 where event_id = 7 and item_id = 702 and need_item = 1348");

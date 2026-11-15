@@ -406,8 +406,12 @@ public class SeasonEventService implements Runnable {
                 run.remove(f.getKey());
             }
         }
+        run.retainAll(ONLY_EVENTS); // admin yêu cầu: các sự kiện khác còn nhiều lỗi, chỉ chạy Halloween
         return run;
     }
+
+    /** Sự kiện được phép chạy (bỏ id khỏi đây là khoá hẳn, bật tay / event.active cũng không chạy). */
+    public static final Set<Integer> ONLY_EVENTS = Set.of(7);
 
     /** event.active trong Config.properties (đọc lại mỗi lần cập nhật để sửa file không cần khởi động lại). */
     public static Set<Integer> configActive() {

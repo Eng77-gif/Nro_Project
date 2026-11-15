@@ -2299,3 +2299,10 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **29.3 "Tiêu diệt 7 đứa con của xên":** bot săn các boss Xên con.
 - Đã thử: bot NV 22.1 tự tới Núi khỉ đỏ đánh đúng Số 4 (chết thì hồi sinh rồi quay lại), hạ được, lên 22.2 và chuyển sang Số 3.
 - Chưa làm: NV 30 (Drabura / Pui Pui / Yacôn / Mabư trong sự kiện Mabư 12h, phải vào qua Ôsin) và NV 31 (nhẫn thời không của Black Goku, chuỗi Bardock). Bot tới đó vẫn kẹt.
+
+### Đợt 141: chỉ giữ sự kiện Halloween
+- Anh phát hiện nhiều sự kiện làm sai (vd giao diện Trung Thu không giống bản gốc), nên tắt hết, chỉ chạy Halloween.
+  - Migration một lần `dot141_only_halloween`: `season_event.enabled = 0` cho mọi sự kiện trừ Halloween (id 7), xoá các bật tay khác trong `season_event_force` (Ngũ Hành Sơn, Quán phở...).
+  - `SeasonEventService.runSet` chỉ cho sự kiện trong `ONLY_EVENTS` (= {7}) chạy, nên bật tay trên panel / lệnh admin / `event.active` cũng không mở lại được sự kiện khác. NPC, quái, rơi đồ, đổi quà, đua top của các sự kiện đó không xuất hiện; trang chủ chỉ còn Halloween.
+- Dữ liệu sự kiện (NPC, rơi đồ, đổi quà, đua top...) **không xoá**: mở lại sự kiện nào thì thêm id vào `ONLY_EVENTS` và bật lại trên panel.
+- Đã thử: khởi động lại thì chỉ Halloween bật, `season_event_force` trống, `/api/status` chỉ còn "Halloween".
