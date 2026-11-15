@@ -2396,7 +2396,7 @@ public class NPoint {
             }
             if (this.player.isPet) {
                 if (((Pet) this.player).master.itemTime.isUseBuaSanta) {
-                    tiemNang += tn * 2;
+                    tiemNang += tn; // Bùa x2 tn,sm đệ tử: đúng x2
                 }
                 if (((Pet) this.player).master.nPoint != null && ((Pet) this.player).master.nPoint.tlTNSMPet > 0) {
                     tiemNang += tn / 100 * (((Pet) this.player).master.nPoint.tlTNSMPet + 100);

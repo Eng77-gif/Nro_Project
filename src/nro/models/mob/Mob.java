@@ -231,7 +231,18 @@ public class Mob {
         }
     }
 
-    /** Hệ số SKH: cỏ bốn lá x1,5; dùng cỏ bốn lá khi mặc đủ cải trang, ván bay, pet, đeo lưng thì x3. */
+    /**
+     * Hệ số rơi SKH từ quái. Mọi nguồn (may mắn option 236, vật phẩm hiếm option 206, cỏ bốn lá +100%, đủ CT/pet/đeo lưng/ván bay khi dùng cỏ +100% nữa)
+     * CỘNG vào nhau rồi giảm dần: +100% → x1,67; +200% → x2; +500% → x2,43; không bao giờ quá x3. May mắn cao chỉ dễ hơn chút, không thành rơi chắc chắn.
+     */
+    static double skhBonus(Player pl) {
+        double b = Math.max(0, Math.min(500, pl.nPoint == null ? 0 : pl.nPoint.tlMayMan))
+                + Math.max(0, pl.nPoint == null ? 0 : pl.nPoint.tlRareMob)
+                + (skhLuckBoost(pl) - 1) * 100;
+        return 1 + 2 * b / (b + 200);
+    }
+
+    /** Cỏ bốn lá: +100% (x2); dùng cỏ bốn lá khi mặc đủ cải trang, ván bay, pet, đeo lưng thì +200% (x3). */
     private static double skhLuckBoost(Player pl) {
         if (pl.itemTime == null || !pl.itemTime.isUseCoBonLa) {
             return 1;
@@ -879,9 +890,7 @@ public class Mob {
         if (MapService.gI().isMapRiengTu(mapid)) {
             double tileDrop = 6; // khu riêng tư (Vé riêng tư): SKH rơi gấp 6 map úp SKH ngoài
 
-            tileDrop *= luckFactor(player); // option 236: may mắn từ mọi nguồn
-            tileDrop *= (1 + player.nPoint.tlRareMob / 100.0); // option 206: vật phẩm hiếm rơi từ quái
-            tileDrop *= skhLuckBoost(player); // cỏ bốn lá (+ đủ cải trang, ván bay, pet, đeo lưng)
+            tileDrop *= skhBonus(player); // may mắn + vật phẩm hiếm + cỏ bốn lá: cộng dồn giảm dần, tối đa x3
 
             // Check rơi đồ kích hoạt (x100 để không mất phần lẻ khi nhân hệ số)
             if (Util.isTrue((int) (tileDrop * 100), 999_900)) {
@@ -909,9 +918,7 @@ public class Mob {
         if (MapService.gI().isMapUpSKH(mapid)) {
             double tileDrop = 1; // map úp SKH ngoài: 1/9999 (trước 2), khó ra hơn
 
-            tileDrop *= luckFactor(player); // option 236: may mắn từ mọi nguồn
-            tileDrop *= (1 + player.nPoint.tlRareMob / 100.0); // option 206: vật phẩm hiếm rơi từ quái
-            tileDrop *= skhLuckBoost(player); // cỏ bốn lá (+ đủ cải trang, ván bay, pet, đeo lưng)
+            tileDrop *= skhBonus(player); // may mắn + vật phẩm hiếm + cỏ bốn lá: cộng dồn giảm dần, tối đa x3
 
             // Check rơi đồ kích hoạt (x100 để không mất phần lẻ khi nhân hệ số)
             if (Util.isTrue((int) (tileDrop * 100), 999_900)) {

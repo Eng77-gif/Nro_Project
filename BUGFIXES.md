@@ -2323,3 +2323,7 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 ## Mô tả Cỏ bốn lá / Bùa x2 đệ tử đúng nguyên văn ảnh
 - 1635 Cỏ bốn lá: "Trong vòng tối đa 30 phút +100% cơ hội rơi vật phẩm hiếm, +50% vàng từ quái". Tác dụng sửa theo: SKH x2 (đủ CT/pet/đeo lưng/ván bay vẫn x3), vàng rơi từ quái +50%.
 - 1628 Bùa x2 tn,sm đệ tử: "Trong vòng tối đa 30 phút x2 sức mạnh và tiềm năng của đệ tử".
+
+## Bùa x2 đệ tử đúng x2; SKH từ quái khó hơn
+- Bùa x2 tn,sm đệ tử trước cộng thêm 2 lần (thành x3), nay đúng x2.
+- Rơi SKH (map úp SKH ngoài, khu riêng tư): may mắn, vật phẩm hiếm, cỏ bốn lá trước NHÂN với nhau (5 món Gohan + cỏ đủ bộ = x12). Nay cộng lại rồi giảm dần: +100% → x1,67, +300% → x2,2, +500% → x2,43, tối đa x3 (Mob.skhBonus).
