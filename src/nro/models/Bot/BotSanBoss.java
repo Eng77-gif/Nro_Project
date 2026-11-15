@@ -57,11 +57,17 @@ public class BotSanBoss {
             }
             this.bossAttack = all.get(new Random().nextInt(all.size()));
             if (prefer != null) {
-                List<Boss> want = new ArrayList<>();
+                List<Boss> want = new ArrayList<>(), exact = new ArrayList<>();
                 for (Boss b : all) {
                     if (b != null && b.name != null && b.name.toLowerCase().contains(prefer.toLowerCase()) && !b.isDie() && b.zone != null) {
                         want.add(b);
+                        if (b.name.equalsIgnoreCase(prefer)) {
+                            exact.add(b); // "Số 4" chứ không phải "Số 4 Namek" (bản Namek không tính nhiệm vụ)
+                        }
                     }
+                }
+                if (!exact.isEmpty()) {
+                    want = exact;
                 }
                 if (!want.isEmpty()) {
                     this.bossAttack = want.get(new Random().nextInt(want.size()));

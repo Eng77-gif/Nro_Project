@@ -2288,3 +2288,14 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - **Nhiều bot cùng đánh Super Broly:** mỗi lượt BotWorld, Super Broly đang sống thì gọi thêm bot rảnh tới vây, tối đa 8 bot / 1 Super Broly (`rallySuperBroly`).
   - Bot được gọi phải đang Luyện tập / Săn boss / Nghỉ ở nhà, có quyền Săn đệ, HP ≥ 2 triệu và sức đánh ≥ 80.000, tới được map, không đang được admin giao việc.
 - Đã thử: gọi Kuku trên panel thì bot đang NV 21.0 tự tới hạ Kuku, lên 21.1 rồi đi tìm Mập Đầu Đinh. Gọi Super Broly: 7 bot máy thử chưa đủ HP / sức đánh nên chưa ai được gọi, chưa xem được cảnh vây đánh thật.
+
+### Đợt 140h: bot qua nhiệm vụ Tiểu đội sát thủ (22) và các nhiệm vụ sau
+- **Kẹt NV 22:** game có 2 bộ Tiểu đội sát thủ.
+  - Bộ thường: Số 4 máu 25 triệu, có tính nhiệm vụ.
+  - Bộ "Namek" (Số 4 Namek...): máu 2,5 triệu, ở Thung lũng Namếc, **không** tính nhiệm vụ.
+  - Bot tìm boss theo "tên có chứa Số 4" nên chọn lẫn cả bộ Namek. Nay `BotSanBoss` ưu tiên đúng tên, `questBoss` lấy đúng tên trước và không lấy bản Namek.
+- **Bước "đến ..." của NV 25 - 29:** dữ liệu bước để map -1 hoặc sai (25.0 ghi 97 nhưng game ghi nhận ở map 93). Bot đi đúng map game ghi nhận (`checkDoneTaskGoToMap`): 25.0 → 93, 26.0 → 104, 27.0 → 97, 28.0 → 100, 29.2 → 103.
+- **29.0 "Nâng sức đánh gốc":** bot gặp Thần mèo Karin như người chơi.
+- **29.3 "Tiêu diệt 7 đứa con của xên":** bot săn các boss Xên con.
+- Đã thử: bot NV 22.1 tự tới Núi khỉ đỏ đánh đúng Số 4 (chết thì hồi sinh rồi quay lại), hạ được, lên 22.2 và chuyển sang Số 3.
+- Chưa làm: NV 30 (Drabura / Pui Pui / Yacôn / Mabư trong sự kiện Mabư 12h, phải vào qua Ôsin) và NV 31 (nhẫn thời không của Black Goku, chuỗi Bardock). Bot tới đó vẫn kẹt.

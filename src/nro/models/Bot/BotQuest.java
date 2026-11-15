@@ -138,6 +138,14 @@ public class BotQuest {
             map = 39 + b.gender; // "Di chuyển tới mũi tên chỉ dẫn": Vách núi của hành tinh mình, đi sang phải
         } else if (tm.id == 3 && tm.index == 1) {
             map = 42 + b.gender; // "Đi khám phá vật thể lạ": em bé nằm ở Vách núi 42 - 44 (Map.initItem)
+        } else if (tm.index == 0 && (tm.id == 25 || tm.id == 26 || tm.id == 27 || tm.id == 28)) {
+            map = new int[]{93, 104, 97, 100}[tm.id - 25]; // bước "đến ..." ghi theo map ở TaskService.checkDoneTaskGoToMap (dữ liệu bước để -1 / sai map)
+        } else if (tm.id == 29 && tm.index == 2) {
+            map = 103; // "Đến võ đài xên bọ hung"
+        }
+        if (tm.id == 29 && tm.index == 0 && st.npcId < 0) { // "Nâng sức đánh gốc": gặp Thần mèo Karin
+            st = new SubTaskMain(st);
+            st.npcId = nro.models.consts.ConstNpc.THAN_MEO_KARIN;
         }
         if (st.npcId >= 0) { // gặp NPC (nói chuyện, mở rương, hái đậu, báo cáo)
             int npcId = st.npcId;
@@ -160,7 +168,7 @@ public class BotQuest {
                 : tm.id == 29 && tm.index == 1 ? 58 // capsule kì bí rơi từ Xên con (58 - 65) khi bật máy dò (BotEndgame.mayDo)
                 : mobId(st.name);
         if (mobId < 0 && map < 0) { // "Tiêu diệt Kuku / Số 4 / Fide cấp 1...": đi săn đúng boss đó (người hạ boss mới được ghi nhiệm vụ)
-            nro.models.boss.Boss boss = questBoss(st.name);
+            nro.models.boss.Boss boss = tm.id == 29 && tm.index == 3 ? questBoss("Xên con") : questBoss(st.name); // "Tiêu diệt 7 đứa con của xên"
             if (boss != null) {
                 b.activity = "Làm nhiệm vụ";
                 if (b.getMode() != 2 || b.boss.prefer == null || !b.boss.prefer.equals(boss.name)) {
@@ -308,13 +316,20 @@ public class BotQuest {
         String head = s.replaceAll("\\(.*\\)", "").replaceAll("cấp \\d+|hoàn thiện", "").trim();
         List<nro.models.boss.Boss> all = new java.util.ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
         all.addAll(nro.models.boss.Boss_Manager.BrolyManager.gI().getBosses());
+        nro.models.boss.Boss near = null;
         for (nro.models.boss.Boss x : all) {
             String n = x == null || x.name == null ? "" : x.name.toLowerCase();
-            if (!n.isEmpty() && !x.isDie() && x.zone != null && (n.equals(head) || n.equals(inner) || (!head.isEmpty() && n.startsWith(head)))) {
-                return x;
+            if (n.isEmpty() || x.isDie() || x.zone == null) {
+                continue;
+            }
+            if (n.equals(head) || n.equals(inner)) {
+                return x; // đúng tên: "Số 4" chứ không phải "Số 4 Namek" (bản Namek không tính nhiệm vụ)
+            }
+            if (near == null && !head.isEmpty() && n.startsWith(head) && !n.contains("namek")) {
+                near = x; // "Fide cấp 1" -> "Fide", "Xên Bọ Hung hoàn thiện" -> "Xên Bọ Hung..."
             }
         }
-        return null;
+        return near;
     }
 
     private static int mobId(String step) {
