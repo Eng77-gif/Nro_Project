@@ -33,6 +33,8 @@ public class BotEndgame {
         combine(b, BT2, MANH_BT3, 20_000, 200, BT3, 3);
         changePet(b);
         socket(b);
+        samePlanetPet(b);
+        buyPetGear(b);
         dressPet(b);
         useBoxes(b);
         mayDo(b);
@@ -56,6 +58,90 @@ public class BotEndgame {
             if (cur == null || !cur.isNotNullItem()) {
                 InventoryService.gI().itemBagToPetBody(b, i);
                 return;
+            }
+        }
+    }
+
+    /** Giá "Đổi đệ tử" (401) ở Santa: mỗi lần dùng đổi đệ thường sang hành tinh kế tiếp, đệ làm lại từ đầu. */
+    private static final int DOI_DE = 401, DOI_DE_GEM = 100;
+
+    /**
+     * Đệ thường khác hành tinh với chủ, còn yếu (dưới 1 tỷ sức mạnh): mua "Đổi đệ tử" ở Santa đổi tới khi cùng hành tinh, để đồ thừa
+     * của chính bot (cùng hành tinh) mặc được cho đệ. Thu đồ của đệ về hành trang trước như người chơi.
+     */
+    private static void samePlanetPet(Bot b) {
+        Pet p = b.pet;
+        if (p == null || p.typePet != 0 || p.gender == b.gender || p.nPoint == null || p.nPoint.power >= 1_000_000_000L
+                || b.fusion == null || b.fusion.typeFusion != nro.models.consts.ConstPlayer.NON_FUSION) {
+            return;
+        }
+        int times = ((b.gender - p.gender) % 3 + 3) % 3; // mỗi lần +1 hành tinh
+        long cost = (long) times * DOI_DE_GEM;
+        if (times == 0 || b.inventory.gem < cost + 1_000) {
+            return;
+        }
+        java.util.List<Item> body = p.inventory.itemsBody;
+        for (int i = 0; i < body.size(); i++) {
+            if (body.get(i) != null && body.get(i).isNotNullItem()) {
+                if (InventoryService.gI().getCountEmptyBag(b) <= 0 || !InventoryService.gI().addItemBag(b, body.get(i))) {
+                    return; // hành trang đầy: chưa thu được đồ của đệ thì chưa đổi
+                }
+                body.set(i, ItemService.gI().createItemNull());
+            }
+        }
+        b.inventory.subGem(cost);
+        nro.models.services.PetService.gI().changeNormalPet(b, b.gender);
+        Service.gI().chat(b, "đổi đệ cùng hành tinh cho dễ mặc đồ");
+    }
+
+    private static final java.util.Map<Long, Long> nextGear = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Object GEAR_LOCK = new Object();
+
+    /**
+     * Đệ còn ô trang bị trống: mua của bot khác món đồ đúng hành tinh của đệ đang nằm thừa trong hành trang (bot kia không mặc được),
+     * trả thỏi vàng theo giá chợ (BotTrade.unitPrice) như giao dịch giữa 2 người chơi. 10 - 20 phút thử 1 lần.
+     */
+    private static void buyPetGear(Bot b) {
+        Pet p = b.pet;
+        long now = System.currentTimeMillis();
+        if (p == null || p.nPoint == null || p.inventory == null || now < nextGear.getOrDefault(b.id, 0L)
+                || InventoryService.gI().getCountEmptyBag(b) <= 0 || nro.models.services_func.TransactionService.gI().check(b)) {
+            return;
+        }
+        nextGear.put(b.id, now + Util.nextInt(10, 20) * 60_000L);
+        java.util.Set<Integer> empty = new java.util.HashSet<>();
+        for (int t = 0; t <= 4; t++) {
+            Item cur = t < p.inventory.itemsBody.size() ? p.inventory.itemsBody.get(t) : null;
+            if (cur == null || !cur.isNotNullItem()) {
+                empty.add(t);
+            }
+        }
+        if (empty.isEmpty()) {
+            return;
+        }
+        synchronized (GEAR_LOCK) {
+            for (Bot o : BotWorld.gI().bots()) {
+                if (o == b || !o.accountBot || o.zone == null || nro.models.services_func.TransactionService.gI().check(o)) {
+                    continue;
+                }
+                for (Item it : new java.util.ArrayList<>(o.inventory.itemsBag)) {
+                    if (it == null || !it.isNotNullItem() || it.template.type > 4 || !empty.contains((int) it.template.type)
+                            || (it.template.gender != p.gender && it.template.gender != 3) || it.template.strRequire > p.nPoint.power
+                            || it.template.gender == o.gender || !BotTrade.tradeable(it)) {
+                        continue; // chỉ mua đồ bot kia không mặc được (khác hành tinh của nó)
+                    }
+                    int price = (int) Math.max(1, Math.round(BotTrade.gI().unitPrice(it)));
+                    Item tv = InventoryService.gI().findItemBag(b, 457);
+                    if (tv == null || tv.quantity < price) {
+                        continue;
+                    }
+                    InventoryService.gI().subQuantityItemsBag(b, tv, price);
+                    InventoryService.gI().removeItemBag(o, it);
+                    InventoryService.gI().addItemBag(b, it);
+                    InventoryService.gI().addItemBag(o, ItemService.gI().createNewItem((short) 457, price));
+                    Service.gI().chat(b, "mua được " + it.template.name + " cho đệ rồi");
+                    return;
+                }
             }
         }
     }

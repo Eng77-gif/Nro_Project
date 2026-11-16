@@ -111,6 +111,12 @@ public class Dot139Migration {
             update(con, "update part set data = '[[8588,2,6],[8589,1,4],[8590,-1,2],[8591,1,2],[8592,1,1],[8593,2,2],[8594,1,2],[8595,3,4],[8596,3,7],[8597,1,8],[8598,1,3],[8599,1,3],[8600,2,6],[8601,2,3],[8602,2,5],[8603,0,2],[2955,0,0]]' where id = 947");
             update(con, "update part set data = '[[8604,9,9],[8605,1,4],[8606,0,3],[8607,1,2],[8608,0,2],[8609,2,2],[8610,0,4],[8611,3,9],[8612,0,7],[8613,1,3],[8614,1,5],[8615,0,8],[8616,0,7],[2955,0,0]]' where id = 948");
             update(con, "update head_avatar set avatar_id = 8617 where head_id = 946");
+            // chat thế giới chỉ vẽ phần đầu: hoá Ma trơi (đầu 651) / Dơi (đầu 654) có đầu trong suốt (con vật nằm ở thân) nên ô avatar trống.
+            // Thêm đầu 2391 / 2392 dùng hình con vật, ChatGlobalService đổi sang khi người chat đang hoá hình.
+            update(con, "insert into part (id, TYPE, DATA) select 2391, 0, '[[6097,-7,-6],[6097,-7,-6],[6097,-7,-6]]' from dual where not exists (select 1 from part where id = 2391)");
+            update(con, "insert into part (id, TYPE, DATA) select 2392, 0, '[[6098,-6,2],[6098,-6,2],[6098,-6,2]]' from dual where not exists (select 1 from part where id = 2392)");
+            update(con, "insert into head_avatar (head_id, avatar_id) select 2391, 6100 from dual where not exists (select 1 from head_avatar where head_id = 2391)");
+            update(con, "insert into head_avatar (head_id, avatar_id) select 2392, 6099 from dual where not exists (select 1 from head_avatar where head_id = 2392)");
             boolean first = !exists(con, "select 1 from server_migration where name = 'dot139c_cua_hang'");
             StringBuilder keep = new StringBuilder();
             for (int i = 0; i < CUA_HANG.length; i++) {

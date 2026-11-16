@@ -170,7 +170,8 @@ public class ChatGlobalService implements Runnable {
                 this.playerName = player.name + " - Quản Trị Viên";
             }
             this.playerId = (int) player.id;
-            this.head = player.getHead();
+            short h = player.getHead();
+            this.head = h == 651 ? 2391 : h == 654 ? 2392 : h; // hoá Ma trơi / Dơi: đầu trong suốt, đổi sang đầu có hình con vật (Dot139Migration)
             this.body = player.getBody();
             this.leg = player.getLeg();
             this.bag = -1; // chat thế giới chỉ hiện cải trang + avatar, không hiện đeo lưng / pet

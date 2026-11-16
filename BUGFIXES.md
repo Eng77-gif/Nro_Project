@@ -2482,3 +2482,8 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Đang có từ 3 Super Broly mà nhóm không đánh nổi con nào thì bot thôi hạ Broly thường (không đẻ Super Broly tràn map).
   - Hạ Broly thường: bot nhập hội con đang có nhiều bot đánh nhất (trước đây mỗi bot tự chọn con ít HP nhất nên tản ra đánh 1 mình, không chết).
   Đã thử 2 bot: dồn vào cùng 1 Broly, hạ mỗi con ~1 - 2 phút, đủ 3 Super Broly quá sức thì dừng.
+
+## Avatar Ma trơi / Dơi ở chat thế giới; bot lo đồ cho đệ
+- Chat thế giới chỉ vẽ phần đầu: hoá Ma trơi (đầu 651) / Dơi (đầu 654) có đầu trong suốt 1x1 (con vật vẽ ở phần thân 6097 / 6098) nên ô avatar trống, Bộ xương (đầu 545) có hình đầu thật nên hiện. Thêm đầu 2391 (hình 6097) / 2392 (hình 6098) + head_avatar 6100 / 6099 (Dot139Migration), chat thế giới đổi sang khi người chat đang hoá hình. vsData 36.
+- Bot: đệ thường khác hành tinh với chủ và còn yếu (< 1 tỷ sức mạnh) thì thu đồ của đệ, mua "Đổi đệ tử" (Santa, 100 ngọc / lần) đổi tới khi cùng hành tinh, để đồ thừa của chính bot mặc được cho đệ. Đã thử: đệ Trái Đất của bot Namếc đổi thành Namếc.
+- Bot: đệ còn ô trang bị trống thì 10 - 20 phút 1 lần mua của bot khác món đồ đúng hành tinh của đệ đang thừa trong hành trang (món bot kia không mặc được), trả thỏi vàng theo giá chợ.
