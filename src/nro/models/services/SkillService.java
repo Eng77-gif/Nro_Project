@@ -418,6 +418,7 @@ public class SkillService {
                 // boss di chuyển / bay liên tục nên vị trí trên server lệch so với màn hình người chơi: cho thêm khoảng cách,
                 // trước đây đấm sát Black Goku / Broly vẫn bị tính xa quá 100 px nên toàn hụt
                 if (player.zone != null && player.zone.map.mapId != 113 && plTarget != null
+                        && !(plTarget instanceof nro.models.event.ThanhCo.GohanChienBinh) // đấu trên đài có tường: không tính xa / gần
                         && Util.getDistance(player, plTarget) > (plTarget.isBoss ? Skill.RANGE_ATTACK_CHIEU_DAM * 2 : Skill.RANGE_ATTACK_CHIEU_DAM)) {
                     miss = true;
                 }

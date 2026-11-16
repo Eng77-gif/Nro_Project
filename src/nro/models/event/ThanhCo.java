@@ -162,7 +162,7 @@ public class ThanhCo {
             if (plAtt != playerAtt) {
                 return 0; // chỉ người lên sàn được đánh
             }
-            return super.injured(plAtt, damage, piercing, isMobAttack);
+            return super.injured(plAtt, damage, true, isMobAttack); // không "Xí hụt" ngẫu nhiên 10% của boss đấu trường
         }
 
         /** Tiến tới cách người đấu ~40px rồi đứng lại, luôn trên mặt đài (lớp cha bước 50 - 100px nên vượt qua lại, trông như chạy lung tung). */
