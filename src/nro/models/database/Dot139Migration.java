@@ -111,6 +111,7 @@ public class Dot139Migration {
             update(con, "update part set data = '[[8588,2,6],[8589,1,4],[8590,-1,2],[8591,1,2],[8592,1,1],[8593,2,2],[8594,1,2],[8595,3,4],[8596,3,7],[8597,1,8],[8598,1,3],[8599,1,3],[8600,2,6],[8601,2,3],[8602,2,5],[8603,0,2],[2955,0,0]]' where id = 947");
             update(con, "update part set data = '[[8604,9,9],[8605,1,4],[8606,0,3],[8607,1,2],[8608,0,2],[8609,2,2],[8610,0,4],[8611,3,9],[8612,0,7],[8613,1,3],[8614,1,5],[8615,0,8],[8616,0,7],[2955,0,0]]' where id = 948");
             update(con, "update head_avatar set avatar_id = 8617 where head_id = 946");
+            eventItemStats(con);
             // chat thế giới chỉ vẽ phần đầu: hoá Ma trơi (đầu 651) / Dơi (đầu 654) có đầu trong suốt (con vật nằm ở thân) nên ô avatar trống.
             // Thêm đầu 2391 / 2392 dùng hình con vật, ChatGlobalService đổi sang khi người chat đang hoá hình.
             update(con, "insert into part (id, TYPE, DATA) select 2391, 0, '[[6097,-7,-6],[6097,-7,-6],[6097,-7,-6]]' from dual where not exists (select 1 from part where id = 2391)");
@@ -168,5 +169,39 @@ public class Dot139Migration {
                     .append(",0,0,").append(p[3]).append(',').append(p[4]).append(',').append(p[5]).append("]\"");
         }
         return b.append(']').toString();
+    }
+
+    /**
+     * Chỉ số vật phẩm sự kiện theo ảnh (đợt 16/11): ghi vào item_template_option (đồ tạo mới / quà) và item_shop_option (đồ bán ở shop),
+     * thay các dòng chỉ số cũ, giữ dòng không giao dịch / hạn dùng. Món cũ trong túi người chơi đổi theo khi đăng nhập (ItemService.refreshTitle).
+     * Chạy 1 lần (server_migration 'event_items_1116').
+     */
+    static final int NGAU_GIAM = 269; // Ngầu +#% giảm sát thương cho người xung quanh
+    static final int[][][] EVENT_ITEMS = {
+        {{1991}, {103, 30}, {7, 25000}}, // Thủy Thủ Mặt Trăng
+        {{954}, {50, 22}, {77, 15}, {103, 15}}, // Bó Hoa Hồng
+        {{1670}, {50, 12}, {103, 12}, {77, 12}, {83, 0}}, // Balo Capybara hồng
+        {{1519}, {50, 19}, {77, 19}, {103, 19}, {5, 18}}, // Bong bóng thiên thần
+        {{1925}, {50, 15}, {77, 22}, {103, 15}, {108, 15}, {NGAU_GIAM, 2}}, // Bó Hoa Hồng 2 Mới
+        {{1914}, {50, 15}, {77, 15}, {103, 5}, {NGAU_GIAM, 2}}, // Pet Gấu Dâu
+        {{1515}, {50, 18}, {77, 15}, {103, 15}, {80, 10}}, // Chậu hoa hồng
+        {{1344}, {77, 18}, {103, 18}, {5, 10}, {117, 5}}}; // Con Cat hường
+    private static final String STAT_IDS = "5, 7, 50, 77, 80, 83, 103, 108, 117, 269";
+
+    private static void eventItemStats(Connection con) throws Exception {
+        update(con, "insert into item_option_template (id, NAME) select " + NGAU_GIAM + ", 'Ngầu +#% giảm sát thương cho người xung quanh' from dual where not exists (select 1 from item_option_template where id = " + NGAU_GIAM + ")");
+        if (exists(con, "select 1 from server_migration where name = 'event_items_1116'")) {
+            return;
+        }
+        for (int[][] it : EVENT_ITEMS) {
+            int id = it[0][0];
+            update(con, "delete from item_template_option where template_id = " + id + " and option_id in (" + STAT_IDS + ")");
+            update(con, "delete from item_shop_option where option_id in (" + STAT_IDS + ") and item_shop_id in (select id from item_shop where temp_id = " + id + ")");
+            for (int k = 1; k < it.length; k++) {
+                update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (" + id + ", " + it[k][0] + ", " + it[k][1] + ", " + it[k][1] + ", 100, 0)");
+                update(con, "insert into item_shop_option (item_shop_id, option_id, param) select id, " + it[k][0] + ", " + it[k][1] + " from item_shop where temp_id = " + id);
+            }
+        }
+        update(con, "insert into server_migration (name) values ('event_items_1116')");
     }
 }

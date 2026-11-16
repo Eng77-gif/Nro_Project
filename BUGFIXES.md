@@ -2502,3 +2502,9 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Có người cùng bang đang ở NRSD thì vào đúng khu đó (ưu tiên khu có đồng đội đang cầm ngọc) để thủ cùng.
 - Bot đang cầm ngọc rồng sao đen giữ tới hết giờ, không đổi việc / rời map (rời map là rơi ngọc); đứng giữ, chỉ đánh trả người áp sát.
 - Bot không cầm ngọc ưu tiên đánh người khác cờ đang cầm ngọc để cướp; đang đánh NRSD thì ở lại tới hết giờ (trước đây vài phút là đổi việc bỏ đi).
+
+## Chỉ số vật phẩm sự kiện theo ảnh (16/11)
+- Thủy Thủ Mặt Trăng (1991): KI +30%, KI +25.000. Bó Hoa Hồng (954): SĐ 22%, HP 15%, KI 15%. Balo Capybara hồng (1670): SĐ / KI / HP 12%, tăng 20% SM + TN khi đánh quái. Bong bóng thiên thần (1519): SĐ / HP / KI 19%, +18% sức đánh chí mạng. Bó Hoa Hồng 2 Mới (1925): SĐ 15%, HP 22%, KI 15%, né đòn 15%, Ngầu 2%. Pet Gấu Dâu (1914): SĐ 15%, HP 15%, KI 5%, Ngầu 2%. Chậu hoa hồng (1515): SĐ 18%, HP 15%, KI 15%, HP +10%/30s. Con Cat hường (1344): HP 18%, KI 18%, +10% sức đánh chí mạng, Đẹp 5%.
+- Ghi vào item_template_option + item_shop_option (Dot139Migration, 1 lần). Món cũ trong túi người chơi tự đổi chỉ số khi đăng nhập (chỉ thay các dòng chỉ số, giữ sao pha lê, không giao dịch, hạn dùng...).
+- Chỉ số mới 269 "Ngầu +#% giảm sát thương cho người xung quanh": ai đứng trong 200px của người đeo (kể cả người đeo) nhận ít sát thương hơn theo %, nhiều người đeo thì lấy mức cao nhất. vsItem 29.
+- Chỉ số 83 "Tăng 20% sức mạnh và tiềm năng khi đánh quái" trước đây không có tác dụng, nay +20% TN / SM như dòng +% TN, SM.

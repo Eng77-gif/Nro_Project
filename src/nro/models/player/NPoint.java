@@ -176,6 +176,7 @@ public class NPoint {
      * Tỉ lệ sức đánh đẹp cộng thêm cho bản thân và người xung quanh
      */
     public int tlSexyDame;
+    public int tlNgauGiam; // option 269: Ngầu +#% giảm sát thương cho người xung quanh (Player.injured)
 
     /**
      * Tỉ lệ giảm sức đánh
@@ -422,6 +423,9 @@ public class NPoint {
                         case 101: //+#% TN,SM
                             this.tlTNSM.add(io.param);
                             break;
+                        case 83: //Tăng 20% sức mạnh và tiềm năng nhận được khi đánh quái (trước đây không có tác dụng)
+                            this.tlTNSM.add(20);
+                            break;
                         case 103: //KI +#%
                             this.tlMp.add(io.param);
                             break;
@@ -448,6 +452,11 @@ public class NPoint {
                         case 117: //Đẹp +#% SĐ cho mình và người xung quanh
                             if (io.param > this.tlSexyDame) {
                                 this.tlSexyDame = io.param;
+                            }
+                            break;
+                        case 269: //Ngầu +#% giảm sát thương cho người xung quanh
+                            if (io.param > this.tlNgauGiam) {
+                                this.tlNgauGiam = io.param;
                             }
                             break;
                         case 147: //+#% sức đánh
@@ -1295,6 +1304,9 @@ public class NPoint {
             case 101: //+#% TN,SM
                 this.tlTNSM.add(io.param);
                 break;
+            case 83: //Tăng 20% sức mạnh và tiềm năng nhận được khi đánh quái
+                this.tlTNSM.add(20);
+                break;
             case 103: //KI +#%
                 this.tlMp.add(io.param);
                 break;
@@ -1324,6 +1336,11 @@ public class NPoint {
             case 117: //Đẹp +#% SĐ cho mình và người xung quanh
                 if (io.param > this.tlSexyDame) {
                     this.tlSexyDame = io.param;
+                }
+                break;
+            case 269: //Ngầu +#% giảm sát thương cho người xung quanh
+                if (io.param > this.tlNgauGiam) {
+                    this.tlNgauGiam = io.param;
                 }
                 break;
             case 147: //+#% sức đánh
@@ -1999,6 +2016,7 @@ public class NPoint {
         this.setNhatAn = 0;
         this.setNguyetAn = 0;
         this.tlSexyDame = 0;
+        this.tlNgauGiam = 0;
         this.tlSubSD = 0;
         this.tlSubHpKi = 0;
         this.tlHpGiamODo = 0;

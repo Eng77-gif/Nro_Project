@@ -721,6 +721,20 @@ public class Player implements Runnable {
         {-1, 472, 473}, {-1, 476, 477}, {-1, 474, 475}
     };
 
+    /** Option 269 "Ngầu": có người (kể cả mình) trong 200px đeo đồ Ngầu thì giảm sát thương nhận vào theo % cao nhất. */
+    private long ngauGiam(long damage) {
+        if (this.zone == null || this.nPoint == null || damage <= 0) {
+            return damage;
+        }
+        int best = this.nPoint.tlNgauGiam;
+        for (Player p : this.zone.getNotBosses()) {
+            if (p != null && p != this && p.nPoint != null && p.nPoint.tlNgauGiam > best && !p.isDie() && Util.getDistance(this, p) <= 200) {
+                best = p.nPoint.tlNgauGiam;
+            }
+        }
+        return best > 0 ? damage - damage * best / 100 : damage;
+    }
+
     public static final short[][][] idOutfitHalloween = {
         {
             {545, 548, 549}, {547, 548, 549}, {546, 548, 549}
@@ -1303,6 +1317,7 @@ public class Player implements Runnable {
                 damage = 0;
             } else {
                 damage -= ((damage / 100) * tlGiap);
+                damage = ngauGiam(damage);
 
                 if (!piercing && xuyenGiap > 0) {
                     damage = Math.max(1, damage - this.nPoint.def * (100 - xuyenGiap) / 100);
