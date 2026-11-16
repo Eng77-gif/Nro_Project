@@ -2352,3 +2352,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## King Furry chỉ nhận ký gửi Bí ngô 1-7 sao và Kẹo bàn tay
 - Chợ đồ sự kiện (King Furry, Siêu thị) chỉ cho đem ký gửi mới Bí ngô 1-7 sao (702-708) và Kẹo bàn tay (901). Vật phẩm sự kiện Halloween khác không ký gửi được, phải tự kiếm. Món đã ký gửi trước đó vẫn bán / rút về bình thường.
+
+## Siêu thị (map 84): NPC đứng đúng toạ độ
+- Bò Mộng 103, Bunma 204, Bà Hạt Mít 298, Uron 391, Appule 506, Dende 600, Cửa hàng ký gửi 696, King Furry 796, Dr. Brief 889 (y 336). Đặt mỗi lần khởi động (Dot139Migration).
