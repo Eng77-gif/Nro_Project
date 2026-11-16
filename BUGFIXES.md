@@ -2373,3 +2373,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Boss trong câu chat là boss đang sống thật, kèm bản đồ thật nó đang đứng; chỉ nhắc boss mà bot đủ sức đánh (máu boss <= 50 lần sức đánh bot); câu "đánh ... khó quá ai phụ" chỉ khi bot đứng cùng bản đồ với boss. Bỏ "X rớt đồ ngon không", "X mấy giờ ra".
 - Rủ vào bang chỉ khi bang còn chỗ; "cần tìm bang" chỉ khi bot chưa có bang.
 - Mua / bán chỉ món giao dịch được (thỏi vàng, ngọc rồng, sao pha lê, đá nâng cấp, đậu thần...), bỏ pet / cải trang / đồ thần / set kích hoạt / bông tai.
+
+## Panel Bot: tab "Tạo bot" trống
+- Khung "Tạo bot mới" bị lồng nhầm trong khung tab "Quyền & mẫu" (thiếu 1 thẻ đóng), nên bấm tab Tạo bot không hiện gì. Đã tách ra; 5 tab mỗi tab hiện đúng phần của mình.
