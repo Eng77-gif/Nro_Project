@@ -2417,3 +2417,9 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Tay nhanh hơn não (1673): đổi từ SĐ/HP/KI +11%, Đẹp +5% thành HP +5%, +20% May mắn, +10% TN SM, HSD 7 ngày.
 - Đặt ở data_badges (chỉ số khi đeo), item_template_option và item_shop_option (hiện ở shop) mỗi lần khởi động.
 - Danh hiệu Đón Xuân / Tay nhanh hơn não đang nằm trong hành trang, rương của người chơi: khi nhân vật vào game tự đổi sang chỉ số mới (giữ hạn sử dụng còn lại và dòng không giao dịch). Danh hiệu đã đeo lấy chỉ số từ data_badges nên đã đúng.
+
+## Loa to thế giới, Loa to liên vũ trụ có tác dụng (1 server)
+- Trước: Loa thế giới mở bảng không xử lý, Loa liên vũ trụ không làm gì. Nay dùng loa nhập nội dung (tối đa 80 chữ), mất 1 loa:
+  - Loa to thế giới (1652, sức mạnh 20tr): dòng chữ chạy "[Loa] tên: nội dung" cho cả server.
+  - Loa to liên vũ trụ (1653): dòng chữ chạy + bảng thông báo lớn giữa màn hình mọi người đang online.
+  - Cách nhau tối thiểu 15 giây; hiện trong Nhật ký chat & thông báo của panel.

@@ -732,6 +732,7 @@ public class UseItem {
                             case 1862:
                                 UseItem.gI().ThucAnChoThan(pl, item);
                                 break;
+                            case 1653: // Loa to liên vũ trụ
                             case 1652: // Sử dụng item Loa Thế Giới
                                try {
                                 UseItem.gI().LoaTheGioi(pl, item);
@@ -2956,7 +2957,7 @@ public class UseItem {
     }
 
     public void LoaTheGioi(Player pl, Item item) {
-        NpcService.gI().createMenuConMeo(pl, 901, -1, "Nhập Nội Dung Muốn Chát", "Ok", "Từ chối");
+        Input.gI().createFormLoa(pl, item.template.id);
     }
 
     public void TuiVang(Player pl, Item item) {

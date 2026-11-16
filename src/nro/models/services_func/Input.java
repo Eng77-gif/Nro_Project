@@ -81,6 +81,8 @@ public class Input {
     public static final int BOTBOSS = 32;
     public static final int BOTATTACKPLAYER = 33;
     public static final int FIND_PLAYER_GIFT_RUBY = 34;
+    public static final int LOA_THE_GIOI = 35; // Loa to thế giới (1652): dòng chữ chạy cho cả server
+    public static final int LOA_LIEN_VU_TRU = 36; // Loa to liên vũ trụ (1653): bảng thông báo lớn giữa màn hình mọi người
 
     private static Input intance;
 
@@ -526,6 +528,7 @@ public class Input {
                         }
                     }
                 }
+                case LOA_THE_GIOI, LOA_LIEN_VU_TRU -> useLoa(player, typeInput == LOA_LIEN_VU_TRU ? 1653 : 1652, text[0]);
                 case TANG_NGOC_HONG -> {
                     Player pl = Client.gI().getPlayer(text[0]);
                     int numruby = Integer.parseInt((text[1]));
@@ -658,6 +661,51 @@ public class Input {
 
     public void createFormFindPlayer(Player pl) {
         createForm(pl, FIND_PLAYER, "Tìm kiếm người chơi", new SubInput("Tên người chơi", ANY));
+    }
+
+    public void createFormLoa(Player pl, int itemId) {
+        createForm(pl, itemId == 1653 ? LOA_LIEN_VU_TRU : LOA_THE_GIOI, itemId == 1653 ? "Loa to liên vũ trụ" : "Loa to thế giới",
+                new SubInput("Nội dung (tối đa 80 chữ)", ANY));
+    }
+
+    private static final java.util.Map<Long, Long> LOA_CD = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** 1 server: Loa thế giới = dòng chữ chạy cho mọi người; Loa liên vũ trụ = thêm bảng thông báo lớn giữa màn hình mọi người đang online. */
+    private void useLoa(Player player, int itemId, String raw) {
+        String text = raw == null ? "" : raw.replaceAll("[\\r\\n|]", " ").trim();
+        if (text.isEmpty()) {
+            return;
+        }
+        if (text.length() > 80) {
+            text = text.substring(0, 80);
+        }
+        Item loa = InventoryService.gI().findItemBag(player, itemId);
+        if (loa == null) {
+            Service.gI().sendThongBao(player, "Bạn không có " + (itemId == 1653 ? "Loa to liên vũ trụ" : "Loa to thế giới"));
+            return;
+        }
+        if (loa.template.strRequire > player.nPoint.power) {
+            Service.gI().sendThongBao(player, "Sức mạnh chưa đủ để dùng");
+            return;
+        }
+        long now = System.currentTimeMillis();
+        if (now - LOA_CD.getOrDefault(player.id, 0L) < 15_000) {
+            Service.gI().sendThongBao(player, "Chờ chút rồi dùng loa tiếp nhé");
+            return;
+        }
+        LOA_CD.put(player.id, now);
+        InventoryService.gI().subQuantityItemsBag(player, loa, 1);
+        InventoryService.gI().sendItemBags(player);
+        String line = player.name + ": " + text;
+        nro.models.server.ServerNotify.gI().notify((itemId == 1653 ? "[Loa liên vũ trụ] " : "[Loa] ") + line);
+        if (itemId == 1653) {
+            for (Player p : new java.util.ArrayList<>(Client.gI().getPlayers())) {
+                if (p != null && !p.isBot) {
+                    Service.gI().sendBigMessage(p, loa.template.iconID, "Loa to liên vũ trụ\n" + line);
+                }
+            }
+        }
+        Service.gI().sendThongBao(player, "Đã phát loa");
     }
 
     public void createFormFindPlayer1(Player pl) {
