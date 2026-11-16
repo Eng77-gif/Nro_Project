@@ -74,22 +74,34 @@ public class BotSanBoss {
                     want = exact;
                 }
                 if (this.bot.accountBot && prefer.toLowerCase().contains("broly")) {
-                    // săn đệ: chỉ nhắm Super Broly. Broly thường mỗi đòn chỉ mất tối đa 1% HP lại hay Tái tạo năng lượng (hồi máu, tăng HP),
-                    // 1 bot đánh không bao giờ chết (thử: 36k -> 297k HP sau 6 phút) nên trước đây bot đứng đánh Broly mãi, không lấy được đệ
-                    List<Boss> sup = new ArrayList<>();
+                    // săn đệ: ưu tiên dò Super Broly đang có (chưa có đệ mới nhận được đệ). Không có thì cả nhóm cùng hạ 1 Broly thường
+                    // (con ít HP nhất, mọi bot chọn trùng nhau) để nó hoá Super Broly tại chỗ rồi tranh nhau hạ. Broly thường mỗi đòn chỉ mất 1% HP
+                    // lại hay Tái tạo năng lượng nên 1 bot đánh không chết, phải đông người (BotWorld.rallySuperBroly gom nhóm).
+                    List<Boss> sup = new ArrayList<>(), thuong = new ArrayList<>();
                     for (Boss b : want) {
-                        if (b.name.toLowerCase().contains("super")) {
-                            sup.add(b);
-                        }
+                        (b.name.toLowerCase().contains("super") ? sup : thuong).add(b);
                     }
-                    want = sup;
-                }
-                if (!want.isEmpty()) {
+                    if (!sup.isEmpty() && this.bot.pet == null) {
+                        Boss near = null; // Super Broly cùng map (vừa hoá từ Broly nhóm mình hạ) trước, không thì con bất kỳ
+                        for (Boss b : sup) {
+                            if (this.bot.zone != null && b.zone == this.bot.zone) {
+                                near = b;
+                            }
+                        }
+                        this.bossAttack = near != null ? near : sup.get(new Random().nextInt(sup.size()));
+                    } else if (System.currentTimeMillis() < waitSuperUntil) {
+                        this.bossAttack = null; // vừa hạ Broly: đứng chờ Super Broly hiện ra tại chỗ
+                        return;
+                    } else if (!thuong.isEmpty()) {
+                        thuong.sort(java.util.Comparator.comparingLong(b -> b.nPoint.hpMax));
+                        this.bossAttack = thuong.get(0);
+                    } else {
+                        this.bossAttack = null; // không có Broly nào đánh nổi: không đánh bừa boss khác (trước đây lạc sang Số 3 Namek)
+                        giveUp();
+                        return;
+                    }
+                } else if (!want.isEmpty()) {
                     this.bossAttack = want.get(new Random().nextInt(want.size()));
-                } else if (this.bot.accountBot && prefer.toLowerCase().contains("broly")) {
-                    this.bossAttack = null; // không có Super Broly đánh nổi: không đánh bừa boss khác (trước đây lạc sang Số 3 Namek / Broly thường)
-                    giveUp();
-                    return;
                 } else if (System.currentTimeMillis() < waitSuperUntil) {
                     this.bossAttack = null; // đứng chờ Super Broly, chưa bỏ đi
                     return;
@@ -166,6 +178,13 @@ public class BotSanBoss {
     }
 
     public void SanBot() {
+        Boss cur = this.bossAttack;
+        if (cur != null && !cur.isDie() && this.bot.accountBot && cur.name != null && cur.name.toLowerCase().contains("super broly")
+                && cur.nPoint.hpMax > 1000 && (this.bot.pet != null || !BotWorld.canHunt(this.bot, cur))) {
+            // Super Broly vừa hiện ra thì HP còn mặc định, chọn xong mới biết là con 14 triệu: quá sức thì bỏ, hạ Broly khác cho ra con mới
+            this.bossAttack = null;
+            this.waitSuperUntil = 0; // Super Broly đã ra (mà quá sức): thôi chờ, đi hạ Broly khác luôn
+        }
         this.GetBoss(0);
         this.GetSkil();
         if (this.bossAttack != null && !this.bossAttack.isDie() && this.bossAttack.zone != null && this.bot.zone != this.bossAttack.zone) {

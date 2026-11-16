@@ -1343,9 +1343,37 @@ public final class BotWorld {
 
     /** Số bot tối đa cùng vây đánh 1 Super Broly (máu 15 tỷ, 1 bot đánh không xuể). */
     static final int SUPER_BROLY_GANG = 8;
+    static final int BROLY_GANG = 12; // hạ Broly thường cần đông: mỗi đòn chỉ mất 1% HP mà 10% số đòn làm Broly tăng HP
 
     /** Super Broly đang sống: gọi thêm bot rảnh (luyện tập / săn boss / nghỉ) đủ sức tới cùng đánh. */
     private void rallySuperBroly() {
+        boolean anySuper = false;
+        nro.models.boss.Boss weakest = null; // Broly thường ít HP nhất: chưa có Super Broly thì cả nhóm hạ con này cho nó hoá Super
+        for (nro.models.boss.Boss x : new ArrayList<>(nro.models.boss.Boss_Manager.BrolyManager.gI().getBosses())) {
+            if (x == null || x.isDie() || x.zone == null || x.name == null) {
+                continue;
+            }
+            if (x.name.toLowerCase().contains("super")) {
+                anySuper = true;
+            } else if (weakest == null || x.nPoint.hpMax < weakest.nPoint.hpMax) {
+                weakest = x;
+            }
+        }
+        if (!anySuper && weakest != null) {
+            int n = 0;
+            List<Bot> free = new ArrayList<>();
+            for (Bot b : bots()) {
+                if (b.getMode() == 2 && "Broly".equals(b.boss.prefer)) {
+                    n++;
+                } else if (freeForBroly(b, weakest, true)) { // hạ Broly thường ai đánh cú cuối cũng được: bot có đệ vào giúp cho đông
+                    free.add(b);
+                }
+            }
+            java.util.Collections.shuffle(free);
+            for (int i = 0; i < free.size() && n < BROLY_GANG; i++, n++) {
+                sendBroly(free.get(i), "Broly");
+            }
+        }
         for (nro.models.boss.Boss sb : new ArrayList<>(nro.models.boss.Boss_Manager.BrolyManager.gI().getBosses())) {
             if (sb == null || sb.isDie() || sb.zone == null || sb.name == null || !sb.name.toLowerCase().contains("super")) {
                 continue;
@@ -1355,22 +1383,30 @@ public final class BotWorld {
             for (Bot b : bots()) {
                 if (b.getMode() == 2 && b.boss.prefer != null && sb.name.equals(b.boss.prefer)) {
                     n++;
-                } else if (b.accountBot && b.pet == null && b.zone != null && !b.isDie() && allow(b, "broly") && canHunt(b, sb) && b.canGo(sb.zone.map.mapId)
-                        && jobOf(b.id) == null && !BotArena.inArena(b) && !BotClan.inDungeon(b)
-                        && ("Luyện tập".equals(b.activity) || "Săn boss".equals(b.activity) || b.activity != null && b.activity.startsWith("Nghỉ ở nhà"))) {
+                } else if (freeForBroly(b, sb, false)) {
                     free.add(b);
                 }
             }
             java.util.Collections.shuffle(free);
             for (int i = 0; i < free.size() && n < SUPER_BROLY_GANG; i++, n++) {
-                Bot b = free.get(i);
-                b.boss.prefer = sb.name;
-                b.boss.bossAttack = null;
-                b.stayMap = false;
-                b.setMode(2);
-                b.activity = "Săn đệ (Broly)";
+                sendBroly(free.get(i), sb.name);
             }
         }
+    }
+
+    /** Bot rảnh (luyện tập / săn boss / nghỉ), đánh nổi và tới được boss Broly này; Super Broly chỉ bot chưa có đệ (hạ mới nhận đệ). */
+    private boolean freeForBroly(Bot b, nro.models.boss.Boss x, boolean helper) {
+        return b.accountBot && (helper || b.pet == null) && b.zone != null && !b.isDie() && allow(b, "broly") && canHunt(b, x) && b.canGo(x.zone.map.mapId)
+                && jobOf(b.id) == null && !BotArena.inArena(b) && !BotClan.inDungeon(b)
+                && ("Luyện tập".equals(b.activity) || "Săn boss".equals(b.activity) || b.activity != null && b.activity.startsWith("Nghỉ ở nhà"));
+    }
+
+    private static void sendBroly(Bot b, String prefer) {
+        b.boss.prefer = prefer;
+        b.boss.bossAttack = null;
+        b.stayMap = false;
+        b.setMode(2);
+        b.activity = "Săn đệ (Broly)";
     }
 
     static final String DAILY = "Nhiệm vụ hằng ngày";
