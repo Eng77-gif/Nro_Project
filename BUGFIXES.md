@@ -2428,3 +2428,8 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 ## Santa bỏ nút sự kiện; Bà Hạt Mít ẩn Phân rã / Tái tạo
 - Santa: bỏ nút "Sự kiện Halloween" (hướng dẫn đã đăng trên web; đổi quà sự kiện vẫn ở nút sự kiện của NPC đổi quà như Bà Hạt Mít).
 - Bà Hạt Mít (Đảo Kamê): "Phân rã Trang bị Kích hoạt" và "Tái tạo Capsule Kích hoạt" chỉ hiện khi người chơi có Cápsule Vỡ lần đầu, sau đó hiện vĩnh viễn (player_extra.skh_menu). Các nút khác bấm đúng chức năng dù nút ẩn / hiện.
+
+## Dồn số map 183–190 → 167–174
+- Map 183–190 đổi số thành 167–174 (Thành cổ 1/2, Đấu trường, Rừng nguyên sinh, Ngục tù may mắn, Map Mùa hè, 2 map riêng tư), không còn khoảng trống sau 166.
+- `MapRenumMigration` (chỉ chạy 1 lần, đánh dấu `map_renum_167`) cập nhật map_template, vị trí người chơi, NPC/quái sự kiện, nhiệm vụ, dữ liệu bot, map rơi sự kiện.
+- File data/map (tile, item_bg) đã đổi tên theo. `vsMap` = 11 để client tải lại map.

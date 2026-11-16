@@ -18,7 +18,7 @@ import static nro.models.database.Dot77Migration.update;
  */
 public class Dot129Migration {
 
-    public static final int MAP_MUA_HE = 188;
+    public static final int MAP_MUA_HE = 172; // trước 188 (dồn số map)
 
     public static void run(Connection con) {
         try {

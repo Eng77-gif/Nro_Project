@@ -613,9 +613,9 @@ public final class Dot56Migration {
         if (!columnExists(con, "player_extra", "lucky_map_until")) {
             changed += 1 + update(con, "alter table player_extra add column lucky_map_until bigint not null default 0");
         }
-        if (!exists(con, "select 1 from map_template where id = 187")) {
+        if (!exists(con, "select 1 from map_template where id = 171")) { // Ngục tù may mắn (trước 187)
             changed += update(con, "insert into map_template (id, NAME, zones, max_player, data, type, planet_id, bg_type, tile_id, bg_id, waypoints, mobs, npcs, is_map_double) "
-                    + "select 187, 'Ngục tù may mắn', zones, max_player, data, type, planet_id, bg_type, tile_id, bg_id, waypoints, mobs, npcs, is_map_double from map_template where id = 155");
+                    + "select 171, 'Ngục tù may mắn', zones, max_player, data, type, planet_id, bg_type, tile_id, bg_id, waypoints, mobs, npcs, is_map_double from map_template where id = 155");
         }
         changed += update(con, "update item_template set description = 'Vào Ngục tù may mắn (vàng rơi nhiều) trong thời gian sử dụng' where id = 2021 and description = 'Vật phẩm sự kiện'");
         if (exists(con, "select 1 from server_migration where name = 'dot65_items'")) {

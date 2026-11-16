@@ -498,14 +498,14 @@ public class MapService {
     }
 
     /** Map riêng tư (vào bằng Vé riêng tư): Map riêng tư, Thung lũng Maima (bản riêng tư), Rừng nguyên sinh (bản riêng tư). */
-    public static final int[] MAP_RIENG_TU = {164, 189, 190};
+    public static final int[] MAP_RIENG_TU = {164, 173, 174};
 
     public boolean isMapRiengTu(int mapId) {
-        return mapId == 164 || mapId == 189 || mapId == 190;
+        return mapId == 164 || mapId == 173 || mapId == 174;
     }
 
     /** Ngục tù may mắn: bản sao Hành tinh ngục tù, vào bằng Phiếu sao vàng may mắn */
-    public static final int MAP_NGUC_TU_MAY_MAN = 187;
+    public static final int MAP_NGUC_TU_MAY_MAN = 171;
 
     public boolean isMapNgucTu(int mapId) {
         return mapId == 155 || mapId == MAP_NGUC_TU_MAY_MAN;

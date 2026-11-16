@@ -30,7 +30,7 @@ public class VuaHung extends Npc {
     private static final int TEM = 1558;
     private static final int THOI_VANG = 457;
     private static final int LENH_BAI_THANH_CO = 2018;
-    public static final int MAP_THANH_CO_1 = 183, MAP_THANH_CO_2 = 184, MAP_DAU_TRUONG = 185;
+    public static final int MAP_THANH_CO_1 = 167, MAP_THANH_CO_2 = 168, MAP_DAU_TRUONG = 169;
     /** người đã trồng dưa trong khung giờ hiện tại: playerId -> mã khung giờ */
     private static final java.util.Map<Long, Long> daTrong = new java.util.concurrent.ConcurrentHashMap<>();
     /** các nút đang hiện ở menu của từng người */

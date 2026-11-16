@@ -28,7 +28,7 @@ import nro.models.utils.Util;
 public class BanDoTruyenThuyet {
 
     public static final int ITEM = 1565;
-    public static final int MAP_ID = 186;
+    public static final int MAP_ID = 170;
     private static final long TIME_LIMIT = 10 * 60_000L;
     private static final long AFTER_KILL = 30_000L;
     private static final int[] BOSSES = {ConstMob.VOI_CHIN_NGA, ConstMob.GA_CHIN_CUA, ConstMob.NGUA_CHIN_LMAO};

@@ -324,6 +324,7 @@ public final class Manager {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try (Connection ConnectionDatabase = LocalManager.getConnection()) {
+            nro.models.database.MapRenumMigration.run(ConnectionDatabase); // dồn số map 183-190 -> 167-174 (trước mọi migration)
             nro.models.database.Dot48Migration.run(ConnectionDatabase);
             nro.models.database.Dot52Migration.run(ConnectionDatabase);
             nro.models.database.Dot56Migration.run(ConnectionDatabase);
