@@ -706,6 +706,11 @@ public class VietLoader {
             // E10, Máy dò Ngọc rồng sự kiện: thoát game không mất thời gian còn lại
             player.e10Until = System.currentTimeMillis() + Math.max(0, Math.min(86_400_000L, itemTimeAt(dataArray, 30)));
             player.mayDoNrskUntil = System.currentTimeMillis() + Math.max(0, Math.min(86_400_000L, itemTimeAt(dataArray, 31)));
+            long khauTrang = Math.min(ItemTime.TIME_KHAU_TRANG, itemTimeAt(dataArray, 32)); // 32: Khẩu trang còn lại
+            if (khauTrang > 0) {
+                player.itemTime.isUseKhauTrang = true;
+                player.itemTime.lastTimeKhauTrang = System.currentTimeMillis() - (ItemTime.TIME_KHAU_TRANG - khauTrang);
+            }
             player.itemTime.isUseNuocMia1 = timeNuocMia1 > 0;
             player.itemTime.isUseNuocMia2 = timeNuocMia2 > 0;
             player.itemTime.isUseNuocMia3 = timeNuocMia3 > 0;

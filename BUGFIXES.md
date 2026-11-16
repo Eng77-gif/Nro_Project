@@ -2423,3 +2423,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Loa to thế giới (1652, sức mạnh 20tr): dòng chữ chạy "[Loa] tên: nội dung" cho cả server.
   - Loa to liên vũ trụ (1653): dòng chữ chạy + bảng thông báo lớn giữa màn hình mọi người đang online.
   - Cách nhau tối thiểu 15 giây; hiện trong Nhật ký chat & thông báo của panel.
+- Khẩu trang: lưu thời gian còn lại khi thoát game (item_time vị trí 32), vào lại vẫn còn hiệu lực.

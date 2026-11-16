@@ -632,6 +632,7 @@ public class PlayerDAO {
                 dataArray.add((player.itemTime.isUseKilis ? Math.max(0, player.itemTime.lastTimeUseKilis + player.itemTime.timeLengthKilis - System.currentTimeMillis()) : 0));
                 dataArray.add(Math.max(0, player.e10Until - System.currentTimeMillis())); // 30: Năng lượng E10 còn lại
                 dataArray.add(Math.max(0, player.mayDoNrskUntil - System.currentTimeMillis())); // 31: Máy dò Ngọc rồng sự kiện còn lại
+                dataArray.add(player.itemTime.isUseKhauTrang ? Math.max(0, ItemTime.TIME_KHAU_TRANG - (System.currentTimeMillis() - player.itemTime.lastTimeKhauTrang)) : 0); // 32: Khẩu trang còn lại
                 String itemTime = dataArray.toJSONString();
                 dataArray.clear();
 
