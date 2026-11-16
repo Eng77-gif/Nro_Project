@@ -2440,3 +2440,9 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Tab "Tiến độ người chơi": nhiệm vụ đang làm (thường / VIP) và số đếm Bò Mộng, Mộc Nhân, Đảo Kho Báu, ĐHVT, Ninja tím, quái.
 - Lưu ở bảng `kol_config` (tự tạo). Chưa lưu lần nào thì dùng 7 nhiệm vụ tháng 11 như cũ.
 - Tab Tiến độ người chơi: nút "Đặt lại" từng người (về nhiệm vụ 1 thường + VIP, xoá số đếm). Vẫn giữ trạng thái đã mở VIP của đợt này. Online đổi ngay, offline ghi thẳng vào DB.
+
+## Thành cổ: bỏ sàn, đi bằng cổng thay cho NPC Hùng Vương
+- Đấu trường thành cổ (169): bỏ cái sàn nổi giữa map (13 ô gạch), cả map một mặt đất y=672. vsMap = 12 để client tải lại.
+- Cổng 2 đầu map: Thành cổ 1 (trái: Về làng theo hành tinh, phải: Thành cổ 2) ↔ Thành cổ 2 (phải: Đấu trường) ↔ Đấu trường (trái: Thành cổ 2).
+- Xoá NPC Hùng Vương khỏi 3 map (map_template.npcs = []); vào Đấu trường là Gohan chiến binh tự lên sàn (khu đang có người đấu thì báo chờ / sang khu khác).
+- Vào cổ thành vẫn nhờ Hùng Vương ở làng (tốn 1 Lệnh bài thành cổ).

@@ -82,6 +82,10 @@ public class Dot139Migration {
                             + "select " + c[0] + ", concat(NAME, ' (riêng tư)'), 50, max_player, data, type, planet_id, bg_type, tile_id, bg_id, '[]', mobs, '[]', is_map_double from map_template where id = " + c[1]);
                 }
             }
+            // Thành cổ: đi bằng cổng 2 đầu map thay cho NPC Hùng Vương (vào cổ thành vẫn nhờ Hùng Vương ở làng)
+            setWps(con, 167, wps(new Object[]{"Về làng", 0, 480, 21, 250, 336}, new Object[]{"Thành cổ 2", 1008, 480, 168, 60, 624}));
+            setWps(con, 168, wps(new Object[]{"Thành cổ 1", 0, 624, 167, 948, 480}, new Object[]{"Đấu trường thành cổ", 1008, 624, 169, 60, 672}));
+            setWps(con, 169, wps(new Object[]{"Thành cổ 2", 0, 672, 168, 948, 624}));
             update(con, "update map_template set zones = 50, max_player = 1 where id in (164, 173, 174)"); // mỗi khu 1 người (đệ tử không tính)
             // Siêu thị (84): NPC đứng đúng toạ độ anh gửi (Bò Mộng, Bunma, Bà Hạt Mít, Uron, Appule, Dende, Cửa hàng ký gửi, King Furry, Dr. Brief)
             update(con, "update map_template set npcs = '[[17,103,336],[7,204,336],[21,298,336],[16,391,336],[9,506,336],[8,600,336],[28,696,336],[68,796,336],[10,889,336]]' where id = 84");
@@ -135,5 +139,27 @@ public class Dot139Migration {
         } catch (Exception e) {
             Logger.error("Đợt 139: " + e.getMessage() + "\n");
         }
+    }
+
+    private static void setWps(Connection con, int mapId, String wps) throws Exception {
+        try (java.sql.PreparedStatement ps = con.prepareStatement("update map_template set npcs = '[]', waypoints = ? where id = ?")) {
+            ps.setString(1, wps);
+            ps.setInt(2, mapId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Cổng mép map: {tên, x mép (0 = trái, rộng map = phải), mặt đất y, map đến, x đến, y đến} -> chuỗi waypoints của map_template. */
+    private static String wps(Object[]... w) {
+        StringBuilder b = new StringBuilder("[");
+        for (Object[] p : w) {
+            int x = (int) p[1], y = (int) p[2], x0 = x == 0 ? 0 : x - 24;
+            if (b.length() > 1) {
+                b.append(',');
+            }
+            b.append("\"[\"").append(p[0]).append("\",").append(x0).append(',').append(y - 24).append(',').append(x0 + 24).append(',').append(y)
+                    .append(",0,0,").append(p[3]).append(',').append(p[4]).append(',').append(p[5]).append("]\"");
+        }
+        return b.append(']').toString();
     }
 }

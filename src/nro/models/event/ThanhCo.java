@@ -20,7 +20,8 @@ import nro.models.utils.Util;
 
 /**
  * Map Thành Cổ (sự kiện Giỗ tổ Hùng Vương): dùng Lệnh bài thành cổ nhờ Hùng Vương đưa đến Thành cổ 1,
- * đi qua Thành cổ 2 rồi lên sàn ở Đấu trường thành cổ đấu với Gohan chiến binh (máu bằng máu người chơi).
+ * đi cổng sang Thành cổ 2 rồi Đấu trường thành cổ: vào là đấu với Gohan chiến binh (máu bằng máu người chơi).
+ * Cổng trái Thành cổ 1 về nhà.
  * Thắng nhận Hộp quà thường Giỗ tổ.
  */
 public class ThanhCo {
@@ -55,11 +56,6 @@ public class ThanhCo {
         InventoryService.gI().subQuantityItemsBag(pl, lb, 1);
         InventoryService.gI().sendItemBags(pl);
         ChangeMapService.gI().changeMapBySpaceShip(pl, VuaHung.MAP_THANH_CO_1, -1, 100);
-    }
-
-    public static void next(Player pl) {
-        int map = pl.zone.map.mapId == VuaHung.MAP_THANH_CO_1 ? VuaHung.MAP_THANH_CO_2 : VuaHung.MAP_DAU_TRUONG;
-        ChangeMapService.gI().changeMapBySpaceShip(pl, map, -1, 100);
     }
 
     public static void home(Player pl) {

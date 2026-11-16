@@ -89,21 +89,8 @@ public class VuaHung extends Npc {
                 label.add(old[i]);
             }
         }
-        int map = player.zone.map.mapId;
-        if (map == MAP_THANH_CO_1 || map == MAP_THANH_CO_2) {
-            act.add(0, "NEXT");
-            label.add(0, "Đi tiếp");
-            act.add("HOME");
-            label.add("Về làng");
-        } else if (map == MAP_DAU_TRUONG) {
-            act.add(0, "FIGHT");
-            label.add(0, "Lên\nsàn đấu");
-            act.add("HOME");
-            label.add("Về làng");
-        } else {
-            act.add(0, "THANHCO");
-            label.add(0, "Đến\ncổ thành");
-        }
+        act.add(0, "THANHCO"); // trong cổ thành đi bằng cổng 2 đầu map, không có Hùng Vương
+        label.add(0, "Đến\ncổ thành");
         actions.put(player.id, act);
         String say = "Ngươi tìm ta có việc gì ?";
         if (player.DuaHauEgg != null) {
@@ -135,9 +122,6 @@ public class VuaHung extends Npc {
                             case "PLANT" -> plant(pl);
                             case "DOI" -> legacy(pl, 0);
                             case "THANHCO" -> ThanhCo.enter(pl);
-                            case "NEXT" -> ThanhCo.next(pl);
-                            case "FIGHT" -> ThanhCo.fight(pl);
-                            case "HOME" -> ThanhCo.home(pl);
                         }
                     }
                 }
