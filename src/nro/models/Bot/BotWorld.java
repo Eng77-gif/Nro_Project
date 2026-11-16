@@ -1274,9 +1274,32 @@ public final class BotWorld {
 
     /** Úp set kích hoạt: ưu tiên khu riêng tư (Vé riêng tư, SKH rơi gấp 3), không có vé thì map úp SKH của hành tinh mình. */
     private void upSkh(Bot b) {
-        if (ownOrBuy(b, VE_RIENG_TU) && b.strongEnough(164)) {
-            stayAt(b, 164, "Úp SKH (riêng tư)");
-            return;
+        if (ownOrBuy(b, VE_RIENG_TU)) {
+            // như người chơi dùng vé: ngẫu nhiên 1 trong 3 map riêng tư (164, Thung lũng Maima, Rừng nguyên sinh), khu còn trống (1 người / khu)
+            java.util.List<nro.models.map.Zone> free = new java.util.ArrayList<>();
+            for (int id : nro.models.map.service.MapService.MAP_RIENG_TU) {
+                nro.models.map.Map m = nro.models.map.service.MapService.gI().getMapById(id);
+                if (m != null && b.strongEnough(id)) {
+                    for (nro.models.map.Zone z : m.zones) {
+                        if (z.getPlayers().isEmpty()) {
+                            free.add(z);
+                        }
+                    }
+                }
+            }
+            if (!free.isEmpty()) {
+                nro.models.map.Zone z = free.get(Util.nextInt(0, free.size() - 1));
+                b.boss.prefer = null;
+                b.setMode(0);
+                b.activity = "Úp SKH (riêng tư)";
+                b.questMap = z.map.mapId;
+                b.questMob = -1;
+                b.stayMap = true;
+                ChangeMapService.gI().goToMap(b, z);
+                b.zone.load_Me_To_Another(b);
+                b.mo1.lastTimeChanM = System.currentTimeMillis();
+                return;
+            }
         }
         int[][] maps = {{1, 2, 3}, {8, 9, 11}, {15, 16, 17}};
         b.boss.prefer = null;

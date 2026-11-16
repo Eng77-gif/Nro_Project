@@ -2384,3 +2384,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 ## Vé riêng tư: thêm 2 map, mỗi map 50 khu
 - Map 189 "Thung lũng Maima (riêng tư)" (bản sao map 11) và 190 "Rừng nguyên sinh (riêng tư)" (bản sao map 17): không cổng, không NPC, cùng luật khu riêng tư (SKH rơi như map riêng tư, vàng tối đa 500k/cục, không thấy người khác). Kèm data/map/tile_map_data + item_bg_map_data 189, 190.
 - Dùng Vé riêng tư: vào ngẫu nhiên 1 trong 3 map, khu còn trống. Cả 3 map 50 khu, mỗi khu 1 người (đệ tử không tính).
+- Bot úp SKH bằng Vé riêng tư cũng vào ngẫu nhiên 1 trong 3 map riêng tư, khu còn trống (1 người / khu).
