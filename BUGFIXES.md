@@ -2398,3 +2398,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## Siêu hạng: hiện 5 trận gần nhất (Hạ / Thua ai)
 - Lịch sử trận lưu dạng chuỗi JSON lồng nhưng phần đọc (bảng Top, nạp nhân vật) ép sang đối tượng nên lỗi ngầm: không hiện trận nào, và lịch sử mất sau khi khởi động lại. Nay lưu đúng dạng đối tượng, đọc được cả dữ liệu cũ; bảng hiện tối đa 5 trận gần nhất dưới Win / Lose (mới nhất trước).
+
+## Thông báo nhặt vật phẩm về bản gốc
+- Bỏ kiểu "Găng bạc Goku ngon..." khi nhặt trang bị; mọi vật phẩm báo "Bạn nhận được <tên>".
