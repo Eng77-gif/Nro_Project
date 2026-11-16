@@ -2401,3 +2401,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## Thông báo nhặt vật phẩm về bản gốc
 - Bỏ kiểu "Găng bạc Goku ngon..." khi nhặt trang bị; mọi vật phẩm báo "Bạn nhận được <tên>".
+
+## KI trên 2,1 tỷ thành số âm
+- NPoint.setMpMax ép KI tối đa về int nên KI 2 tỷ mặc thêm cải trang +17% KI bị tràn thành số âm. Bỏ ép int ở KI tối đa và setHP / setMP / setDame (cùng lỗi khi vượt 2,1 tỷ).

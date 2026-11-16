@@ -1741,7 +1741,7 @@ public class NPoint {
             mpMax = MAX_STAT;
         }
 
-        this.mpMax = (int) Math.max(1, mpMax);
+        this.mpMax = Math.max(1, mpMax); // không ép int: KI > 2,1 tỷ bị tràn thành số âm
     }
 
     private void setMp() {
@@ -1754,7 +1754,7 @@ public class NPoint {
 
     public void setHP(long hp) {
         if (hp > 0) {
-            this.hp = (int) (hp <= this.hpMax ? hp : this.hpMax);
+            this.hp = hp <= this.hpMax ? hp : this.hpMax;
         } else {
             player.setDie();
         }
@@ -1766,7 +1766,7 @@ public class NPoint {
 
     public void setMP(long mp) {
         if (mp > 0) {
-            this.mp = (int) (mp <= this.mpMax ? mp : this.mpMax);
+            this.mp = mp <= this.mpMax ? mp : this.mpMax;
         } else {
             this.mp = 0;
         }
@@ -1924,7 +1924,7 @@ public class NPoint {
 
     public void setDame(long dame) {
         if (dame > 0) {
-            this.dame = (int) (dame <= this.dame ? dame : this.dame);
+            this.dame = dame <= this.dame ? dame : this.dame;
         } else {
             this.dame = 0;
         }
