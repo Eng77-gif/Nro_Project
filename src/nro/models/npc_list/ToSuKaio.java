@@ -52,7 +52,7 @@ public class ToSuKaio extends Npc {
                 case 0 ->
                     showLimitPowerMyself(player);
                 case 1 ->
-                    handleLimitPowerPet(player, 0);
+                    showLimitPowerPet(player);
                 default ->
                     this.npcChat(player, "Khi nào con cần thì quay lại gặp ta!");
             }
@@ -105,6 +105,23 @@ public class ToSuKaio extends Npc {
         }
     }
 
+    /** Đệ tử: giới hạn đã tối đa thì báo tối đa (trước báo nhầm "cần đạt 50 tỷ"), chưa đủ 50 tỷ thì báo thiếu, còn lại hỏi trước khi trừ ngọc. */
+    private void showLimitPowerPet(Player player) {
+        if (player.pet == null) {
+            Service.gI().sendThongBao(player, "Không thể thực hiện");
+            return;
+        }
+        if (player.pet.nPoint.limitPower >= NPoint.MAX_LIMIT) {
+            this.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Giới hạn sức mạnh của đệ tử đã đạt tối đa", "Đóng");
+        } else if (player.pet.nPoint.limitPower < 5) {
+            this.createOtherMenu(player, ConstNpc.IGNORE_MENU, "Đệ tử của bạn cần đạt 50 tỷ sức mạnh!", "Đóng");
+        } else {
+            this.createOtherMenu(player, ConstNpc.OPEN_POWER_PET,
+                    "Ta sẽ truyền năng lượng giúp đệ tử mở giới hạn sức mạnh lên " + Util.numberToMoney(player.pet.nPoint.getPowerNextLimit()),
+                    "Nâng ngay\n" + OpenPowerService.gemCost(player.pet) + " ngọc", "Đóng");
+        }
+    }
+
     private void handleLimitPowerPet(Player player, int select) {
         if (select != 0) {
             return;
@@ -115,9 +132,8 @@ public class ToSuKaio extends Npc {
             return;
         }
 
-        if (player.pet.nPoint.limitPower < 5 || player.pet.nPoint.limitPower >= 9) {
-            this.createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                    "Đệ tử của bạn cần đạt 50 tỷ sức mạnh!", "Đóng");
+        if (player.pet.nPoint.limitPower < 5 || player.pet.nPoint.limitPower >= NPoint.MAX_LIMIT) {
+            showLimitPowerPet(player);
             return;
         }
 

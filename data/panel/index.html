@@ -822,21 +822,27 @@ async function nrsdSave(){const r=await act(()=>api('nrsd/tournament/save',{id:+
 const MOBT={0:'Đứng yên',1:'Đi bộ',2:'Nhảy',3:'Đi bộ',4:'Bay',5:'Bay'};
 async function page_mobs(){$('#main').innerHTML='<h2>Quái</h2>'+lpBox('mob',{path:'mobs/page',label:'Tên quái hoặc ID',cols:[['id','ID'],['name','Tên quái',v=>`<b>${esc(v)}</b>`],['type','Kiểu di chuyển',v=>`<span class="tag">${esc(MOBT[v]||'Kiểu '+v)}</span>`],['hp','HP gốc',v=>`<span class="power-number">${esc(shortPower(v))}</span><span class="power-exact">${esc(fmt(v))} HP</span>`]]});await lpInit('mob')}
 
-/* ---------- tỉ lệ rơi: đếm thật lúc rơi (quái + boss) ---------- */
-let DROPS=null,dropTab=0;
-async function page_drops(){DROPS=await api('drops');const since=new Date(DROPS.since).toLocaleString('vi-VN');
-  $('#main').innerHTML=`<h2>Tỉ lệ rơi</h2>
-  <div class="card"><div class="section-head"><h3>Đồ thần linh rơi ra: tỉ lệ có thêm dòng</h3>${uiIcon('box')}</div><p class="mute" style="font-size:12px;margin:0 0 8px">Mỗi dòng tung riêng khi đồ thần linh rơi từ quái hoặc boss. Vật phẩm hiếm từ quái / từ boss ngẫu nhiên +1 – 15%. Lưu là có hiệu lực ngay.</p>
-   <div class="grid2">${DROPS.tl.map(x=>`<label class="f">${esc(x.name)} (%)<input type="number" min="0" max="100" data-tl="${esc(x.key)}" value="${x.rate}"></label>`).join('')}</div>
-   <div class="row" style="justify-content:flex-end"><button class="p" onclick="saveTl()">Lưu tỉ lệ</button></div></div>
-  <div class="card"><div class="row" style="justify-content:space-between"><span class="mute" style="font-size:12px">Đếm thật mỗi lần quái / boss chết (cả bot) từ ${esc(since)}. Tỉ lệ = số lần chết có rơi món đó ÷ số lần chết. Khởi động lại server là đếm lại từ đầu. Tỉ lệ cấu hình của nguyên liệu boss xem ở <a href="#bossrw">Thưởng boss</a>.</span><button class="s d" onclick="resetDrops()">Đặt lại</button></div>
-   <div class="row" style="margin-top:8px"><div class="tabs" id="dtab" style="margin:0"><button data-i="0">Quái</button><button data-i="1">Boss</button></div><input id="dq" class="grow" placeholder="Lọc tên quái / boss / vật phẩm"></div></div><div id="dl"></div>`;
+/* ---------- tỉ lệ rơi theo vật phẩm (chỉnh được) ---------- */
+let DROPS=null,BRWD=null,dropTab=0;
+const pct=v=>{v=+v;return v>=1?+v.toFixed(2)+'%':v>=0.01?+v.toFixed(4)+'%':v>0?v.toPrecision(3)+'%':'0%'};
+const oneIn=v=>v>0?'1 / '+fmt(Math.round(100/v))+' lần':'không rơi';
+async function page_drops(){[DROPS,BRWD]=await Promise.all([api('drops'),api('bossrewards')]);
+  $('#main').innerHTML=`<h2>Tỉ lệ rơi</h2><div class="card"><div class="row"><div class="tabs" id="dtab" style="margin:0"><button data-i="0">Quái</button><button data-i="1">Boss</button><button data-i="2">Số liệu thực tế</button></div><input id="dq" class="grow" placeholder="Lọc vật phẩm / nơi rơi / boss"></div><p class="mute" id="dhint" style="font-size:12px;margin:8px 0 0"></p></div><div id="dl"></div>`;
   $('#dtab').querySelectorAll('button').forEach(b=>b.onclick=()=>{dropTab=+b.dataset.i;drawDrops()});$('#dq').oninput=drawDrops;drawDrops()}
-function drawDrops(){$('#dtab').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.i===dropTab));const q=$('#dq').value.trim().toLowerCase(),L=dropTab?DROPS.bosses:DROPS.mobs;
-  const rows=L.filter(s=>!q||s.name.toLowerCase().includes(q)||s.items.some(i=>i.name.toLowerCase().includes(q))).slice(0,150);
-  $('#dl').innerHTML=rows.length?rows.map(s=>`<div class="card"><div class="section-head"><h3>${esc(s.name)}</h3><span class="tag">${fmt(s.kills)} lần chết</span></div>${s.items.length?table(s.items,[['icon','',v=>icon(v)],['name','Vật phẩm',(v,x)=>`${esc(v)} <span class="mute">#${x.id}</span>`],['rate','Tỉ lệ',v=>v>=1?v.toFixed(1)+'%':v.toFixed(3)+'%'],['times','Số lần rơi',fmt],['qty','Tổng số lượng',fmt]]):'<p class="mute">Chưa rơi gì.</p>'}</div>`).join(''):'<div class="card mute">Chưa có dữ liệu. Quái / boss chết là bảng tự cập nhật.</div>'}
-async function saveTl(){const b={};document.querySelectorAll('[data-tl]').forEach(i=>b[i.dataset.tl]=+i.value);await api('drops/tl',b);toast('Đã lưu tỉ lệ');route()}
-async function resetDrops(){if(!confirm('Xoá số liệu đếm và đếm lại từ bây giờ?'))return;await api('drops/reset',{});route()}
+function rateInput(v,attr){return `<input type="number" step="any" min="0" max="100" value="${+v}" ${attr} style="width:120px">`}
+function drawDrops(){$('#dtab').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.i===dropTab));const q=$('#dq').value.trim().toLowerCase(),has=(...a)=>!q||a.some(x=>String(x||'').toLowerCase().includes(q));
+  if(dropTab===0){$('#dhint').textContent='Tỉ lệ % mỗi lần quái chết. Sửa ô Tỉ lệ rồi bấm Lưu: có hiệu lực ngay, không cần khởi động lại. Món có ghi "x may mắn" thì tỉ lệ thật = tỉ lệ này x hệ số may mắn của người chơi (tối đa x3).';
+   const rows=DROPS.rates.filter(x=>has(x.name,x.where,x.cond));
+   $('#dl').innerHTML=`<div class="card">${table(rows,[['icon','',v=>icon(v)],['name','Vật phẩm',(v,x)=>`<b>${esc(v)}</b>${x.cond?`<br><span class="mute" style="font-size:11px">${esc(x.cond)}</span>`:''}`],['where','Nơi rơi',esc],['rate','Tỉ lệ (%)',(v,x)=>rateInput(v,`data-k="${esc(x.key)}"`)+`<br><span class="mute" style="font-size:11px">${oneIn(v)}${v!=x.def?' · gốc '+pct(x.def):''}</span>`]],x=>`<button class="s p" onclick="saveRate('${esc(x.key)}')">Lưu</button>`)}</div>`;return}
+  if(dropTab===1){$('#dhint').innerHTML='Nguyên liệu boss rơi theo bậc (máu tối đa) và dòng riêng từng boss. Sửa ô Tỉ lệ rồi bấm Lưu. Thêm / xoá dòng ở <a href="#bossrw">Thưởng boss</a>. Quà riêng viết trong code của từng boss không chỉnh ở đây (xem tab Số liệu thực tế).';
+   const T=BRWD.tiers,rows=BRWD.rows.filter(x=>has(x.item_name,x.boss,T[x.tier]));
+   $('#dl').innerHTML=`<div class="card">${table(rows,[['icon_id','',v=>v>=0?icon(v):''],['item_id','Vật phẩm',(v,x)=>`<b>${v==-1?'Vàng':v==-4?'Điểm sự kiện':esc(x.item_name||'#'+v)}</b>`],['boss','Boss',(v,x)=>v?esc(v):esc(T[x.tier]||'')],['qty_min','Số lượng',(v,x)=>x.qty_min==x.qty_max?fmt(v):fmt(v)+' – '+fmt(x.qty_max)],['rate','Tỉ lệ (%)',(v,x)=>rateInput(v/100,`data-b="${x.id}"`)+`<br><span class="mute" style="font-size:11px">${oneIn(v/100)}</span>`]],x=>`<button class="s p" onclick="saveBossRate(${x.id})">Lưu</button>`)}</div>`;return}
+  $('#dhint').innerHTML=`Đếm thật mỗi lần quái / boss chết (cả bot) từ ${esc(new Date(DROPS.since).toLocaleString('vi-VN'))}; khởi động lại server là đếm lại. <button class="s d" onclick="resetDrops()">Đặt lại</button>`;
+  const L=[...DROPS.mobs,...DROPS.bosses.map(b=>({...b,name:'Boss '+b.name}))].filter(s=>has(s.name)||s.items.some(i=>has(i.name))).slice(0,150);
+  $('#dl').innerHTML=L.length?L.map(s=>`<div class="card"><div class="section-head"><h3>${esc(s.name)}</h3><span class="tag">${fmt(s.kills)} lần chết</span></div>${s.items.length?table(s.items,[['icon','',v=>icon(v)],['name','Vật phẩm',(v,x)=>`${esc(v)} <span class="mute">#${x.id}</span>`],['rate','Tỉ lệ thực tế',pct],['times','Số lần rơi',fmt],['qty','Tổng số lượng',fmt]]):'<p class="mute">Chưa rơi gì.</p>'}</div>`).join(''):'<div class="card mute">Chưa có dữ liệu.</div>'}
+async function saveRate(k){const v=+document.querySelector(`[data-k="${k}"]`).value;await api('drops/set',{key:k,rate:v});toast('Đã lưu tỉ lệ');DROPS=await api('drops');drawDrops()}
+async function saveBossRate(id){const x=BRWD.rows.find(r=>r.id==id),v=+document.querySelector(`[data-b="${id}"]`).value;await api('bossreward/save',{...x,rate:Math.round(v*100)});toast('Đã lưu tỉ lệ boss');BRWD=await api('bossrewards');drawDrops()}
+async function resetDrops(){if(!confirm('Xoá số liệu đếm và đếm lại từ bây giờ?'))return;await api('drops/reset',{});DROPS=await api('drops');drawDrops()}
 
 /* ---------- thông báo & quà toàn server ---------- */
 const NTY={ticker:['Dòng chữ chạy','Chạy ngang đầu màn hình mọi người chơi (thông báo server).'],popup:['Hộp thông báo','Bật hộp thoại giữa màn hình, người chơi phải bấm đóng.'],world:['Chat thế giới','Hiện trong kênh chat thế giới như một tin nhắn của server.']};

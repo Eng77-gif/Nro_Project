@@ -717,7 +717,7 @@ public class Mob {
         int mapid = player.zone.map.mapId;
         //========================Capsul Kì Bí========================
         if (player.itemTime.isUseMayDo
-                && (Util.isTrue(20, 100))
+                && nro.models.services.DropRates.roll("maydo_capsule")
                 && this.tempId > 57 && this.tempId < 66) {
             list.add(new ItemMap(zone, 380, 1, x, yEnd, player.id));
         }
@@ -732,25 +732,16 @@ public class Mob {
 
         //========================Map Bang Hội========================
         if (MapService.gI().isMapUpPorata(mapid)) {
-            int dropRate1 = 10;
-            int dropRate2 = 5;
-            int dropRate3 = 1;
-
-            if (player.itemTime.isUseCoBonLa) {
-                dropRate1 += 5;
-                dropRate2 += 3;
-                dropRate3 += 1;
-            }
-
-            if (Util.isTrue(dropRate1, 100)) {
+            double clo = player.itemTime.isUseCoBonLa ? 1 : 0; // cỏ bốn lá: +50% / +60% / x2 như cũ
+            if (nro.models.services.DropRates.roll("porata_manhvo", 1 + clo * 0.5)) {
                 ItemMap it = new ItemMap(zone, 933, 1, x, yEnd, player.id);
                 it.options.add(new Item.ItemOption(31, 1));
                 list.add(it);
-            } else if (Util.isTrue(dropRate2, 100) && player.itemEvent.canDropManhVo(150)) {
+            } else if (nro.models.services.DropRates.roll("porata_manhhon", 1 + clo * 0.6) && player.itemEvent.canDropManhVo(150)) {
                 ItemMap it = new ItemMap(zone, 934, 1, x, yEnd, player.id);
                 it.options.add(new Item.ItemOption(31, 1));
                 list.add(it);
-            } else if (Util.isTrue(dropRate3, 500)) {
+            } else if (nro.models.services.DropRates.roll("porata_daxanh", 1 + clo)) {
                 ItemMap it = new ItemMap(zone, 935, 1, x, yEnd, player.id);
                 it.options.add(new Item.ItemOption(31, 1));
                 list.add(it);
@@ -759,7 +750,7 @@ public class Mob {
 
         //======================== Vàng Ngọc ========================
         if (MapService.gI().isMap3Planets(mapid)) {
-            if (Util.isTrue(1, 20)) {
+            if (nro.models.services.DropRates.roll("vang_3hanhtinh")) {
                 int vang = Util.nextInt(500, 3000);
                 if (vang < 1000) {
                     list.add(new ItemMap(zone, 76, vang, x, yEnd, player.id));
@@ -771,7 +762,7 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapNappa(mapid)) {
-            if (Util.isTrue(1, 100)) {
+            if (nro.models.services.DropRates.roll("vang_nappa")) {
                 int vang = Util.nextInt(2000, 6000);
                 if (vang < 3000) {
                     list.add(new ItemMap(zone, 188, vang, x, yEnd, player.id));
@@ -823,7 +814,7 @@ public class Mob {
         }
 
         if (MapService.gI().isMapCold(mapid)) {
-            if (Util.isTrue(30, 100)) {
+            if (nro.models.services.DropRates.roll("vang_cold")) {
                 int vang = Util.nextInt(150000, 250000);
                 if (vang < 10000) {
                     list.add(new ItemMap(zone, 189, vang, x, yEnd, player.id)); // Rơi vàng cấp 189
@@ -835,7 +826,7 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapTuongLai(mapid)) {
-            if (Util.isTrue(15, 100)) {
+            if (nro.models.services.DropRates.roll("vang_tuonglai")) {
                 int vang = Util.nextInt(80000, 150000);
                 if (vang < 6000) {
                     list.add(new ItemMap(zone, 188, vang, x, yEnd, player.id));
@@ -847,7 +838,7 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapPhoBan(mapid)) {
-            if (Util.isTrue(1, 100)) {
+            if (nro.models.services.DropRates.roll("vang_phoban")) {
                 int vang = Util.nextInt(80000, 200000);
                 if (player.itemTime.isUseCoBonLa) {
                     vang = (int) (vang * 1.15);
@@ -869,7 +860,7 @@ public class Mob {
                 tileDrop = (int) (baseTileDrop * 1.15);
             }
 
-            if (Util.isTrue(tileDrop, 9999)) {
+            if (nro.models.services.DropRates.roll("capsule_skh")) {
                 int soLuong = 1;
                 list.add(new ItemMap(zone, 1634, soLuong, x, yEnd, player.id));
             }
@@ -881,7 +872,7 @@ public class Mob {
                 tileDrop = (int) (baseTileDrop * 1.15);
             }
 
-            if (Util.isTrue(tileDrop, 100)) {
+            if (nro.models.services.DropRates.roll("chagio_dt")) {
                 int soLuong = 1;
                 list.add(new ItemMap(zone, 1836, soLuong, x, yEnd, player.id));
             }
@@ -893,18 +884,13 @@ public class Mob {
                 tileDrop = (int) (baseTileDrop * 1.15);
             }
 
-            if (Util.isTrue(tileDrop, 19999)) {
+            if (nro.models.services.DropRates.roll("capsule_riengtu")) {
                 int soLuong = 1;
                 list.add(new ItemMap(zone, 1634, soLuong, x, yEnd, player.id));
             }
         }
         if (MapService.gI().isMapRiengTu(mapid)) {
-            double tileDrop = 6; // khu riêng tư (Vé riêng tư): SKH rơi gấp 6 map úp SKH ngoài
-
-            tileDrop *= skhBonus(player); // may mắn + vật phẩm hiếm + cỏ bốn lá: cộng dồn giảm dần, tối đa x3
-
-            // Check rơi đồ kích hoạt (x100 để không mất phần lẻ khi nhân hệ số)
-            if (Util.isTrue((int) (tileDrop * 100), 999_900)) {
+            if (nro.models.services.DropRates.roll("skh_riengtu", skhBonus(player))) { // may mắn + vật phẩm hiếm + cỏ bốn lá: giảm dần, tối đa x3
                 short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -927,12 +913,7 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapUpSKH(mapid)) {
-            double tileDrop = 1; // map úp SKH ngoài: 1/9999 (trước 2), khó ra hơn
-
-            tileDrop *= skhBonus(player); // may mắn + vật phẩm hiếm + cỏ bốn lá: cộng dồn giảm dần, tối đa x3
-
-            // Check rơi đồ kích hoạt (x100 để không mất phần lẻ khi nhân hệ số)
-            if (Util.isTrue((int) (tileDrop * 100), 999_900)) {
+            if (nro.models.services.DropRates.roll("skh_ngoai", skhBonus(player))) { // may mắn + vật phẩm hiếm + cỏ bốn lá: giảm dần, tối đa x3
                 short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -956,7 +937,7 @@ public class Mob {
         }
 
         //========================Đồ Sao Khác Vải Thô========================
-        if (((Util.isTrue(1, 8000))) && MapService.gI().isMapUpSKH(mapid)) {
+        if (MapService.gI().isMapUpSKH(mapid) && nro.models.services.DropRates.roll("dosao_vaitho")) {
             int baseDropRate = 1;
             if (player.itemTime.isUseCoBonLa) {
                 baseDropRate = 1;
@@ -964,7 +945,7 @@ public class Mob {
                 baseDropRate = (int) (baseDropRate * (1 + coBonLaBonus / 100.0));
             }
 
-            if (Util.isTrue(baseDropRate, 19999)) {
+            {
                 short itTemp = (short) ItemService.gI().randTempItemDoSao(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -997,7 +978,7 @@ public class Mob {
 
         // END
         //========================Đồ Sao 3 Map Đầu========================
-        if (((Util.isTrue(50, 50000))) && MapService.gI().isMapUpSKH(mapid)) {
+        if (MapService.gI().isMapUpSKH(mapid) && nro.models.services.DropRates.roll("dosao_3map", 2)) { // cổng x2, bước sau tối đa 50% (giảm theo sức mạnh) = đúng tỉ lệ panel
             int baseRate = 50;
             if (player.itemTime.isUseCoBonLa) {
                 baseRate = (int) (baseRate * (1 + 0.15));
@@ -1046,7 +1027,7 @@ public class Mob {
             if (player.itemTime.isUseCoBonLa) {
                 rate = (int) (rate * 0.85);
             }
-            if (Util.isTrue(1, 50000)) {
+            if (nro.models.services.DropRates.roll("thanlinh")) {
                 ItemMap it = ItemService.gI().randDoTL(this.zone, 1, x, yEnd, player.id);
                 it.fromMob = true; // nhặt được thì thông báo server
                 list.add(it);
@@ -1057,7 +1038,7 @@ public class Mob {
         if (player.itemTime.isUseCoBonLa) {
             rate1 = (int) (rate1 * 1.15);
         }
-        if (Util.isTrue(3, 333)) {
+        if (nro.models.services.DropRates.roll("pudding")) {
             if (player.setClothes.checkSetGod()) {
                 ItemMap it = new ItemMap(zone, Util.nextInt(663, 667), 1, x, yEnd, player.id);
                 list.add(it);
@@ -1065,7 +1046,7 @@ public class Mob {
         }
 
         if (MapService.gI().isMapCold(mapid)) {
-            if (Util.isTrue(20, 100)) {
+            if (nro.models.services.DropRates.roll("daluc_cold")) {
                 int rand = Util.nextInt(0, 4);
                 ItemMap it = new ItemMap(zone, 220 + rand, 1, x, yEnd, player.id);
                 it.options.add(new Item.ItemOption(71 - rand, 0));
@@ -1073,13 +1054,13 @@ public class Mob {
             }
         }
 
-        if (MapService.gI().isMapDoanhTrai(mapid) && (Util.isTrue(10, 100))) {
+        if (MapService.gI().isMapDoanhTrai(mapid) && nro.models.services.DropRates.roll("davun_dt")) {
             ItemMap it = new ItemMap(zone, 225, 1, x, yEnd, player.id);
             it.options.add(new Item.ItemOption(74, 0));
             list.add(it);
         }
 
-        if (MapService.gI().isMap3Planets(mapid) && (Util.isTrue(10, 100))) {
+        if (MapService.gI().isMap3Planets(mapid) && nro.models.services.DropRates.roll("davun_3hanhtinh")) {
             ItemMap it = new ItemMap(zone, 225, 1, x, yEnd, player.id);
             it.options.add(new Item.ItemOption(74, 0));
             list.add(it);
@@ -1091,31 +1072,31 @@ public class Mob {
                 dropRate = (int) (dropRate * 1.15);
             }
 
-            if (Util.isTrue(dropRate, 70) || (player.isActive() && Util.isTrue(1, 100))) {
+            if (nro.models.services.DropRates.roll("nr67") || (player.isActive() && Util.isTrue(1, 100))) {
                 int rand = Util.nextInt(0, 1);
                 ItemMap it = new ItemMap(zone, 19 + rand, 1, x, yEnd, player.id);
                 list.add(it);
             }
         }
         //======================== Ngục tù may mắn (Phiếu sao vàng may mắn) ========================
-        if (MapService.gI().isMapNgucTuMayMan(mapid) && Util.isTrue(50, 100)) {
+        if (MapService.gI().isMapNgucTuMayMan(mapid) && nro.models.services.DropRates.roll("vang_nguctu_mm")) {
             int vang = Util.nextInt(300_000, 600_000);
             vang = (int) Math.min(Integer.MAX_VALUE, vang * luckFactor(player));
             list.add(new ItemMap(zone, 190, vang, x, yEnd, player.id));
         }
         if (player.setClothes.checkSetDes() && MapService.gI().isMapNgucTu(mapid)) {
-            if ((player.isActive() && Util.isTrue(2, 555)) || Util.isTrue((int) Math.round(10 * luckFactor(player)), 100)) {
+            if ((player.isActive() && Util.isTrue(2, 555)) || nro.models.services.DropRates.roll("manh_ts", luckFactor(player))) {
                 list.add(new ItemMap(zone, Util.nextInt(1066, 1070), 1, x, yEnd, player.id));
             }
         }
         // Bí kíp tuyệt kỹ: mọi map, chỉ khi sức mạnh từ 40 tỉ (đệ tử đánh thì tính theo sư phụ)
         Player bkOwner = player.isPet ? ((Pet) player).master : player;
         if (bkOwner != null && bkOwner.nPoint.power >= 40_000_000_000L
-                && (Util.isTrue((int) Math.round(10 * luckFactor(bkOwner)), 100) || (bkOwner.isActive() && bkOwner.setClothes.checkSetDes() && Util.isTrue(20, 100)))) {
+                && (nro.models.services.DropRates.roll("bikip", luckFactor(bkOwner)) || (bkOwner.isActive() && bkOwner.setClothes.checkSetDes() && Util.isTrue(20, 100)))) {
             list.add(new ItemMap(zone, 1229, 1, x, yEnd, bkOwner.id));
         }
 
-        if ((Util.isTrue(10, 100) && MapService.gI().isMapNguHanhSon(mapid))) {
+        if (MapService.gI().isMapNguHanhSon(mapid) && nro.models.services.DropRates.roll("hongdao")) {
             list.add(new ItemMap(zone, Util.nextInt(541, 542), 1, x, yEnd, player.id));
         }
 
@@ -1125,7 +1106,7 @@ public class Mob {
                 dropRate = (int) (dropRate * 1.15);
             }
 
-            if (Util.isTrue(dropRate, 100)) { // nro
+            if (nro.models.services.DropRates.roll("nr_all")) { // nro
                 list.add(new ItemMap(zone, Util.nextInt(17, 20), 1, x, this.location.y, player.id));
             }
         }
@@ -1137,7 +1118,7 @@ public class Mob {
                 dropRate = (int) (dropRate * 1.15);
             }
 
-            if (Util.isTrue(dropRate, 100)) { // spl
+            if (nro.models.services.DropRates.roll("spl")) { // spl
                 list.add(new ItemMap(Util.spl(zone, Util.nextInt(441, 447), 1, x, this.location.y, player.id)));
             }
         }

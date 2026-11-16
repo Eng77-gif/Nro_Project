@@ -2341,3 +2341,8 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 ## Panel > Tỉ lệ rơi; dòng thêm của đồ thần linh có tỉ lệ
 - Trang mới "Tỉ lệ rơi" (nhóm Thế giới): đếm thật mỗi lần quái (theo tên + bản đồ) / boss chết và đồ rơi ra, tỉ lệ = số lần có rơi ÷ số lần chết (DropStats, trong bộ nhớ, nút Đặt lại).
 - Đồ thần linh (quái + boss) trước luôn có dòng Vật phẩm hiếm từ quái, 21% ký gửi vàng/ngọc. Nay 4 dòng tung riêng: Ký gửi vàng 20%, Ký gửi ngọc 10%, Vật phẩm hiếm rơi từ quái 30%, từ boss 20% (+1-15%); sửa trên trang Tỉ lệ rơi (drop.tl.* trong Config.properties).
+
+## Tỉ lệ rơi theo vật phẩm, chỉnh trên panel; Tổ sư Kaio báo nhầm đệ tử "cần 50 tỷ"
+- Panel > Tỉ lệ rơi: tab Quái liệt kê từng vật phẩm (nơi rơi, điều kiện, tỉ lệ %, "1 / N lần"), sửa + Lưu là có hiệu lực ngay (bảng drop_rate; DropRates.roll thay số cứng trong Mob.getItemMobReward, mặc định = tỉ lệ cũ). Tab Boss: sửa tỉ lệ các dòng Thưởng boss tại chỗ. Tab Số liệu thực tế: số đếm cũ.
+- 4 dòng thêm của đồ thần linh chuyển từ Config.properties (drop.tl.*) sang cùng bảng.
+- Tổ sư Kaio > Đệ tử: đệ tử đã ở giới hạn tối đa vẫn báo "cần đạt 50 tỷ". Nay báo "đã đạt tối đa"; đủ điều kiện thì hỏi xác nhận (giá ngọc) trước khi trừ ngọc thay vì trừ ngay.

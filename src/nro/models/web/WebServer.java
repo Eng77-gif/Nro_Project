@@ -61,14 +61,6 @@ public class WebServer {
     private record Session(int accountId, String username, long expire) {
     }
 
-    public static int confInt(String k, int def) {
-        try {
-            return Integer.parseInt(gI().conf(k).trim());
-        } catch (Exception e) {
-            return def;
-        }
-    }
-
     /** Khuyến mãi nạp x3 bật tay trên panel (web.nap.x3=true trong Config.properties). */
     public static boolean napX3() {
         return "true".equalsIgnoreCase(gI().conf("web.nap.x3"));

@@ -879,19 +879,12 @@ public class ItemService {
         return new int[]{op1, op2, op3, op4};
     }
 
-    /** Tỉ lệ % các dòng thêm của đồ thần linh rơi ra (panel > Tỉ lệ rơi, lưu Config.properties). */
-    public static final String[][] TL_EXTRA = {{"drop.tl.kgvang", "Ký gửi vàng", "20"}, {"drop.tl.kgngoc", "Ký gửi ngọc", "10"},
-        {"drop.tl.hiemquai", "Vật phẩm hiếm rơi từ quái 1-15%", "30"}, {"drop.tl.hiemboss", "Vật phẩm hiếm rơi từ boss 1-15%", "20"}};
-
-    public static int tlExtraRate(int i) {
-        return Math.max(0, Math.min(100, nro.models.web.WebServer.confInt(TL_EXTRA[i][0], Integer.parseInt(TL_EXTRA[i][2]))));
-    }
-
     /** Mỗi dòng có tỉ lệ riêng, độc lập: ký gửi vàng (86), ký gửi ngọc (87), vật phẩm hiếm từ quái (206), từ boss (207). */
     private static void tlExtraOptions(List<ItemOption> ops) {
         int[] ids = {86, 87, 206, 207};
+        String[] keys = {"tl_kgvang", "tl_kgngoc", "tl_hiemquai", "tl_hiemboss"}; // panel > Tỉ lệ rơi
         for (int i = 0; i < ids.length; i++) {
-            if (Util.isTrue(tlExtraRate(i), 100)) {
+            if (DropRates.roll(keys[i])) {
                 ops.add(new ItemOption(ids[i], i < 2 ? 0 : Util.nextInt(1, 15)));
             }
         }
