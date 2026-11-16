@@ -280,6 +280,7 @@ public class PanelApi {
                 nro.models.npc_list.QuyLaoKame.KolConfig.apply(b, true);
                 yield Map.of("ok", true);
             }
+            case "kol/reset" -> Map.of("ok", nro.models.npc_list.QuyLaoKame.KolConfig.resetPlayer(lng(b.get("id"))));
             case "kol/progress" -> nro.models.npc_list.QuyLaoKame.KolConfig.progress();
             case "drops/reset" -> {
                 nro.models.services.DropStats.reset();

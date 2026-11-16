@@ -269,6 +269,34 @@ public class QuyLaoKame extends Npc {
             p.bossBabyDefeatParticipationCount = 0;
         }
 
+        /** Panel: đặt lại tiến độ KOL 1 người (online: trong bộ nhớ; luôn ghi DB để người offline cũng về nhiệm vụ 1). */
+        public static boolean resetPlayer(long id) throws Exception {
+            Player p = nro.models.server.Client.gI().getPlayer(id);
+            nro.models.player.KOLProgressData d = new nro.models.player.KOLProgressData();
+            d.season = KOL_SEASON;
+            try (java.sql.Connection con = nro.models.data.LocalManager.getConnection(); java.sql.PreparedStatement ps = con.prepareStatement("update player set nhiem_vu_kol=? where id=?")) {
+                if (p != null) {
+                    d.kolVip = p.kolVip; // đã trả ngọc mở VIP đợt này thì giữ
+                    reset(p);
+                    p.kolVip = d.kolVip;
+                } else {
+                    try (java.sql.PreparedStatement q = con.prepareStatement("select nhiem_vu_kol from player where id=?")) {
+                        q.setLong(1, id);
+                        try (java.sql.ResultSet rs = q.executeQuery()) {
+                            if (rs.next() && rs.getString(1) != null) {
+                                nro.models.player.KOLProgressData old = GSON.fromJson(rs.getString(1), nro.models.player.KOLProgressData.class);
+                                d.kolVip = old != null && KOL_SEASON.equals(old.season) && old.kolVip;
+                            }
+                        }
+                    } catch (com.google.gson.JsonSyntaxException ignored) {
+                    }
+                }
+                ps.setString(1, GSON.toJson(d));
+                ps.setLong(2, id);
+                return ps.executeUpdate() > 0 || p != null;
+            }
+        }
+
         /** Tiến độ người chơi đợt hiện tại: người online đọc từ bộ nhớ, người offline đọc từ DB. */
         public static List<Map<String, Object>> progress() throws Exception {
             Map<Long, Map<String, Object>> by = new java.util.LinkedHashMap<>();

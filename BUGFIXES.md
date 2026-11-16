@@ -2439,3 +2439,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Đổi đợt: người online làm lại từ nhiệm vụ 1 ngay, người offline làm lại khi đăng nhập.
 - Tab "Tiến độ người chơi": nhiệm vụ đang làm (thường / VIP) và số đếm Bò Mộng, Mộc Nhân, Đảo Kho Báu, ĐHVT, Ninja tím, quái.
 - Lưu ở bảng `kol_config` (tự tạo). Chưa lưu lần nào thì dùng 7 nhiệm vụ tháng 11 như cũ.
+- Tab Tiến độ người chơi: nút "Đặt lại" từng người (về nhiệm vụ 1 thường + VIP, xoá số đếm). Vẫn giữ trạng thái đã mở VIP của đợt này. Online đổi ngay, offline ghi thẳng vào DB.
