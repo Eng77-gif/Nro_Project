@@ -2385,3 +2385,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Map 189 "Thung lũng Maima (riêng tư)" (bản sao map 11) và 190 "Rừng nguyên sinh (riêng tư)" (bản sao map 17): không cổng, không NPC, cùng luật khu riêng tư (SKH rơi như map riêng tư, vàng tối đa 500k/cục, không thấy người khác). Kèm data/map/tile_map_data + item_bg_map_data 189, 190.
 - Dùng Vé riêng tư: vào ngẫu nhiên 1 trong 3 map, khu còn trống. Cả 3 map 50 khu, mỗi khu 1 người (đệ tử không tính).
 - Bot úp SKH bằng Vé riêng tư cũng vào ngẫu nhiên 1 trong 3 map riêng tư, khu còn trống (1 người / khu).
+
+## Black Goku: Nhẫn thời không sai lệch (nhiệm vụ 31)
+- Nhẫn nằm lẫn trong dòng ngọc rồng (10% x 1/7 ≈ 1,4%) nên rất khó làm nhiệm vụ. Nay tách dòng riêng: người giết đang ở bước NV 31 cần nhẫn thì chắc chắn rơi; người khác 5% (chỉnh ở panel > Tỉ lệ rơi > Boss > Black Goku).

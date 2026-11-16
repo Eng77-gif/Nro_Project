@@ -76,12 +76,17 @@ public class BlackGoku extends Boss {
         }
         // 80% xác suất rơi ngọc rồng
         if (nro.models.services.BossDrops.roll("Black_Goku.BlackGoku#3", 10, 100)) {
-            int[] dropItems = {15, 16, 17, 18, 19, 20, 992};
+            int[] dropItems = {15, 16, 17, 18, 19, 20};
             int dropOptional = dropItems[Util.nextInt(0, dropItems.length - 1)];
             // Tạo và rơi vật phẩm ngọc rồng hoặc item cấp 2
             ItemMap optionalItemMap = new ItemMap(this.zone, dropOptional, Util.nextInt(1, 3), x, y, plKill.id);
             Item optionalItem = ItemService.gI().createNewItem((short) dropOptional);
             Service.gI().dropItemMap(zone, optionalItemMap);
+        }
+        // Nhẫn thời không sai lệch (nhiệm vụ 31): người giết đang ở bước cần nhẫn thì chắc chắn rơi, còn lại theo tỉ lệ (panel > Tỉ lệ rơi)
+        if (TaskService.gI().getIdTask(plKill) == nro.models.consts.ConstTask.TASK_31_0
+                || nro.models.services.BossDrops.roll("Black_Goku.BlackGoku#4", 5, 100)) {
+            Service.gI().dropItemMap(zone, new ItemMap(this.zone, nro.models.consts.ConstItem.NHAN_THOI_KHONG_SAI_LECH, 1, x + 10, y, plKill.id));
         }
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
         // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
