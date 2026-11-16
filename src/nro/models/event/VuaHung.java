@@ -62,6 +62,11 @@ public class VuaHung extends Npc {
         if (!canOpenNpc(player)) {
             return;
         }
+        if (player.zone.map.mapId == MAP_DAU_TRUONG) { // Hùng Vương ở Đấu trường thành cổ: lên sàn hoặc đưa về làng
+            actions.put(player.id, List.of("FIGHT", "HOME"));
+            createOtherMenu(player, 0, "Tôi sẽ đưa bạn về", "Lên sàn đấu", "Đồng ý", "Từ chối");
+            return;
+        }
         List<String> act = new ArrayList<>();
         List<String> label = new ArrayList<>();
         // trồng / đổi dưa hấu chỉ trong sự kiện Giỗ tổ Hùng Vương
@@ -89,7 +94,7 @@ public class VuaHung extends Npc {
                 label.add(old[i]);
             }
         }
-        act.add(0, "THANHCO"); // trong cổ thành đi bằng cổng 2 đầu map, không có Hùng Vương
+        act.add(0, "THANHCO"); // Thành cổ 1 / 2 đi bằng cổng 2 đầu map, Đấu trường có Hùng Vương đưa về
         label.add(0, "Đến\ncổ thành");
         actions.put(player.id, act);
         String say = "Ngươi tìm ta có việc gì ?";
@@ -122,6 +127,8 @@ public class VuaHung extends Npc {
                             case "PLANT" -> plant(pl);
                             case "DOI" -> legacy(pl, 0);
                             case "THANHCO" -> ThanhCo.enter(pl);
+                            case "FIGHT" -> ThanhCo.fight(pl);
+                            case "HOME" -> ThanhCo.home(pl);
                         }
                     }
                 }

@@ -20,8 +20,8 @@ import nro.models.utils.Util;
 
 /**
  * Map Thành Cổ (sự kiện Giỗ tổ Hùng Vương): dùng Lệnh bài thành cổ nhờ Hùng Vương đưa đến Thành cổ 1,
- * đi cổng sang Thành cổ 2 rồi Đấu trường thành cổ: vào là đấu với Gohan chiến binh (máu bằng máu người chơi).
- * Cổng trái Thành cổ 1 về nhà.
+ * đi cổng sang Thành cổ 2 rồi Đấu trường thành cổ; Hùng Vương ở Đấu trường cho lên sàn đấu với Gohan chiến binh
+ * (máu bằng máu người chơi) hoặc đưa về làng.
  * Thắng nhận Hộp quà thường Giỗ tổ.
  */
 public class ThanhCo {

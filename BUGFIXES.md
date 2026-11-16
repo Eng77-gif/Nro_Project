@@ -2446,3 +2446,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Cổng 2 đầu map: Thành cổ 1 (trái: Về làng theo hành tinh, phải: Thành cổ 2) ↔ Thành cổ 2 (phải: Đấu trường) ↔ Đấu trường (trái: Thành cổ 2).
 - Xoá NPC Hùng Vương khỏi 3 map (map_template.npcs = []); vào Đấu trường là Gohan chiến binh tự lên sàn (khu đang có người đấu thì báo chờ / sang khu khác).
 - Vào cổ thành vẫn nhờ Hùng Vương ở làng (tốn 1 Lệnh bài thành cổ).
+- Sửa lại theo ảnh: bỏ cổng "Về làng" ở Thành cổ 1; Hùng Vương trở lại Đấu trường thành cổ (921, 672) với menu "Tôi sẽ đưa bạn về": Lên sàn đấu / Đồng ý (về làng theo hành tinh) / Từ chối. Vào Đấu trường không tự gọi Gohan nữa.

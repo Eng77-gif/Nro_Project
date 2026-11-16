@@ -480,10 +480,6 @@ public class ChangeMapService {
         }
         if (zoneJoin == null) {
             wp = MapService.gI().getWaypointPlayerIn(player);
-            if (wp != null && player.zone.map.mapId == nro.models.event.VuaHung.MAP_THANH_CO_1 && wp.goMap == 21) {
-                nro.models.event.ThanhCo.home(player); // cổng "Về làng": về nhà theo hành tinh
-                return;
-            }
             if (wp != null) {
                 zoneJoin = MapService.gI().getMapCanJoin(player, wp.goMap, -1);
                 if (zoneJoin != null) {
@@ -515,9 +511,6 @@ public class ChangeMapService {
                 return;
             }
             changeMap(player, zoneJoin, -1, -1, xGo, yGo, NON_SPACE_SHIP);
-            if (player.isPl() && player.zone != null && player.zone.map.mapId == nro.models.event.VuaHung.MAP_DAU_TRUONG) {
-                nro.models.event.ThanhCo.fight(player); // vào Đấu trường thành cổ là Gohan chiến binh lên sàn
-            }
 
         } else {
             resetPoint(player);
