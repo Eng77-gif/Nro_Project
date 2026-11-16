@@ -2381,7 +2381,7 @@ public class NPoint {
             }
             if (player.zone.map.mapId >= 135 && player.zone.map.mapId <= 138) {
                 if (this.player.itemTime != null && this.player.itemTime.isUseKhoBauX2) {
-                    tiemNang += tn * 2;
+                    tiemNang += tn; // Rađa kho báu: gấp đôi (trước + tn * 2 thành gấp 3)
                 }
             }
             if (this.player.satellite != null && this.player.satellite.isIntelligent) {

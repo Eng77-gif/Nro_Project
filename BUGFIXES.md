@@ -2407,3 +2407,7 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## Cửa hàng: món riêng hành tinh khác bị lẫn vào
 - Shop mở theo nhân vật chỉ lọc hành tinh ở vài tab đặc biệt; tab thường (vd Cải trang của Santa) hiện cả CT riêng Xayda / Namếc cho người Trái Đất. Nay tab thường cũng chỉ hiện món đúng hành tinh hoặc món chung (Santa, Quy Lão, Uron, Whis, shop bang).
+
+## Khẩu trang, Rađa kho báu
+- Khẩu trang (764): trước dùng chỉ bật cờ, không có tác dụng, không hết hạn. Nay 30 phút tấn công +10% khi đánh quái, có ô thời gian.
+- Rađa kho báu (1532): trước x3 tiềm năng / sức mạnh trong 30 phút, không hiện ô thời gian. Nay đúng mô tả: 15 phút, x2 trong 4 map kho báu (Động hải tặc, Hang Bạch Tuộc, Động kho báu, Cảng hải tặc), có ô thời gian.

@@ -1002,6 +1002,10 @@ public class SkillService {
             }
         }
 
+        if (plAtt.itemTime != null && plAtt.itemTime.isUseKhauTrang) {
+            dameHit += dameHit / 10; // Khẩu trang: tấn công +10% khi đánh quái
+        }
+
         if (miss) {
             dameHit = 0;
         }

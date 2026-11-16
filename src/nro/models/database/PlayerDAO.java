@@ -612,7 +612,7 @@ public class PlayerDAO {
                 dataArray.add((player.itemTime.isOpenPower ? (ItemTime.TIME_OPEN_POWER - (System.currentTimeMillis() - player.itemTime.lastTimeOpenPower)) : 0));
                 dataArray.add((player.itemTime.isUseMayDo ? (ItemTime.TIME_MAY_DO - (System.currentTimeMillis() - player.itemTime.lastTimeUseMayDo)) : 0));
                 dataArray.add((player.itemTime.isUseCoBonLa ? Math.max(0, player.itemTime.coBonLaLeft()) : 0));
-                dataArray.add((player.itemTime.isUseKhoBauX2 ? (ItemTime.TIME_MAY_DO - (System.currentTimeMillis() - player.itemTime.lastTimeUseKhoBauX2)) : 0));
+                dataArray.add((player.itemTime.isUseKhoBauX2 ? (ItemTime.TIME_MAY_DO2 - (System.currentTimeMillis() - player.itemTime.lastTimeUseKhoBauX2)) : 0));
                 dataArray.add((player.itemTime.isUseBuaSanta ? (ItemTime.TIME_BUA_SANTA - (System.currentTimeMillis() - player.itemTime.lastTimeBuaSanta)) : 0));
 
                 dataArray.add((player.itemTime.isEatMeal ? (ItemTime.TIME_EAT_MEAL - (System.currentTimeMillis() - player.itemTime.lastTimeEatMeal)) : 0));

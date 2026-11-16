@@ -113,8 +113,11 @@ public class ItemTimeService {
                 sendItemTime(player, 15359, (int) (remainingTime / 1000));
             }
         }
-        if (player.itemTime.isUseKhoBauX2) {
-        //    sendItemTime(player, 12834, (int) ((TIME_MAY_DO - (System.currentTimeMillis() - player.itemTime.lastTimeUseKhoBauX2)) / 1000));
+        if (player.itemTime.isUseKhoBauX2) { // Rađa kho báu: ô thời gian
+            sendItemTime(player, ItemService.gI().getTemplate((short) 1532).iconID, (int) ((nro.models.item.ItemTime.TIME_MAY_DO2 - (System.currentTimeMillis() - player.itemTime.lastTimeUseKhoBauX2)) / 1000));
+        }
+        if (player.itemTime.isUseKhauTrang) { // Khẩu trang: ô thời gian
+            sendItemTime(player, ItemService.gI().getTemplate((short) 764).iconID, (int) ((nro.models.item.ItemTime.TIME_KHAU_TRANG - (System.currentTimeMillis() - player.itemTime.lastTimeKhauTrang)) / 1000));
         }
         if (player.itemTime.isUseBuaSanta) {
             sendItemTime(player, 13540, (int) ((TIME_BUA_SANTA - (System.currentTimeMillis() - player.itemTime.lastTimeBuaSanta)) / 1000));

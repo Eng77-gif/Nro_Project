@@ -18,7 +18,8 @@ public class ItemTime {
     public static final int TIME_ITEM = 600000;
     public static final int TIME_OPEN_POWER = 8640000;
     public static final int TIME_MAY_DO = 1800000;
-    public static final int TIME_MAY_DO2 = 1800000;
+    public static final int TIME_MAY_DO2 = 900000; // Rađa kho báu: 15 phút như mô tả
+    public static final int TIME_KHAU_TRANG = 1800000; // Khẩu trang: 30 phút
     public static final long TIME_CO_BON_LA = 30 * 60 * 1000L;
     public static final long MAX_CO_BON_LA = 500 * 60 * 1000L; // cỏ bốn lá cộng dồn tối đa 500 phút
     public static final int TIME_KILIS = 3600000;
@@ -277,6 +278,9 @@ public class ItemTime {
             if (Util.canDoWithTime(lastTimeUseKhoBauX2, TIME_MAY_DO2)) {
                 isUseKhoBauX2 = false;
             }
+        }
+        if (isUseKhauTrang && Util.canDoWithTime(lastTimeKhauTrang, TIME_KHAU_TRANG)) {
+            isUseKhauTrang = false;
         }
         if (isUseTDLT) {
             if (Util.canDoWithTime(lastTimeUseTDLT, timeTDLT)) {
