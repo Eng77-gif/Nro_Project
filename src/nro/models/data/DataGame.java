@@ -32,10 +32,10 @@ import nro.models.player_system.Template.BgItem;
 public class DataGame {
 
     public static byte vsData = 34; // tăng khi thêm part/vật phẩm mới để client tải lại (34: Cađíc M vùng 50 tốc độ 2, 33: Cađíc M vùng đi 100, 32: hình Uub như v10, 25: ô gạch 33, 26: máy đo sức mạnh đứng yên, 28: viền ô gạch 33 thành tường, 30: Cađíc M đi lại như v10, 31: tường mép bậc đá bộ ô gạch 33)
-    public static byte vsMap = 12; // tăng khi thêm map / đổi mẫu NPC / đổi mẫu quái (12: bỏ sàn Đấu trường thành cổ, 11: dồn số map 183-190 -> 167-174, 10: Cađíc M vùng 20, 9: Cađíc M vùng 33 tốc độ 2 - mẫu quái gửi trong gói này, 5: hình King Furry, 6: Phòng thí nghiệm Myuu bản v10, 7 - 8: Sa mạc hoang vu đổi nền rồi trả lại như cũ)
+    public static byte vsMap = 13; // tăng khi thêm map / đổi mẫu NPC / đổi mẫu quái (13: trả lại đài Đấu trường thành cổ, 12: bỏ sàn Đấu trường thành cổ, 11: dồn số map 183-190 -> 167-174, 10: Cađíc M vùng 20, 9: Cađíc M vùng 33 tốc độ 2 - mẫu quái gửi trong gói này, 5: hình King Furry, 6: Phòng thí nghiệm Myuu bản v10, 7 - 8: Sa mạc hoang vu đổi nền rồi trả lại như cũ)
     public static byte vsSkill = 2; // 2: mô tả chiêu thức thay chữ "null"
     public static byte vsItem = 28; // tăng khi đổi item / bảng option để client tải lại (16: bảng option tối đa 255 dòng)
-    public static int vsRes = 6; // tăng khi thêm file res để client tải lại (6: avatar Kid Jiren 8094 đúng cỡ, 3: mount_80 Ván Rồng 7 sao, 4: lớp thú cưỡi còn thiếu, 5: nền đá tím Phòng thí nghiệm - bộ ô gạch 33)
+    public static int vsRes = 7; // tăng khi thêm file res để client tải lại (7: ô gạch x1 bộ 33 - 42 cho J2ME, ô gạch x2 bộ 41 - 42 đúng cỡ 48, 6: avatar Kid Jiren 8094 đúng cỡ, 3: mount_80 Ván Rồng 7 sao, 4: lớp thú cưỡi còn thiếu, 5: nền đá tím Phòng thí nghiệm - bộ ô gạch 33)
     public static short maxSmallVersion = 32767;
 
     public static String LINK_IP_PORT = "Ngọc Rồng Online:36.50.134.190:14445:0";

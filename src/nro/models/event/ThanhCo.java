@@ -20,7 +20,7 @@ import nro.models.utils.Util;
 
 /**
  * Map Thành Cổ (sự kiện Giỗ tổ Hùng Vương): dùng Lệnh bài thành cổ nhờ Hùng Vương đưa đến Thành cổ 1,
- * đi cổng sang Thành cổ 2 rồi Đấu trường thành cổ; Hùng Vương ở Đấu trường cho lên sàn đấu với Gohan chiến binh
+ * đi cổng sang Thành cổ 2 rồi Đấu trường thành cổ; Hùng Vương ở Đấu trường đưa lên đài đấu với Gohan chiến binh
  * (máu bằng máu người chơi) hoặc đưa về làng.
  * Thắng nhận Hộp quà thường Giỗ tổ.
  */
@@ -29,6 +29,8 @@ public class ThanhCo {
     public static final int LENH_BAI = 2018;
     public static final int REWARD_BOX = 1823;
     public static final int GOHAN_ID = -9501000;
+    /** Đài đấu giữa Đấu trường thành cổ (hàng ô gạch y=456, x 792 - 1080): bấm Lên sàn đấu là bay thẳng lên đây. */
+    private static final int DAI_Y = 456, DAI_X_PLAYER = 880, DAI_X_GOHAN = 1000;
     private static final Map<Zone, GohanChienBinh> fighting = new ConcurrentHashMap<>();
 
     private static final BossData GOHAN = new BossData(
@@ -72,6 +74,8 @@ public class ThanhCo {
             return;
         }
         try {
+            Service.gI().resetPoint(pl, DAI_X_PLAYER, DAI_Y);
+            PlayerService.gI().playerMove(pl, DAI_X_PLAYER, DAI_Y);
             fighting.put(pl.zone, new GohanChienBinh(pl));
             Service.gI().sendThongBao(pl, "Gohan chiến binh đã lên sàn!");
         } catch (Exception e) {
@@ -98,7 +102,7 @@ public class ThanhCo {
             this.nPoint.hpMax = Math.max(1000, playerAtt.nPoint.hpMax);
             this.nPoint.hp = this.nPoint.hpMax;
             this.nPoint.dame = Math.max(1, playerAtt.nPoint.hpMax / 25);
-            ChangeMapService.gI().changeMap(this, this.zone, Math.min(this.zone.map.mapWidth - 100, playerAtt.location.x + 150), playerAtt.location.y);
+            ChangeMapService.gI().changeMap(this, this.zone, DAI_X_GOHAN, DAI_Y);
             PlayerService.gI().changeAndSendTypePK(playerAtt, ConstPlayer.PK_PVP);
         }
 
