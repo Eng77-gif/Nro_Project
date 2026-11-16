@@ -652,6 +652,16 @@ public class NPoint {
         if (has(2027) && has(CO_VAN_HOA_DONG)) { // CT Vũ Trí Ba Tá Trợ + Cờ Vạn Hoa Đồng: +1% sát thương cuối
             this.tlSTCuoi += 1;
         }
+        if (has(1564)) { // Pet Po: biến mọi người xung quanh thành bánh bao mỗi 30 giây
+            this.halloweenXq = 6;
+        }
+        long now = System.currentTimeMillis();
+        if (ct == 1106 && player.effectSkin != null && now < player.effectSkin.bidenUntil) { // Biden dracula: phản 3% sát thương trong 5 giây
+            this.tlPST += 3;
+        }
+        if (player.effectSkin != null && now < player.effectSkin.neXqUntil) { // Bun ma phù thủy ở gần: +10% né đòn trong 5 giây
+            this.tlNeDon += 10;
+        }
         if (has(2044) && has(CO_WORLD_CUP_2026)) { // Ván bay World Cup 2026 + Cờ World Cup 2026: +7% chí mạng
             this.critAdd += 7;
         }
@@ -929,6 +939,12 @@ public class NPoint {
             }
             if (me == 1886 && nearCt.contains(1889)) { // Póc Thỏ Đen gần Kirin chú Cuội: +10% né
                 ne += 10;
+            }
+            if (me == 1949 && nearCt.contains(1952)) { // Kirin tuần lộc gần Póc Noel: giảm 10% sát thương
+                gi += 10;
+            }
+            if (me == 1952 && nearCt.contains(1949)) { // Póc Noel gần Kirin tuần lộc: +10% sức đánh chí mạng
+                sc += 10;
             }
             if (me == 1889 && nearCt.contains(1886)) { // Kirin chú Cuội gần Póc Thỏ Đen: +10% chí mạng
                 cr += 10;

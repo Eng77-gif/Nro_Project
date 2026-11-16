@@ -26,6 +26,7 @@ public class Item {
     public List<ItemOption> itemOptions;
 
     public long createTime;
+    public transient boolean fresh; // vừa tạo (chưa từng vào hành trang): InventoryService bỏ dòng hạn sử dụng của cải trang
     public int id;
     public Object text;
     public long expire;

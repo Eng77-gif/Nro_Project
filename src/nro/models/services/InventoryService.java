@@ -790,6 +790,7 @@ public class InventoryService {
     }
 
     public boolean addItemBag(Player player, Item item) {
+        stripCostumeHsd(item);
         Item.addTopSkhOptions(item); // đồ SKH cao cấp: giá bán 1 triệu, Champa 3 lần giao dịch
         //ngọc rồng đen
         if (ItemMapService.gI().isBlackBall(item.template.id)) {
@@ -872,7 +873,24 @@ public class InventoryService {
         return addItemList(player.inventory.itemsBag, item);
     }
 
+    /** Cải trang mới nhận vĩnh viễn (bỏ dòng hạn sử dụng 93), trừ đồ ra từ mở hộp (UseItem, hộp quà item_box_reward, hộp đua top); ký gửi dựng lại món cũ nên giữ nguyên. */
+    private static void stripCostumeHsd(Item item) {
+        if (item == null || !item.fresh || item.template == null) {
+            return;
+        }
+        item.fresh = false;
+        if (item.template.type != 5 || item.itemOptions == null || item.itemOptions.stream().noneMatch(o -> o.optionTemplate != null && o.optionTemplate.id == 93)) {
+            return;
+        }
+        boolean fromBox = StackWalker.getInstance().walk(s -> s.anyMatch(f -> f.getClassName().endsWith(".UseItem") || f.getClassName().endsWith(".ConsignShopService")
+                || f.getMethodName().startsWith("openBox") || f.getMethodName().equals("openTopRewardBox") || f.getMethodName().equals("openSkhBeerusBox")));
+        if (!fromBox) {
+            item.itemOptions.removeIf(o -> o.optionTemplate != null && o.optionTemplate.id == 93);
+        }
+    }
+
     public boolean addItemBox(Player player, Item item) {
+        stripCostumeHsd(item);
         return addItemList(player.inventory.itemsBox, item);
     }
 

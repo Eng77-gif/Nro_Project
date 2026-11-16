@@ -92,6 +92,7 @@ public class EffectSkin {
             updateHoaDa();
             updateSocolaXq();
             updateZombieXq();
+            updateCostumeSkill();
             updateHalloweenPlague();
             updateHoiDongBang();
             updateNearSets();
@@ -399,6 +400,51 @@ public class EffectSkin {
     }
 
     private long lastTimeZombieXq, lastTimeHoiDongBang;
+    /** Biden dracula: phản thêm 3% sát thương trong 5 giây; Bun ma phù thủy: +10% né đòn cho mọi người (300px) trong 5 giây. Hồi 20 giây. */
+    public long bidenUntil, neXqUntil;
+    private long lastBiden, lastBunMa;
+
+    private void updateCostumeSkill() {
+        try {
+            if (this.player.isPet || this.player.isBoss || this.player.inventory == null || this.player.inventory.itemsBody.size() <= 5) {
+                return;
+            }
+            long now = System.currentTimeMillis();
+            nro.models.item.Item ct = this.player.inventory.itemsBody.get(5);
+            int id = ct != null && ct.isNotNullItem() ? ct.template.id : -1;
+            if (id == 1106 && now - lastBiden >= 20000) {
+                lastBiden = now;
+                bidenUntil = now + 5000;
+                recal(this.player);
+            }
+            if (id == 1105 && now - lastBunMa >= 20000) {
+                lastBunMa = now;
+                for (Player pl : new java.util.ArrayList<>(this.player.zone.getNotBosses())) {
+                    if (pl != null && pl.effectSkin != null && !pl.isDie() && Util.getDistance(this.player, pl) <= 300) {
+                        pl.effectSkin.neXqUntil = now + 5000;
+                        recal(pl);
+                    }
+                }
+            }
+            if (bidenUntil > 0 && now >= bidenUntil) {
+                bidenUntil = 0;
+                recal(this.player);
+            }
+            if (neXqUntil > 0 && now >= neXqUntil) {
+                neXqUntil = 0;
+                recal(this.player);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void recal(Player pl) {
+        if (pl.nPoint != null) {
+            pl.nPoint.calPoint();
+            Service.gI().point(pl);
+        }
+    }
 
     private long lastTimePlague;
 

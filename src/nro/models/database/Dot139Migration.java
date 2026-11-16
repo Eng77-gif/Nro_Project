@@ -261,6 +261,10 @@ public class Dot139Migration {
             writeStats(con, EVENT_ITEMS3);
             update(con, "insert into server_migration (name) values ('event_items_1116c')");
         }
+        // Pet Po biến người xung quanh thành bánh bao: thân 2393 = khung thân Bí Ngô (761) thay hình bằng Bánh dầy 12848
+        update(con, "insert into part (id, TYPE, DATA) select 2393, 1, '[[12848,-4,1],[12848,-3,-3],[12848,-3,-6],[12848,-1,-9],[12848,-3,-12],[12848,-3,-7],[12848,-3,-6],[12848,1,-3],[12848,3,-5],[12848,-1,-1],[12848,-2,-7],[12848,-2,-7],[12848,0,-7],[12848,0,-5],[12848,-2,-4],[12848,-2,-7],[2955,0,0]]' from dual where not exists (select 1 from part where id = 2393)");
+        // cải trang bán ở shop không còn hạn sử dụng (chỉ đồ mở từ hộp mới có, xem InventoryService.stripCostumeHsd)
+        update(con, "delete so from item_shop_option so join item_shop s on s.id = so.item_shop_id join item_template t on t.id = s.temp_id where so.option_id = 93 and t.type = 5");
         update(con, "insert into item_option_template (id, NAME) select 273, 'Tấn công+#% lên quái bay' from dual where not exists (select 1 from item_option_template where id = 273)");
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116d'")) {
             writeStats(con, EVENT_ITEMS4);

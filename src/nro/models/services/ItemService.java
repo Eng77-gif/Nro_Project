@@ -49,6 +49,7 @@ public class ItemService {
         Item item = new Item();
         item.template = itemShop.temp;
         item.quantity = 1;
+        item.fresh = true;
         item.content = item.getContent();
         item.info = item.getInfo();
         for (Item.ItemOption io : itemShop.options) {
@@ -80,6 +81,7 @@ public class ItemService {
         item.template = getTemplate(tempId);
         item.quantity = quantity;
         item.createTime = System.currentTimeMillis();
+        item.fresh = true;
 
         item.content = item.getContent();
         item.info = item.getInfo();
