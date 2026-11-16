@@ -210,6 +210,7 @@ public class NPoint {
 
     public int tlSTChuan; // option 10: % sát thương bỏ qua giáp/né/giảm sát thương
     public int tlDameBoss; // option 204: +% sát thương lên boss
+    public int tlQuaiKhi, tlQuaiDat, tlQuaiBay; // option 43, 44, 273: +% tấn công lên quái khỉ / mặt đất / bay
     public int tlSTCuoi; // option 251: +% sát thương cuối
     public boolean isChongNLX; // option 252: chống năng lượng xấu (miễn hiệu ứng hôi/giảm HP xung quanh)
     public int tlTNSMDeTu; // option 253: +% TN, SM cho đệ tử khi sư phụ mặc
@@ -1114,6 +1115,15 @@ public class NPoint {
                 break;
             case 204: //Tấn công+#% lên Boss
                 this.tlDameBoss += io.param;
+                break;
+            case 43:
+                this.tlQuaiKhi += io.param;
+                break;
+            case 44:
+                this.tlQuaiDat += io.param;
+                break;
+            case 273:
+                this.tlQuaiBay += io.param;
                 break;
             case 251: //Sát thương cuối +#%
                 this.tlSTCuoi += io.param;
@@ -2056,6 +2066,9 @@ public class NPoint {
         this.tlHpGiamODo = 0;
         this.tlSTChuan = 0;
         this.tlDameBoss = 0;
+        this.tlQuaiKhi = 0;
+        this.tlQuaiDat = 0;
+        this.tlQuaiBay = 0;
         this.tlSTCuoi = 0;
         this.isChongNLX = false;
         this.tlTNSMDeTu = 0;

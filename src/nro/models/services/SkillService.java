@@ -12,6 +12,7 @@ import nro.models.mob.MobMe;
 import nro.models.mob_bigboss.GauTuongCuop;
 import nro.models.player.Pet;
 import nro.models.player.Player;
+import nro.models.player.NPoint;
 import nro.models.player.NewSkill;
 import nro.models.network.Message;
 import java.io.IOException;
@@ -1010,6 +1011,11 @@ public class SkillService {
 
         if (plAtt.itemTime != null && plAtt.itemTime.isUseKhauTrang) {
             dameHit += dameHit / 10; // Khẩu trang: tấn công +10% khi đánh quái
+        }
+        if (plAtt.nPoint != null && mob.type != 0) {
+            NPoint np = plAtt.nPoint;
+            int tl = mob.type == 4 ? np.tlQuaiBay : (mob.tempId >= 54 && mob.tempId <= 57 || mob.tempId == 78) ? Math.max(np.tlQuaiKhi, np.tlQuaiDat) : np.tlQuaiDat;
+            dameHit += dameHit * tl / 100;
         }
 
         if (miss) {

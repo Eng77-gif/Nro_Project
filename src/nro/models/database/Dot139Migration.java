@@ -222,9 +222,26 @@ public class Dot139Migration {
         {{1803}, {50, 24}, {77, 24}, {103, 24}, {191, 5}, {14, 5}, {108, 9}, {200, 5}}, // CT Goku SSJ 4 Red
         {{1927}, {204, 30}, {95, 15}, {94, 10}}, // Cánh thiên thần sa ngã
         {{1810}, {50, 24}, {77, 24}, {148, 25}}}; // Mị Hoàng Kim
+    /** Đợt 4 (ảnh 15 món). Dòng dưới vạch kẻ (phản sát thương 3%, +10% né đòn cho mọi người...) là mô tả, giữ nguyên. */
+    static final int[][][] EVENT_ITEMS4 = {
+        {{1919}, {50, 24}, {77, 23}, {103, 29}, {226, 21}, {14, 7}}, // Cải trang Chi Chi Áo Cưới Mới
+        {{1564}, {50, 11}, {77, 12}, {103, 12}, {94, 5}}, // Pet Po
+        {{1705}, {50, 24}, {77, 23}, {103, 23}, {5, 12}, {95, 10}, {226, 10}}, // Cải Trang Chi Chi Võ Đài
+        {{1769}, {50, 11}, {77, 11}, {103, 11}, {14, 11}}, // Bóng sinh nhật NRO
+        {{1582}, {50, 16}, {77, 16}, {103, 16}, {14, 5}, {5, 5}}, // Cờ ngọc rồng 4 sao
+        {{1573}, {50, 13}, {77, 12}, {103, 12}, {14, 5}}, // Xe tăng Santa
+        {{1800}, {50, 22}, {77, 18}, {103, 25}, {95, 7}, {83, 0}}, // Cải trang Chan Xư S+
+        {{1937}, {50, 25}, {5, 20}, {204, 25}, {117, 20}}, // Cải trang Giáo sư Bunma
+        {{1106}, {50, 21}, {77, 21}, {94, 20}, {148, 25}, {108, 15}}, // Biden dracula
+        {{1926}, {50, 24}, {77, 24}, {103, 24}, {273, 30}, {43, 30}, {44, 30}}, // Cải trang Ác Ma Pico
+        {{1104}, {50, 24}, {77, 22}, {94, 18}, {148, 25}, {108, 14}, {8, 4}}, // Poc satan
+        {{1318}, {77, 15}, {103, 15}, {50, 15}, {8, 3}}, // Pet Mông Quỷ
+        {{906}, {50, 24}, {14, 3}, {77, 19}, {103, 19}, {94, 19}, {5, 14}}, // Cải trang Mighty Mask
+        {{1105}, {50, 22}, {77, 23}, {94, 16}, {148, 25}, {108, 16}}, // Bun ma phù thủy
+        {{1888}, {50, 18}, {77, 16}, {103, 16}, {236, 10}, {97, 10}}}; // Lồng đèn 2 lon
     /** Mọi dòng chỉ số 2 đợt dùng (xoá rồi ghi lại); dòng khác như không giao dịch 30, bay 85 giữ nguyên. Dùng chung với ItemService.refreshTitle. */
     public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 104, 106, 108,
-            114, 117, 126, 148, 154, 155, 183, 191, 199, 200, 204, 210, 221, 236, 268, 269, 270, 271, 272);
+            114, 117, 126, 43, 44, 273, 226, 148, 154, 155, 183, 191, 199, 200, 204, 210, 221, 236, 268, 269, 270, 271, 272);
     private static final String STAT_IDS = STAT_SET.toString().replace("[", "").replace("]", "");
 
     private static void eventItemStats(Connection con) throws Exception {
@@ -243,6 +260,11 @@ public class Dot139Migration {
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116c'")) {
             writeStats(con, EVENT_ITEMS3);
             update(con, "insert into server_migration (name) values ('event_items_1116c')");
+        }
+        update(con, "insert into item_option_template (id, NAME) select 273, 'Tấn công+#% lên quái bay' from dual where not exists (select 1 from item_option_template where id = 273)");
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1116d'")) {
+            writeStats(con, EVENT_ITEMS4);
+            update(con, "insert into server_migration (name) values ('event_items_1116d')");
         }
     }
 
