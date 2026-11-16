@@ -969,12 +969,12 @@ public class ItemService {
             case 563: // Giày Thần Linh TD
                 chiso = 48000 * tiLe / 100;
                 itemoptions.add(new ItemOption(23, chiso / 1000));
-                itemoptions.add(new ItemOption(28, chiso / 20));
+                itemoptions.add(new ItemOption(28, chiso * 150 / 1000)); // hồi KI/30s bằng giày Thần Xayda
                 break;
             case 565: // Giày Thần Linh NM
                 chiso = 50000 * tiLe / 100;
                 itemoptions.add(new ItemOption(23, chiso / 1000));
-                itemoptions.add(new ItemOption(28, chiso / 20));
+                itemoptions.add(new ItemOption(28, chiso * 150 / 1000)); // hồi KI/30s bằng giày Thần Xayda
                 break;
             case 567: // Giày Thần Linh XD
                 chiso = 46000 * tiLe / 100;
@@ -994,6 +994,13 @@ public class ItemService {
     public static boolean fillThanLinh(Item it) {
         if (it == null || it.template == null || it.template.id < 555 || it.template.id > 567) {
             return false;
+        }
+        if (it.template.id == 563 || it.template.id == 565) { // giày TĐ / Namếc cũ (KI/30s = 5%): lên bằng giày Xayda (15%)
+            for (ItemOption o : it.itemOptions) {
+                if (o.optionTemplate != null && o.optionTemplate.id == 28 && o.param < 3000) {
+                    o.param *= 3;
+                }
+            }
         }
         java.util.Set<Integer> base = java.util.Set.of(0, 14, 22, 23, 27, 28, 47);
         if (it.itemOptions.stream().anyMatch(o -> o.optionTemplate != null && base.contains(o.optionTemplate.id))) {
