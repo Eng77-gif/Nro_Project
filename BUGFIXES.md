@@ -2404,3 +2404,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## KI trên 2,1 tỷ thành số âm
 - NPoint.setMpMax ép KI tối đa về int nên KI 2 tỷ mặc thêm cải trang +17% KI bị tràn thành số âm. Bỏ ép int ở KI tối đa và setHP / setMP / setDame (cùng lỗi khi vượt 2,1 tỷ).
+
+## Cửa hàng: món riêng hành tinh khác bị lẫn vào
+- Shop mở theo nhân vật chỉ lọc hành tinh ở vài tab đặc biệt; tab thường (vd Cải trang của Santa) hiện cả CT riêng Xayda / Namếc cho người Trái Đất. Nay tab thường cũng chỉ hiện món đúng hành tinh hoặc món chung (Santa, Quy Lão, Uron, Whis, shop bang).

@@ -51,7 +51,7 @@ public class Shop {
             } else if (tabShop.id >= 41 && tabShop.id <= 43) {
                 this.tabShops.add(new TabShopHocKynang(tabShop, player));
             } else {
-                this.tabShops.add(new TabShop(tabShop));
+                this.tabShops.add(new TabShop(tabShop, player.gender)); // món riêng hành tinh khác (CT Xayda trong shop Trái Đất...) không hiện
             }
         }
     }
