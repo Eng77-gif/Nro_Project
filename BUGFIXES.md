@@ -2411,3 +2411,8 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 ## Khẩu trang, Rađa kho báu
 - Khẩu trang (764): trước dùng chỉ bật cờ, không có tác dụng, không hết hạn. Nay 30 phút tấn công +10% khi đánh quái, có ô thời gian.
 - Rađa kho báu (1532): trước x3 tiềm năng / sức mạnh trong 30 phút, không hiện ô thời gian. Nay đúng mô tả: 15 phút, x2 trong 4 map kho báu (Động hải tặc, Hang Bạch Tuộc, Động kho báu, Cảng hải tặc), có ô thời gian.
+
+## Danh hiệu Đón Xuân, Tay nhanh hơn não theo ảnh
+- Đón Xuân (1978): shop trước không hiện chỉ số; nay +50% TN SM, +25% TN SM đệ khi sư phụ mặc, +5% vàng rơi, Sức đánh +11%, Chí mạng +5%, HSD 30 ngày.
+- Tay nhanh hơn não (1673): đổi từ SĐ/HP/KI +11%, Đẹp +5% thành HP +5%, +20% May mắn, +10% TN SM, HSD 7 ngày.
+- Đặt ở data_badges (chỉ số khi đeo), item_template_option và item_shop_option (hiện ở shop) mỗi lần khởi động.

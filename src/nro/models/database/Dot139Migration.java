@@ -58,6 +58,22 @@ public class Dot139Migration {
         try {
             update(con, "alter table web_topup add column if not exists gem_pending int not null default 0"); // ngọc nạp lúc offline, cộng khi đăng nhập
             removeAdminFromRanks(con);
+            // Danh hiệu theo ảnh: Đón Xuân 1978 (+50% TNSM, +25% TNSM đệ, +5% vàng rơi, SĐ +11%, chí mạng +5%, 30 ngày);
+            // Tay nhanh hơn não 1673 (HP +5%, may mắn +20%, TNSM +10%, 7 ngày). Chỉ số thật: data_badges; hiện ở shop: item_shop_option
+            int[][][] titles = {{{1978}, {101, 50}, {160, 25}, {268, 5}, {50, 11}, {14, 5}, {93, 30}}, {{1673}, {77, 5}, {236, 20}, {101, 10}, {93, 7}}};
+            for (int[][] t : titles) {
+                StringBuilder js = new StringBuilder("[");
+                for (int i = 1; i < t.length; i++) {
+                    js.append(i > 1 ? "," : "").append("{\"param\":").append(t[i][1]).append(",\"id\":").append(t[i][0]).append("}");
+                }
+                update(con, "update data_badges set Options = '" + js + "]' where idItem = " + t[0][0]);
+                update(con, "delete from item_template_option where template_id = " + t[0][0]);
+                update(con, "delete o from item_shop_option o join item_shop s on s.id = o.item_shop_id where s.tab_id = 44 and s.temp_id = " + t[0][0]);
+                for (int i = 1; i < t.length; i++) {
+                    update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (" + t[0][0] + ", " + t[i][0] + ", " + t[i][1] + ", " + t[i][1] + ", 100, 0)");
+                    update(con, "insert into item_shop_option (item_shop_id, option_id, param) select id, " + t[i][0] + ", " + t[i][1] + " from item_shop where tab_id = 44 and temp_id = " + t[0][0]);
+                }
+            }
             // Vé riêng tư: thêm 2 map bản sao (Thung lũng Maima 11 -> 189, Rừng nguyên sinh 17 -> 190), không cổng / NPC; 3 map riêng tư mỗi map 50 khu
             for (int[] c : new int[][]{{189, 11}, {190, 17}}) {
                 if (!exists(con, "select 1 from map_template where id = " + c[0])) {
