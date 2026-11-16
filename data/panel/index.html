@@ -243,7 +243,7 @@ const PAGES=[
  ['g','Máy chủ'],['dash','Tổng quan','📊'],['notify','Thông báo & quà','📣'],['maint','Bảo trì & lưu','🛠'],['logs','Nhật ký console','🖥'],['chatlog','Nhật ký chat & thông báo','💬'],['audit','Nhật ký thao tác','📝'],['config','Cấu hình','⚙'],
  ['g','Người chơi'],['players','Người chơi','👤'],['pets','Đệ tử','🐉'],['bots','Bot','🤖'],['ai','AI huấn luyện bot','🧠'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],['webposts','Diễn đàn & hỗ trợ','📮'],['webtopup','Nạp qua web','💎'],
  ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],['looks','Đeo lưng & thú cưỡi','🪽'],['admin','Lệnh admin trong game','🧙'],
- ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['nrsd','Ngọc Rồng Sao Đen','🌑'],['bossrw','Thưởng boss','💰'],['drops','Tỉ lệ rơi','🎲'],['mobs','Quái','🐗'],
+ ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['nrsd','Ngọc Rồng Sao Đen','🌑'],['bossrw','Thưởng boss','💰'],['drops','Tỉ lệ rơi','🎲'],['kol','Nhiệm vụ KOL','⭐'],['mobs','Quái','🐗'],
  ['g','Khác'],['db','Database','🗄'],['health','Kiểm tra dữ liệu','🩺'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
 
 function uiIcon(key){const shapes={
@@ -270,7 +270,7 @@ function uiIcon(key){const shapes={
  heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
  arrow:'<path d="M5 12h14m-5-5 5 5-5 5"/>'};
- const aliases={players:'users',accounts:'key',bots:'bot',notify:'bell',maint:'settings',logs:'file',audit:'file',config:'settings',tops:'trophy',clans:'shield',items:'box',boxes:'box',giftcode:'box',shop:'store',kygui:'box',badges:'trophy',radar:'file',fx:'bolt',looks:'bolt',admin:'shield',maps:'map',events:'event',evshop:'store',eventtops:'trophy',bosses:'bolt',bossrw:'trophy',drops:'box',mobs:'bolt',db:'database',health:'heart',napthe:'file',sql:'database'};
+ const aliases={players:'users',accounts:'key',bots:'bot',notify:'bell',maint:'settings',logs:'file',audit:'file',config:'settings',tops:'trophy',clans:'shield',items:'box',boxes:'box',giftcode:'box',shop:'store',kygui:'box',badges:'trophy',radar:'file',fx:'bolt',looks:'bolt',admin:'shield',maps:'map',events:'event',evshop:'store',eventtops:'trophy',bosses:'bolt',bossrw:'trophy',drops:'box',kol:'trophy',mobs:'bolt',db:'database',health:'heart',napthe:'file',sql:'database'};
  return '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">'+(shapes[aliases[key]||key]||shapes.dash)+'</svg>'}
 
 function buildNav(){if(innerWidth<760)$('#nav').classList.add('hide');let h='<h1><span class="brand-orb"><span>★★★★</span></span><span>NRO<span style="color:var(--acc)">.</span> Admin<small>Control center</small></span></h1>',open=false;
@@ -846,6 +846,33 @@ function drawDrops(){$('#dtab').querySelectorAll('button').forEach(b=>b.classLis
 async function saveRate(k){const v=+document.querySelector(`[data-k="${k}"]`).value;await api('drops/set',{key:k,rate:v});toast('Đã lưu tỉ lệ');DROPS=await api('drops');drawDrops()}
 async function saveBossRate(id){const x=BRWD.rows.find(r=>r.id==id),v=+document.querySelector(`[data-b="${id}"]`).value;await api('bossreward/save',{...x,rate:Math.round(v*100)});toast('Đã lưu tỉ lệ boss');BRWD=await api('bossrewards');drawDrops()}
 async function resetDrops(){if(!confirm('Xoá số liệu đếm và đếm lại từ bây giờ?'))return;await api('drops/reset',{});DROPS=await api('drops');drawDrops()}
+
+/* ---------- nhiệm vụ KOL (Quy Lão Kamê) ---------- */
+let KOL=null,kolTab=0;
+async function page_kol(){KOL=await api('kol');
+  $('#main').innerHTML=`<h2>Nhiệm vụ KOL</h2><div class="card"><div class="tabs" id="ktab" style="margin:0"><button data-i="0">Nhiệm vụ & phần thưởng</button><button data-i="1">Tiến độ người chơi</button></div></div><div id="kl"></div>`;
+  $('#ktab').querySelectorAll('button').forEach(b=>b.onclick=()=>{kolTab=+b.dataset.i;drawKol()});drawKol()}
+function kolRw(qi,kind){return KOL.quests[qi][kind].map((r,ri)=>`<div class="row" style="gap:6px;margin:4px 0;flex-wrap:wrap">
+  <input type="number" value="${r.id}" style="width:80px" title="ID vật phẩm (-1 = ngọc xanh ngẫu nhiên)" oninput="kolSet(${qi},'${kind}',${ri},'id',this.value)">
+  <input type="number" value="${r.qty}" min="1" style="width:90px" title="${r.id<0?'Ngọc ít nhất':'Số lượng'}" oninput="kolSet(${qi},'${kind}',${ri},'qty',this.value)">
+  <input type="number" value="${r.days}" min="0" style="width:90px" title="${r.id<0?'Ngọc nhiều nhất':'Hạn (ngày), 0 = vĩnh viễn'}" oninput="kolSet(${qi},'${kind}',${ri},'days',this.value)">
+  <span style="font-size:12px">${r.id<0?`Ngọc xanh ngẫu nhiên ${fmt(r.qty)} - ${fmt(r.days)}`:`${r.icon>=0?icon(r.icon):''} ${esc(r.name||'#'+r.id)}${+r.days>0?' ('+r.days+' ngày)':''}`}</span>
+  <button class="s d" onclick="KOL.quests[${qi}].${kind}.splice(${ri},1);drawKol()">Xoá</button></div>`).join('')+`<button class="s" onclick="KOL.quests[${qi}].${kind}.push({id:0,qty:1,days:0});drawKol()">+ Thêm quà</button>`}
+function kolSet(qi,kind,ri,f,v){KOL.quests[qi][kind][ri][f]=+v}
+function drawKol(){$('#ktab').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.i===kolTab));
+  if(kolTab===1){api('kol/progress').then(rows=>{$('#kl').innerHTML=`<div class="card"><p class="mute" style="font-size:12px;margin:0 0 8px">Đợt ${esc(KOL.season)}. Người đang online lấy số liệu trực tiếp, người offline lấy theo lần lưu gần nhất. Chỉ hiện người đã có tiến độ.</p>${rows.length?table(rows,[['name','Nhân vật',(v,x)=>`<a href="javascript:void 0" onclick="openPlayer(${Number(x.id)})">${esc(v)}</a>${x.online?' <span class="tag on1">online</span>':''}`],['stage','KOL',v=>v>KOL.quests.length?'Xong hết':'NV '+v],['vipStage','KOL VIP',(v,x)=>(x.vip?'':'<span class="mute">chưa mở</span> ')+(v>KOL.quests.length?'Xong hết':'NV '+v)],['boMong','Bò Mộng',fmt],['mocNhan','Mộc Nhân',fmt],['bdkb','Đảo Kho Báu',fmt],['pvp','Thắng ĐHVT',fmt],['ninja','Ninja tím',fmt],['monsters','Quái',fmt]]):'<p class="mute">Chưa ai làm nhiệm vụ KOL đợt này.</p>'}</div>`});return}
+  const T=KOL.types;
+  $('#kl').innerHTML=`<div class="card"><div class="row" style="flex-wrap:wrap;gap:12px"><label class="f">Đợt (đổi = mọi người làm lại từ nhiệm vụ 1)<input id="kse" value="${esc(KOL.season)}" maxlength="32"></label><label class="f">Ngọc xanh mở KOL VIP<input id="kvg" type="number" min="0" value="${KOL.vipGem}"></label></div>
+   <p class="mute" style="font-size:12px;margin:8px 0 0">Quà: ô 1 = ID vật phẩm, ô 2 = số lượng, ô 3 = hạn dùng (ngày, 0 = vĩnh viễn). ID -1 = ngọc xanh ngẫu nhiên từ ô 2 đến ô 3. Quà vật phẩm luôn có dòng không thể giao dịch. Bấm Lưu tất cả là có hiệu lực ngay, không cần khởi động lại.</p></div>`+
+  KOL.quests.map((q,i)=>`<div class="card"><div class="section-head"><h3>Nhiệm vụ ${i+1}</h3><span><button class="s" ${i?'':'disabled'} onclick="[KOL.quests[${i-1}],KOL.quests[${i}]]=[KOL.quests[${i}],KOL.quests[${i-1}]];drawKol()">↑</button> <button class="s d" onclick="if(confirm('Xoá nhiệm vụ ${i+1}?')){KOL.quests.splice(${i},1);drawKol()}">Xoá</button></span></div>
+   <div class="row" style="flex-wrap:wrap;gap:12px"><label class="f">Loại<select onchange="KOL.quests[${i}].type=+this.value;drawKol()">${T.map(t=>`<option value="${t.type}" ${t.type==q.type?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label>
+   ${T.find(t=>t.type==q.type)?.item?`<label class="f">ID vật phẩm cần tặng<input type="number" value="${q.itemId}" oninput="KOL.quests[${i}].itemId=+this.value"></label>`:''}
+   <label class="f">Số lượng cần<input type="number" min="1" value="${q.need}" oninput="KOL.quests[${i}].need=+this.value"></label></div>
+   <label class="f">Mô tả hiện ở Quy Lão<textarea rows="2" oninput="KOL.quests[${i}].desc=this.value">${esc(q.desc)}</textarea></label>
+   <div class="row" style="align-items:flex-start;flex-wrap:wrap;gap:16px"><div class="grow"><b>Quà thường</b>${kolRw(i,'normal')}</div><div class="grow"><b>Quà VIP</b>${kolRw(i,'vip')}</div></div></div>`).join('')+
+  `<div class="card row" style="gap:8px"><button class="s" onclick="KOL.quests.push({type:${T[0].type},itemId:-1,need:1,desc:'Nhiệm vụ '+(KOL.quests.length+1),normal:[],vip:[]});drawKol()">+ Thêm nhiệm vụ</button><button class="p" onclick="saveKol()">Lưu tất cả</button><button class="s" onclick="page_kol()">Huỷ thay đổi</button></div>`}
+async function saveKol(){const season=$('#kse').value.trim();if(season!==KOL.season&&!confirm('Đổi đợt KOL: mọi người chơi sẽ làm lại từ nhiệm vụ 1. Tiếp tục?'))return;
+  const r=await act(()=>api('kol/save',{season,vipGem:+$('#kvg').value,quests:KOL.quests.map(q=>({type:q.type,itemId:q.itemId,need:q.need,desc:q.desc,normal:q.normal.map(({id,qty,days})=>({id,qty,days})),vip:q.vip.map(({id,qty,days})=>({id,qty,days}))}))}),'Đã lưu nhiệm vụ KOL');if(r)page_kol()}
 
 /* ---------- thông báo & quà toàn server ---------- */
 const NTY={ticker:['Dòng chữ chạy','Chạy ngang đầu màn hình mọi người chơi (thông báo server).'],popup:['Hộp thông báo','Bật hộp thoại giữa màn hình, người chơi phải bấm đóng.'],world:['Chat thế giới','Hiện trong kênh chat thế giới như một tin nhắn của server.']};

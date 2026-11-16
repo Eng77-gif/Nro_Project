@@ -67,12 +67,12 @@ public class QuyLaoKame extends Npc {
     }
 
     /** Đợt KOL đang chạy: đổi giá trị này khi sang tháng mới để mọi người làm lại từ nhiệm vụ 1. */
-    public static final String KOL_SEASON = "2026-11";
-    public static final int KOL_VIP_GEM = 450; // nạp 450 ngọc xanh cho Quy Lão để mở phần thưởng VIP
+    public static volatile String KOL_SEASON = "2026-11";
+    public static volatile int KOL_VIP_GEM = 450; // nạp 450 ngọc xanh cho Quy Lão để mở phần thưởng VIP
     private static final int VE_KOL_VIP = 2110;
 
-    private static final Map<Integer, KOLQuestData> KOL_QUESTS = new HashMap<>();
-    private static final Map<Integer, KOLQuestData> KOL_VIP_QUESTS = new HashMap<>();
+    private static volatile Map<Integer, KOLQuestData> KOL_QUESTS = new HashMap<>();
+    private static volatile Map<Integer, KOLQuestData> KOL_VIP_QUESTS = new HashMap<>();
 
     private static void quest(int stage, int type, int itemId, int need, String desc, List<RewardItem> normal, List<RewardItem> vip) {
         KOL_QUESTS.put(stage, new KOLQuestData(type, itemId, need, normal, desc));
@@ -95,6 +95,232 @@ public class QuyLaoKame extends Npc {
                 Arrays.asList(new RewardItem(2019, 1, 60)), Arrays.asList(new RewardItem(1898, 1, 365)));
         quest(7, ConstNpc.KOL_QUEST_TYPE_ITEM_COLLECTION, 14, 7, "Nhiệm vụ 7:\nNói chuyện và tặng Quy Lão bộ ngọc rồng 1 sao (7 viên)",
                 Arrays.asList(new RewardItem(1593, 1)), Arrays.asList(new RewardItem(2020, 1)));
+        try {
+            KolConfig.load();
+        } catch (Exception e) {
+            Logger.error("KOL: không đọc được kol_config, dùng nhiệm vụ mặc định: " + e.getMessage() + "\n");
+        }
+    }
+
+    /** Panel > Nhiệm vụ KOL: cấu hình lưu ở bảng kol_config (1 dòng JSON), sửa là có hiệu lực ngay. */
+    public static final class KolConfig {
+
+        /** {loại, tên hiển thị, có dùng id vật phẩm} – chỉ những loại progress() đếm được. */
+        public static final Object[][] TYPES = {
+            {ConstNpc.KOL_QUEST_TYPE_BO_MONG, "Hoàn thành nhiệm vụ Bò Mộng", false},
+            {ConstNpc.KOL_QUEST_TYPE_MOC_NHAN, "Đánh Mộc Nhân (tự động luyện tập)", false},
+            {ConstNpc.KOL_QUEST_TYPE_BDKB, "Hoàn thành Đảo Kho Báu cấp 20+", false},
+            {ConstNpc.KOL_QUEST_TYPE_PVP_WINS, "Thắng Đại Hội Võ Thuật", false},
+            {ConstNpc.KOL_QUEST_TYPE_NINJA_TIM, "Hạ Ninja tím Doanh Trại", false},
+            {ConstNpc.KOL_QUEST_TYPE_MONSTER_KILL_COUNT, "Đánh quái (tự động luyện tập)", false},
+            {ConstNpc.KOL_QUEST_TYPE_ITEM_COLLECTION, "Tặng vật phẩm cho Quy Lão", true}};
+
+        private static final com.google.gson.Gson GSON = new com.google.gson.Gson();
+
+        private static boolean validType(int t) {
+            for (Object[] x : TYPES) {
+                if ((int) x[0] == t) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static void load() throws Exception {
+            try (java.sql.Connection con = nro.models.data.LocalManager.getConnection(); java.sql.Statement st = con.createStatement()) {
+                st.executeUpdate("create table if not exists kol_config (id int primary key, data mediumtext not null)");
+                try (java.sql.ResultSet rs = st.executeQuery("select data from kol_config where id=1")) {
+                    if (rs.next()) {
+                        apply(GSON.fromJson(rs.getString(1), Map.class), false);
+                    }
+                }
+            }
+        }
+
+        private static List<Map<String, Object>> rewards(List<RewardItem> l) {
+            List<Map<String, Object>> r = new ArrayList<>();
+            for (RewardItem x : l) {
+                Map<String, Object> m = new java.util.LinkedHashMap<>();
+                m.put("id", x.itemId);
+                m.put("qty", x.quantity);
+                m.put("days", x.days);
+                if (x.itemId >= 0) {
+                    var t = ItemService.gI().getTemplate(x.itemId);
+                    m.put("name", t != null ? t.name : "?");
+                    m.put("icon", t != null ? t.iconID : -1);
+                }
+                r.add(m);
+            }
+            return r;
+        }
+
+        public static Map<String, Object> get() {
+            Map<String, Object> out = new java.util.LinkedHashMap<>();
+            out.put("season", KOL_SEASON);
+            out.put("vipGem", KOL_VIP_GEM);
+            List<Map<String, Object>> types = new ArrayList<>();
+            for (Object[] x : TYPES) {
+                types.add(Map.of("type", x[0], "name", x[1], "item", x[2]));
+            }
+            out.put("types", types);
+            List<Map<String, Object>> qs = new ArrayList<>();
+            Map<Integer, KOLQuestData> n = KOL_QUESTS, v = KOL_VIP_QUESTS;
+            for (int i = 1; n.containsKey(i); i++) {
+                KOLQuestData q = n.get(i);
+                Map<String, Object> m = new java.util.LinkedHashMap<>();
+                m.put("type", q.questType);
+                m.put("itemId", q.itemId);
+                m.put("need", q.requiredQuantity);
+                m.put("desc", q.description);
+                m.put("normal", rewards(q.rewards));
+                m.put("vip", rewards(v.get(i).rewards));
+                qs.add(m);
+            }
+            out.put("quests", qs);
+            return out;
+        }
+
+        private static int num(Object o) {
+            return (int) Math.round(Double.parseDouble(String.valueOf(o)));
+        }
+
+        private static List<RewardItem> parseRewards(Object o, int stage) {
+            List<RewardItem> r = new ArrayList<>();
+            if (o instanceof List<?> l) {
+                for (Object e : l) {
+                    Map<?, ?> m = (Map<?, ?>) e;
+                    int id = num(m.get("id")), qty = num(m.get("qty")), days = m.get("days") == null ? 0 : num(m.get("days"));
+                    if (id >= 0 && ItemService.gI().getTemplate(id) == null) {
+                        throw new IllegalArgumentException("Nhiệm vụ " + stage + ": không có vật phẩm #" + id);
+                    }
+                    if (qty < 1 || days < 0 || (id < 0 && days < qty)) {
+                        throw new IllegalArgumentException("Nhiệm vụ " + stage + ": số lượng / hạn không hợp lệ");
+                    }
+                    r.add(new RewardItem(id, qty, days));
+                }
+            }
+            return r;
+        }
+
+        /** Kiểm tra rồi thay toàn bộ cấu hình; save = ghi vào DB. Đổi đợt thì người đang online làm lại từ nhiệm vụ 1. */
+        public static synchronized void apply(Map<?, ?> b, boolean save) throws Exception {
+            String season = String.valueOf(b.get("season")).trim();
+            int gem = num(b.get("vipGem"));
+            if (season.isEmpty() || season.length() > 32 || gem < 0) {
+                throw new IllegalArgumentException("Đợt / giá VIP không hợp lệ");
+            }
+            List<?> qs = (List<?>) b.get("quests");
+            if (qs == null || qs.isEmpty() || qs.size() > 30) {
+                throw new IllegalArgumentException("Cần 1 - 30 nhiệm vụ");
+            }
+            Map<Integer, KOLQuestData> n = new HashMap<>(), v = new HashMap<>();
+            for (int i = 0; i < qs.size(); i++) {
+                Map<?, ?> q = (Map<?, ?>) qs.get(i);
+                int stage = i + 1, type = num(q.get("type")), need = num(q.get("need"));
+                int itemId = q.get("itemId") == null ? -1 : num(q.get("itemId"));
+                if (!validType(type) || need < 1) {
+                    throw new IllegalArgumentException("Nhiệm vụ " + stage + ": loại / số lượng cần không hợp lệ");
+                }
+                if (type == ConstNpc.KOL_QUEST_TYPE_ITEM_COLLECTION) {
+                    if (ItemService.gI().getTemplate(itemId) == null) {
+                        throw new IllegalArgumentException("Nhiệm vụ " + stage + ": không có vật phẩm cần tặng #" + itemId);
+                    }
+                } else {
+                    itemId = -1;
+                }
+                String desc = String.valueOf(q.get("desc") == null ? "" : q.get("desc")).replace("\r", "").trim();
+                if (desc.isEmpty()) {
+                    desc = "Nhiệm vụ " + stage;
+                }
+                n.put(stage, new KOLQuestData(type, itemId, need, parseRewards(q.get("normal"), stage), desc));
+                v.put(stage, new KOLQuestData(type, itemId, need, parseRewards(q.get("vip"), stage), desc));
+            }
+            boolean newSeason = !season.equals(KOL_SEASON);
+            if (save) {
+                Map<String, Object> keep = new java.util.LinkedHashMap<>();
+                keep.put("season", season);
+                keep.put("vipGem", gem);
+                keep.put("quests", qs);
+                try (java.sql.Connection con = nro.models.data.LocalManager.getConnection(); java.sql.PreparedStatement ps = con.prepareStatement("replace into kol_config (id, data) values (1, ?)")) {
+                    ps.setString(1, GSON.toJson(keep));
+                    ps.executeUpdate();
+                }
+            }
+            KOL_QUESTS = n;
+            KOL_VIP_QUESTS = v;
+            KOL_VIP_GEM = gem;
+            KOL_SEASON = season;
+            if (save && newSeason) {
+                for (Player p : new ArrayList<>(nro.models.server.Client.gI().getPlayers())) {
+                    reset(p);
+                }
+            }
+        }
+
+        public static void reset(Player p) {
+            p.kolQuestStage = 1;
+            p.kolVIPQuestStage = 1;
+            p.kolVip = false;
+            p.kolBoMong = p.kolMocNhan = p.kolBdkb = p.kolNinjaTim = 0;
+            p.martialArtsTournamentWins = 0;
+            p.monsterKillCountAutoTrain = 0;
+            p.destronGas70CompletionCount = 0;
+            p.dailySuperHardQuestCompletionCount = 0;
+            p.bossBabyDefeatParticipationCount = 0;
+        }
+
+        /** Tiến độ người chơi đợt hiện tại: người online đọc từ bộ nhớ, người offline đọc từ DB. */
+        public static List<Map<String, Object>> progress() throws Exception {
+            Map<Long, Map<String, Object>> by = new java.util.LinkedHashMap<>();
+            String season = KOL_SEASON;
+            try (java.sql.Connection con = nro.models.data.LocalManager.getConnection(); java.sql.PreparedStatement ps = con.prepareStatement("select id, name, nhiem_vu_kol from player where nhiem_vu_kol like ?")) {
+                ps.setString(1, "%\"season\":\"" + season.replace("%", "") + "\"%");
+                try (java.sql.ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        try {
+                            nro.models.player.KOLProgressData d = GSON.fromJson(rs.getString(3), nro.models.player.KOLProgressData.class);
+                            if (d != null && season.equals(d.season)) {
+                                by.put(rs.getLong(1), row(rs.getLong(1), rs.getString(2), false, d.kolQuestStage, d.kolVIPQuestStage, d.kolVip,
+                                        new long[]{d.kolBoMong, d.kolMocNhan, d.kolBdkb, d.martialArtsTournamentWins, d.kolNinjaTim, d.monsterKillCountAutoTrain}));
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
+            }
+            for (Player p : new ArrayList<>(nro.models.server.Client.gI().getPlayers())) {
+                if (p != null && !p.isPet && !p.isBoss && !p.isBot) {
+                    by.put(p.id, row(p.id, p.name, true, p.kolQuestStage, p.kolVIPQuestStage, p.kolVip,
+                            new long[]{p.kolBoMong, p.kolMocNhan, p.kolBdkb, p.martialArtsTournamentWins, p.kolNinjaTim, p.monsterKillCountAutoTrain}));
+                }
+            }
+            List<Map<String, Object>> l = new ArrayList<>(by.values());
+            l.removeIf(m -> (int) m.get("stage") <= 1 && (int) m.get("vipStage") <= 1 && (long) m.get("sum") == 0); // chưa làm gì
+            l.sort((a, c) -> Integer.compare((int) c.get("stage") + (int) c.get("vipStage"), (int) a.get("stage") + (int) a.get("vipStage")));
+            return l.size() > 300 ? l.subList(0, 300) : l;
+        }
+
+        private static Map<String, Object> row(long id, String name, boolean online, int stage, int vipStage, boolean vip, long[] c) {
+            Map<String, Object> m = new java.util.LinkedHashMap<>();
+            m.put("id", id);
+            m.put("name", name);
+            m.put("online", online);
+            m.put("stage", Math.max(1, stage));
+            m.put("vipStage", Math.max(1, vipStage));
+            m.put("vip", vip);
+            m.put("boMong", c[0]);
+            m.put("mocNhan", c[1]);
+            m.put("bdkb", c[2]);
+            m.put("pvp", c[3]);
+            m.put("ninja", c[4]);
+            m.put("monsters", c[5]);
+            long sum = 0;
+            for (long x : c) {
+                sum += x;
+            }
+            m.put("sum", sum);
+            return m;
+        }
     }
 
     public QuyLaoKame(int mapId, int status, int cx, int cy, int tempId, int avartar) {

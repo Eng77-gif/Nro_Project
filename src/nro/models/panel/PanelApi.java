@@ -275,6 +275,12 @@ public class PanelApi {
                 nro.models.services.DropRates.set(str(b.get("key")), Double.parseDouble(String.valueOf(b.get("rate"))));
                 yield Map.of("ok", true);
             }
+            case "kol" -> nro.models.npc_list.QuyLaoKame.KolConfig.get();
+            case "kol/save" -> {
+                nro.models.npc_list.QuyLaoKame.KolConfig.apply(b, true);
+                yield Map.of("ok", true);
+            }
+            case "kol/progress" -> nro.models.npc_list.QuyLaoKame.KolConfig.progress();
             case "drops/reset" -> {
                 nro.models.services.DropStats.reset();
                 yield Map.of("ok", true);

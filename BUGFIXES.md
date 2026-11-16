@@ -2433,3 +2433,9 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Map 183–190 đổi số thành 167–174 (Thành cổ 1/2, Đấu trường, Rừng nguyên sinh, Ngục tù may mắn, Map Mùa hè, 2 map riêng tư), không còn khoảng trống sau 166.
 - `MapRenumMigration` (chỉ chạy 1 lần, đánh dấu `map_renum_167`) cập nhật map_template, vị trí người chơi, NPC/quái sự kiện, nhiệm vụ, dữ liệu bot, map rơi sự kiện.
 - File data/map (tile, item_bg) đã đổi tên theo. `vsMap` = 11 để client tải lại map.
+
+## Panel: mục Nhiệm vụ KOL
+- Trang mới "Nhiệm vụ KOL" (nhóm Thế giới): sửa đợt KOL, số ngọc mở VIP, từng nhiệm vụ (loại, số lượng cần, vật phẩm cần tặng, mô tả), quà thường / VIP (ID, số lượng, hạn ngày; -1 = ngọc ngẫu nhiên); thêm / xoá / đổi thứ tự nhiệm vụ. Lưu là có hiệu lực ngay.
+- Đổi đợt: người online làm lại từ nhiệm vụ 1 ngay, người offline làm lại khi đăng nhập.
+- Tab "Tiến độ người chơi": nhiệm vụ đang làm (thường / VIP) và số đếm Bò Mộng, Mộc Nhân, Đảo Kho Báu, ĐHVT, Ninja tím, quái.
+- Lưu ở bảng `kol_config` (tự tạo). Chưa lưu lần nào thì dùng 7 nhiệm vụ tháng 11 như cũ.
