@@ -83,35 +83,36 @@ public class ThanhCo {
         }
     }
 
-    /** Khu đài (tường vô hình): người ngoài không vào được, người đang đấu + Gohan không ra được. */
-    private static final int WALL_L = 744, WALL_R = 1128, WALL_TOP = DAI_Y + 96, IN_L = 804, IN_R = 1068;
+    /**
+     * Khu đài: tường thật nằm trong dữ liệu map (ô gạch 51 - 57 của bộ 42 = ô gốc + thuộc tính tường, cột 32 / 46 và hàng 20),
+     * client tự chặn nên không giật. Server chỉ giữ Gohan trong đài (boss không chịu va chạm ô gạch)
+     * và đưa người lọt vào đài bằng cách khác (dịch chuyển tức thời, đăng nhập lại...) xuống đất.
+     */
+    private static final int BOX_L = 768, BOX_R = 1128, BOX_BOTTOM = 504, IN_L = 804, IN_R = 1092, GROUND_X = 921, GROUND_Y = 672;
 
     private static boolean inBox(int x, int y) {
-        return x >= WALL_L && x <= WALL_R && y <= WALL_TOP;
+        return x >= BOX_L && x <= BOX_R && y <= BOX_BOTTOM;
     }
 
-    /**
-     * Tường vô hình quanh đài Đấu trường thành cổ, gọi từ PlayerService.playerMove.
-     * Trả null nếu đi bình thường, ngược lại là toạ độ đã chặn {x, y}.
-     */
+    /** Gọi từ PlayerService.playerMove. Trả null nếu đi bình thường, ngược lại là toạ độ thay thế {x, y}. */
     public static int[] wall(Player pl, int x, int y) {
         if (pl.zone == null || pl.zone.map.mapId != VuaHung.MAP_DAU_TRUONG) {
             return null;
         }
         GohanChienBinh cur = fighting.get(pl.zone);
         boolean active = cur != null && cur.zone != null && !cur.isDie();
+        if (pl.isBoss) {
+            if (active && pl == cur) {
+                int nx = Math.max(IN_L, Math.min(IN_R, x)), ny = Math.min(DAI_Y, y);
+                return nx == x && ny == y ? null : new int[]{nx, ny};
+            }
+            return null;
+        }
         Player owner = pl.isPet && pl instanceof nro.models.player.Pet p ? p.master : pl;
-        if (active && (pl == cur || owner == cur.fighter())) { // trong đài: không nhảy / rơi khỏi đài
-            int nx = Math.max(IN_L, Math.min(IN_R, x)), ny = Math.min(DAI_Y, y);
-            return nx == x && ny == y ? null : new int[]{nx, ny};
+        if (active && owner == cur.fighter()) {
+            return null;
         }
-        if (pl.isBoss || !inBox(x, y) || inBox(pl.location.x, pl.location.y)) {
-            return null; // đang ở trên đài (vd vừa đấu xong) thì được tự do đi xuống
-        }
-        if (pl.location.y > WALL_TOP && pl.location.x >= WALL_L && pl.location.x <= WALL_R) {
-            return new int[]{x, WALL_TOP + 1}; // bay từ dưới lên: chạm trần vô hình
-        }
-        return new int[]{pl.location.x < WALL_L ? WALL_L - 1 : WALL_R + 1, y}; // bay ngang vào: chạm tường
+        return inBox(pl.location.x, pl.location.y) ? new int[]{GROUND_X, GROUND_Y} : null;
     }
 
     public static class GohanChienBinh extends DeathOrAliveArena {
@@ -191,6 +192,10 @@ public class ThanhCo {
             fighting.remove(arena, this);
             if (playerAtt != null && playerAtt.zone != null) {
                 PlayerService.gI().changeAndSendTypePK(playerAtt, ConstPlayer.NON_PK);
+                if (playerAtt.zone == arena && inBox(playerAtt.location.x, playerAtt.location.y)) { // đài có tường: đấu xong đưa xuống đất
+                    Service.gI().resetPoint(playerAtt, GROUND_X, GROUND_Y);
+                    PlayerService.gI().playerMove(playerAtt, GROUND_X, GROUND_Y);
+                }
             }
             this.leaveMap();
         }

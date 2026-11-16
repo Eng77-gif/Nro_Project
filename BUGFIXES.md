@@ -2452,3 +2452,8 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Chặn tự bay lên đài Đấu trường thành cổ: trong vùng đài (x 744 - 1128, cao hơn mặt đất trên 120px) chỉ người đang đấu Gohan (và đệ tử của họ) được ở. Ai khác bay vào bị đặt xuống đất ở mép đài kèm thông báo "Chỉ được lên đài qua Hùng Vương". Đấu xong rời đài thì không báo.
 - Đài Đấu trường thành cổ đổi sang tường vô hình (thay cho kéo xuống đất): khi đang đấu, người đấu + đệ tử + Gohan bị giữ trong đài (x 804 - 1068, không rơi xuống dưới mặt đài), Gohan không còn nhảy xuống đài được. Người ngoài chạm tường ở 2 mép (x 744 / 1128) hoặc trần vô hình khi bay từ dưới lên. Người đang ở trên đài (đấu xong) đi xuống tự do.
 - Gohan chiến binh không đỏ máu, không đánh được: boss chỉ đổi cờ PK trong server mà không báo client. Giờ lúc lên đài gửi cờ PK_PVP của Gohan cho cả map (giống người đấu), client hiện đỏ và cho đánh.
+- Đài Đấu trường thành cổ: tường thật trong dữ liệu map thay cho chặn ở server (chặn ở server làm client bay lên rồi bị kéo về, giật lag).
+  - Bộ ô gạch 42 thêm ô 51 - 57 (ảnh = ô gốc tương ứng / trong suốt, khai báo tường trái + phải + trần trong `tile_set_Info`; 53 là ô sàn đài có thêm mặt đứng).
+  - Map 169: cột 32 và 46 (hàng 0 - 20) thành tường, hàng 20 dưới đài thành trần. Nhìn y như cũ (so ảnh vẽ lại không lệch điểm nào). Client tự chặn: ngoài không bay vào được, trong (người đấu) không ra được.
+  - Server: chỉ giữ Gohan trong đài (boss không va chạm ô gạch), đấu xong đưa người đấu xuống đất trước Hùng Vương, ai lọt vào đài bằng cách khác (dịch chuyển tức thời...) đưa xuống đất.
+  - vsData 35 (tải lại tile_set_Info), vsMap 14, vsRes 8.
