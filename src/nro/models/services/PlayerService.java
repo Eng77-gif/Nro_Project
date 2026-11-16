@@ -149,6 +149,9 @@ public class PlayerService {
         if (player.zone == null) {
             return;
         }
+        if (nro.models.event.ThanhCo.blockStage(player, x, y)) {
+            return;
+        }
         if (!player.isDie()) {
             if (player.effectSkill.isCharging) {
                 EffectSkillService.gI().stopCharge(player);

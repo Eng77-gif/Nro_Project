@@ -74,16 +74,44 @@ public class ThanhCo {
             return;
         }
         try {
+            fighting.put(pl.zone, new GohanChienBinh(pl));
             Service.gI().resetPoint(pl, DAI_X_PLAYER, DAI_Y);
             PlayerService.gI().playerMove(pl, DAI_X_PLAYER, DAI_Y);
-            fighting.put(pl.zone, new GohanChienBinh(pl));
             Service.gI().sendThongBao(pl, "Gohan chiến binh đã lên sàn!");
         } catch (Exception e) {
             Service.gI().sendThongBao(pl, "Không gọi được đối thủ, thử lại sau");
         }
     }
 
+    /**
+     * Chặn tự bay lên đài: ở Đấu trường thành cổ chỉ người đang đấu Gohan được lên khu đài (trên mặt đất, x 744 - 1128).
+     * Gọi từ PlayerService.playerMove; trả true = đã kéo người chơi xuống đất, bỏ qua bước di chuyển.
+     */
+    public static boolean blockStage(Player pl, int x, int y) {
+        if (pl.zone == null || pl.zone.map.mapId != VuaHung.MAP_DAU_TRUONG || pl.isBoss || x < 744 || x > 1128 || y > DAI_Y + 96) {
+            return false;
+        }
+        GohanChienBinh cur = fighting.get(pl.zone);
+        Player owner = pl.isPet && pl instanceof nro.models.player.Pet p ? p.master : pl;
+        if (cur != null && cur.zone != null && !cur.isDie() && cur.fighter() == owner) {
+            return false;
+        }
+        boolean wasOnStage = pl.location.y <= DAI_Y + 96 && pl.location.x >= 744 && pl.location.x <= 1128; // vd đấu xong, đang rời đài
+        int gx = x < 936 ? 720 : 1152; // đẩy ra mép đài, đứng trên mặt đất
+        Service.gI().resetPoint(pl, gx, 672);
+        pl.location.x = gx;
+        pl.location.y = 672;
+        if (!pl.isPet && !wasOnStage) {
+            Service.gI().sendThongBao(pl, "Chỉ được lên đài qua Hùng Vương (Lên sàn đấu)");
+        }
+        return true;
+    }
+
     public static class GohanChienBinh extends DeathOrAliveArena {
+
+        Player fighter() {
+            return playerAtt;
+        }
 
         private final Zone arena;
 

@@ -2449,3 +2449,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Sửa lại theo ảnh: bỏ cổng "Về làng" ở Thành cổ 1; Hùng Vương trở lại Đấu trường thành cổ (921, 672) với menu "Tôi sẽ đưa bạn về": Lên sàn đấu / Đồng ý (về làng theo hành tinh) / Từ chối. Vào Đấu trường không tự gọi Gohan nữa.
 - Trả lại đài giữa Đấu trường thành cổ (y=456, x 792 - 1080; vsMap = 13). Bấm "Lên sàn đấu" ở Hùng Vương là được đưa thẳng lên đài (880, 456), Gohan chiến binh xuất hiện trên đài (1000, 456).
 - J2ME hiện map Thành cổ một màu xanh: thiếu ảnh ô gạch cỡ x1 của bộ 33 - 42. Đã sinh 306 ảnh x1 (24px) từ bản lớn. Bộ 41 / 42 ở x2 đang sai cỡ 72px, sửa về 48px. vsRes = 7 để client tải lại.
+- Chặn tự bay lên đài Đấu trường thành cổ: trong vùng đài (x 744 - 1128, cao hơn mặt đất trên 120px) chỉ người đang đấu Gohan (và đệ tử của họ) được ở. Ai khác bay vào bị đặt xuống đất ở mép đài kèm thông báo "Chỉ được lên đài qua Hùng Vương". Đấu xong rời đài thì không báo.
