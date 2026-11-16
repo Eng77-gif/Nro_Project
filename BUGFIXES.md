@@ -2380,3 +2380,7 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 ## Bot vẫn luyện tập / làm nhiệm vụ khi đã tắt quyền
 - Bot mới vào game mặc định "Luyện tập"; làm xong NVHN thì bị đưa về luyện tập; BotQuest tự dẫn đi nhiệm vụ chính dù tắt quyền Nhiệm vụ. Nay: mới vào ghi "Đang vào game" rồi chọn việc theo quyền; xong NVHN chọn lại việc theo quyền; BotQuest chỉ chạy khi bật quyền Nhiệm vụ (hoặc được giao); mỗi 10 giây bot đang "Luyện tập"/"Làm nhiệm vụ" mà quyền đó tắt thì chọn lại việc ngay.
 - Chỉ bật NVHN: bot luôn nhận NVHN (trước bốc thăm 1/3 nên đa số đứng ở nhà); bot hết lượt NVHN trong ngày ghi "Nghỉ ở nhà (hết lượt NVHN hôm nay)".
+
+## Vé riêng tư: thêm 2 map, mỗi map 50 khu
+- Map 189 "Thung lũng Maima (riêng tư)" (bản sao map 11) và 190 "Rừng nguyên sinh (riêng tư)" (bản sao map 17): không cổng, không NPC, cùng luật khu riêng tư (SKH rơi như map riêng tư, vàng tối đa 500k/cục, không thấy người khác). Kèm data/map/tile_map_data + item_bg_map_data 189, 190.
+- Dùng Vé riêng tư hiện menu chọn: Map riêng tư / Thung lũng Maima / Rừng nguyên sinh. Cả 3 map 50 khu.

@@ -2931,7 +2931,16 @@ public class UseItem {
     }
 
     private void MapRiengTu(Player pl, Item item) {
-        ChangeMapService.gI().changeMapBySpaceShip(pl, 164, -1, 870);
+        NpcService.gI().createMenuConMeo(pl, 9164, -1, "Chọn khu riêng tư (mỗi map 50 khu)", "Map\nriêng tư", "Thung lũng\nMaima", "Rừng\nnguyên sinh", "Từ chối");
+    }
+
+    /** Vào map riêng tư đã chọn (Map riêng tư / Thung lũng Maima / Rừng nguyên sinh bản riêng tư). */
+    public void goPrivateMap(Player pl, int mapId) {
+        if (InventoryService.gI().findItemBag(pl, 1825) == null) {
+            Service.gI().sendThongBao(pl, "Cần có Vé riêng tư");
+            return;
+        }
+        ChangeMapService.gI().changeMapBySpaceShip(pl, mapId, -1, mapId == 164 ? 870 : 400);
     }
 
     private void VeTangNgoc(Player pl, Item item) {

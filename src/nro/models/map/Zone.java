@@ -466,7 +466,7 @@ public class Zone {
     public void load_Me_To_Another(Player player) {
         try {
             if (player.zone != null) {
-                if (this.map.mapId == 164) {
+                if (MapService.gI().isMapRiengTu(this.map.mapId)) {
                     return;
                 }
 
@@ -496,7 +496,7 @@ public class Zone {
 
     public void load_Another_To_Me(Player player) {
         try {
-            if (this.map.mapId == 164) {
+            if (MapService.gI().isMapRiengTu(this.map.mapId)) {
                 return;
             }
 
