@@ -149,8 +149,13 @@ public class PlayerService {
         if (player.zone == null) {
             return;
         }
-        if (nro.models.event.ThanhCo.blockStage(player, x, y)) {
-            return;
+        int[] w = nro.models.event.ThanhCo.wall(player, x, y); // tường vô hình quanh đài Đấu trường thành cổ
+        if (w != null) {
+            x = w[0];
+            y = w[1];
+            if (!player.isBoss) {
+                Service.gI().resetPoint(player, x, y); // kéo client về đúng chỗ chạm tường
+            }
         }
         if (!player.isDie()) {
             if (player.effectSkill.isCharging) {

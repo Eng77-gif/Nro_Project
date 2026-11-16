@@ -83,28 +83,35 @@ public class ThanhCo {
         }
     }
 
+    /** Khu đài (tường vô hình): người ngoài không vào được, người đang đấu + Gohan không ra được. */
+    private static final int WALL_L = 744, WALL_R = 1128, WALL_TOP = DAI_Y + 96, IN_L = 804, IN_R = 1068;
+
+    private static boolean inBox(int x, int y) {
+        return x >= WALL_L && x <= WALL_R && y <= WALL_TOP;
+    }
+
     /**
-     * Chặn tự bay lên đài: ở Đấu trường thành cổ chỉ người đang đấu Gohan được lên khu đài (trên mặt đất, x 744 - 1128).
-     * Gọi từ PlayerService.playerMove; trả true = đã kéo người chơi xuống đất, bỏ qua bước di chuyển.
+     * Tường vô hình quanh đài Đấu trường thành cổ, gọi từ PlayerService.playerMove.
+     * Trả null nếu đi bình thường, ngược lại là toạ độ đã chặn {x, y}.
      */
-    public static boolean blockStage(Player pl, int x, int y) {
-        if (pl.zone == null || pl.zone.map.mapId != VuaHung.MAP_DAU_TRUONG || pl.isBoss || x < 744 || x > 1128 || y > DAI_Y + 96) {
-            return false;
+    public static int[] wall(Player pl, int x, int y) {
+        if (pl.zone == null || pl.zone.map.mapId != VuaHung.MAP_DAU_TRUONG) {
+            return null;
         }
         GohanChienBinh cur = fighting.get(pl.zone);
+        boolean active = cur != null && cur.zone != null && !cur.isDie();
         Player owner = pl.isPet && pl instanceof nro.models.player.Pet p ? p.master : pl;
-        if (cur != null && cur.zone != null && !cur.isDie() && cur.fighter() == owner) {
-            return false;
+        if (active && (pl == cur || owner == cur.fighter())) { // trong đài: không nhảy / rơi khỏi đài
+            int nx = Math.max(IN_L, Math.min(IN_R, x)), ny = Math.min(DAI_Y, y);
+            return nx == x && ny == y ? null : new int[]{nx, ny};
         }
-        boolean wasOnStage = pl.location.y <= DAI_Y + 96 && pl.location.x >= 744 && pl.location.x <= 1128; // vd đấu xong, đang rời đài
-        int gx = x < 936 ? 720 : 1152; // đẩy ra mép đài, đứng trên mặt đất
-        Service.gI().resetPoint(pl, gx, 672);
-        pl.location.x = gx;
-        pl.location.y = 672;
-        if (!pl.isPet && !wasOnStage) {
-            Service.gI().sendThongBao(pl, "Chỉ được lên đài qua Hùng Vương (Lên sàn đấu)");
+        if (pl.isBoss || !inBox(x, y) || inBox(pl.location.x, pl.location.y)) {
+            return null; // đang ở trên đài (vd vừa đấu xong) thì được tự do đi xuống
         }
-        return true;
+        if (pl.location.y > WALL_TOP && pl.location.x >= WALL_L && pl.location.x <= WALL_R) {
+            return new int[]{x, WALL_TOP + 1}; // bay từ dưới lên: chạm trần vô hình
+        }
+        return new int[]{pl.location.x < WALL_L ? WALL_L - 1 : WALL_R + 1, y}; // bay ngang vào: chạm tường
     }
 
     public static class GohanChienBinh extends DeathOrAliveArena {
