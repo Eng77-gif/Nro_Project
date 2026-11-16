@@ -2368,3 +2368,8 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## Bill: "Đổi thức ăn lấy phiếu ăn / Đổi phiếu ăn lấy quà" chỉ hiện khi sự kiện hè chạy
 - Hai nút này của sự kiện hè trước luôn hiện ở Bill (Hành tinh Kaio). Nay chỉ hiện (và chỉ bấm được) khi sự kiện hè đang chạy.
+
+## Bot chat thế giới đúng thực tế
+- Boss trong câu chat là boss đang sống thật, kèm bản đồ thật nó đang đứng; chỉ nhắc boss mà bot đủ sức đánh (máu boss <= 50 lần sức đánh bot); câu "đánh ... khó quá ai phụ" chỉ khi bot đứng cùng bản đồ với boss. Bỏ "X rớt đồ ngon không", "X mấy giờ ra".
+- Rủ vào bang chỉ khi bang còn chỗ; "cần tìm bang" chỉ khi bot chưa có bang.
+- Mua / bán chỉ món giao dịch được (thỏi vàng, ngọc rồng, sao pha lê, đá nâng cấp, đậu thần...), bỏ pet / cải trang / đồ thần / set kích hoạt / bông tai.

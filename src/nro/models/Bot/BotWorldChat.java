@@ -14,38 +14,41 @@ public final class BotWorldChat {
     private BotWorldChat() {
     }
 
-    private static final String[] BOSS = {"Broly", "Super Broly", "Fide", "Cooler", "Xên bọ hung", "Black Goku", "Kuku", "Mập đầu đinh",
-        "Rambo", "Android 19", "Pic", "Poc", "King Kong", "Số 4", "Tiểu đội sát thủ", "Zamasu", "Baby", "Hirudegarn"};
-    private static final String[] ITEM = {"đồ thần", "set kích hoạt", "bông tai cấp 2", "bông tai cấp 3", "đá bảo vệ", "cải trang", "thỏi vàng",
-        "ngọc rồng 4 sao", "đồ hủy diệt", "đồ thiên sứ", "sao pha lê", "mảnh bông tai", "capsule kích hoạt", "pet", "ván bay", "đeo lưng"};
+    // chỉ món giao dịch / ký gửi được (không pet, cải trang, đồ thần...)
+    private static final String[] ITEM = {"thỏi vàng", "ngọc rồng 3 sao", "ngọc rồng 4 sao", "ngọc rồng 5 sao", "ngọc rồng 6 sao", "ngọc rồng 7 sao",
+        "sao pha lê", "đá bảo vệ", "đá lục bảo", "đá ruby", "đá saphia", "đá titan", "đậu thần cấp 9", "bổ huyết", "cuồng nộ"};
     private static final String[] ENDS = {"", "", "", " ae", " mn", " ae ơi", " nha", " nhé", " :))", " =))", " haha", " :v", " ...", " !!"};
+    /*
+     * {boss} = boss đang sống thật, {bmap} = bản đồ boss đó đang đứng; câu có {boss} chỉ nói khi bot đủ sức đánh boss đó.
+     * {solo}: chỉ nói khi bot đang đứng cùng bản đồ với boss. {clan}/{recruit}: bot có bang ({recruit} = bang còn chỗ). {noclan}: bot chưa có bang.
+     */
     private static final String[][] T = {
         // rủ đi cùng
-        {"ai pt săn {boss} không", "có ai đi đánh {boss} cùng không", "{boss} ra chưa", "{boss} khu mấy rồi", "vừa thấy {boss} ở {map}",
-            "solo {boss} khó quá, ai phụ với", "tối nay săn {boss} không", "{boss} rớt đồ ngon không vậy"},
-        {"cần người up đệ cùng", "ai up bông tai cùng không", "đi NRSD tối nay không", "ai đi doanh trại với bang mình không",
+        {"ai pt săn {boss} không", "có ai đi đánh {boss} cùng không", "{boss} đang ở {bmap} kìa", "{boss} khu mấy rồi", "vừa thấy {boss} ở {bmap}",
+            "{solo}đánh {boss} khó quá, ai phụ với", "đi săn {boss} không ae"},
+        {"cần người up đệ cùng", "ai up bông tai cùng không", "đi NRSD tối nay không", "{clan}ai đi doanh trại với bang mình không",
             "rủ ae đi kho báu dưới biển", "ai đi khí gas không", "lập pt luyện tập ở {map} nè"},
         // mua bán
         {"bán {item} giá mềm, ib", "mua {item}, ai có ib mình", "có ai bán {item} không", "đổi {item} lấy {item2} không", "{item} giá bao nhiêu vậy",
-            "ký gửi {item} rồi đó, ghé siêu thị xem", "thu mua {item} số lượng lớn"},
+            "thu mua {item} số lượng lớn"},
         // bang hội
-        {"bang {clan} tuyển thành viên, ae vào chơi cùng", "bang {clan} còn chỗ nha", "ai chưa có bang vào {clan} đi", "cần tìm bang hoạt động",
-            "bang mình đi doanh trại thiếu người"},
+        {"{recruit}bang {clan} tuyển thành viên, ae vào chơi cùng", "{recruit}bang {clan} còn chỗ nha", "{recruit}ai chưa có bang vào {clan} đi",
+            "{noclan}cần tìm bang hoạt động", "{clan}bang mình đi doanh trại thiếu người"},
         // kể chuyện / khoe
-        {"vừa lên {power} sức mạnh", "đang {act} ở {map}", "up ở {map} mỏi tay quá", "đập đồ tạch 3 lần liền buồn ghê", "vừa ép được sao pha lê",
-            "đệ mình mới ra chiêu mới", "hôm nay đen thôi rồi", "ra {item} rồi ae ơi", "{map} đông người ghê", "kẹt nhiệm vụ mãi chưa qua"},
+        {"vừa lên {power} sức mạnh", "đang {act} ở {map}", "up ở {map} mỏi tay quá", "đập đồ tạch 3 lần liền buồn ghê",
+            "hôm nay đen thôi rồi", "{map} đông người ghê"},
         // hỏi han
-        {"có ai biết {boss} mấy giờ ra không", "nhiệm vụ này làm sao vậy ae", "nạp ngọc ở đâu vậy", "up đệ ở đâu nhanh nhất",
+        {"nhiệm vụ này làm sao vậy ae", "nạp ngọc ở đâu vậy", "up đệ ở đâu nhanh nhất",
             "map nào luyện tập ngon nhất", "{item} lấy ở đâu vậy", "ai chỉ mình cách mở giới hạn sức mạnh với", "event giờ có gì vậy"},
         // tán gẫu
         {"server vui ghê", "{greet}", "{greet}, hôm nay up gì đây", "ai còn thức không", "ngồi buồn quá vào chơi tí", "pk không",
             "ai pk mình ở {map} thế", "khu {zone} {map} vắng quá", "lag quá ae", "game này chơi cuốn thật"}};
     private static final String[][] REPLY = {
-        {"boss", "{n} boss đó khu mấy vậy", "{n} cho mình theo với", "{n} mình đang đánh {boss} nè"},
-        {"bang", "{n} vào bang {clan} đi", "{n} bang mình còn chỗ", "{n} mình cũng đang tìm bang"},
-        {"nrsd", "{n} tối nay đi chứ", "{n} cho mình theo với", "{n} bang mình đi đủ người rồi"},
+        {"boss", "{n} boss đó khu mấy vậy", "{n} cho mình theo với", "{n} {boss} đang ở {bmap} đó"},
+        {"bang", "{recruit}{n} vào bang {clan} đi", "{recruit}{n} bang mình còn chỗ", "{noclan}{n} mình cũng đang tìm bang"},
+        {"nrsd", "{n} tối nay đi chứ", "{n} cho mình theo với"},
         {"bán", "{n} bao nhiêu vậy", "{n} ib mình xem", "{n} đắt quá à"},
-        {"mua", "{n} mình có nè", "{n} giá bao nhiêu", "{n} mình bán cho"},
+        {"mua", "{n} mình có nè", "{n} giá bao nhiêu"},
         {"pk", "{n} sợ quá :v", "{n} ra {map} solo", "{n} thôi tha mình"},
         {"chào", "chào {n}", "hello {n}", "{n} chào nha"},
         {"", "{n} đúng rồi", "{n} :))", "{n} chuẩn", "{n} ok", "{n} thế à", "{n} nghe hay đó", "{n} ai biết đâu", "{n} hỏi admin đi bạn"}};
@@ -100,7 +103,13 @@ public final class BotWorldChat {
     private static String reply(Bot b, String name, String said) {
         for (String[] r : REPLY) {
             if (r[0].isEmpty() || said.contains(r[0])) {
-                return fill(b, r[Util.nextInt(1, r.length - 1)]).replace("{n}", name);
+                for (int i = 0; i < 4; i++) {
+                    String t = fill(b, r[Util.nextInt(1, r.length - 1)]);
+                    if (t != null) {
+                        return t.replace("{n}", name);
+                    }
+                }
+                return null;
             }
         }
         return null;
@@ -111,11 +120,11 @@ public final class BotWorldChat {
         String s = null;
         for (int i = 0; i < 8; i++) {
             String[] g = T[Util.nextInt(0, T.length - 1)];
-            String t = g[Util.nextInt(0, g.length - 1)];
-            if (t.contains("{clan}") && b.clan == null) {
-                continue;
+            String f = fill(b, g[Util.nextInt(0, g.length - 1)]);
+            if (f == null) {
+                continue; // câu không đúng với tình hình thật (không có boss hợp, bang đầy...)
             }
-            s = fill(b, t) + ENDS[Util.nextInt(0, ENDS.length - 1)];
+            s = f + ENDS[Util.nextInt(0, ENDS.length - 1)];
             if (!RECENT.contains(s)) {
                 break;
             }
@@ -130,19 +139,68 @@ public final class BotWorldChat {
         return s;
     }
 
+    /** Ghép câu theo tình hình thật của bot; null nếu câu không đúng (bang đầy, không có boss hợp sức...). */
     private static String fill(Bot b, String t) {
+        if (t.startsWith("{recruit}")) {
+            if (b.clan == null || b.clan.members.size() >= b.clan.maxMember) {
+                return null;
+            }
+            t = t.substring(9);
+        } else if (t.startsWith("{clan}")) {
+            if (b.clan == null) {
+                return null;
+            }
+            t = t.substring(6);
+        } else if (t.startsWith("{noclan}")) {
+            if (b.clan != null) {
+                return null;
+            }
+            t = t.substring(8);
+        }
+        boolean solo = t.startsWith("{solo}");
+        if (solo) {
+            t = t.substring(6);
+        }
+        if (t.contains("{boss}")) {
+            nro.models.boss.Boss boss = liveBoss(b, solo);
+            if (boss == null) {
+                return null;
+            }
+            t = t.replace("{boss}", boss.name).replace("{bmap}", boss.zone.map.mapName);
+        }
         int h = java.time.LocalTime.now().getHour();
         String item = ITEM[Util.nextInt(0, ITEM.length - 1)], item2;
         do {
             item2 = ITEM[Util.nextInt(0, ITEM.length - 1)];
         } while (item2.equals(item));
-        return t.replace("{boss}", BOSS[Util.nextInt(0, BOSS.length - 1)])
-                .replace("{item2}", item2).replace("{item}", item)
+        return t.replace("{item2}", item2).replace("{item}", item)
                 .replace("{map}", b.zone != null ? b.zone.map.mapName : "làng Aru")
                 .replace("{zone}", String.valueOf(b.zone != null ? b.zone.zoneId : 0))
                 .replace("{clan}", b.clan != null ? b.clan.name : "mình")
                 .replace("{act}", b.activity == null ? "luyện tập" : b.activity.toLowerCase())
                 .replace("{power}", nro.models.utils.Util.numberToMoney(b.nPoint.power))
                 .replace("{greet}", h < 11 ? "chào buổi sáng" : h < 14 ? "trưa rồi ae ăn cơm chưa" : h < 18 ? "chiều rảnh vào up tí" : h < 23 ? "tối rồi vào đông ghê" : "khuya rồi còn ai on không");
+    }
+
+    /** Boss đang sống thật mà bot đủ sức đánh (máu boss không quá 50 lần sức đánh bot); sameMap: phải cùng bản đồ với bot. */
+    private static nro.models.boss.Boss liveBoss(Bot b, boolean sameMap) {
+        java.util.List<nro.models.boss.Boss> ok = new java.util.ArrayList<>();
+        try {
+            java.util.List<nro.models.boss.Boss> all = new java.util.ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
+            all.addAll(nro.models.boss.Boss_Manager.BrolyManager.gI().getBosses());
+            for (nro.models.boss.Boss x : all) {
+                if (x == null || x.isDie() || x.zone == null || x.nPoint == null || x.name == null) {
+                    continue;
+                }
+                if (sameMap && (b.zone == null || b.zone.map.mapId != x.zone.map.mapId)) {
+                    continue;
+                }
+                if (x.nPoint.hpMax <= (long) b.nPoint.dame * 50 && b.nPoint.hpMax >= x.nPoint.dame) {
+                    ok.add(x);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return ok.isEmpty() ? null : ok.get(Util.nextInt(0, ok.size() - 1));
     }
 }
