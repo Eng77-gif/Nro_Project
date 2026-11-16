@@ -227,6 +227,7 @@ public class NPoint {
     public int giamSTTD, giamSTNM, giamSTXD; // option 198 / 199 / 200: giảm #% sát thương từ tộc Trái Đất / Namếc / Xayda
     public int kiHoiKhiBiDanh; // option 4: hồi #% KI khi bị đánh
     public int phanDonCanChien; // option 15: phản # sát thương khi bị đánh cận chiến
+    public int tlSocolaYeu; // option 126: biến sôcôla làm yếu đi -#% sức đánh trong 30 giây (EffectSkin.updateSocolaXq)
     public boolean isSocolaXq; // option 29 / 186: biến sôcôla (kẹo) người xung quanh mỗi 30 giây
     public int halloweenXq = -1; // option 262 / 263: biến người xung quanh thành Zombi (0) / Bí Ngô (2) mỗi 30 giây
     public boolean khongHoaXuong; // option 32: không bị hóa Xương
@@ -1163,6 +1164,10 @@ public class NPoint {
             case 186: //Biến kẹo 30 giây
                 this.isSocolaXq = true;
                 break;
+            case 126: //Biến sôcôla làm yếu đi -#% sức đánh trong 30 giây (trước đây không có tác dụng)
+                this.isSocolaXq = true;
+                this.tlSocolaYeu = Math.max(this.tlSocolaYeu, io.param);
+                break;
             case 262: //Biến người xung quanh thành Zombi mỗi 30 giây
                 this.halloweenXq = 0;
                 break;
@@ -2066,6 +2071,7 @@ public class NPoint {
         this.giamSTXD = 0;
         this.phanDonCanChien = 0;
         this.isSocolaXq = false;
+        this.tlSocolaYeu = 0;
         this.halloweenXq = -1;
         this.khongHoaXuong = false;
         this.tlHoiDongBang = 0;

@@ -209,9 +209,22 @@ public class Dot139Migration {
         {{1949}, {50, 23}, {77, 25}, {103, 23}, {97, 20}, {270, 5}}, // Cải trang Kirin tuần lộc
         {{731}, {271, 0}, {50, 21}, {77, 18}, {103, 18}}, // Cải trang Sói Lavender
         {{732}, {272, 0}, {50, 22}, {77, 19}, {103, 19}}}; // Cải trang Sói Bergamo
+    /** Đợt 3 (ảnh 14 món, Chi Chi giỗ tổ / Kirin tuần lộc đã đúng từ đợt 2). */
+    static final int[][][] EVENT_ITEMS3 = {
+        {{1708}, {50, 23}, {77, 28}, {103, 20}, {8, 2}, {94, 15}}, // CT Android 21 Thân Thiện
+        {{1684}, {50, 25}, {101, 70}, {104, 15}}, // CT Kirin múa lân
+        {{1972}, {50, 26}, {77, 26}, {103, 26}, {108, 15}, {94, 12}}, // Cải trang Chi Chi Tết
+        {{1590}, {50, 27}, {77, 27}, {103, 27}, {210, 4}, {106, 0}}, // CT Goku SSJ Blue (4 dòng ẩn mở ra khi mặc)
+        {{1952}, {50, 25}, {77, 23}, {103, 23}, {14, 11}}, // Cải trang Póc Noel
+        {{1520}, {50, 17}, {77, 15}, {103, 15}, {101, 10}, {81, 10}}, // Bong bóng hoa hồng
+        {{1358}, {77, 10}, {103, 10}, {50, 10}, {191, 3}, {126, 5}}, // Cờ hồn Mabư
+        {{1889}, {50, 23}, {95, 10}, {236, 33}, {268, 10}}, // Cải trang Kirin chú cuội
+        {{1803}, {50, 24}, {77, 24}, {103, 24}, {191, 5}, {14, 5}, {108, 9}, {200, 5}}, // CT Goku SSJ 4 Red
+        {{1927}, {204, 30}, {95, 15}, {94, 10}}, // Cánh thiên thần sa ngã
+        {{1810}, {50, 24}, {77, 24}, {148, 25}}}; // Mị Hoàng Kim
     /** Mọi dòng chỉ số 2 đợt dùng (xoá rồi ghi lại); dòng khác như không giao dịch 30, bay 85 giữ nguyên. Dùng chung với ItemService.refreshTitle. */
-    public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 106, 108,
-            114, 117, 148, 154, 155, 183, 191, 199, 200, 204, 221, 236, 268, 269, 270, 271, 272);
+    public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 104, 106, 108,
+            114, 117, 126, 148, 154, 155, 183, 191, 199, 200, 204, 210, 221, 236, 268, 269, 270, 271, 272);
     private static final String STAT_IDS = STAT_SET.toString().replace("[", "").replace("]", "");
 
     private static void eventItemStats(Connection con) throws Exception {
@@ -226,6 +239,10 @@ public class Dot139Migration {
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116b'")) {
             writeStats(con, EVENT_ITEMS2);
             update(con, "insert into server_migration (name) values ('event_items_1116b')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1116c'")) {
+            writeStats(con, EVENT_ITEMS3);
+            update(con, "insert into server_migration (name) values ('event_items_1116c')");
         }
     }
 

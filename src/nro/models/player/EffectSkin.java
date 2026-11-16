@@ -384,6 +384,9 @@ public class EffectSkin {
                     if (pl != null && pl.nPoint != null && !this.player.equals(pl) && !pl.isBoss && !pl.isDie()
                             && !pl.effectSkill.isSocola && Util.getDistance(this.player, pl) <= 200) {
                         EffectSkillService.gI().setSocola(pl, System.currentTimeMillis(), 5000);
+                        if (this.player.nPoint.tlSocolaYeu > 0) { // option 126: yếu đi -#% sức đánh trong 30 giây
+                            EffectSkillService.gI().setDameBuff(pl, 30000, -this.player.nPoint.tlSocolaYeu);
+                        }
                         Service.gI().Send_Caitrang(pl);
                         nro.models.services.ItemTimeService.gI().sendItemTime(pl, 4133, 5);
                     }
