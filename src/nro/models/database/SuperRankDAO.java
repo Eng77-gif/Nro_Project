@@ -108,12 +108,13 @@ public class SuperRankDAO {
                 }
             } catch (Exception e) {
             }
-            // như bản chính thức: "Win x Lose y" rồi 3 trận gần nhất, mới nhất trước ("Hạ abc 2gi trước")
+            // như bản chính thức: "Win x Lose y" rồi 5 trận gần nhất, mới nhất trước ("Hạ abc 2gi trước")
             text.append("Win ").append(rs.getInt("win")).append(" Lose ").append(rs.getInt("lose"));
             try {
                 JSONArray historyList = (JSONArray) parser.parse(rs.getString("history"));
-                for (int i = historyList == null ? -1 : historyList.size() - 1, n = 0; i >= 0 && n < 3; i--, n++) {
-                    JSONObject history = (JSONObject) historyList.get(i);
+                for (int i = historyList == null ? -1 : historyList.size() - 1, n = 0; i >= 0 && n < 5; i--, n++) {
+                    Object h = historyList.get(i); // lưu dạng chuỗi JSON (updateData): trước đây ép thẳng sang JSONObject nên lỗi ngầm, không hiện trận nào
+                    JSONObject history = h instanceof JSONObject ? (JSONObject) h : (JSONObject) parser.parse(String.valueOf(h));
                     text.append("\n").append(String.valueOf(history.get("event")).replaceAll("\\[\\d+\\]", "")).append(" ")
                             .append(TimeUtil.getTimeLeft(((Number) history.get("timestamp")).longValue()));
                 }
@@ -161,9 +162,9 @@ public class SuperRankDAO {
                 JSONParser parser = new JSONParser();
                 JSONArray history = (JSONArray) parser.parse(rs.getString("history"));
                 for (Object doc : history) {
-                    JSONObject obj = (JSONObject) doc;
+                    JSONObject obj = doc instanceof JSONObject ? (JSONObject) doc : (JSONObject) parser.parse(String.valueOf(doc)); // dữ liệu cũ lưu dạng chuỗi
                     String event = (String) obj.get("event");
-                    Long timestamp = (Long) obj.get("timestamp");
+                    Long timestamp = ((Number) obj.get("timestamp")).longValue();
                     player.superRank.history.add(event);
                     player.superRank.lastTime.add(timestamp);
                 }
@@ -208,7 +209,7 @@ public class SuperRankDAO {
             JSONObject history = new JSONObject();
             history.put("event", player.superRank.history.get(i));
             history.put("timestamp", player.superRank.lastPKTime);
-            historyList.add(history.toJSONString());
+            historyList.add(history); // lưu đối tượng (trước lưu chuỗi JSON lồng nên đọc lại lỗi)
         }
         JSONObject info = new JSONObject();
         info.put("head", player.getHead());
@@ -242,7 +243,7 @@ public class SuperRankDAO {
             JSONObject history = new JSONObject();
             history.put("event", player.superRank.history.get(i));
             history.put("timestamp", player.superRank.lastTime.get(i));
-            historyList.add(history.toJSONString());
+            historyList.add(history); // lưu đối tượng (trước lưu chuỗi JSON lồng nên đọc lại lỗi)
         }
         JSONObject info = new JSONObject();
         info.put("head", player.getHead());

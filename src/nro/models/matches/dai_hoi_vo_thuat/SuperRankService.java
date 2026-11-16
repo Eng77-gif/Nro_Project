@@ -157,7 +157,7 @@ public class SuperRankService {
         return textInfoNew(pl);
     }
 
-    /** Như bản chính thức: HP, sức đánh, giáp, "Win x Lose y", 3 trận gần nhất (mới nhất trước). */
+    /** Như bản chính thức: HP, sức đánh, giáp, "Win x Lose y", 5 trận gần nhất (mới nhất trước). */
     public String textInfoNew(Player pl) {
         if (pl == null || pl.nPoint == null) {
             return "Không xác định!";
@@ -171,7 +171,7 @@ public class SuperRankService {
         text.append("Sức đánh ").append(Util.formatNumber(pl.nPoint.dame)).append("\n");
         text.append("Giáp ").append(Util.formatNumber(pl.nPoint.def)).append("\n");
         text.append("Win ").append(pl.superRank.win).append(" Lose ").append(pl.superRank.lose);
-        for (int i = pl.superRank.history.size() - 1, n = 0; i >= 0 && n < 3; i--, n++) {
+        for (int i = pl.superRank.history.size() - 1, n = 0; i >= 0 && n < 5; i--, n++) {
             text.append("\n").append(pl.superRank.history.get(i).replaceAll("\\[\\d+\\]", "")).append(" ")
                     .append(TimeUtil.getTimeLeft(pl.superRank.lastTime.get(i)));
         }

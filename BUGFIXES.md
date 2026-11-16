@@ -2395,3 +2395,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## Bot: Up đệ khi đệ còn yếu
 - Đệ mới săn (~2k sức mạnh) đi theo sư phụ vào map mạnh nên chết liên tục, không lên được. Nay đệ yếu hơn 1/10 sức mạnh sư phụ thì: bot thường xuyên (80% mỗi lần đổi việc, khi bật Luyện tập hoặc Nhiệm vụ) "Up đệ": về map khó nhất hành tinh mình mà đệ còn đánh nổi, sư phụ đứng yên cho đệ đánh, đệ chết thì hồi sinh; bot đang Up đệ không bị kéo đi PK. Làm việc khác thì đệ yếu ở nhà, không theo vào map mạnh.
+
+## Siêu hạng: hiện 5 trận gần nhất (Hạ / Thua ai)
+- Lịch sử trận lưu dạng chuỗi JSON lồng nhưng phần đọc (bảng Top, nạp nhân vật) ép sang đối tượng nên lỗi ngầm: không hiện trận nào, và lịch sử mất sau khi khởi động lại. Nay lưu đúng dạng đối tượng, đọc được cả dữ liệu cũ; bảng hiện tối đa 5 trận gần nhất dưới Win / Lose (mới nhất trước).
