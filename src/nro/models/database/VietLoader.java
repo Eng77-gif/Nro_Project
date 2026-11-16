@@ -398,6 +398,7 @@ public class VietLoader {
                 short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
                 if (tempId != -1 && ItemService.gI().getTemplate(tempId) != null) { // bỏ vật phẩm đã xóa khỏi item_template
                     item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                    item.fresh = false; // món đã lưu, không phải đồ mới nhận
                     JSONArray options = (JSONArray) JSONValue.parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
                     for (int j = 0; j < options.size(); j++) {
                         JSONArray opt = (JSONArray) JSONValue.parse(String.valueOf(options.get(j)));
@@ -411,6 +412,7 @@ public class VietLoader {
                 } else {
                     item = ItemService.gI().createItemNull();
                 }
+                ItemService.fillThanLinh(item); // đồ Thần Linh thiếu chỉ số gốc
                 player.inventory.itemsBody.add(item);
             }
             if (player.inventory.itemsBody.size() == 10) {
@@ -426,6 +428,7 @@ public class VietLoader {
                 short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
                 if (tempId != -1 && ItemService.gI().getTemplate(tempId) != null) { // bỏ vật phẩm đã xóa khỏi item_template
                     item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                    item.fresh = false; // món đã lưu, không phải đồ mới nhận
                     JSONArray options = (JSONArray) JSONValue.parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
                     for (int j = 0; j < options.size(); j++) {
                         JSONArray opt = (JSONArray) JSONValue.parse(String.valueOf(options.get(j)));
@@ -452,6 +455,7 @@ public class VietLoader {
                 short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
                 if (tempId != -1 && ItemService.gI().getTemplate(tempId) != null) { // bỏ vật phẩm đã xóa khỏi item_template
                     item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                    item.fresh = false; // món đã lưu, không phải đồ mới nhận
                     JSONArray options = (JSONArray) JSONValue.parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
                     for (int j = 0; j < options.size(); j++) {
                         JSONArray opt = (JSONArray) JSONValue.parse(String.valueOf(options.get(j)));
@@ -492,6 +496,7 @@ public class VietLoader {
                 short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
                 if (tempId != -1 && ItemService.gI().getTemplate(tempId) != null) { // bỏ vật phẩm đã xóa khỏi item_template
                     item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                    item.fresh = false; // món đã lưu, không phải đồ mới nhận
                     JSONArray options = (JSONArray) JSONValue.parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
                     for (int j = 0; j < options.size(); j++) {
                         JSONArray opt = (JSONArray) JSONValue.parse(String.valueOf(options.get(j)));
@@ -511,6 +516,7 @@ public class VietLoader {
                 short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
                 if (tempId != -1 && ItemService.gI().getTemplate(tempId) != null) { // bỏ vật phẩm đã xóa khỏi item_template
                     item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                    item.fresh = false; // món đã lưu, không phải đồ mới nhận
                     JSONArray options = (JSONArray) JSONValue.parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
                     for (int j = 0; j < options.size(); j++) {
                         JSONArray opt = (JSONArray) JSONValue.parse(String.valueOf(options.get(j)));
@@ -862,6 +868,7 @@ public class VietLoader {
                     short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
                     if (tempId != -1 && ItemService.gI().getTemplate(tempId) != null) { // bỏ vật phẩm đã xóa khỏi item_template
                         item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                        item.fresh = false; // món đã lưu, không phải đồ mới nhận
                         JSONArray options = (JSONArray) JSONValue.parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
                         for (int j = 0; j < options.size(); j++) {
                             JSONArray opt = (JSONArray) JSONValue.parse(String.valueOf(options.get(j)));
@@ -889,6 +896,7 @@ public class VietLoader {
                     } else {
                         item = ItemService.gI().createItemNull();
                     }
+                    ItemService.fillThanLinh(item);
                     pet.inventory.itemsBody.add(item);
                 }
                 int requiredSize;

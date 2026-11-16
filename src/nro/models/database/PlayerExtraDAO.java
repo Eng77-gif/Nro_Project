@@ -172,6 +172,7 @@ public class PlayerExtraDAO {
                 return null;
             }
             Item item = ItemService.gI().createNewItem(Short.parseShort(String.valueOf(data.get(0))), Integer.parseInt(String.valueOf(data.get(1))));
+            item.fresh = false;
             for (Object o : (JSONArray) data.get(2)) {
                 JSONArray opt = (JSONArray) o;
                 item.itemOptions.add(new Item.ItemOption(Integer.parseInt(String.valueOf(opt.get(0))), Integer.parseInt(String.valueOf(opt.get(1)))));

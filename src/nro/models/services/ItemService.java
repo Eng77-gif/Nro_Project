@@ -703,6 +703,7 @@ public class ItemService {
             1919, 1564, 1705, 1769, 1582, 1573, 1800, 1937, 1106, 1926, 1104, 1318, 906, 1105, 1888); // món có dòng ẩn 210 (1590, 1803, Goku Day / Cađic) không đổi món cũ: dòng ẩn đã mở sẽ bị quay lại
 
     public void refreshTitle(Item it) {
+        fillThanLinh(it); // đồ Thần Linh thiếu chỉ số gốc (hành trang / rương)
         if (it == null || it.template == null || !TITLE_REFRESH.contains((int) it.template.id)) {
             return;
         }
@@ -928,30 +929,10 @@ public class ItemService {
         }
     }
 
-    public ItemMap randDoTL(Zone zone, int quantity, int x, int y, long id) {
-        short idTempTL;
-        short[] ao = {555, 557, 559};
-        short[] quan = {556, 558, 560};
-        short[] gang = {562, 564, 566};
-        short[] giay = {563, 565, 567};
-        short[] nhan = {561};
-        /// Lựa chọn ngẫu nhiên trang bị
-        if (Util.isTrue(10, 100)) {  // Nhẫn (10%)
-            idTempTL = nhan[0];
-        } else if (Util.isTrue(25, 100)) {  // Găng tay (15%)
-            idTempTL = gang[Util.nextInt(3)];
-        } else if (Util.isTrue(45, 100)) {  // Quần (20%)
-            idTempTL = quan[Util.nextInt(3)];
-        } else if (Util.isTrue(75, 100)) {  // Áo (30%)
-            idTempTL = ao[Util.nextInt(3)];
-        } else {  // Giày (25%)
-            idTempTL = giay[Util.nextInt(3)];
-        }
-
-        int tiLe = Util.nextInt(101, 115); // chỉ số +1-15%; dòng thêm (ký gửi, vật phẩm hiếm) theo tlExtraOptions
-        List<ItemOption> itemoptions = new ArrayList<>();
-
-        switch (idTempTL) {
+    /** Chỉ số gốc đồ Thần Linh (555 - 567) theo tỉ lệ {@code tiLe} (101 - 115 = +1 - 15%). */
+    public static void thanLinhStats(int id, int tiLe, List<ItemOption> itemoptions) {
+        int chiso;
+        switch (id) {
             case 555:
                 itemoptions.add(new ItemOption(47, 800 * tiLe / 100));
                 break;
@@ -962,7 +943,7 @@ public class ItemService {
                 itemoptions.add(new ItemOption(47, 900 * tiLe / 100));
                 break;
             case 556: // Quần Thần Linh TD
-                int chiso = 52000 * tiLe / 100;
+                chiso = 52000 * tiLe / 100;
                 itemoptions.add(new ItemOption(22, chiso / 1000));
                 itemoptions.add(new ItemOption(27, chiso / 20));
                 break;
@@ -1006,6 +987,51 @@ public class ItemService {
             default:
                 break;
         }
+
+    }
+
+    /** Đồ Thần Linh thiếu chỉ số gốc (tạo từ hộp, shop, giftcode, panel...): bổ sung chỉ số +1 - 15% và yêu cầu sức mạnh. Trả về true nếu có sửa. */
+    public static boolean fillThanLinh(Item it) {
+        if (it == null || it.template == null || it.template.id < 555 || it.template.id > 567) {
+            return false;
+        }
+        java.util.Set<Integer> base = java.util.Set.of(0, 14, 22, 23, 27, 28, 47);
+        if (it.itemOptions.stream().anyMatch(o -> o.optionTemplate != null && base.contains(o.optionTemplate.id))) {
+            return false;
+        }
+        List<ItemOption> ops = new ArrayList<>();
+        thanLinhStats(it.template.id, Util.nextInt(101, 115), ops);
+        if (it.itemOptions.stream().noneMatch(o -> o.optionTemplate != null && o.optionTemplate.id == 21)) {
+            ops.add(new ItemOption(21, Util.nextInt(15, 17)));
+        }
+        it.itemOptions.addAll(0, ops);
+        return true;
+    }
+
+    public ItemMap randDoTL(Zone zone, int quantity, int x, int y, long id) {
+        short idTempTL;
+        short[] ao = {555, 557, 559};
+        short[] quan = {556, 558, 560};
+        short[] gang = {562, 564, 566};
+        short[] giay = {563, 565, 567};
+        short[] nhan = {561};
+        /// Lựa chọn ngẫu nhiên trang bị
+        if (Util.isTrue(10, 100)) {  // Nhẫn (10%)
+            idTempTL = nhan[0];
+        } else if (Util.isTrue(25, 100)) {  // Găng tay (15%)
+            idTempTL = gang[Util.nextInt(3)];
+        } else if (Util.isTrue(45, 100)) {  // Quần (20%)
+            idTempTL = quan[Util.nextInt(3)];
+        } else if (Util.isTrue(75, 100)) {  // Áo (30%)
+            idTempTL = ao[Util.nextInt(3)];
+        } else {  // Giày (25%)
+            idTempTL = giay[Util.nextInt(3)];
+        }
+
+        int tiLe = Util.nextInt(101, 115); // chỉ số +1-15%; dòng thêm (ký gửi, vật phẩm hiếm) theo tlExtraOptions
+        List<ItemOption> itemoptions = new ArrayList<>();
+
+        thanLinhStats(idTempTL, tiLe, itemoptions);
 
         tlExtraOptions(itemoptions);
 
@@ -1039,62 +1065,7 @@ public class ItemService {
         int tiLe = Util.nextInt(101, 115); // chỉ số +1-15%; dòng thêm (ký gửi, vật phẩm hiếm) theo tlExtraOptions
         List<ItemOption> itemoptions = new ArrayList<>();
 
-        // Tùy chỉnh chỉ số cho từng ID trang bị cụ thể
-        switch (idTempTL) {
-            case 555: // Áo Thần Linh TD
-                itemoptions.add(new ItemOption(47, 800 * tiLe / 100));
-                break;
-            case 557: // Áo Thần Linh NM
-                itemoptions.add(new ItemOption(47, 850 * tiLe / 100));
-                break;
-            case 559: // Áo Thần Linh XD
-                itemoptions.add(new ItemOption(47, 900 * tiLe / 100));
-                break;
-            case 556: // Quần Thần Linh TD
-                int chiso = 52000 * tiLe / 100;
-                itemoptions.add(new ItemOption(22, chiso / 1000));
-                itemoptions.add(new ItemOption(27, chiso / 20));
-                break;
-            case 558: // Quần Thần Linh NM
-                chiso = 50000 * tiLe / 100;
-                itemoptions.add(new ItemOption(22, chiso / 1000));
-                itemoptions.add(new ItemOption(27, chiso / 20));
-                break;
-            case 560: // Quần Thần Linh XD
-                chiso = 48000 * tiLe / 100;
-                itemoptions.add(new ItemOption(22, chiso / 1000));
-                itemoptions.add(new ItemOption(27, chiso / 20));
-                break;
-            case 562: // Găng tay Thần Linh TD
-                itemoptions.add(new ItemOption(0, 4400 * tiLe / 100));
-                break;
-            case 564: // Găng tay Thần Linh NM
-                itemoptions.add(new ItemOption(0, 4300 * tiLe / 100));
-                break;
-            case 566: // Găng tay Thần Linh
-                itemoptions.add(new ItemOption(0, 4500 * tiLe / 100));
-                break;
-            case 563: // Giày Thần Linh TD
-                chiso = 48000 * tiLe / 100;
-                itemoptions.add(new ItemOption(23, chiso / 1000));
-                itemoptions.add(new ItemOption(28, chiso / 20));
-                break;
-            case 565: // Giày Thần Linh NM
-                chiso = 50000 * tiLe / 100;
-                itemoptions.add(new ItemOption(23, chiso / 1000));
-                itemoptions.add(new ItemOption(28, chiso / 20));
-                break;
-            case 567: // Giày Thần Linh XD
-                chiso = 46000 * tiLe / 100;
-                itemoptions.add(new ItemOption(23, chiso / 1000));
-                itemoptions.add(new ItemOption(28, chiso * 150 / 1000));
-                break;
-            case 561: // Nhẫn Thần Linh
-                itemoptions.add(new ItemOption(14, 14 * tiLe / 100));
-                break;
-            default:
-                break;
-        }
+        thanLinhStats(idTempTL, tiLe, itemoptions);
 
         tlExtraOptions(itemoptions);
 
