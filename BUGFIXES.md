@@ -2376,3 +2376,7 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## Panel Bot: tab "Tạo bot" trống
 - Khung "Tạo bot mới" bị lồng nhầm trong khung tab "Quyền & mẫu" (thiếu 1 thẻ đóng), nên bấm tab Tạo bot không hiện gì. Đã tách ra; 5 tab mỗi tab hiện đúng phần của mình.
+
+## Bot vẫn luyện tập / làm nhiệm vụ khi đã tắt quyền
+- Bot mới vào game mặc định "Luyện tập"; làm xong NVHN thì bị đưa về luyện tập; BotQuest tự dẫn đi nhiệm vụ chính dù tắt quyền Nhiệm vụ. Nay: mới vào ghi "Đang vào game" rồi chọn việc theo quyền; xong NVHN chọn lại việc theo quyền; BotQuest chỉ chạy khi bật quyền Nhiệm vụ (hoặc được giao); mỗi 10 giây bot đang "Luyện tập"/"Làm nhiệm vụ" mà quyền đó tắt thì chọn lại việc ngay.
+- Chỉ bật NVHN: bot luôn nhận NVHN (trước bốc thăm 1/3 nên đa số đứng ở nhà); bot hết lượt NVHN trong ngày ghi "Nghỉ ở nhà (hết lượt NVHN hôm nay)".

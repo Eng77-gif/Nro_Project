@@ -80,7 +80,7 @@ public class BotQuest {
                     BotGear.step(b);
                 } // mặc đồ tốt nhất, sắm cải trang / pet / đeo lưng / ván bay, nâng chiêu đệ tử
                 String job = BotWorld.jobOf(b.id);
-                if ((job == null || "quest".equals(job)) && ("Luyện tập".equals(b.activity) || "Làm nhiệm vụ".equals(b.activity))) { // giao việc khác thì không tự đi làm nhiệm vụ
+                if (((job == null && BotWorld.allow(b, "quest")) || "quest".equals(job)) && ("Luyện tập".equals(b.activity) || "Làm nhiệm vụ".equals(b.activity))) { // giao việc khác thì không tự đi làm nhiệm vụ
                     quest(b);
                 }
             } catch (Exception e) {

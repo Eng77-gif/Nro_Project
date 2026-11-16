@@ -565,8 +565,8 @@ public final class BotWorld {
             if (job != null && !sameJobActivity(job, b.activity, JOB_ACT.get(b.id))) {
                 switchActivity(b); // bị việc khác (PK, nhiệm vụ, bang...) kéo đi: quay lại việc admin giao ngay
                 ns[0] = now + Util.nextInt(180, 600) * 1000L;
-            } else if (kick || now >= ns[0]) {
-                switchActivity(b);
+            } else if (kick || now >= ns[0] || (job == null && (("Luyện tập".equals(b.activity) && !allow(b, "train")) || ("Làm nhiệm vụ".equals(b.activity) && !allow(b, "quest"))))) {
+                switchActivity(b); // tắt Luyện tập mà bot vẫn đang luyện tập (mới vào game, bỏ săn boss, hết doanh trại...): chọn lại việc theo quyền ngay
                 ns[0] = now + Util.nextInt(180, 600) * 1000L;
             }
         }
@@ -930,7 +930,7 @@ public final class BotWorld {
         b.worldBot = true;
         b.accountBot = true;
         b.accountId = accountId;
-        b.activity = "Luyện tập";
+        b.activity = "Đang vào game"; // chọn việc theo quyền ở lượt cập nhật đầu tiên
         b.sessionEnd = 0; // bật là chơi liên tục: không thoát nghỉ theo ca (trước đây bật 200 bot chỉ ~160 bot vào game)
         b.mo1 = new BotPemQuai(b);
         b.boss = new BotSanBoss(b);
@@ -1311,7 +1311,7 @@ public final class BotWorld {
                     n++;
                 } else if (b.accountBot && b.zone != null && !b.isDie() && allow(b, "broly") && canBeatBroly(b) && b.canGo(sb.zone.map.mapId)
                         && jobOf(b.id) == null && !BotArena.inArena(b) && !BotClan.inDungeon(b)
-                        && ("Luyện tập".equals(b.activity) || "Săn boss".equals(b.activity) || "Nghỉ ở nhà".equals(b.activity))) {
+                        && ("Luyện tập".equals(b.activity) || "Săn boss".equals(b.activity) || b.activity != null && b.activity.startsWith("Nghỉ ở nhà"))) {
                     free.add(b);
                 }
             }
@@ -1346,7 +1346,11 @@ public final class BotWorld {
             }
         }
         if (st.template == null) {
-            if (st.leftTask <= 0 || !(b.inventory.gem < 50_000 || (!urgent && Util.isTrue(1, 3))) || !BotGear.reach(b, nro.models.consts.ConstNpc.BO_MONG)) {
+            boolean onlyDaily = true; // ngoài NVHN không còn việc nào được phép: lúc nào cũng nhận, không bốc thăm
+            for (int x = 0; x < BotBrain.ACTIONS.length && onlyDaily; x++) {
+                onlyDaily = !allowAction(b, x);
+            }
+            if (st.leftTask <= 0 || !(b.inventory.gem < 50_000 || onlyDaily || (!urgent && Util.isTrue(1, 3))) || !BotGear.reach(b, nro.models.consts.ConstNpc.BO_MONG)) {
                 return false;
             }
             long p = b.nPoint.power;
@@ -1397,7 +1401,7 @@ public final class BotWorld {
                 return;
             }
             if (b.playerTask.sideTask.template == null) {
-                train(b); // hết lượt / chưa nhận được: về luyện tập, lần đổi việc sau chọn lại
+                switchActivity(b); // hết lượt / chưa nhận được: chọn lại việc theo quyền (tắt hết thì về nhà)
             }
         }
     }
@@ -1410,6 +1414,9 @@ public final class BotWorld {
         b.stayMap = true;
         boolean life = allow(b, "life") || allow(b, "gear") || allow(b, "shoptop");
         b.activity = life ? "Mở hộp quà, ép sao" : "Nghỉ ở nhà";
+        if (!life && allow(b, "daily") && b.playerTask != null && b.playerTask.sideTask != null && b.playerTask.sideTask.leftTask <= 0) {
+            b.activity = "Nghỉ ở nhà (hết lượt NVHN hôm nay)"; // panel thấy rõ vì sao bot không làm NVHN
+        }
         // mở hộp / ép sao / mua hộp đua top: ra Đảo Kamê đứng cạnh Bà Hạt Mít như người chơi; không thì về nhà
         nro.models.map.Map m = nro.models.map.service.MapService.gI().getMapById(life ? 5 : 21 + Math.max(0, Math.min(2, b.gender)));
         if (m == null || m.zones.isEmpty() || (b.zone != null && b.zone.map.mapId == m.mapId)) {
