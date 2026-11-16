@@ -669,6 +669,7 @@ public class Mob {
                     }
                 }
             }
+            nro.models.services.DropStats.mobKill(mobLabel(), itemReward); // bảng tỉ lệ rơi trên panel
             msg.writer().writeByte(itemReward.size());
             for (ItemMap itemMap : itemReward) {
                 msg.writer().writeShort(itemMap.itemMapId);
@@ -690,6 +691,16 @@ public class Mob {
         // giảm dần như SKH (skhBonus): +100% → x1,67, +300% → x2,2, +500% → x2,43, không quá x3 (trước +500% = x6)
         int luck = player.nPoint == null ? 0 : Math.max(0, Math.min(500, player.nPoint.tlMayMan));
         return 1 + 2.0 * luck / (luck + 200);
+    }
+
+    /** "Tên quái - Bản đồ" cho bảng tỉ lệ rơi (đồ rơi phụ thuộc bản đồ). */
+    private String mobLabel() {
+        String n = this.name;
+        if (n == null || n.isEmpty()) {
+            var t = nro.models.server.Manager.getMobTemplateByTemp(this.tempId);
+            n = t != null ? t.name : "Quái #" + this.tempId;
+        }
+        return this.zone != null && this.zone.map != null ? n + " - " + this.zone.map.mapName : n;
     }
 
     public List<ItemMap> getItemMobReward(Player player, int x, int yEnd) {

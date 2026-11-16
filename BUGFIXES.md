@@ -2337,3 +2337,7 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 ## Bí kíp tuyệt kỹ rơi mọi map khi đủ 40 tỉ sức mạnh
 - Trước chỉ rơi ở Ngục tù, ai cũng nhặt được. Nay rơi mọi map nhưng chỉ khi sức mạnh (của sư phụ nếu đệ tử đánh) từ 40 tỉ; tỉ lệ giữ nguyên (10% x may mắn, đủ set hủy diệt 20%). Mô tả item 1229 cập nhật.
 - Mảnh áo/quần/giày/nhẫn/găng giữ nguyên: chỉ rơi ở Ngục tù khi mặc đủ 5 món hủy diệt.
+
+## Panel > Tỉ lệ rơi; dòng thêm của đồ thần linh có tỉ lệ
+- Trang mới "Tỉ lệ rơi" (nhóm Thế giới): đếm thật mỗi lần quái (theo tên + bản đồ) / boss chết và đồ rơi ra, tỉ lệ = số lần có rơi ÷ số lần chết (DropStats, trong bộ nhớ, nút Đặt lại).
+- Đồ thần linh (quái + boss) trước luôn có dòng Vật phẩm hiếm từ quái, 21% ký gửi vàng/ngọc. Nay 4 dòng tung riêng: Ký gửi vàng 20%, Ký gửi ngọc 10%, Vật phẩm hiếm rơi từ quái 30%, từ boss 20% (+1-15%); sửa trên trang Tỉ lệ rơi (drop.tl.* trong Config.properties).

@@ -265,6 +265,30 @@ public class PanelApi {
             case "web/topup/approve" -> webTopupApprove(b);
             case "web/sepay/log" -> Map.of("log", new ArrayList<>(nro.models.web.WebServer.SEPAY_LOG));
             case "web/sepay/test" -> nro.models.web.WebServer.testSepay();
+            case "drops" -> { // bảng tỉ lệ rơi thật + tỉ lệ dòng thêm của đồ thần linh
+                Map<String, Object> dr = new LinkedHashMap<>(nro.models.services.DropStats.report());
+                List<Map<String, Object>> tl = new ArrayList<>();
+                for (int i = 0; i < nro.models.services.ItemService.TL_EXTRA.length; i++) {
+                    String[] e = nro.models.services.ItemService.TL_EXTRA[i];
+                    tl.add(Map.of("key", e[0], "name", e[1], "rate", nro.models.services.ItemService.tlExtraRate(i)));
+                }
+                dr.put("tl", tl);
+                yield dr;
+            }
+            case "drops/reset" -> {
+                nro.models.services.DropStats.reset();
+                yield Map.of("ok", true);
+            }
+            case "drops/tl" -> { // lưu tỉ lệ dòng thêm (0-100%), có hiệu lực ngay
+                Map<String, Object> v = new LinkedHashMap<>();
+                for (String[] e : nro.models.services.ItemService.TL_EXTRA) {
+                    if (b.containsKey(e[0])) {
+                        v.put(e[0], String.valueOf(Math.max(0, Math.min(100, lng(b.get(e[0]))))));
+                    }
+                }
+                configSave(Map.of("values", v));
+                yield Map.of("ok", true);
+            }
             case "web/napx3" -> { // bật / tắt khuyến mãi nạp x3 (lưu web.nap.x3, có hiệu lực ngay)
                 if ("POST".equals(method)) {
                     configSave(Map.of("values", Map.of("web.nap.x3", lng(b.getOrDefault("on", 0)) != 0 ? "true" : "false")));
@@ -2152,7 +2176,8 @@ public class PanelApi {
     private static final List<String> EDITABLE = List.of("server.name", "server.expserver", "server.maxplayer", "server.maxperip", "server.waitlogin",
             "panel.port", "panel.host", "panel.user", "panel.pass", "panel.enable", "admin.xuyengiap", "event.active",
             "web.download.apk", "web.download.pc", "web.download.ios", "web.download.jar", "web.download.play", "web.bank.code", "web.bank.account", "web.bank.owner",
-            "web.sepay.apikey", "web.card.url", "web.card.partner_id", "web.card.partner_key", "web.card.rate", "web.nap.x3", "web.public.url");
+            "web.sepay.apikey", "web.card.url", "web.card.partner_id", "web.card.partner_key", "web.card.rate", "web.nap.x3", "web.public.url",
+            "drop.tl.kgvang", "drop.tl.kgngoc", "drop.tl.hiemquai", "drop.tl.hiemboss");
 
     private static boolean secret(String k) {
         return k.contains("pass") || k.endsWith("key") || k.endsWith("apikey");

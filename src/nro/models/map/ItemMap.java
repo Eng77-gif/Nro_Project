@@ -61,6 +61,9 @@ public class ItemMap {
         this.isNamecBall = ItemMapService.gI().isNamecBall(this.itemTemplate.id);
         this.lastTimeMoveToPlayer = System.currentTimeMillis();
         this.fromBoss = zone.bossDropName != null && this.createTime - zone.bossDropTime < 300 ? zone.bossDropName : null;
+        if (this.fromBoss != null) {
+            nro.models.services.DropStats.bossDrop(this.fromBoss, this.itemTemplate.id, this.quantity);
+        }
         this.zone.addItem(this);
     }
 
@@ -81,6 +84,9 @@ public class ItemMap {
         this.isNamecBall = ItemMapService.gI().isNamecBall(this.itemTemplate.id);
         this.lastTimeMoveToPlayer = System.currentTimeMillis();
         this.fromBoss = zone.bossDropName != null && this.createTime - zone.bossDropTime < 300 ? zone.bossDropName : null;
+        if (this.fromBoss != null) {
+            nro.models.services.DropStats.bossDrop(this.fromBoss, this.itemTemplate.id, this.quantity);
+        }
         this.zone.addItem(this);
     }
 

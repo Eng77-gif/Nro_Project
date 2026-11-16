@@ -242,7 +242,7 @@ const PAGES=[
  ['g','Máy chủ'],['dash','Tổng quan','📊'],['notify','Thông báo & quà','📣'],['maint','Bảo trì & lưu','🛠'],['logs','Nhật ký console','🖥'],['chatlog','Nhật ký chat & thông báo','💬'],['audit','Nhật ký thao tác','📝'],['config','Cấu hình','⚙'],
  ['g','Người chơi'],['players','Người chơi','👤'],['pets','Đệ tử','🐉'],['bots','Bot','🤖'],['ai','AI huấn luyện bot','🧠'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],['webposts','Diễn đàn & hỗ trợ','📮'],['webtopup','Nạp qua web','💎'],
  ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],['looks','Đeo lưng & thú cưỡi','🪽'],['admin','Lệnh admin trong game','🧙'],
- ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['nrsd','Ngọc Rồng Sao Đen','🌑'],['bossrw','Thưởng boss','💰'],['mobs','Quái','🐗'],
+ ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['nrsd','Ngọc Rồng Sao Đen','🌑'],['bossrw','Thưởng boss','💰'],['drops','Tỉ lệ rơi','🎲'],['mobs','Quái','🐗'],
  ['g','Khác'],['db','Database','🗄'],['health','Kiểm tra dữ liệu','🩺'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
 
 function uiIcon(key){const shapes={
@@ -269,7 +269,7 @@ function uiIcon(key){const shapes={
  heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
  arrow:'<path d="M5 12h14m-5-5 5 5-5 5"/>'};
- const aliases={players:'users',accounts:'key',bots:'bot',notify:'bell',maint:'settings',logs:'file',audit:'file',config:'settings',tops:'trophy',clans:'shield',items:'box',boxes:'box',giftcode:'box',shop:'store',kygui:'box',badges:'trophy',radar:'file',fx:'bolt',looks:'bolt',admin:'shield',maps:'map',events:'event',evshop:'store',eventtops:'trophy',bosses:'bolt',bossrw:'trophy',mobs:'bolt',db:'database',health:'heart',napthe:'file',sql:'database'};
+ const aliases={players:'users',accounts:'key',bots:'bot',notify:'bell',maint:'settings',logs:'file',audit:'file',config:'settings',tops:'trophy',clans:'shield',items:'box',boxes:'box',giftcode:'box',shop:'store',kygui:'box',badges:'trophy',radar:'file',fx:'bolt',looks:'bolt',admin:'shield',maps:'map',events:'event',evshop:'store',eventtops:'trophy',bosses:'bolt',bossrw:'trophy',drops:'box',mobs:'bolt',db:'database',health:'heart',napthe:'file',sql:'database'};
  return '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">'+(shapes[aliases[key]||key]||shapes.dash)+'</svg>'}
 
 function buildNav(){if(innerWidth<760)$('#nav').classList.add('hide');let h='<h1><span class="brand-orb"><span>★★★★</span></span><span>NRO<span style="color:var(--acc)">.</span> Admin<small>Control center</small></span></h1>',open=false;
@@ -821,6 +821,22 @@ function nrsdEdit(id){const t=_nrsdT.find(x=>x.id===id);if(!t)return;$('#nt_id')
 async function nrsdSave(){const r=await act(()=>api('nrsd/tournament/save',{id:+$('#nt_id').value||0,name:$('#nt_name').value,play_date:$('#nt_date').value,rewards:$('#nt_rw').value}).then(r=>{if(!r.ok)throw new Error(r.error);return r}));if(r)page_nrsd()}
 const MOBT={0:'Đứng yên',1:'Đi bộ',2:'Nhảy',3:'Đi bộ',4:'Bay',5:'Bay'};
 async function page_mobs(){$('#main').innerHTML='<h2>Quái</h2>'+lpBox('mob',{path:'mobs/page',label:'Tên quái hoặc ID',cols:[['id','ID'],['name','Tên quái',v=>`<b>${esc(v)}</b>`],['type','Kiểu di chuyển',v=>`<span class="tag">${esc(MOBT[v]||'Kiểu '+v)}</span>`],['hp','HP gốc',v=>`<span class="power-number">${esc(shortPower(v))}</span><span class="power-exact">${esc(fmt(v))} HP</span>`]]});await lpInit('mob')}
+
+/* ---------- tỉ lệ rơi: đếm thật lúc rơi (quái + boss) ---------- */
+let DROPS=null,dropTab=0;
+async function page_drops(){DROPS=await api('drops');const since=new Date(DROPS.since).toLocaleString('vi-VN');
+  $('#main').innerHTML=`<h2>Tỉ lệ rơi</h2>
+  <div class="card"><div class="section-head"><h3>Đồ thần linh rơi ra: tỉ lệ có thêm dòng</h3>${uiIcon('box')}</div><p class="mute" style="font-size:12px;margin:0 0 8px">Mỗi dòng tung riêng khi đồ thần linh rơi từ quái hoặc boss. Vật phẩm hiếm từ quái / từ boss ngẫu nhiên +1 – 15%. Lưu là có hiệu lực ngay.</p>
+   <div class="grid2">${DROPS.tl.map(x=>`<label class="f">${esc(x.name)} (%)<input type="number" min="0" max="100" data-tl="${esc(x.key)}" value="${x.rate}"></label>`).join('')}</div>
+   <div class="row" style="justify-content:flex-end"><button class="p" onclick="saveTl()">Lưu tỉ lệ</button></div></div>
+  <div class="card"><div class="row" style="justify-content:space-between"><span class="mute" style="font-size:12px">Đếm thật mỗi lần quái / boss chết (cả bot) từ ${esc(since)}. Tỉ lệ = số lần chết có rơi món đó ÷ số lần chết. Khởi động lại server là đếm lại từ đầu. Tỉ lệ cấu hình của nguyên liệu boss xem ở <a href="#bossrw">Thưởng boss</a>.</span><button class="s d" onclick="resetDrops()">Đặt lại</button></div>
+   <div class="row" style="margin-top:8px"><div class="tabs" id="dtab" style="margin:0"><button data-i="0">Quái</button><button data-i="1">Boss</button></div><input id="dq" class="grow" placeholder="Lọc tên quái / boss / vật phẩm"></div></div><div id="dl"></div>`;
+  $('#dtab').querySelectorAll('button').forEach(b=>b.onclick=()=>{dropTab=+b.dataset.i;drawDrops()});$('#dq').oninput=drawDrops;drawDrops()}
+function drawDrops(){$('#dtab').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.i===dropTab));const q=$('#dq').value.trim().toLowerCase(),L=dropTab?DROPS.bosses:DROPS.mobs;
+  const rows=L.filter(s=>!q||s.name.toLowerCase().includes(q)||s.items.some(i=>i.name.toLowerCase().includes(q))).slice(0,150);
+  $('#dl').innerHTML=rows.length?rows.map(s=>`<div class="card"><div class="section-head"><h3>${esc(s.name)}</h3><span class="tag">${fmt(s.kills)} lần chết</span></div>${s.items.length?table(s.items,[['icon','',v=>icon(v)],['name','Vật phẩm',(v,x)=>`${esc(v)} <span class="mute">#${x.id}</span>`],['rate','Tỉ lệ',v=>v>=1?v.toFixed(1)+'%':v.toFixed(3)+'%'],['times','Số lần rơi',fmt],['qty','Tổng số lượng',fmt]]):'<p class="mute">Chưa rơi gì.</p>'}</div>`).join(''):'<div class="card mute">Chưa có dữ liệu. Quái / boss chết là bảng tự cập nhật.</div>'}
+async function saveTl(){const b={};document.querySelectorAll('[data-tl]').forEach(i=>b[i.dataset.tl]=+i.value);await api('drops/tl',b);toast('Đã lưu tỉ lệ');route()}
+async function resetDrops(){if(!confirm('Xoá số liệu đếm và đếm lại từ bây giờ?'))return;await api('drops/reset',{});route()}
 
 /* ---------- thông báo & quà toàn server ---------- */
 const NTY={ticker:['Dòng chữ chạy','Chạy ngang đầu màn hình mọi người chơi (thông báo server).'],popup:['Hộp thông báo','Bật hộp thoại giữa màn hình, người chơi phải bấm đóng.'],world:['Chat thế giới','Hiện trong kênh chat thế giới như một tin nhắn của server.']};
