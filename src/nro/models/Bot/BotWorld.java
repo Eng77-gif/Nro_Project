@@ -1056,7 +1056,10 @@ public final class BotWorld {
 
     private void switchActivity(Bot b) {
         if (BotArena.inArena(b)) {
-            return; // đang thi đấu: đánh cho xong trận
+            String job = jobOf(b.id);
+            if (job == null || "special".equals(job) || !BotArena.quitDhvtWait(b)) {
+                return; // đang thi đấu: đánh cho xong trận (chỉ đang chờ giải ĐHVT mà admin giao việc khác thì đi làm)
+            }
         }
         if (b.accountBot && b.zone != null && nro.models.map.service.MapService.gI().isMapDoanhTrai(b.zone.map.mapId)
                 && (b.clan == null || b.clan.doanhTrai == null)) {
@@ -1176,9 +1179,26 @@ public final class BotWorld {
         }
     }
 
-    /** Đủ mạnh hạ Super Broly (Broly bị đánh lớn dần rồi hóa Super Broly, hạ được nhận đệ tử). */
-    private static boolean canBeatBroly(Bot b) {
-        return b.nPoint.hpMax >= 2_000_000 && b.nPoint.dame >= 80_000;
+    /**
+     * Đủ sức săn đệ (cùng nhóm tối đa SUPER_BROLY_GANG bot): chịu được 3 đòn của Super Broly yếu nhất (1,5 triệu HP, bị đánh là
+     * đánh = 10% HP tối đa = 150k). Trước đây đòi HP 2 triệu + sức đánh 80k để đánh 1 mình, bot chưa có đệ gần như không ai đạt
+     * nên Super Broly đứng đầy map không ai săn.
+     */
+    static boolean canBeatBroly(Bot b) {
+        return b.nPoint.dame >= 10_000 && b.nPoint.hpMax >= 450_000;
+    }
+
+    /**
+     * Bot (cùng nhóm) đánh nổi Super Broly này không: chịu được 3 đòn (Super Broly bị đánh là tăng HP, đánh = 10% HP tối đa) và
+     * cả nhóm hạ trong ~1.200 đòn (mỗi đòn tối đa 1% HP boss, giáp boss 65%). Chết thì hồi sinh quay lại đánh tiếp (BotSanBoss).
+     */
+    static boolean canHunt(Bot b, nro.models.boss.Boss x) {
+        if (x == null || x.nPoint == null || b.nPoint == null) {
+            return false;
+        }
+        long hit = Math.max(x.nPoint.dame, x.nPoint.hpMax / 10);
+        long per = Math.max(1, Math.min(b.nPoint.dame * 35 / 100, x.nPoint.hpMax / 100));
+        return b.nPoint.dame >= 10_000 && hit * 3 <= b.nPoint.hpMax && x.nPoint.hpMax / per <= 1_200;
     }
 
     /** Việc cần làm theo nhu cầu: chưa có đệ -> săn đệ (Broly), NRSD đang mở và đủ mạnh -> NRSD, đủ mạnh -> săn boss lấy đồ. */
@@ -1335,7 +1355,7 @@ public final class BotWorld {
             for (Bot b : bots()) {
                 if (b.getMode() == 2 && b.boss.prefer != null && sb.name.equals(b.boss.prefer)) {
                     n++;
-                } else if (b.accountBot && b.zone != null && !b.isDie() && allow(b, "broly") && canBeatBroly(b) && b.canGo(sb.zone.map.mapId)
+                } else if (b.accountBot && b.pet == null && b.zone != null && !b.isDie() && allow(b, "broly") && canHunt(b, sb) && b.canGo(sb.zone.map.mapId)
                         && jobOf(b.id) == null && !BotArena.inArena(b) && !BotClan.inDungeon(b)
                         && ("Luyện tập".equals(b.activity) || "Săn boss".equals(b.activity) || b.activity != null && b.activity.startsWith("Nghỉ ở nhà"))) {
                     free.add(b);

@@ -184,6 +184,24 @@ public final class BotArena {
         end(b); // thua / vô địch / hết giải
     }
 
+    /** Bot chỉ đang chờ giải ĐHVT (chưa lên sàn): admin giao việc khác thì bỏ giải đi làm (vắng mặt là bị loại như người chơi). */
+    static boolean quitDhvtWait(Bot b) {
+        if (!inArena(b) || !DHVT.equals(b.activity)) {
+            return false;
+        }
+        try {
+            for (nro.models.matches.dai_hoi_vo_thuat.WorldMartialArtsTournament w : new java.util.ArrayList<>(nro.models.matches.giai_dau.WorldMartialArtsTournamentManager.gI().listTournaments)) {
+                if (w.player_1 == b || w.player_2 == b) {
+                    return false; // đang đấu trên sàn: đánh cho xong
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        end(b);
+        return true;
+    }
+
     private static void attack(Bot b, Player target) {
         nro.models.skill.Skill pick = b.pickSkill(2);
         if (pick != null) {

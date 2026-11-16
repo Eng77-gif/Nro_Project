@@ -62,7 +62,8 @@ public class BotSanBoss {
             if (prefer != null) {
                 List<Boss> want = new ArrayList<>(), exact = new ArrayList<>();
                 for (Boss b : all) {
-                    if (b != null && b.name != null && b.name.toLowerCase().contains(prefer.toLowerCase()) && !b.isDie() && b.zone != null) {
+                    if (b != null && b.name != null && b.name.toLowerCase().contains(prefer.toLowerCase()) && !b.isDie() && b.zone != null
+                            && (!this.bot.accountBot || !b.name.toLowerCase().contains("broly") || BotWorld.canHunt(this.bot, b))) { // săn đệ: chỉ nhắm Broly / Super Broly đánh nổi
                         want.add(b);
                         if (b.name.equalsIgnoreCase(prefer)) {
                             exact.add(b); // "Số 4" chứ không phải "Số 4 Namek" (bản Namek không tính nhiệm vụ)
@@ -72,8 +73,23 @@ public class BotSanBoss {
                 if (!exact.isEmpty()) {
                     want = exact;
                 }
+                if (this.bot.accountBot && prefer.toLowerCase().contains("broly")) {
+                    // săn đệ: chỉ nhắm Super Broly. Broly thường mỗi đòn chỉ mất tối đa 1% HP lại hay Tái tạo năng lượng (hồi máu, tăng HP),
+                    // 1 bot đánh không bao giờ chết (thử: 36k -> 297k HP sau 6 phút) nên trước đây bot đứng đánh Broly mãi, không lấy được đệ
+                    List<Boss> sup = new ArrayList<>();
+                    for (Boss b : want) {
+                        if (b.name.toLowerCase().contains("super")) {
+                            sup.add(b);
+                        }
+                    }
+                    want = sup;
+                }
                 if (!want.isEmpty()) {
                     this.bossAttack = want.get(new Random().nextInt(want.size()));
+                } else if (this.bot.accountBot && prefer.toLowerCase().contains("broly")) {
+                    this.bossAttack = null; // không có Super Broly đánh nổi: không đánh bừa boss khác (trước đây lạc sang Số 3 Namek / Broly thường)
+                    giveUp();
+                    return;
                 } else if (System.currentTimeMillis() < waitSuperUntil) {
                     this.bossAttack = null; // đứng chờ Super Broly, chưa bỏ đi
                     return;
@@ -152,6 +168,16 @@ public class BotSanBoss {
     public void SanBot() {
         this.GetBoss(0);
         this.GetSkil();
+        if (this.bossAttack != null && !this.bossAttack.isDie() && this.bossAttack.zone != null && this.bot.zone != this.bossAttack.zone) {
+            // đang đánh dở mà bị đưa đi chỗ khác (chết rồi hồi sinh ở nhà...): quay lại khu có boss, trước đây đứng "đánh" từ map khác mãi
+            if (!this.bot.isDie() && this.bot.canGo(this.bossAttack.zone.map.mapId) && !this.bossAttack.zone.isFullPlayer()) {
+                ChangeMapService.gI().goToMap(this.bot, this.bossAttack.zone);
+                this.bot.zone.load_Me_To_Another(this.bot);
+            } else {
+                this.bossAttack = null;
+            }
+            return;
+        }
         if (this.bossAttack != null && !this.bossAttack.isDie()) {
             if (this.bot.UseLastTimeSkill()) {
                 int y = 0;

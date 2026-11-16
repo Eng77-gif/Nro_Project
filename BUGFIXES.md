@@ -2466,3 +2466,12 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Đấm Gohan chiến binh toàn hụt (giống Black Goku trước đây): chiêu đánh gần bị tính trượt khi trên server cách > 200px, mà vị trí trên server lệch với màn hình. Đấu trên đài có tường nên Gohan bỏ kiểm tra xa / gần, và bỏ 10% "Xí hụt" ngẫu nhiên của boss đấu trường. Đã thử bằng bot: 8 / 8 cú đấm Dragon trừ máu (cách 262px trên server, trước đây đều hụt).
 - Panel Mùa VIP: bấm Lưu không được do biến đếm người có VIP đặt tên `act` trùng hàm `act()` của nút Lưu (báo "act is not a function"). Đã đổi tên.
 - Panel Mùa VIP: thêm mục chỉnh phần quà từng gói (ID vật phẩm, số lượng, dòng chỉ số dạng `id:giá trị`, ví dụ 93:30 = hạn 30 ngày; tick tặng đệ tử nếu chưa có), thêm / xoá quà. Lời giới thiệu gói ở Tori Bot tự viết theo danh sách quà. Mặc định = đúng quà cũ trong code. Tori Bot kiểm tra hành trang đủ ô trước khi trừ điểm mùa (trước đây đầy hành trang vẫn trừ, mất quà).
+
+## Bot săn đệ (Super Broly)
+21 Super Broly đứng không bot nào săn được đệ. Thử trên server local tìm ra 5 lỗi nối nhau:
+- Ngưỡng "đủ mạnh" đòi HP 2 triệu + sức đánh 80k: bot chưa có đệ gần như không ai đạt (vd 900k HP / 35k đánh). Nay tính theo từng con Super Broly: chịu được 3 đòn (Super Broly bị đánh là tăng HP, đánh = 10% HP tối đa), cả nhóm hạ trong ~1.200 đòn; đi săn khi sức đánh ≥ 10k, HP ≥ 450k.
+- Bot nhắm Broly thường: mỗi đòn chỉ mất 1% HP, Broly hay Tái tạo năng lượng (hồi máu + tăng HP), 1 bot đánh mãi không chết (thử: 36k -> 297k HP sau 6 phút). Nay bot săn đệ chỉ nhắm Super Broly đánh nổi; không có thì về luyện tập, không đánh bừa boss khác (trước đây lạc sang Số 3 Namek).
+- Bot chết / bị đưa đi map khác giữa trận thì đứng "đánh" từ xa mãi: nay hồi sinh xong quay lại khu có boss đánh tiếp (áp dụng cho mọi việc săn boss).
+- Gom nhóm tối đa 8 bot đánh Super Broly chỉ lấy bot chưa có đệ (bot có đệ hạ cũng không nhận gì, còn cướp mất cú cuối).
+- Bot đứng chờ giải ĐHVT (tới 40 phút) bỏ qua việc admin giao: nay chỉ đang chờ (chưa lên sàn) mà được giao việc khác thì bỏ giải đi làm.
+Đã thử: bot được giao "Săn đệ" rời ĐHVT, tìm đúng Super Broly vừa sức, chết thì quay lại đánh. 1 bot một mình đánh Super Broly 2 triệu HP lúc xuống 820k, lúc thua tốc độ hồi máu: Tái tạo năng lượng hồi có trần còn sát thương cộng dồn theo số bot, nên cần nhóm ~3 bot trở lên (server thử chỉ có 1 bot đủ sức nên chưa thử được cả nhóm).
