@@ -51,7 +51,7 @@ public class TrungUyThep extends Boss {
     public void reward(Player plKill) {
         // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         // Xác suất rơi item 1560 (50%)
-        if (Util.isTrue(50, 100)) {
+        if (nro.models.services.BossDrops.roll("doanh_trai.TrungUyThep#1", 50, 100)) {
             ItemMap it = new ItemMap(
                     this.zone,
                     17,
@@ -64,7 +64,7 @@ public class TrungUyThep extends Boss {
         }
 
         // Xác suất rơi item 611 (30%)
-        if (Util.isTrue(30, 100)) {
+        if (nro.models.services.BossDrops.roll("doanh_trai.TrungUyThep#2", 30, 100)) {
             ItemMap it = new ItemMap(
                     this.zone,
                     611,

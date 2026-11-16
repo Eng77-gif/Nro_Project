@@ -39,7 +39,7 @@ public class RongNhi extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        if (Util.isTrue(20, 100)) {
+        if (nro.models.services.BossDrops.roll("Boss_mini.RongNhi#1", 20, 100)) {
             int[] items = Util.isTrue(20, 100) ? new int[]{1821} : new int[]{18, 19, 20};
             int randomItem = items[new Random().nextInt(items.length)];
             Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, randomItem, 1,

@@ -268,6 +268,7 @@ public class PanelApi {
             case "drops" -> { // tỉ lệ rơi theo vật phẩm (chỉnh được) + số đếm thực tế
                 Map<String, Object> dr = new LinkedHashMap<>(nro.models.services.DropStats.report());
                 dr.put("rates", nro.models.services.DropRates.list());
+                dr.put("bossRates", nro.models.services.BossDrops.list());
                 yield dr;
             }
             case "drops/set" -> {

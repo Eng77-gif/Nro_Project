@@ -43,7 +43,7 @@ public class TrungUyXanhLo extends Boss {
     @Override
     public void reward(Player plKill) {
         // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
-        if (Util.isTrue(100, 100)) {
+        if (nro.models.services.BossDrops.roll("ban_do_kho_bau.TrungUyXanhLo#1", 100, 100)) {
             ItemMap it = new ItemMap(this.zone, 705, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x,
                     this.location.y - 24), plKill.id);
             Service.gI().dropItemMap(this.zone, it);         

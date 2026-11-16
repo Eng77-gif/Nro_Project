@@ -82,48 +82,48 @@ public class BrolySuper extends Boss {
         int x = this.location.x;
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
         // Hộp đá cấp 9 (Hộp đá nâng cấp +9)
-        if (Util.isTrue(30, 100)) {
+        if (nro.models.services.BossDrops.roll("Broly.BrolySuper#1", 30, 100)) {
             drop(plKill, nro.models.services.SaoPhaLe10Service.HOP_DA_9, 1, x, y);
         }
         // Item Cuồng bạo (tăng chí mạng)
-        if (Util.isTrue(10, 100)) {
+        if (nro.models.services.BossDrops.roll("Broly.BrolySuper#2", 10, 100)) {
             drop(plKill, 2055, 1, x, y);
         }
         // Trang bị thần linh (cả găng)
-        if (Util.isTrue(10, 100)) {
+        if (nro.models.services.BossDrops.roll("Broly.BrolySuper#3", 10, 100)) {
             ItemMap tl = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
             if (tl != null) {
                 Service.gI().dropItemMap(this.zone, tl);
             }
         }
         // Ngọc rồng 1 - 4 sao
-        if (Util.isTrue(50, 100)) {
+        if (nro.models.services.BossDrops.roll("Broly.BrolySuper#4", 50, 100)) {
             drop(plKill, Util.nextInt(14, 17), 1, x, y);
         }
         // Item cấp 2 (Cuồng nộ 2, Bổ khí 2, Bổ huyết 2, Giáp Xên 2, Ẩn danh 2)
-        if (Util.isTrue(30, 100)) {
+        if (nro.models.services.BossDrops.roll("Broly.BrolySuper#5", 30, 100)) {
             drop(plKill, Util.nextInt(1150, 1154), Util.nextInt(1, 3), x, y);
         }
         // Trang bị sao pha lê 1 - 3 sao
-        if (Util.isTrue(30, 100)) {
+        if (nro.models.services.BossDrops.roll("Broly.BrolySuper#6", 30, 100)) {
             dropEquip(plKill, 1, 7, Util.nextInt(1, 3), x, y);
         }
         // Trang bị cấp 8 - 11
-        if (Util.isTrue(30, 100)) {
+        if (nro.models.services.BossDrops.roll("Broly.BrolySuper#7", 30, 100)) {
             dropEquip(plKill, 8, 11, 0, x, y);
         }
         // Vàng ngẫu nhiên
         Service.gI().dropItemMap(this.zone, new ItemMap(this.zone, 190, Util.nextInt(100_000, 2_000_000), x, y, plKill.id));
         // Mảnh khỉ Oozaru
-        if (Util.isTrue(30, 100)) {
+        if (nro.models.services.BossDrops.roll("Broly.BrolySuper#8", 30, 100)) {
             drop(plKill, 1771, Util.nextInt(1, 5), x, y);
         }
         // Trang bị cấp 11 - 12 từ 5 - 8 sao
-        if (Util.isTrue(10, 100)) {
+        if (nro.models.services.BossDrops.roll("Broly.BrolySuper#9", 10, 100)) {
             dropEquip(plKill, 11, 12, Util.isTrue(10, 100) ? 8 : Util.nextInt(5, 7), x, y);
         }
         // Set kích hoạt Thần hủy diệt Beerus (đồ cấp 12)
-        if (Util.isTrue(1, 100)) {
+        if (nro.models.services.BossDrops.roll("Broly.BrolySuper#10", 1, 100)) {
             ItemMap skh = dropEquip(plKill, 12, 12, 0, x, y);
             if (skh != null) {
                 nro.models.services.Event2026Service.addSkhBeerusOptions(skh.options);

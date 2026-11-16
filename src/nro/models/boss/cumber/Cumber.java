@@ -34,7 +34,7 @@ public class Cumber extends Boss {
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
         int drop = 190;
         int quantity = 0; // vàng theo độ mạnh boss: BossRewardService
-        if (Util.isTrue(5 , 100)) {
+        if (nro.models.services.BossDrops.roll("cumber.Cumber#1", 5, 100)) {
         ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
         if (it != null) {
         Service.gI().dropItemMap(zone, it);
@@ -43,7 +43,7 @@ public class Cumber extends Boss {
         ItemMap itemMap = new ItemMap(this.zone, drop, quantity, x, y, plKill.id);
         Item item = ItemService.gI().createNewItem((short) drop);
         // (vàng rơi theo độ mạnh boss ở BossRewardService)
-        if (Util.isTrue(5, 100)) {
+        if (nro.models.services.BossDrops.roll("cumber.Cumber#2", 5, 100)) {
             int group = Util.nextInt(1, 100) <= 70 ? 0 : 1;
 
             int[][] drops = {
@@ -68,7 +68,7 @@ public class Cumber extends Boss {
             optionalItemMap.options.add(new Item.ItemOption(107, value));
             Service.gI().dropItemMap(zone, optionalItemMap);
         }
-        if (Util.isTrue(10, 100)) {
+        if (nro.models.services.BossDrops.roll("cumber.Cumber#3", 10, 100)) {
             int[] dropItems = {15,16,17,18,19,20,992};
             int dropOptional = dropItems[Util.nextInt(0, dropItems.length - 1)];
             ItemMap optionalItemMap = new ItemMap(this.zone, dropOptional, Util.nextInt(1, 3), x, y, plKill.id);

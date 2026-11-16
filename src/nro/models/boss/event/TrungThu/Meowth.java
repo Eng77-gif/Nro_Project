@@ -28,12 +28,12 @@ public class Meowth extends Boss {
         int x = this.location.x + Util.nextInt(-15, 15);
         int y = this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24);
         ItemMap it;
-        if (Util.isTrue(30, 100)) {
+        if (nro.models.services.BossDrops.roll("TrungThu.Meowth#1", 30, 100)) {
             it = new ItemMap(this.zone, 1881, 1, x, y, plKill.id); // Pet Meowth (mã v10 1878, ở server này 1878 là Ván bay cá đuối VIP)
             it.options.add(new ItemOption(50, 17)); // như video: sức đánh +17%, HP +17%
             it.options.add(new ItemOption(77, 17));
             it.options.add(new ItemOption(93, Util.nextInt(1, 5)));
-        } else if (Util.isTrue(90, 100)) {
+        } else if (nro.models.services.BossDrops.roll("TrungThu.Meowth#2", 90, 100)) {
             it = new ItemMap(this.zone, 1482, 1, x, y, plKill.id);
             it.options.add(new ItemOption(50, 22));
             it.options.add(new ItemOption(77, 22));
@@ -46,7 +46,7 @@ public class Meowth extends Boss {
         }
         it.options.add(new ItemOption(30, 0));
         Service.gI().dropItemMap(this.zone, it);
-        if (Util.isTrue(50, 100)) { // Rác (hạn 33 ngày): bấm Sử dụng đổi Thùng rác
+        if (nro.models.services.BossDrops.roll("TrungThu.Meowth#3", 50, 100)) { // Rác (hạn 33 ngày): bấm Sử dụng đổi Thùng rác
             ItemMap r = new ItemMap(this.zone, 1895, Util.nextInt(5, 10), x + 10, y, plKill.id);
             r.options.add(new ItemOption(93, 33));
             r.options.add(new ItemOption(30, 0));

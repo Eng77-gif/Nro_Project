@@ -34,7 +34,7 @@ public class BlackGoku extends Boss {
         int drop = 190; // 100% rơi item ID 190
         int quantity = 0; // vàng theo độ mạnh boss: BossRewardService
         // Tạo itemMap cho item ID 190
-        if (Util.isTrue(5, 100)) {
+        if (nro.models.services.BossDrops.roll("Black_Goku.BlackGoku#1", 5, 100)) {
             ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
             if (it != null) {
                 Service.gI().dropItemMap(zone, it);
@@ -44,7 +44,7 @@ public class BlackGoku extends Boss {
         Item item = ItemService.gI().createNewItem((short) drop);
         // (vàng rơi theo độ mạnh boss ở BossRewardService)
         // 30% xác suất để rơi đồ
-        if (Util.isTrue(5, 100)) {
+        if (nro.models.services.BossDrops.roll("Black_Goku.BlackGoku#2", 5, 100)) {
             int group = Util.nextInt(1, 100) <= 70 ? 0 : 1;  // 70% chọn Áo Quần Giày (group = 0), 30% chọn Găng Rada (group = 1)
 
             // Các vật phẩm rơi từ nhóm Áo Quần Giày và Găng Rada
@@ -75,7 +75,7 @@ public class BlackGoku extends Boss {
             Service.gI().dropItemMap(zone, optionalItemMap);
         }
         // 80% xác suất rơi ngọc rồng
-        if (Util.isTrue(10, 100)) {
+        if (nro.models.services.BossDrops.roll("Black_Goku.BlackGoku#3", 10, 100)) {
             int[] dropItems = {15, 16, 17, 18, 19, 20, 992};
             int dropOptional = dropItems[Util.nextInt(0, dropItems.length - 1)];
             // Tạo và rơi vật phẩm ngọc rồng hoặc item cấp 2

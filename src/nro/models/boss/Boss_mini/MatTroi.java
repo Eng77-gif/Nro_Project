@@ -126,7 +126,7 @@ public class MatTroi extends Boss {
         BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.KOL, 1);
         int x = this.location.x;
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
-        if (Util.isTrue(50, 100)) {
+        if (nro.models.services.BossDrops.roll("Boss_mini.MatTroi#1", 50, 100)) {
             int[] costumes = {1562};
             int costumeId = costumes[Util.nextInt(costumes.length)];
 

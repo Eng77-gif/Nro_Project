@@ -2361,3 +2361,7 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Người đang hoá lây sang người chơi khác đứng gần (100px, kiểm tra mỗi 3 giây), cùng hình, đủ 30 phút.
 - Bật cờ đánh đệ tử người khác: đệ bị lây 30 phút.
 - Trong thời gian hoá: bị quái đánh không chết (còn 1 máu, như bùa bất tử). Sư phụ còn 1 máu không đánh được (như bùa bất tử), đệ tử còn 1 máu vẫn đánh quái.
+
+## Panel: trang Bot tràn ngang trên điện thoại; quà riêng từng boss chỉnh tỉ lệ được
+- Khung "Giao việc hàng loạt" làm trang Bot rộng 627px trên điện thoại 412px: lưới co lại, dưới 480px xếp 1 cột.
+- Tỉ lệ rơi > Boss: liệt kê quà riêng của 52 boss (98 dòng, viết trong reward() từng boss), sửa % + Lưu có hiệu lực ngay. Mỗi Util.isTrue(a, b) trong reward() đổi thành BossDrops.roll(key, a, b), mặc định = tỉ lệ cũ, lưu ở bảng drop_rate (key "boss:..."). Thưởng thêm theo bậc để phía dưới.

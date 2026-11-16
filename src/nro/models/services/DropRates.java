@@ -85,6 +85,13 @@ public final class DropRates {
         }
     }
 
+    /** Tỉ lệ đã chỉnh trên panel, chưa chỉnh thì def (quà riêng của boss: BossDrops). */
+    public static double rateOr(String key, double def) {
+        load();
+        Double r = RATE.get(key);
+        return r != null ? r : def;
+    }
+
     /** Tỉ lệ % hiện tại. */
     public static double rate(String key) {
         load();
@@ -102,7 +109,11 @@ public final class DropRates {
     }
 
     public static void set(String key, double rate) throws Exception {
-        def(key);
+        if (!key.startsWith("boss:")) {
+            def(key);
+        } else if (java.util.Arrays.stream(BossDrops.DEF).noneMatch(d -> key.equals("boss:" + d[0]))) {
+            throw new IllegalArgumentException("Không có tỉ lệ " + key);
+        }
         double r = Math.max(0, Math.min(100, rate));
         try (Connection con = nro.models.data.LocalManager.getConnection(); PreparedStatement ps = con.prepareStatement(
                 "insert into drop_rate (k, rate) values (?, ?) on duplicate key update rate = values(rate)")) {

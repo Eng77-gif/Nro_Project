@@ -27,13 +27,13 @@ public class Kochiro extends Boss {
         int x = this.location.x + Util.nextInt(-15, 15);
         int y = this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24);
         ItemMap it;
-        if (Util.isTrue(90, 100)) {
+        if (nro.models.services.BossDrops.roll("TrungThu.Kochiro#1", 90, 100)) {
             it = new ItemMap(this.zone, 1879, 1, x, y, plKill.id); // Cải trang Kochiro (mã v10 1876)
             it.options.add(new ItemOption(77, 31)); // như video: HP+31%, 15% né đòn
             it.options.add(new ItemOption(108, 15));
             it.options.add(new ItemOption(93, Util.nextInt(1, 5)));
             it.options.add(new ItemOption(30, 0));
-        } else if (Util.isTrue(20, 100)) { // giải cứu Pikachu (sự kiện hè 3): 50% vĩnh viễn
+        } else if (nro.models.services.BossDrops.roll("TrungThu.Kochiro#2", 20, 100)) { // giải cứu Pikachu (sự kiện hè 3): 50% vĩnh viễn
             it = new ItemMap(this.zone, 1870, 1, x, y, plKill.id); // Pet Pikachu như video: SĐ / HP / KI +13%, tấn công +13% lên boss
             it.options.add(new ItemOption(50, 13));
             it.options.add(new ItemOption(77, 13));
@@ -42,7 +42,7 @@ public class Kochiro extends Boss {
             if (Util.isTrue(50, 100)) {
                 it.options.add(new ItemOption(93, Util.nextInt(3, 7)));
             }
-        } else if (Util.isTrue(30, 100)) {
+        } else if (nro.models.services.BossDrops.roll("TrungThu.Kochiro#3", 30, 100)) {
             it = new ItemMap(this.zone, 1892, 1, x, y, plKill.id); // Bóng Poke (mã v10 1873)
             if (Util.isTrue(99, 100)) {
                 it.options.add(new ItemOption(93, Util.nextInt(1, 5)));
@@ -53,7 +53,7 @@ public class Kochiro extends Boss {
             it.options.add(new ItemOption(30, 0));
         }
         Service.gI().dropItemMap(this.zone, it);
-        if (Util.isTrue(50, 100)) { // Rác (hạn 33 ngày): bấm Sử dụng đổi Thùng rác
+        if (nro.models.services.BossDrops.roll("TrungThu.Kochiro#4", 50, 100)) { // Rác (hạn 33 ngày): bấm Sử dụng đổi Thùng rác
             ItemMap r = new ItemMap(this.zone, 1895, Util.nextInt(5, 10), x + 10, y, plKill.id);
             r.options.add(new ItemOption(93, 33));
             r.options.add(new ItemOption(30, 0));

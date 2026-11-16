@@ -42,7 +42,7 @@ public class Chilled extends Boss {
         for (int i = Util.nextInt(2, 4); i > 0; i--) { // sao pha lê
             Service.gI().dropItemMap(zone, new ItemMap(zone, Util.nextInt(441, 447), 1, x + Util.nextInt(-50, 50), y, plKill.id));
         }
-        if (Util.isTrue(20, 100)) { // ngọc rồng 1 - 3 sao
+        if (nro.models.services.BossDrops.roll("Boss_mini.Chilled#1", 20, 100)) { // ngọc rồng 1 - 3 sao
             Service.gI().dropItemMap(zone, new ItemMap(zone, Util.nextInt(14, 16), 1, x, y, plKill.id));
         }
     }
