@@ -399,7 +399,7 @@ public class EffectSkin {
 
     private long lastTimePlague;
 
-    /** Đang hoá Bộ xương / Dơi / Ma trơi (do boss): người chơi khác đứng gần (100px) bị lây cùng hình, thời gian = phần còn lại của mình. */
+    /** Đang hoá Bộ xương / Dơi / Ma trơi (do boss): người chơi khác đứng gần (100px) bị lây cùng hình, đủ 30 phút. */
     private void updateHalloweenPlague() {
         try {
             if (this.player.isPet || this.player.isBoss || this.player.effectSkill == null || !this.player.effectSkill.halloweenPlague
@@ -407,14 +407,10 @@ public class EffectSkin {
                 return;
             }
             this.lastTimePlague = System.currentTimeMillis();
-            long left = EffectSkillService.halloweenLeft(this.player);
-            if (left < 5000) {
-                return;
-            }
             for (Player pl : new java.util.ArrayList<>(this.player.zone.getNotBosses())) {
                 if (pl != null && pl != this.player && !pl.isPet && !pl.isBoss && !pl.isDie() && pl.effectSkill != null
                         && !pl.effectSkill.isHalloween && Util.getDistance(this.player, pl) <= 100) {
-                    EffectSkillService.gI().setHalloweenPlague(pl, this.player.effectSkill.idOutfitHalloween, (int) left);
+                    EffectSkillService.gI().setHalloweenPlague(pl, this.player.effectSkill.idOutfitHalloween, 1_800_000);
                 }
             }
         } catch (Exception e) {

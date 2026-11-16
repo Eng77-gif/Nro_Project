@@ -313,11 +313,6 @@ public class EffectSkillService {
         }
     }
 
-    /** Thời gian hoá còn lại (ms). */
-    public static long halloweenLeft(Player p) {
-        return p.effectSkill == null || !p.effectSkill.isHalloween ? 0 : p.effectSkill.timeHalloween - (System.currentTimeMillis() - p.effectSkill.lastTimeHalloween);
-    }
-
     public void removeHalloween(Player player) {
         if (player.effectSkill != null) {
             player.effectSkill.isHalloween = false;

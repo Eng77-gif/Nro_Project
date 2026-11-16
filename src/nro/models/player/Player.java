@@ -1362,10 +1362,7 @@ public class Player implements Runnable {
             }
             if (this.isPet && plAtt != null && !plAtt.isPet && plAtt.effectSkill != null && plAtt.effectSkill.halloweenPlague
                     && this.effectSkill != null && !this.effectSkill.isHalloween) {
-                long left = EffectSkillService.halloweenLeft(plAtt); // bật cờ đánh đệ: đệ bị lây
-                if (left >= 5000) {
-                    EffectSkillService.gI().setHalloweenPlague(this, plAtt.effectSkill.idOutfitHalloween, (int) left);
-                }
+                EffectSkillService.gI().setHalloweenPlague(this, plAtt.effectSkill.idOutfitHalloween, 1_800_000); // bật cờ đánh đệ: đệ bị lây 30 phút
             }
 
             if (this.zone.map.mapId == 113 && this.isPKDHVT && plAtt != null && plAtt.isBoss && damage >= this.nPoint.hp) {

@@ -2358,6 +2358,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## Halloween: hoá Bộ xương / Dơi / Ma trơi có lây, bất tử trước quái
 - Boss Bộ xương, Dơi, Ma trơi đánh trúng: hoá hình 30 phút (setHalloweenPlague).
-- Người đang hoá lây sang người chơi khác đứng gần (100px, kiểm tra mỗi 3 giây), cùng hình, thời gian = phần còn lại của người lây.
-- Bật cờ đánh đệ tử người khác: đệ bị lây.
+- Người đang hoá lây sang người chơi khác đứng gần (100px, kiểm tra mỗi 3 giây), cùng hình, đủ 30 phút.
+- Bật cờ đánh đệ tử người khác: đệ bị lây 30 phút.
 - Trong thời gian hoá: bị quái đánh không chết (còn 1 máu, như bùa bất tử). Sư phụ còn 1 máu không đánh được (như bùa bất tử), đệ tử còn 1 máu vẫn đánh quái.
