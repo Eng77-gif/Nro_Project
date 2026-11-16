@@ -1136,9 +1136,13 @@ public class PanelApi {
         return PanelDirectory.slice(list,params);
     }
 
+    static String noAccent(String s) {
+        return java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace('đ', 'd').replace('Đ', 'D');
+    }
+
     private List<Map<String,Object>> itemsList(String kw, String type, int maxResults) {
         List<Map<String, Object>> out = new ArrayList<>();
-        String k = kw.toLowerCase();
+        String k = kw.toLowerCase(), kv = noAccent(k); // gõ không dấu cũng tìm được ("thoi vang" -> Thỏi vàng)
         for (ItemTemplate t : Manager.ITEM_TEMPLATES) {
             if (t == null || t.name == null) {
                 continue;
@@ -1146,7 +1150,7 @@ public class PanelApi {
             if (!type.isEmpty() && !String.valueOf(t.type).equals(type)) {
                 continue;
             }
-            if (!k.isEmpty() && !t.name.toLowerCase().contains(k) && !String.valueOf(t.id).equals(k)) {
+            if (!k.isEmpty() && !t.name.toLowerCase().contains(k) && !noAccent(t.name.toLowerCase()).contains(kv) && !String.valueOf(t.id).equals(k)) {
                 continue;
             }
             Map<String, Object> o = new LinkedHashMap<>();

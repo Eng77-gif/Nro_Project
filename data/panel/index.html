@@ -198,6 +198,24 @@ body{background:radial-gradient(ellipse at 90% 0%,color-mix(in srgb,var(--acc2) 
 .bot-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
 .bot-tabs button{border:1px solid var(--line,rgba(127,127,127,.25));background:transparent;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer}
 .bot-tabs button.on{background:var(--acc,#f6a039);color:#1a1205;border-color:transparent}
+
+/* tìm nhanh, ghim, sửa tại chỗ, gợi ý vật phẩm */
+.qs-btn{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:6px 10px;color:var(--mute);font-size:13px;cursor:pointer;min-height:34px}.qs-btn kbd,.nav-search kbd{font-size:10px;border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:var(--mute);background:var(--panel)}
+.nav-search{display:flex;width:100%;align-items:center;justify-content:space-between;gap:8px;margin:0 0 12px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--mute);font-size:12.5px;cursor:pointer;text-align:left}
+.pal-modal{align-items:flex-start!important;padding-top:10vh}.pal-modal .box{width:min(640px,94vw);padding:0!important;overflow:hidden}
+.pal input{width:100%;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:16px 18px;font-size:16px;background:transparent;outline:none;color:inherit}
+.pal-res{max-height:60vh;overflow:auto;padding:6px}.pal-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer}.pal-item.on,.pal-item:hover{background:var(--panel2)}
+.pal-item b{display:block;font-size:14px}.pal-item small{display:block;color:var(--mute);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:440px}.pal-item .grow{min-width:0;flex:1}
+.pal-ico{width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex:none}.pal-ico img{max-width:28px;max-height:28px}.pal-pin{background:none!important;border:0!important;font-size:18px;color:var(--acc)!important;padding:4px 8px!important;min-height:0!important;box-shadow:none!important}
+.pal-hint{font-size:11px;padding:8px 16px;border-top:1px solid var(--line)}
+.pin-btn{margin-top:10px}.pin-btn.on{color:var(--acc);border-color:var(--acc)}
+.ie{cursor:pointer;border-bottom:1px dashed color-mix(in srgb,var(--acc) 60%,transparent);padding:2px 3px;border-radius:4px;display:inline-block;min-width:24px}.ie:hover,.ie:focus{background:color-mix(in srgb,var(--acc) 12%,transparent);outline:none}.ie.saving{opacity:.5}.ie-toggle{border-bottom-style:dotted}
+.ie-in{width:120px;max-width:100%;padding:4px 6px!important;font-size:13px}
+.ac-chip{font-size:12px;color:var(--mute);margin-left:6px;display:inline-flex;align-items:center;gap:4px}.ac-chip img{max-height:22px}.ac-chip .e{color:#e5484d}
+.ac-box{position:fixed;z-index:9999;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px #0006;max-height:320px;overflow:auto;padding:4px;max-width:96vw}
+.ac-it{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:13px}.ac-it img{max-width:26px;max-height:26px}.ac-it span{flex:1}.ac-it small{color:var(--mute)}.ac-it.on,.ac-it:hover{background:var(--panel2)}
+@media(max-width:760px){.qs-btn .qs-label,.qs-btn kbd{display:none}.qs-btn{padding:6px 9px}.pal-modal{padding-top:0}.pal-modal .box{width:100vw;max-width:100vw;min-height:70vh;border-radius:0 0 18px 18px!important}.pal-item{padding:12px 10px}.pal-item small{max-width:62vw}
+ main button,.modal button{min-height:40px}.ie{padding:6px 8px}.ie-in{width:100%;font-size:16px}#tabbar a{min-height:52px}.ac-box{left:8px!important;right:8px;min-width:0!important}}
 </style>
 </head>
 <body>
@@ -236,7 +254,7 @@ async function act(fn,ok){try{const r=await fn();toast(ok||(r&&r.note)||'Đã xo
 function table(rows,cols,actions){
   if(!rows||!rows.length)return '<div class="mute">Không có dữ liệu</div>';
   cols=cols||Object.keys(rows[0]).map(k=>[k,k]);
-  return `<div class="tw"><table><thead><tr>${cols.map(c=>`<th>${esc(c[1])}</th>`).join('')}${actions?'<th></th>':''}</tr></thead><tbody>${rows.map((r,i)=>`<tr>${cols.map(c=>`<td class="${c[3]||''}" data-l="${esc(c[1])}">${c[2]?c[2](r[c[0]],r):esc(r[c[0]])}</td>`).join('')}${actions?`<td class="act" data-l="">${actions(r,i)}</td>`:''}</tr>`).join('')}</tbody></table></div>`}
+  return `<div class="tw"><table><thead><tr>${cols.map(c=>`<th>${esc(c[1])}</th>`).join('')}${actions?'<th></th>':''}</tr></thead><tbody>${rows.map((r,i)=>`<tr>${cols.map(c=>`<td class="${c[3]||''}" data-l="${esc(c[1])}">${c[4]?ieCell(r,c):c[2]?c[2](r[c[0]],r):esc(r[c[0]])}</td>`).join('')}${actions?`<td class="act" data-l="">${actions(r,i)}</td>`:''}</tr>`).join('')}</tbody></table></div>`}
 function modal(html){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class="box">${html}</div>`;m.onclick=e=>{if(e.target===m)m.remove()};document.body.append(m);return m}
 
 const PAGES=[
@@ -274,23 +292,26 @@ function uiIcon(key){const shapes={
  return '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">'+(shapes[aliases[key]||key]||shapes.dash)+'</svg>'}
 
 function buildNav(){if(innerWidth<760)$('#nav').classList.add('hide');let h='<h1><span class="brand-orb"><span>★★★★</span></span><span>NRO<span style="color:var(--acc)">.</span> Admin<small>Control center</small></span></h1>',open=false;
+  h+=`<button class="nav-search" onclick="openPalette()">🔍 Tìm mục, người chơi, vật phẩm… <kbd>Ctrl K</kbd></button>`;
+  const pins=getPins().filter(k=>PAGES.some(x=>x[0]===k));if(pins.length)h+=`<div class="g">★ Đã ghim</div><div class="tiles">${pins.map(k=>`<a href="#${k}" data-p="${k}"><i>${uiIcon(k)}</i>${pageName(k)}</a>`).join('')}</div>`;
   for(const p of PAGES){if(p[0]==='g'){if(open)h+='</div>';h+=`<div class="g">${p[1]}</div><div class="tiles">`;open=true}else h+=`<a href="#${p[0]}" data-p="${p[0]}"><i>${uiIcon(p[0])}</i>${p[1]}</a>`}
   h+='</div><div class="g">Tài khoản</div><div class="tiles"><a href="#" onclick="toggleTheme();return false"><i>◐</i>Đổi sáng / tối</a><a href="#" onclick="logout();return false"><i>↗</i>Đăng xuất</a></div>';
   $('#nav').innerHTML=h+'<div class="nav-signature">NGỌC RỒNG ONLINE<br>chữ ký: Việt</div>';buildTabbar();
   document.querySelectorAll('#nav a[data-p]').forEach(a=>a.addEventListener('click',()=>{if(innerWidth<760)$('#nav').classList.add('hide')}));refreshTop();clearInterval(window._topT);window._topT=setInterval(refreshTop,15000)}
 /* thanh dưới cho điện thoại: 4 trang hay dùng + "Thêm" mở lưới tất cả trang */
 const TABS=[['dash','📊','Tổng quan'],['players','👤','Người chơi'],['items','🎒','Vật phẩm'],['events','🎉','Sự kiện']];
-function buildTabbar(){$('#tabbar').innerHTML=TABS.map(t=>`<a href="#${t[0]}" data-t="${t[0]}"><i>${uiIcon(t[0])}</i>${t[2]}</a>`).join('')+'<a href="#" id="more" onclick="$(\'#nav\').classList.toggle(\'hide\');markTab();return false"><i>☰</i>Thêm</a>';
+function tabList(){const pins=getPins().filter(k=>PAGES.some(x=>x[0]===k)).slice(0,3);const def=TABS.filter(t=>!pins.includes(t[0]));return [...pins.map(k=>[k,'',pageName(k)]),...def].slice(0,3)}
+function buildTabbar(){$('#tabbar').innerHTML='<a href="#" onclick="openPalette();return false"><i>🔍</i>Tìm</a>'+tabList().map(t=>`<a href="#${t[0]}" data-t="${t[0]}"><i>${uiIcon(t[0])}</i>${t[2]}</a>`).join('')+'<a href="#" id="more" onclick="$(\'#nav\').classList.toggle(\'hide\');markTab();return false"><i>☰</i>Thêm</a>';
   $('#tabbar').querySelectorAll('a[data-t]').forEach(a=>a.addEventListener('click',()=>$('#nav').classList.add('hide')));markTab()}
 function markTab(){const p=(location.hash||'#dash').slice(1),navOpen=!$('#nav').classList.contains('hide');
-  document.querySelectorAll('#tabbar a').forEach(a=>a.classList.toggle('on',a.id==='more'?navOpen||!TABS.some(t=>t[0]===p):!navOpen&&a.dataset.t===p))}
+  document.querySelectorAll('#tabbar a').forEach(a=>a.classList.toggle('on',a.id==='more'?navOpen:!navOpen&&a.dataset.t===p));const mo=document.getElementById('more');if(mo&&!navOpen&&!tabList().some(t=>t[0]===p))mo.classList.add('on')}
 const PAGE_DESC={notify:'Gửi thông báo toàn server và tặng quà cho người chơi.',maint:'Bảo trì, lưu dữ liệu và khởi động lại máy chủ.',logs:'Nhật ký console của máy chủ, tự làm mới.',chatlog:'Chat thế giới và thông báo server đã ghi lại.',audit:'Lịch sử thao tác trên panel.',config:'Các cấu hình trong Config.properties.',bots:'Tài khoản bot, trạng thái và việc đang làm.',ai:'Bộ não tự học chọn việc cho bot.',accounts:'Tài khoản đăng nhập, số dư và quyền admin.',tops:'Bảng xếp hạng sức mạnh, sự kiện và nạp.',clans:'Danh sách bang hội trên máy chủ.',items:'Mẫu vật phẩm, chỉ số mặc định và mô tả.',giftcode:'Tạo, sửa và xoá giftcode.',shop:'Cửa hàng của các NPC.',kygui:'Vật phẩm đang ký gửi.',badges:'Danh hiệu, hiệu ứng và chỉ số.',radar:'Thẻ radar: số mảnh, aura và chỉ số từng cấp.',fx:'Hiệu ứng và aura trong data.',looks:'Đeo lưng và thú cưỡi, kiểm tra hình.',admin:'Lệnh admin dùng trong game.',maps:'Bản đồ, NPC và người đang có mặt.',events:'Sự kiện theo mùa: bật / tắt, lịch, giả lập ngày.',evshop:'Đổi quà sự kiện.',eventtops:'Đua top sự kiện và phần thưởng.',bossrw:'Phần thưởng khi hạ boss.',webposts:'Bài diễn đàn và phiếu tố cáo / báo lỗi / góp ý từ trang web người chơi.',webtopup:'Yêu cầu nạp chuyển khoản và thẻ cào từ trang web người chơi.',pets:'Đệ tử của các tài khoản: loại đệ, hành tinh, sức mạnh, chỉ số gốc, chiêu và đồ đang mặc.',nrsd:'Kết quả các trận Ngọc Rồng Sao Đen và Giải Ngọc Rồng Sao Đen Đặc Biệt.',mobs:'Mẫu quái trên máy chủ.',db:'Xem và sửa trực tiếp bảng dữ liệu.',health:'Dò lỗi dữ liệu: icon, part, chỉ số...',napthe:'Lịch sử nạp thẻ.',sql:'Chạy câu lệnh SQL.'};
 /* trang còn dùng tiêu đề <h2> kiểu cũ: đổi thành khối tiêu đề V4 (nhóm, tên, mô tả, biểu tượng) như trang Người chơi */
 function decorateHead(p){const m=$('#main');const h=m&&m.firstElementChild;if(!h||h.tagName!=='H2')return;let g='';for(const x of PAGES){if(x[0]==='g')g=x[1];else if(x[0]===p)break}
-  const d=document.createElement('div');d.className='people-heading';d.innerHTML=`<div><div class="eyebrow">${esc(g.toUpperCase())}</div><h2>${h.innerHTML}</h2>${PAGE_DESC[p]?`<p>${esc(PAGE_DESC[p])}</p>`:''}</div><span class="heading-icon">${uiIcon(p)}</span>`;h.replaceWith(d)}
+  const d=document.createElement('div');d.className='people-heading';d.innerHTML=`<div><div class="eyebrow">${esc(g.toUpperCase())}</div><h2>${h.innerHTML}</h2>${PAGE_DESC[p]?`<p>${esc(PAGE_DESC[p])}</p>`:''}</div><span class="heading-icon">${uiIcon(p)}</span>`;h.replaceWith(d);addPinBtn(p)}
 function pageName(p){const x=PAGES.find(x=>x[0]===p);return x?x[1]:'Tổng quan'}
 async function refreshTop(){try{const [s,v]=await Promise.all([api('stats'),api('server')]);
-  $('#top').innerHTML=`<button id="menu" aria-label="Mở menu" onclick="$('#nav').classList.toggle('hide')">${uiIcon('menu')}</button><div class="top-heading">Không gian quản trị <span>/</span> <b>${esc(s.server)}</b></div><span id="ptitle">${esc(pageName((location.hash||'#dash').slice(1)))}</span><span class="sp"></span><span class="pill"><span class="dot"></span>${fmt(s.online)} online</span><span class="pill top-event">${uiIcon('event')} ${v.event?esc(v.event):'Chưa có sự kiện'}</span><span class="pill top-signature" title="Chữ ký máy chủ">${esc(v.signature)}</span><button class="top-theme" aria-label="Đổi giao diện sáng / tối" title="Đổi sáng / tối" onclick="toggleTheme()">${uiIcon('moon')}</button><span class="top-avatar" aria-label="Panel quản trị" title="Java ${esc(v.java)} · data v${esc(v.vsData)} · item v${esc(v.vsItem)}">AD</span>`;
+  $('#top').innerHTML=`<button id="menu" aria-label="Mở menu" onclick="$('#nav').classList.toggle('hide')">${uiIcon('menu')}</button><div class="top-heading">Không gian quản trị <span>/</span> <b>${esc(s.server)}</b></div><span id="ptitle">${esc(pageName((location.hash||'#dash').slice(1)))}</span><span class="sp"></span><button class="qs-btn" onclick="openPalette()" title="Tìm nhanh mục, người chơi, vật phẩm (Ctrl+K)">🔍<span class="qs-label"> Tìm nhanh</span><kbd>Ctrl K</kbd></button><span class="pill"><span class="dot"></span>${fmt(s.online)} online</span><span class="pill top-event">${uiIcon('event')} ${v.event?esc(v.event):'Chưa có sự kiện'}</span><span class="pill top-signature" title="Chữ ký máy chủ">${esc(v.signature)}</span><button class="top-theme" aria-label="Đổi giao diện sáng / tối" title="Đổi sáng / tối" onclick="toggleTheme()">${uiIcon('moon')}</button><span class="top-avatar" aria-label="Panel quản trị" title="Java ${esc(v.java)} · data v${esc(v.vsData)} · item v${esc(v.vsItem)}">AD</span>`;
   window._online=(window._online||[]).concat([{t:Date.now(),n:s.online}]).slice(-120);drawChart()}catch(e){}}
 function drawChart(){const c=document.getElementById('chart');if(!c)return;const d=window._online||[];if(d.length<2){c.innerHTML='<text x="12" y="90" fill="currentColor" opacity=".5">Đang thu thập số liệu…</text>';return}
   const W=c.clientWidth||600,H=180,mx=Math.max(1,...d.map(x=>x.n)),st=W/(d.length-1);
@@ -300,7 +321,7 @@ function toggleTheme(){const t=document.documentElement.dataset.theme==='light'?
 try{document.documentElement.dataset.theme=localStorage.getItem('theme')||'dark'}catch(e){}
 let logTimer=null;
 async function route(){
-  clearInterval(logTimer);routeGen++;const p=(location.hash||'#dash').slice(1);
+  clearInterval(logTimer);routeGen++;IE.length=0;const p=(location.hash||'#dash').slice(1);
   document.querySelectorAll('nav a[data-p]').forEach(a=>a.classList.toggle('on',a.dataset.p===p));
   $('#nav').classList.toggle('hide',innerWidth<760||$('#nav').classList.contains('hide'));markTab();const pt=document.getElementById('ptitle');if(pt)pt.textContent=pageName(p);scrollTo(0,0);
   const f=window['page_'+p]||page_dash;$('#main').innerHTML='<div class="mute">Đang tải…</div>';
@@ -318,6 +339,84 @@ function pickItem(cb){
   m.querySelector('#pl').onclick=e=>{const d=e.target.closest('button[data-id]');if(d){m.remove();cb({id:+d.dataset.id,name:d.dataset.name,icon:+d.dataset.icon})}};
   load();m.querySelector('#pq').focus()}
 function itemField(prefix){return `<div class="row"><input id="${prefix}id" type="number" placeholder="ID vật phẩm" style="width:120px"><span id="${prefix}nm" class="mute"></span><button type="button" onclick="pickItem(i=>{$('#${prefix}id').value=i.id;$('#${prefix}nm').innerHTML=icon(i.icon)+' '+esc(i.name)})">Chọn…</button></div>`}
+
+/* ================= dễ dùng: tìm nhanh, ghim, sửa tại chỗ, gợi ý vật phẩm ================= */
+const vn=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
+function getPins(){try{return JSON.parse(localStorage.getItem('pins')||'[]')}catch(e){return []}}
+function setPins(a){try{localStorage.setItem('pins',JSON.stringify(a))}catch(e){}buildNav();route()}
+function togglePin(k){const a=getPins();setPins(a.includes(k)?a.filter(x=>x!==k):[...a,k]);toast(a.includes(k)?'Đã bỏ ghim':'Đã ghim — hiện đầu menu và thanh dưới điện thoại')}
+function addPinBtn(p){const h=document.querySelector('#main .people-heading>div');if(!h||h.querySelector('.pin-btn')||!PAGES.some(x=>x[0]===p))return;const on=getPins().includes(p);
+  h.insertAdjacentHTML('beforeend',`<button class="pin-btn s ${on?'on':''}" onclick="togglePin('${p}')">${on?'★ Đã ghim':'☆ Ghim mục này'}</button>`)}
+/* từ khoá thường gõ cho từng mục (không dấu cũng được) */
+const PAGE_KW={dash:'tong quan trang chu online ram',notify:'thong bao tang qua gui qua toan server exp kinh nghiem',maint:'bao tri luu du lieu restart khoi dong tat server',logs:'console log loi exception',chatlog:'chat the gioi tin nhan',audit:'thao tac lich su ai sua',config:'cau hinh config properties cai dat',
+ players:'nguoi choi nhan vat ban khoa tang do vang ngoc',pets:'de tu pet',bots:'bot tao bot quyen bot',ai:'ai hoc bot',accounts:'tai khoan mat khau doi mat khau nap tien vnd',tops:'top bang xep hang suc manh',clans:'bang hoi clan',webposts:'dien dan to cao gop y bao loi',webtopup:'nap web qr chuyen khoan',
+ items:'vat pham item do mo ta chi so',boxes:'hop qua capsule mo hop',giftcode:'giftcode code ma qua',shop:'cua hang shop gia ban npc',kygui:'ky gui cho',badges:'danh hieu',radar:'the radar',fx:'hieu ung aura hao quang',looks:'deo lung thu cuoi van bay pet',admin:'lenh admin trong game',
+ maps:'ban do map npc khu',events:'su kien event bat tat',evshop:'cua hang su kien doi qua',eventtops:'dua top su kien',bosses:'boss goi boss trieu hoi xoa boss',nrsd:'ngoc rong sao den nrsd',bossrw:'thuong boss roi boss',drops:'ti le roi drop roi do',kol:'kol quy lao nhiem vu thang',vipseason:'vip tori bot tich nap mua vip',mobs:'quai mob',
+ db:'database bang du lieu',health:'kiem tra du lieu loi',napthe:'nap the card',sql:'sql truy van query'};
+let PAL=null;
+function openPalette(){if(PAL){PAL.querySelector('input').focus();return}
+  const m=modal(`<div class="pal"><input id="palq" placeholder="Gõ tên mục, việc cần làm, tên người chơi hoặc vật phẩm…" autocomplete="off"><div id="palr" class="pal-res"></div><div class="mute pal-hint">↑↓ chọn · Enter mở · ☆ ghim mục · Esc đóng</div></div>`);
+  m.classList.add('pal-modal');PAL=m;const q=m.querySelector('#palq'),res=m.querySelector('#palr');let sel=0,items=[],tok=0,t;
+  const close=()=>{m.remove();PAL=null};new MutationObserver(()=>{if(!m.isConnected)PAL=null}).observe(document.body,{childList:true});
+  const draw=()=>{res.innerHTML=items.length?items.map((x,i)=>`<div class="pal-item ${i===sel?'on':''}" data-i="${i}">${x.html}</div>`).join(''):'<div class="mute" style="padding:12px">Không tìm thấy</div>';const on=res.querySelector('.on');if(on)on.scrollIntoView({block:'nearest'})};
+  const pages=v=>{const w=vn(v).split(/\s+/).filter(Boolean),pins=getPins();let g='';const out=[];
+    for(const x of PAGES){if(x[0]==='g'){g=x[1];continue}const hay=vn(x[1]+' '+g+' '+(PAGE_KW[x[0]]||'')+' '+(PAGE_DESC[x[0]]||''));
+      if(w.every(k=>hay.includes(k)))out.push({go:()=>{location.hash='#'+x[0];close()},pin:x[0],score:(vn(x[1]).startsWith(w[0]||'')?0:1)+(pins.includes(x[0])?-1:0),
+        html:`<span class="pal-ico">${uiIcon(x[0])}</span><span class="grow"><b>${esc(x[1])}</b><small>${esc(g)}${PAGE_DESC[x[0]]?' · '+esc(PAGE_DESC[x[0]]):''}</small></span><button class="pal-pin" data-pin="${x[0]}" title="Ghim">${pins.includes(x[0])?'★':'☆'}</button>`})}
+    return out.sort((a,b)=>a.score-b.score)};
+  const run=async()=>{const v=q.value.trim(),my=++tok;items=pages(v);sel=0;draw();if(v.length<2)return;
+    const [pl,it]=await Promise.all([api('players?q='+encodeURIComponent(v)).catch(()=>[]),api('items/page?'+new URLSearchParams({q:v,size:'6',page:'1'})).catch(()=>({rows:[]}))]);if(my!==tok||!m.isConnected)return;
+    const prs=(Array.isArray(pl)?pl:(pl.rows||[])).slice(0,6).map(p=>({go:()=>{close();openPlayer(p.id)},html:`<span class="pal-ico">👤</span><span class="grow"><b>${esc(p.name)}</b><small>Người chơi #${p.id}${p.online?' · online':''} — mở hồ sơ</small></span>`}));
+    const its=(it.rows||[]).slice(0,6).map(i=>({go:()=>{try{navigator.clipboard.writeText(String(i.id))}catch(e){}toast('Đã chép ID '+i.id+' ('+i.name+')');close()},html:`<span class="pal-ico">${icon(i.icon)}</span><span class="grow"><b>${esc(i.name)}</b><small>Vật phẩm #${i.id} — bấm để chép ID</small></span>`}));
+    items=[...items,...prs,...its];draw()};
+  q.oninput=()=>{clearTimeout(t);t=setTimeout(run,180)};
+  q.onkeydown=e=>{if(e.key==='ArrowDown'){sel=Math.min(items.length-1,sel+1);draw();e.preventDefault()}else if(e.key==='ArrowUp'){sel=Math.max(0,sel-1);draw();e.preventDefault()}else if(e.key==='Enter'){items[sel]&&items[sel].go()}else if(e.key==='Escape')close()};
+  res.onclick=e=>{const pin=e.target.closest('.pal-pin');if(pin){e.stopPropagation();togglePin(pin.dataset.pin);items=pages(q.value.trim());draw();return}const d=e.target.closest('.pal-item');if(d)items[+d.dataset.i].go()};
+  run();q.focus()}
+document.addEventListener('keydown',e=>{const tag=(e.target.tagName||'').toLowerCase(),typing=tag==='input'||tag==='textarea'||tag==='select'||e.target.isContentEditable;
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette()}
+  else if(e.key==='/'&&!typing){e.preventDefault();openPalette()}
+  else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!typing&&LAST_EDIT){e.preventDefault();undoEdit()}});
+
+/* ---- sửa tại chỗ trong bảng: cột có c[4] = {save:(row,chuỗi)=>Promise<giá trị mới>, edit?:v=>chuỗi, toggle?:true} ---- */
+const IE=[];let LAST_EDIT=null;
+function ieCell(r,c){const n=IE.push({row:r,c})-1;const v=r[c[0]];return `<span class="ie ${c[4].toggle?'ie-toggle':''}" data-ie="${n}" tabindex="0" title="${c[4].toggle?'Bấm để đổi':'Bấm để sửa, Enter lưu, Esc huỷ'}">${c[2]?c[2](v,r):esc(v)}</span>`}
+function ieShow(R,el){const v=R.row[R.c[0]];el.innerHTML=R.c[2]?R.c[2](v,R.row):esc(v)}
+async function ieSave(R,el,str,old){el.classList.add('saving');try{const nv=await R.c[4].save(R.row,str);R.row[R.c[0]]=nv===undefined?str:nv;ieShow(R,el);LAST_EDIT={R,old,idx:+el.dataset.ie};toast('Đã lưu · Ctrl+Z để hoàn tác')}catch(e){ieShow(R,el);toast(e.message,1)}el.classList.remove('saving')}
+async function undoEdit(){const L=LAST_EDIT;LAST_EDIT=null;try{const R=L.R,str=R.c[4].edit?R.c[4].edit(L.old):String(L.old);const nv=await R.c[4].save(R.row,str);R.row[R.c[0]]=nv===undefined?L.old:nv;const el=document.querySelector(`.ie[data-ie="${L.idx}"]`);if(el&&IE[L.idx]===R)ieShow(R,el);toast('Đã hoàn tác')}catch(e){toast(e.message,1)}}
+function ieStart(el){const R=IE[+el.dataset.ie];if(!R||el.querySelector('input'))return;const old=R.row[R.c[0]];
+  if(R.c[4].toggle){ieSave(R,el,String(old==1?0:1),old);return}
+  const cur=R.c[4].edit?R.c[4].edit(old):String(old??'');el.innerHTML=`<input class="ie-in" value="${esc(cur)}">`;const inp=el.querySelector('input');inp.focus();inp.select();let done=false;
+  const fin=ok=>{if(done)return;done=true;if(ok&&inp.value!==cur)ieSave(R,el,inp.value,old);else ieShow(R,el)};
+  inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();fin(true)}else if(e.key==='Escape'){e.preventDefault();fin(false)}};inp.onblur=()=>fin(true)}
+document.addEventListener('click',e=>{const el=e.target.closest('.ie');if(el&&!e.target.closest('input'))ieStart(el)});
+document.addEventListener('keydown',e=>{const el=e.target.closest&&e.target.closest('.ie');if(el&&e.key==='Enter'&&e.target===el){e.preventDefault();ieStart(el)}});
+
+/* ---- ô nhập ID vật phẩm: gõ tên hoặc ID là hiện gợi ý kèm hình, hiện tên bên cạnh ---- */
+const ITEM_CACHE={};
+function isItemInput(i){if(i.dataset.ac||i.type==='hidden'||i.closest('.pal')||i.closest('.ie'))return false;if(i.type!=='number'&&i.dataset.pick!=='item')return false;
+  const lb=i.closest('label');const txt=vn([i.placeholder,i.title,i.getAttribute('aria-label'),lb?lb.firstChild&&lb.firstChild.textContent:''].join(' '));
+  return i.dataset.pick==='item'||(/vat pham/.test(txt)&&!/so luong|ma loai|loc |tim /.test(txt))}
+async function itemById(id){if(id in ITEM_CACHE)return ITEM_CACHE[id];try{const d=await api('items/page?'+new URLSearchParams({q:String(id),size:'10',page:'1'}));const f=(d.rows||[]).find(r=>+r.id===+id)||null;ITEM_CACHE[id]=f;return f}catch(e){return null}}
+function acChip(i){let c=i.nextElementSibling;if(!c||!c.classList.contains('ac-chip')){c=document.createElement('span');c.className='ac-chip';i.after(c)}return c}
+async function acName(i){if(i.dataset.nochip)return; // trang đã tự hiện tên vật phẩm bên cạnh
+  const v=i.value.trim();const c=acChip(i);if(!/^\d+$/.test(v)){c.innerHTML=/^-\d+$/.test(v)?'<span class="mute">giá trị đặc biệt</span>':'';return}const it=await itemById(+v);if(i.value.trim()===v)c.innerHTML=it?`${icon(it.icon)} ${esc(it.name)}`:'<span class="e">không có vật phẩm này</span>'}
+function enhanceItemInput(i){i.dataset.ac=1;const wasNum=i.type==='number';if(wasNum){i.type='text';i.inputMode='search'}i.autocomplete='off';i.placeholder=i.placeholder||'Gõ tên hoặc ID';
+  let box=null,list=[],sel=0,t,tok=0,before=i.value;
+  const closeBox=()=>{if(box){box.remove();box=null}};
+  const pick=it=>{i.value=it.id;ITEM_CACHE[it.id]=it;closeBox();before=i.value;i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}));acName(i)};
+  const drawBox=()=>{if(!list.length){closeBox();return}if(!box){box=document.createElement('div');box.className='ac-box';document.body.append(box)}const r=i.getBoundingClientRect();
+    box.style.left=Math.max(4,Math.min(r.left,innerWidth-310))+'px';box.style.top=(r.bottom+4)+'px';box.style.minWidth=Math.max(r.width,260)+'px';
+    box.innerHTML=list.map((x,k)=>`<div class="ac-it ${k===sel?'on':''}" data-k="${k}">${icon(x.icon)}<span>${esc(x.name)}</span><small>#${x.id}</small></div>`).join('');
+    box.onmousedown=e=>{const d=e.target.closest('.ac-it');if(d){e.preventDefault();pick(list[+d.dataset.k])}}};
+  i.addEventListener('input',e=>{if(!e.isTrusted)return;const v=i.value.trim();clearTimeout(t);if(/^-?\d*$/.test(v))acName(i);if(!v||/^-\d+$/.test(v)){list=[];closeBox();return}
+    t=setTimeout(async()=>{const my=++tok;try{const d=await api('items/page?'+new URLSearchParams({q:v,size:'8',page:'1'}));if(my!==tok)return;list=d.rows||[];sel=0;drawBox()}catch(x){}},220)});
+  i.addEventListener('keydown',e=>{if(!box)return;if(e.key==='ArrowDown'){sel=Math.min(list.length-1,sel+1);drawBox();e.preventDefault()}else if(e.key==='ArrowUp'){sel=Math.max(0,sel-1);drawBox();e.preventDefault()}else if(e.key==='Enter'&&list[sel]){e.preventDefault();pick(list[sel])}else if(e.key==='Escape')closeBox()});
+  i.addEventListener('blur',()=>setTimeout(()=>{const v=i.value.trim();if(v&&!/^-?\d+$/.test(v)){if(list[0])pick(list[0]);else{i.value=before;toast('Không tìm thấy vật phẩm "'+v+'"',1)}}else before=i.value;closeBox()},150));
+  if(i.value.trim())acName(i)}
+function enhanceInputs(root){(root||document).querySelectorAll('input').forEach(i=>{if(isItemInput(i))enhanceItemInput(i)})}
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1)enhanceInputs(n)}).observe(document.documentElement,{childList:true,subtree:true});
+
 function parseOps(s){return (s||'').split(/[;\n]/).map(x=>x.trim()).filter(Boolean).map(x=>x.split(/[:,\s]+/).map(Number)).filter(a=>a.length>=2&&!isNaN(a[0]))}
 
 /* ---------- tổng quan ---------- */
@@ -713,8 +812,11 @@ async function page_shop(){const r=await api('shops');
 const SELL=['Vàng','Ngọc','Hồng ngọc','Thỏi vàng','Item'];
 async function loadShop(){const tab=+$('#st').value;const r=await api('shop/items?tab='+tab);
   $('#sh').innerHTML=`<div class="card"><b>Thêm / sửa món</b>${itemField('si')}<div class="row" style="margin-top:6px"><label class="f">Giá<input id="sc" type="number" value="1" style="width:120px"></label><label class="f">Loại tiền<select id="sy">${SELL.map((s,i)=>`<option value="${i}">${s}</option>`).join('')}</select></label><label class="f">Đang bán<select id="ss"><option value="1">Có</option><option value="0">Không</option></select></label><label class="f">Mới<select id="sn"><option value="0">Không</option><option value="1">Có</option></select></label><input type="hidden" id="sid"><button class="p" onclick="saveShop(${tab})">Lưu</button></div></div>`+
-  table(r,[['icon_id','',v=>icon(v)],['id','ID'],['temp_id','Item'],['name','Tên'],['cost','Giá',fmt],['type_sell','Tiền',v=>SELL[v]??v],['is_sell','Bán',v=>v==1?'<span class="tag on1">bán</span>':'<span class="tag off1">ẩn</span>'],['is_new','Mới',v=>v==1?'mới':'']],
+  `<p class="mute" style="font-size:12px;margin:4px 2px 10px">Bấm vào giá để sửa ngay (Enter lưu), bấm "bán / ẩn" hoặc "mới" để bật tắt. Ctrl+Z hoàn tác lần sửa vừa rồi.</p>`+
+  table(r,[['icon_id','',v=>icon(v)],['id','ID'],['temp_id','Item'],['name','Tên'],['cost','Giá',fmt,'',{edit:v=>String(v),save:async(x,s)=>{const c=+String(s).replace(/[.,\s]/g,'');if(!(c>=0))throw new Error('Giá không hợp lệ');await shopRow(x,{cost:c});return c}}],['type_sell','Tiền',v=>SELL[v]??v],
+   ['is_sell','Bán',v=>v==1?'<span class="tag on1">bán</span>':'<span class="tag off1">ẩn</span>','',{toggle:true,save:async(x,s)=>{await shopRow(x,{is_sell:+s});return +s}}],['is_new','Mới',v=>v==1?'<span class="tag on1">mới</span>':'<span class="mute">—</span>','',{toggle:true,save:async(x,s)=>{await shopRow(x,{is_new:+s});return +s}}]],
    x=>`<button class="s" onclick='editShop(${JSON.stringify(x)})'>Sửa</button> <button class="s d" onclick="delShop(${x.id})">Xóa</button>`)}
+function shopRow(x,ch){const r={...x,...ch},n=v=>v===true?1:v===false?0:+v;return api('shop/save',{id:r.id,tab_id:+$('#st').value,temp_id:r.temp_id,cost:n(r.cost),type_sell:n(r.type_sell),is_sell:n(r.is_sell),is_new:n(r.is_new)})}
 function editShop(x){$('#sid').value=x.id;$('#siid').value=x.temp_id;$('#sinm').innerHTML=icon(x.icon_id)+' '+esc(x.name);$('#sc').value=x.cost;$('#sy').value=x.type_sell;$('#ss').value=x.is_sell;$('#sn').value=x.is_new;window.scrollTo(0,0)}
 function saveShop(tab){act(()=>api('shop/save',{id:+$('#sid').value||0,tab_id:tab,temp_id:+$('#siid').value,cost:+$('#sc').value,type_sell:+$('#sy').value,is_sell:+$('#ss').value,is_new:+$('#sn').value}),'Đã lưu và nạp lại shop').then(loadShop)}
 function delShop(id){if(confirm('Xóa món này khỏi shop?'))act(()=>api('shop/delete',{id})).then(loadShop)}
@@ -867,7 +969,7 @@ function vipOpts(o){return (o||[]).map(p=>p[0]+':'+p[1]).join(', ')}
 function vipSetOpts(g,i,t){const ops=[];for(const part of t.split(',')){const m=part.trim().match(/^(\d+)\s*:\s*(-?\d+)$/);if(m)ops.push([+m[1],+m[2]]);else if(part.trim())return toast('Sai dạng chỉ số: '+part.trim(),1)}VIPS.rewards[g].items[i].opts=ops}
 function drawVipRw(){$('#vrw').innerHTML=VIPS.rewards.map((g,gi)=>`<div class="card"><div class="section-head"><h3>VIP ${gi+1}</h3><label style="font-size:13px"><input type="checkbox" ${g.pet?'checked':''} onchange="VIPS.rewards[${gi}].pet=this.checked"> Tặng 1 đệ tử (nếu chưa có)</label></div>
   ${g.items.map((it,i)=>`<div class="row" style="gap:6px;margin:4px 0;flex-wrap:wrap;align-items:center">
-   <input type="number" value="${it.id}" style="width:80px" title="ID vật phẩm" onchange="VIPS.rewards[${gi}].items[${i}].id=+this.value">
+   <input type="number" value="${it.id}" style="width:80px" data-nochip="1" title="ID vật phẩm" onchange="VIPS.rewards[${gi}].items[${i}].id=+this.value">
    <input type="number" value="${it.qty}" min="1" style="width:80px" title="Số lượng" onchange="VIPS.rewards[${gi}].items[${i}].qty=+this.value">
    <input value="${esc(vipOpts(it.opts))}" placeholder="chỉ số, vd 50:10, 93:30" class="grow" style="min-width:160px" onchange="vipSetOpts(${gi},${i},this.value)">
    <span style="font-size:12px;min-width:140px">${it.icon>=0&&it.icon!=null?icon(it.icon):''} ${esc(it.name||'#'+it.id)}</span>
@@ -880,7 +982,7 @@ async function page_kol(){KOL=await api('kol');
   $('#main').innerHTML=`<h2>Nhiệm vụ KOL</h2><div class="card"><div class="tabs" id="ktab" style="margin:0"><button data-i="0">Nhiệm vụ & phần thưởng</button><button data-i="1">Tiến độ người chơi</button></div></div><div id="kl"></div>`;
   $('#ktab').querySelectorAll('button').forEach(b=>b.onclick=()=>{kolTab=+b.dataset.i;drawKol()});drawKol()}
 function kolRw(qi,kind){return KOL.quests[qi][kind].map((r,ri)=>`<div class="row" style="gap:6px;margin:4px 0;flex-wrap:wrap">
-  <input type="number" value="${r.id}" style="width:80px" title="ID vật phẩm (-1 = ngọc xanh ngẫu nhiên)" oninput="kolSet(${qi},'${kind}',${ri},'id',this.value)">
+  <input type="number" value="${r.id}" style="width:80px" data-nochip="1" title="ID vật phẩm (-1 = ngọc xanh ngẫu nhiên)" oninput="kolSet(${qi},'${kind}',${ri},'id',this.value)">
   <input type="number" value="${r.qty}" min="1" style="width:90px" title="${r.id<0?'Ngọc ít nhất':'Số lượng'}" oninput="kolSet(${qi},'${kind}',${ri},'qty',this.value)">
   <input type="number" value="${r.days}" min="0" style="width:90px" title="${r.id<0?'Ngọc nhiều nhất':'Hạn (ngày), 0 = vĩnh viễn'}" oninput="kolSet(${qi},'${kind}',${ri},'days',this.value)">
   <span style="font-size:12px">${r.id<0?`Ngọc xanh ngẫu nhiên ${fmt(r.qty)} - ${fmt(r.days)}`:`${r.icon>=0?icon(r.icon):''} ${esc(r.name||'#'+r.id)}${+r.days>0?' ('+r.days+' ngày)':''}`}</span>
@@ -1147,11 +1249,13 @@ function dbSchema(){modal(`<h3>Cấu trúc ${esc(DB.table)}</h3>${table(DB.data.
 
 /* ---------- thưởng boss ---------- */
 let BRW=null;
+/* sửa tỉ lệ thưởng boss ngay trong bảng: nhập %, lưu dạng /10000 */
+const BRW_RATE={edit:v=>String(v/100),save:async(x,s)=>{const pct=+String(s).replace('%','').replace(',','.');if(!(pct>=0&&pct<=100))throw new Error('Tỉ lệ 0 - 100%');const nv=Math.round(pct*100);await api('bossreward/save',{...x,rate:nv});return nv}};
 async function page_bossrw(){BRW=await api('bossrewards');const T=BRW.tiers,nm=x=>x.item_id==-1?'Vàng':x.item_id==-4?'Điểm sự kiện':esc(x.item_name||'#'+x.item_id);
-  $('#main').innerHTML=`<h2>Thưởng boss</h2><div class="card mute">Boss rơi nguyên liệu theo bậc (máu tối đa), không rơi vàng, không cộng điểm, không rơi đồ đua top; mỗi dòng tung riêng. Dòng có "Boss" (một phần tên) chỉ áp dụng cho boss đó và thay dòng cùng vật phẩm của bậc. Vật phẩm -1 = vàng, -4 = điểm sự kiện. Tỉ lệ tính trên 10.000 (10000 = 100%). Quà riêng của từng boss vẫn rơi như cũ.</div>
+  $('#main').innerHTML=`<h2>Thưởng boss</h2><div class="card mute">Boss rơi nguyên liệu theo bậc (máu tối đa), không rơi vàng, không cộng điểm, không rơi đồ đua top; mỗi dòng tung riêng. Dòng có "Boss" (một phần tên) chỉ áp dụng cho boss đó và thay dòng cùng vật phẩm của bậc. Vật phẩm -1 = vàng, -4 = điểm sự kiện. Tỉ lệ tính trên 10.000 (10000 = 100%). Quà riêng của từng boss vẫn rơi như cũ. Bấm vào ô tỉ lệ để sửa ngay (nhập %, Enter lưu, Ctrl+Z hoàn tác).</div>
    <div class="row" style="margin-bottom:8px"><button class="p" onclick="editBrw({})">+ Thêm dòng</button></div>
-   ${[1,2,3,4,5].map(t=>`<h3>${esc(T[t])}</h3>`+table(BRW.rows.filter(x=>x.tier==t&&!x.boss),[['icon_id','',v=>v>=0?icon(v):''],['item_id','Vật phẩm',(v,x)=>nm(x)],['qty_min','Số lượng',(v,x)=>x.qty_min==x.qty_max?fmt(v):fmt(v)+' – '+fmt(x.qty_max)],['rate','Tỉ lệ',v=>(v/100).toFixed(2)+'%'],['hsd_days','Hạn (ngày)',v=>v||'']],(x)=>`<button class="s" onclick='editBrw(${JSON.stringify(x)})'>Sửa</button> <button class="s d" onclick="delBrw(${x.id})">Xóa</button>`)).join('')}
-   <h3>Riêng từng boss</h3>${table(BRW.rows.filter(x=>x.boss),[['boss','Boss'],['item_id','Vật phẩm',(v,x)=>nm(x)],['qty_min','Số lượng',(v,x)=>x.qty_min==x.qty_max?fmt(v):fmt(v)+' – '+fmt(x.qty_max)],['rate','Tỉ lệ',v=>(v/100).toFixed(2)+'%']],(x)=>`<button class="s" onclick='editBrw(${JSON.stringify(x)})'>Sửa</button> <button class="s d" onclick="delBrw(${x.id})">Xóa</button>`)}
+   ${[1,2,3,4,5].map(t=>`<h3>${esc(T[t])}</h3>`+table(BRW.rows.filter(x=>x.tier==t&&!x.boss),[['icon_id','',v=>v>=0?icon(v):''],['item_id','Vật phẩm',(v,x)=>nm(x)],['qty_min','Số lượng',(v,x)=>x.qty_min==x.qty_max?fmt(v):fmt(v)+' – '+fmt(x.qty_max)],['rate','Tỉ lệ',v=>(v/100).toFixed(2)+'%','',BRW_RATE],['hsd_days','Hạn (ngày)',v=>v||'']],(x)=>`<button class="s" onclick='editBrw(${JSON.stringify(x)})'>Sửa</button> <button class="s d" onclick="delBrw(${x.id})">Xóa</button>`)).join('')}
+   <h3>Riêng từng boss</h3>${table(BRW.rows.filter(x=>x.boss),[['boss','Boss'],['item_id','Vật phẩm',(v,x)=>nm(x)],['qty_min','Số lượng',(v,x)=>x.qty_min==x.qty_max?fmt(v):fmt(v)+' – '+fmt(x.qty_max)],['rate','Tỉ lệ',v=>(v/100).toFixed(2)+'%','',BRW_RATE]],(x)=>`<button class="s" onclick='editBrw(${JSON.stringify(x)})'>Sửa</button> <button class="s d" onclick="delBrw(${x.id})">Xóa</button>`)}
    <h3>Boss đang có và bậc</h3>${table(BRW.bosses,[['name','Boss'],['hp','HP tối đa',fmt],['tier','Bậc']])}`}
 function editBrw(x){const m=modal(`<h3>${x.id?'Sửa dòng #'+x.id:'Thêm dòng thưởng'}</h3><div class="grid2">
    <label class="f">Bậc (1 - 5, 0 nếu chỉ dùng cho 1 boss)<input id="r0" type="number" value="${x.tier??1}"></label><label class="f">Boss (để trống = mọi boss của bậc)<input id="r1" value="${esc(x.boss||'')}"></label>

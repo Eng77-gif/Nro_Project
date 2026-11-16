@@ -2487,3 +2487,12 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Chat thế giới chỉ vẽ phần đầu: hoá Ma trơi (đầu 651) / Dơi (đầu 654) có đầu trong suốt 1x1 (con vật vẽ ở phần thân 6097 / 6098) nên ô avatar trống, Bộ xương (đầu 545) có hình đầu thật nên hiện. Thêm đầu 2391 (hình 6097) / 2392 (hình 6098) + head_avatar 6100 / 6099 (Dot139Migration), chat thế giới đổi sang khi người chat đang hoá hình. vsData 36.
 - Bot: đệ thường khác hành tinh với chủ và còn yếu (< 1 tỷ sức mạnh) thì thu đồ của đệ, mua "Đổi đệ tử" (Santa, 100 ngọc / lần) đổi tới khi cùng hành tinh, để đồ thừa của chính bot mặc được cho đệ. Đã thử: đệ Trái Đất của bot Namếc đổi thành Namếc.
 - Bot: đệ còn ô trang bị trống thì 10 - 20 phút 1 lần mua của bot khác món đồ đúng hành tinh của đệ đang thừa trong hành trang (món bot kia không mặc được), trả thỏi vàng theo giá chợ.
+
+## Panel dễ dùng, dễ sửa hơn
+- Tìm nhanh (Ctrl+K, phím "/", nút "Tìm nhanh" trên thanh trên cùng, nút 🔍 ở thanh dưới điện thoại): gõ tên mục hoặc việc cần làm, không dấu cũng được (vd "tang qua", "ti le roi", "bao tri"); gõ tên người chơi là mở hồ sơ; gõ tên vật phẩm là chép ID. ↑↓ / Enter / Esc.
+- Ghim mục hay dùng (nút "☆ Ghim mục này" ở đầu mỗi trang hoặc ☆ trong ô tìm): hiện nhóm "★ Đã ghim" đầu menu và lên thanh dưới điện thoại (thay cho 3 mục mặc định). Lưu trong trình duyệt.
+- Sửa ngay trong bảng: Cửa hàng (bấm giá để sửa, bấm "bán / ẩn" và "mới" để bật tắt), Thưởng boss (bấm tỉ lệ, nhập %). Enter lưu, Esc huỷ, Ctrl+Z hoàn tác lần sửa vừa rồi. Hàm table() nhận cột sửa được (c[4]) để dùng cho trang khác.
+- Mọi ô nhập ID vật phẩm: gõ tên hoặc ID là hiện gợi ý kèm hình, chọn bằng chuột / Enter, bên cạnh hiện tên vật phẩm (báo đỏ nếu ID không có).
+- Tìm vật phẩm trên server không phân biệt dấu ("thoi vang" ra Thỏi vàng).
+- Điện thoại: thanh dưới có nút Tìm + mục đã ghim, nút / ô sửa to hơn, ô tìm nhanh toàn màn hình.
+- Sửa lỗi lưu cửa hàng khi cột "bán / mới" trả về true / false.
