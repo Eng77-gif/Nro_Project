@@ -30,6 +30,7 @@ h2{margin:0 0 14px;font-size:20px}h3{margin:18px 0 8px;font-size:15px}
 .tw{overflow:auto;border:1px solid var(--line);border-radius:var(--r);max-height:70vh}
 table{border-collapse:collapse;width:100%;background:var(--panel)}th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;white-space:nowrap}
 th{position:sticky;top:0;background:var(--panel2);font-weight:600;font-size:12px;color:var(--mute);z-index:1}td.w{white-space:normal;min-width:220px}
+.rw-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;padding:8px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel2);margin:6px 0}.rw-n{color:var(--mute);font-size:12px;min-width:16px;align-self:center}.rw-f{display:flex;flex-direction:column;font-size:11px;color:var(--mute);gap:2px}.rw-f input{width:110px}.rw-item{flex:1;min-width:200px}.rw-item input{width:100%}.rw-act{display:flex;gap:4px;margin-left:auto}.rw-ops{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.rw-op{display:inline-flex;align-items:center;gap:4px}.rw-op input{width:64px;padding:2px 4px}.rw-op b{cursor:pointer;color:var(--bad)}.rw-add input{width:190px}.rw-foot{flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center}
 tr:hover td{background:var(--panel2)}
 .ic{width:28px;height:28px;object-fit:contain;vertical-align:middle;image-rendering:pixelated}
 .tag{display:inline-block;padding:1px 7px;border-radius:99px;font-size:11px;border:1px solid var(--line)}
@@ -749,6 +750,47 @@ async function loadOps(){try{const r=await api('options?q='+encodeURIComponent($
 async function itemInfo(id){const i=await api('item?id='+id);modal(`<h3>${icon(i.icon)} ${esc(i.name)} <span class="mute">#${i.id}</span></h3><div class="mute">Loại ${i.type} · hành tinh ${i.gender} · cấp ${i.level} · part ${i.part} · sức mạnh ${fmt(i.strRequire)}</div><p>${esc(i.desc)}</p><b>Chỉ số khi tạo vật phẩm</b>${table(i.options,[['id','ID'],['param','Giá trị'],['text','Hiển thị']])}<div class="row" style="justify-content:flex-end;margin-top:10px"><button class="p" onclick="this.closest('.modal').remove();editItemOptions(${i.id})">✏ Sửa chỉ số mặc định</button><button onclick="this.closest('.modal').remove()">Đóng</button></div>`)}
 /* sửa bảng item_template_option của 1 vật phẩm */
 let OPT_NAMES=null;async function optNames(){if(!OPT_NAMES){OPT_NAMES={};(await api('options?q=')).forEach(o=>OPT_NAMES[o.id]=o.name)}return OPT_NAMES}
+/* ---------- trình sửa danh sách quà dùng chung (giftcode, NRSD, VIP Tori Bot, KOL) ----------
+   list: mảng {id, qty, opts:[[mã chỉ số, giá trị]...], days} sửa trực tiếp; cfg: {opts: có chỉ số, days: có hạn ngày, gem: cho ID -1 = ngọc xanh ngẫu nhiên} */
+const RW={};let RW_N=0;
+const RW_QUICK=[[457],[77],[861],[987],[14],[2071]];
+async function rwOptList(){const n=await optNames();let dl=document.getElementById('rw-optdl');if(!dl){dl=document.createElement('datalist');dl.id='rw-optdl';dl.innerHTML=Object.entries(n).map(([a,b])=>`<option value="${a} - ${esc(b.replace(/[#$]/g,'').trim())}">`).join('');document.body.append(dl)}return n}
+function rwEditor(el,list,cfg={}){const k='r'+(++RW_N);RW[k]={list,cfg};el.dataset.rw=k;rwOptList().then(()=>rwDraw(k));rwDraw(k);return k}
+function rwOpName(id){const n=OPT_NAMES&&OPT_NAMES[id];return n?n.replace(/[$]/g,'').trim():'Chỉ số '+id}
+function rwOpText(o){const n=rwOpName(o[0]);return n.includes('#')?n.replace('#',fmt(o[1])):n+(o[1]?' ('+fmt(o[1])+')':'')}
+function rwDraw(k){const {list,cfg}=RW[k];const el=document.querySelector(`[data-rw="${k}"]`);if(!el)return;
+  el.innerHTML=`<div class="rw-list">${list.map((r,i)=>`<div class="rw-row">
+   <span class="rw-n">${i+1}</span>
+   <label class="rw-f rw-item">Vật phẩm<input data-pick="item" value="${r.id??''}" title="Vật phẩm (gõ tên hoặc ID)" onchange="rwSet('${k}',${i},'id',this.value)"></label>
+   <label class="rw-f">${cfg.gem&&+r.id<0?'Ngọc ít nhất':'Số lượng'}<input type="number" min="1" value="${r.qty??1}" onchange="rwSet('${k}',${i},'qty',this.value)"></label>
+   ${cfg.days?`<label class="rw-f">${cfg.gem&&+r.id<0?'Ngọc nhiều nhất':'Hạn (ngày, 0 = vĩnh viễn)'}<input type="number" min="0" value="${r.days??0}" onchange="rwSet('${k}',${i},'days',this.value)"></label>`:''}
+   <span class="rw-act"><button class="s" title="Lên" ${i?'':'disabled'} onclick="rwMove('${k}',${i},-1)">↑</button><button class="s" title="Xuống" ${i<list.length-1?'':'disabled'} onclick="rwMove('${k}',${i},1)">↓</button><button class="s" title="Nhân bản" onclick="rwDup('${k}',${i})">⧉</button><button class="s d" title="Xoá" onclick="rwDel('${k}',${i})">✕</button></span>
+   ${cfg.gem&&+r.id<0?`<div class="rw-ops mute">Ngọc xanh ngẫu nhiên ${fmt(r.qty)} – ${fmt(r.days)}</div>`:''}
+   ${cfg.opts?`<div class="rw-ops">${(r.opts||[]).map((o,j)=>`<span class="chip rw-op" title="Mã ${o[0]}">${esc(rwOpText(o))}<input type="number" value="${o[1]}" title="Giá trị" onchange="rwOpSet('${k}',${i},${j},this.value)"><b onclick="rwOpDel('${k}',${i},${j})" title="Bỏ chỉ số">✕</b></span>`).join('')}
+     <span class="rw-add"><input list="rw-optdl" placeholder="+ chỉ số (gõ tên)…" onchange="rwOpAdd('${k}',${i},this)"></span>
+     <span class="rw-pre">${[[30,0,'Không giao dịch'],[93,30,'Hạn 30 ngày'],[93,7,'Hạn 7 ngày']].map(p=>`<button class="s" onclick="rwOpPush('${k}',${i},${p[0]},${p[1]})">${p[2]}</button>`).join('')}</span></div>`:''}
+  </div>`).join('')||'<div class="mute" style="padding:6px 0">Chưa có quà nào.</div>'}</div>
+  <div class="row rw-foot"><button class="s" onclick="rwAdd('${k}')">+ Thêm quà</button><button class="s" onclick="pickItem(it=>{ITEM_CACHE[it.id]=it;rwAdd('${k}',it.id)})">Chọn từ thư viện…</button>
+   ${cfg.gem?`<button class="s" onclick="RW['${k}'].list.push({id:-1,qty:10,days:50,opts:[]});rwChanged('${k}')">+ Ngọc xanh ngẫu nhiên</button>`:''}
+   <span class="mute" style="font-size:12px">Thêm nhanh:</span>${RW_QUICK.map(([id])=>`<button class="s rw-q" data-id="${id}" onclick="rwAdd('${k}',${id})">#${id}</button>`).join('')}
+   <button class="s" onclick="rwPaste('${k}')">Dán danh sách…</button></div>`;
+  el.querySelectorAll('.rw-q').forEach(async b=>{const it=await itemById(+b.dataset.id);if(it)b.innerHTML=icon(it.icon)+' '+esc(it.name)})}
+function rwChanged(k){rwDraw(k);const f=RW[k].cfg.onChange;if(f)f(RW[k].list)}
+function rwSet(k,i,f,v){const r=RW[k].list[i];const n=Number(String(v).trim());if(f==='id'&&isNaN(n))return;r[f]=n;if(f==='id')delete r.name;
+  if(f==='id'&&RW[k].cfg.gem)rwChanged(k);else{const g=RW[k].cfg.onChange;if(g)g(RW[k].list)}}
+function rwAdd(k,id){RW[k].list.push({id:id??457,qty:1,days:0,opts:[]});rwChanged(k);const el=document.querySelector(`[data-rw="${k}"] .rw-row:last-child input`);if(el&&id==null){el.value='';el.focus()}}
+function rwDel(k,i){RW[k].list.splice(i,1);rwChanged(k)}
+function rwDup(k,i){const r=RW[k].list[i];RW[k].list.splice(i+1,0,{...r,opts:(r.opts||[]).map(o=>[...o])});rwChanged(k)}
+function rwMove(k,i,d){const l=RW[k].list;[l[i],l[i+d]]=[l[i+d],l[i]];rwChanged(k)}
+function rwOpSet(k,i,j,v){RW[k].list[i].opts[j][1]=+v||0;rwChanged(k)}
+function rwOpDel(k,i,j){RW[k].list[i].opts.splice(j,1);rwChanged(k)}
+function rwOpPush(k,i,id,v){const r=RW[k].list[i];r.opts=r.opts||[];const e=r.opts.find(o=>o[0]===id);if(e)e[1]=v;else r.opts.push([id,v]);rwChanged(k)}
+function rwOpAdd(k,i,inp){const m=inp.value.match(/^\s*(\d+)/);if(!m){const q=vn(inp.value);const f=Object.entries(OPT_NAMES||{}).filter(([a,b])=>vn(b).includes(q)).sort((x,y)=>(vn(x[1]).startsWith(q)?0:1)-(vn(y[1]).startsWith(q)?0:1)||x[1].length-y[1].length)[0];if(!f)return toast('Không tìm thấy chỉ số "'+inp.value+'"',1);rwOpPush(k,i,+f[0],0)}else rwOpPush(k,i,+m[1],0);
+  const ins=document.querySelectorAll(`[data-rw="${k}"] .rw-row`)[i]?.querySelectorAll('.rw-op input');if(ins&&ins.length){const x=ins[ins.length-1];x.focus();x.select()}}
+function rwPaste(k){const m=modal(`<h3>Dán danh sách quà</h3><p class="mute" style="font-size:12px">Mỗi món một dòng hoặc cách nhau dấu phẩy: <code>ID:số lượng</code>, thêm chỉ số sau dấu |, vd <code>457:10</code> hoặc <code>1590:1 | 30:0 93:30</code>. Quà dán được thêm vào cuối danh sách.</p><textarea id="rwp" rows="6" placeholder="457:10, 2071:5"></textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button onclick="this.closest('.modal').remove()">Huỷ</button><button class="p" id="rwok">Thêm</button></div>`);
+  m.querySelector('#rwok').onclick=()=>{let n=0;for(const part of m.querySelector('#rwp').value.split(/[\n,]+/)){const [a,b]=part.split('|');const x=(a||'').trim().match(/^(-?\d+)\s*(?:[:x*]\s*(\d+))?$/);if(!x)continue;
+    RW[k].list.push({id:+x[1],qty:+(x[2]||1),days:0,opts:parseOps((b||'').trim().replace(/\s+/g,';')).map(o=>[o[0],o[1]])});n++}
+    m.remove();rwChanged(k);toast('Đã thêm '+n+' quà')}}
 async function editItemOptions(id){const [i,rows,names]=await Promise.all([api('item?id='+id),api('item/options?id='+id),optNames()]);
   const row=o=>`<tr><td data-l="Chỉ số"><input class="oi" type="number" value="${o.option_id??''}" style="width:80px" oninput="this.nextElementSibling.textContent=OPT_NAMES[this.value]||'(không có)'"><span class="mute" style="margin-left:6px">${esc(names[o.option_id]||'')}</span></td><td data-l="Từ"><input class="op" type="number" value="${o.param??0}" style="width:80px"></td><td data-l="Đến"><input class="oq" type="number" value="${o.param_max??o.param??0}" style="width:80px"></td><td data-l="% có"><input class="oc" type="number" value="${o.chance??100}" style="width:70px"></td><td data-l="Nhóm"><input class="og" type="number" value="${o.group_id??0}" style="width:60px"></td><td class="act" data-l=""><button class="s d" onclick="this.closest('tr').remove()">Xóa</button></td></tr>`;
   const m=modal(`<h3>Chỉ số mặc định: ${icon(i.icon)} ${esc(i.name)} <span class="mute">#${id}</span></h3><div class="mute">Mỗi dòng: mã chỉ số, giá trị từ / đến (ngẫu nhiên trong khoảng), % xuất hiện, nhóm (cùng nhóm &gt; 0 chỉ chọn 1). Áp dụng cho vật phẩm tạo mới (shop, hộp quà, sự kiện).</div>
@@ -795,14 +837,18 @@ function delBox(id){if(confirm('Xoá dòng quà này?'))act(()=>api('box/delete'
 /* ---------- giftcode ---------- */
 async function page_giftcode(){
   $('#main').innerHTML=`<h2>Giftcode</h2><div class="card"><div class="grid2"><label class="f">Mã<input id="gc"></label><label class="f">Số lượt (-1 = không giới hạn)<input id="gn" type="number" value="100"></label><label class="f">Hết hạn<input id="ge" type="datetime-local"></label></div>
-  <h3>Quà trong code</h3>${itemField('gi')}<div class="row" style="margin-top:6px"><input id="gq" type="number" value="1" style="width:80px" title="Số lượng"><input id="go" class="grow" placeholder="Chỉ số: 30:0; 93:7"><button onclick="addGcItem()">Thêm vào danh sách</button></div>
-  <textarea id="gd" style="margin-top:8px">[]</textarea><div class="row" style="justify-content:flex-end"><input type="hidden" id="gid"><button onclick="gcReset()">Làm mới</button><button class="p" onclick="saveGc()">Lưu giftcode</button></div></div>`+
+  <h3>Quà trong code</h3><div id="grw"></div>
+  <details style="margin-top:8px"><summary class="mute" style="cursor:pointer;font-size:12px">JSON nâng cao (tự cập nhật theo danh sách trên)</summary><textarea id="gd" rows="4" onchange="gcFromJson()">[]</textarea></details><div class="row" style="justify-content:flex-end"><input type="hidden" id="gid"><button onclick="gcReset()">Làm mới</button><button class="p" onclick="saveGc()">Lưu giftcode</button></div></div>`+
   lpBox('gcl',{path:'giftcodes/page',label:'Mã giftcode hoặc ID',cols:[['id','ID'],['code','Mã'],['count_left','Còn lại',fmt],['detail','Quà','','w mono'],['datecreate','Tạo'],['expired','Hết hạn']],actions:(x,i)=>`<button class="s" onclick="editGc(LP.gcl.rows[${i}])">Sửa</button> <button class="s d" onclick="delGc(${Number(x.id)})">Xóa</button>`});
-  const d=new Date(Date.now()+30*864e5);$('#ge').value=d.toISOString().slice(0,16);await lpInit('gcl')}
-function addGcItem(){let a=[];try{a=JSON.parse($('#gd').value)}catch(e){}a.push({id:+$('#giid').value,quantity:+$('#gq').value||1,options:parseOps($('#go').value).map(o=>({id:o[0],param:o[1]}))});$('#gd').value=JSON.stringify(a,null,1)}
-function gcReset(){$('#gid').value='';$('#gc').value='';$('#gd').value='[]'}
-function editGc(x){$('#gid').value=x.id;$('#gc').value=x.code;$('#gn').value=x.count_left;$('#gd').value=x.detail;const e=new Date(x.expired);if(!isNaN(e))$('#ge').value=new Date(e-e.getTimezoneOffset()*6e4).toISOString().slice(0,16);window.scrollTo(0,0)}
-function saveGc(){act(()=>api('giftcode/save',{id:+$('#gid').value||0,code:$('#gc').value,count:+$('#gn').value,expired:$('#ge').value,detail:$('#gd').value}),'Đã lưu, giftcode đã nạp lại').then(page_giftcode)}
+  const d=new Date(Date.now()+30*864e5);$('#ge').value=d.toISOString().slice(0,16);gcLoad('[]');await lpInit('gcl')}
+let GC_RW=[];
+function gcJson(){return JSON.stringify(GC_RW.map(r=>({id:+r.id,quantity:+r.qty||1,options:(r.opts||[]).map(o=>({id:o[0],param:o[1]}))})))}
+function gcLoad(detail){let a=[];try{a=JSON.parse(detail||'[]')}catch(e){toast('JSON quà không đọc được',1)}GC_RW.length=0;(Array.isArray(a)?a:[]).forEach(x=>GC_RW.push({id:x.id,qty:x.quantity??x.qty??1,opts:(x.options||[]).map(o=>Array.isArray(o)?o:[o.id,o.param])}));
+  if(!$('#grw').dataset.rw)rwEditor($('#grw'),GC_RW,{opts:true,onChange:()=>{$('#gd').value=gcJson()}});else rwDraw($('#grw').dataset.rw);$('#gd').value=gcJson()}
+function gcFromJson(){gcLoad($('#gd').value)}
+function gcReset(){$('#gid').value='';$('#gc').value='';gcLoad('[]')}
+function editGc(x){$('#gid').value=x.id;$('#gc').value=x.code;$('#gn').value=x.count_left;gcLoad(x.detail);const e=new Date(x.expired);if(!isNaN(e))$('#ge').value=new Date(e-e.getTimezoneOffset()*6e4).toISOString().slice(0,16);window.scrollTo(0,0)}
+function saveGc(){act(()=>api('giftcode/save',{id:+$('#gid').value||0,code:$('#gc').value,count:+$('#gn').value,expired:$('#ge').value,detail:gcJson()}),'Đã lưu, giftcode đã nạp lại').then(page_giftcode)}
 function delGc(id){if(confirm('Xóa giftcode?'))act(()=>api('giftcode/delete',{id})).then(page_giftcode)}
 
 /* ---------- cửa hàng ---------- */
@@ -912,16 +958,19 @@ async function page_nrsd(){const sm=await api('nrsd/summary');const days=[['','M
    <div class="directory-toolbar" style="padding:0;margin:10px 0 0;box-shadow:none;border:0;background:none"><input type="hidden" id="nt_id">
     <label for="nt_name">Tên giải<input id="nt_name" value="Giải Ngọc Rồng Sao Đen Đặc Biệt" maxlength="128"></label>
     <label for="nt_date">Ngày diễn ra<input id="nt_date" type="date"></label>
-    <label class="directory-search" for="nt_rw">Phần thưởng (mã:số lượng, cách nhau dấu phẩy)<input id="nt_rw" value="2071:5,457:99,987:200"></label>
-    <div class="toolbar-actions"><button class="p" onclick="nrsdSave()">Lưu giải</button></div></div></div>
+    <div class="toolbar-actions"><button class="s" onclick="nrsdNew()">Giải mới</button><button class="p" onclick="nrsdSave()">Lưu giải</button></div></div>
+   <div style="margin-top:8px"><b>Phần thưởng mỗi người giữ ngọc thắng</b><div id="nt_rw"></div></div></div>
   <h3 style="margin:14px 0 6px">Kết quả các trận</h3>`+lpBox('nrsd',{path:'nrsd/page',label:'Tên người chơi hoặc bang',filters:[{k:'star',label:'Viên ngọc',opts:stars},{k:'date',label:'Ngày',opts:days},{k:'tournament',label:'Loại trận',opts:[['','Tất cả'],['1','Chỉ trận có giải']]}],
    cols:[['played_at','Lúc',v=>esc(String(v||'').slice(0,19)),'mute'],['star','Ngọc',v=>`<b>${v} sao đen</b>`],['zone_id','Khu',v=>'Khu '+(Number(v)+1)],
     ['player_name','Người giữ ngọc',(v,x)=>`<div class="identity"><span class="character-avatar" aria-hidden="true">${avatarMark(x,x.gender)}</span><a href="#" onclick="openPlayer(${Number(x.player_id)});return false">${esc(v)}</a></div>`],
     ['clan_name','Bang',v=>v?esc(v):'<span class="mute">không bang</span>'],['tournament','Giải',(v,x)=>v?`<span class="tag on1">${esc(v)}</span><div class="mute" style="font-size:12px">${esc(x.reward||'')}</div>`:'<span class="mute">—</span>','w']]});
-  window._nrsdT=sm.tournaments;await lpInit('nrsd')}
+  window._nrsdT=sm.tournaments;nrsdRw('2071:5,457:99,987:200');await lpInit('nrsd')}
+let NRSD_RW=[];
+function nrsdRw(str){NRSD_RW.length=0;String(str||'').split(',').forEach(p=>{const m=p.trim().match(/^(\d+)\s*:\s*(\d+)$/);if(m)NRSD_RW.push({id:+m[1],qty:+m[2]})});rwEditor($('#nt_rw'),NRSD_RW,{})}
+function nrsdNew(){$('#nt_id').value='';$('#nt_name').value='Giải Ngọc Rồng Sao Đen Đặc Biệt';$('#nt_date').value='';nrsdRw('2071:5,457:99,987:200')}
 function nrsdView(d){const s=document.querySelector('[data-lp="nrsd"][data-k="date"]');if(s){if(![...s.options].some(o=>o.value===d))s.add(new Option(d,d));s.value=d;lpLoad('nrsd',1);$('#nrsd_t').scrollIntoView({behavior:'smooth'})}}
-function nrsdEdit(id){const t=_nrsdT.find(x=>x.id===id);if(!t)return;$('#nt_id').value=id;$('#nt_name').value=t.name;$('#nt_date').value=String(t.play_date).slice(0,10);$('#nt_rw').value=t.rewards;$('#nt_name').focus()}
-async function nrsdSave(){const r=await act(()=>api('nrsd/tournament/save',{id:+$('#nt_id').value||0,name:$('#nt_name').value,play_date:$('#nt_date').value,rewards:$('#nt_rw').value}).then(r=>{if(!r.ok)throw new Error(r.error);return r}));if(r)page_nrsd()}
+function nrsdEdit(id){const t=_nrsdT.find(x=>x.id===id);if(!t)return;$('#nt_id').value=id;$('#nt_name').value=t.name;$('#nt_date').value=String(t.play_date).slice(0,10);nrsdRw(t.rewards);$('#nt_name').focus()}
+async function nrsdSave(){const r=await act(()=>api('nrsd/tournament/save',{id:+$('#nt_id').value||0,name:$('#nt_name').value,play_date:$('#nt_date').value,rewards:NRSD_RW.filter(r=>+r.id>=0).map(r=>(+r.id)+':'+Math.max(1,+r.qty||1)).join(',')}).then(r=>{if(!r.ok)throw new Error(r.error);return r}));if(r)page_nrsd()}
 const MOBT={0:'Đứng yên',1:'Đi bộ',2:'Nhảy',3:'Đi bộ',4:'Bay',5:'Bay'};
 async function page_mobs(){$('#main').innerHTML='<h2>Quái</h2>'+lpBox('mob',{path:'mobs/page',label:'Tên quái hoặc ID',cols:[['id','ID'],['name','Tên quái',v=>`<b>${esc(v)}</b>`],['type','Kiểu di chuyển',v=>`<span class="tag">${esc(MOBT[v]||'Kiểu '+v)}</span>`],['hp','HP gốc',v=>`<span class="power-number">${esc(shortPower(v))}</span><span class="power-exact">${esc(fmt(v))} HP</span>`]]});await lpInit('mob')}
 
@@ -957,7 +1006,7 @@ async function page_vipseason(){const [v,rows]=await Promise.all([api('vipseason
    <div class="row" style="flex-wrap:wrap;gap:12px"><label class="f">Bắt đầu<input id="vs" type="datetime-local" value="${dt(v.start)}"></label><label class="f">Kết thúc<input id="ve" type="datetime-local" value="${dt(v.end)}"></label><label class="f">Số lần mua tối đa / mùa<input id="vm" type="number" min="1" max="100" value="${v.max}"></label></div>
    <div class="row" style="flex-wrap:wrap;gap:12px">${v.prices.map((p,i)=>`<label class="f">Giá VIP ${i+1} (điểm mùa)<input id="vp${i}" type="number" min="0" value="${p}"></label>`).join('')}</div>
    <p class="mute" style="font-size:12px;margin:8px 0 0">Đổi ngày bắt đầu là sang mùa mới: số lần mua của mọi người tính lại từ 0. Mỗi lần mua được thêm 30 ngày VIP (X3 kinh nghiệm). Bấm Lưu (cuối trang) là có hiệu lực ngay.</p></div>
-  <div class="section-head"><h3>Phần quà từng gói</h3><small>Chỉ số: id:giá trị, cách nhau dấu phẩy (93:30 = hạn 30 ngày, 30:0 = không giao dịch)</small></div><div id="vrw"></div>
+  <div class="section-head"><h3>Phần quà từng gói</h3><small>Gõ tên vật phẩm để tìm; chỉ số chọn theo tên (Không giao dịch, Hạn 30 ngày có nút bấm nhanh)</small></div><div id="vrw"></div>
   <div class="card row" style="gap:8px"><button class="p" id="vsave">Lưu mùa VIP + phần quà</button><button class="s" onclick="page_vipseason()">Huỷ thay đổi</button></div>
   <div class="card"><div class="section-head"><h3>Người chơi có VIP</h3><span class="tag">${rows.length}</span></div>${rows.length?table(rows,[['name','Nhân vật',(x,r)=>`<a href="javascript:void 0" onclick="openPlayer(${Number(r.id)})">${esc(x)}</a>${r.online?' <span class="tag on1">online</span>':''}`],['vip','VIP',x=>x?'VIP '+x:'-'],['timevip','Hết hạn',(x,r)=>x>0?`${r.active?'':'<span class="mute">đã hết · </span>'}${esc(new Date(x).toLocaleString('vi-VN'))}`:'-'],['count','Đã mua mùa này',x=>x+' / '+v.max]]):'<p class="mute">Chưa ai mua VIP.</p>'}</div>`;
   drawVipRw();
@@ -967,39 +1016,29 @@ async function page_vipseason(){const [v,rows]=await Promise.all([api('vipseason
    act(()=>api('vipseason/save',{start:start.length===16?start+':00':start,end:end.length===16?end+':59':end,max:+$('#vm').value,prices:[0,1,2,3].map(i=>+$('#vp'+i).value),rewards}),'Đã lưu mùa VIP').then(r=>{if(r)page_vipseason()})}}
 function vipOpts(o){return (o||[]).map(p=>p[0]+':'+p[1]).join(', ')}
 function vipSetOpts(g,i,t){const ops=[];for(const part of t.split(',')){const m=part.trim().match(/^(\d+)\s*:\s*(-?\d+)$/);if(m)ops.push([+m[1],+m[2]]);else if(part.trim())return toast('Sai dạng chỉ số: '+part.trim(),1)}VIPS.rewards[g].items[i].opts=ops}
-function drawVipRw(){$('#vrw').innerHTML=VIPS.rewards.map((g,gi)=>`<div class="card"><div class="section-head"><h3>VIP ${gi+1}</h3><label style="font-size:13px"><input type="checkbox" ${g.pet?'checked':''} onchange="VIPS.rewards[${gi}].pet=this.checked"> Tặng 1 đệ tử (nếu chưa có)</label></div>
-  ${g.items.map((it,i)=>`<div class="row" style="gap:6px;margin:4px 0;flex-wrap:wrap;align-items:center">
-   <input type="number" value="${it.id}" style="width:80px" data-nochip="1" title="ID vật phẩm" onchange="VIPS.rewards[${gi}].items[${i}].id=+this.value">
-   <input type="number" value="${it.qty}" min="1" style="width:80px" title="Số lượng" onchange="VIPS.rewards[${gi}].items[${i}].qty=+this.value">
-   <input value="${esc(vipOpts(it.opts))}" placeholder="chỉ số, vd 50:10, 93:30" class="grow" style="min-width:160px" onchange="vipSetOpts(${gi},${i},this.value)">
-   <span style="font-size:12px;min-width:140px">${it.icon>=0&&it.icon!=null?icon(it.icon):''} ${esc(it.name||'#'+it.id)}</span>
-   <button class="s d" onclick="VIPS.rewards[${gi}].items.splice(${i},1);drawVipRw()">Xoá</button></div>`).join('')}
-  <button class="s" onclick="VIPS.rewards[${gi}].items.push({id:457,qty:1,opts:[]});drawVipRw()">+ Thêm quà</button></div>`).join('')}
+function drawVipRw(){$('#vrw').innerHTML=VIPS.rewards.map((g,gi)=>`<div class="card"><div class="section-head"><h3>VIP ${gi+1}</h3><label style="font-size:13px"><input type="checkbox" ${g.pet?'checked':''} onchange="VIPS.rewards[${gi}].pet=this.checked"> Tặng 1 đệ tử (nếu chưa có)</label></div><div id="vrw${gi}"></div></div>`).join('');
+  VIPS.rewards.forEach((g,gi)=>{g.items.forEach(it=>it.opts=it.opts||[]);rwEditor($('#vrw'+gi),g.items,{opts:true})})}
 
 /* ---------- nhiệm vụ KOL (Quy Lão Kamê) ---------- */
 let KOL=null,kolTab=0;
 async function page_kol(){KOL=await api('kol');
   $('#main').innerHTML=`<h2>Nhiệm vụ KOL</h2><div class="card"><div class="tabs" id="ktab" style="margin:0"><button data-i="0">Nhiệm vụ & phần thưởng</button><button data-i="1">Tiến độ người chơi</button></div></div><div id="kl"></div>`;
   $('#ktab').querySelectorAll('button').forEach(b=>b.onclick=()=>{kolTab=+b.dataset.i;drawKol()});drawKol()}
-function kolRw(qi,kind){return KOL.quests[qi][kind].map((r,ri)=>`<div class="row" style="gap:6px;margin:4px 0;flex-wrap:wrap">
-  <input type="number" value="${r.id}" style="width:80px" data-nochip="1" title="ID vật phẩm (-1 = ngọc xanh ngẫu nhiên)" oninput="kolSet(${qi},'${kind}',${ri},'id',this.value)">
-  <input type="number" value="${r.qty}" min="1" style="width:90px" title="${r.id<0?'Ngọc ít nhất':'Số lượng'}" oninput="kolSet(${qi},'${kind}',${ri},'qty',this.value)">
-  <input type="number" value="${r.days}" min="0" style="width:90px" title="${r.id<0?'Ngọc nhiều nhất':'Hạn (ngày), 0 = vĩnh viễn'}" oninput="kolSet(${qi},'${kind}',${ri},'days',this.value)">
-  <span style="font-size:12px">${r.id<0?`Ngọc xanh ngẫu nhiên ${fmt(r.qty)} - ${fmt(r.days)}`:`${r.icon>=0?icon(r.icon):''} ${esc(r.name||'#'+r.id)}${+r.days>0?' ('+r.days+' ngày)':''}`}</span>
-  <button class="s d" onclick="KOL.quests[${qi}].${kind}.splice(${ri},1);drawKol()">Xoá</button></div>`).join('')+`<button class="s" onclick="KOL.quests[${qi}].${kind}.push({id:0,qty:1,days:0});drawKol()">+ Thêm quà</button>`}
+function kolRw(qi,kind){return `<div class="kolrw" data-q="${qi}" data-k="${kind}"></div>`}
+function kolRwInit(){document.querySelectorAll('.kolrw').forEach(el=>rwEditor(el,KOL.quests[+el.dataset.q][el.dataset.k],{days:true,gem:true}))}
 function kolSet(qi,kind,ri,f,v){KOL.quests[qi][kind][ri][f]=+v}
 function drawKol(){$('#ktab').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.i===kolTab));
   if(kolTab===1){api('kol/progress').then(rows=>{$('#kl').innerHTML=`<div class="card"><p class="mute" style="font-size:12px;margin:0 0 8px">Đợt ${esc(KOL.season)}. Người đang online lấy số liệu trực tiếp, người offline lấy theo lần lưu gần nhất. Chỉ hiện người đã có tiến độ.</p>${rows.length?table(rows,[['name','Nhân vật',(v,x)=>`<a href="javascript:void 0" onclick="openPlayer(${Number(x.id)})">${esc(v)}</a>${x.online?' <span class="tag on1">online</span>':''}`],['stage','KOL',v=>v>KOL.quests.length?'Xong hết':'NV '+v],['vipStage','KOL VIP',(v,x)=>(x.vip?'':'<span class="mute">chưa mở</span> ')+(v>KOL.quests.length?'Xong hết':'NV '+v)],['boMong','Bò Mộng',fmt],['mocNhan','Mộc Nhân',fmt],['bdkb','Đảo Kho Báu',fmt],['pvp','Thắng ĐHVT',fmt],['ninja','Ninja tím',fmt],['monsters','Quái',fmt],['id','',(v,x)=>`<button class="s d" onclick="resetKol(${Number(v)},'${esc(x.name).replace(/'/g,'')}')">Đặt lại</button>`]]):'<p class="mute">Chưa ai làm nhiệm vụ KOL đợt này.</p>'}</div>`});return}
   const T=KOL.types;
   $('#kl').innerHTML=`<div class="card"><div class="row" style="flex-wrap:wrap;gap:12px"><label class="f">Đợt (đổi = mọi người làm lại từ nhiệm vụ 1)<input id="kse" value="${esc(KOL.season)}" maxlength="32"></label><label class="f">Ngọc xanh mở KOL VIP<input id="kvg" type="number" min="0" value="${KOL.vipGem}"></label></div>
-   <p class="mute" style="font-size:12px;margin:8px 0 0">Quà: ô 1 = ID vật phẩm, ô 2 = số lượng, ô 3 = hạn dùng (ngày, 0 = vĩnh viễn). ID -1 = ngọc xanh ngẫu nhiên từ ô 2 đến ô 3. Quà vật phẩm luôn có dòng không thể giao dịch. Bấm Lưu tất cả là có hiệu lực ngay, không cần khởi động lại.</p></div>`+
+   <p class="mute" style="font-size:12px;margin:8px 0 0">Quà: gõ tên vật phẩm để tìm, số lượng, hạn dùng (ngày, 0 = vĩnh viễn). Nút "+ Ngọc xanh ngẫu nhiên" tặng ngọc xanh trong khoảng ít nhất - nhiều nhất. Quà vật phẩm luôn có dòng không thể giao dịch. Bấm Lưu tất cả là có hiệu lực ngay, không cần khởi động lại.</p></div>`+
   KOL.quests.map((q,i)=>`<div class="card"><div class="section-head"><h3>Nhiệm vụ ${i+1}</h3><span><button class="s" ${i?'':'disabled'} onclick="[KOL.quests[${i-1}],KOL.quests[${i}]]=[KOL.quests[${i}],KOL.quests[${i-1}]];drawKol()">↑</button> <button class="s d" onclick="if(confirm('Xoá nhiệm vụ ${i+1}?')){KOL.quests.splice(${i},1);drawKol()}">Xoá</button></span></div>
    <div class="row" style="flex-wrap:wrap;gap:12px"><label class="f">Loại<select onchange="KOL.quests[${i}].type=+this.value;drawKol()">${T.map(t=>`<option value="${t.type}" ${t.type==q.type?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label>
    ${T.find(t=>t.type==q.type)?.item?`<label class="f">ID vật phẩm cần tặng<input type="number" value="${q.itemId}" oninput="KOL.quests[${i}].itemId=+this.value"></label>`:''}
    <label class="f">Số lượng cần<input type="number" min="1" value="${q.need}" oninput="KOL.quests[${i}].need=+this.value"></label></div>
    <label class="f">Mô tả hiện ở Quy Lão<textarea rows="2" oninput="KOL.quests[${i}].desc=this.value">${esc(q.desc)}</textarea></label>
    <div class="row" style="align-items:flex-start;flex-wrap:wrap;gap:16px"><div class="grow"><b>Quà thường</b>${kolRw(i,'normal')}</div><div class="grow"><b>Quà VIP</b>${kolRw(i,'vip')}</div></div></div>`).join('')+
-  `<div class="card row" style="gap:8px"><button class="s" onclick="KOL.quests.push({type:${T[0].type},itemId:-1,need:1,desc:'Nhiệm vụ '+(KOL.quests.length+1),normal:[],vip:[]});drawKol()">+ Thêm nhiệm vụ</button><button class="p" onclick="saveKol()">Lưu tất cả</button><button class="s" onclick="page_kol()">Huỷ thay đổi</button></div>`}
+  `<div class="card row" style="gap:8px"><button class="s" onclick="KOL.quests.push({type:${T[0].type},itemId:-1,need:1,desc:'Nhiệm vụ '+(KOL.quests.length+1),normal:[],vip:[]});drawKol()">+ Thêm nhiệm vụ</button><button class="p" onclick="saveKol()">Lưu tất cả</button><button class="s" onclick="page_kol()">Huỷ thay đổi</button></div>`;kolRwInit()}
 async function resetKol(id,name){if(!confirm('Đặt lại tiến độ KOL của '+name+' về nhiệm vụ 1 (cả thường, VIP và số đếm; vẫn giữ trạng thái đã mở VIP)?'))return;const r=await act(()=>api('kol/reset',{id}),'Đã đặt lại tiến độ KOL của '+name);if(r)drawKol()}
 async function saveKol(){const season=$('#kse').value.trim();if(season!==KOL.season&&!confirm('Đổi đợt KOL: mọi người chơi sẽ làm lại từ nhiệm vụ 1. Tiếp tục?'))return;
   const r=await act(()=>api('kol/save',{season,vipGem:+$('#kvg').value,quests:KOL.quests.map(q=>({type:q.type,itemId:q.itemId,need:q.need,desc:q.desc,normal:q.normal.map(({id,qty,days})=>({id,qty,days})),vip:q.vip.map(({id,qty,days})=>({id,qty,days}))}))}),'Đã lưu nhiệm vụ KOL');if(r)page_kol()}
