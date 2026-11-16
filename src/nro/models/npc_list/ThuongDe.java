@@ -98,7 +98,7 @@ public class ThuongDe extends Npc {
                             case 4 ->
                                 this.createOtherMenu(player, ConstNpc.MENU_CHOOSE_LUCKY_ROUND,
                                         "Con muốn làm gì nào?", "Quay bằng\nvàng",
-                                        "Vòng quay\nđặc biệt",
+                                        "Vòng quay\nđặc biệt\n(ngọc)",
                                         "Rương phụ\n("
                                         + (player.inventory.itemsBoxCrackBall.size()
                                         - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsBoxCrackBall))
@@ -137,7 +137,7 @@ public class ThuongDe extends Npc {
                             case 0 ->
                                 LuckyRound.gI().openCrackBallUI(player, LuckyRound.USING_GOLD);
                             case 1 ->
-                                LuckyRound.gI().openCrackBallVipUI(player, LuckyRound.USING_GOLD);
+                                LuckyRound.gI().openCrackBallVipUI(player, LuckyRound.USING_GEM); // vòng quay đặc biệt: quay bằng ngọc
                             case 2 ->
                                 ShopService.gI().opendShop(player, "ITEMS_LUCKY_ROUND", true);
                             case 3 ->

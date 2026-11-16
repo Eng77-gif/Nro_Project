@@ -2346,3 +2346,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Panel > Tỉ lệ rơi: tab Quái liệt kê từng vật phẩm (nơi rơi, điều kiện, tỉ lệ %, "1 / N lần"), sửa + Lưu là có hiệu lực ngay (bảng drop_rate; DropRates.roll thay số cứng trong Mob.getItemMobReward, mặc định = tỉ lệ cũ). Tab Boss: sửa tỉ lệ các dòng Thưởng boss tại chỗ. Tab Số liệu thực tế: số đếm cũ.
 - 4 dòng thêm của đồ thần linh chuyển từ Config.properties (drop.tl.*) sang cùng bảng.
 - Tổ sư Kaio > Đệ tử: đệ tử đã ở giới hạn tối đa vẫn báo "cần đạt 50 tỷ". Nay báo "đã đạt tối đa"; đủ điều kiện thì hỏi xác nhận (giá ngọc) trước khi trừ ngọc thay vì trừ ngay.
+
+## Vòng quay đặc biệt (Thượng Đế) quay bằng ngọc
+- Trước quay bằng vàng (250tr/lượt). Nay quay bằng ngọc (4 ngọc/lượt, giá vòng quay ngọc có sẵn), quà vẫn là danh sách vòng quay đặc biệt. Menu ghi "Vòng quay đặc biệt (ngọc)". Vòng "Quay bằng vàng" thường giữ nguyên.
