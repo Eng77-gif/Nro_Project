@@ -76,11 +76,15 @@ public class BotPemQuai {
         if (this.bot.zone == null || !nro.models.map.service.MapService.gI().isMapBlackBallWar(this.bot.zone.map.mapId) || this.bot.cFlag == 0) {
             return false;
         }
-        nro.models.player.Player best = null;
-        int bestD = 400;
+        boolean holding = this.bot.idMark != null && this.bot.idMark.isHoldBlackBall();
+        nro.models.player.Player best = null, carrier = null;
+        int bestD = holding ? 180 : 400; // đang cầm ngọc: chỉ đánh trả người áp sát, không đuổi xa
         for (nro.models.player.Player p : this.bot.zone.getPlayers()) {
             if (p == null || p == this.bot || p.isDie() || p.isPet || p.isBoss || p.cFlag == 0 || p.cFlag == this.bot.cFlag) {
                 continue;
+            }
+            if (!holding && p.idMark != null && p.idMark.isHoldBlackBall()) {
+                carrier = p; // người khác cờ đang cầm ngọc: ưu tiên đánh để cướp
             }
             int d = Util.getDistance(this.bot, p);
             if (d < bestD) {
@@ -88,7 +92,14 @@ public class BotPemQuai {
                 bestD = d;
             }
         }
+        if (carrier != null) {
+            best = carrier;
+        }
         if (best == null) {
+            if (holding) {
+                NhatItem();
+                return true; // cầm ngọc mà không ai tới: đứng giữ, không chạy đi đánh quái xa
+            }
             return false;
         }
         Skill pick = bot.pickSkill(2);

@@ -2496,3 +2496,9 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Tìm vật phẩm trên server không phân biệt dấu ("thoi vang" ra Thỏi vàng).
 - Điện thoại: thanh dưới có nút Tìm + mục đã ghim, nút / ô sửa to hơn, ô tìm nhanh toàn màn hình.
 - Sửa lỗi lưu cửa hàng khi cột "bán / mới" trả về true / false.
+
+## Bot tham gia NRSD hợp lý
+- Vào NRSD cắm cờ như người chơi (BlackBallWarService.joinMapBlackBallWar: cùng cờ với người cùng bang trong khu), trước đây cờ ngẫu nhiên nên đánh nhầm đồng đội.
+- Có người cùng bang đang ở NRSD thì vào đúng khu đó (ưu tiên khu có đồng đội đang cầm ngọc) để thủ cùng.
+- Bot đang cầm ngọc rồng sao đen giữ tới hết giờ, không đổi việc / rời map (rời map là rơi ngọc); đứng giữ, chỉ đánh trả người áp sát.
+- Bot không cầm ngọc ưu tiên đánh người khác cờ đang cầm ngọc để cướp; đang đánh NRSD thì ở lại tới hết giờ (trước đây vài phút là đổi việc bỏ đi).

@@ -1070,6 +1070,13 @@ public final class BotWorld {
         if (b.accountBot && BotClan.inDungeon(b) && !"NRSD".equals(b.activity)) {
             return; // đang trong doanh trại: đánh cho xong
         }
+        if (b.idMark != null && b.idMark.isHoldBlackBall()) {
+            return; // đang cầm ngọc rồng sao đen: giữ tới hết giờ như người chơi (rời map là rơi ngọc)
+        }
+        if ("NRSD".equals(b.activity) && b.zone != null && nro.models.map.service.MapService.gI().isMapBlackBallWar(b.zone.map.mapId)
+                && nro.models.utils.TimeUtil.isBlackBallWarOpen() && jobOf(b.id) == null) {
+            return; // đang đánh NRSD: ở lại tới hết giờ (trước đây vài phút là đổi việc bỏ đi, đồng đội cầm ngọc mất người thủ)
+        }
         if (b.accountBot && b.zone != null && nro.models.map.service.MapService.gI().isMapDoanhTrai(b.zone.map.mapId)) {
             return;
         }
@@ -1611,6 +1618,11 @@ public final class BotWorld {
             return;
         }
         nro.models.map.Zone z = m.zones.get(Util.nextInt(0, m.zones.size() - 1));
+        nro.models.map.Zone mate = clanNrsdZone(b); // cùng bang đang ở NRSD (nhất là đang cầm ngọc): vào đúng khu đó thủ cùng
+        if (mate != null) {
+            z = mate;
+            m = z.map;
+        }
         if (z.isFullPlayer() || (b.accountBot && (!b.canGo(m.mapId) || !b.strongEnough(m.mapId)))) {
             train(b); // map NRSD chưa mở theo nhiệm vụ hoặc quá sức: luyện tiếp
             return;
@@ -1619,7 +1631,33 @@ public final class BotWorld {
         b.activity = "NRSD";
         ChangeMapService.gI().goToMap(b, z);
         z.load_Me_To_Another(b);
-        nro.models.services.Service.gI().changeFlag(b, Util.nextInt(1, 7));
+        // cắm cờ như người chơi vào NRSD: cùng cờ với người cùng bang trong khu (trước đây cờ ngẫu nhiên, đánh nhầm đồng đội)
+        nro.models.services_dungeon.BlackBallWarService.gI().joinMapBlackBallWar(b);
+    }
+
+    /** Khu NRSD có người cùng bang (ưu tiên khu có người cùng bang đang cầm ngọc), null nếu không có. */
+    private nro.models.map.Zone clanNrsdZone(Bot b) {
+        if (b.clan == null) {
+            return null;
+        }
+        nro.models.map.Zone any = null;
+        for (int id = 85; id <= 91; id++) {
+            nro.models.map.Map m = nro.models.map.service.MapService.gI().getMapById(id);
+            if (m == null) {
+                continue;
+            }
+            for (nro.models.map.Zone z : m.zones) {
+                for (nro.models.player.Player p : z.getPlayers()) {
+                    if (p != b && p.clan != null && p.clan.equals(b.clan) && !z.isFullPlayer()) {
+                        if (p.idMark != null && p.idMark.isHoldBlackBall()) {
+                            return z;
+                        }
+                        any = any == null ? z : any;
+                    }
+                }
+            }
+        }
+        return any;
     }
 
     /** Doanh trại / ĐHVT là phó bản / giải đấu riêng: bot rời map một lúc, về thì mạnh lên và kể lại. */
