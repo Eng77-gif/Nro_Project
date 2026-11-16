@@ -30,7 +30,7 @@ public class Doi extends Boss {
 
     public void halloween(Player player) {
         if (player.effectSkill != null && !player.effectSkill.isHalloween) {
-            EffectSkillService.gI().setIsHalloween(player, 3, 1800000);
+            EffectSkillService.gI().setHalloweenPlague(player, 3, 1800000); // 30 phút, lây + bất tử trước quái
         }
     }
 

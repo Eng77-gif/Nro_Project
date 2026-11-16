@@ -2355,3 +2355,9 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## Siêu thị (map 84): NPC đứng đúng toạ độ
 - Bò Mộng 103, Bunma 204, Bà Hạt Mít 298, Uron 391, Appule 506, Dende 600, Cửa hàng ký gửi 696, King Furry 796, Dr. Brief 889 (y 336). Đặt mỗi lần khởi động (Dot139Migration).
+
+## Halloween: hoá Bộ xương / Dơi / Ma trơi có lây, bất tử trước quái
+- Boss Bộ xương, Dơi, Ma trơi đánh trúng: hoá hình 30 phút (setHalloweenPlague).
+- Người đang hoá lây sang người chơi khác đứng gần (100px, kiểm tra mỗi 3 giây), cùng hình, thời gian = phần còn lại của người lây.
+- Bật cờ đánh đệ tử người khác: đệ bị lây.
+- Trong thời gian hoá: bị quái đánh không chết (còn 1 máu, như bùa bất tử). Sư phụ còn 1 máu không đánh được (như bùa bất tử), đệ tử còn 1 máu vẫn đánh quái.

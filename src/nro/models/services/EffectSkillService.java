@@ -296,6 +296,7 @@ public class EffectSkillService {
         }
         if (player.effectSkill != null) {
             player.effectSkill.isHalloween = true;
+            player.effectSkill.halloweenPlague = false; // chỉ setHalloweenPlague mới bật lây
             player.effectSkill.idOutfitHalloween = outFit != -1 ? outFit : Util.nextInt(5);
             player.effectSkill.timeHalloween = time;
             player.effectSkill.lastTimeHalloween = System.currentTimeMillis();
@@ -304,9 +305,23 @@ public class EffectSkillService {
         }
     }
 
+    /** Boss Bộ xương / Dơi / Ma trơi đánh trúng: hoá hình, lây sang người đứng gần, bất tử trước quái (Player.injured). */
+    public void setHalloweenPlague(Player player, int outFit, int time) {
+        setIsHalloween(player, outFit, time);
+        if (player.effectSkill != null && player.effectSkill.isHalloween) {
+            player.effectSkill.halloweenPlague = true;
+        }
+    }
+
+    /** Thời gian hoá còn lại (ms). */
+    public static long halloweenLeft(Player p) {
+        return p.effectSkill == null || !p.effectSkill.isHalloween ? 0 : p.effectSkill.timeHalloween - (System.currentTimeMillis() - p.effectSkill.lastTimeHalloween);
+    }
+
     public void removeHalloween(Player player) {
         if (player.effectSkill != null) {
             player.effectSkill.isHalloween = false;
+            player.effectSkill.halloweenPlague = false;
             Service.gI().Send_Caitrang(player);
         }
     }

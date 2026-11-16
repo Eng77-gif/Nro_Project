@@ -980,7 +980,8 @@ public class SkillService {
             plAtt.effectSkin.isXDame = false;
         }
 
-        if (plAtt.charms != null && plAtt.charms.tdBatTu > System.currentTimeMillis() && plAtt.nPoint.hp <= 1) {
+        if (((plAtt.charms != null && plAtt.charms.tdBatTu > System.currentTimeMillis())
+                || (plAtt.effectSkill != null && plAtt.effectSkill.halloweenPlague)) && plAtt.nPoint.hp <= 1) { // đệ vẫn đánh được
             if (plAtt.nPoint.hp < 1) {
                 plAtt.nPoint.hp = 1;
             }

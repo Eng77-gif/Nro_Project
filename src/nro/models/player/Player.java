@@ -1357,6 +1357,16 @@ public class Player implements Runnable {
             if (isMobAttack && this.charms.tdBatTu > System.currentTimeMillis() && damage >= this.nPoint.hp) {
                 damage = this.nPoint.hp - 1;
             }
+            if (isMobAttack && this.effectSkill != null && this.effectSkill.halloweenPlague && damage >= this.nPoint.hp) {
+                damage = Math.max(0, this.nPoint.hp - 1); // hoá Halloween: bất tử khi bị quái đánh (như bùa bất tử)
+            }
+            if (this.isPet && plAtt != null && !plAtt.isPet && plAtt.effectSkill != null && plAtt.effectSkill.halloweenPlague
+                    && this.effectSkill != null && !this.effectSkill.isHalloween) {
+                long left = EffectSkillService.halloweenLeft(plAtt); // bật cờ đánh đệ: đệ bị lây
+                if (left >= 5000) {
+                    EffectSkillService.gI().setHalloweenPlague(this, plAtt.effectSkill.idOutfitHalloween, (int) left);
+                }
+            }
 
             if (this.zone.map.mapId == 113 && this.isPKDHVT && plAtt != null && plAtt.isBoss && damage >= this.nPoint.hp) {
                 // Siêu hạng: hết máu là thua (như ĐHVT 23), không chết thật -> trận kết thúc và được đưa xuống đài

@@ -92,6 +92,7 @@ public class EffectSkin {
             updateHoaDa();
             updateSocolaXq();
             updateZombieXq();
+            updateHalloweenPlague();
             updateHoiDongBang();
             updateNearSets();
             updateLamCham();
@@ -395,6 +396,31 @@ public class EffectSkin {
     }
 
     private long lastTimeZombieXq, lastTimeHoiDongBang;
+
+    private long lastTimePlague;
+
+    /** Đang hoá Bộ xương / Dơi / Ma trơi (do boss): người chơi khác đứng gần (100px) bị lây cùng hình, thời gian = phần còn lại của mình. */
+    private void updateHalloweenPlague() {
+        try {
+            if (this.player.isPet || this.player.isBoss || this.player.effectSkill == null || !this.player.effectSkill.halloweenPlague
+                    || !Util.canDoWithTime(lastTimePlague, 3000)) {
+                return;
+            }
+            this.lastTimePlague = System.currentTimeMillis();
+            long left = EffectSkillService.halloweenLeft(this.player);
+            if (left < 5000) {
+                return;
+            }
+            for (Player pl : new java.util.ArrayList<>(this.player.zone.getNotBosses())) {
+                if (pl != null && pl != this.player && !pl.isPet && !pl.isBoss && !pl.isDie() && pl.effectSkill != null
+                        && !pl.effectSkill.isHalloween && Util.getDistance(this.player, pl) <= 100) {
+                    EffectSkillService.gI().setHalloweenPlague(pl, this.player.effectSkill.idOutfitHalloween, (int) left);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /** option 262 / 263: biến người xung quanh (200px) thành Zombi / Bí Ngô mỗi 30 giây, mỗi lần 5 giây. */
     private void updateZombieXq() {

@@ -32,7 +32,7 @@ public class BoXuong extends Boss {
 
     public void halloween(Player player) {
         if (player.effectSkill != null && !player.effectSkill.isHalloween) {
-            EffectSkillService.gI().setIsHalloween(player, 0, 1800000);
+            EffectSkillService.gI().setHalloweenPlague(player, 0, 1800000); // 30 phút, lây + bất tử trước quái
         }
     }
 
