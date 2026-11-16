@@ -260,7 +260,11 @@ public class BotEndgame {
     // ------------------------------------------------------------------ đệ tử, trứng, đệ 2
     /** Đệ đi đánh cùng bot để lên sức mạnh (trước đây luôn để ở nhà). */
     private static void pet(Bot b) {
-        if (b.pet != null && b.pet.status == Pet.GOHOME && !b.pet.isDie() && b.fusion.typeFusion == 0 && b.nPoint.power >= 1_500_000) {
+        if (b.pet != null && b.pet.status != Pet.GOHOME && BotWorld.petWeak(b) && !"Up đệ".equals(b.activity)) {
+            b.pet.changeStatus(Pet.GOHOME); // đệ còn yếu: không theo sư phụ vào map mạnh (chết liên tục), chỉ ra khi Up đệ
+            return;
+        }
+        if (b.pet != null && b.pet.status == Pet.GOHOME && !b.pet.isDie() && b.fusion.typeFusion == 0 && b.nPoint.power >= 1_500_000 && !BotWorld.petWeak(b)) {
             b.pet.changeStatus(Pet.ATTACK);
             b.pet.joinMapMaster();
         }

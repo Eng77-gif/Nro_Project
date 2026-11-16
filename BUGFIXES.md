@@ -2392,3 +2392,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 ## Chợ King Furry: tab 1-2-3-4
 - Tab đổi tên 1, 2, 3, 4: tab 1 Bí ngô 1-3 sao, tab 2 Bí ngô 4-5 sao, tab 3 Bí ngô 6-7 sao, tab 4 Kẹo bàn tay (xếp theo vật phẩm, kể cả món đã ký gửi trước).
 - Bí ngô chỉ ký gửi bằng ngọc, Kẹo bàn tay chỉ ký gửi bằng vàng (được ký gửi dù có dòng "Không thể giao dịch"). Chợ ký gửi thường giữ nguyên.
+
+## Bot: Up đệ khi đệ còn yếu
+- Đệ mới săn (~2k sức mạnh) đi theo sư phụ vào map mạnh nên chết liên tục, không lên được. Nay đệ yếu hơn 1/10 sức mạnh sư phụ thì: bot thường xuyên (80% mỗi lần đổi việc, khi bật Luyện tập hoặc Nhiệm vụ) "Up đệ": về map khó nhất hành tinh mình mà đệ còn đánh nổi, sư phụ đứng yên cho đệ đánh, đệ chết thì hồi sinh; bot đang Up đệ không bị kéo đi PK. Làm việc khác thì đệ yếu ở nhà, không theo vào map mạnh.

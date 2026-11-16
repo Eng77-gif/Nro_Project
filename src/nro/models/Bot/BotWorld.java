@@ -1089,6 +1089,9 @@ public final class BotWorld {
         if (planDaily(b, true)) {
             return; // sắp hết ngọc: làm nhiệm vụ hằng ngày Bò Mộng trước (thưởng ngọc)
         }
+        if ((allow(b, "train") || allow(b, "quest")) && petWeak(b) && Util.isTrue(80, 100) && upDe(b)) {
+            return; // đệ còn yếu (mới săn được): đưa đệ về map vừa sức đệ, bot đứng yên cho đệ đánh lên sức mạnh
+        }
         if (allow(b, "quest") && b.accountBot && b.playerTask != null && b.playerTask.taskMain != null
                 && (b.playerTask.taskMain.id <= 10 || BotQuest.gI().pending(b) || !allowAction(b, BotBrain.TRAIN))) {
             if (!"Làm nhiệm vụ".equals(b.activity)) {
@@ -1429,6 +1432,58 @@ public final class BotWorld {
         }
     }
 
+    /** Đệ yếu hơn sư phụ quá nhiều (dưới 1/10 sức mạnh): cần up riêng, đi theo sư phụ vào map mạnh không đánh nổi quái. */
+    static boolean petWeak(Bot b) {
+        return b.accountBot && b.pet != null && b.fusion.typeFusion == 0 && b.pet.nPoint != null
+                && b.pet.nPoint.power < b.nPoint.power / 10;
+    }
+
+    /** Up đệ: map khó nhất hành tinh mình mà đệ còn đánh nổi (không có thì map dễ nhất), bot không đánh để đệ nhận sức mạnh. */
+    private boolean upDe(Bot b) {
+        int[] home = b.gender == 0 ? new int[]{1, 2, 3, 4, 6, 29, 30, 28, 27}
+                : b.gender == 1 ? new int[]{8, 9, 10, 11, 12, 13, 33, 34, 32, 31} : new int[]{15, 16, 17, 18, 19, 20, 37, 36, 35};
+        int best = -1;
+        long bestHp = -1;
+        for (int id : home) {
+            nro.models.map.Map m = nro.models.map.service.MapService.gI().getMapById(id);
+            if (m == null || m.zones.isEmpty() || m.zones.get(0).mobs.isEmpty() || !b.canGo(id)) {
+                continue;
+            }
+            java.util.List<nro.models.mob.Mob> mobs = new java.util.ArrayList<>(m.zones.get(0).mobs);
+            mobs.sort(java.util.Comparator.comparingLong(x -> x.point.getHpFull()));
+            nro.models.mob.Mob mid = mobs.get(mobs.size() / 2);
+            long hp = mid.point.getHpFull(), dame = mid.point.dame != 0 ? mid.point.dame : hp * mid.pDame / 100;
+            if (hp <= b.pet.nPoint.dame * 30 && dame * 6 <= b.pet.nPoint.hpMax && hp > bestHp) {
+                bestHp = hp;
+                best = id;
+            }
+        }
+        if (best < 0) {
+            best = b.easiestMap();
+        }
+        nro.models.map.Zone z = best < 0 ? null : b.getRandomZone(best);
+        if (z == null) {
+            return false;
+        }
+        endPk(b);
+        b.boss.prefer = null;
+        b.setMode(-1); // sư phụ không đánh quái: để đệ đánh
+        b.stayMap = true;
+        b.questMap = best;
+        b.questMob = -1;
+        b.activity = "Up đệ";
+        if (b.zone == null || b.zone != z) {
+            ChangeMapService.gI().goToMap(b, z);
+            b.zone.load_Me_To_Another(b);
+        }
+        if (b.pet.isDie()) {
+            nro.models.services.Service.gI().hsChar(b.pet, b.pet.nPoint.hpMax, b.pet.nPoint.mpMax);
+        }
+        b.pet.changeStatus(nro.models.player.Pet.ATTACK);
+        b.pet.joinMapMaster();
+        return true;
+    }
+
     /** Không còn việc nào được phép: về nhà đứng; có quyền "life" / "gear" thì ở nhà mở hộp quà, ép sao, sắm đồ (BotQuest.tick). */
     private void stayHome(Bot b) {
         endPk(b);
@@ -1515,7 +1570,7 @@ public final class BotWorld {
     private void startPk(Bot b) {
         List<Bot> others = new ArrayList<>();
         for (Bot o : bots()) {
-            if (o != b && o.zone != null && o.awayUntil == 0 && o.pkTarget == null && !"NRSD".equals(o.activity)
+            if (o != b && o.zone != null && o.awayUntil == 0 && o.pkTarget == null && !"NRSD".equals(o.activity) && !"Up đệ".equals(o.activity)
                     && (jobOf(o.id) == null || "pk".equals(jobOf(o.id))) && allow(o, "pk")) { // bot đang được giao việc / tắt PK: không bị kéo đi PK
                 others.add(o);
             }
