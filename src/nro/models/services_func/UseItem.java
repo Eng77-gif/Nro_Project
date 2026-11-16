@@ -2930,17 +2930,25 @@ public class UseItem {
         }
     }
 
+    /** Vé riêng tư: vào ngẫu nhiên 1 trong 3 map riêng tư, khu còn trống (mỗi khu 1 người). */
     private void MapRiengTu(Player pl, Item item) {
-        NpcService.gI().createMenuConMeo(pl, 9164, -1, "Chọn khu riêng tư (mỗi map 50 khu)", "Map\nriêng tư", "Thung lũng\nMaima", "Rừng\nnguyên sinh", "Từ chối");
-    }
-
-    /** Vào map riêng tư đã chọn (Map riêng tư / Thung lũng Maima / Rừng nguyên sinh bản riêng tư). */
-    public void goPrivateMap(Player pl, int mapId) {
-        if (InventoryService.gI().findItemBag(pl, 1825) == null) {
-            Service.gI().sendThongBao(pl, "Cần có Vé riêng tư");
+        java.util.List<nro.models.map.Zone> free = new java.util.ArrayList<>();
+        for (int id : MapService.MAP_RIENG_TU) {
+            nro.models.map.Map m = MapService.gI().getMapById(id);
+            if (m != null) {
+                for (nro.models.map.Zone z : m.zones) {
+                    if (z.getPlayers().isEmpty()) {
+                        free.add(z);
+                    }
+                }
+            }
+        }
+        if (free.isEmpty()) {
+            Service.gI().sendThongBao(pl, "Các khu riêng tư đều đã có người, thử lại sau");
             return;
         }
-        ChangeMapService.gI().changeMapBySpaceShip(pl, mapId, -1, mapId == 164 ? 870 : 400);
+        nro.models.map.Zone z = free.get(Util.nextInt(0, free.size() - 1));
+        ChangeMapService.gI().changeMapBySpaceShip(pl, z, z.map.mapId == 164 ? 870 : 400);
     }
 
     private void VeTangNgoc(Player pl, Item item) {

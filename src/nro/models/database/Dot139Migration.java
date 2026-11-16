@@ -65,7 +65,7 @@ public class Dot139Migration {
                             + "select " + c[0] + ", concat(NAME, ' (riêng tư)'), 50, max_player, data, type, planet_id, bg_type, tile_id, bg_id, '[]', mobs, '[]', is_map_double from map_template where id = " + c[1]);
                 }
             }
-            update(con, "update map_template set zones = 50 where id in (164, 189, 190)");
+            update(con, "update map_template set zones = 50, max_player = 1 where id in (164, 189, 190)"); // mỗi khu 1 người (đệ tử không tính)
             // Siêu thị (84): NPC đứng đúng toạ độ anh gửi (Bò Mộng, Bunma, Bà Hạt Mít, Uron, Appule, Dende, Cửa hàng ký gửi, King Furry, Dr. Brief)
             update(con, "update map_template set npcs = '[[17,103,336],[7,204,336],[21,298,336],[16,391,336],[9,506,336],[8,600,336],[28,696,336],[68,796,336],[10,889,336]]' where id = 84");
             update(con, "create table if not exists drop_rate (k varchar(64) primary key, rate double not null)"); // panel > Tỉ lệ rơi

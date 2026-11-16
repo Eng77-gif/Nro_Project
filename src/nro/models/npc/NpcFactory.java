@@ -432,12 +432,6 @@ public class NpcFactory {
                             Input.gI().createFormFindPlayer1(player);
                         }
                     }
-                    case 9164 -> { // Vé riêng tư: chọn map
-                        int[] maps = nro.models.map.service.MapService.MAP_RIENG_TU;
-                        if (select >= 0 && select < maps.length) {
-                            nro.models.services_func.UseItem.gI().goPrivateMap(player, maps[select]);
-                        }
-                    }
                     case ConstNpc.REVENGE -> {
                         if (select == 0) {
                             PVPService.gI().acceptRevenge(player);
