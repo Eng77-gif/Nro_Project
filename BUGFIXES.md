@@ -2349,3 +2349,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## Vòng quay đặc biệt (Thượng Đế) quay bằng ngọc
 - Trước quay bằng vàng (250tr/lượt). Nay quay bằng ngọc (4 ngọc/lượt, giá vòng quay ngọc có sẵn), quà vẫn là danh sách vòng quay đặc biệt. Menu ghi "Vòng quay đặc biệt (ngọc)". Vòng "Quay bằng vàng" thường giữ nguyên.
+
+## King Furry chỉ nhận ký gửi Bí ngô 1-7 sao và Kẹo bàn tay
+- Chợ đồ sự kiện (King Furry, Siêu thị) chỉ cho đem ký gửi mới Bí ngô 1-7 sao (702-708) và Kẹo bàn tay (901). Vật phẩm sự kiện Halloween khác không ký gửi được, phải tự kiếm. Món đã ký gửi trước đó vẫn bán / rút về bình thường.

@@ -350,7 +350,7 @@ public class ConsignShopService {
         ConsignShopManager.gI().listItem.stream().filter((it) -> (it != null && it.player_sell == pl.id && inMarket(pl, it.itemId) && ItemService.gI().getTemplate(it.itemId) != null)).forEachOrdered((it) -> {
             its.add(it);
         });
-        pl.inventory.itemsBag.stream().filter((it) -> (itemCanConsign(it) && inMarket(pl, it.template.id))).forEachOrdered((it) -> {
+        pl.inventory.itemsBag.stream().filter((it) -> canConsignHere(pl, it)).forEachOrdered((it) -> {
             its.add(new ConsignItem(InventoryService.gI().getIndexBag(pl, it), it.template.id, (int) pl.id, (byte) 4, -1, -1, it.quantity, (byte) -1, it.itemOptions, false));
         });
         return its;
@@ -358,7 +358,15 @@ public class ConsignShopService {
 
     /** Đồ sự kiện chỉ bán ở chợ đồ sự kiện (NPC KY_GUI_SU_KIEN), đồ thường chỉ ở cửa hàng ký gửi. */
     private static boolean inMarket(Player pl, int itemId) {
-        return nro.models.services.SeasonEventService.gI().isEventMaterial(itemId) == pl.kyGuiEvent;
+        return (nro.models.services.SeasonEventService.gI().isEventMaterial(itemId) || EVENT_CONSIGN.contains(itemId)) == pl.kyGuiEvent;
+    }
+
+    /** Chỉ những món này được đem ký gửi ở King Furry (Bí ngô 1-7 sao, Kẹo bàn tay); vật phẩm sự kiện khác phải tự kiếm. */
+    private static final java.util.Set<Integer> EVENT_CONSIGN = java.util.Set.of(702, 703, 704, 705, 706, 707, 708, 901);
+
+    /** Món trong hành trang được đem ký gửi mới ở chợ đang mở. */
+    private boolean canConsignHere(Player pl, Item it) {
+        return itemCanConsign(it) && inMarket(pl, it.template.id) && (!pl.kyGuiEvent || EVENT_CONSIGN.contains((int) it.template.id));
     }
 
     private static final java.util.Map<Integer, String> SELLER_NAMES = new java.util.concurrent.ConcurrentHashMap<>();
@@ -393,6 +401,7 @@ public class ConsignShopService {
                     || it.template.type == 15
                     || it.template.type == 6
                     || it.template.id >= 14 && it.template.id <= 20
+                    || EVENT_CONSIGN.contains((int) it.template.id)
                     || nro.models.services.SeasonEventService.gI().isEventMaterial(it.template.id)) { // đồ sự kiện: người chơi ký gửi bán cho nhau
                 return true;
             }
@@ -436,7 +445,7 @@ public class ConsignShopService {
                 return;
             }
             Item itemBag = pl.inventory.itemsBag.get(id);
-            if (!itemCanConsign(itemBag) || !inMarket(pl, itemBag.template.id)) {
+            if (!canConsignHere(pl, itemBag)) {
                 Service.gI().sendThongBao(pl, "Vật phẩm không thể kí gửi");
                 openShopKyGui(pl);
                 return;
