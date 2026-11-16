@@ -137,7 +137,9 @@ public class ThanhCo {
             this.nPoint.hpMax = Math.max(1000, playerAtt.nPoint.hpMax);
             this.nPoint.hp = this.nPoint.hpMax;
             this.nPoint.dame = Math.max(1, playerAtt.nPoint.hpMax / 25);
+            this.typePk = ConstPlayer.PK_PVP;
             ChangeMapService.gI().changeMap(this, this.zone, DAI_X_GOHAN, DAI_Y);
+            PlayerService.gI().changeAndSendTypePK(this, ConstPlayer.PK_PVP); // báo client: Gohan đỏ máu, đánh được
             PlayerService.gI().changeAndSendTypePK(playerAtt, ConstPlayer.PK_PVP);
         }
 
