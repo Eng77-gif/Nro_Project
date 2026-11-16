@@ -36,7 +36,7 @@ public class ConsignShopService {
 
     private List<ConsignItem> getItemKyGui2(Player pl, byte tab, byte to, byte max) {
         List<ConsignItem> filtered = ConsignShopManager.gI().listItem.stream()
-                .filter(it -> it != null && it.tab == tab && !it.isBuy && inMarket(pl, it.itemId) && ItemService.gI().getTemplate(it.itemId) != null)
+                .filter(it -> it != null && tabOf(pl, it) == tab && !it.isBuy && inMarket(pl, it.itemId) && ItemService.gI().getTemplate(it.itemId) != null)
                 .sorted(Comparator.comparingInt((ConsignItem it) -> it.isUpTop).reversed())
                 .collect(Collectors.toList());
 
@@ -49,7 +49,7 @@ public class ConsignShopService {
 
     private List<ConsignItem> getItemKyGui(Player pl, byte tab, byte... max) {
         List<ConsignItem> filtered = ConsignShopManager.gI().listItem.stream()
-                .filter(it -> it != null && it.tab == tab && !it.isBuy && it.player_sell != pl.id && inMarket(pl, it.itemId) && ItemService.gI().getTemplate(it.itemId) != null)
+                .filter(it -> it != null && tabOf(pl, it) == tab && !it.isBuy && it.player_sell != pl.id && inMarket(pl, it.itemId) && ItemService.gI().getTemplate(it.itemId) != null)
                 .sorted(Comparator.comparingInt((ConsignItem it) -> it.isUpTop).reversed())
                 .collect(Collectors.toList());
 
@@ -364,6 +364,19 @@ public class ConsignShopService {
     /** Chỉ những món này được đem ký gửi ở King Furry (Bí ngô 1-7 sao, Kẹo bàn tay); vật phẩm sự kiện khác phải tự kiếm. */
     private static final java.util.Set<Integer> EVENT_CONSIGN = java.util.Set.of(702, 703, 704, 705, 706, 707, 708, 901);
 
+    /** Chợ King Furry: tab 1 = Bí ngô 1-3 sao, 2 = 4-5 sao, 3 = 6-7 sao, 4 = Kẹo bàn tay (chợ thường giữ tab cũ). */
+    private static byte tabOf(Player pl, ConsignItem it) {
+        if (!pl.kyGuiEvent) {
+            return it.tab;
+        }
+        int id = it.itemId;
+        return (byte) (id >= 702 && id <= 704 ? 0 : id >= 705 && id <= 706 ? 1 : id >= 707 && id <= 708 ? 2 : 3);
+    }
+
+    private static String tabName(Player pl, int i) {
+        return pl.kyGuiEvent && i < 4 ? String.valueOf(i + 1) : ConsignShopManager.gI().tabName[i];
+    }
+
     /** Món trong hành trang được đem ký gửi mới ở chợ đang mở. */
     private boolean canConsignHere(Player pl, Item it) {
         return itemCanConsign(it) && inMarket(pl, it.template.id) && (!pl.kyGuiEvent || EVENT_CONSIGN.contains((int) it.template.id));
@@ -452,13 +465,22 @@ public class ConsignShopService {
             }
             Item it = ItemService.gI().copyItem(itemBag);
             boolean kyGuiNgoc = it.getOptionById(87) != null; // dòng "Ký gửi ngọc": không giao dịch vẫn ký gửi được, chỉ bán bằng ngọc
+            int tid = it.template.id;
+            if (tid == 901 && moneyType != 0) { // King Furry: Kẹo bàn tay ký gửi vàng, Bí ngô ký gửi ngọc
+                Service.gI().sendThongBao(pl, "Kẹo bàn tay chỉ ký gửi bằng vàng");
+                openShopKyGui(pl);
+                return;
+            }
+            if (tid >= 702 && tid <= 708) {
+                kyGuiNgoc = true;
+            }
             if (kyGuiNgoc && moneyType != 1) {
                 Service.gI().sendThongBao(pl, "Vật phẩm này chỉ ký gửi bằng ngọc");
                 openShopKyGui(pl);
                 return;
             }
             for (Item.ItemOption daubuoi : it.itemOptions) {
-                if (daubuoi.optionTemplate.id == 30 && !kyGuiNgoc) {
+                if (daubuoi.optionTemplate.id == 30 && !kyGuiNgoc && !EVENT_CONSIGN.contains(tid)) {
                     Service.gI().sendThongBao(pl, "Vật phẩm không thể kí gửi");
                     openShopKyGui(pl);
                     return;
@@ -542,7 +564,7 @@ public class ConsignShopService {
             msg.writer().writeByte(5);
             for (byte i = 0; i < 5; i++) {
                 if (i == 4) {
-                    msg.writer().writeUTF(ConsignShopManager.gI().tabName[i]);
+                    msg.writer().writeUTF(tabName(pl, i));
                     msg.writer().writeByte(0);
                     msg.writer().writeByte(getItemCanKiGui(pl).size());
                     for (int j = 0; j < getItemCanKiGui(pl).size(); j++) {
@@ -583,7 +605,7 @@ public class ConsignShopService {
                 } else {
                     List<ConsignItem> items = getItemKyGui(pl, i);
                     List<ConsignItem> itemsSend = getItemKyGui2(pl, i, (byte) 0, (byte) 20);
-                    msg.writer().writeUTF(ConsignShopManager.gI().tabName[i]);
+                    msg.writer().writeUTF(tabName(pl, i));
                     byte tab = (byte) (items.size() / 20 > 0 ? (items.size() / 20) + 1 : 1);
                     msg.writer().writeByte(tab); // max page
                     msg.writer().writeByte(itemsSend.size());

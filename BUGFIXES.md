@@ -2388,3 +2388,7 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 
 ## Black Goku: Nhẫn thời không sai lệch (nhiệm vụ 31)
 - Nhẫn nằm lẫn trong dòng ngọc rồng (10% x 1/7 ≈ 1,4%) nên rất khó làm nhiệm vụ. Nay tách dòng riêng: người giết đang ở bước NV 31 cần nhẫn thì chắc chắn rơi; người khác 5% (chỉnh ở panel > Tỉ lệ rơi > Boss > Black Goku).
+
+## Chợ King Furry: tab 1-2-3-4
+- Tab đổi tên 1, 2, 3, 4: tab 1 Bí ngô 1-3 sao, tab 2 Bí ngô 4-5 sao, tab 3 Bí ngô 6-7 sao, tab 4 Kẹo bàn tay (xếp theo vật phẩm, kể cả món đã ký gửi trước).
+- Bí ngô chỉ ký gửi bằng ngọc, Kẹo bàn tay chỉ ký gửi bằng vàng (được ký gửi dù có dòng "Không thể giao dịch"). Chợ ký gửi thường giữ nguyên.
