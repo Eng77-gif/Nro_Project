@@ -693,6 +693,31 @@ public class ItemService {
         return list;
     }
 
+    /** Danh hiệu đổi chỉ số (Đón Xuân 1978, Tay nhanh hơn não 1673): món cũ trong hành trang / rương lấy chỉ số mới, giữ hạn còn lại và dòng không giao dịch. */
+    private static final java.util.Set<Integer> TITLE_REFRESH = java.util.Set.of(1673, 1978);
+
+    public void refreshTitle(Item it) {
+        if (it == null || it.template == null || !TITLE_REFRESH.contains((int) it.template.id)) {
+            return;
+        }
+        List<Item.ItemOption> fresh = getListOptionItemShop(it.template.id);
+        if (fresh.isEmpty()) {
+            return;
+        }
+        List<Item.ItemOption> keep = new ArrayList<>();
+        for (Item.ItemOption o : it.itemOptions) {
+            if (o != null && o.optionTemplate != null && (o.optionTemplate.id == 93 || o.optionTemplate.id == 30)) {
+                keep.add(o);
+            }
+        }
+        if (keep.stream().anyMatch(o -> o.optionTemplate.id == 93)) {
+            fresh.removeIf(o -> o.optionTemplate != null && o.optionTemplate.id == 93);
+        }
+        fresh.addAll(keep);
+        it.itemOptions.clear();
+        it.itemOptions.addAll(fresh);
+    }
+
     public List<Item.ItemOption> getListOptionItemShop(short id) {
         List<int[]> defaults = TEMPLATE_OPTIONS.get((int) id);
         if (defaults != null && !defaults.isEmpty()) {

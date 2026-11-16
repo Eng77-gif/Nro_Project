@@ -439,6 +439,7 @@ public class VietLoader {
                 } else {
                     item = ItemService.gI().createItemNull();
                 }
+                ItemService.gI().refreshTitle(item); // danh hiệu đổi chỉ số: món cũ lấy chỉ số mới
                 player.inventory.itemsBag.add(item);
             }
             dataArray.clear();
@@ -478,6 +479,7 @@ public class VietLoader {
                 } else {
                     item = ItemService.gI().createItemNull();
                 }
+                ItemService.gI().refreshTitle(item);
                 player.inventory.itemsBox.add(item);
             }
             dataArray.clear();

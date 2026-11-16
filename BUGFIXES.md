@@ -2416,3 +2416,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Đón Xuân (1978): shop trước không hiện chỉ số; nay +50% TN SM, +25% TN SM đệ khi sư phụ mặc, +5% vàng rơi, Sức đánh +11%, Chí mạng +5%, HSD 30 ngày.
 - Tay nhanh hơn não (1673): đổi từ SĐ/HP/KI +11%, Đẹp +5% thành HP +5%, +20% May mắn, +10% TN SM, HSD 7 ngày.
 - Đặt ở data_badges (chỉ số khi đeo), item_template_option và item_shop_option (hiện ở shop) mỗi lần khởi động.
+- Danh hiệu Đón Xuân / Tay nhanh hơn não đang nằm trong hành trang, rương của người chơi: khi nhân vật vào game tự đổi sang chỉ số mới (giữ hạn sử dụng còn lại và dòng không giao dịch). Danh hiệu đã đeo lấy chỉ số từ data_badges nên đã đúng.
