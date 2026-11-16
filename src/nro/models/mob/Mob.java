@@ -460,6 +460,11 @@ public class Mob {
             // giữ nguyên dameMob
         }
 
+        if (player.inventory != null && player.inventory.itemsBody.size() > 5 && player.inventory.itemsBody.get(5) != null
+                && player.inventory.itemsBody.get(5).isNotNullItem() && player.inventory.itemsBody.get(5).template.id == 1811) {
+            dameMob /= 2; // Vua Vegeta: giảm 50% sát thương từ quái
+        }
+
         if (ocTieuNear(player)) { // 5 món Ốc Tiêu: người mặc và người xung quanh (300px) bất tử khi đánh quái
             dameMob = Math.max(0, Math.min(dameMob, player.nPoint.hp - 1));
         }

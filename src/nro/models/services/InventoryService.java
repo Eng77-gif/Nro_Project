@@ -1298,6 +1298,19 @@ public class InventoryService {
             if (io.optionTemplate.id == 210) {
                 int option210Index = i;
                 item.itemOptions.remove(i);
+                // option 274: #% cơ hội ra Chống lạnh khi mở dòng ẩn (CT Goku cận vô cực)
+                for (int k = item.itemOptions.size() - 1; k >= 0; k--) {
+                    Item.ItemOption c = item.itemOptions.get(k);
+                    if (c.optionTemplate.id == 274) {
+                        item.itemOptions.remove(k);
+                        if (k < option210Index) {
+                            option210Index--;
+                        }
+                        if (nro.models.utils.Util.isTrue(c.param, 100) && item.itemOptions.stream().noneMatch(o -> o.optionTemplate.id == 106)) {
+                            item.itemOptions.add(new Item.ItemOption(106, 0));
+                        }
+                    }
+                }
                 if (item.template.id == 1891) { // Thùng rác (hè 3): mỗi dòng ẩn mở ra 1 chỉ số ngẫu nhiên khác nhau (thử nhân phẩm)
                     int[][] pool = {{50, 8, 17}, {77, 8, 17}, {103, 8, 17}, {14, 3, 11}, {5, 5, 15}, {108, 3, 10},
                         {94, 3, 10}, {97, 3, 10}, {80, 3, 8}, {81, 3, 8}, {101, 5, 20}, {100, 5, 20}};

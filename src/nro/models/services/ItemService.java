@@ -699,8 +699,8 @@ public class ItemService {
     private static final java.util.Set<Integer> TITLE_REFRESH = java.util.Set.of(1673, 1978,
             1991, 954, 1670, 1519, 1925, 1914, 1515, 1344, // + vật phẩm sự kiện đổi chỉ số theo ảnh (Dot139Migration.EVENT_ITEMS / EVENT_ITEMS2)
             1745, 1200, 1657, 1767, 1557, 1601, 1968, 1674, 1997, 1980, 1778, 1998, 860, 1785, 1777, 1996, 1600, 1693, 1949, 731, 732,
-            1708, 1684, 1972, 1952, 1520, 1358, 1889, 1803, 1927, 1810,
-            1919, 1564, 1705, 1769, 1582, 1573, 1800, 1937, 1106, 1926, 1104, 1318, 906, 1105, 1888); // 1590 Goku SSJ Blue không đổi món cũ: 4 dòng ẩn đã mở sẽ bị quay lại
+            1708, 1684, 1972, 1952, 1520, 1358, 1889, 1927, 1810, 1469, 1811,
+            1919, 1564, 1705, 1769, 1582, 1573, 1800, 1937, 1106, 1926, 1104, 1318, 906, 1105, 1888); // món có dòng ẩn 210 (1590, 1803, Goku Day / Cađic) không đổi món cũ: dòng ẩn đã mở sẽ bị quay lại
 
     public void refreshTitle(Item it) {
         if (it == null || it.template == null || !TITLE_REFRESH.contains((int) it.template.id)) {

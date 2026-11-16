@@ -2284,6 +2284,27 @@ public class UseItem {
         }
     }
 
+    /**
+     * Cải trang mở từ hộp Goku Day / Cađic: lấy đúng chỉ số của món (item_template_option, gồm dòng ẩn 210),
+     * món chưa có chỉ số thì dùng mặc định SĐ/HP/KI {@code fb}% + {@code an} dòng ẩn. Hạn {@code hsd} ngày, {@code vv}% vĩnh viễn.
+     */
+    private static void boxCostumeOptions(Item it, int hsd, int vv, int fb, int an) {
+        List<ItemOption> t = ItemService.gI().getListOptionItemShop(it.template.id);
+        if (t != null && t.stream().anyMatch(o -> o.optionTemplate.id == 50)) {
+            for (ItemOption o : t) {
+                it.itemOptions.add(new ItemOption(o));
+            }
+        } else {
+            it.itemOptions.add(new ItemOption(50, fb));
+            it.itemOptions.add(new ItemOption(77, fb));
+            it.itemOptions.add(new ItemOption(103, fb));
+            it.itemOptions.add(new ItemOption(210, an));
+        }
+        if (!Util.isTrue(vv, 100)) {
+            it.itemOptions.add(new ItemOption(93, hsd));
+        }
+    }
+
     public void OpenHopQuaGokuDay(Player player, int itemUseiD) {
         if (InventoryService.gI().getCountEmptyBag(player) > 1) {
             Item itemused = InventoryService.gI().findItemBag(player, itemUseiD);
@@ -2293,19 +2314,7 @@ public class UseItem {
             short randomItemId = (short) itemIds[randomIndex];
 
             Item newItem = ItemService.gI().createNewItem(randomItemId);
-            RewardService.gI().initChiSoItem(newItem);
-
-            newItem.itemOptions.add(new ItemOption(50, 25));   // HP
-            newItem.itemOptions.add(new ItemOption(77, 25));   // KI
-            newItem.itemOptions.add(new ItemOption(103, 25)); // Sức đánh
-            newItem.itemOptions.add(new ItemOption(210, 4));  // May mắn
-
-            int randomOption = (int) (Math.random() * 100);
-            if (randomOption < 0.5) {
-                newItem.itemOptions.add(new ItemOption(93, 0));
-            } else {
-                newItem.itemOptions.add(new ItemOption(93, 3));
-            }
+            boxCostumeOptions(newItem, 15, 10, 25, 4);
 
             InventoryService.gI().addItemBag(player, newItem);
             InventoryService.gI().subQuantityItemsBag(player, itemused, 1);
@@ -2325,19 +2334,7 @@ public class UseItem {
             short randomItemId = (short) itemIds[randomIndex];
 
             Item newItem = ItemService.gI().createNewItem(randomItemId);
-            RewardService.gI().initChiSoItem(newItem);
-
-            newItem.itemOptions.add(new ItemOption(50, 20));   // HP
-            newItem.itemOptions.add(new ItemOption(77, 20));   // KI
-            newItem.itemOptions.add(new ItemOption(103, 20)); // Sức đánh
-            newItem.itemOptions.add(new ItemOption(210, 2));  // May mắn
-
-            int randomOption = (int) (Math.random() * 100);
-            if (randomOption < 0.5) {
-                newItem.itemOptions.add(new ItemOption(93, 0));
-            } else {
-                newItem.itemOptions.add(new ItemOption(93, 3));
-            }
+            boxCostumeOptions(newItem, 15, 5, 20, 2);
 
             InventoryService.gI().addItemBag(player, newItem);
             InventoryService.gI().subQuantityItemsBag(player, itemused, 1);
@@ -2357,25 +2354,12 @@ public class UseItem {
                 return;
             }
 
-            int[] itemIds = {1588, 1589, 1595, 1587, 1593, 1590};
+            int[] itemIds = {1588, 1589, 1595, 1587, 1593, 1590, 1803, 2020};
             int randomIndex = Util.nextInt(0, itemIds.length - 1);
             short randomItemId = (short) itemIds[randomIndex];
 
             Item newItem = ItemService.gI().createNewItem(randomItemId);
-            RewardService.gI().initChiSoItem(newItem);
-
-            // Thêm các option cố định
-            newItem.itemOptions.add(new ItemOption(50, 27));   // HP
-            newItem.itemOptions.add(new ItemOption(77, 27));   // KI
-            newItem.itemOptions.add(new ItemOption(103, 27));  // Sức đánh
-            newItem.itemOptions.add(new ItemOption(210, 4));   // Chỉ số ẩn
-
-            int randomOption = Util.nextInt(0, 30);
-            if (randomOption < 50) {
-                newItem.itemOptions.add(new ItemOption(93, 0));
-            } else {
-                newItem.itemOptions.add(new ItemOption(93, 3));
-            }
+            boxCostumeOptions(newItem, 30, 20, 27, 4);
 
             // Thêm vào túi và cập nhật
             InventoryService.gI().addItemBag(player, newItem);
@@ -2397,19 +2381,7 @@ public class UseItem {
             short randomItemId = (short) itemIds[randomIndex];
 
             Item newItem = ItemService.gI().createNewItem(randomItemId);
-            RewardService.gI().initChiSoItem(newItem);
-
-            newItem.itemOptions.add(new ItemOption(50, 27));   // HP
-            newItem.itemOptions.add(new ItemOption(77, 27));   // KI
-            newItem.itemOptions.add(new ItemOption(103, 27)); // Sức đánh
-            newItem.itemOptions.add(new ItemOption(210, 4));  // May mắn
-
-            int randomOption = (int) (Math.random() * 100);
-            if (randomOption < 0.5) {
-                newItem.itemOptions.add(new ItemOption(93, 0));
-            } else {
-                newItem.itemOptions.add(new ItemOption(93, 3));
-            }
+            boxCostumeOptions(newItem, 15, 10, 27, 4);
 
             InventoryService.gI().addItemBag(player, newItem);
             InventoryService.gI().subQuantityItemsBag(player, itemused, 1);

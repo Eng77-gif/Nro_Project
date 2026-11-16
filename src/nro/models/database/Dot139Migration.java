@@ -239,9 +239,22 @@ public class Dot139Migration {
         {{906}, {50, 24}, {14, 3}, {77, 19}, {103, 19}, {94, 19}, {5, 14}}, // Cải trang Mighty Mask
         {{1105}, {50, 22}, {77, 23}, {94, 16}, {148, 25}, {108, 16}}, // Bun ma phù thủy
         {{1888}, {50, 18}, {77, 16}, {103, 16}, {236, 10}, {97, 10}}}; // Lồng đèn 2 lon
+    /** Đợt 5 (cải trang Goku Day / Cađic): dòng ẩn (210) mở ngẫu nhiên khi mặc; CT Goku SSJ 4 Red đổi về 4 dòng ẩn như ảnh món chưa mở. */
+    static final int[][][] EVENT_ITEMS5 = {
+        {{1469}, {77, 26}, {103, 26}, {50, 25}, {101, 25}}, // Avatar mũ rồng
+        {{1742}, {50, 21}, {77, 21}, {103, 21}, {210, 1}}, // CT Cađic SSJ
+        {{1743}, {50, 22}, {77, 22}, {103, 22}, {210, 2}}, // CT Cađic SSJ2
+        {{2020}, {50, 28}, {77, 28}, {103, 28}, {274, 10}, {108, 15}, {210, 6}}, // Cải trang Goku cận vô cực
+        {{1593}, {50, 25}, {77, 25}, {103, 25}, {210, 4}, {106, 0}}, // CT Goku SSJ God
+        {{1587}, {50, 23}, {77, 23}, {103, 23}, {210, 3}}, // CT Goku SSJ3
+        {{1595}, {50, 22}, {77, 22}, {103, 22}, {210, 2}}, // CT Goku SSJ2
+        {{1589}, {50, 21}, {77, 21}, {103, 21}, {210, 1}}, // CT Goku SSJ
+        {{1588}, {50, 18}, {77, 18}, {103, 18}, {210, 1}}, // CT Goku
+        {{1803}, {50, 24}, {77, 24}, {103, 24}, {210, 4}}, // CT Goku SSJ 4 Red
+        {{1811}, {50, 26}, {77, 23}, {103, 23}, {95, 10}, {97, 10}}}; // Vua Vegeta (giảm 50% sát thương từ quái: Mob.attackPlayer)
     /** Mọi dòng chỉ số 2 đợt dùng (xoá rồi ghi lại); dòng khác như không giao dịch 30, bay 85 giữ nguyên. Dùng chung với ItemService.refreshTitle. */
     public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 104, 106, 108,
-            114, 117, 126, 43, 44, 273, 226, 148, 154, 155, 183, 191, 199, 200, 204, 210, 221, 236, 268, 269, 270, 271, 272);
+            114, 117, 126, 43, 44, 273, 274, 226, 148, 154, 155, 183, 191, 199, 200, 204, 210, 221, 236, 268, 269, 270, 271, 272);
     private static final String STAT_IDS = STAT_SET.toString().replace("[", "").replace("]", "");
 
     private static void eventItemStats(Connection con) throws Exception {
@@ -266,6 +279,11 @@ public class Dot139Migration {
         // cải trang bán ở shop không còn hạn sử dụng (chỉ đồ mở từ hộp mới có, xem InventoryService.stripCostumeHsd)
         update(con, "delete so from item_shop_option so join item_shop s on s.id = so.item_shop_id join item_template t on t.id = s.temp_id where so.option_id = 93 and t.type = 5");
         update(con, "insert into item_option_template (id, NAME) select 273, 'Tấn công+#% lên quái bay' from dual where not exists (select 1 from item_option_template where id = 273)");
+        update(con, "insert into item_option_template (id, NAME) select 274, '#% cơ hội ra Chống lạnh' from dual where not exists (select 1 from item_option_template where id = 274)");
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
+            writeStats(con, EVENT_ITEMS5);
+            update(con, "insert into server_migration (name) values ('event_items_1116e')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116d'")) {
             writeStats(con, EVENT_ITEMS4);
             update(con, "insert into server_migration (name) values ('event_items_1116d')");
