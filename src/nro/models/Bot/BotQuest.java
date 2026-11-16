@@ -165,6 +165,26 @@ public class BotQuest {
             interact(b, npcId);
             return;
         }
+        Integer qbId = QUEST_BOSS.get((int) code);
+        if (qbId != null) { // bước hạ boss ghi theo mã boss (TaskService): tên bước khác tên boss ("Số 2 (Android 19)", "Kinh Kong"...)
+            nro.models.boss.Boss boss = bossById(qbId);
+            if (boss == null) {
+                b.activity = trainLabel(b); // boss chưa xuất hiện: luyện tập chờ
+                actionable.put(b.id, false);
+                if (b.getMode() == 2) {
+                    b.boss.prefer = null;
+                    b.setMode(0);
+                }
+                return;
+            }
+            b.activity = "Làm nhiệm vụ";
+            if (b.getMode() != 2 || b.boss.prefer == null || !b.boss.prefer.equals(boss.name)) {
+                b.boss.prefer = boss.name;
+                b.boss.bossAttack = null;
+                b.setMode(2);
+            }
+            return;
+        }
         int mobId = tm.id == 8 && tm.index == 1 ? new int[]{11, 12, 10}[Math.max(0, Math.min(2, b.gender))] // ngọc 7 sao rơi từ quái mẹ (Mob: TASK_8_1)
                 : tm.id == 29 && tm.index == 1 ? 58 // capsule kì bí rơi từ Xên con (58 - 65) khi bật máy dò (BotEndgame.mayDo)
                 : mobId(st.name);
@@ -303,6 +323,21 @@ public class BotQuest {
 
     /** Loại quái có tên dài nhất nằm trong tên bước nhiệm vụ ("Đánh 3 con khủng long mẹ" -> khủng long mẹ), -1 nếu không có. */
     /** Boss đang sống ứng với bước "Tiêu diệt <tên boss>" (bỏ "cấp N", lấy tên trong ngoặc nếu có), null nếu chưa xuất hiện. */
+    /** Mã bước (nhiệm vụ * 100 + bước) -> boss phải hạ, theo TaskService.checkDoneTaskKillBoss. */
+    private static final Map<Integer, Integer> QUEST_BOSS = Map.of(
+            2501, nro.models.boss.BossID.ANDROID_19, 2502, nro.models.boss.BossID.DR_KORE,
+            2601, nro.models.boss.BossID.ANDROID_15, 2602, nro.models.boss.BossID.ANDROID_14, 2603, nro.models.boss.BossID.ANDROID_13,
+            2701, nro.models.boss.BossID.POC, 2702, nro.models.boss.BossID.PIC, 2703, nro.models.boss.BossID.KING_KONG);
+
+    private static nro.models.boss.Boss bossById(int id) {
+        for (nro.models.boss.Boss x : new java.util.ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses())) {
+            if (x != null && x.id == id && !x.isDie() && x.zone != null) {
+                return x;
+            }
+        }
+        return null;
+    }
+
     static nro.models.boss.Boss questBoss(String step) {
         String s = step == null ? "" : step.toLowerCase().trim();
         for (String p : new String[]{"tiêu diệt ", "hạ "}) {
