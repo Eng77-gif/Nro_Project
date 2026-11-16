@@ -63,7 +63,7 @@ public class BotSanBoss {
                 List<Boss> want = new ArrayList<>(), exact = new ArrayList<>();
                 for (Boss b : all) {
                     if (b != null && b.name != null && b.name.toLowerCase().contains(prefer.toLowerCase()) && !b.isDie() && b.zone != null
-                            && (!this.bot.accountBot || !b.name.toLowerCase().contains("broly") || BotWorld.canHunt(this.bot, b))) { // săn đệ: chỉ nhắm Broly / Super Broly đánh nổi
+                            && (!this.bot.accountBot || !b.name.toLowerCase().contains("broly") || BotWorld.brolyTarget(this.bot, b))) { // săn đệ: Broly / Super Broly theo luật tranh nhau
                         want.add(b);
                         if (b.name.equalsIgnoreCase(prefer)) {
                             exact.add(b); // "Số 4" chứ không phải "Số 4 Namek" (bản Namek không tính nhiệm vụ)
@@ -81,7 +81,7 @@ public class BotSanBoss {
                     for (Boss b : want) {
                         (b.name.toLowerCase().contains("super") ? sup : thuong).add(b);
                     }
-                    if (!sup.isEmpty() && this.bot.pet == null) {
+                    if (!sup.isEmpty()) {
                         Boss near = null; // Super Broly cùng map (vừa hoá từ Broly nhóm mình hạ) trước, không thì con bất kỳ
                         for (Boss b : sup) {
                             if (this.bot.zone != null && b.zone == this.bot.zone) {
@@ -92,8 +92,15 @@ public class BotSanBoss {
                     } else if (System.currentTimeMillis() < waitSuperUntil) {
                         this.bossAttack = null; // vừa hạ Broly: đứng chờ Super Broly hiện ra tại chỗ
                         return;
-                    } else if (!thuong.isEmpty()) {
-                        thuong.sort(java.util.Comparator.comparingLong(b -> b.nPoint.hpMax));
+                    } else if (!thuong.isEmpty() && aliveSuper(all) < MAX_SUPER) {
+                        // nhập hội con đang có nhiều bot đánh nhất (đánh 1 mình không chết), hoà thì con ít HP nhất
+                        java.util.Map<Boss, Integer> crowd = new java.util.HashMap<>();
+                        for (Bot o : BotWorld.gI().bots()) {
+                            if (o != this.bot && o.boss != null && o.boss.bossAttack != null) {
+                                crowd.merge(o.boss.bossAttack, 1, Integer::sum);
+                            }
+                        }
+                        thuong.sort(java.util.Comparator.<Boss>comparingInt(b -> -crowd.getOrDefault(b, 0)).thenComparingLong(b -> b.nPoint.hpMax));
                         this.bossAttack = thuong.get(0);
                     } else {
                         this.bossAttack = null; // không có Broly nào đánh nổi: không đánh bừa boss khác (trước đây lạc sang Số 3 Namek)
@@ -134,6 +141,19 @@ public class BotSanBoss {
                 giveUp();
             }
         }
+    }
+
+    /** Đang có từ ngần này Super Broly mà nhóm không đánh nổi con nào thì thôi hạ Broly thường (tránh đẻ Super Broly tràn map). */
+    static final int MAX_SUPER = 3;
+
+    private static int aliveSuper(List<Boss> all) {
+        int n = 0;
+        for (Boss b : all) {
+            if (b != null && !b.isDie() && b.zone != null && b.name != null && b.name.toLowerCase().contains("super broly")) {
+                n++;
+            }
+        }
+        return n;
     }
 
     /** Không tìm được boss: bot của BotWorld quay về luyện tập, bot gọi tay thì rời game như cũ. */
@@ -180,8 +200,8 @@ public class BotSanBoss {
     public void SanBot() {
         Boss cur = this.bossAttack;
         if (cur != null && !cur.isDie() && this.bot.accountBot && cur.name != null && cur.name.toLowerCase().contains("super broly")
-                && cur.nPoint.hpMax > 1000 && (this.bot.pet != null || !BotWorld.canHunt(this.bot, cur))) {
-            // Super Broly vừa hiện ra thì HP còn mặc định, chọn xong mới biết là con 14 triệu: quá sức thì bỏ, hạ Broly khác cho ra con mới
+                && cur.nPoint.hpMax > 1000 && !BotWorld.brolyTarget(this.bot, cur)) {
+            // Super Broly vừa hiện ra thì HP còn mặc định, chọn xong mới biết là con 14 triệu: không ai trong nhóm hợp thì bỏ, hạ Broly khác
             this.bossAttack = null;
             this.waitSuperUntil = 0; // Super Broly đã ra (mà quá sức): thôi chờ, đi hạ Broly khác luôn
         }
@@ -196,6 +216,10 @@ public class BotSanBoss {
                 this.bossAttack = null;
             }
             return;
+        }
+        if (this.bossAttack != null && !this.bossAttack.isDie() && this.bot.pet != null && this.bossAttack.name != null
+                && this.bossAttack.name.toLowerCase().contains("super broly") && this.bossAttack.nPoint.hp <= this.bossAttack.nPoint.hpMax / 5) {
+            return; // đã có đệ: đánh Super Broly còn 20% thì dừng tay, đứng đó nhường cú kết liễu cho bot chưa có đệ
         }
         if (this.bossAttack != null && !this.bossAttack.isDie()) {
             if (this.bot.UseLastTimeSkill()) {

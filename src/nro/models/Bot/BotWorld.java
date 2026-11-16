@@ -1201,6 +1201,30 @@ public final class BotWorld {
         return b.nPoint.dame >= 10_000 && hit * 3 <= b.nPoint.hpMax && x.nPoint.hpMax / per <= 1_200;
     }
 
+    /** Chịu được 3 đòn của boss Broly / Super Broly này (bị đánh là đánh = 10% HP tối đa). */
+    static boolean survive(Bot b, nro.models.boss.Boss x) {
+        return b.nPoint.dame >= 10_000 && Math.max(x.nPoint.dame, x.nPoint.hpMax / 10) * 3 <= b.nPoint.hpMax;
+    }
+
+    /**
+     * Bot nhắm boss Broly này khi săn đệ không (tranh nhau như người chơi):
+     * - Broly thường: ai chịu nổi cũng vào hạ cho nó hoá Super Broly.
+     * - Super Broly: bot đã có đệ chịu nổi thì vào đánh cho yếu (còn 20% thì dừng tay nhường cú cuối); bot chưa có đệ vào khi
+     *   đánh nổi hoặc khi nó đã còn dưới 30% HP để tranh cú kết liễu (chết thì hồi sinh quay lại).
+     */
+    static boolean brolyTarget(Bot b, nro.models.boss.Boss x) {
+        if (x == null || x.nPoint == null || b.nPoint == null || x.name == null) {
+            return false;
+        }
+        if (!x.name.toLowerCase().contains("super")) {
+            return survive(b, x);
+        }
+        if (b.pet != null) {
+            return survive(b, x);
+        }
+        return b.nPoint.dame >= 10_000 && (canHunt(b, x) || x.nPoint.hp <= x.nPoint.hpMax * 3 / 10);
+    }
+
     /** Việc cần làm theo nhu cầu: chưa có đệ -> săn đệ (Broly), NRSD đang mở và đủ mạnh -> NRSD, đủ mạnh -> săn boss lấy đồ. */
     private int plan(Bot b, boolean nrsd) {
         if (b.pet == null && canBeatBroly(b) && Util.isTrue(70, 100)) {
@@ -1342,7 +1366,7 @@ public final class BotWorld {
     }
 
     /** Số bot tối đa cùng vây đánh 1 Super Broly (máu 15 tỷ, 1 bot đánh không xuể). */
-    static final int SUPER_BROLY_GANG = 8;
+    static final int SUPER_BROLY_GANG = 10;
     static final int BROLY_GANG = 12; // hạ Broly thường cần đông: mỗi đòn chỉ mất 1% HP mà 10% số đòn làm Broly tăng HP
 
     /** Super Broly đang sống: gọi thêm bot rảnh (luyện tập / săn boss / nghỉ) đủ sức tới cùng đánh. */
@@ -1383,7 +1407,7 @@ public final class BotWorld {
             for (Bot b : bots()) {
                 if (b.getMode() == 2 && b.boss.prefer != null && sb.name.equals(b.boss.prefer)) {
                     n++;
-                } else if (freeForBroly(b, sb, false)) {
+                } else if (freeForBroly(b, sb, true)) {
                     free.add(b);
                 }
             }
@@ -1396,7 +1420,7 @@ public final class BotWorld {
 
     /** Bot rảnh (luyện tập / săn boss / nghỉ), đánh nổi và tới được boss Broly này; Super Broly chỉ bot chưa có đệ (hạ mới nhận đệ). */
     private boolean freeForBroly(Bot b, nro.models.boss.Boss x, boolean helper) {
-        return b.accountBot && (helper || b.pet == null) && b.zone != null && !b.isDie() && allow(b, "broly") && canHunt(b, x) && b.canGo(x.zone.map.mapId)
+        return b.accountBot && (helper || b.pet == null) && b.zone != null && !b.isDie() && allow(b, "broly") && brolyTarget(b, x) && b.canGo(x.zone.map.mapId)
                 && jobOf(b.id) == null && !BotArena.inArena(b) && !BotClan.inDungeon(b)
                 && ("Luyện tập".equals(b.activity) || "Săn boss".equals(b.activity) || b.activity != null && b.activity.startsWith("Nghỉ ở nhà"));
     }
