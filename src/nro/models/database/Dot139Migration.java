@@ -186,14 +186,51 @@ public class Dot139Migration {
         {{1914}, {50, 15}, {77, 15}, {103, 5}, {NGAU_GIAM, 2}}, // Pet Gấu Dâu
         {{1515}, {50, 18}, {77, 15}, {103, 15}, {80, 10}}, // Chậu hoa hồng
         {{1344}, {77, 18}, {103, 18}, {5, 10}, {117, 5}}}; // Con Cat hường
-    private static final String STAT_IDS = "5, 7, 50, 77, 80, 83, 103, 108, 117, 269";
+    /** Đợt 2 (ảnh 23 cải trang / đeo lưng / pet): dòng nâu (đi chung, hợp thể...) là mô tả vật phẩm, giữ nguyên. */
+    static final int[][][] EVENT_ITEMS2 = {
+        {{1745}, {50, 25}, {77, 25}, {103, 25}, {108, 6}, {191, 6}, {148, 39}, {5, 13}}, // CT Cađic SSJ3
+        {{1200}, {50, 22}, {77, 30}, {80, 20}}, // Nón mèo
+        {{1657}, {50, 24}, {77, 24}, {103, 22}, {204, 6}, {95, 15}, {236, 5}}, // CT Gohan đi biển
+        {{1767}, {50, 9}, {103, 9}, {94, 2}}, // Ván bay Magikarp (giữ dòng bay 85)
+        {{1557}, {50, 25}, {77, 24}, {103, 24}, {80, 15}, {108, 5}, {94, 15}, {148, 50}}, // CT Hắc Mị Nương
+        {{1601}, {50, 23}, {77, 23}, {103, 23}, {101, 16}, {199, 5}, {204, 15}, {108, 5}, {29, 0}, {221, 2}}, // CT Mabư nhí
+        {{1968}, {50, 28}, {77, 28}, {103, 28}, {268, 20}, {5, 19}}, // Cải trang Goku Tết
+        {{1674}, {50, 23}, {77, 23}, {103, 23}, {14, 11}, {108, 10}, {80, 8}, {183, 11}}, // CT Pikkon
+        {{1997}, {95, 15}, {268, 30}, {155, 150}}, // Cải trang Chi Chi giỗ tổ
+        {{1980}, {50, 17}, {77, 19}, {103, 17}, {47, 15000}}, // Pet Kirby
+        {{1778}, {117, 30}, {14, 15}, {108, 15}}, // CT Lý Tiểu Nương Rực Rỡ
+        {{1998}, {103, 40}, {7, 36000}, {268, 10}}, // Cánh hào khí
+        {{860}, {50, 24}, {117, 20}, {114, 25}, {77, 24}, {154, 0}}, // Cải trang Mị Nương
+        {{1785}, {50, 17}, {77, 15}, {103, 15}, {14, 5}, {80, 10}, {148, 20}}, // Karin Kid Lân 2025
+        {{1777}, {77, 33}, {94, 20}, {108, 15}, {80, 5}, {148, 75}}, // CT Broly SSJ God
+        {{1996}, {103, 35}, {7, 17000}, {108, 21}}, // Cải trang Goku giỗ tổ
+        {{1600}, {50, 22}, {77, 22}, {103, 22}, {148, 31}, {81, 4}, {200, 5}, {8, 2}}, // CT Xên nhí
+        {{1693}, {50, 26}, {77, 24}, {103, 24}, {101, 30}, {106, 0}}, // CT Cađic SSJ4
+        {{1949}, {50, 23}, {77, 25}, {103, 23}, {97, 20}, {270, 5}}, // Cải trang Kirin tuần lộc
+        {{731}, {271, 0}, {50, 21}, {77, 18}, {103, 18}}, // Cải trang Sói Lavender
+        {{732}, {272, 0}, {50, 22}, {77, 19}, {103, 19}}}; // Cải trang Sói Bergamo
+    /** Mọi dòng chỉ số 2 đợt dùng (xoá rồi ghi lại); dòng khác như không giao dịch 30, bay 85 giữ nguyên. Dùng chung với ItemService.refreshTitle. */
+    public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 106, 108,
+            114, 117, 148, 154, 155, 183, 191, 199, 200, 204, 221, 236, 268, 269, 270, 271, 272);
+    private static final String STAT_IDS = STAT_SET.toString().replace("[", "").replace("]", "");
 
     private static void eventItemStats(Connection con) throws Exception {
         update(con, "insert into item_option_template (id, NAME) select " + NGAU_GIAM + ", 'Ngầu +#% giảm sát thương cho người xung quanh' from dual where not exists (select 1 from item_option_template where id = " + NGAU_GIAM + ")");
-        if (exists(con, "select 1 from server_migration where name = 'event_items_1116'")) {
-            return;
+        update(con, "insert into item_option_template (id, NAME) select 270, 'Wow: Tăng #% Chí mạng cho người xung quanh' from dual where not exists (select 1 from item_option_template where id = 270)");
+        update(con, "insert into item_option_template (id, NAME) select 271, 'Cơ hội hạ độc đối thủ' from dual where not exists (select 1 from item_option_template where id = 271)");
+        update(con, "insert into item_option_template (id, NAME) select 272, 'Hấp thụ sức mạnh rồi bộc phá' from dual where not exists (select 1 from item_option_template where id = 272)");
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1116'")) {
+            writeStats(con, EVENT_ITEMS);
+            update(con, "insert into server_migration (name) values ('event_items_1116')");
         }
-        for (int[][] it : EVENT_ITEMS) {
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1116b'")) {
+            writeStats(con, EVENT_ITEMS2);
+            update(con, "insert into server_migration (name) values ('event_items_1116b')");
+        }
+    }
+
+    private static void writeStats(Connection con, int[][][] items) throws Exception {
+        for (int[][] it : items) {
             int id = it[0][0];
             update(con, "delete from item_template_option where template_id = " + id + " and option_id in (" + STAT_IDS + ")");
             update(con, "delete from item_shop_option where option_id in (" + STAT_IDS + ") and item_shop_id in (select id from item_shop where temp_id = " + id + ")");
@@ -202,6 +239,5 @@ public class Dot139Migration {
                 update(con, "insert into item_shop_option (item_shop_id, option_id, param) select id, " + it[k][0] + ", " + it[k][1] + " from item_shop where temp_id = " + id);
             }
         }
-        update(con, "insert into server_migration (name) values ('event_items_1116')");
     }
 }

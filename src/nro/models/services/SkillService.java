@@ -923,6 +923,11 @@ public class SkillService {
             }
         }
         long dameHit = plInjure.injured(plAtt, miss ? 0 : dameAttack, false, false);
+        if (!miss && dameHit > 0 && plAtt.nPoint != null && plAtt.nPoint.haDoc && !plInjure.isDie() && Util.isTrue(10, 100)) {
+            // option 271: hạ độc, 10% mỗi đòn trúng mất thêm 2% HP tối đa (boss tối đa 1 triệu)
+            long doc = Math.max(1, plInjure.nPoint.hpMax * 2 / 100);
+            dameHit += plInjure.injured(plAtt, plInjure.isBoss ? Math.min(doc, 1_000_000) : doc, true, false);
+        }
         if (plAtt.playerSkill == null) {
             return;
         }
@@ -1015,6 +1020,9 @@ public class SkillService {
 
         hutHPMP(plAtt, dameHit, null, mob);
         sendPlayerAttackMob(plAtt, mob);
+        if (!miss && dameHit > 0 && plAtt.nPoint != null && plAtt.nPoint.haDoc && Util.isTrue(10, 100) && mob.point != null) {
+            dameHit += Math.max(1, mob.point.getHpFull() * 2 / 100); // option 271: hạ độc +2% HP tối đa của quái
+        }
         mob.injured(plAtt, dameHit, dieWhenHpFull);
     }
 

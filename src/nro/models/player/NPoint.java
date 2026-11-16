@@ -176,6 +176,10 @@ public class NPoint {
      * Tỉ lệ sức đánh đẹp cộng thêm cho bản thân và người xung quanh
      */
     public int tlSexyDame;
+    public int tlWowCrit; // option 270: Wow +#% chí mạng cho người xung quanh (setIsCrit)
+    public boolean haDoc; // option 271: cơ hội hạ độc đối thủ (SkillService)
+    public boolean bocPha; // option 272: hấp thụ sức mạnh rồi bộc phá (getDameAttack)
+    private int bocPhaCount;
     public int tlNgauGiam; // option 269: Ngầu +#% giảm sát thương cho người xung quanh (Player.injured)
 
     /**
@@ -458,6 +462,17 @@ public class NPoint {
                             if (io.param > this.tlNgauGiam) {
                                 this.tlNgauGiam = io.param;
                             }
+                            break;
+                        case 270: //Wow: Tăng #% Chí mạng cho người xung quanh
+                            if (io.param > this.tlWowCrit) {
+                                this.tlWowCrit = io.param;
+                            }
+                            break;
+                        case 271: //Cơ hội hạ độc đối thủ
+                            this.haDoc = true;
+                            break;
+                        case 272: //Hấp thụ sức mạnh rồi bộc phá
+                            this.bocPha = true;
                             break;
                         case 147: //+#% sức đánh
                             this.tlDame.add(io.param);
@@ -1343,6 +1358,17 @@ public class NPoint {
                     this.tlNgauGiam = io.param;
                 }
                 break;
+            case 270: //Wow: Tăng #% Chí mạng cho người xung quanh
+                if (io.param > this.tlWowCrit) {
+                    this.tlWowCrit = io.param;
+                }
+                break;
+            case 271: //Cơ hội hạ độc đối thủ
+                this.haDoc = true;
+                break;
+            case 272: //Hấp thụ sức mạnh rồi bộc phá
+                this.bocPha = true;
+                break;
             case 147: //+#% sức đánh
                 this.tlDame.add(io.param);
                 break;
@@ -2017,6 +2043,9 @@ public class NPoint {
         this.setNguyetAn = 0;
         this.tlSexyDame = 0;
         this.tlNgauGiam = 0;
+        this.tlWowCrit = 0;
+        this.haDoc = false;
+        this.bocPha = false;
         this.tlSubSD = 0;
         this.tlSubHpKi = 0;
         this.tlHpGiamODo = 0;
@@ -2112,8 +2141,22 @@ public class NPoint {
             isCrit100 = false;
             isCrit = true;
         } else {
-            isCrit = Util.isTrue(this.crit, ConstRatio.PER100);
+            isCrit = Util.isTrue(this.crit + wowAura(), ConstRatio.PER100);
         }
+    }
+
+    /** Option 270 "Wow": người đứng trong 200px của người mặc (kể cả người mặc) +#% chí mạng, lấy mức cao nhất. */
+    private int wowAura() {
+        if (this.player == null || this.player.zone == null) {
+            return 0;
+        }
+        int best = this.tlWowCrit;
+        for (Player p : this.player.zone.getNotBosses()) {
+            if (p != null && p != this.player && p.nPoint != null && p.nPoint.tlWowCrit > best && !p.isDie() && Util.getDistance(this.player, p) <= 200) {
+                best = p.nPoint.tlWowCrit;
+            }
+        }
+        return best;
     }
 
     public long getDameAttack(boolean isAttackMob) {
@@ -2285,6 +2328,11 @@ public class NPoint {
             } else {
                 punchStack = 0;
             }
+        }
+        // option 272: hấp thụ sức mạnh, cứ 10 đòn thì đòn thứ 10 bộc phá x2 sát thương
+        if (bocPha && ++bocPhaCount >= 10) {
+            bocPhaCount = 0;
+            dameAttack *= 2;
         }
         // option 166 / 170: bay cùng cải trang thì +% sức đánh lên quái
         if (isAttackMob) {

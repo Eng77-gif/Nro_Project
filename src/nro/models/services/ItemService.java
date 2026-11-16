@@ -695,7 +695,8 @@ public class ItemService {
 
     /** Danh hiệu đổi chỉ số (Đón Xuân 1978, Tay nhanh hơn não 1673): món cũ trong hành trang / rương lấy chỉ số mới, giữ hạn còn lại và dòng không giao dịch. */
     private static final java.util.Set<Integer> TITLE_REFRESH = java.util.Set.of(1673, 1978,
-            1991, 954, 1670, 1519, 1925, 1914, 1515, 1344); // + vật phẩm sự kiện đổi chỉ số theo ảnh (Dot139Migration.EVENT_ITEMS)
+            1991, 954, 1670, 1519, 1925, 1914, 1515, 1344, // + vật phẩm sự kiện đổi chỉ số theo ảnh (Dot139Migration.EVENT_ITEMS / EVENT_ITEMS2)
+            1745, 1200, 1657, 1767, 1557, 1601, 1968, 1674, 1997, 1980, 1778, 1998, 860, 1785, 1777, 1996, 1600, 1693, 1949, 731, 732);
 
     public void refreshTitle(Item it) {
         if (it == null || it.template == null || !TITLE_REFRESH.contains((int) it.template.id)) {
@@ -707,7 +708,7 @@ public class ItemService {
         }
         List<Item.ItemOption> keep = new ArrayList<>();
         boolean eventItem = it.template.id != 1673 && it.template.id != 1978;
-        java.util.Set<Integer> statIds = java.util.Set.of(5, 7, 50, 77, 80, 83, 103, 108, 117, 269);
+        java.util.Set<Integer> statIds = nro.models.database.Dot139Migration.STAT_SET;
         for (Item.ItemOption o : it.itemOptions) {
             if (o == null || o.optionTemplate == null) {
                 continue;
