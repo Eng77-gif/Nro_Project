@@ -22,9 +22,7 @@ public class Santa extends Npc {
     /** Danh sách chức năng theo đúng thứ tự nút trong menu. */
     private List<String[]> menu(Player player) {
         List<String[]> menu = new ArrayList<>();
-        if (SeasonEventService.gI().hasActive()) {
-            menu.add(new String[]{SeasonEventService.gI().menuLabel(), EVENT});
-        }
+        // nút "Sự kiện ..." đã bỏ: hướng dẫn sự kiện đăng trên web, đổi quà sự kiện vẫn ở nút sự kiện của NPC đổi quà
         menu.add(new String[]{"Cửa hàng", "SANTA"});
         Item pGG = InventoryService.gI().findItem(player.inventory.itemsBag, 459);
         if (pGG != null && pGG.quantity >= 1) {

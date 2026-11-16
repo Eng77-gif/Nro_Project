@@ -30,6 +30,8 @@ import nro.models.utils.Util;
  */
 public class BaHatMit extends Npc {
 
+    private static final java.util.Map<Long, java.util.List<Integer>> MENU_ACT = new java.util.concurrent.ConcurrentHashMap<>();
+
     public BaHatMit(int mapId, int status, int cx, int cy, int tempId, int avartar) {
         super(mapId, status, cx, cy, tempId, avartar);
     }
@@ -39,11 +41,24 @@ public class BaHatMit extends Npc {
         if (canOpenNpc(player)) {
             switch (this.mapId) {
                 case 5 -> {
-                    java.util.List<String> m = new java.util.ArrayList<>(java.util.List.of("Chức năng\npha lê", "Chuyển hóa\nTrang bị",
-                            "Võ đài\nSinh tử", "Phân rã\nTrang bị\nKích hoạt", "Tái tạo\nCapsule\nKích hoạt"));
-                    if (nro.models.services.SaoPhaLe10Service.isEventTime()) { // sự kiện Sao pha lê 10 kết thúc thì ẩn mục này (mục cuối, không lệch số)
-                        m.add("Nhiệm vụ\nSao pha lê\n10");
+                    // Phân rã / Tái tạo chỉ hiện khi người chơi đã có Cápsule Vỡ (1634) lần đầu, sau đó hiện vĩnh viễn
+                    if (!player.skhMenu && nro.models.services.InventoryService.gI().findItemBag(player, 1634) != null) {
+                        player.skhMenu = true;
+                        nro.models.database.PlayerExtraDAO.save(player);
                     }
+                    java.util.List<String> m = new java.util.ArrayList<>(java.util.List.of("Chức năng\npha lê", "Chuyển hóa\nTrang bị", "Võ đài\nSinh tử"));
+                    java.util.List<Integer> acts = new java.util.ArrayList<>(java.util.List.of(0, 1, 2));
+                    if (player.skhMenu) {
+                        m.add("Phân rã\nTrang bị\nKích hoạt");
+                        m.add("Tái tạo\nCapsule\nKích hoạt");
+                        acts.add(3);
+                        acts.add(4);
+                    }
+                    if (nro.models.services.SaoPhaLe10Service.isEventTime()) { // sự kiện Sao pha lê 10 kết thúc thì ẩn mục này
+                        m.add("Nhiệm vụ\nSao pha lê\n10");
+                        acts.add(5);
+                    }
+                    MENU_ACT.put(player.id, acts);
                     this.createOtherMenu(player, ConstNpc.BASE_MENU, "Ngươi tìm ta có việc gì?", m.toArray(new String[0]));
                 }
 
@@ -133,6 +148,10 @@ public class BaHatMit extends Npc {
             switch (this.mapId) {
                 case 5 -> {
                     if (player.idMark.isBaseMenu()) {
+                        java.util.List<Integer> acts = MENU_ACT.get(player.id); // nút ẩn / hiện: đổi vị trí bấm sang đúng chức năng
+                        if (acts != null) {
+                            select = select >= 0 && select < acts.size() ? acts.get(select) : -1;
+                        }
                         switch (select) {
                             case 0 ->
                                 createOtherMenu(player, 3,

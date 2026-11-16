@@ -58,6 +58,7 @@ public class Dot139Migration {
         try {
             update(con, "alter table web_topup add column if not exists gem_pending int not null default 0"); // ngọc nạp lúc offline, cộng khi đăng nhập
             removeAdminFromRanks(con);
+            update(con, "alter table player_extra add column if not exists skh_menu tinyint not null default 0"); // Bà Hạt Mít: đã từng có Cápsule Vỡ
             // Danh hiệu theo ảnh: Đón Xuân 1978 (+50% TNSM, +25% TNSM đệ, +5% vàng rơi, SĐ +11%, chí mạng +5%, 30 ngày);
             // Tay nhanh hơn não 1673 (HP +5%, may mắn +20%, TNSM +10%, 7 ngày). Chỉ số thật: data_badges; hiện ở shop: item_shop_option
             int[][][] titles = {{{1978}, {101, 50}, {160, 25}, {268, 5}, {50, 11}, {14, 5}, {93, 30}}, {{1673}, {77, 5}, {236, 20}, {101, 10}, {93, 7}}};

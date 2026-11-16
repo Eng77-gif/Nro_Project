@@ -2424,3 +2424,7 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Loa to liên vũ trụ (1653): dòng chữ chạy + bảng thông báo lớn giữa màn hình mọi người đang online.
   - Cách nhau tối thiểu 15 giây; hiện trong Nhật ký chat & thông báo của panel.
 - Khẩu trang: lưu thời gian còn lại khi thoát game (item_time vị trí 32), vào lại vẫn còn hiệu lực.
+
+## Santa bỏ nút sự kiện; Bà Hạt Mít ẩn Phân rã / Tái tạo
+- Santa: bỏ nút "Sự kiện Halloween" (hướng dẫn đã đăng trên web; đổi quà sự kiện vẫn ở nút sự kiện của NPC đổi quà như Bà Hạt Mít).
+- Bà Hạt Mít (Đảo Kamê): "Phân rã Trang bị Kích hoạt" và "Tái tạo Capsule Kích hoạt" chỉ hiện khi người chơi có Cápsule Vỡ lần đầu, sau đó hiện vĩnh viễn (player_extra.skh_menu). Các nút khác bấm đúng chức năng dù nút ẩn / hiện.
