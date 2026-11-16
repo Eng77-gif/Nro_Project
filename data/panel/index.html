@@ -243,7 +243,7 @@ const PAGES=[
  ['g','Máy chủ'],['dash','Tổng quan','📊'],['notify','Thông báo & quà','📣'],['maint','Bảo trì & lưu','🛠'],['logs','Nhật ký console','🖥'],['chatlog','Nhật ký chat & thông báo','💬'],['audit','Nhật ký thao tác','📝'],['config','Cấu hình','⚙'],
  ['g','Người chơi'],['players','Người chơi','👤'],['pets','Đệ tử','🐉'],['bots','Bot','🤖'],['ai','AI huấn luyện bot','🧠'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],['webposts','Diễn đàn & hỗ trợ','📮'],['webtopup','Nạp qua web','💎'],
  ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],['looks','Đeo lưng & thú cưỡi','🪽'],['admin','Lệnh admin trong game','🧙'],
- ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['nrsd','Ngọc Rồng Sao Đen','🌑'],['bossrw','Thưởng boss','💰'],['drops','Tỉ lệ rơi','🎲'],['kol','Nhiệm vụ KOL','⭐'],['mobs','Quái','🐗'],
+ ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['nrsd','Ngọc Rồng Sao Đen','🌑'],['bossrw','Thưởng boss','💰'],['drops','Tỉ lệ rơi','🎲'],['kol','Nhiệm vụ KOL','⭐'],['vipseason','Mùa VIP Tori Bot','👑'],['mobs','Quái','🐗'],
  ['g','Khác'],['db','Database','🗄'],['health','Kiểm tra dữ liệu','🩺'],['napthe','Nạp thẻ','💳'],['sql','Truy vấn SQL','🧮']];
 
 function uiIcon(key){const shapes={
@@ -270,7 +270,7 @@ function uiIcon(key){const shapes={
  heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
  arrow:'<path d="M5 12h14m-5-5 5 5-5 5"/>'};
- const aliases={players:'users',accounts:'key',bots:'bot',notify:'bell',maint:'settings',logs:'file',audit:'file',config:'settings',tops:'trophy',clans:'shield',items:'box',boxes:'box',giftcode:'box',shop:'store',kygui:'box',badges:'trophy',radar:'file',fx:'bolt',looks:'bolt',admin:'shield',maps:'map',events:'event',evshop:'store',eventtops:'trophy',bosses:'bolt',bossrw:'trophy',drops:'box',kol:'trophy',mobs:'bolt',db:'database',health:'heart',napthe:'file',sql:'database'};
+ const aliases={players:'users',accounts:'key',bots:'bot',notify:'bell',maint:'settings',logs:'file',audit:'file',config:'settings',tops:'trophy',clans:'shield',items:'box',boxes:'box',giftcode:'box',shop:'store',kygui:'box',badges:'trophy',radar:'file',fx:'bolt',looks:'bolt',admin:'shield',maps:'map',events:'event',evshop:'store',eventtops:'trophy',bosses:'bolt',bossrw:'trophy',drops:'box',kol:'trophy',vipseason:'trophy',mobs:'bolt',db:'database',health:'heart',napthe:'file',sql:'database'};
  return '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">'+(shapes[aliases[key]||key]||shapes.dash)+'</svg>'}
 
 function buildNav(){if(innerWidth<760)$('#nav').classList.add('hide');let h='<h1><span class="brand-orb"><span>★★★★</span></span><span>NRO<span style="color:var(--acc)">.</span> Admin<small>Control center</small></span></h1>',open=false;
@@ -846,6 +846,19 @@ function drawDrops(){$('#dtab').querySelectorAll('button').forEach(b=>b.classLis
 async function saveRate(k){const v=+document.querySelector(`[data-k="${k}"]`).value;await api('drops/set',{key:k,rate:v});toast('Đã lưu tỉ lệ');DROPS=await api('drops');drawDrops()}
 async function saveBossRate(id){const x=BRWD.rows.find(r=>r.id==id),v=+document.querySelector(`[data-b="${id}"]`).value;await api('bossreward/save',{...x,rate:Math.round(v*100)});toast('Đã lưu tỉ lệ boss');BRWD=await api('bossrewards');drawDrops()}
 async function resetDrops(){if(!confirm('Xoá số liệu đếm và đếm lại từ bây giờ?'))return;await api('drops/reset',{});DROPS=await api('drops');drawDrops()}
+
+/* ---------- mùa VIP Tori Bot (tích nạp) ---------- */
+async function page_vipseason(){const [v,rows]=await Promise.all([api('vipseason'),api('vipseason/buyers')]);const dt=x=>String(x).slice(0,16),act=rows.filter(r=>r.active).length;
+  $('#main').innerHTML=`<h2>Mùa VIP Tori Bot</h2>`+statRow([['Trạng thái',v.open?'Đang mở':'Đã đóng',v.open?'Người chơi mua được ở Tori Bot':'Ngoài thời gian mùa'],['Đang có VIP',fmt(act),'Còn hạn timevip'],['Đã mua mùa này',fmt(rows.reduce((a,r)=>a+r.count,0)),'Tổng lượt mua']])+
+  `<div class="card"><div class="section-head"><h3>Cấu hình mùa</h3></div>
+   <div class="row" style="flex-wrap:wrap;gap:12px"><label class="f">Bắt đầu<input id="vs" type="datetime-local" value="${dt(v.start)}"></label><label class="f">Kết thúc<input id="ve" type="datetime-local" value="${dt(v.end)}"></label><label class="f">Số lần mua tối đa / mùa<input id="vm" type="number" min="1" max="100" value="${v.max}"></label></div>
+   <div class="row" style="flex-wrap:wrap;gap:12px">${v.prices.map((p,i)=>`<label class="f">Giá VIP ${i+1} (điểm mùa)<input id="vp${i}" type="number" min="0" value="${p}"></label>`).join('')}</div>
+   <p class="mute" style="font-size:12px;margin:8px 0">Đổi ngày bắt đầu là sang mùa mới: số lần mua của mọi người tính lại từ 0. VIP đang có vẫn dùng tới hết hạn (30 ngày mỗi lần mua). Phần quà từng gói xem ở Tori Bot trong game. Lưu là có hiệu lực ngay.</p>
+   <button class="p" id="vsave">Lưu</button></div>
+  <div class="card"><div class="section-head"><h3>Người chơi có VIP</h3><span class="tag">${rows.length}</span></div>${rows.length?table(rows,[['name','Nhân vật',(x,r)=>`<a href="javascript:void 0" onclick="openPlayer(${Number(r.id)})">${esc(x)}</a>${r.online?' <span class="tag on1">online</span>':''}`],['vip','VIP',x=>x?'VIP '+x:'-'],['timevip','Hết hạn',(x,r)=>x>0?`${r.active?'':'<span class="mute">đã hết · </span>'}${esc(new Date(x).toLocaleString('vi-VN'))}`:'-'],['count','Đã mua mùa này',x=>x+' / '+v.max]]):'<p class="mute">Chưa ai mua VIP.</p>'}</div>`;
+  $('#vsave').onclick=()=>{const start=$('#vs').value,end=$('#ve').value;if(!start||!end)return toast('Chưa chọn ngày',1);
+   if(start.slice(0,16)!==dt(v.start)&&!confirm('Đổi ngày bắt đầu = mùa mới, số lần mua của mọi người tính lại từ 0. Tiếp tục?'))return;
+   act(()=>api('vipseason/save',{start:start.length===16?start+':00':start,end:end.length===16?end+':59':end,max:+$('#vm').value,prices:[0,1,2,3].map(i=>+$('#vp'+i).value)}),'Đã lưu mùa VIP').then(r=>{if(r)page_vipseason()})}}
 
 /* ---------- nhiệm vụ KOL (Quy Lão Kamê) ---------- */
 let KOL=null,kolTab=0;

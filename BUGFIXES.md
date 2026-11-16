@@ -2457,3 +2457,9 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
   - Map 169: cột 32 và 46 (hàng 0 - 20) thành tường, hàng 20 dưới đài thành trần. Nhìn y như cũ (so ảnh vẽ lại không lệch điểm nào). Client tự chặn: ngoài không bay vào được, trong (người đấu) không ra được.
   - Server: chỉ giữ Gohan trong đài (boss không va chạm ô gạch), đấu xong đưa người đấu xuống đất trước Hùng Vương, ai lọt vào đài bằng cách khác (dịch chuyển tức thời...) đưa xuống đất.
   - vsData 35 (tải lại tile_set_Info), vsMap 14, vsRes 8.
+
+## Gohan chiến binh đánh được, hết chạy lung tung; panel Mùa VIP Tori Bot
+- Gohan đánh không mất máu / không nhận sát thương: cờ PK_PVP chỉ đánh được khi 2 bên đang trong trận PvP (SkillService.canAttackPlayer2), Gohan không có trận nên 2 bên không đánh nhau được. Đổi Gohan sang PK_ALL (lớp cha đặt lại cờ sau khi vào map nên afk() gửi lại). Chỉ người lên đài gây được sát thương.
+- Gohan chạy lung tung: lớp cha bước 50 - 100px mỗi lần nên vượt qua người đấu rồi quay lại. Gohan giờ tiến tới cách người đấu ~40px rồi đứng lại, luôn trên mặt đài.
+- Panel "Mùa VIP Tori Bot" (nhóm Thế giới): ngày giờ bắt đầu / kết thúc, giá 4 gói (điểm mùa), số lần mua tối đa / mùa, danh sách người có VIP (cấp, hạn, số lần mua mùa này). Lưu ở bảng `vip_season`, chưa lưu thì như cũ (16/08 - 16/09, 50k / 100k / 150k / 200k, 4 lần).
+- Sửa lỗi reset VIP: trước đây sau ngày 05/07 mỗi lần đăng nhập ngày mới đều xoá VIP + số lần mua. Giờ mỗi mùa có mã (= ngày bắt đầu, lưu ở data_vip vị trí 8), sang mùa mới mới đếm lại số lần mua; VIP tự hết khi quá hạn timevip.

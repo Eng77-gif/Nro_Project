@@ -396,6 +396,7 @@ public class Player implements Runnable {
     public long kolBoMong, kolMocNhan, kolBdkb, kolNinjaTim; // KOL tháng 11
     public boolean kolVip; // đã nạp 450 ngọc mở thưởng KOL VIP của đợt này
     public int vipPurchaseCount;
+    public String vipSeason = ""; // mã mùa VIP Tori Bot của số lần mua (VipSeason.id)
     public long lastClanCheckIn = 0;
     public long lastChallengeGauTuongCuopTime;
     public long lastChallengeGauTuopCuopTime;

@@ -941,6 +941,7 @@ public class PlayerDAO {
                 dataArray.add(player.vip);
                 dataArray.add(player.timevip);
                 dataArray.add(player.vipPurchaseCount);
+                dataArray.add(player.vipSeason == null ? "" : player.vipSeason);
                 String dataVip = dataArray.toJSONString();
                 dataArray.clear();
 

@@ -1165,6 +1165,7 @@ public class VietLoader {
                         player.vip = Byte.parseByte(dataArray.get(5).toString());
                         player.timevip = Long.parseLong(String.valueOf(dataArray.get(6)).toString());
                         player.vipPurchaseCount = Integer.parseInt(String.valueOf(dataArray.get(7)));
+                        player.vipSeason = dataArray.size() > 8 ? String.valueOf(dataArray.get(8)) : "";
                     } else {
                         //   System.err.println("DEBUG: data_vip for player " + player.name + " is old format (size " + dataArray.size() + "), initializing new fields with default values.");
                         player.nhanSKHVIP = false;

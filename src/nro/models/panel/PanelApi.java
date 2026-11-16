@@ -275,6 +275,12 @@ public class PanelApi {
                 nro.models.services.DropRates.set(str(b.get("key")), Double.parseDouble(String.valueOf(b.get("rate"))));
                 yield Map.of("ok", true);
             }
+            case "vipseason" -> nro.models.services.VipSeason.get();
+            case "vipseason/save" -> {
+                nro.models.services.VipSeason.apply(b, true);
+                yield Map.of("ok", true);
+            }
+            case "vipseason/buyers" -> nro.models.services.VipSeason.buyers();
             case "kol" -> nro.models.npc_list.QuyLaoKame.KolConfig.get();
             case "kol/save" -> {
                 nro.models.npc_list.QuyLaoKame.KolConfig.apply(b, true);

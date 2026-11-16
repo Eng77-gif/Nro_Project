@@ -16,9 +16,7 @@ import java.time.Duration;
 
 public class ToriBot extends Npc {
 
-    // tích nạp VIP theo sự kiện hè 3 (diễn đàn): 16/08 - 23:59 16/09
-    private static final LocalDateTime VIP_SEASON_START_DATE = LocalDateTime.of(LocalDate.now().getYear(), Month.AUGUST, 16, 0, 0, 0);
-    private static final LocalDateTime VIP_SEASON_END_DATE = LocalDateTime.of(LocalDate.now().getYear(), Month.SEPTEMBER, 16, 23, 59, 59);
+    // mùa VIP (tích nạp): thời gian, giá, số lần mua chỉnh ở panel > Mùa VIP Tori Bot (VipSeason)
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     public ToriBot(int mapId, int status, int cx, int cy, int tempId, int avartar) {
@@ -28,14 +26,15 @@ public class ToriBot extends Npc {
     @Override
     public void openBaseMenu(Player player) {
         LocalDateTime currentDateTime = LocalDateTime.now();
-        if (currentDateTime.isAfter(VIP_SEASON_END_DATE) || currentDateTime.isBefore(VIP_SEASON_START_DATE)) {
+        nro.models.services.VipSeason.check(player);
+        if (currentDateTime.isAfter(nro.models.services.VipSeason.end()) || currentDateTime.isBefore(nro.models.services.VipSeason.start())) {
             this.createOtherMenu(player, 0, "Ngươi tìm ta có việc gì?", "Đóng");
         } else {
             int currentPurchases = player.vipPurchaseCount;
-            String vipInfoMessage = "Lưu ý: nâng cấp VIP chỉ được tối đa 4 lần mỗi mùa (Bạn đã mua: " + currentPurchases + "/4 lần)";
-            String startDateStr = VIP_SEASON_START_DATE.format(DATE_TIME_FORMATTER);
-            String endDateStr = VIP_SEASON_END_DATE.format(DATE_TIME_FORMATTER);
-            Duration remainingDuration = Duration.between(currentDateTime, VIP_SEASON_END_DATE);
+            String vipInfoMessage = "Lưu ý: nâng cấp VIP chỉ được tối đa " + nro.models.services.VipSeason.maxBuy() + " lần mỗi mùa (Bạn đã mua: " + currentPurchases + "/" + nro.models.services.VipSeason.maxBuy() + " lần)";
+            String startDateStr = nro.models.services.VipSeason.start().format(DATE_TIME_FORMATTER);
+            String endDateStr = nro.models.services.VipSeason.end().format(DATE_TIME_FORMATTER);
+            Duration remainingDuration = Duration.between(currentDateTime, nro.models.services.VipSeason.end());
             long days = remainingDuration.toDays();
             long hours = remainingDuration.toHours() % 24;
             long minutes = remainingDuration.toMinutes() % 60;
@@ -69,8 +68,8 @@ public class ToriBot extends Npc {
             return;
         }
         LocalDateTime currentDateTime = LocalDateTime.now();
-        if (currentDateTime.isAfter(VIP_SEASON_END_DATE) || currentDateTime.isBefore(VIP_SEASON_START_DATE)) {
-            Service.gI().sendThongBao(pl, "Mùa VIP (tích nạp sự kiện hè, 16/08 - 16/09) chưa mở hoặc đã kết thúc.");
+        if (currentDateTime.isAfter(nro.models.services.VipSeason.end()) || currentDateTime.isBefore(nro.models.services.VipSeason.start())) {
+            Service.gI().sendThongBao(pl, "Mùa VIP chưa mở hoặc đã kết thúc.");
            // openBaseMenu(pl);
             return;
         }
@@ -79,44 +78,45 @@ public class ToriBot extends Npc {
                 switch (select) {
                     case 0 ->
                         createOtherMenu(pl, 1, "Nâng cấp VIP 1 bạn sẽ nhận được\n200 thỏi vàng, 10 phiếu giảm giá 80%\nX3 Kinh nghiệm toàn mùa\nThú cưỡi ve sầu xên hsd 30 ngày\nTặng 1 đệ tử, 5 viên đá bảo vệ\nPet bọ cánh cứng hsd 30 ngày\nBúa hắc hường hsd 30 ngày",
-                                "50.000\nđiểm mùa [" + pl.getSession().vnd + "]",
+                                nro.models.services.VipSeason.price(1) + "\nđiểm mùa [" + pl.getSession().vnd + "]",
                                 "Đóng");
                     case 1 ->
                         createOtherMenu(pl, 2, "Nâng cấp VIP 2 bạn sẽ nhận được\n500 thỏi vàng, 10 phiếu giảm giá 80%\nX3 Kinh nghiệm toàn mùa\nThú cưỡi ve sầu xên hsd 30 ngày\nTặng 1 đệ tử, 10 viên đá bảo vệ\nPet bọ cánh cứng hsd 30 ngày\nBúa hắc hường hsd 30 ngày\nCải trang thỏ buma hsd 30 ngày",
-                                "100.000\nđiềm mùa [" + pl.getSession().vnd + "]",
+                                nro.models.services.VipSeason.price(2) + "\nđiểm mùa [" + pl.getSession().vnd + "]",
                                 "Đóng");
                     case 2 ->
                         createOtherMenu(pl, 3, "Nâng cấp VIP 3 bạn sẽ nhận được\n700 thỏi vàng, 10 phiếu giảm giá 80%\nX3 Kinh nghiệm toàn mùa\nThú cưỡi ve sầu xên vĩnh viễn\nTặng 1 đệ tử, 30 viên đá bảo vệ\nPet bọ cánh cứng vĩnh viễn\nBúa hắc hường vĩnh viễn\n2 viên capsule kích hoạt\n10 thẻ đội trưởng vàng\nCải trang thỏ buma vĩnh viễn",
-                                "150.000\nđiềm mùa [" + pl.getSession().vnd + "]",
+                                nro.models.services.VipSeason.price(3) + "\nđiểm mùa [" + pl.getSession().vnd + "]",
                                 "Đóng");
                     case 3 ->
                         createOtherMenu(pl, 4, "Nâng cấp VIP 4 bạn sẽ nhận được\n1000 thỏi vàng, 10 phiếu giảm giá 80%\nX3 Kinh nghiệm toàn mùa\nCải trang hắc mị vĩnh viễn\nTặng 1 đệ tử mabu, 50 viên đá bảo vệ\nTàu ngầm cam 19 vĩnh viễn\nPet rồng nhí vĩnh viễn\n5 viên capsule kích hoạt\n20 thẻ rồng thần",
-                                "200.000\nđiềm mùa [" + pl.getSession().vnd + "]",
+                                nro.models.services.VipSeason.price(4) + "\nđiểm mùa [" + pl.getSession().vnd + "]",
                                 "Đóng");
                 }
             }
 
             case 1 ->
-                BuyVip(pl, 1, 50000);
+                BuyVip(pl, 1, nro.models.services.VipSeason.price(1));
             case 2 ->
-                BuyVip(pl, 2, 100000);
+                BuyVip(pl, 2, nro.models.services.VipSeason.price(2));
             case 3 ->
-                BuyVip(pl, 3, 150000);
+                BuyVip(pl, 3, nro.models.services.VipSeason.price(3));
             case 4 ->
-                BuyVip(pl, 4, 200000);
+                BuyVip(pl, 4, nro.models.services.VipSeason.price(4));
         }
     }
 
     private void BuyVip(Player pl, int vipLevel, int cost) {
         LocalDateTime currentDateTime = LocalDateTime.now();
-        if (currentDateTime.isAfter(VIP_SEASON_END_DATE) || currentDateTime.isBefore(VIP_SEASON_START_DATE)) {
-            Service.gI().sendThongBao(pl, "Mùa VIP (tích nạp sự kiện hè, 16/08 - 16/09) chưa mở hoặc đã kết thúc.");
+        if (currentDateTime.isAfter(nro.models.services.VipSeason.end()) || currentDateTime.isBefore(nro.models.services.VipSeason.start())) {
+            Service.gI().sendThongBao(pl, "Mùa VIP chưa mở hoặc đã kết thúc.");
             openBaseMenu(pl); // Mở lại menu mặc định
             return;
         }
 
-        if (pl.vipPurchaseCount >= 4) {
-            Service.gI().sendThongBao(pl, "Bạn đã mua tối đa 4 lượt VIP mùa này rồi!");
+        nro.models.services.VipSeason.check(pl);
+        if (pl.vipPurchaseCount >= nro.models.services.VipSeason.maxBuy()) {
+            Service.gI().sendThongBao(pl, "Bạn đã mua tối đa " + nro.models.services.VipSeason.maxBuy() + " lượt VIP mùa này rồi!");
             return;
         }
         if (pl.vip >= vipLevel) {
@@ -124,7 +124,7 @@ public class ToriBot extends Npc {
         }
 
         if (pl.getSession().vnd < cost) {
-            Service.gI().sendThongBao(pl, "Không đủ tiền (" + (cost / 1000) + "k VND) để mua VIP!");
+            Service.gI().sendThongBao(pl, "Không đủ điểm mùa (" + cost + ") để mua VIP!");
             return;
         }
 
@@ -144,7 +144,7 @@ public class ToriBot extends Npc {
                 VIP4(pl);
         }
 
-        Service.gI().sendThongBao(pl, "Mua VIP " + vipLevel + " thành công! Bạn đã mua " + pl.vipPurchaseCount + "/4 lượt VIP mùa này.");
+        Service.gI().sendThongBao(pl, "Mua VIP " + vipLevel + " thành công! Bạn đã mua " + pl.vipPurchaseCount + "/" + nro.models.services.VipSeason.maxBuy() + " lượt VIP mùa này.");
         openBaseMenu(pl);
     }
 

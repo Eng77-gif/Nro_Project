@@ -138,14 +138,18 @@ public class ThanhCo {
             this.nPoint.hpMax = Math.max(1000, playerAtt.nPoint.hpMax);
             this.nPoint.hp = this.nPoint.hpMax;
             this.nPoint.dame = Math.max(1, playerAtt.nPoint.hpMax / 25);
-            this.typePk = ConstPlayer.PK_PVP;
+            this.typePk = ConstPlayer.PK_ALL;
             ChangeMapService.gI().changeMap(this, this.zone, DAI_X_GOHAN, DAI_Y);
-            PlayerService.gI().changeAndSendTypePK(this, ConstPlayer.PK_PVP); // báo client: Gohan đỏ máu, đánh được
+            // PK_ALL: không có trận PvP nên PK_PVP không đánh qua lại được (SkillService.canAttackPlayer2); chỉ người đấu gây được sát thương (injured)
+            PlayerService.gI().changeAndSendTypePK(this, ConstPlayer.PK_ALL);
             PlayerService.gI().changeAndSendTypePK(playerAtt, ConstPlayer.PK_PVP);
         }
 
         @Override
         public void afk() {
+            if (this.typePk != ConstPlayer.PK_ALL) { // update() của lớp cha đặt lại typePk = 3 sau khi vào map
+                PlayerService.gI().changeAndSendTypePK(this, ConstPlayer.PK_ALL);
+            }
             if (playerAtt.zone == arena) {
                 this.changeStatus(BossStatus.ACTIVE);
             } else {
@@ -159,6 +163,16 @@ public class ThanhCo {
                 return 0; // chỉ người lên sàn được đánh
             }
             return super.injured(plAtt, damage, piercing, isMobAttack);
+        }
+
+        /** Tiến tới cách người đấu ~40px rồi đứng lại, luôn trên mặt đài (lớp cha bước 50 - 100px nên vượt qua lại, trông như chạy lung tung). */
+        @Override
+        protected void goToXY(int x, int y, boolean isTeleport) {
+            int target = x + (this.location.x < x ? -40 : 40);
+            int step = Math.max(-80, Math.min(80, target - this.location.x));
+            if (step != 0 || this.location.y != DAI_Y) {
+                PlayerService.gI().playerMove(this, this.location.x + step, DAI_Y);
+            }
         }
 
         @Override
