@@ -2365,3 +2365,6 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 ## Panel: trang Bot tràn ngang trên điện thoại; quà riêng từng boss chỉnh tỉ lệ được
 - Khung "Giao việc hàng loạt" làm trang Bot rộng 627px trên điện thoại 412px: lưới co lại, dưới 480px xếp 1 cột.
 - Tỉ lệ rơi > Boss: liệt kê quà riêng của 52 boss (98 dòng, viết trong reward() từng boss), sửa % + Lưu có hiệu lực ngay. Mỗi Util.isTrue(a, b) trong reward() đổi thành BossDrops.roll(key, a, b), mặc định = tỉ lệ cũ, lưu ở bảng drop_rate (key "boss:..."). Thưởng thêm theo bậc để phía dưới.
+
+## Bill: "Đổi thức ăn lấy phiếu ăn / Đổi phiếu ăn lấy quà" chỉ hiện khi sự kiện hè chạy
+- Hai nút này của sự kiện hè trước luôn hiện ở Bill (Hành tinh Kaio). Nay chỉ hiện (và chỉ bấm được) khi sự kiện hè đang chạy.

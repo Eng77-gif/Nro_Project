@@ -41,9 +41,15 @@ public class Bill extends Npc {
                         "...",
                         "Về\nthánh địa\nKaio", "Từ chối");
             } else {
-                createOtherMenu(player, ConstNpc.BASE_MENU,
-                        "Chưa tới giờ thi đấu, xem hướng dẫn để biết thêm chi tiết",
-                        "Nói\nchuyện", "Hướng\ndẫn\nthêm", "Đổi thức ăn\nlấy phiếu ăn", "Đổi phiếu ăn\nlấy quà", "Từ chối");
+                if (summer()) { // đổi thức ăn / phiếu ăn chỉ có khi sự kiện hè đang chạy
+                    createOtherMenu(player, ConstNpc.BASE_MENU,
+                            "Chưa tới giờ thi đấu, xem hướng dẫn để biết thêm chi tiết",
+                            "Nói\nchuyện", "Hướng\ndẫn\nthêm", "Đổi thức ăn\nlấy phiếu ăn", "Đổi phiếu ăn\nlấy quà", "Từ chối");
+                } else {
+                    createOtherMenu(player, ConstNpc.BASE_MENU,
+                            "Chưa tới giờ thi đấu, xem hướng dẫn để biết thêm chi tiết",
+                            "Nói\nchuyện", "Hướng\ndẫn\nthêm", "Từ chối");
+                }
             }
         }
     }
@@ -79,18 +85,24 @@ public class Bill extends Npc {
                             case 1 ->
                                 NpcService.gI().createTutorial(player, tempId, this.avartar, ConstNpc.HUONG_DAN_BILL);
                             case 2 -> {
+                                if (!summer()) {
+                                    return;
+                                }
                                 createOtherMenu(player, 10, "Ngươi có muốn đổi thức ăn thành phiếu ăn nhanh không?",
                                         "Đồng ý",
                                         "Từ chối");
                                 player.idMark.setIndexMenu(10);
                             }
                             case 3 -> {
+                                if (!summer()) {
+                                    return;
+                                }
                                 ShopService.gI().opendShop(player, "SHOP_SU_KIEN_VL", true);
                             }
                         }
                     }
                     case 10 -> {
-                        if (select == 0) {
+                        if (select == 0 && summer()) {
                             doiNhanhItem(player);
                         }
                     }
@@ -109,6 +121,10 @@ public class Bill extends Npc {
                 }
             }
         }
+    }
+
+    private static boolean summer() {
+        return nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.SUMMER);
     }
 
     private void doiNhanhItem(Player player) {
