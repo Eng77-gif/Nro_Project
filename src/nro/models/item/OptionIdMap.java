@@ -19,7 +19,8 @@ public final class OptionIdMap {
         return SPARE.length;
     }
 
-    private static final int[] SPARE = {201, 202, 203, 205, 195, 197, 192, 229, 62, 208, 67, 68, 69, 225};
+    // 68 (Dùng để nâng cấp áo - Đá Titan) đang có item dùng nên thay bằng 41; thêm 6 ô cho option 269 - 274 (đủ 20 ô cho option 255 - 274)
+    private static final int[] SPARE = {201, 202, 203, 205, 195, 197, 192, 229, 62, 208, 67, 41, 69, 225, 45, 178, 181, 190, 215, 158};
 
     private static volatile int[] toClient = new int[0];
     private static volatile ItemOptionTemplate[] slots = new ItemOptionTemplate[0];
