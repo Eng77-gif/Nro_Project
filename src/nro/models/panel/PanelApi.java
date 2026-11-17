@@ -325,6 +325,22 @@ public class PanelApi {
             case "boss/templates" -> bossTemplates();
             case "notify" -> notify(b);
             case "maintenance" -> maintenance(b);
+            case "backup" -> nro.models.data.SqlBackup.status();
+            case "backup/save" -> {
+                nro.models.data.SqlBackup.saveSettings(str(b.get("password")), str(b.get("token")), str(b.get("repo")), str(b.get("branch")), !"false".equals(String.valueOf(b.get("auto"))));
+                yield nro.models.data.SqlBackup.status();
+            }
+            case "backup/push" -> {
+                playerSave(Map.of());
+                if (!nro.models.data.SqlBackup.pushAsync()) {
+                    throw new IllegalStateException("Chưa đặt mật khẩu mã hoá hoặc đang đẩy");
+                }
+                yield Map.of("ok", true);
+            }
+            case "backup/pull" -> {
+                nro.models.data.SqlBackup.download();
+                yield Map.of("ok", true);
+            }
             case "logs" -> PanelServer.LOG.since(lng(q.getOrDefault("since", "0")));
             case "audit" -> audit();
             case "sql" -> sql(str(b.get("query")));

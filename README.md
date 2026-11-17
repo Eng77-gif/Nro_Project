@@ -136,14 +136,15 @@ Sau đó gõ `nro` để mở menu: bật / tắt / khởi động lại, xem lo
 
 ### 🔄 Đồng bộ dữ liệu qua GitHub (mã hoá)
 
-Đặt mật khẩu vào file `backup.key` cạnh `20.jar` (một dòng, từ 6 ký tự, không đưa lên git). Sau mỗi lần **bảo trì**, server tự xuất database, nén, **mã hoá AES-256** thành `sql/team2026.sql.enc` rồi commit + đẩy lên GitHub. Repo công khai cũng không ai đọc được nếu không có mật khẩu.
+Panel → **Dữ liệu GitHub** (không cần cài git):
+1. Đặt **mật khẩu mã hoá** (mọi máy dùng chung).
+2. Dán **token GitHub** (Fine-grained token, quyền *Contents: Read and write* cho repo này).
+3. Bấm **Đẩy lên GitHub ngay** để thử. Từ đó, sau mỗi lần **bảo trì** server tự xuất database, mã hoá AES-256 thành `sql/team2026.sql.enc` và đẩy lên. Repo công khai cũng không ai đọc được nếu không có mật khẩu.
 
-- Máy khác (cùng mật khẩu trong `backup.key`): `java -cp 20.jar nro.models.data.SqlBackup import` để nạp đè, hoặc chạy `nap_du_lieu_github.bat`. Termux: menu `nro` → **G** → 3; cài mới trên Termux tự nạp bản này nếu đã có `backup.key`.
-- Đẩy ngay không cần bảo trì: `day_du_lieu_github.bat` hoặc `java -cp 20.jar nro.models.data.SqlBackup export push`.
-- Máy đẩy phải là bản `git clone` và đã đăng nhập GitHub (Windows: Git Credential Manager; Termux: menu **G** → 4 lưu token).
+Máy khác: cùng mật khẩu + token → bấm **Tải từ GitHub về** → bảo trì / bật lại server, dữ liệu được nạp đè lúc khởi động. Termux: menu `nro` → **G**. Dòng lệnh: `java -cp 20.jar nro.models.data.SqlBackup export push | import`.
 
 > [!WARNING]
-> Mất mật khẩu là không mở được bản sao lưu. Không đặt mật khẩu này trùng mật khẩu khác.
+> Mất mật khẩu mã hoá là không mở được bản sao lưu. Mật khẩu (`backup.key`) và token (`backup.properties`) chỉ nằm trên máy, không đưa lên git.
 
 ### 📦 Bản phát hành và Docker
 

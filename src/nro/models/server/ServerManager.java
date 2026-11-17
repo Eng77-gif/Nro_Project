@@ -85,6 +85,7 @@ public class ServerManager {
             return;
         }
         nro.models.utils.ConfigMerge.run(); // thêm mục cấu hình mới vào Config.properties (bộ tải repo không ghi đè file này)
+        nro.models.data.SqlBackup.importPendingAtBoot(); // panel đã tải dữ liệu GitHub: nạp trước khi đọc database
         try {
             timeStart = TimeUtil.getTimeNow("dd/MM/yyyy HH:mm:ss");
             //ShopTab.loadItem();

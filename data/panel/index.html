@@ -259,7 +259,7 @@ function table(rows,cols,actions){
 function modal(html){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class="box">${html}</div>`;m.onclick=e=>{if(e.target===m)m.remove()};document.body.append(m);return m}
 
 const PAGES=[
- ['g','Máy chủ'],['dash','Tổng quan','📊'],['notify','Thông báo & quà','📣'],['maint','Bảo trì & lưu','🛠'],['logs','Nhật ký console','🖥'],['chatlog','Nhật ký chat & thông báo','💬'],['audit','Nhật ký thao tác','📝'],['config','Cấu hình','⚙'],
+ ['g','Máy chủ'],['dash','Tổng quan','📊'],['notify','Thông báo & quà','📣'],['maint','Bảo trì & lưu','🛠'],['github','Dữ liệu GitHub','☁'],['logs','Nhật ký console','🖥'],['chatlog','Nhật ký chat & thông báo','💬'],['audit','Nhật ký thao tác','📝'],['config','Cấu hình','⚙'],
  ['g','Người chơi'],['players','Người chơi','👤'],['pets','Đệ tử','🐉'],['bots','Bot','🤖'],['ai','AI huấn luyện bot','🧠'],['accounts','Tài khoản','🔑'],['tops','Bảng xếp hạng','🏆'],['clans','Bang hội','🛡'],['webposts','Diễn đàn & hỗ trợ','📮'],['webtopup','Nạp qua web','💎'],
  ['g','Nội dung'],['items','Vật phẩm','🎒'],['boxes','Hộp quà','🎁'],['giftcode','Giftcode','🎟'],['shop','Cửa hàng','🏪'],['kygui','Ký gửi','📦'],['badges','Danh hiệu','🎖'],['radar','Thẻ radar','🃏'],['fx','Hiệu ứng & aura','✨'],['looks','Đeo lưng & thú cưỡi','🪽'],['admin','Lệnh admin trong game','🧙'],
  ['g','Thế giới'],['maps','Bản đồ & NPC','🗺'],['events','Sự kiện','🎉'],['evshop','Cửa hàng sự kiện','🛍'],['eventtops','Đua top sự kiện','🥇'],['bosses','Boss','👹'],['nrsd','Ngọc Rồng Sao Đen','🌑'],['bossrw','Thưởng boss','💰'],['drops','Tỉ lệ rơi','🎲'],['kol','Nhiệm vụ KOL','⭐'],['vipseason','Mùa VIP Tori Bot','👑'],['mobs','Quái','🐗'],
@@ -1079,6 +1079,26 @@ async function page_maint(){const s=await api('stats'),up=s.uptimeSec,ram=s.memM
    <div class="row"><input id="ms" type="number" value="60" min="5" style="width:100px"> giây <button class="d" id="mgo">Bắt đầu bảo trì</button></div></div>`;
   $('#msp').onclick=e=>{const b=e.target.closest('button');if(!b)return;$('#ms').value=b.dataset.s;$('#msp').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
   $('#mgo').onclick=()=>{const n=+$('#ms').value;if(confirm(`Bảo trì server sau ${n} giây? Server sẽ tắt khi hết giờ.`))act(()=>api('maintenance',{seconds:n}),'Đã bắt đầu đếm ngược bảo trì')}}
+async function page_github(){const s=await api('backup'),t=x=>x?new Date(x).toLocaleString('vi-VN'):'—';
+  const ready=s.password&&(s.token||s.git),step=(ok,n,txt)=>`<li style="margin:6px 0">${ok?'✅':'⬜'} <b>Bước ${n}.</b> ${txt}</li>`;
+  $('#main').innerHTML=`<h2>Dữ liệu GitHub</h2>`+statRow([['Trạng thái',s.running?'Đang đẩy…':ready?'Sẵn sàng':'Chưa cài đặt',s.auto?'Tự đẩy sau mỗi lần bảo trì':'Không tự đẩy'],['Lần gần nhất',!s.lastResult?'—':/^Lỗi/.test(s.lastResult)?'❌ Lỗi':'✅ Thành công',(s.lastResult?s.lastResult.replace(/^Lỗi: /,'')+' · ':'')+t(s.lastTime)],['File mã hoá',s.fileKb>=0?fmt(s.fileKb)+' KB':'Chưa có',s.fileKb>=0?t(s.fileTime):'sql/team2026.sql.enc'],['Repo',s.repo.split('/').pop(),s.repo+' · nhánh '+s.branch]])+
+  (s.pending?`<div class="card" style="border-color:#f59e0b"><b>⏳ Đã tải dữ liệu từ GitHub.</b> Dữ liệu sẽ được nạp đè vào database ở <b>lần bật server tiếp theo</b>. Vào <a href="#maint">Bảo trì & lưu</a> để bảo trì / khởi động lại.</div>`:'')+
+  `<div class="card"><div class="section-head"><h3>Cài đặt nhanh</h3><small>Database được mã hoá AES-256 trước khi đẩy lên, repo công khai cũng không ai đọc được</small></div>
+   <ol style="list-style:none;padding:0;margin:0 0 12px">${step(s.password,1,'Đặt <b>mật khẩu mã hoá</b>. Mọi máy dùng chung một mật khẩu. Mất mật khẩu là không mở được bản sao lưu.')}${step(s.token,2,'Dán <b>token GitHub</b>: github.com → Settings → Developer settings → Fine-grained tokens → Generate, chọn repo này, quyền <b>Contents: Read and write</b>. Không cần cài git.')}${step(ready,3,'Bấm <b>Đẩy lên GitHub ngay</b> để thử.')}</ol>
+   <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+    <label>Mật khẩu mã hoá ${s.password?'<span class="tag on1">đã đặt</span>':''}<input id="bk_pw" type="password" autocomplete="new-password" placeholder="${s.password?'Để trống = giữ nguyên':'Từ 6 ký tự'}"></label>
+    <label>Token GitHub ${s.token?'<span class="tag on1">đã lưu</span>':''}<input id="bk_tk" type="password" autocomplete="off" placeholder="${s.token?'Để trống = giữ nguyên':'github_pat_…'}"></label>
+    <label>Repo<input id="bk_rp" value="${esc(s.repo)}"></label>
+    <label>Nhánh<input id="bk_br" value="${esc(s.branch)}"></label></div>
+   <label class="row" style="margin:10px 0;gap:8px;cursor:pointer"><input type="checkbox" id="bk_au" ${s.auto?'checked':''}> Tự đẩy lên GitHub sau mỗi lần bảo trì</label>
+   <button class="p" id="bk_save">Lưu cài đặt</button></div>
+  <div class="qa">
+   <button id="bk_push" ${ready&&!s.running?'':'disabled'}><span class="quick-icon">${uiIcon('save')}</span><b>Đẩy lên GitHub ngay</b><span>Lưu người chơi rồi đẩy database mã hoá</span></button>
+   <button id="bk_pull" ${s.password?'':'disabled'}><span class="quick-icon">${uiIcon('refresh')}</span><b>Tải từ GitHub về</b><span>Nạp đè vào máy này ở lần bật server sau</span></button>
+  </div>`;
+  $('#bk_save').onclick=()=>act(()=>api('backup/save',{password:$('#bk_pw').value,token:$('#bk_tk').value,repo:$('#bk_rp').value,branch:$('#bk_br').value,auto:$('#bk_au').checked}),'Đã lưu cài đặt').then(page_github);
+  $('#bk_push').onclick=async()=>{await act(()=>api('backup/push',{}),'Đang đẩy, chờ vài giây…');const poll=async()=>{const x=await api('backup');if(x.running)return setTimeout(poll,1500);toast(x.lastResult,/^Lỗi/.test(x.lastResult));if(location.hash==='#github')page_github()};setTimeout(poll,1500)};
+  $('#bk_pull').onclick=()=>{if(confirm('Tải dữ liệu từ GitHub? Database máy này sẽ bị GHI ĐÈ ở lần bật server tiếp theo.'))act(()=>api('backup/pull',{}),'Đã tải, sẽ nạp khi bật lại server').then(page_github)}}
 let logNext=0;
 async function page_logs(){$('#main').innerHTML=`<h2>Nhật ký console</h2><div class="row" style="margin-bottom:8px"><input id="lf" class="grow" placeholder="Lọc (vd: Exception)"><label class="row"><input type="checkbox" id="la" checked> tự cuộn</label></div><div class="log" id="lg"></div>`;
   logNext=0;const lines=[];const draw=()=>{const k=$('#lf').value.toLowerCase();$('#lg').textContent=lines.filter(l=>!k||l.toLowerCase().includes(k)).join('\n');if($('#la').checked)$('#lg').scrollTop=1e9};

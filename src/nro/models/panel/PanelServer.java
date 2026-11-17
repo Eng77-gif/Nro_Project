@@ -349,6 +349,7 @@ public class PanelServer {
     private void audit(HttpExchange ex, String route, Map<String, Object> body) {
         Map<String, Object> safe = new LinkedHashMap<>(body);
         safe.remove("password");
+        safe.remove("token");  // token GitHub (Dữ liệu GitHub)
         appendAudit(ex.getRemoteAddress().getAddress().getHostAddress() + " " + route + " " + GSON.toJson(safe));
     }
 

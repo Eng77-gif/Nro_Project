@@ -26,3 +26,6 @@ __pycache__/
 .termux_panel
 /backup.key
 /sql/*.tmp
+/backup.properties
+/sql/import.pending
+/sql/*.dl
