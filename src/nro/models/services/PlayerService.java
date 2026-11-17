@@ -130,10 +130,10 @@ public class PlayerService {
                 if (player.getSession().version >= 214) {
                     msg.writer().writeLong(player.inventory.gold);
                 } else {
-                    msg.writer().writeInt((int) player.inventory.gold);
+                    msg.writer().writeInt(Util.toInt(player.inventory.gold)); // client cũ đọc int: kẹp, không tràn âm
                 }
             } catch (Exception e) {
-                msg.writer().writeInt((int) player.inventory.gold);
+                msg.writer().writeInt(Util.toInt(player.inventory.gold)); // client cũ đọc int: kẹp, không tràn âm
             }
             msg.writer().writeInt(Util.toInt(player.inventory.gem));//luong
             msg.writeNum(player.nPoint.hp);//chp

@@ -885,6 +885,7 @@ public class UseItem {
                             case 193: //gói 10 viên capsule
                                 openCapsuleUI(pl);
                                 InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+                                break; // trước đây rơi xuống 194: mở bảng chuyển map 2 lần
                             case 194: //capsule đặc biệt
                                 openCapsuleUI(pl);
                                 break;

@@ -861,7 +861,7 @@ public class Service {
             if (pl.getSession().version >= 214) {
                 msg.writer().writeLong(pl.inventory.gold);
             } else {
-                msg.writer().writeInt((int) pl.inventory.gold);
+                msg.writer().writeInt(Util.toInt(pl.inventory.gold)); // client cũ đọc int: kẹp, không tràn âm
             }
             msg.writer().writeInt(Util.toInt(pl.inventory.ruby));
             msg.writer().writeInt(Util.toInt(pl.inventory.gem));
@@ -1352,7 +1352,7 @@ public class Service {
             if (pl.getSession().version >= 214) {
                 msg.writer().writeLong(pl.inventory.gold);
             } else {
-                msg.writer().writeInt((int) pl.inventory.gold);
+                msg.writer().writeInt(Util.toInt(pl.inventory.gold)); // client cũ đọc int: kẹp, không tràn âm
             }
             msg.writer().writeInt(Util.toInt(pl.inventory.gem));
             msg.writer().writeInt(Util.toInt(pl.inventory.ruby));

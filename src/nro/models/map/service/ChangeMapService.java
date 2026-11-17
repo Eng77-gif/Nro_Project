@@ -78,6 +78,7 @@ public class ChangeMapService {
                         }
                         msg.writer().writeUTF(zone.map.planetName);
                     }
+                    break; // trước đây rơi xuống nhánh dưới: gói capsule bị nối thêm danh sách map Ngọc rồng sao đen
                 case ConstMap.CHANGE_BLACK_BALL:
                     list = (pl.mapBlackBall != null ? pl.mapBlackBall
                             : (pl.mapBlackBall = MapService.gI().getMapBlackBall()));
