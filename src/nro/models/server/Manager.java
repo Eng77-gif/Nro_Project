@@ -552,7 +552,20 @@ public final class Manager {
                 HeadAvatar headAvatar = new HeadAvatar(rs.getInt("head_id"), rs.getInt("avatar_id"));
                 HEAD_AVATARS.add(headAvatar);
             }
-            Logger.success(Logger.RED + "Successfully loaded head avatar (" + HEAD_AVATARS.size() + ")\n");
+            // database VPS có thể có dòng trùng / dòng sai (ảnh Bánh dầy 12848 làm avatar): mỗi đầu giữ 1 dòng (dòng sau cùng), bỏ 12848,
+            // xếp theo mã đầu (client tra theo danh sách) và in các đầu hoá hình để đối chiếu khi avatar chat thế giới sai
+            java.util.Map<Integer, Integer> ha = new java.util.TreeMap<>();
+            for (HeadAvatar h : HEAD_AVATARS) {
+                if (h.avatarId != 12848) {
+                    ha.put(h.headId, h.avatarId);
+                }
+            }
+            int dropped = HEAD_AVATARS.size() - ha.size();
+            HEAD_AVATARS.clear();
+            ha.forEach((h, a) -> HEAD_AVATARS.add(new HeadAvatar(h, a)));
+            Logger.success(Logger.RED + "Successfully loaded head avatar (" + HEAD_AVATARS.size() + (dropped > 0 ? ", bỏ " + dropped + " dòng trùng / sai" : "") + ")\n");
+            Logger.log(Logger.YELLOW, "Avatar hoá hình: Ma trơi 2391->" + ha.get(2391) + ", Dơi 2392->" + ha.get(2392) + ", Bí ngô 2394->" + ha.get(2394)
+                    + ", bánh bao 2397->" + ha.get(2397) + "\n");
 
             //load flag bag
             ps = ConnectionDatabase.prepareStatement("select * from flag_bag");
