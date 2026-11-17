@@ -19,6 +19,8 @@ public class GiftCode {
     public int id;
     public HashMap<Integer, Integer> detail = new HashMap<>();
     public HashMap<Integer, ArrayList<ItemOption>> option = new HashMap<>();
+    /** id -11 / -12 (ngọc xanh / hồng ngọc ngẫu nhiên): số nhiều nhất, số ít nhất ở detail. */
+    public HashMap<Integer, Integer> max = new HashMap<>();
     public Timestamp datecreate;
     public Timestamp dateexpired;
 

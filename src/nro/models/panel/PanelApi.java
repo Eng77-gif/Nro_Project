@@ -1420,6 +1420,9 @@ public class PanelApi {
                     }
                     g.option.put(id, ops);
                     g.detail.put(id, o.get("quantity").getAsInt());
+                    if (o.has("max")) {
+                        g.max.put(id, o.get("max").getAsInt());
+                    }
                 }
             } catch (Exception ignored) {
             }

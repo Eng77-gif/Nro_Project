@@ -756,28 +756,30 @@ const RW={};let RW_N=0;
 const RW_QUICK=[[457],[77],[861],[987],[14],[2071]];
 async function rwOptList(){const n=await optNames();let dl=document.getElementById('rw-optdl');if(!dl){dl=document.createElement('datalist');dl.id='rw-optdl';dl.innerHTML=Object.entries(n).map(([a,b])=>`<option value="${a} - ${esc(b.replace(/[#$]/g,'').trim())}">`).join('');document.body.append(dl)}return n}
 function rwEditor(el,list,cfg={}){const k='r'+(++RW_N);RW[k]={list,cfg};el.dataset.rw=k;rwOptList().then(()=>rwDraw(k));rwDraw(k);return k}
+function rwR(cfg,r){return !!cfg.gem&&(+r.id===cfg.gem[0]||+r.id===cfg.gem[1])}
 function rwOpName(id){const n=OPT_NAMES&&OPT_NAMES[id];return n?n.replace(/[$]/g,'').trim():'Chỉ số '+id}
 function rwOpText(o){const n=rwOpName(o[0]);return n.includes('#')?n.replace('#',fmt(o[1])):n+(o[1]?' ('+fmt(o[1])+')':'')}
 function rwDraw(k){const {list,cfg}=RW[k];const el=document.querySelector(`[data-rw="${k}"]`);if(!el)return;
   el.innerHTML=`<div class="rw-list">${list.map((r,i)=>`<div class="rw-row">
    <span class="rw-n">${i+1}</span>
-   <label class="rw-f rw-item" ${cfg.gem&&+r.id<0?'style="display:none"':''}>Vật phẩm<input data-pick="item" value="${r.id??''}" title="Vật phẩm (gõ tên hoặc ID)" onchange="rwSet('${k}',${i},'id',this.value)"></label>
-   <label class="rw-f">${cfg.gem&&+r.id<0?'Ngọc ít nhất':'Số lượng'}<input type="number" min="1" value="${r.qty??1}" onchange="rwSet('${k}',${i},'qty',this.value)"></label>
-   ${cfg.days?`<label class="rw-f">${cfg.gem&&+r.id<0?'Ngọc nhiều nhất':'Hạn (ngày, 0 = vĩnh viễn)'}<input type="number" min="0" value="${r.days??0}" onchange="rwSet('${k}',${i},'days',this.value)"></label>`:''}
+   <label class="rw-f rw-item" ${rwR(cfg,r)?'style="display:none"':''}>Vật phẩm<input data-pick="item" value="${r.id??''}" title="Vật phẩm (gõ tên hoặc ID)" onchange="rwSet('${k}',${i},'id',this.value)"></label>
+   <label class="rw-f">${rwR(cfg,r)?'Ngọc ít nhất':'Số lượng'}<input type="number" min="1" value="${r.qty??1}" onchange="rwSet('${k}',${i},'qty',this.value)"></label>
+   ${rwR(cfg,r)?`<label class="rw-f">Ngọc nhiều nhất<input type="number" min="1" value="${r[cfg.gem[2]]??r.qty}" onchange="rwSet('${k}',${i},'${cfg.gem[2]}',this.value)"></label>`:cfg.days?`<label class="rw-f">Hạn (ngày, 0 = vĩnh viễn)<input type="number" min="0" value="${r.days??0}" onchange="rwSet('${k}',${i},'days',this.value)"></label>`:''}
    <span class="rw-act"><button class="s" title="Lên" ${i?'':'disabled'} onclick="rwMove('${k}',${i},-1)">↑</button><button class="s" title="Xuống" ${i<list.length-1?'':'disabled'} onclick="rwMove('${k}',${i},1)">↓</button><button class="s" title="Nhân bản" onclick="rwDup('${k}',${i})">⧉</button><button class="s d" title="Xoá" onclick="rwDel('${k}',${i})">✕</button></span>
-   ${cfg.gem&&+r.id<0?`<div class="rw-ops"><select onchange="rwSet('${k}',${i},'id',this.value)"><option value="-1" ${+r.id===-1?'selected':''}>💎 Ngọc xanh ngẫu nhiên</option><option value="-2" ${+r.id===-2?'selected':''}>❤ Hồng ngọc ngẫu nhiên</option></select><span class="mute">${fmt(r.qty)} – ${fmt(r.days)} ${+r.id===-2?'hồng ngọc':'ngọc xanh'}</span></div>`:''}
-   ${cfg.opts?`<div class="rw-ops">${(r.opts||[]).map((o,j)=>`<span class="chip rw-op" title="Mã ${o[0]}">${esc(rwOpText(o))}<input type="number" value="${o[1]}" title="Giá trị" onchange="rwOpSet('${k}',${i},${j},this.value)"><b onclick="rwOpDel('${k}',${i},${j})" title="Bỏ chỉ số">✕</b></span>`).join('')}
+   ${rwR(cfg,r)?`<div class="rw-ops"><select onchange="rwSet('${k}',${i},'id',this.value)"><option value="${cfg.gem[0]}" ${+r.id===cfg.gem[0]?'selected':''}>💎 Ngọc xanh ngẫu nhiên</option><option value="${cfg.gem[1]}" ${+r.id===cfg.gem[1]?'selected':''}>❤ Hồng ngọc ngẫu nhiên</option></select><span class="mute">${fmt(r.qty)} – ${fmt(r[cfg.gem[2]]??r.qty)} ${+r.id===cfg.gem[1]?'hồng ngọc':'ngọc xanh'}</span></div>`:''}
+   ${cfg.opts&&!rwR(cfg,r)?`<div class="rw-ops">${(r.opts||[]).map((o,j)=>`<span class="chip rw-op" title="Mã ${o[0]}">${esc(rwOpText(o))}<input type="number" value="${o[1]}" title="Giá trị" onchange="rwOpSet('${k}',${i},${j},this.value)"><b onclick="rwOpDel('${k}',${i},${j})" title="Bỏ chỉ số">✕</b></span>`).join('')}
      <span class="rw-add"><input list="rw-optdl" placeholder="+ chỉ số (gõ tên)…" onchange="rwOpAdd('${k}',${i},this)"></span>
      <span class="rw-pre">${[[30,0,'Không giao dịch'],[93,30,'Hạn 30 ngày'],[93,7,'Hạn 7 ngày']].map(p=>`<button class="s" onclick="rwOpPush('${k}',${i},${p[0]},${p[1]})">${p[2]}</button>`).join('')}</span></div>`:''}
   </div>`).join('')||'<div class="mute" style="padding:6px 0">Chưa có quà nào.</div>'}</div>
   <div class="row rw-foot"><button class="s" onclick="rwAdd('${k}')">+ Thêm quà</button><button class="s" onclick="pickItem(it=>{ITEM_CACHE[it.id]=it;rwAdd('${k}',it.id)})">Chọn từ thư viện…</button>
-   ${cfg.gem?`<button class="s" onclick="RW['${k}'].list.push({id:-1,qty:10,days:50,opts:[]});rwChanged('${k}')">+ Ngọc xanh ngẫu nhiên</button><button class="s" onclick="RW['${k}'].list.push({id:-2,qty:10,days:50,opts:[]});rwChanged('${k}')">+ Hồng ngọc ngẫu nhiên</button>`:''}
+   ${cfg.gem?`<button class="s" onclick="rwAddGem('${k}',0)">+ Ngọc xanh ngẫu nhiên</button><button class="s" onclick="rwAddGem('${k}',1)">+ Hồng ngọc ngẫu nhiên</button>`:''}
    <span class="mute" style="font-size:12px">Thêm nhanh:</span>${RW_QUICK.map(([id])=>`<button class="s rw-q" data-id="${id}" onclick="rwAdd('${k}',${id})">#${id}</button>`).join('')}
    <button class="s" onclick="rwPaste('${k}')">Dán danh sách…</button></div>`;
   el.querySelectorAll('.rw-q').forEach(async b=>{const it=await itemById(+b.dataset.id);if(it)b.innerHTML=icon(it.icon)+' '+esc(it.name)})}
+function rwAddGem(k,w){const g=RW[k].cfg.gem;const r={id:g[w],qty:10,days:0,opts:[]};r[g[2]]=50;RW[k].list.push(r);rwChanged(k)}
 function rwChanged(k){rwDraw(k);const f=RW[k].cfg.onChange;if(f)f(RW[k].list)}
 function rwSet(k,i,f,v){const r=RW[k].list[i];const n=Number(String(v).trim());if(f==='id'&&isNaN(n))return;r[f]=n;if(f==='id')delete r.name;
-  if(f==='id'&&RW[k].cfg.gem)rwChanged(k);else{const g=RW[k].cfg.onChange;if(g)g(RW[k].list)}}
+  if(f==='id'&&RW[k].cfg.gem)rwChanged(k);else if(RW[k].cfg.gem&&rwR(RW[k].cfg,r))rwChanged(k);else{const g=RW[k].cfg.onChange;if(g)g(RW[k].list)}}
 function rwAdd(k,id){RW[k].list.push({id:id??457,qty:1,days:0,opts:[]});rwChanged(k);const el=document.querySelector(`[data-rw="${k}"] .rw-row:last-child input`);if(el&&id==null){el.value='';el.focus()}}
 function rwDel(k,i){RW[k].list.splice(i,1);rwChanged(k)}
 function rwDup(k,i){const r=RW[k].list[i];RW[k].list.splice(i+1,0,{...r,opts:(r.opts||[]).map(o=>[...o])});rwChanged(k)}
@@ -842,9 +844,9 @@ async function page_giftcode(){
   lpBox('gcl',{path:'giftcodes/page',label:'Mã giftcode hoặc ID',cols:[['id','ID'],['code','Mã'],['count_left','Còn lại',fmt],['detail','Quà','','w mono'],['datecreate','Tạo'],['expired','Hết hạn']],actions:(x,i)=>`<button class="s" onclick="editGc(LP.gcl.rows[${i}])">Sửa</button> <button class="s d" onclick="delGc(${Number(x.id)})">Xóa</button>`});
   const d=new Date(Date.now()+30*864e5);$('#ge').value=d.toISOString().slice(0,16);gcLoad('[]');await lpInit('gcl')}
 let GC_RW=[];
-function gcJson(){return JSON.stringify(GC_RW.map(r=>({id:+r.id,quantity:+r.qty||1,options:(r.opts||[]).map(o=>({id:o[0],param:o[1]}))})))}
-function gcLoad(detail){let a=[];try{a=JSON.parse(detail||'[]')}catch(e){toast('JSON quà không đọc được',1)}GC_RW.length=0;(Array.isArray(a)?a:[]).forEach(x=>GC_RW.push({id:x.id,qty:x.quantity??x.qty??1,opts:(x.options||[]).map(o=>Array.isArray(o)?o:[o.id,o.param])}));
-  if(!$('#grw').dataset.rw)rwEditor($('#grw'),GC_RW,{opts:true,onChange:()=>{$('#gd').value=gcJson()}});else rwDraw($('#grw').dataset.rw);$('#gd').value=gcJson()}
+function gcJson(){return JSON.stringify(GC_RW.map(r=>{const o={id:+r.id,quantity:+r.qty||1,options:(r.opts||[]).map(o=>({id:o[0],param:o[1]}))};if(+r.id===-11||+r.id===-12)o.max=Math.max(o.quantity,+r.max||o.quantity);return o}))}
+function gcLoad(detail){let a=[];try{a=JSON.parse(detail||'[]')}catch(e){toast('JSON quà không đọc được',1)}GC_RW.length=0;(Array.isArray(a)?a:[]).forEach(x=>GC_RW.push({id:x.id,qty:x.quantity??x.qty??1,max:x.max,opts:(x.options||[]).map(o=>Array.isArray(o)?o:[o.id,o.param])}));
+  if(!$('#grw').dataset.rw)rwEditor($('#grw'),GC_RW,{opts:true,gem:[-11,-12,'max'],onChange:()=>{$('#gd').value=gcJson()}});else rwDraw($('#grw').dataset.rw);$('#gd').value=gcJson()}
 function gcFromJson(){gcLoad($('#gd').value)}
 function gcReset(){$('#gid').value='';$('#gc').value='';gcLoad('[]')}
 function editGc(x){$('#gid').value=x.id;$('#gc').value=x.code;$('#gn').value=x.count_left;gcLoad(x.detail);const e=new Date(x.expired);if(!isNaN(e))$('#ge').value=new Date(e-e.getTimezoneOffset()*6e4).toISOString().slice(0,16);window.scrollTo(0,0)}
@@ -1012,12 +1014,12 @@ async function page_vipseason(){const [v,rows]=await Promise.all([api('vipseason
   drawVipRw();
   $('#vsave').onclick=()=>{const start=$('#vs').value,end=$('#ve').value;if(!start||!end)return toast('Chưa chọn ngày',1);
    if(start.slice(0,16)!==dt(v.start)&&!confirm('Đổi ngày bắt đầu = mùa mới, số lần mua của mọi người tính lại từ 0. Tiếp tục?'))return;
-   const rewards=VIPS.rewards.map(g=>({pet:!!g.pet,items:g.items.map(it=>({id:+it.id,qty:+it.qty,opts:it.opts}))}));
+   const rewards=VIPS.rewards.map(g=>({pet:!!g.pet,items:g.items.map(it=>({id:+it.id,qty:+it.qty,opts:it.opts,max:it.max==null?undefined:+it.max}))}));
    act(()=>api('vipseason/save',{start:start.length===16?start+':00':start,end:end.length===16?end+':59':end,max:+$('#vm').value,prices:[0,1,2,3].map(i=>+$('#vp'+i).value),rewards}),'Đã lưu mùa VIP').then(r=>{if(r)page_vipseason()})}}
 function vipOpts(o){return (o||[]).map(p=>p[0]+':'+p[1]).join(', ')}
 function vipSetOpts(g,i,t){const ops=[];for(const part of t.split(',')){const m=part.trim().match(/^(\d+)\s*:\s*(-?\d+)$/);if(m)ops.push([+m[1],+m[2]]);else if(part.trim())return toast('Sai dạng chỉ số: '+part.trim(),1)}VIPS.rewards[g].items[i].opts=ops}
 function drawVipRw(){$('#vrw').innerHTML=VIPS.rewards.map((g,gi)=>`<div class="card"><div class="section-head"><h3>VIP ${gi+1}</h3><label style="font-size:13px"><input type="checkbox" ${g.pet?'checked':''} onchange="VIPS.rewards[${gi}].pet=this.checked"> Tặng 1 đệ tử (nếu chưa có)</label></div><div id="vrw${gi}"></div></div>`).join('');
-  VIPS.rewards.forEach((g,gi)=>{g.items.forEach(it=>it.opts=it.opts||[]);rwEditor($('#vrw'+gi),g.items,{opts:true})})}
+  VIPS.rewards.forEach((g,gi)=>{g.items.forEach(it=>it.opts=it.opts||[]);rwEditor($('#vrw'+gi),g.items,{opts:true,gem:[-11,-12,'max']})})}
 
 /* ---------- nhiệm vụ KOL (Quy Lão Kamê) ---------- */
 let KOL=null,kolTab=0;
@@ -1025,7 +1027,7 @@ async function page_kol(){KOL=await api('kol');
   $('#main').innerHTML=`<h2>Nhiệm vụ KOL</h2><div class="card"><div class="tabs" id="ktab" style="margin:0"><button data-i="0">Nhiệm vụ & phần thưởng</button><button data-i="1">Tiến độ người chơi</button></div></div><div id="kl"></div>`;
   $('#ktab').querySelectorAll('button').forEach(b=>b.onclick=()=>{kolTab=+b.dataset.i;drawKol()});drawKol()}
 function kolRw(qi,kind){return `<div class="kolrw" data-q="${qi}" data-k="${kind}"></div>`}
-function kolRwInit(){document.querySelectorAll('.kolrw').forEach(el=>rwEditor(el,KOL.quests[+el.dataset.q][el.dataset.k],{days:true,gem:true}))}
+function kolRwInit(){document.querySelectorAll('.kolrw').forEach(el=>rwEditor(el,KOL.quests[+el.dataset.q][el.dataset.k],{days:true,gem:[-1,-2,'days']}))}
 function kolSet(qi,kind,ri,f,v){KOL.quests[qi][kind][ri][f]=+v}
 function drawKol(){$('#ktab').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.i===kolTab));
   if(kolTab===1){api('kol/progress').then(rows=>{$('#kl').innerHTML=`<div class="card"><p class="mute" style="font-size:12px;margin:0 0 8px">Đợt ${esc(KOL.season)}. Người đang online lấy số liệu trực tiếp, người offline lấy theo lần lưu gần nhất. Chỉ hiện người đã có tiến độ.</p>${rows.length?table(rows,[['name','Nhân vật',(v,x)=>`<a href="javascript:void 0" onclick="openPlayer(${Number(x.id)})">${esc(v)}</a>${x.online?' <span class="tag on1">online</span>':''}`],['stage','KOL',v=>v>KOL.quests.length?'Xong hết':'NV '+v],['vipStage','KOL VIP',(v,x)=>(x.vip?'':'<span class="mute">chưa mở</span> ')+(v>KOL.quests.length?'Xong hết':'NV '+v)],['boMong','Bò Mộng',fmt],['mocNhan','Mộc Nhân',fmt],['bdkb','Đảo Kho Báu',fmt],['pvp','Thắng ĐHVT',fmt],['ninja','Ninja tím',fmt],['monsters','Quái',fmt],['id','',(v,x)=>`<button class="s d" onclick="resetKol(${Number(v)},'${esc(x.name).replace(/'/g,'')}')">Đặt lại</button>`]]):'<p class="mute">Chưa ai làm nhiệm vụ KOL đợt này.</p>'}</div>`});return}

@@ -1016,6 +1016,9 @@ public final class Manager {
 
                         giftcode.option.put(id, optionList);
                         giftcode.detail.put(id, quantity);
+                        if (jsonObj.get("max") != null) {
+                            giftcode.max.put(id, Integer.parseInt(jsonObj.get("max").toString()));
+                        }
                     }
                 }
 

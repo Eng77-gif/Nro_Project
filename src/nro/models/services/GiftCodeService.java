@@ -63,6 +63,16 @@ public class GiftCodeService {
                         player.inventory.ruby += quantity;
                         textGift += "|4|" + quantity + " ngọc khóa\b";
                     }
+                    case -11, -12 -> { // ngọc xanh / hồng ngọc ngẫu nhiên từ quantity đến max
+                        int n = nro.models.utils.Util.nextInt(quantity, Math.max(quantity, giftcode.max.getOrDefault(idItem, quantity)));
+                        if (idItem == -11) {
+                            player.inventory.gem += n;
+                            textGift += "|3|" + n + " ngọc\b";
+                        } else {
+                            player.inventory.ruby += n;
+                            textGift += "|4|" + n + " hồng ngọc\b";
+                        }
+                    }
                     default -> {
                         Item itemGiftTemplate = ItemService.gI().createNewItem((short) idItem);
                         if (itemGiftTemplate != null) {

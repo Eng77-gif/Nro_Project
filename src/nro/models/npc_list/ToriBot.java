@@ -140,6 +140,10 @@ public class ToriBot extends Npc {
             PetService.gI().createNormalPet(pl);
         }
         for (nro.models.services.VipSeason.Reward r : nro.models.services.VipSeason.rewards(vipLevel)) {
+            if (r.isRandGem()) {
+                Service.gI().sendThongBao(pl, "Nhận " + r.giveGem(pl) + (r.id == -11 ? " ngọc xanh" : " hồng ngọc"));
+                continue;
+            }
             Item it = ItemService.gI().createNewItem((short) r.id, r.qty);
             for (int[] op : r.opts) {
                 it.itemOptions.add(new ItemOption(op[0], op[1]));
@@ -147,5 +151,6 @@ public class ToriBot extends Npc {
             InventoryService.gI().addItemBag(pl, it);
         }
         InventoryService.gI().sendItemBags(pl);
+        nro.models.services.PlayerService.gI().sendInfoHpMpMoney(pl); // ngọc / hồng ngọc ngẫu nhiên
     }
 }

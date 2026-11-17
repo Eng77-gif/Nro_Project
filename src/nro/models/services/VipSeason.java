@@ -31,11 +31,32 @@ public final class VipSeason {
 
         public final int id, qty;
         public final int[][] opts;
+        /** id -11 / -12: ngọc xanh / hồng ngọc ngẫu nhiên từ qty đến max. */
+        public int max;
 
         Reward(int id, int qty, int[]... opts) {
             this.id = id;
             this.qty = qty;
             this.opts = opts;
+        }
+
+        public boolean isRandGem() {
+            return id == -11 || id == -12;
+        }
+
+        /** Phát ngọc ngẫu nhiên, trả về số đã cộng. */
+        public int giveGem(Player pl) {
+            int n = nro.models.utils.Util.nextInt(qty, Math.max(qty, max));
+            if (id == -11) {
+                pl.inventory.gem += n;
+            } else {
+                pl.inventory.ruby += n;
+            }
+            return n;
+        }
+
+        String label() {
+            return qty + " - " + Math.max(qty, max) + (id == -11 ? " ngọc xanh" : " hồng ngọc");
         }
     }
 
@@ -86,6 +107,10 @@ public final class VipSeason {
             b.append("\nTặng 1 đệ tử (nếu chưa có)");
         }
         for (Reward r : rewards(level)) {
+            if (r.isRandGem()) {
+                b.append('\n').append(r.label());
+                continue;
+            }
             var t = ItemService.gI().getTemplate(r.id);
             b.append('\n').append(r.qty > 1 ? r.qty + " " : "").append(t != null ? t.name : "#" + r.id);
             for (int[] op : r.opts) {
@@ -197,7 +222,8 @@ public final class VipSeason {
                 for (Object io : (List<?>) g.get("items")) {
                     Map<?, ?> it = (Map<?, ?>) io;
                     int id = num(it.get("id")), qty = num(it.get("qty"));
-                    if (save && ItemService.gI().getTemplate(id) == null) {
+                    boolean rand = id == -11 || id == -12;
+                    if (save && !rand && ItemService.gI().getTemplate(id) == null) {
                         throw new IllegalArgumentException("VIP " + (lv + 1) + ": không có vật phẩm #" + id);
                     }
                     if (qty < 1) {
@@ -210,7 +236,14 @@ public final class VipSeason {
                             ops.add(new int[]{num(pr.get(0)), num(pr.get(1))});
                         }
                     }
-                    items.add(new Reward(id, qty, ops.toArray(new int[0][])));
+                    Reward rw = new Reward(id, qty, ops.toArray(new int[0][]));
+                    if (rand) {
+                        rw.max = it.get("max") == null ? qty : num(it.get("max"));
+                        if (rw.max < qty) {
+                            throw new IllegalArgumentException("VIP " + (lv + 1) + ": ngọc nhiều nhất phải >= ít nhất");
+                        }
+                    }
+                    items.add(rw);
                 }
                 nr.add(items);
             }
@@ -247,7 +280,9 @@ public final class VipSeason {
                 it.put("qty", r.qty);
                 List<int[]> ops = new ArrayList<>(List.of(r.opts));
                 it.put("opts", ops);
-                if (withNames) {
+                if (r.isRandGem()) {
+                    it.put("max", Math.max(r.qty, r.max));
+                } else if (withNames) {
                     var t = ItemService.gI().getTemplate(r.id);
                     it.put("name", t != null ? t.name : "?");
                     it.put("icon", t != null ? t.iconID : -1);
