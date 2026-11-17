@@ -20,7 +20,7 @@ import nro.models.services.Service;
 public final class EventItemUse {
 
     /** gói 30 đậu -> đậu thần */
-    private static final Map<Integer, Integer> GOI_DAU = Map.of(293, 13, 294, 60, 295, 61, 296, 62, 297, 63, 298, 64, 299, 65, 596, 352, 597, 523);
+    public static final Map<Integer, Integer> GOI_DAU = Map.of(293, 13, 294, 60, 295, 61, 296, 62, 297, 63, 298, 64, 299, 65, 596, 352, 597, 523);
     /** đồ ăn sự kiện dùng hiệu ứng "thức ăn" (+10% sức đánh) */
     private static final Set<Integer> MEALS = Set.of(752, 753, 899, 900, 902, 903, 1189, 1480, 1481, 1761, 1770, 1837);
     /** loại trang bị / thú cưỡi / pet: dùng ở chỗ khác, không báo */

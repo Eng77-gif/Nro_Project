@@ -75,6 +75,7 @@ public class BotQuest {
                 }
                 BotEndgame.worldChat(b); // quyền Chat kiểm ở ChatGlobalService
                 BotWorld.gI().dailyTick(b);
+                BotWorld.gI().petCare(b); // up đệ: bùa đệ tử + bùa trí tuệ, tích đậu, cho đệ ăn đậu
                 wearSkh(b);
                 if (BotWorld.allow(b, "gear")) {
                     BotGear.step(b);

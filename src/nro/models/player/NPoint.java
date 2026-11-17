@@ -2452,13 +2452,16 @@ public class NPoint {
                 }
             }
             long tn = tiemNang;
-            if (this.player.charms.tdTriTue > System.currentTimeMillis()) {
+            // đệ tử dùng bùa trí tuệ của sư phụ (đệ không mua bùa riêng được; trước đây bùa không có tác dụng cho đệ)
+            Charms ch = this.player.isPet && ((Pet) this.player).master != null ? ((Pet) this.player).master.charms : this.player.charms;
+            long nowCh = System.currentTimeMillis();
+            if (ch != null && ch.tdTriTue > nowCh) {
                 tiemNang += tn;
             }
-            if (this.player.charms.tdTriTue3 > System.currentTimeMillis()) {
+            if (ch != null && ch.tdTriTue3 > nowCh) {
                 tiemNang += tn * 3;
             }
-            if (this.player.charms.tdTriTue4 > System.currentTimeMillis()) {
+            if (ch != null && ch.tdTriTue4 > nowCh) {
                 tiemNang += tn * 4;
             }
             if (this.player.timevip > System.currentTimeMillis()) {

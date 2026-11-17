@@ -1519,6 +1519,90 @@ public final class BotWorld {
         }
     }
 
+    // ------------------------------------------------------------------ up đệ như người chơi
+    private static final int BUA_DE_TU = 522, BUA_TRI_TUE = 213, PEA_STOCK = 90;
+    /** Gói 30 đậu thần ở Urôn theo cấp đậu thần (TabShopUron.listDauThan) */
+    private static final int[] PEA_PACKS = {293, 294, 295, 296, 297, 298, 299, 596, 597};
+
+    /** Gọi mỗi lượt BotQuest (15 giây) khi đang Up đệ: mua Bùa Đệ Tử (đệ x2 sát thương quái) + Bùa Trí Tuệ (x2 tiềm năng, cả đệ),
+     *  tích sẵn đậu thần, đệ đuối thể lực / máu thì ăn đậu (đậu hồi cho cả đệ và nạp thể lực). Trả ngọc như cửa hàng. */
+    void petCare(Bot b) {
+        if (!"Up đệ".equals(b.activity) || b.pet == null || b.pet.nPoint == null || b.charms == null) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        buyCharm(b, BUA_DE_TU, b.charms.tdDeTu, now);
+        buyCharm(b, BUA_TRI_TUE, b.charms.tdTriTue, now);
+        stockPeas(b);
+        nro.models.player.Pet p = b.pet;
+        if (!p.isDie() && b.zone != null && b.zone.equals(p.zone)
+                && (p.nPoint.stamina < p.nPoint.maxStamina / 3 || p.nPoint.hp < p.nPoint.hpMax / 2)) {
+            nro.models.services_func.UseItem.gI().eatPea(b);
+        }
+    }
+
+    /** Bùa còn dưới 10 phút: mua gói 8 giờ (dư ngọc) hoặc 1 giờ ở Bà Hạt Mít, như người chơi. */
+    private void buyCharm(Bot b, int id, long until, long now) {
+        if (until - now > 10 * 60_000L) {
+            return;
+        }
+        for (String tag : new String[]{"BUA_8H", "BUA_1H"}) {
+            for (var shop : nro.models.server.Manager.SHOPS) {
+                if (!tag.equals(shop.tagName) || !BotGear.reach(b, shop.npcId)) {
+                    continue;
+                }
+                for (var tab : shop.tabShops) {
+                    for (var is : tab.itemShops) {
+                        if (is.temp != null && is.temp.id == id && is.typeSell == 1 && is.cost > 0 && b.inventory.gem >= is.cost * 3L) {
+                            b.inventory.gem -= is.cost;
+                            b.charms.addTimeCharms(id, "BUA_8H".equals(tag) ? 480 : 60);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /** Giữ sẵn ~90 hạt đậu thần: mua Gói 30 đậu (cấp theo cây đậu thần) ở Urôn bằng ngọc. */
+    private void stockPeas(Bot b) {
+        int have = 0;
+        for (nro.models.item.Item it : b.inventory.itemsBag) {
+            if (it != null && it.isNotNullItem() && it.template.type == 6) {
+                have += it.quantity;
+            }
+        }
+        if (have >= PEA_STOCK) {
+            return;
+        }
+        int level = b.magicTree != null ? b.magicTree.level : 1;
+        int pack = PEA_PACKS[Math.max(0, Math.min(PEA_PACKS.length - 1, level))];
+        Integer pea = nro.models.services_func.EventItemUse.GOI_DAU.get(pack);
+        if (pea == null) {
+            return;
+        }
+        for (var shop : nro.models.server.Manager.SHOPS) {
+            if (!"URON".equals(shop.tagName) || !BotGear.reach(b, shop.npcId)) {
+                continue;
+            }
+            for (var tab : shop.tabShops) {
+                for (var is : tab.itemShops) {
+                    if (is.temp == null || is.temp.id != pack || is.typeSell != 1 || is.cost <= 0) {
+                        continue;
+                    }
+                    while (have < PEA_STOCK && b.inventory.gem >= is.cost * 3L
+                            && (nro.models.services.InventoryService.gI().getCountEmptyBag(b) > 0
+                            || nro.models.services.InventoryService.gI().findItemBag(b, pea) != null)) {
+                        b.inventory.gem -= is.cost;
+                        nro.models.services.InventoryService.gI().addItemBag(b, ItemService.gI().createNewItem(pea.shortValue(), 30));
+                        have += 30;
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
     /** Đệ yếu hơn sư phụ quá nhiều (dưới 1/10 sức mạnh): cần up riêng, đi theo sư phụ vào map mạnh không đánh nổi quái. */
     static boolean petWeak(Bot b) {
         return b.accountBot && b.pet != null && b.fusion.typeFusion == 0 && b.pet.nPoint != null
