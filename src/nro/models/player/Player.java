@@ -755,7 +755,7 @@ public class Player implements Runnable {
             {406, 407, 408}, {406, 407, 408}, {406, 407, 408} // củ cà rốt (Thỏ đại ca)
         },
         {
-            {760, 2393, 762}, {760, 2393, 762}, {760, 2393, 762} // bánh bao (Pet Po), thân dùng hình Bánh dầy 12848
+            {1488, 1489, 1490}, {1488, 1489, 1490}, {1488, 1489, 1490} // bánh bao (Pet Po): bộ bánh bao có sẵn của game (chân 1490 = bánh bao 13433-13439, avatar 13441)
         }};
 
     public static final short[][] idOutfitMafuba = {

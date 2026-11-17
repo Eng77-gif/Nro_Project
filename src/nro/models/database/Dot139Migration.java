@@ -127,6 +127,9 @@ public class Dot139Migration {
             update(con, "update part set DATA = '[[6100,-10,-14],[6100,-10,-14],[6100,-10,-14]]' where id = 2391");
             update(con, "update part set DATA = '[[6099,-10,-14],[6099,-10,-14],[6099,-10,-14]]' where id = 2392");
             update(con, "update part set DATA = '[[7062,-10,-14],[7062,-10,-14],[7062,-10,-14]]' where id = 2394");
+            // bánh bao: dùng ảnh bánh bao có sẵn 13441 (avatar bộ bánh bao đầu 1488) thay ảnh Bánh dầy 12848 tạm trước đây
+            update(con, "update part set DATA = '[[13441,-10,-14],[13441,-10,-14],[13441,-10,-14]]' where id = 2395");
+            update(con, "update head_avatar set avatar_id = 13441 where head_id = 2395");
             // thân trong suốt: popup chat thế giới vẽ cả người, thân hoá hình cũng là con vật nên thành 2 con chồng nhau (dơi cõng ma trơi)
             update(con, "insert into part (id, TYPE, DATA) select 2396, 1, '[[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]' from dual where not exists (select 1 from part where id = 2396)");
             boolean first = !exists(con, "select 1 from server_migration where name = 'dot139c_cua_hang'");
