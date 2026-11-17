@@ -211,6 +211,14 @@ final class BotGear {
             b.inventory.gold -= 50_000_000L;
             b.inventory.itemsBox.add(ItemService.gI().createItemNull());
         }
+        for (java.util.List<Item> list : java.util.List.of(b.inventory.itemsBag, b.inventory.itemsBox)) { // đồ hành tinh khác nhặt / cất từ trước
+            for (int i = 0; i < list.size(); i++) {
+                Item x = list.get(i);
+                if (x != null && x.isNotNullItem() && otherPlanetGear(b, x.template)) {
+                    list.set(i, ItemService.gI().createItemNull());
+                }
+            }
+        }
         for (int i = b.inventory.itemsBag.size() - 1; i >= 0; i--) {
             Item it = b.inventory.itemsBag.get(i);
             int slot = slotOf(it);
@@ -226,6 +234,14 @@ final class BotGear {
             }
         }
         InventoryService.gI().sortItems(b.inventory.itemsBag);
+    }
+
+    /** Áo / quần / găng / giày / rada của hành tinh khác mà cả bot lẫn đệ của bot đều không mặc được: bot không nhặt, không giữ. */
+    static boolean otherPlanetGear(Bot b, ItemTemplate t) {
+        if (t == null || t.type > 4 || t.gender >= 3 || t.gender == b.gender) {
+            return false;
+        }
+        return b.pet == null || b.pet.gender != t.gender;
     }
 
     private static boolean fits(int slot, ItemTemplate t) {

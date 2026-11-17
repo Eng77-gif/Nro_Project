@@ -295,7 +295,7 @@ public class BotPemQuai {
             List<ItemMap> itemsToPick = new ArrayList<>();
 
             for (ItemMap item : this.bot.zone.getItemMapsForPlayer(this.bot)) { // như người chơi: không thấy vật phẩm nhiệm vụ của bước khác
-                if (!item.isPickedUp
+                if (!item.isPickedUp && !BotGear.otherPlanetGear(this.bot, item.itemTemplate)
                         && Util.getDistance(this.bot.location.x, this.bot.location.y, item.x, item.y) < 500) {
                     itemsToPick.add(item);
                     if (itemsToPick.size() >= 3) {
