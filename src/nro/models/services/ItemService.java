@@ -369,9 +369,12 @@ public class ItemService {
         return null;
     }
 
+    /** Vật phẩm đã gỡ khỏi game nhưng giữ dòng trong item_template (danh sách tra theo vị trí = mã): coi như không có, món cũ tự mất khi tải nhân vật. */
+    public static final java.util.Set<Integer> REMOVED = java.util.Set.of(2121, 2122); // Đại bàng đất sét nổ VIP / thường
+
     public Template.ItemTemplate getTemplate(int id) {
         // vật phẩm đã xóa (vd. thú cưỡi 2124 - 2127) không làm lỗi cả hành trang khi tải nhân vật
-        return id >= 0 && id < Manager.ITEM_TEMPLATES.size() ? Manager.ITEM_TEMPLATES.get(id) : null;
+        return id >= 0 && id < Manager.ITEM_TEMPLATES.size() && !REMOVED.contains(id) ? Manager.ITEM_TEMPLATES.get(id) : null;
     }
 
     public int getPercentTrainArmor(Item item) {

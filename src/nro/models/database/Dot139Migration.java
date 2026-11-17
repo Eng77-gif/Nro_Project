@@ -282,6 +282,13 @@ public class Dot139Migration {
         // Áo Thần Xayda bán ở shop (item_shop 537) không có dòng chỉ số nào: hiện giáp gốc + yêu cầu sức mạnh như đồ rơi
         update(con, "insert into item_shop_option (item_shop_id, option_id, param) select s.id, 47, 900 from item_shop s where s.temp_id between 555 and 567 and s.temp_id = 559 and not exists (select 1 from item_shop_option o where o.item_shop_id = s.id)");
         update(con, "insert into item_shop_option (item_shop_id, option_id, param) select s.id, 21, 15 from item_shop s where s.temp_id = 559 and not exists (select 1 from item_shop_option o where o.item_shop_id = s.id and o.option_id = 21)");
+        // gỡ Đại bàng đất sét nổ (VIP): giữ dòng item_template (mã = vị trí), bỏ chỉ số và mọi nơi bán / phát
+        update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1 where id in (2121, 2122) and NAME <> 'Vật phẩm đã gỡ'");
+        update(con, "delete from item_template_option where template_id in (2121, 2122)");
+        update(con, "delete from item_shop_option where item_shop_id in (select id from item_shop where temp_id in (2121, 2122))");
+        update(con, "delete from item_shop where temp_id in (2121, 2122)");
+        update(con, "delete from item_box_reward where item_id in (2121, 2122)");
+        update(con, "delete from shop_ky_gui where item_id in (2121, 2122)");
         update(con, "insert into item_option_template (id, NAME) select 274, '#% cơ hội ra Chống lạnh' from dual where not exists (select 1 from item_option_template where id = 274)");
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
