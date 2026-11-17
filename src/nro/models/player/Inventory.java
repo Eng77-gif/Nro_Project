@@ -74,6 +74,18 @@ public class Inventory {
         this.gold -= num;
     }
 
+    private static void disposeList(List<Item> list) {
+        if (list == null) {
+            return;
+        }
+        for (Item it : list.toArray(new Item[0])) {
+            if (it != null) {
+                it.dispose();
+            }
+        }
+        list.clear();
+    }
+
     public void addGold(long gold) {
         this.gold += gold;
         if (this.gold > LIMIT_GOLD) {
@@ -86,36 +98,13 @@ public class Inventory {
             this.trainArmor.dispose();
         }
         this.trainArmor = null;
-        if (this.itemsBody != null) {
-            for (Item it : this.itemsBody) {
-                it.dispose();
-            }
-            this.itemsBody.clear();
-        }
-        if (this.itemsBag != null) {
-            for (Item it : this.itemsBag) {
-                it.dispose();
-            }
-            this.itemsBag.clear();
-        }
-        if (this.itemsBox != null) {
-            for (Item it : this.itemsBox) {
-                it.dispose();
-            }
-            this.itemsBox.clear();
-        }
-        if (this.itemsBoxCrackBall != null) {
-            for (Item it : this.itemsBoxCrackBall) {
-                it.dispose();
-            }
-            this.itemsBoxCrackBall.clear();
-        }
-        if (this.itemsDaBan != null) {
-            for (Item it : this.itemsDaBan) {
-                it.dispose();
-            }
-            this.itemsDaBan.clear();
-        }
+        // đối thủ ảo Siêu hạng dùng chung hành trang với bản sao người chơi: luồng trận và luồng boss có thể cùng đụng vào
+        // (trước đây ConcurrentModificationException / NullPointerException tại đây). Duyệt bản chụp, bỏ ô null.
+        disposeList(this.itemsBody);
+        disposeList(this.itemsBag);
+        disposeList(this.itemsBox);
+        disposeList(this.itemsBoxCrackBall);
+        disposeList(this.itemsDaBan);
         this.itemsBody = null;
         this.itemsBag = null;
         this.itemsBox = null;
