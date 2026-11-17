@@ -2531,4 +2531,5 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - mount_84 hiện cả người: bỏ mép thân che chân ở lớp 1 (chỉ còn kính mờ alpha 55), chân nhân vật trên mặt ghế, phi thuyền thu nhỏ 20% (x2 = 0,76 lần ô 512). vsRes 11.
 - mount_84 chỗ đứng theo ảnh chụp trong game: client đặt chân nhân vật ở tâm khung (đo được 1 px ô 512 = 1,92 px màn hình, Gohan nhỏ cao ~77 px ô). Chân nhân vật đặt trên sàn buồng lái (82, 298 trong ô 512), về lại cỡ 0,95 (bản thu 20% làm nhân vật nhô khỏi kính nhiều hơn). Nhân vật nhỏ nằm gọn trong kính, nhân vật thường nhô chỏm tóc. vsRes 12.
 - mount_84 to thêm 20% (x2 = 1,14 lần ô 512) để nhân vật thường cũng lọt trong kính buồng lái. vsRes 13.
+- mount_84: chân nhân vật hạ xuống dưới mép ghế (82, 316 trong ô 512) như đang ngồi; lớp 1 thêm vỏ vàng trước buồng lái (chỉ phần vỏ, không lấy nệm ghế tối) che chân. vsRes 14.
 - Chỉ số 126 "Biến sôcôla làm yếu đi -#% sức đánh trong 30 giây" (Cờ hồn Mabư) trước đây không có tác dụng: nay biến sôcôla người xung quanh như chỉ số 29 và giảm #% sức đánh của họ trong 30 giây.
