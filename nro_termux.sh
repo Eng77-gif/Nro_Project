@@ -25,18 +25,43 @@ config_db() {  # git pull / chép lại sẽ ghi đè Config.properties: sửa m
 # user database cho server: chạy mỗi lần bật (MariaDB trên Termux chỉ cho user Termux đăng nhập qua socket;
 # JDBC cần user có mật khẩu qua TCP; xoá user ẩn danh vì nó chen vào đăng nhập từ localhost)
 MYSQL=$(command -v mariadb || command -v mysql)
-# user quản trị của MariaDB: tuỳ bản Termux là user Termux hoặc root (đăng nhập qua socket); dò trước rồi mới chạy
-# (trước đây thử lần lượt: lần đầu thất bại đã đọc hết lệnh SQL nên lần sau chạy rỗng -> không tạo database)
+DUMP=$(command -v mariadb-dump || command -v mysqldump)
+# user quản trị: chỉ nhận user đọc được mysql.user (user ẩn danh ''@localhost "đăng nhập được" bằng mọi tên nhưng không có quyền)
+DBA=()
 db_admin() {
-    for u in "$(whoami)" root; do
-        "$MYSQL" -u "$u" -e "select 1" >/dev/null 2>&1 && { echo "$u"; return; }
+    local a
+    for a in "-u $(whoami)" "-u root" "-u $DB_USER -p$DB_PASS" "-h 127.0.0.1 -u $DB_USER -p$DB_PASS"; do
+        "$MYSQL" $a -e "select 1 from mysql.user limit 1" >/dev/null 2>&1 && { DBA=($a); return 0; }
     done
+    return 1
 }
-msql() { "$MYSQL" -u "${DBA:=$(db_admin)}" "$@"; }
+msql() { "$MYSQL" "${DBA[@]}" "$@"; }
+# đợi tiến trình thoát hẳn (ping tắt sớm hơn, bật lại ngay sẽ bị khoá file dữ liệu)
+db_wait_down() { for i in $(seq 1 30); do pgrep -f 'mariadbd|mysqld' >/dev/null || return 0; sleep 1; done; }
+# không user nào có quyền: bật MariaDB bỏ qua kiểm tra quyền (chỉ socket nội bộ), tạo user nro toàn quyền rồi bật lại bình thường
+reset_grants() {
+    echo ">> Không có user quản trị MariaDB, đang khôi phục quyền ..."
+    pkill -f mariadbd 2>/dev/null; pkill -f mysqld 2>/dev/null; db_wait_down
+    (mysqld_safe --skip-grant-tables --skip-networking >/dev/null 2>&1 &)
+    for i in $(seq 1 60); do mysqladmin ping >/dev/null 2>&1 && break; sleep 1; done
+    "$MYSQL" -u root <<SQL
+FLUSH PRIVILEGES;
+DROP USER IF EXISTS ''@'localhost';
+DROP USER IF EXISTS ''@'$(hostname)';
+CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
+CREATE USER IF NOT EXISTS '$DB_USER'@'127.0.0.1' IDENTIFIED BY '$DB_PASS';
+ALTER USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
+ALTER USER '$DB_USER'@'127.0.0.1' IDENTIFIED BY '$DB_PASS';
+GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'localhost' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'127.0.0.1' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+SQL
+    mysqladmin -u root shutdown >/dev/null 2>&1 || { pkill -f mariadbd; pkill -f mysqld; }
+    db_wait_down; db_up
+}
 ensure_db() {
     db_up
-    DBA=$(db_admin)
-    if [ -z "$DBA" ]; then echo "!! Không đăng nhập được MariaDB bằng $(whoami) hay root."; return 1; fi
+    if ! db_admin; then reset_grants; db_admin || { echo "!! Không khôi phục được quyền MariaDB."; return 1; }; fi
     msql <<SQL
 CREATE DATABASE IF NOT EXISTS team2026 CHARACTER SET utf8mb4;
 DROP USER IF EXISTS ''@'localhost';
@@ -45,8 +70,8 @@ CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
 CREATE USER IF NOT EXISTS '$DB_USER'@'127.0.0.1' IDENTIFIED BY '$DB_PASS';
 ALTER USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
 ALTER USER '$DB_USER'@'127.0.0.1' IDENTIFIED BY '$DB_PASS';
-GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'localhost';
-GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'127.0.0.1';
+GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'localhost' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'127.0.0.1' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 SQL
     if [ "$(msql -N -e "select count(*) from information_schema.tables where table_schema='team2026'")" = "0" ]; then
@@ -113,7 +138,8 @@ update() {
 backup() {
     db_up; mkdir -p "$BACKUP_DIR"
     local f="$BACKUP_DIR/team2026_$(date +%Y%m%d_%H%M%S).sql"
-    "$(command -v mariadb-dump || command -v mysqldump)" -u "$(db_admin)" team2026 > "$f" && echo ">> Đã sao lưu: $f"
+    db_admin || { echo "!! Chưa có quyền database, chọn Bật server 1 lần trước."; return 1; }
+    "$DUMP" "${DBA[@]}" team2026 > "$f" && echo ">> Đã sao lưu: $f"
 }
 
 restore() {
@@ -123,6 +149,7 @@ restore() {
     local f=$(ls -1t "$BACKUP_DIR"/*.sql 2>/dev/null | sed -n "${n}p")
     [ -n "$n" ] && [ -n "$f" ] || { echo "Huỷ."; return; }
     local was=0; running && was=1 && stop
+    db_admin || { echo "!! Chưa có quyền database."; return 1; }
     msql team2026 < "$f" && echo ">> Đã khôi phục $f"
     [ $was = 1 ] && start
 }
