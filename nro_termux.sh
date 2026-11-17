@@ -95,8 +95,9 @@ update() {
     local was=0; running && was=1 && stop
     git checkout -- Config.properties 2>/dev/null
     git pull --ff-only || { echo "!! Không cập nhật được (mạng hoặc file sửa tay bị trùng)."; }
-    config_db
-    [ $was = 1 ] && start
+    chmod +x "$DIR/nro_termux.sh"
+    # chạy lại bằng bản script vừa tải (menu đang mở vẫn giữ code cũ trong bộ nhớ)
+    if [ $was = 1 ]; then exec bash "$DIR/nro_termux.sh" start-menu; else exec bash "$DIR/nro_termux.sh"; fi
 }
 
 backup() {
@@ -143,5 +144,5 @@ menu() {
 case "$1" in
     setup) setup ;; start) start ;; stop) stop ;; restart) stop; start ;;
     log) tail -n 50 -f logs/server.log ;; update) update ;; backup) backup ;; restore) restore ;;
-    ram) ram ;; ip) ip_info ;; *) menu ;;
+    ram) ram ;; ip) ip_info ;; start-menu) start; menu ;; *) menu ;;
 esac
