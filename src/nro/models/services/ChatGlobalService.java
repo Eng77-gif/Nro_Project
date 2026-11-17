@@ -176,7 +176,7 @@ public class ChatGlobalService implements Runnable {
             short h = player.getHead();
             short bd = player.getBody();
             this.head = h == 651 ? 2391 : h == 654 ? 2392 : h == 760 ? (short) (bd == 2393 ? 2395 : 2394) : h;
-            this.body = bd;
+            this.body = this.head != h ? 2396 : bd; // đang hoá hình: thân trong suốt, chỉ còn con vật ở đầu
             this.leg = player.getLeg();
             this.bag = -1; // chat thế giới chỉ hiện cải trang + avatar, không hiện đeo lưng / pet
             this.text = text;
