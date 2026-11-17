@@ -122,21 +122,58 @@ ram() {
     [ -n "$r" ] && echo "$r" > "$RAM_FILE" && echo ">> Lần bật sau dùng $r."
 }
 
+# ---------- giao diện ----------
+C0=$'\e[0m'; B=$'\e[1m'; DIM=$'\e[2m'; R=$'\e[31m'; G=$'\e[32m'; Y=$'\e[33m'; CY=$'\e[36m'; M=$'\e[35m'
+line() { printf "${CY}%s${C0}\n" "  ──────────────────────────────────────"; }
+row()  { printf "  ${DIM}%s${C0} %s\n" "$1" "$2"; }  # nhãn tự đệm sẵn (printf đếm byte, chữ có dấu bị lệch)
+pause() { echo; read -rp "  ${DIM}Nhấn Enter để quay lại menu...${C0}" _; }
+my_ip() { ifconfig 2>/dev/null | awk '/wlan0/{f=1} f&&/inet /{print $2; exit}'; }
+
+status() {
+    local pid up mem ip
+    pid=$(pgrep -f "java.*20.jar" | head -1)
+    ip=$(my_ip)
+    clear
+    printf "${Y}${B}%s${C0}\n" "  ╔══════════════════════════════════════╗"
+    printf "${Y}${B}%s${C0}\n" "  ║     ★  NGỌC RỒNG ONLINE SERVER  ★    ║"
+    printf "${Y}${B}%s${C0}\n" "  ╚══════════════════════════════════════╝"
+    line
+    if [ -n "$pid" ]; then
+        up=$(ps -o etime= -p "$pid" 2>/dev/null | tr -d ' ')
+        mem=$(ps -o rss= -p "$pid" 2>/dev/null | awk '{printf "%d MB", $1/1024}')
+        row "Server    " "${G}${B}● ĐANG CHẠY${C0}  ${DIM}(${up:-?}, ${mem:-?})${C0}"
+    else
+        row "Server    " "${R}${B}● ĐANG TẮT${C0}"
+    fi
+    if mysqladmin ping >/dev/null 2>&1; then row "Database  " "${G}● MariaDB chạy${C0}"; else row "Database  " "${R}● MariaDB tắt${C0}"; fi
+    row "Game      " "${B}${ip:-chưa có wifi}:14445${C0}"
+    row "Panel     " "${B}http://${ip:-ip}:8088${C0}"
+    row "RAM       " "$(cat "$RAM_FILE" 2>/dev/null || echo 512m)"
+    row "Phiên bản " "$(git log -1 --format='%h  %cd' --date=format:'%d/%m %H:%M' 2>/dev/null)"
+    line
+}
+
 menu() {
     while :; do
+        status
+        printf "  ${G}1${C0}  Bật server            ${R}2${C0}  Tắt server\n"
+        printf "  ${Y}3${C0}  Khởi động lại         ${CY}4${C0}  Xem log trực tiếp\n"
+        printf "  ${M}5${C0}  Cập nhật từ GitHub\n"
+        printf "  ${CY}6${C0}  Sao lưu database      ${CY}7${C0}  Khôi phục database\n"
+        printf "  ${CY}8${C0}  Đổi RAM               ${DIM}0  Thoát${C0}\n"
+        line
+        read -rp "  Chọn: " c
         echo
-        echo "===== SERVER NRO ($(running && echo 'đang chạy' || echo 'đang tắt')) ====="
-        echo " 1. Bật server        2. Tắt server       3. Khởi động lại"
-        echo " 4. Xem log (Ctrl+C để thoát xem)"
-        echo " 5. Cập nhật từ GitHub"
-        echo " 6. Sao lưu database  7. Khôi phục database"
-        echo " 8. Đổi RAM           9. Xem IP kết nối    0. Thoát"
-        read -rp "Chọn: " c
         case $c in
-            1) start ;; 2) stop ;; 3) stop; start ;;
-            4) tail -n 50 -f logs/server.log ;;
-            5) update ;; 6) backup ;; 7) restore ;; 8) ram ;; 9) ip_info ;;
-            0) exit 0 ;;
+            1) start; pause ;;
+            2) stop; pause ;;
+            3) stop; start; pause ;;
+            4) echo "  ${DIM}Ctrl + C để thoát xem log${C0}"; trap 'true' INT; tail -n 40 -f logs/server.log; trap - INT ;;
+            5) update ;;
+            6) backup; pause ;;
+            7) restore; pause ;;
+            8) ram; pause ;;
+            0) clear; exit 0 ;;
         esac
     done
 }
