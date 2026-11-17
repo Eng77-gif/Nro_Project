@@ -492,17 +492,18 @@ public class PanelApi {
             if (p == null || p.inventory == null || !seen.add(p.id)) {
                 continue;
             }
-            int[] n = {count(p.inventory.itemsBody, itemId), count(p.inventory.itemsBag, itemId), count(p.inventory.itemsBox, itemId)};
+            int[] n = {count(p.inventory.itemsBody, itemId), count(p.inventory.itemsBag, itemId), count(p.inventory.itemsBox, itemId),
+                p.pet != null && p.pet.inventory != null ? count(p.pet.inventory.itemsBody, itemId) : 0};
             addOwner(out, p.id, p.name, botIds.containsKey(p.id), true, n, kind);
         }
-        String like1 = "%[\"[" + itemId + ",%", like2 = "%,\"[" + itemId + ",%";
-        for (Map<String, Object> r : rows("select id, name, items_body, items_bag, items_box from player where items_body like ? or items_body like ? or items_bag like ? or items_bag like ? or items_box like ? or items_box like ?",
-                like1, like2, like1, like2, like1, like2)) {
+        String like1 = "%[\"[" + itemId + ",%", like2 = "%,\"[" + itemId + ",%", likePet = "%\\\\\"[" + itemId + ",%";
+        for (Map<String, Object> r : rows("select id, name, items_body, items_bag, items_box, pet from player where items_body like ? or items_body like ? or items_bag like ? or items_bag like ? or items_box like ? or items_box like ? or pet like ?",
+                like1, like2, like1, like2, like1, like2, likePet)) {
             long id = ((Number) r.get("id")).longValue();
             if (seen.contains(id)) {
                 continue;
             }
-            int[] n = {countJson(r.get("items_body"), itemId), countJson(r.get("items_bag"), itemId), countJson(r.get("items_box"), itemId)};
+            int[] n = {countJson(r.get("items_body"), itemId), countJson(r.get("items_bag"), itemId), countJson(r.get("items_box"), itemId), countPet(r.get("pet"), itemId)};
             addOwner(out, id, String.valueOf(r.get("name")), botIds.containsKey(id), false, n, kind);
         }
         out.sort((x, y) -> Long.compare(((Number) y.get("total")).longValue(), ((Number) x.get("total")).longValue()));
@@ -510,7 +511,7 @@ public class PanelApi {
     }
 
     private static void addOwner(List<Map<String, Object>> out, long id, String name, boolean bot, boolean online, int[] n, String kind) {
-        long total = (long) n[0] + n[1] + n[2];
+        long total = (long) n[0] + n[1] + n[2] + n[3];
         if (total <= 0 || ("bot".equals(kind) && !bot) || ("human".equals(kind) && bot)) {
             return;
         }
@@ -522,6 +523,7 @@ public class PanelApi {
         m.put("body", n[0]);
         m.put("bag", n[1]);
         m.put("box", n[2]);
+        m.put("pet", n[3]);
         m.put("total", total);
         out.add(m);
     }
@@ -536,6 +538,21 @@ public class PanelApi {
             }
         }
         return n;
+    }
+
+    /** Đồ đệ tử đang mặc: cột pet là mảng JSON, phần tử 2 là danh sách đồ cùng dạng items_body. */
+    private static int countPet(Object raw, int itemId) {
+        if (raw == null) {
+            return 0;
+        }
+        try {
+            Object arr = org.json.simple.JSONValue.parse(String.valueOf(raw));
+            if (arr instanceof List<?> l && l.size() > 2) {
+                return countJson(String.valueOf(l.get(2)), itemId);
+            }
+        } catch (Exception ignored) {
+        }
+        return 0;
     }
 
     private static int countJson(Object raw, int itemId) {

@@ -329,6 +329,23 @@ final class BotGear {
                 changed = true;
             }
         }
+        // đệ tử của bot đeo (Pet Po trên đệ vẫn biến người xung quanh thành bánh bao)
+        if (b.pet != null && b.pet.inventory != null && b.pet.inventory.itemsBody != null) {
+            boolean pc = false;
+            for (int i = 0; i < b.pet.inventory.itemsBody.size(); i++) {
+                Item x = b.pet.inventory.itemsBody.get(i);
+                if (x != null && x.isNotNullItem() && slotOf(x) >= 5 && boxOnly().contains((int) x.template.id)) {
+                    b.pet.inventory.itemsBody.set(i, ItemService.gI().createItemNull());
+                    pc = true;
+                }
+            }
+            if (pc) {
+                if (b.pet.nPoint != null) {
+                    b.pet.nPoint.calPoint();
+                }
+                Service.gI().Send_Caitrang(b.pet);
+            }
+        }
         // cùng loại đồ nằm trong hành trang / rương (bản cũ mua về chưa mặc) cũng bỏ, kẻo lại mặc vào
         for (java.util.List<Item> list : java.util.List.of(b.inventory.itemsBag, b.inventory.itemsBox)) {
             for (int i = 0; i < list.size(); i++) {
