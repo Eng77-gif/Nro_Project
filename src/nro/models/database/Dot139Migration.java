@@ -118,6 +118,11 @@ public class Dot139Migration {
             update(con, "insert into part (id, TYPE, DATA) select 2392, 0, '[[6098,-6,2],[6098,-6,2],[6098,-6,2]]' from dual where not exists (select 1 from part where id = 2392)");
             update(con, "insert into head_avatar (head_id, avatar_id) select 2391, 6100 from dual where not exists (select 1 from head_avatar where head_id = 2391)");
             update(con, "insert into head_avatar (head_id, avatar_id) select 2392, 6099 from dual where not exists (select 1 from head_avatar where head_id = 2392)");
+            // Bí ngô (đầu 760) và bánh bao Pet Po (đầu 760 + thân 2393) cũng có đầu trong suốt: đầu 2394 hình bí ngô, 2395 hình bánh dầy
+            update(con, "insert into part (id, TYPE, DATA) select 2394, 0, '[[7060,-4,-4],[7060,-4,-4],[7060,-4,-4]]' from dual where not exists (select 1 from part where id = 2394)");
+            update(con, "insert into part (id, TYPE, DATA) select 2395, 0, '[[12848,-4,-2],[12848,-4,-2],[12848,-4,-2]]' from dual where not exists (select 1 from part where id = 2395)");
+            update(con, "insert into head_avatar (head_id, avatar_id) select 2394, 7062 from dual where not exists (select 1 from head_avatar where head_id = 2394)");
+            update(con, "insert into head_avatar (head_id, avatar_id) select 2395, 12848 from dual where not exists (select 1 from head_avatar where head_id = 2395)");
             boolean first = !exists(con, "select 1 from server_migration where name = 'dot139c_cua_hang'");
             StringBuilder keep = new StringBuilder();
             for (int i = 0; i < CUA_HANG.length; i++) {

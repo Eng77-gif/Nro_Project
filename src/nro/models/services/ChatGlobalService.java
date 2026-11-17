@@ -170,22 +170,14 @@ public class ChatGlobalService implements Runnable {
                 this.playerName = player.name + " - Quản Trị Viên";
             }
             this.playerId = (int) player.id;
-            // đang bị hoá hình Halloween (Ma trơi, Dơi, Bí ngô, bánh bao...): đầu hoá hình trong suốt (con vật vẽ ở thân),
-            // client J2ME không vẽ được đầu thay thế 2391 / 2392 -> ô avatar trống. Lấy đầu / thân thật của người chat.
-            var es = player.effectSkill;
-            boolean hw = es != null && es.isHalloween;
-            if (hw) {
-                es.isHalloween = false;
-            }
-            try {
-                this.head = player.getHead();
-                this.body = player.getBody();
-                this.leg = player.getLeg();
-            } finally {
-                if (hw) {
-                    es.isHalloween = true;
-                }
-            }
+            // hoá hình Halloween: đầu hoá hình là ảnh trong suốt (con vật vẽ ở thân) nên ô avatar trống.
+            // Đổi sang đầu riêng có hình con vật (Dot139Migration): Ma trơi 651 -> 2391, Dơi 654 -> 2392,
+            // Bí ngô 760 -> 2394, bánh bao (đầu 760 + thân 2393) -> 2395
+            short h = player.getHead();
+            short bd = player.getBody();
+            this.head = h == 651 ? 2391 : h == 654 ? 2392 : h == 760 ? (short) (bd == 2393 ? 2395 : 2394) : h;
+            this.body = bd;
+            this.leg = player.getLeg();
             this.bag = -1; // chat thế giới chỉ hiện cải trang + avatar, không hiện đeo lưng / pet
             this.text = text;
         }
