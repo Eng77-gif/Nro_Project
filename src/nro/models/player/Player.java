@@ -1540,6 +1540,12 @@ public class Player implements Runnable {
         if (isPl() && inventory != null && inventory.itemsBody.get(7) != null) {
             Item it = inventory.itemsBody.get(7);
             if (it != null && it.isNotNullItem() && newPet == null) {
+                // hình pet theo item_template (các case cứng bên dưới là số part bộ dữ liệu cũ, nhiều pet lệch hình / thành bánh bao)
+                if (it.template.type == 27 && it.template.head >= 0 && it.template.body >= 0 && it.template.leg >= 0) {
+                    PetService.Pet2(this, it.template.head, it.template.body, it.template.leg);
+                    Service.gI().point(this);
+                    return;
+                }
                 switch (it.template.id) {
                     case 892 -> {
                         PetService.Pet2(this, 882, 883, 884);

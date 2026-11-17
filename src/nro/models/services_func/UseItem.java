@@ -328,6 +328,14 @@ public class UseItem {
                         }
                     }
                     default:
+                        // pet đi theo (loại 27 có hình): lấy đầu / thân / chân theo item_template. Các case cứng bên dưới ghi số part của bộ dữ liệu cũ,
+                        // nhiều pet bị lệch hình (Pet Minion Otto, Pet Baby Shark hiện thành bánh bao 1488 - 1490...)
+                        if (item.template.type == 27 && item.template.head >= 0 && item.template.body >= 0 && item.template.leg >= 0) {
+                            InventoryService.gI().itemBagToBody(pl, indexBag);
+                            PetService.Pet2(pl, item.template.head, item.template.body, item.template.leg);
+                            Service.gI().point(pl);
+                            break;
+                        }
                         switch (item.template.id) {
                             case 992: // Nhan thoi khong
                                 pl.type = 2;

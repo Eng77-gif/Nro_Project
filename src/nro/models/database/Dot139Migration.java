@@ -135,6 +135,8 @@ public class Dot139Migration {
             // cổng dời ra mép mới, đi từ Sân sau về thì xuất hiện ở x 1020
             update(con, "update map_template set waypoints = replace(waypoints, '936,312,960,336', '1056,312,1080,336') where id = 84");
             update(con, "update map_template set waypoints = replace(waypoints, ',84,900,336', ',84,1020,336') where id = 104");
+            // pet đi theo giờ lấy hình theo item_template: Pet Thỏ mập ghi nhầm chân = thân (1093), chân đúng là 1094
+            update(con, "update item_template set leg = 1094 where id = 1040 and leg = 1093");
             // thân trong suốt: popup chat thế giới vẽ cả người, thân hoá hình cũng là con vật nên thành 2 con chồng nhau (dơi cõng ma trơi)
             update(con, "insert into part (id, TYPE, DATA) select 2396, 1, '[[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]' from dual where not exists (select 1 from part where id = 2396)");
             boolean first = !exists(con, "select 1 from server_migration where name = 'dot139c_cua_hang'");
