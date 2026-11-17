@@ -144,36 +144,71 @@ bar() {  # bar <phần trăm> <chữ>
     printf "\r  $(c256 214)%s${DIM}%s${C0} %3d%%  %-14s" "$full" "$empty" "$1" "$2"
 }
 
-banner() {  # $1=anim: hiện từng dòng + 7 viên ngọc sáng dần
-    local cols=(202 208 214 220 226 227) i=0 l
-    local art=(' ███╗   ██╗██████╗  ██████╗ ' ' ████╗  ██║██╔══██╗██╔═══██╗' ' ██╔██╗ ██║██████╔╝██║   ██║'
-               ' ██║╚██╗██║██╔══██╗██║   ██║' ' ██║ ╚████║██║  ██║╚██████╔╝' ' ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚═════╝ ')
-    for l in "${art[@]}"; do printf "   $(c256 ${cols[i++]})${B}%s${C0}\n" "$l"; [ "$1" ] && sleep 0.05; done
-    printf "   "
-    for i in 1 2 3 4 5 6 7; do printf "$(c256 214)●${C0} "; [ "$1" ] && sleep 0.06; done
-    printf " ${W}${B}NGỌC RỒNG ONLINE${C0}\n"
+vlen() { printf '%s' "$1" | sed 's/\x1b\[[0-9;]*m//g' | LC_ALL=C tr -d '\200-\277' | wc -c; }  # độ rộng hiển thị (bỏ mã màu, đếm ký tự UTF-8)
+pad() { local n=$(( $2 - $(vlen "$1") )); printf '%s%*s' "$1" $(( n > 0 ? n : 0 )) ''; }
+BC=$(c256 208)  # màu khung
+IW=36           # bề rộng trong khung (vừa điện thoại dọc ~40 cột)
+hr()   { local l; l=$(printf '%*s' $IW '' | sed 's/ /─/g'); printf "  ${BC}%s%s%s${C0}\n" "$1" "$l" "$2"; }
+crow() { printf "  ${BC}│${C0} %s ${BC}│${C0}\n" "$(pad "$1" $((IW - 2)))"; }
+kv()   { crow "${DIM}$(pad "$1" 7)${C0} $2"; }
+mini() {  # mini <đã dùng> <tối đa> <ô>: thanh nhỏ
+    local n=$(( $2 > 0 ? $1 * $3 / $2 : 0 )); [ $n -gt $3 ] && n=$3
+    local c=46; [ $n -gt $(( $3 * 6 / 10 )) ] && c=214; [ $n -gt $(( $3 * 85 / 100 )) ] && c=196
+    printf "$(c256 $c)%s${DIM}%s${C0}" "$(printf '%*s' $n '' | sed 's/ /■/g')" "$(printf '%*s' $(( $3 - n )) '' | sed 's/ /·/g')"
+}
+nice_time() {  # etime [[dd-]hh:]mm:ss -> "1n 2g 05p"
+    local t=$1 d=0 h=0 m=0
+    [[ $t == *-* ]] && { d=${t%%-*}; t=${t#*-}; }
+    IFS=: read -ra p <<< "$t"
+    case ${#p[@]} in 3) h=${p[0]}; m=${p[1]};; 2) m=${p[0]};; esac
+    h=$((10#$h)); m=$((10#$m))
+    if [ $d -gt 0 ]; then echo "${d}n ${h}g"; elif [ $h -gt 0 ]; then echo "${h}g ${m}p"; else echo "${m}p"; fi
+}
+
+ART=(' ███╗   ██╗██████╗  ██████╗ ' ' ████╗  ██║██╔══██╗██╔═══██╗' ' ██╔██╗ ██║██████╔╝██║   ██║'
+     ' ██║╚██╗██║██╔══██╗██║   ██║' ' ██║ ╚████║██║  ██║╚██████╔╝' ' ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚═════╝ ')
+FIRE=(196 202 208 214 220 226 227 226 220 214 208 202)
+draw_art() { local i; for i in 0 1 2 3 4 5; do printf "       $(c256 ${FIRE[(i + $1) % 12]})${B}%s${C0}\n" "${ART[i]}"; done; }
+banner() {  # $1=anim: logo hiện dần, lửa chạy qua chữ, 7 viên ngọc sáng lần lượt
+    if [ "$1" ]; then
+        printf "%s" "$HIDE"
+        local i k
+        for i in 0 1 2 3 4 5; do printf "       $(c256 ${FIRE[i]})${B}%s${C0}\n" "${ART[i]}"; sleep 0.04; done
+        for k in 1 2 3 4 5 6 7 8 9 10 11 12; do printf '\e[6A'; draw_art $k; sleep 0.045; done
+        printf "       "
+        for i in 1 2 3 4 5 6 7; do printf "$(c256 220)★${C0} "; sleep 0.05; printf '\b\b'; printf "$(c256 208)●${C0} "; done
+        printf "%s" "$SHOW"
+    else
+        draw_art 0; printf "       "; for i in 1 2 3 4 5 6 7; do printf "$(c256 208)●${C0} "; done
+    fi
+    printf "\n      ${W}${B}N G Ọ C   R Ồ N G   O N L I N E${C0}\n"
 }
 
 status() {
-    local pid up mem ip pass
+    local pid up mem ip pass st rmax
     pid=$(pgrep -f "java.*20.jar" | head -1); ip=$(my_ip); pass=$(panel_pass)
-    printf '\e[H\e[2J'; banner "$1"; echo; line
+    rmax=$(to_mb "$(ram_val)")
+    printf '\e[H\e[2J'; echo; banner "$1"; echo
+    hr ╭ ╮
     if [ -n "$pid" ]; then
-        up=$(ps -o etime= -p "$pid" 2>/dev/null | tr -d ' ')
-        mem=$(ps -o rss= -p "$pid" 2>/dev/null | awk '{printf "%d MB", $1/1024}')
-        if grep -q "Bot: giữ" "$LOG" 2>/dev/null; then row "Server    " "${G}${B}● ĐANG CHẠY${C0} ${DIM}${up:-?} · ${mem:-?}${C0}"
-        else row "Server    " "${Y}${B}◐ ĐANG KHỞI ĐỘNG${C0} ${DIM}${up:-?}${C0}"; fi
+        up=$(nice_time "$(ps -o etime= -p "$pid" 2>/dev/null | tr -d ' ')")
+        mem=$(ps -o rss= -p "$pid" 2>/dev/null | awk '{print int($1/1024)}')
+        if grep -q "Bot: giữ" "$LOG" 2>/dev/null; then st="${G}${B}● ĐANG CHẠY${C0}"; else st="${Y}${B}◐ ĐANG KHỞI ĐỘNG${C0}"; fi
+        crow "$(pad "$st" 22)${DIM}chạy ${C0}${W}$up${C0}"
+        crow "${DIM}RAM${C0}  $(mini "${mem:-0}" "$rmax" 14) ${W}${mem:-?}${C0}${DIM}/${rmax} MB${C0}"
     else
-        row "Server    " "${R}${B}○ ĐANG TẮT${C0}"
+        crow "${R}${B}○ ĐANG TẮT${C0}   ${DIM}bấm ${C0}${G}${B}1${C0}${DIM} để bật${C0}"
+        crow "${DIM}RAM tối đa${C0} ${W}${rmax} MB${C0} ${DIM}/ máy $(mem_total) MB${C0}"
     fi
-    if mysqladmin ping >/dev/null 2>&1; then row "Database  " "${G}● MariaDB${C0}"; else row "Database  " "${R}○ MariaDB tắt${C0}"; fi
-    row "Game      " "${W}${B}127.0.0.1:14445${C0}"
-    [ -n "$ip" ] && row "Cùng wifi " "${W}$ip:14445${C0}"
-    row "Panel     " "${W}http://${ip:-127.0.0.1}:8088${C0}"
-    row "Đăng nhập " "${W}admin${C0} / ${Y}${B}$pass${C0}"
-    row "RAM       " "$(ram_val) ${DIM}(máy $(mem_total) MB)${C0}"
-    row "Phiên bản " "$(git log -1 --format='%h · %cd' --date=format:'%d/%m %H:%M' 2>/dev/null)"
-    line
+    hr ├ ┤
+    kv "Game" "${W}${B}127.0.0.1:14445${C0}"
+    [ -n "$ip" ] && kv "Wifi" "${W}$ip:14445${C0}"
+    kv "Panel" "${CY}http://${ip:-127.0.0.1}:8088${C0}"
+    kv "Login" "${W}admin${C0} ${DIM}/${C0} ${Y}${B}$pass${C0}"
+    hr ├ ┤
+    if mysqladmin ping >/dev/null 2>&1; then st="${G}●${C0} MariaDB"; else st="${R}○${C0} MariaDB"; fi
+    crow "$(pad "$st" 13)${DIM}bản $(git log -1 --format='%h · %cd' --date=format:'%d/%m %H:%M' 2>/dev/null)${C0}"
+    hr ╰ ╯
 }
 
 # ---------- RAM ----------
@@ -292,27 +327,27 @@ view_log() {
     trap - INT
 }
 
-item() {  # item <phím> <màu> <biểu tượng> <chữ> [ghi chú]
-    printf "   ${2}${B}%s${C0}  ${2}%s${C0}  %s ${DIM}%s${C0}\n" "$1" "$3" "$4" "$5"
-}
+key() { printf "$(c256 16)\e[48;5;%sm${B} %s ${C0}" "$1" "$2"; }   # nút phím có nền màu
+two() { printf "   %s %s\n" "$(pad "$(key $1 $2) $3" 19)" "${4:+$(key $4 $5) $6}"; }
+section() { printf "  $(c256 214)${B}%s${C0} ${DIM}%s${C0}\n" "$1" "$(printf '%*s' $(( IW - $(vlen "$1") )) '' | sed 's/ /┄/g')"; }
 
 menu() {
     local first=1 c
     while :; do
         status ${first:+anim}; first=
-        if running; then item 1 "$DIM" "▶" "Bật server" "(đang chạy)"; else item 1 "$G" "▶" "Bật server"; fi
-        item 2 "$R" "■" "Tắt server"
-        item 3 "$Y" "↻" "Khởi động lại"
-        item 4 "$CY" "≡" "Xem log trực tiếp"
-        item 5 "$M" "↓" "Cập nhật từ GitHub"
-        item 6 "$CY" "⇪" "Sao lưu database"
-        item 7 "$CY" "⇩" "Khôi phục database"
-        item 8 "$CY" "⚙" "Đổi RAM"
-        item 9 "$CY" "✎" "Đổi mật khẩu panel"
-        item 0 "$DIM" "✕" "Thoát" "(server vẫn chạy nền)"
-        line
-        printf "  ${B}Chọn số:${C0} "; read -rsn1 -t 15 c || continue  # 15 giây không bấm: vẽ lại trạng thái
-        echo "$c"; echo
+        echo
+        section "SERVER"
+        if running; then two 240 1 "${DIM}Đang chạy${C0}" 196 2 "Tắt"; else two 46 1 "${G}${B}Bật server${C0}" 196 2 "Tắt"; fi
+        two 220 3 "Khởi động lại" 51 4 "Xem log"
+        section "DỮ LIỆU"
+        two 201 5 "Cập nhật" 39 6 "Sao lưu"
+        two 39 7 "Khôi phục"
+        section "CÀI ĐẶT"
+        two 147 8 "Đổi RAM" 147 9 "Mật khẩu"
+        two 240 0 "Thoát"
+        echo
+        printf "  ${DIM}Bấm số để chọn · tự làm mới mỗi 15 giây${C0} "; read -rsn1 -t 15 c || continue
+        printf '\r\e[K'; echo
         case $c in
             1) start; pause ;;
             2) stop; pause ;;
@@ -323,7 +358,7 @@ menu() {
             7) restore; pause ;;
             8) ram; pause ;;
             9) set_pass; pause ;;
-            0) printf '\e[H\e[2J'; ok "Tạm biệt! Gõ ${B}nro${C0} để mở lại menu."; exit 0 ;;
+            0) printf '\e[H\e[2J'; echo; draw_art 0; echo; ok "Server vẫn chạy nền. Gõ ${B}nro${C0} để mở lại menu."; exit 0 ;;
         esac
     done
 }
