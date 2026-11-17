@@ -131,6 +131,9 @@ public class Dot139Migration {
             // bánh bao: avatar 13441 (bộ bánh bao đầu 1488) thay ảnh Bánh dầy 12848 tạm trước đây
             update(con, "update part set DATA = '[[13440,-4,-4],[13440,-4,-4],[13440,-4,-4]]' where id = 2395");
             update(con, "update head_avatar set avatar_id = 13441 where head_id = 2395");
+            // đầu bánh bao mới cho chat thế giới (client J2ME nhớ avatar cũ 12848 của đầu 2395)
+            update(con, "insert into part (id, TYPE, DATA) select 2397, 0, '[[13440,-4,-4],[13440,-4,-4],[13440,-4,-4]]' from dual where not exists (select 1 from part where id = 2397)");
+            update(con, "insert into head_avatar (head_id, avatar_id) select 2397, 13441 from dual where not exists (select 1 from head_avatar where head_id = 2397)");
             // Siêu Thị (84) nới thêm 5 ô về phía cổng sau (tile_map_data/84: 40 -> 45 ô) để NPC không đứng dưới cổng sang Sân sau siêu thị:
             // cổng dời ra mép mới, đi từ Sân sau về thì xuất hiện ở x 1020
             update(con, "update map_template set waypoints = replace(waypoints, '936,312,960,336', '1056,312,1080,336') where id = 84");
