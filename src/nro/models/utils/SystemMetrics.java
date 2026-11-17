@@ -123,7 +123,7 @@ public class SystemMetrics {
         MemoryUsage heap = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
         MemoryUsage nonHeap = ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
         long mb = 1024 * 1024;
-        String string = ("Máy: " + formatMemory(usedMemory, totalMemory) + " (" + formatPercentage(ramUsagePercentage) + ")\n"
+        String string = ("Bản: " + nro.models.server.ServerManager.BUILD + "\n" + "Máy: " + formatMemory(usedMemory, totalMemory) + " (" + formatPercentage(ramUsagePercentage) + ")\n"
                 + "Server: " + (heap.getUsed() / mb) + " MB dữ liệu, giữ " + ((heap.getCommitted() + nonHeap.getCommitted()) / mb)
                 + " MB, tối đa " + (heap.getMax() / mb) + " MB\n"
                 + "CPU: " + (cpuUsagePercentage >= 0 ? formatPercentage(cpuUsagePercentage) + " cả máy, " : "")

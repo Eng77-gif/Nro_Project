@@ -63,6 +63,16 @@ public class ServerManager {
     public static int EVENT_SEVER = 0;
     private static ServerManager instance;
     public static boolean isRunning;
+    /** Thời điểm build 20.jar (file nro/build.txt đóng gói kèm). */
+    public static final String BUILD = readBuild();
+
+    private static String readBuild() {
+        try (java.io.InputStream in = ServerManager.class.getResourceAsStream("/nro/build.txt")) {
+            return in == null ? "không rõ" : new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).trim();
+        } catch (Exception e) {
+            return "không rõ";
+        }
+    }
     private ScheduledExecutorService topUpdater;
 
     public void init() {
@@ -85,6 +95,7 @@ public class ServerManager {
             return;
         }
         nro.models.utils.ConfigMerge.run(); // thêm mục cấu hình mới vào Config.properties (bộ tải repo không ghi đè file này)
+        Logger.log(Logger.YELLOW, "Bản server (20.jar) build lúc: " + BUILD + "\n"); // để biết VPS đang chạy đúng bản mới
         nro.models.data.SqlBackup.importPendingAtBoot(); // panel đã tải dữ liệu GitHub: nạp trước khi đọc database
         try {
             timeStart = TimeUtil.getTimeNow("dd/MM/yyyy HH:mm:ss");
