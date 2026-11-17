@@ -191,6 +191,10 @@ public class LocalManager {
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.addDataSourceProperty("useServerPrepStmts", "true");
+        // database cùng máy: tắt SSL (MariaDB trên Termux in cảnh báo SSL mỗi lần mở kết nối)
+        if (DB_HOST.equals("127.0.0.1") || DB_HOST.equalsIgnoreCase("localhost")) {
+            config.addDataSourceProperty("useSSL", "false");
+        }
         return config;
     }
 }

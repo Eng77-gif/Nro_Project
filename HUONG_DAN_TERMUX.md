@@ -11,14 +11,17 @@ curl -sL https://raw.githubusercontent.com/Eng77-gif/Nro_Project/main/termux_ins
 Script tự: cài git, Java 21, MariaDB → tải server từ GitHub về `~/nro_server` → tạo database, nạp dữ liệu, tạo user database `nro` / `nro123`, sửa `Config.properties` → tạo lệnh `nro` → bật server và in IP để kết nối.
 
 ## Dùng hằng ngày: gõ `nro`
+Menu bấm 1 phím (không cần Enter), trạng thái tự làm mới mỗi 15 giây:
 ```
- 1. Bật server        2. Tắt server       3. Khởi động lại
- 4. Xem log
- 5. Cập nhật từ GitHub   (tải bản mới nhất, tự bật lại server)
- 6. Sao lưu database  7. Khôi phục database   (lưu ở Download/nro_backup)
- 8. Đổi RAM           9. Xem IP kết nối    0. Thoát
+ 1 ▶ Bật server          (thanh tiến trình tới khi sẵn sàng; lỗi thì hiện cuối log)
+ 2 ■ Tắt server          3 ↻ Khởi động lại
+ 4 ≡ Xem log trực tiếp   (lỗi tô đỏ, Ctrl + C để thoát)
+ 5 ↓ Cập nhật từ GitHub  (tự bật lại server nếu đang chạy)
+ 6 ⇪ Sao lưu database    7 ⇩ Khôi phục database   (lưu ở Download/nro_backup)
+ 8 ⚙ Đổi RAM             (chọn mức có sẵn; nhập số không đơn vị = MB)
+ 9 ✎ Đổi mật khẩu panel  0 ✕ Thoát (server vẫn chạy nền)
 ```
-Gõ thẳng cũng được: `nro start`, `nro stop`, `nro restart`, `nro log`, `nro update`, `nro backup`, `nro restore`, `nro ip`.
+Mật khẩu panel (tài khoản `admin`) tạo sẵn và hiện ngay trên menu. Gõ thẳng cũng được: `nro start`, `nro stop`, `nro restart`, `nro log`, `nro update`, `nro backup`, `nro restore`, `nro ram`, `nro pass`, `nro ip`.
 
 ## Tự chạy khi bật máy
 Cài thêm app **Termux:Boot** (F-Droid), mở nó 1 lần. Script đã tự đăng ký, bật máy là server tự chạy.
