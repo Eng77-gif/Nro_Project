@@ -33,7 +33,7 @@ public class QuyLaoKame extends Npc {
 
     private static class RewardItem {
 
-        int itemId; // -1: ngọc xanh ngẫu nhiên quantity..days
+        int itemId; // -1: ngọc xanh ngẫu nhiên quantity..days, -2: hồng ngọc ngẫu nhiên
         int quantity;
         int days; // hạn sử dụng, 0 = vĩnh viễn
 
@@ -190,7 +190,7 @@ public class QuyLaoKame extends Npc {
                 for (Object e : l) {
                     Map<?, ?> m = (Map<?, ?>) e;
                     int id = num(m.get("id")), qty = num(m.get("qty")), days = m.get("days") == null ? 0 : num(m.get("days"));
-                    if (id >= 0 && ItemService.gI().getTemplate(id) == null) {
+                    if (id < -2 || (id >= 0 && ItemService.gI().getTemplate(id) == null)) {
                         throw new IllegalArgumentException("Nhiệm vụ " + stage + ": không có vật phẩm #" + id);
                     }
                     if (qty < 1 || days < 0 || (id < 0 && days < qty)) {
@@ -826,9 +826,13 @@ public class QuyLaoKame extends Npc {
                 for (RewardItem rewardData : questData.rewards) {
                     if (rewardData.itemId < 0) {
                         int gem = Util.nextInt(rewardData.quantity, rewardData.days);
-                        player.inventory.gem += gem;
+                        if (rewardData.itemId == -2) {
+                            player.inventory.ruby += gem;
+                        } else {
+                            player.inventory.gem += gem;
+                        }
                         PlayerService.gI().sendInfoHpMpMoney(player);
-                        Service.gI().sendThongBao(player, "Nhận " + gem + " ngọc xanh");
+                        Service.gI().sendThongBao(player, "Nhận " + gem + (rewardData.itemId == -2 ? " hồng ngọc" : " ngọc xanh"));
                         continue;
                     }
                     Item rewardItem = ItemService.gI().createNewItem((short) rewardData.itemId);
@@ -866,7 +870,7 @@ public class QuyLaoKame extends Npc {
         for (int i = 0; i < rewards.size(); i++) {
             RewardItem rewardData = rewards.get(i);
             if (rewardData.itemId < 0) {
-                details.append(Util.numberToMoney(rewardData.quantity)).append(" - ").append(Util.numberToMoney(rewardData.days)).append(" ngọc xanh");
+                details.append(Util.numberToMoney(rewardData.quantity)).append(" - ").append(Util.numberToMoney(rewardData.days)).append(rewardData.itemId == -2 ? " hồng ngọc" : " ngọc xanh");
             } else {
                 details.append(rewardData.quantity).append(" ").append(ItemService.gI().getTemplate(rewardData.itemId).name)
                         .append(rewardData.days > 0 ? " (" + rewardData.days + " ngày)" : ItemService.gI().getTemplate(rewardData.itemId).type == 5 ? " (vĩnh viễn)" : "");
