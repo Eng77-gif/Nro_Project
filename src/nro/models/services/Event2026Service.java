@@ -289,15 +289,24 @@ public class Event2026Service {
             InventoryService.gI().subQuantityItemsBag(pl, box, 1);
             InventoryService.gI().sendItemBags(pl);
             if (boxId == HOM_HALLOWEEN && pl.zone != null) {
-                // Hòm Halloween: hiệu ứng 70 (hòm bật nắp, ma bay ra) + 71 (đàn ma bay) tại chỗ người mở, cả map thấy;
-                // bảng quà hiện sau khi hòm mở xong
-                nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 70, 3, 1, pl.location.x, pl.location.y, 1);
-                nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 71, 3, 1, pl.location.x, pl.location.y - 30, 1);
+                // Hòm Halloween: đóng hành trang -> hiệu ứng mở như Capsule kì bí (hòm -> quà) -> hiệu ứng 70 (hòm bật nắp)
+                // -> gần hết 70 (32 khung, ~1,6 giây) chuyển sang 71 (đàn ma bay); 70 / 71 cả map thấy
+                Service.gI().ClosePanel(pl);
                 if (icon[0] >= 0) {
-                    short gift = icon[0];
-                    java.util.concurrent.CompletableFuture.delayedExecutor(1500, java.util.concurrent.TimeUnit.MILLISECONDS)
-                            .execute(() -> nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, gift));
+                    nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, icon[0]);
                 }
+                java.util.concurrent.Executor at70 = java.util.concurrent.CompletableFuture.delayedExecutor(2500, java.util.concurrent.TimeUnit.MILLISECONDS);
+                java.util.concurrent.Executor at71 = java.util.concurrent.CompletableFuture.delayedExecutor(2500 + 1300, java.util.concurrent.TimeUnit.MILLISECONDS);
+                at70.execute(() -> {
+                    if (pl.zone != null) {
+                        nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 70, 3, 1, pl.location.x, pl.location.y, 1);
+                    }
+                });
+                at71.execute(() -> {
+                    if (pl.zone != null) {
+                        nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 71, 3, 1, pl.location.x, pl.location.y - 30, 1);
+                    }
+                });
             } else if (icon[0] >= 0) {
                 // hiệu ứng mở giống Capsule kì bí: icon hộp -> icon quà
                 nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, icon[0]);

@@ -2582,3 +2582,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Bỏ log "Avatar hoá hình" (lúc bật server) và "Chat hoá hình" (mỗi tin chat) sau khi đã xác nhận avatar hoá hình đúng.
 - Panel Boss: không hiện boss đã huỷ còn sót trong danh sách quản lý (thẻ "#-10179934" không tên, 0 HP, Đang nghỉ).
 - Hòm Halloween (1116): mở hòm phát hiệu ứng 70 (hòm bật nắp, ma bay ra) + 71 (đàn ma) tại chỗ người mở (cả map thấy), bảng quà hiện sau 1,5 giây.
+- Hòm Halloween: thứ tự mở = đóng hành trang -> hiệu ứng mở như Capsule kì bí (hòm -> quà) -> hiệu ứng 70 (sau 2,5 giây) -> gần hết 70 chuyển sang 71 (sau thêm 1,3 giây).
