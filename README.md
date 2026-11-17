@@ -5,13 +5,14 @@
 **Máy chủ game Ngọc Rồng Online viết bằng Java: panel quản trị web, bot chơi như người thật có AI tự học, và hệ thống sự kiện theo mùa.**
 
 ![Java](https://img.shields.io/badge/Java-21_LTS-ED8B00?logo=openjdk&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-5.7%20%7C%208.0-4479A1?logo=mysql&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL%20%7C%20MariaDB-5.7%2B-4479A1?logo=mysql&logoColor=white)
+![Termux](https://img.shields.io/badge/Android-Termux-000000?logo=android&logoColor=3DDC84)
 ![Netty](https://img.shields.io/badge/Netty-4.1-2E7D32)
 ![Client](https://img.shields.io/badge/Client-Android%20%7C%20PC%20%7C%20J2ME-6A1B9A)
 ![Release](https://img.shields.io/github/v/release/Eng77-gif/Nro_Project?label=B%E1%BA%A3n%20m%E1%BB%9Bi%20nh%E1%BA%A5t&color=F57C00)
 ![Status](https://img.shields.io/badge/Tr%E1%BA%A1ng%20th%C3%A1i-%C4%91ang%20ph%C3%A1t%20tri%E1%BB%83n-F9A825)
 
-[Tính năng](#-tính-năng) · [Ảnh chụp](#-ảnh-chụp) · [Cài đặt](#-cài-đặt-nhanh) · [Cấu hình](#️-cấu-hình) · [Cấu trúc](#-cấu-trúc-thư-mục) · [Tài liệu](#-tài-liệu)
+[Tính năng](#-tính-năng) · [Ảnh chụp](#-ảnh-chụp) · [Cài đặt](#-cài-đặt-nhanh) · [Termux](#-chạy-trên-điện-thoại-termux) · [Cấu hình](#️-cấu-hình) · [Cấu trúc](#-cấu-trúc-thư-mục) · [Tài liệu](#-tài-liệu)
 
 </div>
 
@@ -56,6 +57,8 @@
 - Thông báo top 1 - 10 khi đăng nhập
 - Chợ ký gửi đồ sự kiện riêng (NPC King Furry)
 - Danh hiệu sự kiện dùng hiệu ứng thật (Phá Cỗ Trung Thu...)
+- Nhiệm vụ KOL theo tháng, tích nạp VIP Tori Bot, giftcode: quà chỉnh trên panel, có quà ngọc / hồng ngọc ngẫu nhiên
+- Vật phẩm có tác dụng đúng mô tả (pet, cải trang, thú cưỡi như Máy bay NRO 12th)
 
 </td>
 <td valign="top">
@@ -63,7 +66,8 @@
 ### 🛡️ Vận hành
 - Mạng Netty, chống DDoS và giới hạn kết nối mỗi IP
 - Panel web quản trị V3 (không cần cài thêm), có nhật ký chat thế giới và thông báo server
-- Chạy được trên VPS 1 - 2 GB RAM
+- Web người chơi: trang chủ, diễn đàn, tố cáo, báo lỗi, nạp ngọc (QR + thẻ cào)
+- Chạy được trên VPS 1 - 2 GB RAM, hoặc ngay trên điện thoại Android (Termux)
 - Tự nâng cấp cơ sở dữ liệu khi khởi động (migration)
 
 </td>
@@ -113,12 +117,22 @@ run_vps_yeu.bat         # Windows, VPS yếu
 run.bat                 # Windows, máy mạnh
 ```
 
-Máy chủ game nghe ở cổng `14445`, panel ở `http://<ip>:8088/`. Các bảng mới được tạo tự động ở lần chạy đầu.
+Máy chủ game nghe ở cổng `14445`, panel ở `http://<ip>:8088/`, web người chơi ở `http://<ip>:8080/`. Các bảng mới được tạo tự động ở lần chạy đầu.
 
 **Build từ mã nguồn:** mở thư mục bằng Apache NetBeans 21 trở lên (đã có sẵn `nbproject`) rồi chọn *Clean and Build*, hoặc dùng `20.jar` có sẵn.
 
 > [!NOTE]
 > Máy chủ chỉ khởi động bằng jar có chữ ký số của tác giả (`JarSignatureCheck`). Jar tự build cần được ký lại trước khi chạy.
+
+## 📱 Chạy trên điện thoại (Termux)
+
+Cài **Termux** (F-Droid / GitHub) rồi dán một dòng, script tự cài Java 21 + MariaDB, tải server, tạo database và bật server:
+
+```bash
+curl -sL https://raw.githubusercontent.com/Eng77-gif/Nro_Project/main/termux_install.sh | bash
+```
+
+Sau đó gõ `nro` để mở menu: bật / tắt / khởi động lại, xem log, cập nhật từ GitHub, sao lưu / khôi phục database, đổi RAM. Chơi ngay trên điện thoại đó bằng client trỏ `127.0.0.1:14445`; máy khác cùng wifi vào IP điện thoại. Chi tiết: [HUONG_DAN_TERMUX.md](HUONG_DAN_TERMUX.md).
 
 ### 📦 Bản phát hành và Docker
 
@@ -142,11 +156,12 @@ Mọi cấu hình nằm trong `Config.properties`:
 
 | Khóa | Ý nghĩa |
 |---|---|
-| `server.port` | Cổng máy chủ game (mặc định `14445`) |
+| `server.ip` / `server.port` | IP gửi cho client trong danh sách máy chủ / cổng game (mặc định `14445`) |
 | `server.maxplayer` / `server.maxperip` | Giới hạn người chơi và số kết nối mỗi IP |
 | `server.expserver` | Hệ số kinh nghiệm |
 | `database.*` | Kết nối MySQL |
-| `panel.enable` / `panel.port` / `panel.user` / `panel.pass` | Panel web |
+| `panel.enable` / `panel.port` / `panel.user` / `panel.pass` | Panel web (để trống `panel.pass` thì mỗi lần chạy in mật khẩu tạm) |
+| `web.enable` / `web.port` | Web người chơi |
 
 > [!IMPORTANT]
 > Hãy đặt `panel.pass` mạnh trước khi mở cổng panel ra Internet. Tốt nhất chỉ mở cổng `8088` cho IP của bạn.
@@ -165,6 +180,8 @@ Nro_Project/
 │   └── ...
 ├── data/             # tài nguyên game và giao diện panel (data/panel)
 ├── sql/              # dữ liệu mẫu
+├── cloudflare/       # trang chủ trên Cloudflare Pages (tuỳ chọn)
+├── nro_termux.sh     # lệnh `nro` trên Termux (termux_install.sh: cài một dòng)
 ├── tools/            # công cụ tài nguyên, client, bản tự kiểm tra
 └── docs/images/      # ảnh dùng trong README
 ```
@@ -175,6 +192,9 @@ Nro_Project/
 |---|---|
 | [HUONG_DAN_PANEL.md](HUONG_DAN_PANEL.md) | Cấu hình và các mục của panel web |
 | [HUONG_DAN_VPS_YEU.md](HUONG_DAN_VPS_YEU.md) | Chọn JDK / NetBeans, chạy trên VPS ít RAM |
+| [HUONG_DAN_TERMUX.md](HUONG_DAN_TERMUX.md) | Chạy server trên điện thoại Android |
+| [docs/HUONG_DAN_WEB_CLOUDFLARE_SEPAY.md](docs/HUONG_DAN_WEB_CLOUDFLARE_SEPAY.md) | Web người chơi qua Cloudflare, nạp tự động SePay |
+| [tools/client-db249/HUONG_DAN.md](tools/client-db249/HUONG_DAN.md) | Đổi IP client Android và ký lại APK |
 | [BUGFIXES.md](BUGFIXES.md) | Nhật ký thay đổi và sửa lỗi theo từng đợt |
 | `Lệnh admin.docx` | Danh sách lệnh admin trong game |
 
