@@ -123,10 +123,10 @@ public class Dot139Migration {
             update(con, "insert into part (id, TYPE, DATA) select 2395, 0, '[[12848,-4,-2],[12848,-4,-2],[12848,-4,-2]]' from dual where not exists (select 1 from part where id = 2395)");
             update(con, "insert into head_avatar (head_id, avatar_id) select 2394, 7062 from dual where not exists (select 1 from head_avatar where head_id = 2394)");
             update(con, "insert into head_avatar (head_id, avatar_id) select 2395, 12848 from dual where not exists (select 1 from head_avatar where head_id = 2395)");
-            // đầu con vật (danh sách tin nhắn vẽ ảnh đầu, cần ảnh nhỏ): Ma trơi / Dơi = ảnh avatar 6100 / 6099 thu nhỏ (32308 / 32309),
+            // đầu con vật (danh sách tin nhắn vẽ ảnh đầu, cần ảnh nhỏ): Ma trơi / Dơi = ảnh avatar 6100 / 6099 thu nhỏ (17531 / 17532; số 32308 / 32309 vượt ảnh lớn nhất của game, client J2ME vẽ nhầm thành bánh dầy),
             // Bí ngô = bí 7060, bánh bao = bánh 13440; ảnh to (6100 / 6099 / 7062 / 13441) giữ làm avatar popup
-            update(con, "update part set DATA = '[[32308,0,0],[32308,0,0],[32308,0,0]]' where id = 2391");
-            update(con, "update part set DATA = '[[32309,0,3],[32309,0,3],[32309,0,3]]' where id = 2392");
+            update(con, "update part set DATA = '[[17531,0,0],[17531,0,0],[17531,0,0]]' where id = 2391");
+            update(con, "update part set DATA = '[[17532,0,3],[17532,0,3],[17532,0,3]]' where id = 2392");
             update(con, "update part set DATA = '[[7060,2,-1],[7060,2,-1],[7060,2,-1]]' where id = 2394");
             // bánh bao: avatar 13441 (bộ bánh bao đầu 1488) thay ảnh Bánh dầy 12848 tạm trước đây
             update(con, "update part set DATA = '[[13440,2,0],[13440,2,0],[13440,2,0]]' where id = 2395");
