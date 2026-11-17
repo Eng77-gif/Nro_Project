@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 public class PVPManager implements Runnable {
 
     private static PVPManager i;
-    private ArrayList<PVP> pvps;
+    private java.util.List<PVP> pvps; // CopyOnWrite: update() duyệt trong lúc trận PK thêm / kết thúc (ConcurrentModificationException)
     private boolean isRunning;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -22,7 +22,7 @@ public class PVPManager implements Runnable {
     }
 
     public PVPManager() {
-        this.pvps = new ArrayList<>();
+        this.pvps = new java.util.concurrent.CopyOnWriteArrayList<>();
         this.isRunning = true;
         executor.submit(this); 
     }
