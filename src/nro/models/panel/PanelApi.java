@@ -2053,6 +2053,10 @@ public class PanelApi {
     private Object bosses() {
         List<Map<String, Object>> list = new ArrayList<>();
         for (Boss b : allBosses()) {
+            // boss đã huỷ (dispose xoá tên, máu 0) còn sót trong danh sách quản lý: không hiện
+            if (b == null || b.name == null || b.name.isBlank() || b.nPoint == null) {
+                continue;
+            }
             Map<String, Object> o = new LinkedHashMap<>();
             o.put("key", System.identityHashCode(b));
             o.put("id", b.id);

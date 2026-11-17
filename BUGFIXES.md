@@ -2580,3 +2580,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Chat thế giới / Tin nhắn: admin hoá Ma trơi mà ô avatar hiện bánh bao dù log server đúng "đầu 651 -> 2391". Gốc: file part gửi client ghi theo thứ tự "select * from part" (không order by) còn client lấy part theo VỊ TRÍ -> trên MySQL/XAMPP của VPS thứ tự dòng khác id (bảng MyISAM / dòng chèn thêm), part 2391 rơi vào ô của part bánh bao. Nay đọc order by id, ghi đúng vị trí = id, id bị hở điền part trống (có log cảnh báo); vsData 47 để client tải lại part.
 - Console VPS: ConcurrentModificationException ở PVPManager.update (danh sách trận PK bị thêm / bớt trong lúc duyệt) -> CopyOnWriteArrayList.
 - Bỏ log "Avatar hoá hình" (lúc bật server) và "Chat hoá hình" (mỗi tin chat) sau khi đã xác nhận avatar hoá hình đúng.
+- Panel Boss: không hiện boss đã huỷ còn sót trong danh sách quản lý (thẻ "#-10179934" không tên, 0 HP, Đang nghỉ).
