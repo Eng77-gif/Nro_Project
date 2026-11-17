@@ -476,7 +476,14 @@ public class EffectSkin {
                     Player pl = playersMap.get(i);
                     if (pl != null && pl.nPoint != null && pl.effectSkill != null && !this.player.equals(pl) && !pl.isBoss && !pl.isDie()
                             && !pl.effectSkill.isHalloween && Util.getDistance(this.player, pl) <= 200) {
-                        EffectSkillService.gI().setIsHalloween(pl, this.player.nPoint.halloweenXq, 5000);
+                        int xq = this.player.nPoint.halloweenXq;
+                        if (xq == 6) { // Pet Po (bánh bao): mỗi người tối đa 1 lần / 1 phút, nhiều người đeo Pet Po cũng không biến liên tục
+                            if (!Util.canDoWithTime(pl.effectSkill.lastTimeBanhBao, 60000)) {
+                                continue;
+                            }
+                            pl.effectSkill.lastTimeBanhBao = System.currentTimeMillis();
+                        }
+                        EffectSkillService.gI().setIsHalloween(pl, xq, 5000);
                     }
                 }
                 this.lastTimeZombieXq = System.currentTimeMillis();

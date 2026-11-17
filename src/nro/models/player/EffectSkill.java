@@ -110,6 +110,7 @@ public class EffectSkill {
     public boolean isHalloween;
     public boolean halloweenPlague; // hoá Bộ xương / Dơi / Ma trơi do boss: lây người đứng gần, bất tử khi bị quái đánh
     public long lastTimeHalloween;
+    public long lastTimeBanhBao; // lần gần nhất bị Pet Po biến thành bánh bao (hồi 1 phút mới bị biến lại)
     public int timeHalloween;
     public int idOutfitHalloween;
 
