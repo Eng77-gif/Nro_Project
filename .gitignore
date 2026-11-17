@@ -17,3 +17,8 @@ cloudflare/public/
 cloudflare/.wrangler/
 srv.log
 logs/
+
+# Termux
+/backup/
+.termux_db_ok
+.termux_ram
