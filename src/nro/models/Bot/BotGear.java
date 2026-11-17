@@ -324,15 +324,85 @@ final class BotGear {
                     }
                 }
             }
-            if (sold && !legit) {
+            if ((sold && !legit) || boxOnly().contains(id)) {
                 b.inventory.itemsBody.set(slot, ItemService.gI().createItemNull());
                 changed = true;
+            }
+        }
+        // cùng loại đồ nằm trong hành trang / rương (bản cũ mua về chưa mặc) cũng bỏ, kẻo lại mặc vào
+        for (java.util.List<Item> list : java.util.List.of(b.inventory.itemsBag, b.inventory.itemsBox)) {
+            for (int i = 0; i < list.size(); i++) {
+                Item x = list.get(i);
+                if (x != null && x.isNotNullItem() && slotOf(x) >= 5 && boxOnly().contains((int) x.template.id)) {
+                    list.set(i, ItemService.gI().createItemNull());
+                }
             }
         }
         if (changed) {
             Service.gI().point(b);
             Service.gI().Send_Caitrang(b);
         }
+    }
+
+    private static volatile java.util.Set<Integer> boxOnly;
+
+    /**
+     * Món chỉ có trong hộp quà mà bot không có cách nào lấy được hộp (vd Pet Po chỉ ở Quà Trăng Khuyết đổi ở NPC): không bán ở Santa / Urôn,
+     * không có trong quà boss / rơi sự kiện / đổi sự kiện / thưởng đua top, và hộp chứa nó cũng không lấy được theo các đường đó.
+     * Bản cũ bot "mua" được ở mọi shop nên có những món này. Món không nằm trong bảng nào (đồ rơi viết trong code) thì giữ.
+     */
+    private static java.util.Set<Integer> boxOnly() {
+        java.util.Set<Integer> r = boxOnly;
+        if (r != null) {
+            return r;
+        }
+        java.util.Set<Integer> ok = new java.util.HashSet<>(), inBox = new java.util.HashSet<>();
+        java.util.Map<Integer, java.util.List<Integer>> boxOf = new java.util.HashMap<>(); // món -> các hộp chứa nó
+        for (var shop : Manager.SHOPS) {
+            if (REAL_SHOPS.contains(shop.tagName)) {
+                for (var tab : shop.tabShops) {
+                    for (ItemShop is : tab.itemShops) {
+                        if (is.temp != null) {
+                            ok.add((int) is.temp.id);
+                        }
+                    }
+                }
+            }
+        }
+        for (int id : nro.models.services.RewardService.SPECIAL_WHEEL_ITEMS) { // rơi từ vòng quay (viết trong code, không có trong bảng)
+            ok.add(id);
+        }
+        try (java.sql.Connection con = nro.models.data.LocalManager.getConnection(); java.sql.Statement st = con.createStatement()) {
+            for (String q : new String[]{"select item_id from boss_reward", "select item_id from season_event_drop",
+                "select reward_item from season_event_exchange", "select item_id from season_event_top_reward"}) {
+                try (java.sql.ResultSet rs = st.executeQuery(q)) {
+                    while (rs.next()) {
+                        ok.add(rs.getInt(1));
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+            try (java.sql.ResultSet rs = st.executeQuery("select box_id, item_id from item_box_reward")) {
+                while (rs.next()) {
+                    inBox.add(rs.getInt(2));
+                    boxOf.computeIfAbsent(rs.getInt(2), k -> new java.util.ArrayList<>()).add(rs.getInt(1));
+                }
+            }
+        } catch (Exception e) {
+            return boxOnly = java.util.Set.of(); // không đọc được thì không gỡ gì
+        }
+        boolean grew = true;
+        while (grew) { // hộp lấy được thì đồ trong hộp cũng lấy được (hộp lồng hộp)
+            grew = false;
+            for (var e : boxOf.entrySet()) {
+                if (!ok.contains(e.getKey()) && e.getValue().stream().anyMatch(ok::contains)) {
+                    ok.add(e.getKey());
+                    grew = true;
+                }
+            }
+        }
+        inBox.removeAll(ok);
+        return boxOnly = inBox;
     }
 
     /** Bot đã vào được ít nhất 1 map có NPC bán hàng này chưa (Santa / Urôn ở Đảo Kamê, Đảo Guru, Vách núi đen: sau nhiệm vụ 7). */
