@@ -123,6 +123,10 @@ public class Dot139Migration {
             update(con, "insert into part (id, TYPE, DATA) select 2395, 0, '[[12848,-4,-2],[12848,-4,-2],[12848,-4,-2]]' from dual where not exists (select 1 from part where id = 2395)");
             update(con, "insert into head_avatar (head_id, avatar_id) select 2394, 7062 from dual where not exists (select 1 from head_avatar where head_id = 2394)");
             update(con, "insert into head_avatar (head_id, avatar_id) select 2395, 12848 from dual where not exists (select 1 from head_avatar where head_id = 2395)");
+            // đầu con vật dùng đúng ảnh đại diện (6097 / 6098 là hình hiệu ứng khi bị đánh, không phải avatar)
+            update(con, "update part set DATA = '[[6100,-10,-14],[6100,-10,-14],[6100,-10,-14]]' where id = 2391");
+            update(con, "update part set DATA = '[[6099,-10,-14],[6099,-10,-14],[6099,-10,-14]]' where id = 2392");
+            update(con, "update part set DATA = '[[7062,-10,-14],[7062,-10,-14],[7062,-10,-14]]' where id = 2394");
             // thân trong suốt: popup chat thế giới vẽ cả người, thân hoá hình cũng là con vật nên thành 2 con chồng nhau (dơi cõng ma trơi)
             update(con, "insert into part (id, TYPE, DATA) select 2396, 1, '[[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]' from dual where not exists (select 1 from part where id = 2396)");
             boolean first = !exists(con, "select 1 from server_migration where name = 'dot139c_cua_hang'");
