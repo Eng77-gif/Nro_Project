@@ -1060,9 +1060,9 @@ public class Service {
         Captions.add("Giới Vương Thần cấp 1");
         Captions.add("Giới Vương Thần cấp 2");
         Captions.add("Giới Vương Thần cấp 3");
-        Captions.add("Thiên đạo");
-        Captions.add("kẻ hũy diệt vũ trụ");
-        Captions.add("vô địch đa giới");
+        Captions.add("Thần hủy diệt cấp 1"); // như v10 (trước đây "Thiên đạo", "kẻ hũy diệt vũ trụ", "vô địch đa giới")
+        Captions.add("Thần hủy diệt cấp 2");
+        Captions.add("Thần hủy diệt cấp 3");
         return Captions;
     }
 
@@ -1111,10 +1111,12 @@ public class Service {
             return 16;
         } else if (sucmanh < 80010000000L) {
             return 17;
-        } else if (sucmanh < 90010000000L) {
+        } else if (sucmanh < 100010000000L) { // mốc như v10
             return 18;
+        } else if (sucmanh < 11100010000000L) {
+            return 19;
         }
-        return 19;
+        return 20;
     }
 
     public void hsChar(Player pl, long hp, long mp) {
