@@ -217,6 +217,39 @@ public class DataGame {
         }
     }
 
+    private static final java.util.Map<Integer, Integer> EFF_FORMAT = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Kiểu dữ liệu hiệu ứng cho client: 0 = toạ độ ảnh 1 byte, 2 = 2 byte. Đọc thử kiểu 1 byte không khớp mà kiểu 2 byte khớp thì gửi 2 (Hòm Halloween 70 trước đây gửi 0 nên client không vẽ). */
+    static int effFormat(int id, byte[] d) {
+        return EFF_FORMAT.computeIfAbsent(id, k -> fitsEff(d, 5) ? 0 : fitsEff(d, 7) ? 2 : 0);
+    }
+
+    private static boolean fitsEff(byte[] d, int imgSize) {
+        try {
+            int o = 0, n = d[o++] & 0xff;
+            o += n * imgSize;
+            int nf = ((d[o] & 0xff) << 8) | (d[o + 1] & 0xff);
+            o += 2;
+            for (int j = 0; j < nf; j++) {
+                int b = d[o++];
+                if (b < 0) {
+                    return false;
+                }
+                for (int k = 0; k < b; k++) {
+                    if ((d[o + 4] & 0xff) >= n) { // số ảnh của khung phải nằm trong bảng ảnh
+                        return false;
+                    }
+                    o += 5;
+                }
+            }
+            int na = ((d[o] & 0xff) << 8) | (d[o + 1] & 0xff);
+            int rest = d.length - (o + 2 + na * 2); // file thường dư 2 (đôi khi 26) byte cuối
+            return rest >= 0 && rest <= 64;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
     public static void sendEffectTemplate(MySession session, int id, int... idtemp) {
         int idT = id;
         if (idtemp.length > 0 && idtemp[0] != 0) {
@@ -237,7 +270,7 @@ public class DataGame {
             msg.writer().writeInt(effData.length);
             msg.writer().write(effData);
             if (session.version > 220) {
-                msg.writer().write(idT == 60 ? 2 : 0);
+                msg.writer().write(effFormat(idT, effData)); // 2: toạ độ ảnh 2 byte (ảnh hiệu ứng rộng > 255, vd 60, 70)
             }
             msg.writer().writeInt(effImg.length);
             msg.writer().write(effImg);
