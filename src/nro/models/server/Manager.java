@@ -248,6 +248,44 @@ public final class Manager {
         Logger.success(Logger.RED + "Update maps thread started success!\n");
     }
 
+    /** Client đọc part theo VỊ TRÍ trong file (parts[i] = part thứ i), không theo id: id trong DB bị hở (xoá dòng)
+     *  thì mọi part sau chỗ hở lệch số (đầu Ma trơi 2391 vẽ ra bánh bao 2393). Ghi theo id, chỗ hở điền part trống. */
+    static void writePartFile(List<Part> parts) throws java.io.IOException {
+        java.util.Map<Integer, Part> byId = new java.util.HashMap<>();
+        int max = -1;
+        for (Part p : parts) {
+            byId.put(p.id, p);
+            max = Math.max(max, p.id);
+        }
+        List<Integer> gaps = new ArrayList<>();
+        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream("data/update_data/part"))) {
+            dos.writeShort(max + 1);
+            for (int id = 0; id <= max; id++) {
+                Part part = byId.get(id);
+                if (part == null) { // part đầu trống (3 ảnh trong suốt)
+                    gaps.add(id);
+                    dos.writeByte(0);
+                    for (int k = 0; k < 3; k++) {
+                        dos.writeShort(2955);
+                        dos.writeByte(0);
+                        dos.writeByte(0);
+                    }
+                    continue;
+                }
+                dos.writeByte(part.type);
+                for (PartDetail partDetail : part.partDetails) {
+                    dos.writeShort(partDetail.iconId);
+                    dos.writeByte(partDetail.dx);
+                    dos.writeByte(partDetail.dy);
+                }
+            }
+        }
+        if (!gaps.isEmpty()) {
+            Logger.log(Logger.YELLOW, "Bảng part hở " + gaps.size() + " id (đã điền part trống để client không lệch hình): "
+                    + gaps.subList(0, Math.min(20, gaps.size())) + "\n");
+        }
+    }
+
     public static void loadPart() {
         JSONValue jv = new JSONValue();
         JSONArray dataArray = null;
@@ -256,7 +294,7 @@ public final class Manager {
         ResultSet rs = null;
         try (Connection con = LocalManager.getConnection();) {
             //load part
-            ps = con.prepareStatement("select * from part");
+            ps = con.prepareStatement("select * from part order by id");
             rs = ps.executeQuery();
             List<Part> parts = new ArrayList<>();
             while (rs.next()) {
@@ -274,18 +312,7 @@ public final class Manager {
                 parts.add(part);
                 dataArray.clear();
             }
-            DataOutputStream dos = new DataOutputStream(new FileOutputStream("data/update_data/part"));
-            dos.writeShort(parts.size());
-            for (Part part : parts) {
-                dos.writeByte(part.type);
-                for (PartDetail partDetail : part.partDetails) {
-                    dos.writeShort(partDetail.iconId);
-                    dos.writeByte(partDetail.dx);
-                    dos.writeByte(partDetail.dy);
-                }
-            }
-            dos.flush();
-            dos.close();
+            writePartFile(parts);
         } catch (Exception e) {
             System.err.print("\nError at 299\n");
             e.printStackTrace();
@@ -371,7 +398,7 @@ public final class Manager {
             nro.models.database.Dot133Migration.run(ConnectionDatabase);
             nro.models.database.Dot139Migration.run(ConnectionDatabase);
             //load part
-            ps = ConnectionDatabase.prepareStatement("select * from part");
+            ps = ConnectionDatabase.prepareStatement("select * from part order by id");
             rs = ps.executeQuery();
             List<Part> parts = new ArrayList<>();
             while (rs.next()) {
@@ -389,17 +416,7 @@ public final class Manager {
                 parts.add(part);
                 dataArray.clear();
             }
-            DataOutputStream dos = new DataOutputStream(new FileOutputStream("data/update_data/part"));
-            dos.writeShort(parts.size());
-            for (Part part : parts) {
-                dos.writeByte(part.type);
-                for (PartDetail partDetail : part.partDetails) {
-                    dos.writeShort(partDetail.iconId);
-                    dos.writeByte(partDetail.dx);
-                    dos.writeByte(partDetail.dy);
-                }
-            }
-            dos.flush();
+            writePartFile(parts);
             Logger.success(Logger.PURPLE + "Successfully loaded part (" + parts.size() + ")\n");
 
             //load bg item template
