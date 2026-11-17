@@ -581,8 +581,6 @@ public final class Manager {
             HEAD_AVATARS.clear();
             ha.forEach((h, a) -> HEAD_AVATARS.add(new HeadAvatar(h, a)));
             Logger.success(Logger.RED + "Successfully loaded head avatar (" + HEAD_AVATARS.size() + (dropped > 0 ? ", bỏ " + dropped + " dòng trùng / sai" : "") + ")\n");
-            Logger.log(Logger.YELLOW, "Avatar hoá hình: Ma trơi 2391->" + ha.get(2391) + ", Dơi 2392->" + ha.get(2392) + ", Bí ngô 2394->" + ha.get(2394)
-                    + ", bánh bao 2397->" + ha.get(2397) + "\n");
 
             //load flag bag
             ps = ConnectionDatabase.prepareStatement("select * from flag_bag");
