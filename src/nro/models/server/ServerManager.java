@@ -309,6 +309,7 @@ public class ServerManager {
         }
         Client.gI().close();
         Logger.success("SUCCESSFULLY MAINTENANCE!\n");
+        nro.models.data.SqlBackup.afterMaintenance();  // có file backup.key: đẩy database mã hoá lên GitHub
 
         if (System.getenv("NRO_RESTART_LOOP") != null) {
             // run.bat / run_vps_yeu.bat / .sh bản mới: mã thoát 3 = tự bật lại ngay trong cửa sổ đang chạy (không mở cửa sổ thứ hai)

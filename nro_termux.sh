@@ -81,11 +81,12 @@ GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'localhost' WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'127.0.0.1' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 SQL
-    if [ "$(msql -N -e "select count(*) from information_schema.tables where table_schema='team2026'")" = "0" ]; then
-        echo ">> Nạp sql/team2026.sql ..."
-        msql team2026 < sql/team2026.sql
-    fi
     config_db
+    if [ "$(msql -N -e "select count(*) from information_schema.tables where table_schema='team2026'")" = "0" ]; then
+        # có dữ liệu mã hoá trên GitHub + mật khẩu thì nạp bản đó, không thì dữ liệu mẫu
+        if [ -f sql/team2026.sql.enc ] && [ -f backup.key ] && java -cp 20.jar nro.models.data.SqlBackup import; then :
+        else echo ">> Nạp sql/team2026.sql ..."; msql team2026 < sql/team2026.sql; fi
+    fi
     if ! "$MYSQL" -h 127.0.0.1 -u "$DB_USER" -p"$DB_PASS" -e "select 1" team2026 >/dev/null 2>&1; then
         echo "!! User database $DB_USER chưa đăng nhập được qua 127.0.0.1. Chụp màn hình lệnh sau gửi admin:"
         echo "   mariadb -h 127.0.0.1 -u $DB_USER -p$DB_PASS team2026 -e 'select 1'"
@@ -324,6 +325,41 @@ set_pass() {
     echo "$p" > "$PASS_FILE"; config_db; ok "Đã đổi. Khởi động lại server để áp dụng."
 }
 
+# ---------- dữ liệu GitHub ----------
+SB="java -cp 20.jar nro.models.data.SqlBackup"
+gh_menu() {
+    local c k u t
+    echo "  ${B}Dữ liệu GitHub${C0} ${DIM}(database mã hoá: $( [ -f backup.key ] && echo "${G}đã bật" || echo "${R}chưa có mật khẩu")${C0}${DIM})${C0}"
+    echo "  ${DIM}Sau mỗi lần bảo trì server tự đẩy sql/team2026.sql.enc lên GitHub.${C0}"; echo
+    printf "  ${CY}1${C0}  Đặt mật khẩu mã hoá (mọi máy dùng chung)\n  ${CY}2${C0}  Đẩy dữ liệu lên GitHub ngay\n  ${CY}3${C0}  Tải dữ liệu từ GitHub, nạp đè máy này\n  ${CY}4${C0}  Lưu token GitHub (cần để đẩy)\n\n"
+    printf "  Chọn: "; read -rsn1 c; echo "$c"; echo
+    case $c in
+        1) read -rsp "  Mật khẩu (từ 6 ký tự, không hiện khi gõ): " k; echo
+           [ ${#k} -ge 6 ] || { err "Mật khẩu quá ngắn."; return; }
+           printf '%s\n' "$k" > backup.key; chmod 600 backup.key; ok "Đã lưu backup.key. Máy khác đặt đúng mật khẩu này để nạp." ;;
+        2) [ -f backup.key ] || { err "Chưa đặt mật khẩu (mục 1)."; return; }
+           ensure_db >/dev/null 2>&1; spin "Xuất database mã hoá + đẩy GitHub" $SB export push && ok "Đã đẩy." ;;
+        3) [ -f backup.key ] || { err "Chưa đặt mật khẩu (mục 1)."; return; }
+           printf "  ${Y}Dữ liệu trên máy này sẽ bị ghi đè. Bấm ${B}y${C0}${Y} để tiếp tục:${C0} "; read -rsn1 k; echo
+           [ "$k" = y ] || { echo "  Huỷ."; return; }
+           local was=0; running && was=1 && stop
+           git checkout -- Config.properties 2>/dev/null
+           spin "Tải bản mới từ GitHub" git pull --ff-only
+           config_db
+           [ -f sql/team2026.sql.enc ] || { err "GitHub chưa có sql/team2026.sql.enc."; return; }
+           spin "Giải mã và nạp database" $SB import && ok "Đã nạp dữ liệu từ GitHub."
+           [ $was = 1 ] && start ;;
+        4) echo "  Tạo token: github.com > Settings > Developer settings > Personal access tokens"
+           echo "  (quyền Contents: Read and write cho repo này)."
+           read -rp "  Tên GitHub: " u; read -rsp "  Token (không hiện khi gõ): " t; echo
+           [ -n "$u" ] && [ -n "$t" ] || { echo "  Huỷ."; return; }
+           git config credential.helper store
+           printf 'https://%s:%s@github.com\n' "$u" "$t" > "$HOME/.git-credentials"; chmod 600 "$HOME/.git-credentials"
+           ok "Đã lưu token (chỉ trên máy này)." ;;
+        *) echo "  Huỷ." ;;
+    esac
+}
+
 view_log() {
     echo "  ${DIM}Đang xem log · chạm Ctrl rồi C để thoát${C0}"; echo
     trap 'true' INT
@@ -370,7 +406,8 @@ menu() {
         two 39 7 "Khôi phục"
         section "CÀI ĐẶT"
         two 147 8 "Đổi RAM" 147 9 "Mật khẩu"
-        two 208 L "Hết lag" 240 0 "Thoát"
+        two 34 G "Dữ liệu GitHub" 208 L "Hết lag"
+        two 240 0 "Thoát"
         echo
         printf "  ${DIM}Bấm số để chọn · tự làm mới mỗi 15 giây${C0} "; read -rsn1 -t 15 c || continue
         printf '\r\e[K'; echo
@@ -385,6 +422,7 @@ menu() {
             8) ram; pause ;;
             9) set_pass; pause ;;
             l|L) lag_help; pause ;;
+            g|G) gh_menu; pause ;;
             0) printf '\e[H\e[2J'; echo; draw_art 0; echo; ok "Server vẫn chạy nền. Gõ ${B}nro${C0} để mở lại menu."; exit 0 ;;
         esac
     done
@@ -393,5 +431,5 @@ menu() {
 case "$1" in
     setup) setup ;; start) start ;; stop) stop ;; restart) stop; start ;;
     log) view_log ;; update) update ;; backup) backup ;; restore) restore ;;
-    ram) ram ;; ip) ip_info ;; pass) set_pass ;; start-menu) start; menu ;; *) menu ;;
+    ram) ram ;; ip) ip_info ;; pass) set_pass ;; github) gh_menu ;; start-menu) start; menu ;; *) menu ;;
 esac

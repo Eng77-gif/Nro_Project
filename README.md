@@ -134,6 +134,17 @@ curl -sL https://raw.githubusercontent.com/Eng77-gif/Nro_Project/main/termux_ins
 
 Sau đó gõ `nro` để mở menu: bật / tắt / khởi động lại, xem log, cập nhật từ GitHub, sao lưu / khôi phục database, đổi RAM. Chơi ngay trên điện thoại đó bằng client trỏ `127.0.0.1:14445`; máy khác cùng wifi vào IP điện thoại. Chi tiết: [HUONG_DAN_TERMUX.md](HUONG_DAN_TERMUX.md).
 
+### 🔄 Đồng bộ dữ liệu qua GitHub (mã hoá)
+
+Đặt mật khẩu vào file `backup.key` cạnh `20.jar` (một dòng, từ 6 ký tự, không đưa lên git). Sau mỗi lần **bảo trì**, server tự xuất database, nén, **mã hoá AES-256** thành `sql/team2026.sql.enc` rồi commit + đẩy lên GitHub. Repo công khai cũng không ai đọc được nếu không có mật khẩu.
+
+- Máy khác (cùng mật khẩu trong `backup.key`): `java -cp 20.jar nro.models.data.SqlBackup import` để nạp đè, hoặc chạy `nap_du_lieu_github.bat`. Termux: menu `nro` → **G** → 3; cài mới trên Termux tự nạp bản này nếu đã có `backup.key`.
+- Đẩy ngay không cần bảo trì: `day_du_lieu_github.bat` hoặc `java -cp 20.jar nro.models.data.SqlBackup export push`.
+- Máy đẩy phải là bản `git clone` và đã đăng nhập GitHub (Windows: Git Credential Manager; Termux: menu **G** → 4 lưu token).
+
+> [!WARNING]
+> Mất mật khẩu là không mở được bản sao lưu. Không đặt mật khẩu này trùng mật khẩu khác.
+
 ### 📦 Bản phát hành và Docker
 
 - **Releases:** tải `nro-server-<phiên bản>.jar` (jar đã ký), gói SQL và script chạy ở trang [Releases](../../releases).

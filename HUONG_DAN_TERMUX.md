@@ -23,6 +23,11 @@ Menu bấm 1 phím (không cần Enter), trạng thái tự làm mới mỗi 15 
 ```
 Mật khẩu panel (tài khoản `admin`) tạo sẵn và hiện ngay trên menu. Gõ thẳng cũng được: `nro start`, `nro stop`, `nro restart`, `nro log`, `nro update`, `nro backup`, `nro restore`, `nro ram`, `nro pass`, `nro ip`.
 
+## Dữ liệu qua GitHub (phím G)
+Database mã hoá bằng mật khẩu chung (`backup.key`), lưu ở `sql/team2026.sql.enc` trên GitHub; server tự đẩy sau mỗi lần bảo trì.
+- **1** đặt mật khẩu (mọi máy dùng cùng mật khẩu), **2** đẩy ngay, **3** tải từ GitHub và nạp đè máy này, **4** lưu token GitHub để máy này đẩy được.
+- Máy mới: cài như trên, bấm **G** → 1 nhập mật khẩu → 3.
+
 ## Tự chạy khi bật máy
 Cài thêm app **Termux:Boot** (F-Droid), mở nó 1 lần. Script đã tự đăng ký, bật máy là server tự chạy.
 

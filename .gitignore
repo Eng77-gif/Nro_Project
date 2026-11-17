@@ -24,3 +24,5 @@ logs/
 .termux_ram
 __pycache__/
 .termux_panel
+/backup.key
+/sql/*.tmp
