@@ -81,6 +81,14 @@ public class VietLoader {
                 int secondsPass1 = (int) ((System.currentTimeMillis() - lastTimeLogin) / 1000);
                 long lastTimeLogout = rs.getTimestamp("last_time_logout").getTime();
                 int secondsPass = (int) ((System.currentTimeMillis() - lastTimeLogout) / 1000);
+                // giờ đăng nhập / thoát nằm ở tương lai (dữ liệu chép từ máy khác lệch múi giờ, đổi giờ máy): không bắt chờ
+                // (trước đây ra "Xin chờ 13731s")
+                if (secondsPass1 < 0) {
+                    secondsPass1 = Manager.SECOND_WAIT_LOGIN;
+                }
+                if (secondsPass < 0) {
+                    secondsPass = Manager.SECOND_WAIT_LOGIN;
+                }
                 long createTime = rs.getTimestamp("create_time").getTime();
                 long mamUntil = 0; // hạn mầm đã gia hạn (Gia hạn mầm ở Santa)
                 try {

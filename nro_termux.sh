@@ -2,6 +2,8 @@
 # Quản lý server NRO trên Termux. Gõ `nro` để mở menu, hoặc: nro setup|start|stop|restart|log|update|backup|restore|ram|ip
 DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 cd "$DIR" || exit 1
+# Java / MariaDB trên Termux không tự biết múi giờ Android (chạy theo UTC, lệch 7 tiếng với dữ liệu từ VPS)
+[ -z "$TZ" ] && TZ=$(getprop persist.sys.timezone 2>/dev/null) && export TZ
 DB_USER=nro
 DB_PASS=${DB_PASS:-nro123}
 REPO=https://github.com/Eng77-gif/Nro_Project
