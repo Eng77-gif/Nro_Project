@@ -2534,4 +2534,5 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - mount_84: chân nhân vật hạ xuống dưới mép ghế (82, 316 trong ô 512) như đang ngồi; lớp 1 thêm vỏ vàng trước buồng lái (chỉ phần vỏ, không lấy nệm ghế tối) che chân. vsRes 14.
 - mount_84 về cỡ 0,95 (x2) vì to quá, giữ chân dưới mép ghế. vsRes 15.
 - Máy bay NRO (1954) chỉ số theo video: Sức đánh +7%, HP +7%, KI +14%, +5% May mắn, +12% TN, SM cho đệ tử khi sư phụ mặc (253), Không giao dịch ('event_items_1117a'); món cũ tự đổi khi đăng nhập.
+- Chạy server trên điện thoại bằng Termux: termux_setup.sh (cài openjdk-21 + MariaDB, nạp team2026.sql, tạo user database nro vì MariaDB trên Termux chỉ cho user Termux đăng nhập qua socket, sửa Config.properties), run_termux.sh (wake lock, bật MariaDB, chạy run_vps_yeu.sh với RAM 512m), HUONG_DAN_TERMUX.md.
 - Chỉ số 126 "Biến sôcôla làm yếu đi -#% sức đánh trong 30 giây" (Cờ hồn Mabư) trước đây không có tác dụng: nay biến sôcôla người xung quanh như chỉ số 29 và giảm #% sức đánh của họ trong 30 giây.
