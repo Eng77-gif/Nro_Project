@@ -27,6 +27,7 @@ Mật khẩu panel (tài khoản `admin`) tạo sẵn và hiện ngay trên menu
 Cài thêm app **Termux:Boot** (F-Droid), mở nó 1 lần. Script đã tự đăng ký, bật máy là server tự chạy.
 
 ## Lưu ý
+- **Chơi trên chính điện thoại chạy server bị lag, không qua map được:** Android tạm dừng Termux khi mở game (menu `nro` báo "Android đang tạm dừng server"). Bấm **L** trong menu xem cách sửa: bật wakelock, pin Termux "Không hạn chế", Tuỳ chọn nhà phát triển tắt "Tạm ngưng thực thi ứng dụng trong bộ nhớ đệm", hoặc chia đôi màn hình Termux + game.
 - Trong cài đặt Android, tắt **tối ưu pin** cho Termux, nếu không máy có thể tự tắt server khi để lâu.
 - Chơi ngay trên điện thoại chạy server: dùng client bản `127.0.0.1:14445` (APK sửa IP bằng `tools/client-db249/mod_apk.py ... 127.0.0.1 14445 ...`). Termux tự đặt `server.ip=127.0.0.1`.
 - Cùng wifi: client vào IP điện thoại (`nro ip`), cổng 14445; panel `http://IP:8088`.

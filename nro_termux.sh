@@ -200,6 +200,10 @@ status() {
         crow "${R}${B}○ ĐANG TẮT${C0}   ${DIM}bấm ${C0}${G}${B}1${C0}${DIM} để bật${C0}"
         crow "${DIM}RAM tối đa${C0} ${W}${rmax} MB${C0} ${DIM}/ máy $(mem_total) MB${C0}"
     fi
+    if [ -n "$pid" ] && grep -q "clock leap" "$LOG" 2>/dev/null; then  # Hikari: tiến trình bị dừng > vài giây
+        crow "${R}${B}! Android đang tạm dừng server${C0}"
+        crow "${DIM}Bấm ${C0}${Y}${B}L${C0}${DIM} để xem cách sửa lag${C0}"
+    fi
     hr ├ ┤
     kv "Game" "${W}${B}127.0.0.1:14445${C0}"
     [ -n "$ip" ] && kv "Wifi" "${W}$ip:14445${C0}"
@@ -327,6 +331,28 @@ view_log() {
     trap - INT
 }
 
+lag_help() {
+    cat <<EOF
+  ${Y}${B}Chơi trên chính điện thoại chạy server bị lag / đứng${C0}
+  Android tự tạm dừng Termux khi mở app khác (game),
+  server đứng theo. Làm đủ các bước:
+
+  ${G}1${C0} Kéo thanh thông báo, ở Termux bấm ${B}Acquire wakelock${C0}
+  ${G}2${C0} Cài đặt > Ứng dụng > Termux > Pin: ${B}Không hạn chế${C0}
+  ${G}3${C0} Tuỳ chọn nhà phát triển (bấm 7 lần Số hiệu bản dựng):
+     - ${B}Tạm ngưng thực thi ứng dụng trong bộ nhớ đệm${C0}
+       (Suspend execution for cached apps): ${B}Tắt${C0}
+     - ${B}Tắt hạn chế tiến trình con${C0} (Disable child
+       process restrictions, Android 14+): ${B}Bật${C0}
+  ${G}4${C0} Xiaomi / Oppo / Vivo: Tự khởi chạy Termux = Bật,
+     khoá Termux trong đa nhiệm (biểu tượng ổ khoá)
+  ${G}5${C0} Chắc chắn nhất: ${B}chia đôi màn hình${C0} hoặc cửa sổ nổi,
+     Termux luôn hiện thì Android không dừng được
+
+  Làm xong khởi động lại server (phím 3).
+EOF
+}
+
 key() { printf "$(c256 16)\e[48;5;%sm${B} %s ${C0}" "$1" "$2"; }   # nút phím có nền màu
 two() { printf "   %s %s\n" "$(pad "$(key $1 $2) $3" 19)" "${4:+$(key $4 $5) $6}"; }
 section() { printf "  $(c256 214)${B}%s${C0} ${DIM}%s${C0}\n" "$1" "$(printf '%*s' $(( IW - $(vlen "$1") )) '' | sed 's/ /┄/g')"; }
@@ -344,7 +370,7 @@ menu() {
         two 39 7 "Khôi phục"
         section "CÀI ĐẶT"
         two 147 8 "Đổi RAM" 147 9 "Mật khẩu"
-        two 240 0 "Thoát"
+        two 208 L "Hết lag" 240 0 "Thoát"
         echo
         printf "  ${DIM}Bấm số để chọn · tự làm mới mỗi 15 giây${C0} "; read -rsn1 -t 15 c || continue
         printf '\r\e[K'; echo
@@ -358,6 +384,7 @@ menu() {
             7) restore; pause ;;
             8) ram; pause ;;
             9) set_pass; pause ;;
+            l|L) lag_help; pause ;;
             0) printf '\e[H\e[2J'; echo; draw_art 0; echo; ok "Server vẫn chạy nền. Gõ ${B}nro${C0} để mở lại menu."; exit 0 ;;
         esac
     done
