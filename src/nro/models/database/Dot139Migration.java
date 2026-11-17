@@ -282,11 +282,9 @@ public class Dot139Migration {
         // Áo Thần Xayda bán ở shop (item_shop 537) không có dòng chỉ số nào: hiện giáp gốc + yêu cầu sức mạnh như đồ rơi
         update(con, "insert into item_shop_option (item_shop_id, option_id, param) select s.id, 47, 900 from item_shop s where s.temp_id between 555 and 567 and s.temp_id = 559 and not exists (select 1 from item_shop_option o where o.item_shop_id = s.id)");
         update(con, "insert into item_shop_option (item_shop_id, option_id, param) select s.id, 21, 15 from item_shop s where s.temp_id = 559 and not exists (select 1 from item_shop_option o where o.item_shop_id = s.id and o.option_id = 21)");
-        // Máy bay NRO (1954): hình thú cưỡi riêng mount_84 (máy bay vàng NRO 12th, tách từ video; 0 = thân sau nhân vật, 1 = mép buồng lái che chân), 4 khung
-        for (String name : new String[]{"mount_84_0", "mount_84_1"}) {
-            update(con, "insert into img_by_name (NAME, n_frame) select '" + name + "', 4 from dual where not exists (select 1 from img_by_name where NAME = '" + name + "')");
-        }
-        update(con, "update item_template set part = 84 where id = 1954 and part <> 84");
+        // bỏ hình mount_84 (máy bay NRO 12th tách từ video, không dùng): Máy bay NRO (1954) về hình cũ mount_69
+        update(con, "delete from img_by_name where NAME in ('mount_84_0', 'mount_84_1')");
+        update(con, "update item_template set part = 69 where id = 1954 and part = 84");
         // gỡ Đại bàng đất sét nổ (VIP): giữ dòng item_template (mã = vị trí), bỏ chỉ số và mọi nơi bán / phát
         update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1 where id in (2121, 2122) and NAME <> 'Vật phẩm đã gỡ'");
         update(con, "delete from item_template_option where template_id in (2121, 2122)");
