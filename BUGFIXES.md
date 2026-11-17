@@ -2525,4 +2525,5 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Script chạy server (run.bat, run_vps_yeu.bat / .sh) thêm -XX:-OmitStackTraceInFastThrow: lỗi lặp nhiều lần vẫn in đủ vị trí (trước chỉ in 'java.lang.NullPointerException' trống).
 - KOL: quà hồng ngọc ngẫu nhiên (mã -2, ít nhất - nhiều nhất) bên cạnh ngọc xanh ngẫu nhiên (-1); panel có nút '+ Hồng ngọc ngẫu nhiên' và ô chọn đổi loại ngọc từng dòng.
 - Giftcode và mùa VIP Tori Bot: quà ngọc xanh / hồng ngọc ngẫu nhiên (mã -11 / -12, số lượng = ít nhất, max = nhiều nhất; giftcode giữ -1 vàng, -2 ngọc, -3 hồng ngọc số cố định). Panel có nút '+ Ngọc xanh ngẫu nhiên' / '+ Hồng ngọc ngẫu nhiên' như KOL; Tori Bot ghi '10 - 50 ngọc xanh' trong mô tả gói.
+- Panel trang Boss sai avatar (Ăn Trộm ra con rồng, Broly ra mẩu hình): bảng head_avatar ghép sai nhiều đầu boss; nay boss lấy hình đầu thật (ảnh đầu tiên của part đầu), đầu trong suốt (Bí ma, Ma trơi, Dơi) thì lấy hình thân.
 - Chỉ số 126 "Biến sôcôla làm yếu đi -#% sức đánh trong 30 giây" (Cờ hồn Mabư) trước đây không có tác dụng: nay biến sôcôla người xung quanh như chỉ số 29 và giảm #% sức đánh của họ trong 30 giây.

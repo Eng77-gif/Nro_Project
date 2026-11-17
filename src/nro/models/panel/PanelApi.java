@@ -497,7 +497,7 @@ public class PanelApi {
         if (m == null) {
             m = new java.util.HashMap<>();
             try {
-                for (Map<String, Object> r : rows("select id, DATA from part where TYPE = 0")) {
+                for (Map<String, Object> r : rows("select id, DATA from part")) {
                     java.util.regex.Matcher mt = java.util.regex.Pattern.compile("^\\[\\[(\\d+)").matcher(String.valueOf(r.get("DATA")));
                     if (mt.find()) {
                         m.put(((Number) r.get("id")).intValue(), Integer.parseInt(mt.group(1)));
@@ -1943,7 +1943,14 @@ public class PanelApi {
             o.put("name", b.name);
             int av = -1;
             try {
-                av = avatarOfHead(b.getHead()); // boss vừa tạo chưa xuất hiện (cấp -1) thì không lấy được đầu
+                // boss: hình đầu thật (part đầu) trước, vì bảng head_avatar ghép sai nhiều đầu boss (Ăn Trộm 201 -> rồng 2344, Broly 291 -> 2892)
+                av = headIcon(b.getHead()); // boss vừa tạo chưa xuất hiện (cấp -1) thì không lấy được đầu
+                if (av == 2955) { // đầu trong suốt (Bí ma, Ma trơi, Dơi, Bí ngô...): hình nằm ở thân
+                    av = headIcon(b.getBody());
+                }
+                if (av < 0) {
+                    av = avatarOfHead(b.getHead());
+                }
             } catch (Exception ignored) {
             }
             o.put("avatar", av);
