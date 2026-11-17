@@ -24,9 +24,19 @@ config_db() {  # git pull / chép lại sẽ ghi đè Config.properties: sửa m
 
 # user database cho server: chạy mỗi lần bật (MariaDB trên Termux chỉ cho user Termux đăng nhập qua socket;
 # JDBC cần user có mật khẩu qua TCP; xoá user ẩn danh vì nó chen vào đăng nhập từ localhost)
-msql() { mysql -u "$(whoami)" "$@" 2>/dev/null || mysql -u root "$@"; }
+MYSQL=$(command -v mariadb || command -v mysql)
+# user quản trị của MariaDB: tuỳ bản Termux là user Termux hoặc root (đăng nhập qua socket); dò trước rồi mới chạy
+# (trước đây thử lần lượt: lần đầu thất bại đã đọc hết lệnh SQL nên lần sau chạy rỗng -> không tạo database)
+db_admin() {
+    for u in "$(whoami)" root; do
+        "$MYSQL" -u "$u" -e "select 1" >/dev/null 2>&1 && { echo "$u"; return; }
+    done
+}
+msql() { "$MYSQL" -u "${DBA:=$(db_admin)}" "$@"; }
 ensure_db() {
     db_up
+    DBA=$(db_admin)
+    if [ -z "$DBA" ]; then echo "!! Không đăng nhập được MariaDB bằng $(whoami) hay root."; return 1; fi
     msql <<SQL
 CREATE DATABASE IF NOT EXISTS team2026 CHARACTER SET utf8mb4;
 DROP USER IF EXISTS ''@'localhost';
@@ -44,9 +54,9 @@ SQL
         msql team2026 < sql/team2026.sql
     fi
     config_db
-    if ! mysql -h 127.0.0.1 -u "$DB_USER" -p"$DB_PASS" -e "select 1" team2026 >/dev/null 2>&1; then
+    if ! "$MYSQL" -h 127.0.0.1 -u "$DB_USER" -p"$DB_PASS" -e "select 1" team2026 >/dev/null 2>&1; then
         echo "!! User database $DB_USER chưa đăng nhập được qua 127.0.0.1. Chụp màn hình lệnh sau gửi admin:"
-        echo "   mysql -h 127.0.0.1 -u $DB_USER -p$DB_PASS team2026 -e 'select 1'"
+        echo "   mariadb -h 127.0.0.1 -u $DB_USER -p$DB_PASS team2026 -e 'select 1'"
         return 1
     fi
 }
@@ -103,7 +113,7 @@ update() {
 backup() {
     db_up; mkdir -p "$BACKUP_DIR"
     local f="$BACKUP_DIR/team2026_$(date +%Y%m%d_%H%M%S).sql"
-    mysqldump -u "$(whoami)" team2026 > "$f" && echo ">> Đã sao lưu: $f"
+    "$(command -v mariadb-dump || command -v mysqldump)" -u "$(db_admin)" team2026 > "$f" && echo ">> Đã sao lưu: $f"
 }
 
 restore() {
@@ -113,7 +123,7 @@ restore() {
     local f=$(ls -1t "$BACKUP_DIR"/*.sql 2>/dev/null | sed -n "${n}p")
     [ -n "$n" ] && [ -n "$f" ] || { echo "Huỷ."; return; }
     local was=0; running && was=1 && stop
-    mysql -u "$(whoami)" team2026 < "$f" && echo ">> Đã khôi phục $f"
+    msql team2026 < "$f" && echo ">> Đã khôi phục $f"
     [ $was = 1 ] && start
 }
 
