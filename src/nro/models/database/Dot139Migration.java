@@ -125,14 +125,16 @@ public class Dot139Migration {
             update(con, "insert into head_avatar (head_id, avatar_id) select 2395, 12848 from dual where not exists (select 1 from head_avatar where head_id = 2395)");
             // đầu con vật (danh sách tin nhắn vẽ ảnh đầu, cần ảnh nhỏ): Ma trơi / Dơi = ảnh avatar 6100 / 6099 thu nhỏ (32308 / 32309),
             // Bí ngô = bí 7060, bánh bao = bánh 13440; ảnh to (6100 / 6099 / 7062 / 13441) giữ làm avatar popup
-            update(con, "update part set DATA = '[[32308,-6,-6],[32308,-6,-6],[32308,-6,-6]]' where id = 2391");
-            update(con, "update part set DATA = '[[32309,-6,-2],[32309,-6,-2],[32309,-6,-2]]' where id = 2392");
-            update(con, "update part set DATA = '[[7060,-4,-4],[7060,-4,-4],[7060,-4,-4]]' where id = 2394");
+            update(con, "update part set DATA = '[[32308,0,0],[32308,0,0],[32308,0,0]]' where id = 2391");
+            update(con, "update part set DATA = '[[32309,0,3],[32309,0,3],[32309,0,3]]' where id = 2392");
+            update(con, "update part set DATA = '[[7060,2,-1],[7060,2,-1],[7060,2,-1]]' where id = 2394");
             // bánh bao: avatar 13441 (bộ bánh bao đầu 1488) thay ảnh Bánh dầy 12848 tạm trước đây
-            update(con, "update part set DATA = '[[13440,-4,-4],[13440,-4,-4],[13440,-4,-4]]' where id = 2395");
+            update(con, "update part set DATA = '[[13440,2,0],[13440,2,0],[13440,2,0]]' where id = 2395");
             update(con, "update head_avatar set avatar_id = 13441 where head_id = 2395");
             // đầu bánh bao mới cho chat thế giới (client J2ME nhớ avatar cũ 12848 của đầu 2395)
             update(con, "insert into part (id, TYPE, DATA) select 2397, 0, '[[13440,-4,-4],[13440,-4,-4],[13440,-4,-4]]' from dual where not exists (select 1 from part where id = 2397)");
+            // căn giữa ô avatar như đầu thường (~17x20 đặt ở dx 4, dy 0): tâm ảnh về (12, 10)
+            update(con, "update part set DATA = '[[13440,2,0],[13440,2,0],[13440,2,0]]' where id = 2397");
             update(con, "insert into head_avatar (head_id, avatar_id) select 2397, 13441 from dual where not exists (select 1 from head_avatar where head_id = 2397)");
             // Siêu Thị (84) nới thêm 5 ô về phía cổng sau (tile_map_data/84: 40 -> 45 ô) để NPC không đứng dưới cổng sang Sân sau siêu thị:
             // cổng dời ra mép mới, đi từ Sân sau về thì xuất hiện ở x 1020
