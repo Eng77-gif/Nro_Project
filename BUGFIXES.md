@@ -2581,3 +2581,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Console VPS: ConcurrentModificationException ở PVPManager.update (danh sách trận PK bị thêm / bớt trong lúc duyệt) -> CopyOnWriteArrayList.
 - Bỏ log "Avatar hoá hình" (lúc bật server) và "Chat hoá hình" (mỗi tin chat) sau khi đã xác nhận avatar hoá hình đúng.
 - Panel Boss: không hiện boss đã huỷ còn sót trong danh sách quản lý (thẻ "#-10179934" không tên, 0 HP, Đang nghỉ).
+- Hòm Halloween (1116): mở hòm phát hiệu ứng 70 (hòm bật nắp, ma bay ra) + 71 (đàn ma) tại chỗ người mở (cả map thấy), bảng quà hiện sau 1,5 giây.

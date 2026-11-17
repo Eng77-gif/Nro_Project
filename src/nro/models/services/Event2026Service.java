@@ -269,6 +269,8 @@ public class Event2026Service {
         }
     }
 
+    private static final int HOM_HALLOWEEN = 1116;
+
     public boolean isBox(Item item) {
         return item != null && item.isNotNullItem() && boxes.containsKey((int) item.template.id);
     }
@@ -280,12 +282,23 @@ public class Event2026Service {
         }
         String boxName = box.template.name; // hộp cuối bị xóa (template = null) khi trừ số lượng
         short boxIcon = box.template.iconID;
+        int boxId = box.template.id;
         short[] icon = {-1};
         String got = openBoxById(pl, box.template.id, icon);
         if (got != null) {
             InventoryService.gI().subQuantityItemsBag(pl, box, 1);
             InventoryService.gI().sendItemBags(pl);
-            if (icon[0] >= 0) {
+            if (boxId == HOM_HALLOWEEN && pl.zone != null) {
+                // Hòm Halloween: hiệu ứng 70 (hòm bật nắp, ma bay ra) + 71 (đàn ma bay) tại chỗ người mở, cả map thấy;
+                // bảng quà hiện sau khi hòm mở xong
+                nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 70, 3, 1, pl.location.x, pl.location.y, 1);
+                nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 71, 3, 1, pl.location.x, pl.location.y - 30, 1);
+                if (icon[0] >= 0) {
+                    short gift = icon[0];
+                    java.util.concurrent.CompletableFuture.delayedExecutor(1500, java.util.concurrent.TimeUnit.MILLISECONDS)
+                            .execute(() -> nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, gift));
+                }
+            } else if (icon[0] >= 0) {
                 // hiệu ứng mở giống Capsule kì bí: icon hộp -> icon quà
                 nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, icon[0]);
             }
