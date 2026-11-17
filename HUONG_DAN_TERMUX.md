@@ -25,6 +25,7 @@ Cài thêm app **Termux:Boot** (F-Droid), mở nó 1 lần. Script đã tự đ�
 
 ## Lưu ý
 - Trong cài đặt Android, tắt **tối ưu pin** cho Termux, nếu không máy có thể tự tắt server khi để lâu.
+- Chơi ngay trên điện thoại chạy server: dùng client bản `127.0.0.1:14445` (APK sửa IP bằng `tools/client-db249/mod_apk.py ... 127.0.0.1 14445 ...`). Termux tự đặt `server.ip=127.0.0.1`.
 - Cùng wifi: client vào IP điện thoại (`nro ip`), cổng 14445; panel `http://IP:8088`.
 - Ngoài mạng: điện thoại thường không có IP công khai, cần mở cổng trên router hoặc dùng Cloudflare Tunnel.
 - Không có mạng / muốn chép tay: chép thư mục `nro_server` vào Download rồi chạy `bash /sdcard/Download/nro_server/run_termux.sh` (cần `termux-setup-storage` trước).

@@ -19,7 +19,7 @@ db_up() {
 
 config_db() {  # git pull / chép lại sẽ ghi đè Config.properties: sửa mỗi lần
     [ -f Config.properties ] || cp Config.default.properties Config.properties
-    sed -i "s/^database.user=.*/database.user=$DB_USER/; s/^database.pass=.*/database.pass=$DB_PASS/; s/^database.host=.*/database.host=127.0.0.1/" Config.properties
+    sed -i "s/^database.user=.*/database.user=$DB_USER/; s/^database.pass=.*/database.pass=$DB_PASS/; s/^database.host=.*/database.host=127.0.0.1/; s/^server.ip=.*/server.ip=127.0.0.1/" Config.properties
 }
 
 # user database cho server: chạy mỗi lần bật (MariaDB trên Termux chỉ cho user Termux đăng nhập qua socket;
@@ -122,7 +122,8 @@ stop() {
 
 ip_info() {
     IP=$(ifconfig 2>/dev/null | awk '/wlan0/{f=1} f&&/inet /{print $2; exit}')
-    echo ">> Client: ${IP:-ip-dien-thoai}:14445    Panel: http://${IP:-ip-dien-thoai}:8088"
+    echo ">> Chơi trên máy này: 127.0.0.1:14445   Máy khác cùng wifi: ${IP:-ip-dien-thoai}:14445"
+    echo ">> Panel: http://${IP:-ip-dien-thoai}:8088"
 }
 
 update() {
@@ -183,7 +184,7 @@ status() {
         row "Server    " "${R}${B}● ĐANG TẮT${C0}"
     fi
     if mysqladmin ping >/dev/null 2>&1; then row "Database  " "${G}● MariaDB chạy${C0}"; else row "Database  " "${R}● MariaDB tắt${C0}"; fi
-    row "Game      " "${B}${ip:-chưa có wifi}:14445${C0}"
+    row "Game      " "${B}127.0.0.1:14445${C0}  ${DIM}(wifi: ${ip:-chưa có}:14445)${C0}"
     row "Panel     " "${B}http://${ip:-ip}:8088${C0}"
     row "RAM       " "$(cat "$RAM_FILE" 2>/dev/null || echo 512m)"
     row "Phiên bản " "$(git log -1 --format='%h  %cd' --date=format:'%d/%m %H:%M' 2>/dev/null)"
