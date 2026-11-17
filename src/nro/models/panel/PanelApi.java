@@ -65,6 +65,7 @@ public class PanelApi {
             case "stats" -> stats();
             case "players/page" -> playersPage(q);
             case "players" -> players(q.getOrDefault("q", ""), "1".equals(q.get("online")));
+            case "items/owners" -> itemOwners(intv(q.get("id")), str(q.get("kind")));
             case "player" -> player(lng(q.get("id")));
             case "player/money" -> playerMoney(b);
             case "player/give" -> playerGive(b);
@@ -468,6 +469,87 @@ public class PanelApi {
             o.put("online", false);
             o.put("ban", r.get("ban"));
             return o;
+    }
+
+    private static final java.util.regex.Pattern ITEM_ENTRY = java.util.regex.Pattern.compile("(?:^\\[|,)\"\\[(-?\\d+),(\\d+),");
+
+    /** Ai đang có vật phẩm này (trên người / hành trang / rương): người online + bot lấy trong bộ nhớ, còn lại đọc database. kind: "", human, bot. */
+    private Object itemOwners(int itemId, String kind) throws Exception {
+        if (itemId < 0) {
+            throw new IllegalArgumentException("Chọn vật phẩm");
+        }
+        Map<Long, Integer> botIds = nro.models.Bot.BotWorld.gI().accountBots(false);
+        List<Map<String, Object>> out = new ArrayList<>();
+        java.util.Set<Long> seen = new java.util.HashSet<>();
+        List<Player> live = new ArrayList<>(onlinePlayers());
+        for (Long id : botIds.keySet()) {
+            Player b = nro.models.Bot.BotWorld.gI().find(id);
+            if (b != null) {
+                live.add(b);
+            }
+        }
+        for (Player p : live) {
+            if (p == null || p.inventory == null || !seen.add(p.id)) {
+                continue;
+            }
+            int[] n = {count(p.inventory.itemsBody, itemId), count(p.inventory.itemsBag, itemId), count(p.inventory.itemsBox, itemId)};
+            addOwner(out, p.id, p.name, botIds.containsKey(p.id), true, n, kind);
+        }
+        String like1 = "%[\"[" + itemId + ",%", like2 = "%,\"[" + itemId + ",%";
+        for (Map<String, Object> r : rows("select id, name, items_body, items_bag, items_box from player where items_body like ? or items_body like ? or items_bag like ? or items_bag like ? or items_box like ? or items_box like ?",
+                like1, like2, like1, like2, like1, like2)) {
+            long id = ((Number) r.get("id")).longValue();
+            if (seen.contains(id)) {
+                continue;
+            }
+            int[] n = {countJson(r.get("items_body"), itemId), countJson(r.get("items_bag"), itemId), countJson(r.get("items_box"), itemId)};
+            addOwner(out, id, String.valueOf(r.get("name")), botIds.containsKey(id), false, n, kind);
+        }
+        out.sort((x, y) -> Long.compare(((Number) y.get("total")).longValue(), ((Number) x.get("total")).longValue()));
+        return out.size() > 500 ? out.subList(0, 500) : out;
+    }
+
+    private static void addOwner(List<Map<String, Object>> out, long id, String name, boolean bot, boolean online, int[] n, String kind) {
+        long total = (long) n[0] + n[1] + n[2];
+        if (total <= 0 || ("bot".equals(kind) && !bot) || ("human".equals(kind) && bot)) {
+            return;
+        }
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("id", id);
+        m.put("name", name);
+        m.put("bot", bot);
+        m.put("online", online);
+        m.put("body", n[0]);
+        m.put("bag", n[1]);
+        m.put("box", n[2]);
+        m.put("total", total);
+        out.add(m);
+    }
+
+    private static int count(List<nro.models.item.Item> list, int itemId) {
+        int n = 0;
+        if (list != null) {
+            for (nro.models.item.Item it : new ArrayList<>(list)) {
+                if (it != null && it.isNotNullItem() && it.template.id == itemId) {
+                    n += Math.max(1, it.quantity);
+                }
+            }
+        }
+        return n;
+    }
+
+    private static int countJson(Object raw, int itemId) {
+        if (raw == null) {
+            return 0;
+        }
+        int n = 0;
+        java.util.regex.Matcher m = ITEM_ENTRY.matcher(String.valueOf(raw));
+        while (m.find()) {
+            if (Integer.parseInt(m.group(1)) == itemId) {
+                n += Math.max(1, Integer.parseInt(m.group(2)));
+            }
+        }
+        return n;
     }
 
     private Object playersPage(Map<String,String> params) throws Exception {
