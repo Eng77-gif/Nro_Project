@@ -362,7 +362,14 @@ public class PanelServer {
     }
 
     /** Ghi lại console (System.out / err) vào bộ nhớ đệm để xem trên panel. */
-    private void captureConsole() {
+    private static boolean captured;
+
+    /** Gọi ngay đầu main để log tải về có cả các dòng lúc khởi động (bản build, nạp dữ liệu...). */
+    public static synchronized void captureConsole() {
+        if (captured) {
+            return;
+        }
+        captured = true;
         System.setOut(new PrintStream(new TeeStream(System.out), true, StandardCharsets.UTF_8));
         System.setErr(new PrintStream(new TeeStream(System.err), true, StandardCharsets.UTF_8));
     }
@@ -403,8 +410,43 @@ public class PanelServer {
         }
 
         synchronized void add(String s) {
-            lines[(int) (count % lines.length)] = s.replaceAll("\u001B\\[[;\\d]*m", "");
+            String clean = s.replaceAll("\u001B\\[[;\\d]*m", "");
+            lines[(int) (count % lines.length)] = clean;
             count++;
+            toFile(clean);
+        }
+
+        // ghi thêm ra logs/console.log (giờ + dòng) để tải về xem lỗi lâu hơn 3000 dòng; quá 20 MB thì đổi thành console.log.1
+        private static final java.io.File FILE = new java.io.File("logs/console.log");
+        private static final long MAX_FILE = 20L * 1024 * 1024;
+        private java.io.Writer out;
+        private static final java.time.format.DateTimeFormatter TS = java.time.format.DateTimeFormatter.ofPattern("dd/MM HH:mm:ss");
+
+        private void toFile(String line) {
+            try {
+                if (out == null || FILE.length() > MAX_FILE) {
+                    if (out != null) {
+                        out.close();
+                        java.io.File old = new java.io.File("logs/console.log.1");
+                        old.delete();
+                        FILE.renameTo(old);
+                    }
+                    FILE.getParentFile().mkdirs();
+                    out = new java.io.OutputStreamWriter(new java.io.FileOutputStream(FILE, true), StandardCharsets.UTF_8);
+                }
+                out.write(LocalDateTime.now().format(TS) + " " + line + "\n");
+                out.flush();
+            } catch (IOException ignored) {
+            }
+        }
+
+        /** Toàn bộ dòng đang giữ trong bộ nhớ. */
+        synchronized List<String> all() {
+            List<String> l = new ArrayList<>();
+            for (long i = Math.max(0, count - lines.length); i < count; i++) {
+                l.add(lines[(int) (i % lines.length)]);
+            }
+            return l;
         }
 
         /** Các dòng có số thứ tự > since; trả về {next, lines}. */

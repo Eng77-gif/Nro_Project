@@ -343,6 +343,7 @@ public class PanelApi {
                 yield Map.of("ok", true);
             }
             case "logs" -> PanelServer.LOG.since(lng(q.getOrDefault("since", "0")));
+            case "logs/download" -> logDownload(str(q.get("kind")));
             case "audit" -> audit();
             case "sql" -> sql(str(b.get("query")));
             case "napthe" -> rows("select n.*, a.username from napthe n left join account a on a.id = n.user_nap order by n.id desc limit 300");
@@ -2278,6 +2279,59 @@ public class PanelApi {
         playerSave(Map.of());
         Maintenance.gI().startSeconds(sec);
         return Map.of("ok", true, "seconds", sec);
+    }
+
+    /** Tải log: kind = file (logs/console.log, tối đa 8 MB cuối, kèm console.log.1 nếu còn chỗ), errors (chỉ đoạn lỗi), còn lại 3000 dòng trong bộ nhớ. */
+    private Object logDownload(String kind) throws Exception {
+        List<String> lines;
+        if ("file".equals(kind) || "errors".equals(kind)) {
+            lines = new ArrayList<>();
+            long budget = 8L * 1024 * 1024;
+            for (String name : new String[]{"logs/console.log.1", "logs/console.log"}) {
+                File f = new File(name);
+                if (!f.isFile()) {
+                    continue;
+                }
+                try (java.io.RandomAccessFile r = new java.io.RandomAccessFile(f, "r")) {
+                    long start = Math.max(0, r.length() - budget);
+                    r.seek(start);
+                    byte[] buf = new byte[(int) (r.length() - start)];
+                    r.readFully(buf);
+                    String txt = new String(buf, StandardCharsets.UTF_8);
+                    if (start > 0) {
+                        txt = txt.substring(Math.max(0, txt.indexOf('\n') + 1)); // bỏ dòng bị cắt dở
+                    }
+                    lines.addAll(java.util.Arrays.asList(txt.split("\n")));
+                }
+            }
+            if (lines.size() > 400_000) {
+                lines = new ArrayList<>(lines.subList(lines.size() - 400_000, lines.size()));
+            }
+            if (lines.isEmpty()) {
+                lines = PanelServer.LOG.all(); // bản cũ chưa có file
+            }
+        } else {
+            lines = PanelServer.LOG.all();
+        }
+        if ("errors".equals(kind)) { // dòng có Exception / Error / lỗi + dòng "at ..." ngay sau, kèm 2 dòng trước để biết ngữ cảnh
+            List<String> err = new ArrayList<>();
+            int lastAdded = -1;
+            for (int i = 0; i < lines.size(); i++) {
+                String l = lines.get(i);
+                boolean hit = l.contains("Exception") || l.contains("Error") || l.contains("lỗi") || l.contains("Lỗi");
+                boolean trace = l.trim().startsWith("at ") || l.trim().startsWith("Caused by") || l.trim().startsWith("...");
+                if (hit || (trace && lastAdded == i - 1)) {
+                    for (int k = Math.max(lastAdded + 1, i - (hit ? 2 : 0)); k <= i; k++) {
+                        err.add(lines.get(k));
+                    }
+                    lastAdded = i;
+                }
+            }
+            lines = err;
+        }
+        String name = "nro_log_" + ("errors".equals(kind) ? "loi_" : "file".equals(kind) ? "day_du_" : "")
+                + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + ".txt";
+        return Map.of("name", name, "text", String.join("\n", lines), "lines", lines.size());
     }
 
     private Object audit() throws Exception {
