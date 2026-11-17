@@ -21,10 +21,24 @@ public class SystemMetrics {
         return String.format("%.0f%%", percentage);
     }
 
+    // Linux / Android: "free" không tính bộ nhớ đệm (cache) mà hệ điều hành trả lại được ngay -> máy trông như đầy RAM.
+    // Dùng MemAvailable trong /proc/meminfo nếu có.
+    private static long freeBytes(OperatingSystemMXBean osBean) {
+        try {
+            for (String l : java.nio.file.Files.readAllLines(java.nio.file.Paths.get("/proc/meminfo"))) {
+                if (l.startsWith("MemAvailable:")) {
+                    return Long.parseLong(l.replaceAll("[^0-9]", "")) * 1024;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return osBean.getFreeMemorySize();
+    }
+
     private static double getUsedMemoryGB() {
         OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         long totalMemory = osBean.getTotalMemorySize();
-        long freeMemory = osBean.getFreeMemorySize();
+        long freeMemory = freeBytes(osBean);
         long usedMemory = totalMemory - freeMemory;
         return (double) usedMemory / (1024 * 1024 * 1024);
     }
@@ -38,15 +52,14 @@ public class SystemMetrics {
     private static double getRAMUsagePercentage() {
         OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         long totalMemory = osBean.getTotalMemorySize();
-        long freeMemory = osBean.getFreeMemorySize();
+        long freeMemory = freeBytes(osBean);
         long usedMemory = totalMemory - freeMemory;
         return ((double) usedMemory / totalMemory) * 100;
     }
 
     private static double getCPUUsagePercentage() {
         OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        double cpuUsage = osBean.getCpuLoad() * 100;
-        return cpuUsage;
+        return osBean.getCpuLoad() * 100;  // < 0 khi không đọc được (Android chặn /proc/stat)
     }
 
     private static double getHeapUsedMemoryGB() {
@@ -71,6 +84,32 @@ public class SystemMetrics {
         return ((double) usedMemory / maxMemory) * 100;
     }
 
+    private static long lastCpu, lastWall;
+
+    // % CPU của server trên tổng số nhân, tính từ lần xem trước (lần đầu: trung bình từ lúc bật).
+    // Không dùng getProcessCpuLoad vì cần /proc/stat, Android chặn -> luôn -1.
+    private static synchronized String cpuServer() {
+        OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        long cpu = osBean.getProcessCpuTime(), wall = System.nanoTime();
+        if (cpu < 0) {
+            return "?";
+        }
+        long dCpu, dWall;
+        if (lastWall == 0) {
+            dCpu = cpu;
+            dWall = ManagementFactory.getRuntimeMXBean().getUptime() * 1_000_000L;
+        } else {
+            dCpu = cpu - lastCpu;
+            dWall = wall - lastWall;
+        }
+        lastCpu = cpu;
+        lastWall = wall;
+        if (dWall <= 0) {
+            return "?";
+        }
+        return formatPercentage(100.0 * dCpu / dWall / Runtime.getRuntime().availableProcessors());
+    }
+
     public static String ToString() {
         double usedMemory = getUsedMemoryGB();
         double totalMemory = getTotalMemoryGB();
@@ -87,7 +126,8 @@ public class SystemMetrics {
         String string = ("Máy: " + formatMemory(usedMemory, totalMemory) + " (" + formatPercentage(ramUsagePercentage) + ")\n"
                 + "Server: " + (heap.getUsed() / mb) + " MB dữ liệu, giữ " + ((heap.getCommitted() + nonHeap.getCommitted()) / mb)
                 + " MB, tối đa " + (heap.getMax() / mb) + " MB\n"
-                + "CPU: " + formatPercentage(cpuUsagePercentage) + "\n"
+                + "CPU: " + (cpuUsagePercentage >= 0 ? formatPercentage(cpuUsagePercentage) + " cả máy, " : "")
+                + "server " + cpuServer() + "\n"
                 + nro.models.network.netty.AntiDdos.stats() + "\n");
         return string;
     }
