@@ -269,6 +269,43 @@ public class Event2026Service {
         }
     }
 
+    /**
+     * Mở Hòm Halloween như video mẫu: hành trang vẫn mở, không hiện bảng quà; trời tối khoảng 2 giây, hòm (hiệu ứng 70) bật nắp
+     * trên đầu người mở ~3 giây, đàn ma (71) bay quanh; xong người mở nói "Bạn nhận được ...".
+     */
+    private static void halloweenOpen(Player pl, String got) {
+        darkSky(pl, true);
+        Service.gI().sendEffAllPlayer(pl, 70, 1, 2, 1, 1); // 2 lượt x 32 khung, đi theo người mở
+        nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 71, 3, 2, pl.location.x, pl.location.y - 40, 1);
+        java.util.concurrent.CompletableFuture.delayedExecutor(2000, java.util.concurrent.TimeUnit.MILLISECONDS).execute(() -> darkSky(pl, false));
+        java.util.concurrent.CompletableFuture.delayedExecutor(3000, java.util.concurrent.TimeUnit.MILLISECONDS).execute(() -> {
+            if (pl.zone != null && got != null) {
+                Service.gI().chat(pl, "Bạn nhận được " + got);
+            }
+        });
+    }
+
+    /** Trời tối cho riêng người mở: lệnh rồng thần (-83) với bản đồ -1 -> client chỉ đổi màu trời, không vẽ rồng. */
+    private static void darkSky(Player pl, boolean on) {
+        try {
+            nro.models.network.Message msg = new nro.models.network.Message(-83);
+            msg.writer().writeByte(on ? 0 : 1);
+            if (on) {
+                msg.writer().writeShort(-1); // bản đồ không tồn tại
+                msg.writer().writeShort(pl.zone.map.bgId);
+                msg.writer().writeByte(0);
+                msg.writer().writeInt(-1); // không phải người gọi rồng
+                msg.writer().writeUTF("null");
+                msg.writer().writeShort(pl.location.x);
+                msg.writer().writeShort(pl.location.y);
+                msg.writer().writeByte(0);
+            }
+            pl.sendMessage(msg);
+            msg.cleanup();
+        } catch (Exception ignored) {
+        }
+    }
+
     private static final int HOM_HALLOWEEN = 1116;
 
     public boolean isBox(Item item) {
@@ -289,24 +326,7 @@ public class Event2026Service {
             InventoryService.gI().subQuantityItemsBag(pl, box, 1);
             InventoryService.gI().sendItemBags(pl);
             if (boxId == HOM_HALLOWEEN && pl.zone != null) {
-                // Hòm Halloween: đóng hành trang -> hiệu ứng mở như Capsule kì bí (hòm -> quà) -> hiệu ứng 70 (hòm bật nắp)
-                // -> gần hết 70 (32 khung, ~1,6 giây) chuyển sang 71 (đàn ma bay); 70 / 71 cả map thấy
-                Service.gI().ClosePanel(pl);
-                if (icon[0] >= 0) {
-                    nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, icon[0]);
-                }
-                java.util.concurrent.Executor at70 = java.util.concurrent.CompletableFuture.delayedExecutor(2500, java.util.concurrent.TimeUnit.MILLISECONDS);
-                java.util.concurrent.Executor at71 = java.util.concurrent.CompletableFuture.delayedExecutor(2500 + 1300, java.util.concurrent.TimeUnit.MILLISECONDS);
-                at70.execute(() -> {
-                    if (pl.zone != null) {
-                        nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 70, 3, 1, pl.location.x, pl.location.y, 1);
-                    }
-                });
-                at71.execute(() -> {
-                    if (pl.zone != null) {
-                        nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 71, 3, 1, pl.location.x, pl.location.y - 30, 1);
-                    }
-                });
+                halloweenOpen(pl, got);
             } else if (icon[0] >= 0) {
                 // hiệu ứng mở giống Capsule kì bí: icon hộp -> icon quà
                 nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, icon[0]);

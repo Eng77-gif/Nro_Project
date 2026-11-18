@@ -211,19 +211,54 @@ public class Zombie extends Boss {
     }
 
     /** Dùng Rađa dò Zombie: hiện vị trí các zombie đang lang thang. */
+    public static final int MENU_RADA = 31720400;
+    private static final java.util.Map<Long, Zombie> RADA_TARGET = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Rađa dò Zombie: hỏi "Đã tìm thấy Boss Zombie, bạn có muốn đến đó ngay?"; Đồng ý thì dịch chuyển tới chỗ Zombie và mất 1 rađa. */
     public static void radar(Player pl, Item rada) {
-        List<String> lines = new ArrayList<>();
+        Zombie found = null;
         for (Boss b : HalloweenEventManager.gI().getBosses()) {
             if (b instanceof Zombie z && z.zone != null && !z.isDie()) {
-                lines.add(z.name + ": " + z.zone.map.mapName + " khu " + z.zone.zoneId);
+                found = z;
+                if (z.zone.map.mapId == pl.zone.map.mapId) { // cùng bản đồ thì ưu tiên
+                    break;
+                }
             }
         }
-        if (lines.isEmpty()) {
+        if (found == null) {
             Service.gI().sendThongBao(pl, isZombieTime() ? "Không dò thấy Zombie nào" : "Zombie chỉ xuất hiện từ " + START_HOUR + "h đến " + END_HOUR + "h");
             return;
         }
+        RADA_TARGET.put(pl.id, found);
+        NpcService.gI().createMenuConMeo(pl, MENU_RADA, -1, "Đã tìm thấy Boss Zombie, bạn có muốn đến đó ngay ?", "Đồng ý", "Từ chối");
+    }
+
+    /** Trả lời menu rađa (NpcFactory gọi); true nếu đã xử lý. */
+    public static boolean confirmMenu(Player pl, int menu, int select) {
+        if (menu != MENU_RADA) {
+            return false;
+        }
+        Zombie z = RADA_TARGET.remove(pl.id);
+        if (select != 0 || z == null) {
+            return true;
+        }
+        Item rada = InventoryService.gI().findItemBag(pl, RADA);
+        if (rada == null) {
+            Service.gI().sendThongBao(pl, "Không còn Rađa dò Zombie");
+            return true;
+        }
+        if (z.zone == null || z.isDie()) {
+            Service.gI().sendThongBao(pl, "Zombie đã bị tiêu diệt");
+            return true;
+        }
+        Zone to = ChangeMapService.gI().checkMapCanJoin(pl, z.zone);
+        if (to == null) {
+            Service.gI().sendThongBao(pl, "Không thể đến khu vực đó lúc này");
+            return true;
+        }
         InventoryService.gI().subQuantityItemsBag(pl, rada, 1);
         InventoryService.gI().sendItemBags(pl);
-        NpcService.gI().createTutorial(pl, -1, "Rađa dò Zombie (" + lines.size() + " con)\n" + String.join("\n", lines.subList(0, Math.min(20, lines.size()))));
+        ChangeMapService.gI().changeMapYardrat(pl, to, z.location.x + Util.nextInt(-30, 30), z.location.y);
+        return true;
     }
 }

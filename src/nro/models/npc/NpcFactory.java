@@ -281,6 +281,9 @@ public class NpcFactory {
                 if (nro.models.services.shenron.RongXuong.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
                     return;
                 }
+                if (nro.models.boss.event.Halloween.Zombie.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
+                    return;
+                }
                 if (nro.models.services.shenron.RongThanSieuCap.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
                     return;
                 }
@@ -349,6 +352,9 @@ public class NpcFactory {
                     return;
                 }
                 if (nro.models.services.shenron.RongXuong.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
+                    return;
+                }
+                if (nro.models.boss.event.Halloween.Zombie.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
                     return;
                 }
                 if (nro.models.services.shenron.RongThanSieuCap.confirmMenu(player, player.idMark.getIndexMenu(), select)) {
