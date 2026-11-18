@@ -139,7 +139,7 @@ public class ChatGlobalService implements Runnable {
             msg.writer().writeUTF("|5|" + chat.text);
             msg.writer().writeInt((int) chat.playerId);
             msg.writer().writeShort(chat.head);
-            msg.writer().writeShort(-1);
+            msg.writer().writeShort(chat.headIcon); // ô avatar danh sách tin nhắn (-1: client lấy ảnh đầu)
             msg.writer().writeShort(chat.body);
             msg.writer().writeShort(chat.bag); //bag
             msg.writer().writeShort(chat.leg);
@@ -155,6 +155,7 @@ public class ChatGlobalService implements Runnable {
         public String playerName;
         public int playerId;
         public short head;
+        public short headIcon = -1;
         public short body;
         public short leg;
         public short bag;
@@ -170,13 +171,13 @@ public class ChatGlobalService implements Runnable {
                 this.playerName = player.name + " - Quản Trị Viên";
             }
             this.playerId = (int) player.id;
-            // hoá hình Halloween: đầu hoá hình là ảnh trong suốt (con vật vẽ ở thân) nên ô avatar trống.
-            // Đổi sang đầu riêng có hình con vật (Dot139Migration): Ma trơi 651 -> 2391, Dơi 654 -> 2392,
-            // Bí ngô 760 -> 2394, bánh bao 1488 -> 2397 (2395 cũ: client J2ME còn nhớ avatar bánh dầy)
             short h = player.getHead();
             short bd = player.getBody();
-            this.head = h == 651 ? 2391 : h == 654 ? 2392 : h == 760 ? 2394 : h == 1488 ? 2397 : h;
-            this.body = this.head != h ? 2396 : bd; // đang hoá hình: thân trong suốt, chỉ còn con vật ở đầu
+            // hoá hình Halloween: đầu thật trong suốt (con vật vẽ ở thân) nên ô avatar danh sách trống -> gửi ảnh con vật
+            // làm headICON (ảnh nhỏ của đầu 2391 / 2392 / 2394 / 2397); đầu / thân / chân giữ nguyên để bấm vào tin nhắn thấy cả nhân vật đang hoá hình
+            this.head = h;
+            this.body = bd;
+            this.headIcon = (short) (h == 651 ? 17531 : h == 654 ? 17532 : h == 760 ? 7060 : h == 1488 ? 13440 : -1);
             this.leg = player.getLeg();
             this.bag = -1; // chat thế giới chỉ hiện cải trang + avatar, không hiện đeo lưng / pet
             this.text = text;

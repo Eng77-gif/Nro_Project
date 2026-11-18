@@ -2584,3 +2584,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Hòm Halloween (1116): mở hòm phát hiệu ứng 70 (hòm bật nắp, ma bay ra) + 71 (đàn ma) tại chỗ người mở (cả map thấy), bảng quà hiện sau 1,5 giây.
 - Hòm Halloween: thứ tự mở = đóng hành trang -> hiệu ứng mở như Capsule kì bí (hòm -> quà) -> hiệu ứng 70 (sau 2,5 giây) -> gần hết 70 chuyển sang 71 (sau thêm 1,3 giây).
 - Hòm Halloween chỉ thấy hiệu ứng 71, không thấy 70: dữ liệu hiệu ứng 70 dùng toạ độ ảnh 2 byte (ảnh rộng > 255) nhưng server chỉ báo kiểu 2 byte cho hiệu ứng 60 -> client đọc sai, không vẽ. Nay tự nhận kiểu dữ liệu theo file (60, 62, 63, 65, 70 là kiểu 2 byte).
+- Chat thế giới: bấm vào tin nhắn của người đang hoá hình (Ma trơi, Dơi, Bí ngô, bánh bao) hiện cả nhân vật hoá hình thay vì chỉ avatar: gửi đầu / thân / chân thật, avatar con vật trong danh sách đi qua trường headICON.
