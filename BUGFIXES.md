@@ -2588,3 +2588,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Hòm Halloween làm theo video mẫu: hành trang không đóng, không hiện bảng quà; trời tối ~2 giây, hòm (hiệu ứng 70) bật nắp trên đầu người mở ~3 giây, đàn ma (71) bay quanh; xong nhân vật nói "Bạn nhận được <quà>". Rađa dò Zombie: hỏi "Đã tìm thấy Boss Zombie, bạn có muốn đến đó ngay ?" Đồng ý / Từ chối, Đồng ý thì dịch chuyển tới Zombie và mất 1 rađa (trước chỉ hiện danh sách).
 - Hòm Halloween: hiệu ứng 70 hiện dưới chân khi gắn vào nhân vật -> trả về hiệu ứng bản đồ đặt tại người mở (hòm trên đầu như trước), 2 lượt.
 - Zombie (sự kiện Halloween) xuất hiện cả ngày thay vì chỉ 21h - 22h.
+- Hòm Halloween: video cho thấy chỉ có trời tối, không thấy hòm (70) và ma (71) -> gửi hiệu ứng với loop 2 thì client không vẽ; trả về loop 1 (như lần hòm hiện trên đầu) và phát lại lần 2 sau 1,5 giây.
