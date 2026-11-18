@@ -27,13 +27,13 @@ import nro.models.utils.Logger;
 import nro.models.utils.Util;
 
 /**
- * Đại chiến Zombie (sự kiện Halloween): từ 21h00 đến 22h00 mỗi ngày zombie lang thang ở khu 2 trở lên,
+ * Đại chiến Zombie (sự kiện Halloween): cả ngày zombie lang thang ở khu 2 trở lên,
  * cắn ai thì người đó hóa bộ xương trong 5 phút. Cần hợp lực để hạ (mỗi đòn chỉ trừ tối đa 1% máu),
  * người hạ nhận 1 phần quà ngẫu nhiên (có Cá Koi zombie, cải trang bộ xương hạn sử dụng hoặc vĩnh viễn).
  */
 public class Zombie extends Boss {
 
-    public static final int START_HOUR = 21, END_HOUR = 22;
+    public static final int START_HOUR = 0, END_HOUR = 24; // xuất hiện cả ngày (trước 21h - 22h)
     public static final int REWARD_POOL = 100703; // box_id trong item_box_reward
     public static final int RADA = 1737;
     private static final int INFECT_MS = 300_000;

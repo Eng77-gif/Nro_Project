@@ -2587,3 +2587,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Chat thế giới: bấm vào tin nhắn của người đang hoá hình (Ma trơi, Dơi, Bí ngô, bánh bao) hiện cả nhân vật hoá hình thay vì chỉ avatar: gửi đầu / thân / chân thật, avatar con vật trong danh sách đi qua trường headICON.
 - Hòm Halloween làm theo video mẫu: hành trang không đóng, không hiện bảng quà; trời tối ~2 giây, hòm (hiệu ứng 70) bật nắp trên đầu người mở ~3 giây, đàn ma (71) bay quanh; xong nhân vật nói "Bạn nhận được <quà>". Rađa dò Zombie: hỏi "Đã tìm thấy Boss Zombie, bạn có muốn đến đó ngay ?" Đồng ý / Từ chối, Đồng ý thì dịch chuyển tới Zombie và mất 1 rađa (trước chỉ hiện danh sách).
 - Hòm Halloween: hiệu ứng 70 hiện dưới chân khi gắn vào nhân vật -> trả về hiệu ứng bản đồ đặt tại người mở (hòm trên đầu như trước), 2 lượt.
+- Zombie (sự kiện Halloween) xuất hiện cả ngày thay vì chỉ 21h - 22h.
