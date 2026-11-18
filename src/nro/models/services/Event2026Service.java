@@ -275,7 +275,8 @@ public class Event2026Service {
      */
     private static void halloweenOpen(Player pl, String got) {
         darkSky(pl, true);
-        Service.gI().sendEffAllPlayer(pl, 70, 1, 2, 1, 1); // 2 lượt x 32 khung, đi theo người mở
+        // hiệu ứng bản đồ đặt tại người mở thì hòm nằm trên đầu (gắn vào nhân vật -128 thì client vẽ dưới chân); 2 lượt ~3 giây
+        nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 70, 3, 2, pl.location.x, pl.location.y, 1);
         nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 71, 3, 2, pl.location.x, pl.location.y - 40, 1);
         java.util.concurrent.CompletableFuture.delayedExecutor(2000, java.util.concurrent.TimeUnit.MILLISECONDS).execute(() -> darkSky(pl, false));
         java.util.concurrent.CompletableFuture.delayedExecutor(3000, java.util.concurrent.TimeUnit.MILLISECONDS).execute(() -> {
