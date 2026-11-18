@@ -279,7 +279,7 @@ public class Event2026Service {
         // loop phải là 1 (loop 2 client không vẽ gì) -> phát lại lần 2 sau 1,5 giây cho đủ ~3 giây
         Runnable fx = () -> {
             if (pl.zone != null) {
-                nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 70, 3, 1, pl.location.x, pl.location.y, 1);
+                nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 70, 3, 1, pl.location.x - 25, pl.location.y - 70, 1); // hòm trên đầu (đặt tại chân thì client vẽ cạnh chân, lệch phải)
                 nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(pl.zone, 71, 3, 1, pl.location.x, pl.location.y - 30, 1);
             }
         };
