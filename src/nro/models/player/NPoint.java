@@ -789,7 +789,7 @@ public class NPoint {
     private static final int[][] DR_SLUM = {{612, 914, 1982}, {613}, {614}};
     private static final int[][] POC_PIC_KONG = {{583, 913, 1235, 1886, 1952, 2086}, {633, 1234, 1396}, {634, 1236}};
     private static final int[] MABU_MAP = {937, 974, 1601};
-    private static final int[] DEMONS_FROST = {629, 630, 631, 632, 878, 879, 1205, 1599, 1839, 1913};
+    private static final int[] DEMONS_FROST = {629, 630, 631, 632, 878, 879, 1205, 1599, 1913};
     private static final int[][] CAU_THU = {{968}, {969}, {970}, {971}, {972}, {973}, {974}, {975}, {976}, {977}, {978}};
     private static final int[][] THO = {{1041}, {1042}, {1043}};
     private static final int[][] HAU_GAI = {{1503}, {1504}, {1512}};
@@ -800,7 +800,7 @@ public class NPoint {
     /** Bunma tóc xanh neon / nâu băng đô / tím thắt bím: mô tả "+3% sức đánh, tối đa 10% khi ở gần Bunma tóc xanh, nâu, tím mới". */
     private static final int[][] BUNMA_TOC = {{1208}, {1209}, {1210}};
     private static final int CT_TAU_PAY_PAY = 284, COT_NHA = 744, GHE_BAY = 795;
-    private static final int[] NHA_FIDE = {629, 630, 631, 632, 878, 879, 1599, 1839, 1913};
+    private static final int[] NHA_FIDE = {629, 630, 631, 632, 878, 879, 1599, 1913};
 
     private static boolean in(int[] arr, int v) {
         for (int x : arr) {

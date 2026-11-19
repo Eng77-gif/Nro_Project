@@ -455,6 +455,16 @@ public class Dot139Migration {
             }
             update(con, "insert into server_migration (name) values ('nhs_ct_giam_st')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'ct_khong_hinh'")) {
+            // 8 cải trang chưa từng có hình (ảnh 1x1 đen, không đầu / thân / chân), không nơi nào phát: giữ dòng (mã = vị trí) dạng vật phẩm đã gỡ
+            String ids = "1839, 1849, 1905, 1908, 1911, 1912, 2062, 2063";
+            update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1, head = -1, body = -1, leg = -1 where id in (" + ids + ")");
+            update(con, "delete from item_template_option where template_id in (" + ids + ")");
+            update(con, "delete from item_shop where temp_id in (" + ids + ")");
+            update(con, "delete from item_box_reward where item_id in (" + ids + ")");
+            update(con, "delete from shop_ky_gui where item_id in (" + ids + ")");
+            update(con, "insert into server_migration (name) values ('ct_khong_hinh')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
             update(con, "insert into server_migration (name) values ('event_items_1116e')");

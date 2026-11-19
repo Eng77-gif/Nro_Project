@@ -1260,7 +1260,7 @@ public class PanelApi {
         List<Map<String, Object>> out = new ArrayList<>();
         String k = kw.toLowerCase(), kv = noAccent(k); // gõ không dấu cũng tìm được ("thoi vang" -> Thỏi vàng)
         for (ItemTemplate t : Manager.ITEM_TEMPLATES) {
-            if (t == null || t.name == null) {
+            if (t == null || t.name == null || t.name.startsWith("Vật phẩm đã gỡ") || t.name.startsWith("Vật phẩm đã xoá")) { // ô giữ chỗ (mã = vị trí)
                 continue;
             }
             if (!type.isEmpty() && !String.valueOf(t.type).equals(type)) {
