@@ -79,11 +79,27 @@ public class RongThanSieuCap {
         }
     }
 
+    /** Hình rồng siêu cấp: 60 lúc hiện (rồng đen vàng + sét tím), sau đó 61 (rồng đứng yên). */
+    public static final int EFFECT_APPEAR = 60, EFFECT_IDLE = 61;
+    private static final Map<Long, nro.models.map.Zone> dragonZone = new ConcurrentHashMap<>();
+    private static final java.util.concurrent.ScheduledExecutorService FX = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "rong-sieu-cap");
+        t.setDaemon(true);
+        return t;
+    });
+
+    /**
+     * Như Rồng Băng: lệnh gọi rồng loại 1 (client: quả cầu sáng, chớp trắng, trời tối, vẽ hiệu ứng 25) và zone.shenronType = mã hình
+     * để client xin hiệu ứng 25 thì nhận hình 60 / 61 (Controller -66). Đẩy luôn hình cho người trong khu phòng client đã nhớ hình rồng cũ;
+     * rồng đi thì trả lại hình gốc 25.
+     */
     private static void sendDragon(Player pl, boolean appear) {
         try {
             Message msg = new Message(-83);
             msg.writer().writeByte(appear ? 0 : 1);
             if (appear) {
+                pl.zone.shenronType = EFFECT_APPEAR;
+                dragonZone.put(pl.id, pl.zone);
                 msg.writer().writeShort(pl.zone.map.mapId);
                 msg.writer().writeShort(pl.zone.map.bgId);
                 msg.writer().writeByte(pl.zone.zoneId);
@@ -91,12 +107,36 @@ public class RongThanSieuCap {
                 msg.writer().writeUTF("null");
                 msg.writer().writeShort(pl.location.x);
                 msg.writer().writeShort(pl.location.y);
-                msg.writer().writeByte(0); // hình Rồng thần
+                msg.writer().writeByte(1); // loại 1: client vẽ hiệu ứng 25 (đã đổi hình thành 60 / 61)
             }
             Service.gI().sendMessAllPlayerInMap(pl, msg);
             msg.cleanup();
             pl.isShenronAppear = appear;
         } catch (Exception ignored) {
+        }
+        final nro.models.map.Zone z = appear ? dragonZone.get(pl.id) : dragonZone.remove(pl.id);
+        if (z == null) {
+            return;
+        }
+        if (appear) {
+            FX.schedule(() -> pushEffect25(z, EFFECT_APPEAR), 2_500, java.util.concurrent.TimeUnit.MILLISECONDS);
+            FX.schedule(() -> { // hiện xong (sét tắt) thì rồng đứng yên
+                if (z.shenronType == EFFECT_APPEAR) {
+                    z.shenronType = EFFECT_IDLE;
+                    pushEffect25(z, EFFECT_IDLE);
+                }
+            }, 6_000, java.util.concurrent.TimeUnit.MILLISECONDS);
+        } else {
+            z.shenronType = -1;
+            FX.schedule(() -> pushEffect25(z, 25), 2_500, java.util.concurrent.TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private static void pushEffect25(nro.models.map.Zone z, int img) {
+        for (Player p : z.getPlayers()) {
+            if (p != null && p.isPl() && p.getSession() != null) {
+                nro.models.data.DataGame.sendEffectTemplate(p.getSession(), 25, img);
+            }
         }
     }
 

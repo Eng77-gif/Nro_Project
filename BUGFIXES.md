@@ -2590,3 +2590,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Zombie (sự kiện Halloween) xuất hiện cả ngày thay vì chỉ 21h - 22h.
 - Hòm Halloween: video cho thấy chỉ có trời tối, không thấy hòm (70) và ma (71) -> gửi hiệu ứng với loop 2 thì client không vẽ; trả về loop 1 (như lần hòm hiện trên đầu) và phát lại lần 2 sau 1,5 giây.
 - Hòm Halloween: hòm (70) hiện cạnh chân lệch phải -> dời lên trên đầu (x - 25, y - 70) như video mẫu.
+- Rồng thần siêu cấp gọi như Rồng Băng (lệnh gọi rồng loại 1: quả cầu sáng, chớp trắng, trời tối, tự đóng hành trang) nhưng hình rồng là hiệu ứng 60 (rồng đen vàng + sét tím) lúc hiện, sau 6 giây chuyển 61 (rồng đứng yên); rồng đi thì trả hình gốc.
