@@ -1902,6 +1902,19 @@ public class SeasonEventService implements Runnable {
 
     // ------------------------------------------------------------------ bảng "Nhận thưởng Sự kiện Đua Top" (shop loại 4: Nhận / Xoá / Nhận tất)
     public static final String SHOP_TOP_REWARD = "SK_TOPREWARD";
+    /** Quà đua top: Sao pha lê vàng lấp lánh của top Hộp quà 20-11 (top vàng) là 10% (top 1) / 9% (top 2) vàng từ quái. */
+    private Item topRewardItem(int item, int qty, int days, int topId, int rank) {
+        Item it = Event2026Service.gI().createItem(item, qty, days);
+        if (item == 1431 && topId == 801) {
+            for (Item.ItemOption o : it.itemOptions) {
+                if (o.optionTemplate != null && o.optionTemplate.id == 100) {
+                    o.param = rank <= 1 ? 10 : 9;
+                }
+            }
+        }
+        return it;
+    }
+
     /** playerId -> id dòng season_event_reward_item theo đúng thứ tự đang hiện */
     private final Map<Long, List<Long>> rewardBoxOpen = new ConcurrentHashMap<>();
 
@@ -2009,7 +2022,7 @@ public class SeasonEventService implements Runnable {
                 int tempId = item == -1 ? 190 : item == -2 ? 77 : item == -3 ? 861 : item;
                 Top t = tops.get((int) r[1]);
                 String topName = t == null ? "EVENT " + r[1] : t.name.replace("\n", " ");
-                Item it = item >= 0 ? Event2026Service.gI().createItem(item, 1, (int) r[5]) : null;
+                Item it = item >= 0 ? topRewardItem(item, 1, (int) r[5], (int) r[1], (int) r[2]) : null;
                 msg.writer().writeShort(tempId);
                 msg.writer().writeUTF("Cách nhận: Đua Top nhận\n|1|TOP #" + r[2] + " " + topName + (r[4] > 1 ? " (x" + Util.numberToMoney(r[4]) + ")" : ""));
                 List<Item.ItemOption> opts = it != null ? it.itemOptions : new ArrayList<>();
@@ -2059,12 +2072,12 @@ public class SeasonEventService implements Runnable {
             try (Connection con = LocalManager.getConnection()) {
                 for (long id : todo) {
                     long[] r = null;
-                    try (PreparedStatement ps = con.prepareStatement("select item_id, qty, days from season_event_reward_item where id = ? and player_id = ?")) {
+                    try (PreparedStatement ps = con.prepareStatement("select item_id, qty, days, top_id, rank_no from season_event_reward_item where id = ? and player_id = ?")) {
                         ps.setLong(1, id);
                         ps.setLong(2, pl.id);
                         try (ResultSet rs = ps.executeQuery()) {
                             if (rs.next()) {
-                                r = new long[]{rs.getInt(1), rs.getInt(2), rs.getInt(3)};
+                                r = new long[]{rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5)};
                             }
                         }
                     }
@@ -2076,7 +2089,7 @@ public class SeasonEventService implements Runnable {
                         if (item < 0) {
                             Event2026Service.gI().giveCurrency(pl, item, (int) r[1]);
                         } else {
-                            Item it = Event2026Service.gI().createItem(item, (int) r[1], (int) r[2]);
+                            Item it = topRewardItem(item, (int) r[1], (int) r[2], (int) r[3], (int) r[4]);
                             boolean stack = it.template.isUpToUp && InventoryService.gI().findItemBag(pl, item) != null;
                             if (!stack && InventoryService.gI().getCountEmptyBag(pl) <= 0) {
                                 Service.gI().sendThongBao(pl, "Hành trang đã đầy");

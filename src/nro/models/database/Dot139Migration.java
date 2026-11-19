@@ -560,6 +560,11 @@ public class Dot139Migration {
         }
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8");
+        if (!exists(con, "select 1 from server_migration where name = 'top_2011_spl'")) {
+            // top Hộp quà 20-11 (vàng): top 1 Sao pha lê lấp lánh 10% vàng, top 2 9% vàng (chỉ số đặt lúc nhận quà, SeasonEventService.topRewardItem)
+            update(con, "insert into season_event_top_reward (top_id, rank_from, rank_to, item_id, qty, hsd_days, min_point) values (801, 1, 1, 1431, 1, '', 0), (801, 2, 2, 1431, 1, '', 0)");
+            update(con, "insert into server_migration (name) values ('top_2011_spl')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'box_2011'")) {
             // quà hộp theo ảnh 20/11 (item:qtyMin-qtyMax:weight:hsd:perm%:bảo hiểm); Gohan SSJ (đệ tử) chưa có trong data
             String[][] boxes = {
