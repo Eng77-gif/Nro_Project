@@ -452,38 +452,57 @@ public class NgocRongNamecService implements Runnable {
     }
 
     //Rồng Thần đã xuất hiện, không thể nhặt ngọc được nữa
-    /** Viên ngọc Namếc thứ i đang ở đâu: "map khu z" (nằm dưới đất) hoặc "map khu z (người cầm)"; null nếu chưa xuất hiện. */
-    private String where(int i) {
-        try {
-            Player holder = idpNrNamec[i] == -1 ? null : Client.gI().getPlayer(idpNrNamec[i]);
-            if (holder != null && holder.zone != null) {
-                return holder.zone.map.mapName + " khu " + holder.zone.zoneId + " (" + holder.name + " đang cầm)";
-            }
-            if (mapNrNamec[i] >= 0 && zoneNrNamec[i] >= 0) {
-                return Manager.MAPS.get(mapNrNamec[i]).mapName + " khu " + zoneNrNamec[i];
-            }
-        } catch (Exception ignored) {
-        }
-        return null;
-    }
+    public static final int TELE_GEM = 10, TELE_GOLD = 100_000;
 
     /**
-     * Rađa dò ngọc: liệt kê map, khu của 7 viên ngọc rồng Namếc (ai đang cầm), chọn viên muốn dịch chuyển tới (miễn phí,
-     * rađa đã tốn 1 cái khi dùng).
+     * Rađa dò ngọc (như bản gốc): mỗi dòng "N Sao:map (khoảng cách m)(người cầm)", nút "Đến ngay Viên N Sao" trả 10 ngọc
+     * hoặc 100k vàng tới viên sao nhỏ nhất đang có (không tính viên mình cầm), "Kết thúc".
      */
     public void menuCheckTeleNamekBall(Player pl) {
-        StringBuilder sb = new StringBuilder("Rađa dò ngọc rồng Namếc\n");
-        java.util.List<String> buttons = new java.util.ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        int target = -1;
         for (int i = 0; i < 7; i++) {
-            String w = where(i);
-            sb.append(i + 1).append(" sao: ").append(w == null ? "chưa xuất hiện" : w).append("\n");
-            buttons.add("Đến\n" + (i + 1) + " sao");
+            String line = getDis(pl, i, (short) (353 + i));
+            String holder = pNrNamec[i];
+            if (idpNrNamec[i] != -1 && holder != null && !holder.isEmpty() && !line.contains("(" + holder + ")")) {
+                line += "(" + holder + ")";
+            }
+            sb.append(line).append("\n");
+            if (target < 0 && idpNrNamec[i] != pl.id && (mapNrNamec[i] >= 0 || idpNrNamec[i] != -1)) {
+                target = i;
+            }
         }
-        buttons.add("Đóng");
-        if (pl.idNRNM != -1) { // đang cầm ngọc Namếc thì không dịch chuyển được
-            NpcService.gI().createMenuConMeo(pl, ConstNpc.CONFIRM_TELE_NAMEC, 2294, sb.toString().trim() + "\nĐang cầm ngọc, không thể dịch chuyển", "Đóng");
+        String text = sb.toString().trim();
+        if (pl.idNRNM != -1 || target < 0) { // đang cầm ngọc Namếc thì không dịch chuyển được
+            NpcService.gI().createMenuConMeo(pl, ConstNpc.CONFIRM_TELE_NAMEC, 2294, text, "Kết thúc");
+            pl.idGo = -1;
             return;
         }
-        NpcService.gI().createMenuConMeo(pl, ConstNpc.CONFIRM_TELE_NAMEC, 2294, sb.toString().trim(), buttons.toArray(new String[0]));
+        pl.idGo = (short) target;
+        String v = "Viên " + (target + 1) + " Sao";
+        NpcService.gI().createMenuConMeo(pl, ConstNpc.CONFIRM_TELE_NAMEC, 2294, text,
+                "Đến ngay\n" + v + "\n" + TELE_GEM + " ngọc", "Đến ngay\n" + v + "\n100k vàng", "Kết thúc");
+    }
+
+    /** Nút trong rađa: 0 = 10 ngọc, 1 = 100k vàng. */
+    public void confirmTele(Player pl, int select) {
+        if (pl.idGo < 0 || pl.idGo > 6 || pl.idNRNM != -1 || (select != 0 && select != 1)) {
+            return;
+        }
+        if (select == 0) {
+            if (pl.inventory.gem < TELE_GEM) {
+                Service.gI().sendThongBao(pl, "Bạn không đủ " + TELE_GEM + " ngọc");
+                return;
+            }
+            pl.inventory.gem -= TELE_GEM;
+        } else {
+            if (pl.inventory.gold < TELE_GOLD) {
+                Service.gI().sendThongBao(pl, "Bạn không đủ 100k vàng");
+                return;
+            }
+            pl.inventory.gold -= TELE_GOLD;
+        }
+        Service.gI().sendMoney(pl);
+        teleportToNrNamec(pl);
     }
 }
