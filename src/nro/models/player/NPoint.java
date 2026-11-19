@@ -795,6 +795,8 @@ public class NPoint {
     private static final int[][] HAU_GAI = {{1503}, {1504}, {1512}};
     /** Cải trang Hải Tặc Tí Hon (One Piece): Luffy, Zoro, Sanji, Brook, Chopper, Nami, Franky, Usopp, Robin (628 Cải trang Hải Tặc là hộp mở ra 1 món). */
     private static final int[][] HAI_TAC = {{618}, {619}, {620}, {621}, {622}, {623}, {624}, {625}, {626}};
+    /** Nhóm Đôrêmon: Đôrêmon, Xuka (2 mã), Nobita, Xekô, Chaien - option 176 "Ở gần đủ 5 loại +20% sức đánh +50% tốc độ chạy". */
+    private static final int[][] DOREMON = {{806}, {819, 1992}, {862}, {863}, {864}};
     /** Bunma tóc xanh neon / nâu băng đô / tím thắt bím: mô tả "+3% sức đánh, tối đa 10% khi ở gần Bunma tóc xanh, nâu, tím mới". */
     private static final int[][] BUNMA_TOC = {{1208}, {1209}, {1210}};
     private static final int CT_TAU_PAY_PAY = 284, COT_NHA = 744, GHE_BAY = 795;
@@ -893,6 +895,10 @@ public class NPoint {
                 int n = Math.min(8, otherKindsNear(HAI_TAC, near));
                 d += n * optParam(ct, 147);
                 sp += n * optParam(ct, 148);
+            }
+            if (ct.getOptionById(176) != null && otherKindsNear(DOREMON, near) >= 4) { // đủ 5 loại (mình + 4 loại khác)
+                d += 20;
+                sp += 50;
             }
             if (in(new int[]{1208, 1209, 1210}, ct.template.id)) { // dòng mô tả (không có option riêng)
                 d += Math.min(10, 3 * otherKindsNear(BUNMA_TOC, near));

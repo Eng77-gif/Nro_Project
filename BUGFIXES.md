@@ -2601,3 +2601,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - CT Hải Tặc Tí Hon: chỉ số tăng đều theo số CT Hải Tặc khác loại ở gần, đủ 8 loại khác = tối đa 49% sức đánh, 108% tốc độ chạy (1 loại: 11% / 24%, 4 loại: 27% / 60%). Mô tả 628 trả về như data gốc "Cải trang Hải Tặc Tí Hon".
 - CT Hải Tặc Tí Hon: tối đa 48% sức đánh (không phải 49%), tốc độ chạy vẫn 108%.
 - CT Hải Tặc Tí Hon: sức đánh tăng 5-10-15-20-25-30-35-40-45% (mỗi loại Hải Tặc khác ở gần +5%, đủ 8 loại = 45%), tốc độ chạy 12% mỗi bậc tới 108%.
+- Nhóm Đôrêmon theo ảnh: Xekô 863 HP+20% KI+20%, Chaien 864 SĐ+20% HP+5%, Đôrêmon 806 giáp 20% + 10% né, Nobita 862 chí mạng 5% + SĐ 15%, Xuka 1992 như Xuka 819; dòng set (Ở gần đủ 5 loại +20% sức đánh +50% tốc độ chạy) nay có hiệu lực: người mặc 1 món nhóm Đôrêmon đứng gần đủ 4 loại còn lại thì +20% SĐ, +50% tốc độ chạy.

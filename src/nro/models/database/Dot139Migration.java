@@ -307,6 +307,13 @@ public class Dot139Migration {
         {{625}, {147, 5}, {148, 12}, {149, 0}},
         {{626}, {147, 5}, {148, 12}, {149, 0}},
     };
+    /** Đợt 11 (ảnh anh gửi): nhóm Đôrêmon, kèm dòng set 176 (đủ 5 loại +20% SĐ +50% tốc độ chạy). Xuka 819 đã có ở đợt 8. */
+    static final int[][][] EVENT_ITEMS11 = {
+        {{863}, {77, 20}, {103, 20}, {176, 0}}, // Cải trang Xekô
+        {{864}, {50, 20}, {77, 5}, {176, 0}}, // Cải trang Chaien
+        {{806}, {94, 20}, {108, 10}, {176, 0}}, // Cải trang Đôrêmon: giáp 20%, 10% né đòn
+        {{862}, {14, 5}, {50, 15}, {176, 0}}, // Cải trang Nobita: chí mạng 5%, sức đánh 15%
+        {{1992}, {117, 10}, {80, 6}, {176, 0}}}; // Cải trang Xuka (mã 2) như Xuka 819
     /** Đợt 8 (ảnh anh gửi 19/11): cải trang nhóm Bunma / Thỏ / Poc, cải trang Android 21 / Sarah / Muscular Lady / Caulifla, Xuka, Nón Noel. */
     static final int[][][] EVENT_ITEMS8 = {
         {{676}, {50, 10}, {77, 10}, {103, 10}, {94, 10}}, // Cải trang Sarah
@@ -421,6 +428,10 @@ public class Dot139Migration {
         }
         // mô tả 628 giữ như data gốc (đợt 1119g từng đổi): "Cải trang Hải Tặc Tí Hon"
         update(con, "update item_template set description = 'Cải trang Hải Tặc Tí Hon' where id = 628 and description <> 'Cải trang Hải Tặc Tí Hon'");
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119h'")) {
+            writeStats(con, EVENT_ITEMS11);
+            update(con, "insert into server_migration (name) values ('event_items_1119h')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
             update(con, "insert into server_migration (name) values ('event_items_1116e')");
