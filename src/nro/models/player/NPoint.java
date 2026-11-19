@@ -793,6 +793,8 @@ public class NPoint {
     private static final int[][] CAU_THU = {{968}, {969}, {970}, {971}, {972}, {973}, {974}, {975}, {976}, {977}, {978}};
     private static final int[][] THO = {{1041}, {1042}, {1043}};
     private static final int[][] HAU_GAI = {{1503}, {1504}, {1512}};
+    /** Bunma tóc xanh neon / nâu băng đô / tím thắt bím: mô tả "+3% sức đánh, tối đa 10% khi ở gần Bunma tóc xanh, nâu, tím mới". */
+    private static final int[][] BUNMA_TOC = {{1208}, {1209}, {1210}};
     private static final int CT_TAU_PAY_PAY = 284, COT_NHA = 744, GHE_BAY = 795;
     private static final int[] NHA_FIDE = {629, 630, 631, 632, 878, 879, 1599, 1839, 1913};
 
@@ -884,6 +886,9 @@ public class NPoint {
             int p196 = optParam(ct, 196);
             if (p196 > 0) {
                 d += Math.min(18, p196 * otherKindsNear(THO, near));
+            }
+            if (in(new int[]{1208, 1209, 1210}, ct.template.id)) { // dòng mô tả (không có option riêng)
+                d += Math.min(10, 3 * otherKindsNear(BUNMA_TOC, near));
             }
             int p256 = optParam(ct, 256);
             if (p256 > 0) {
