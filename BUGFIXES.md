@@ -2614,3 +2614,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Cải trang Fide vàng rơi từ boss Fide Vàng / Death Beam: hạn sử dụng ngẫu nhiên 7 - 30 ngày (trước cố định 20 ngày).
 - Chỉ số theo ảnh: CT Thỏ đại ca 463 (kháng TDHS, +25% TĐ chạy, biến cà rốt người xung quanh mỗi 30 giây trong 5 giây), CT Nàng Tiên Cá 681 (SĐ / HP / KI +20%, giáp 20%, không giao dịch), CT ma trơi 642 / dơi nhí 643 / bộ xương 644 - 646 (hút 4% HP, KI xung quanh mỗi 5 giây, SĐ 20%, HP 17%, KI 17%). Món cũ đổi khi đăng nhập.
 - Rađa dò ngọc rồng Namếc làm lại như bản gốc (ảnh): mỗi dòng "N Sao:map (khoảng cách m)(người cầm)" (khác hành tinh thì "Namếc ( ? m)"), nút "Đến ngay Viên N Sao 10 ngọc", "Đến ngay Viên N Sao 100k vàng", "Kết thúc"; tới viên sao nhỏ nhất đang có (không tính viên mình cầm), đang cầm ngọc thì chỉ xem.
+- CT Sơn Tinh 421 / Thủy Tinh 422: SĐ 12%, giáp 12% (option 94), HP/KI 22%, tăng 20% TNSM khi đánh quái (migration `event_items_1119o`).

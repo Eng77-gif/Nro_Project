@@ -342,6 +342,10 @@ public class Dot139Migration {
         {{644}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}, // CT bộ xương
         {{645}, {8, 4}, {50, 20}, {77, 17}, {103, 17}},
         {{646}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}};
+    /** Đợt 16: Cải trang Sơn Tinh 421 / Thủy Tinh 422: SĐ 12%, giáp 12% (option 94), HP / KI 22%, tăng 20% TNSM khi đánh quái (83). */
+    static final int[][][] EVENT_ITEMS16 = {
+        {{421}, {50, 12}, {94, 12}, {77, 22}, {103, 22}, {83, 20}},
+        {{422}, {50, 12}, {94, 12}, {77, 22}, {103, 22}, {83, 20}}};
     /** Đợt 8 (ảnh anh gửi 19/11): cải trang nhóm Bunma / Thỏ / Poc, cải trang Android 21 / Sarah / Muscular Lady / Caulifla, Xuka, Nón Noel. */
     static final int[][][] EVENT_ITEMS8 = {
         {{676}, {50, 10}, {77, 10}, {103, 10}, {94, 10}}, // Cải trang Sarah
@@ -511,6 +515,10 @@ public class Dot139Migration {
             update(con, "delete from item_template_option where template_id between 642 and 646 and option_id = 14"); // bỏ chí mạng 3% tạm
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 681, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 681 and option_id = 30)");
             update(con, "insert into server_migration (name) values ('event_items_1119n')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119o'")) {
+            writeStats(con, EVENT_ITEMS16);
+            update(con, "insert into server_migration (name) values ('event_items_1119o')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
