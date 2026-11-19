@@ -2600,3 +2600,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Cải trang Hải Tặc (628) là hộp: bấm Sử dụng mở ra ngẫu nhiên 1 cải trang Hải Tặc Tí Hon (Luffy, Zoro, Sanji, Brook, Chopper, Nami, Franky, Usopp, Robin; giữ hạn dùng / không giao dịch của hộp), hiệu ứng mở như Capsule kì bí. Bỏ chỉ số đã đặt nhầm cho 628, không tính 628 vào nhóm Hải Tặc ở gần.
 - CT Hải Tặc Tí Hon: chỉ số tăng đều theo số CT Hải Tặc khác loại ở gần, đủ 8 loại khác = tối đa 49% sức đánh, 108% tốc độ chạy (1 loại: 11% / 24%, 4 loại: 27% / 60%). Mô tả 628 trả về như data gốc "Cải trang Hải Tặc Tí Hon".
 - CT Hải Tặc Tí Hon: tối đa 48% sức đánh (không phải 49%), tốc độ chạy vẫn 108%.
+- CT Hải Tặc Tí Hon: sức đánh tăng 5-10-15-20-25-30-35-40-45% (mỗi loại Hải Tặc khác ở gần +5%, đủ 8 loại = 45%), tốc độ chạy 12% mỗi bậc tới 108%.
