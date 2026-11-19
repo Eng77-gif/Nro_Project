@@ -558,6 +558,53 @@ public class Dot139Migration {
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 681, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 681 and option_id = 30)");
             update(con, "insert into server_migration (name) values ('event_items_1119n')");
         }
+        // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
+        update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8");
+        if (!exists(con, "select 1 from server_migration where name = 'tops_2011c'")) {
+            // quà 4 top 20/11 theo bài diễn đàn chính thức (item_id:qty:hsd, rank_from-rank_to, min_point)
+            String[][] rw = {
+                // A. Hộp quà 20/11 VIP (803) - đổi điểm Quy Lão (Ván Bút Chì Bay chưa có trong data)
+                {"803", "1-1", "1283:70,1559:3,2111:3,2098:999,2122:2"}, {"803", "2-2", "1283:60,1559:2,2111:2,2098:500,2122:1"},
+                {"803", "3-3", "1283:50,1559:1,2111:1,2098:200"}, {"803", "4-10", "1283:20,1690:50,1909:250,2098:20"},
+                {"803", "11-50", "1283:10,1690:20,1909:100"}, {"803", "51-100", "1283:5,1690:10,1909:20"},
+                {"803", "1-1:25000", "1538:1,2102:1"},
+                // B. Giấy tốt nghiệp (805) - top ngọc
+                {"805", "1-1", "2085:1,1283:70,1559:3,2111:3,2046:10,2122:2,2006:1"}, {"805", "2-2", "2085:1,1283:60,1559:2,2111:2,2046:5,2122:1"},
+                {"805", "3-3", "2085:1,1283:50,1559:1,2111:1,2046:2"}, {"805", "4-10", "2085:1:365,1283:20,1690:50,1909:100"},
+                {"805", "11-50", "2085:1:90,1283:10,1690:20,1909:20"}, {"805", "51-100", "2085:1:30,1283:5,1690:10"},
+                {"805", "1-1:41250", "2102:1"},
+                // C. Hộp quà 20-11 (801) - top vàng (Sao pha lê 10% / 9% vàng chưa có trong data)
+                {"801", "1-1", "1809:100,987:60,1559:3,2111:3,1868:10000,2046:10"}, {"801", "2-2", "1809:50,987:40,1559:2,2111:2,1868:5000,2046:5"},
+                {"801", "3-3", "1809:30,987:30,1559:1,2111:1,1868:1000,2046:2"}, {"801", "4-10", "1809:20,987:20,1690:50,1909:100"},
+                {"801", "11-50", "1809:10,987:10,1690:20,1909:20"}, {"801", "51-100", "1809:5,987:5,1690:10"},
+                {"801", "1-1:65000", "1537:1"},
+                // D. Tặng bộ ngọc rồng cho Quy Lão (802)
+                {"802", "1-1", "2100:1,1283:70,1559:3,2111:3,1868:10000,2046:10,2006:1"}, {"802", "2-2", "2100:1,1283:60,1559:2,2111:2,1868:5000,2046:5"},
+                {"802", "3-3", "2100:1,1283:50,1559:1,2111:1,1868:1000,2046:2"}, {"802", "4-10", "2100:1,1283:20,1690:50,1909:100"},
+                {"802", "11-50", "2100:1:90,1283:10,1690:20,1909:20"}, {"802", "51-100", "2100:1:60,1283:5,1690:10"}};
+            update(con, "delete from season_event_top_reward where top_id in (801, 802, 803, 805)");
+            for (String[] r : rw) {
+                String[] rk = r[1].split(":");
+                String[] ft = rk[0].split("-");
+                int minPoint = rk.length > 1 ? Integer.parseInt(rk[1]) : 0;
+                for (String it : r[2].split(",")) {
+                    String[] f = it.split(":");
+                    update(con, "insert into season_event_top_reward (top_id, rank_from, rank_to, item_id, qty, hsd_days, min_point) values (" + r[0] + ", " + ft[0] + ", " + ft[1]
+                            + ", " + f[0] + ", " + f[1] + ", '" + (f.length > 2 ? f[2] : "") + "', " + minPoint + ")");
+                }
+            }
+            update(con, "update season_event_top set name = 'Giao 7 viên ngọc rồng' where id = 802");
+            // điểm top tính lúc mua như bản chính thức: Hộp quà 20-11 (Chi Chi, vàng) -> 801, Hộp quà 20-11 VIP (Quy Lão, điểm) -> 803
+            update(con, "update season_event_exchange set top_id = 801, top_point = 1 where id = 598");
+            update(con, "insert into season_event_exchange (event_id, grp, name, need, gold, gem, ruby, cost_point, reward_item, reward_qty, reward_days, top_id, top_point, npc) "
+                    + "select 8, 'Đổi\\nđiểm', 'Hộp quà 20-11 VIP', '', 0, 0, 0, 99, 1944, 1, '30', 803, 1, '13' from dual where not exists (select 1 from season_event_exchange where event_id = 8 and reward_item = 1944)");
+            // Giỏ hoa 20/11 là vật phẩm đua top (không phải hộp quà)
+            update(con, "delete from item_box_reward where box_id = 2123");
+            update(con, "update item_template set description = 'Vật phẩm đua top' where id = 2123");
+            // CT đệ tử Tí (ảnh): SĐ 24%, HP / KI 22%, chống lạnh, tấn công +30% khi đánh quái
+            writeStats(con, new int[][][]{{{1371}, {50, 24}, {77, 22}, {103, 22}, {106, 0}, {19, 30}}});
+            update(con, "insert into server_migration (name) values ('tops_2011c')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'shop_2011'")) {
             // Cửa hàng Chi Chi 20/11 và công thức Bà Hạt Mít theo ảnh bản chính thức
             update(con, "insert into item_template (id, TYPE, gender, NAME, description, level, icon_id, part, is_up_to_up, power_require, gold, gem, head, body, leg) "
@@ -567,7 +614,7 @@ public class Dot139Migration {
             // Giỏ hoa 20/11 mở ra quà như Hộp quà 20-11
             update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 2123, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity "
                     + "from item_box_reward where box_id = 1739 and not exists (select 1 from item_box_reward where box_id = 2123)");
-            update(con, "delete from season_event_exchange where id in (202, 203, 204, 606)"); // Kéo tỉa hoa giá cũ trùng, Hộp quà (hoa hồng) trùng, Rađa phóng xạ không có ở bản chính thức
+            update(con, "delete from season_event_exchange where id = 606"); // Rađa phóng xạ không có ở bản chính thức
             String[] shop = {"598:20000000:0:30", "599:30000000:0:35", "600:0:10:35", "601:0:10:35", "602:40000000:0:35", "603:0:3000:", "604:0:1000:", "605:0:5999:"};
             for (String s : shop) {
                 String[] f = s.split(":", -1);

@@ -331,9 +331,6 @@ public class Event2026Service {
         short[] icon = {-1};
         String got = openBoxById(pl, box.template.id, icon);
         if (got != null) {
-            if (boxId == 1739 || boxId == 1944) { // đua top 20/11: mở Hộp quà 20-11 / Hộp quà 20-11 VIP
-                SeasonEventService.gI().addTopPointById(boxId == 1944 ? 803 : 801, pl, 1);
-            }
             InventoryService.gI().subQuantityItemsBag(pl, box, 1);
             InventoryService.gI().sendItemBags(pl);
             if (boxId == HOM_HALLOWEEN && pl.zone != null) {

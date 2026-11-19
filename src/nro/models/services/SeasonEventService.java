@@ -786,7 +786,10 @@ public class SeasonEventService implements Runnable {
                 return true;
             }
         }
-        return false;
+        // 20/11 (diễn đàn): x3 TNSM đến hết 22/11; x3 thẻ nạp 00:05 21/11 - 23:59 22/11
+        java.time.LocalDateTime from = java.time.LocalDateTime.of(now.getYear(), 11, tiemNang ? 15 : 21, 0, 5);
+        java.time.LocalDateTime to = java.time.LocalDateTime.of(now.getYear(), 11, 22, 23, 59, 59);
+        return isActive(TEACHERS_DAY) && !now.isBefore(from) && !now.isAfter(to);
     }
 
     /** Giới hạn theo ngày cho quà ngoài bảng rơi (nhiệm vụ hằng ngày, đăng nhập...): trả về số được nhận hôm nay (0 = đã đủ). */
