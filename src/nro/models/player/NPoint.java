@@ -700,6 +700,10 @@ public class NPoint {
         if (has(1749) && has(1751)) { // Ván bay Cây Thông + Diều rồng băng: +4% giảm sát thương
             this.tlGiap += 4;
         }
+        if (has(1567) && has(1571)) { // CT Frieren + Gậy phép của Frieren: +6% SĐ, +6% chí mạng
+            this.tlDame.add(6);
+            this.critAdd += 6;
+        }
         if (has(1768) && has(1773)) { // Rắn bay + Đuôi rắn rực lửa: +10% SĐ chí mạng
             sdcm(10);
         }
