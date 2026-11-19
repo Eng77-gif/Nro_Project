@@ -710,6 +710,7 @@ public class ItemService {
             843, 844, 845, 853, 854, 855, 856, 857, 858, // đợt 12: cải trang Trâu
             1921, // đợt 13: CT Pan VIP
             629, // đợt 14: CT Fide vàng
+            591, // đợt 21: CT Siêu Thần tóc xanh
             633, 634, // đợt 20: CT Píc / King kong
             911, // đợt 19: CT Siêu Thần Xayda
             583, 581, 582, 719, 730, 746, 745, // đợt 18: Póc, Bum ma, Lý Tiểu Nương, Urôn, Sói Basil, Xe tuần lộc, Bông tuyết

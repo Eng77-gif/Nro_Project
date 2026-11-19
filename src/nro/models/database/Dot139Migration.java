@@ -342,6 +342,8 @@ public class Dot139Migration {
         {{644}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}, // CT bộ xương
         {{645}, {8, 4}, {50, 20}, {77, 17}, {103, 17}},
         {{646}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}};
+    /** Đợt 21 (ảnh): CT Siêu Thần 591 (Siêu Thần Xayda tóc xanh): giáp +450, 30% né đòn, dịch chuyển tức thời. */
+    static final int[][][] EVENT_ITEMS21 = {{{591}, {47, 450}, {108, 30}, {33, 0}}};
     /** Đợt 20: CT Píc 633 / King kong 634 giống CT Póc 583. */
     static final int[][][] EVENT_ITEMS20 = {
         {{633}, {50, 8}, {77, 8}, {94, 8}, {150, 0}, {154, 0}},
@@ -535,6 +537,12 @@ public class Dot139Migration {
             update(con, "delete from item_template_option where template_id between 642 and 646 and option_id = 14"); // bỏ chí mạng 3% tạm
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 681, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 681 and option_id = 30)");
             update(con, "insert into server_migration (name) values ('event_items_1119n')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119t'")) {
+            writeStats(con, EVENT_ITEMS21);
+            // CT Giáo sư Bunma 1937 (ảnh): chỉ số đã đúng, thiếu dòng không giao dịch
+            update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 1937, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 1937 and option_id = 30)");
+            update(con, "insert into server_migration (name) values ('event_items_1119t')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1119s'")) {
             update(con, "delete from item_template_option where template_id in (633, 634) and option_id in (150, 154)");
