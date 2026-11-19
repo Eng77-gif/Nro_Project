@@ -342,6 +342,11 @@ public class Dot139Migration {
         {{644}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}, // CT bộ xương
         {{645}, {8, 4}, {50, 20}, {77, 17}, {103, 17}},
         {{646}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}};
+    /** Đợt 17: nhóm Piláp (Pi láp 635, Mai 636, Su 637): SĐ 10%, +33% TĐ chạy, TN,SM ngẫu nhiên 5 - 15% (param_max), ở gần 1 / 2 CT nhóm Piláp khác loại (151 / 152). */
+    static final int[][][] EVENT_ITEMS17 = {
+        {{635}, {50, 10}, {114, 33}, {101, 5, 15}, {151, 0}, {152, 0}},
+        {{636}, {50, 10}, {114, 33}, {101, 5, 15}, {151, 0}, {152, 0}},
+        {{637}, {50, 10}, {114, 33}, {101, 5, 15}, {151, 0}, {152, 0}}};
     /** Đợt 16: Cải trang Sơn Tinh 421 / Thủy Tinh 422: SĐ 12%, giáp 12% (option 94), HP / KI 22%, tăng 20% TNSM khi đánh quái (83). */
     static final int[][][] EVENT_ITEMS16 = {
         {{421}, {50, 12}, {94, 12}, {77, 22}, {103, 22}, {83, 20}},
@@ -516,6 +521,14 @@ public class Dot139Migration {
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 681, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 681 and option_id = 30)");
             update(con, "insert into server_migration (name) values ('event_items_1119n')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119p'")) {
+            writeStats(con, EVENT_ITEMS17);
+            update(con, "delete from item_template_option where template_id between 635 and 637 and option_id in (151, 152) and id not in (select * from (select max(id) from item_template_option where template_id between 635 and 637 and option_id in (151, 152) group by template_id, option_id) t)");
+            for (int id = 635; id <= 637; id++) {
+                update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select " + id + ", 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = " + id + " and option_id = 30)");
+            }
+            update(con, "insert into server_migration (name) values ('event_items_1119p')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1119o'")) {
             writeStats(con, EVENT_ITEMS16);
             update(con, "insert into server_migration (name) values ('event_items_1119o')");
@@ -628,7 +641,8 @@ public class Dot139Migration {
             update(con, "delete from item_template_option where template_id = " + id + " and option_id in (" + STAT_IDS + ")");
             update(con, "delete from item_shop_option where option_id in (" + STAT_IDS + ") and item_shop_id in (select id from item_shop where temp_id = " + id + ")");
             for (int k = 1; k < it.length; k++) {
-                update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (" + id + ", " + it[k][0] + ", " + it[k][1] + ", " + it[k][1] + ", 100, 0)");
+                int max = it[k].length > 2 ? it[k][2] : it[k][1]; // {opt, min, max}: chỉ số ngẫu nhiên khi tạo món
+                update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (" + id + ", " + it[k][0] + ", " + it[k][1] + ", " + max + ", 100, 0)");
                 update(con, "insert into item_shop_option (item_shop_id, option_id, param) select id, " + it[k][0] + ", " + it[k][1] + " from item_shop where temp_id = " + id);
             }
         }

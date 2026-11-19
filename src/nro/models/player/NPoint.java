@@ -799,6 +799,8 @@ public class NPoint {
     /** Cải trang Hải Tặc Tí Hon (One Piece): Luffy, Zoro, Sanji, Brook, Chopper, Nami, Franky, Usopp, Robin (628 Cải trang Hải Tặc là hộp mở ra 1 món). */
     private static final int[][] HAI_TAC = {{618}, {619}, {620}, {621}, {622}, {623}, {624}, {625}, {626}};
     /** Nhóm Đôrêmon: Đôrêmon, Xuka (2 mã), Nobita, Xekô, Chaien - option 176 "Ở gần đủ 5 loại +20% sức đánh +50% tốc độ chạy". */
+    /** Nhóm Piláp: Pi láp, Mai, Su (option 151 / 152). */
+    private static final int[][] PILAP = {{635}, {636}, {637}};
     private static final int[][] DOREMON = {{806}, {819, 1992}, {862}, {863}, {864}};
     /** Bunma tóc xanh neon / nâu băng đô / tím thắt bím: mô tả "+3% sức đánh, tối đa 10% khi ở gần Bunma tóc xanh, nâu, tím mới". */
     private static final int[][] BUNMA_TOC = {{1208}, {1209}, {1210}};
@@ -862,6 +864,11 @@ public class NPoint {
             }
             if (optParam(ct, 145) > 0 || optParam(ct, 146) > 0) { // Dr Slum: gần 1 loại +20% SĐ +66% tốc độ, gần 2 loại +30% +100%
                 int n = otherKindsNear(DR_SLUM, near);
+                d += n >= 2 ? 30 : n == 1 ? 20 : 0;
+                sp += n >= 2 ? 100 : n == 1 ? 66 : 0;
+            }
+            if (optParam(ct, 151) > 0 || optParam(ct, 152) > 0) { // nhóm Piláp: gần 1 loại +20% SĐ +66% tốc độ, gần 2 loại +30% +100%
+                int n = otherKindsNear(PILAP, near);
                 d += n >= 2 ? 30 : n == 1 ? 20 : 0;
                 sp += n >= 2 ? 100 : n == 1 ? 66 : 0;
             }

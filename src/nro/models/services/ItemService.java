@@ -710,6 +710,7 @@ public class ItemService {
             843, 844, 845, 853, 854, 855, 856, 857, 858, // đợt 12: cải trang Trâu
             1921, // đợt 13: CT Pan VIP
             629, // đợt 14: CT Fide vàng
+            635, 636, 637, // đợt 17: nhóm Piláp (TN,SM ngẫu nhiên: chỉ đổi 1 lần, xem refreshTitle)
             421, 422, // đợt 16: CT Sơn Tinh / Thủy Tinh
             463, 681, 642, 643, 644, 645, 646, // đợt 15: Thỏ đại ca, Nàng Tiên Cá, bộ xương / ma trơi / dơi nhí
             618, 619, 620, 621, 622, 623, 624, 625, 626, // đợt 10: CT Hải Tặc
@@ -719,6 +720,9 @@ public class ItemService {
         fillThanLinh(it); // đồ Thần Linh thiếu chỉ số gốc (hành trang / rương)
         if (it == null || it.template == null || !TITLE_REFRESH.contains((int) it.template.id)) {
             return;
+        }
+        if (it.template.id >= 635 && it.template.id <= 637 && it.getOptionById(151) != null) {
+            return; // nhóm Piláp đã đổi chỉ số mới: không quay lại TN,SM ngẫu nhiên mỗi lần đăng nhập
         }
         List<Item.ItemOption> fresh = getListOptionItemShop(it.template.id);
         if (fresh.isEmpty()) {
