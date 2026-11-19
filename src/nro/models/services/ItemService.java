@@ -710,6 +710,7 @@ public class ItemService {
             843, 844, 845, 853, 854, 855, 856, 857, 858, // đợt 12: cải trang Trâu
             1921, // đợt 13: CT Pan VIP
             629, // đợt 14: CT Fide vàng
+            1710, // CT Android 21 Tiến Sĩ
             1795, 1963, 1971, 1976, 1941, 1943, 710, 711, // đợt 23: shop 20/11 Quy Lão
             905, 907, 1957, 1798, 1144, 1571, 1632, 1953, // đợt 22
             591, // đợt 21: CT Siêu Thần tóc xanh

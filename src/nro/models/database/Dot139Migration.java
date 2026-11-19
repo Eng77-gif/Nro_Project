@@ -558,18 +558,58 @@ public class Dot139Migration {
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 681, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 681 and option_id = 30)");
             update(con, "insert into server_migration (name) values ('event_items_1119n')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'shop_2011'")) {
+            // Cửa hàng Chi Chi 20/11 và công thức Bà Hạt Mít theo ảnh bản chính thức
+            update(con, "insert into item_template (id, TYPE, gender, NAME, description, level, icon_id, part, is_up_to_up, power_require, gold, gem, head, body, leg) "
+                    + "select 2123, 27, 3, 'Giỏ hoa 20/11', 'Vật phẩm sự kiện', 0, 10484, -1, 1, 0, 0, 0, -1, -1, -1 from dual where not exists (select 1 from item_template where id = 2123)");
+            update(con, "insert into item_template (id, TYPE, gender, NAME, description, level, icon_id, part, is_up_to_up, power_require, gold, gem, head, body, leg) "
+                    + "select 2124, 27, 3, 'Giấy tốt nghiệp', 'Vật phẩm đua top', 0, 11804, -1, 1, 0, 0, 0, -1, -1, -1 from dual where not exists (select 1 from item_template where id = 2124)");
+            // Giỏ hoa 20/11 mở ra quà như Hộp quà 20-11
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 2123, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity "
+                    + "from item_box_reward where box_id = 1739 and not exists (select 1 from item_box_reward where box_id = 2123)");
+            update(con, "delete from season_event_exchange where id in (202, 203, 204, 606)"); // Kéo tỉa hoa giá cũ trùng, Hộp quà (hoa hồng) trùng, Rađa phóng xạ không có ở bản chính thức
+            String[] shop = {"598:20000000:0:30", "599:30000000:0:35", "600:0:10:35", "601:0:10:35", "602:40000000:0:35", "603:0:3000:", "604:0:1000:", "605:0:5999:"};
+            for (String s : shop) {
+                String[] f = s.split(":", -1);
+                update(con, "update season_event_exchange set gold = " + f[1] + ", gem = " + f[2] + ", ruby = 0, reward_days = '" + f[3] + "' where id = " + f[0]);
+            }
+            update(con, "insert into season_event_exchange (event_id, grp, name, need, gold, gem, ruby, cost_point, reward_item, reward_qty, reward_days, top_id, top_point, npc) "
+                    + "select 8, 'Cửa\\nhàng', 'Giỏ hoa 20/11', '', 0, 20, 0, 0, 2123, 1, '30', 0, 0, '81' from dual where not exists (select 1 from season_event_exchange where reward_item = 2123)");
+            update(con, "insert into season_event_exchange (event_id, grp, name, need, gold, gem, ruby, cost_point, reward_item, reward_qty, reward_days, top_id, top_point, npc) "
+                    + "select 8, 'Cửa\\nhàng', 'Giấy tốt nghiệp', '', 0, 50, 0, 0, 2124, 1, '30', 805, 1, '81' from dual where not exists (select 1 from season_event_exchange where reward_item = 2124)");
+            // top Giấy tốt nghiệp: mỗi tờ mua 1 điểm, quà như các top 20/11
+            update(con, "insert into season_event_top (id, event_id, name) select 805, 8, 'Giấy tốt nghiệp' from dual where not exists (select 1 from season_event_top where id = 805)");
+            update(con, "insert into season_event_top_reward (top_id, rank_from, rank_to, item_id, qty, hsd_days, min_point) select 805, rank_from, rank_to, item_id, qty, hsd_days, min_point "
+                    + "from season_event_top_reward where top_id = 802 and not exists (select 1 from season_event_top_reward where top_id = 805)");
+            // Bà Hạt Mít: Hộp trà 30tr vàng, Hộp trà hoa cúc 5 ngọc, thiệp thường 15 ngọc, thiệp đặc biệt 30 ngọc, Túi trà khô miễn phí
+            update(con, "update season_event_exchange set gold = 0, gem = 0 where id = 575");
+            update(con, "update season_event_exchange set gold = 30000000, gem = 0 where id = 576");
+            update(con, "update season_event_exchange set gold = 0, gem = 5 where id = 577");
+            update(con, "update season_event_exchange set gold = 0, gem = 15 where id = 578");
+            update(con, "update season_event_exchange set gold = 0, gem = 30 where id = 579");
+            writeStats(con, new int[][][]{{{1710}, {50, 24}, {77, 22}, {103, 22}, {159, 5}, {253, 60}, {154, 0}}}); // CT Android 21 Tiến Sĩ (ảnh)
+            update(con, "delete from item_template_option where template_id = 1710 and option_id = 14");
+            update(con, "insert into server_migration (name) values ('shop_2011')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'tops_2011'")) {
-            // đua top 20/11 như bản chính thức: Giao 7 viên ngọc rồng (802), Hộp quà 20-11 VIP (803), Hộp quà 20-11 (804) thay Tặng hộp trà (801); quà như top cũ
-            for (int[] t : new int[][]{{802}, {803}, {804}}) {
-                String name = t[0] == 802 ? "Giao 7 viên ngọc rồng" : t[0] == 803 ? "Hộp quà 20-11 VIP" : "Hộp quà 20-11";
+            // đua top 20/11 như bản chính thức: Giao 7 viên ngọc rồng (802), Hộp quà 20-11 VIP (803), Hộp quà 20-11 (801, trước là Tặng hộp trà); quà như top cũ
+            for (int[] t : new int[][]{{802}, {803}}) {
+                String name = t[0] == 802 ? "Giao 7 viên ngọc rồng" : "Hộp quà 20-11 VIP";
                 update(con, "insert into season_event_top (id, event_id, name) select " + t[0] + ", 8, '" + name + "' from dual where not exists (select 1 from season_event_top where id = " + t[0] + ")");
                 update(con, "insert into season_event_top_reward (top_id, rank_from, rank_to, item_id, qty, hsd_days, min_point) select " + t[0]
                         + ", rank_from, rank_to, item_id, qty, hsd_days, min_point from season_event_top_reward where top_id = 801 and not exists (select 1 from season_event_top_reward where top_id = " + t[0] + ")");
             }
             update(con, "update season_event_exchange set top_id = 0, top_point = 0 where top_id = 801"); // điểm top Hộp quà tính khi mở hộp
-            update(con, "delete from season_event_top_reward where top_id = 801");
-            update(con, "delete from season_event_top where id = 801");
+            update(con, "update season_event_top set name = 'Hộp quà 20-11' where id = 801");
             update(con, "insert into server_migration (name) values ('tops_2011')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'tops_2011b'")) {
+            // bản trước tạo top 804 và xoá 801 (Dot48 lại tạo lại 801): dùng 801 cho Hộp quà 20-11, bỏ 804
+            update(con, "update season_event_top set name = 'Hộp quà 20-11' where id = 801");
+            update(con, "delete from season_event_top_reward where top_id = 804");
+            update(con, "delete from season_event_top where id = 804");
+            update(con, "delete from season_event_point where top_id = 804");
+            update(con, "insert into server_migration (name) values ('tops_2011b')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1119v'")) {
             update(con, "insert into item_option_template (id, NAME) select 275, 'Cool: +#% sức đánh bản thân và đồng minh' from dual where not exists (select 1 from item_option_template where id = 275)");

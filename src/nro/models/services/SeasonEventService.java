@@ -2358,7 +2358,9 @@ public class SeasonEventService implements Runnable {
     public List<Top> currentTops() {
         List<Top> out = new ArrayList<>();
         for (Season s : activeByStart()) {
-            for (Top t : s.tops) {
+            List<Top> ts = new ArrayList<>(s.tops);
+            ts.sort(java.util.Comparator.comparingInt(t -> TOP_ORDER.getOrDefault(t.id, t.id))); // 20/11 như bản chính thức
+            for (Top t : ts) {
                 if (!closedTops.contains(t.id)) {
                     out.add(t);
                 }
@@ -2366,6 +2368,9 @@ public class SeasonEventService implements Runnable {
         }
         return out;
     }
+
+    /** Thứ tự nút top ở Chi Chi (20/11: Giao 7 viên ngọc rồng, Hộp quà 20-11 VIP, Hộp quà 20-11, Giấy tốt nghiệp). */
+    private static final Map<Integer, Integer> TOP_ORDER = Map.of(802, 0, 803, 1, 801, 2, 805, 3);
 
     /** Sự kiện đang chạy, sự kiện bắt đầu trước đứng trước. */
     public List<Season> activeByStart() {
