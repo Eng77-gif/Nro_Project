@@ -342,6 +342,16 @@ public class Dot139Migration {
         {{644}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}, // CT bộ xương
         {{645}, {8, 4}, {50, 20}, {77, 17}, {103, 17}},
         {{646}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}};
+    /** Đợt 23 (ảnh shop 20/11 Quy Lão): CT Chi Chi Hoa Hồng Xanh, Đeo lưng lồng đèn Tết, Bóng mờ NRO, Hiệu ứng hoa Tết, Ba lô ngọc rồng, Bảng đen, CT Quy lão Kamê 710, CT Jacky Chun 711. */
+    static final int[][][] EVENT_ITEMS23 = {
+        {{1795}, {50, 26}, {77, 24}, {275, 16}, {236, 22}, {30, 0}},
+        {{1963}, {77, 10}, {6, 7000}, {267, 0}, {30, 0}},
+        {{1971}, {50, 5}, {30, 0}},
+        {{1976}, {77, 5}, {6, 7500}, {30, 0}},
+        {{1941}, {50, 17}, {77, 20}, {5, 14}, {204, 10}, {30, 0}},
+        {{1943}, {50, 8}, {77, 10}, {103, 8}, {14, 9}, {10, 5}, {30, 0}},
+        {{710}, {50, 22}, {77, 20}, {103, 20}, {159, 3}, {253, 35}, {154, 0}},
+        {{711}, {50, 23}, {77, 21}, {103, 21}, {159, 4}, {253, 50}, {154, 0}}};
     /** Đợt 22 (ảnh): CT Siêu Thần Trái Đất 905 / Namếc 907 giống Siêu Thần Xayda 911; CT Goku GT 1957, Máy bay 41 1798, Phượng hoàng lửa 1144, Gậy phép Frieren 1571, CT Himmel 1632, Pet Bư Noel 1953. */
     static final int[][][] EVENT_ITEMS22 = {
         {{905}, {50, 22}, {47, 450}, {108, 30}, {183, 10}, {154, 0}},
@@ -547,6 +557,12 @@ public class Dot139Migration {
             update(con, "delete from item_template_option where template_id between 642 and 646 and option_id = 14"); // bỏ chí mạng 3% tạm
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 681, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 681 and option_id = 30)");
             update(con, "insert into server_migration (name) values ('event_items_1119n')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119v'")) {
+            update(con, "insert into item_option_template (id, NAME) select 275, 'Cool: +#% sức đánh bản thân và đồng minh' from dual where not exists (select 1 from item_option_template where id = 275)");
+            update(con, "delete from item_template_option where template_id in (1795, 1963, 1971, 1976, 1941, 1943, 710, 711) and option_id in (30, 6, 267, 154, 159, 275)");
+            writeStats(con, EVENT_ITEMS23);
+            update(con, "insert into server_migration (name) values ('event_items_1119v')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_2011_on'")) {
             // bật sự kiện 20/11 (tự chạy 15/11 - 22/11); Halloween hết lịch 19/11 nên bật tay để chạy song song (admin chưa đặt thì mới bật)

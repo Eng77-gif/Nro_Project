@@ -456,6 +456,7 @@ public class NPoint {
                             this.khangTDHS = true;
                             break;
                         case 226:
+                        case 275: //Cool: +#% sức đánh bản thân và đồng minh (như Đẹp 117)
                         case 117: //Đẹp +#% SĐ cho mình và người xung quanh
                             if (io.param > this.tlSexyDame) {
                                 this.tlSexyDame = io.param;
@@ -1415,6 +1416,7 @@ public class NPoint {
                 this.khangTDHS = true;
                 break;
             case 226:
+            case 275: //Cool: +#% sức đánh bản thân và đồng minh (như Đẹp 117)
             case 117: //Đẹp +#% SĐ cho mình và người xung quanh
                 if (io.param > this.tlSexyDame) {
                     this.tlSexyDame = io.param;
