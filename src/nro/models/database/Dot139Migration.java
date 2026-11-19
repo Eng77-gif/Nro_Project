@@ -315,6 +315,18 @@ public class Dot139Migration {
         {{806}, {94, 20}, {108, 10}, {176, 0}}, // Cải trang Đôrêmon: giáp 20% (option 94 như ngọc rồng 2 sao), 10% né đòn
         {{862}, {14, 5}, {50, 15}, {176, 0}}, // Cải trang Nobita: chí mạng 5%, sức đánh 15%
         {{1992}, {117, 10}, {80, 6}, {176, 0}}}; // Cải trang Xuka (mã 2) như Xuka 819
+    /** Đợt 12: cải trang Trâu (vàng, đen, trắng, nâu, đốm): HP+31%, HP+50%/30s, sức đánh+21%. */
+    static final int[][][] EVENT_ITEMS12 = {
+        {{843}, {77, 31}, {80, 50}, {50, 21}},
+        {{844}, {77, 31}, {80, 50}, {50, 21}},
+        {{845}, {77, 31}, {80, 50}, {50, 21}},
+        {{853}, {77, 31}, {80, 50}, {50, 21}},
+        {{854}, {77, 31}, {80, 50}, {50, 21}},
+        {{855}, {77, 31}, {80, 50}, {50, 21}},
+        {{856}, {77, 31}, {80, 50}, {50, 21}},
+        {{857}, {77, 31}, {80, 50}, {50, 21}},
+        {{858}, {77, 31}, {80, 50}, {50, 21}},
+    };
     /** Đợt 8 (ảnh anh gửi 19/11): cải trang nhóm Bunma / Thỏ / Poc, cải trang Android 21 / Sarah / Muscular Lady / Caulifla, Xuka, Nón Noel. */
     static final int[][][] EVENT_ITEMS8 = {
         {{676}, {50, 10}, {77, 10}, {103, 10}, {94, 10}}, // Cải trang Sarah
@@ -464,6 +476,10 @@ public class Dot139Migration {
             update(con, "delete from item_box_reward where item_id in (" + ids + ")");
             update(con, "delete from shop_ky_gui where item_id in (" + ids + ")");
             update(con, "insert into server_migration (name) values ('ct_khong_hinh')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119k'")) {
+            writeStats(con, EVENT_ITEMS12);
+            update(con, "insert into server_migration (name) values ('event_items_1119k')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
