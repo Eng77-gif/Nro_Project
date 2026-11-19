@@ -417,9 +417,10 @@ public class Dot139Migration {
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1119g'")) { // 628 là hộp (mở ra CT One Piece), không có chỉ số
             update(con, "delete from item_template_option where template_id = 628");
-            update(con, "update item_template set description = 'Mở ra ngẫu nhiên 1 cải trang Hải Tặc Tí Hon' where id = 628");
             update(con, "insert into server_migration (name) values ('event_items_1119g')");
         }
+        // mô tả 628 giữ như data gốc (đợt 1119g từng đổi): "Cải trang Hải Tặc Tí Hon"
+        update(con, "update item_template set description = 'Cải trang Hải Tặc Tí Hon' where id = 628 and description <> 'Cải trang Hải Tặc Tí Hon'");
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
             update(con, "insert into server_migration (name) values ('event_items_1116e')");
