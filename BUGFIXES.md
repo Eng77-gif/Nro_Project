@@ -2611,3 +2611,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Cải trang Trâu (vàng 843, đen 844, trắng 845, nâu 853 - 855, đốm 856 - 858): HP+31%, HP+50%/30s, sức đánh+21%. Món cũ đổi khi đăng nhập.
 - Cải trang Pan VIP (1921): hút 14% HP (biến tấn công thành HP), +100% may mắn, không giao dịch. Món cũ đổi khi đăng nhập.
 - Cải trang Fide vàng (629): sức đánh 22%, KI 19%, HP 19%, giáp 19% (option 94), không giao dịch; cả món rơi từ boss Fide Vàng / Death Beam. Món cũ đổi khi đăng nhập.
+- Cải trang Fide vàng rơi từ boss Fide Vàng / Death Beam: hạn sử dụng ngẫu nhiên 7 - 30 ngày (trước cố định 20 ngày).

@@ -54,7 +54,7 @@ public class DeathBeam4 extends Boss {
         CaiTrangFideVang.options.add(new Item.ItemOption(103, 19));
         CaiTrangFideVang.options.add(new Item.ItemOption(77, 19));
         CaiTrangFideVang.options.add(new Item.ItemOption(94, 19)); // giáp 19%
-        CaiTrangFideVang.options.add(new Item.ItemOption(93, 20));
+        CaiTrangFideVang.options.add(new Item.ItemOption(93, Util.nextInt(7, 30))); // hạn sử dụng 7 - 30 ngày
         Service.gI().dropItemMap(this.zone, CaiTrangFideVang);
     }
     @Override
