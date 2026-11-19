@@ -1132,6 +1132,9 @@ public class NPoint {
             this.tlDame.add(5);
             this.tlHp.add(-5);
         }
+        if (this.player.taAcUntil > System.currentTimeMillis()) { // Năng lượng tà ác: giảm 10% chí mạng
+            this.critAdd -= 10;
+        }
     }
 
     /**
@@ -2402,6 +2405,10 @@ public class NPoint {
             } else {
                 punchStack = 0;
             }
+        }
+        // Năng lượng tà ác: +100% sức đánh lên quái
+        if (isAttackMob && player.taAcUntil > System.currentTimeMillis()) {
+            dameAttack *= 2;
         }
         // option 165: chiêu cận chiến (đấm) lên quái, 30% cơ hội cộng thêm #% sát thương lửa
         if (fireMob > 0 && isAttackMob) {

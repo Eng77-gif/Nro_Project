@@ -287,6 +287,7 @@ public class Player implements Runnable {
     public boolean skhMenu; // đã từng có Cápsule Vỡ: Bà Hạt Mít hiện Phân rã / Tái tạo vĩnh viễn
     public int wishCrit; // số lần ước +1% chí mạng gốc ở Rồng thần siêu cấp (tối đa 5)
     /** Pet Ma tốc độ: hết bất tử lúc này; Năng lượng E10: hết hiệu lực lúc này */
+    public long taAcUntil; // Năng lượng tà ác (2098): hết hiệu lực lúc này (không lưu khi thoát game)
     public long batTuUntil, e10Until, mayDoNrskUntil; // mayDoNrskUntil: Máy dò Ngọc rồng sự kiện (x2 tỉ lệ rơi Bí ngô 1-7 sao)
     private boolean e10Active;
     /** Hạn vào Ngục tù may mắn (Phiếu sao vàng may mắn) */
@@ -521,7 +522,7 @@ public class Player implements Runnable {
                         lastLuckyMapCheck = System.currentTimeMillis();
                         nro.models.services_func.UseItem.gI().checkLuckyMap(this);
                         nro.models.services_func.UseItem.gI().checkSummerMap(this);
-                        boolean e10 = e10Until > System.currentTimeMillis();
+                        boolean e10 = e10Until > System.currentTimeMillis() || taAcUntil > System.currentTimeMillis();
                         if (e10 != e10Active) { // Năng lượng E10 hết hạn: tính lại chỉ số
                             e10Active = e10;
                             Service.gI().point(this);

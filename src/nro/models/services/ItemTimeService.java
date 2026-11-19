@@ -92,6 +92,9 @@ public class ItemTimeService {
         if (player.mayDoNrskUntil > System.currentTimeMillis()) { // Máy dò Ngọc rồng sự kiện
             sendItemTime(player, nro.models.services.ItemService.gI().getTemplate(1115).iconID, (int) ((player.mayDoNrskUntil - System.currentTimeMillis()) / 1000));
         }
+        if (player.taAcUntil > System.currentTimeMillis()) { // Năng lượng tà ác
+            sendItemTime(player, nro.models.services.ItemService.gI().getTemplate(2098).iconID, (int) ((player.taAcUntil - System.currentTimeMillis()) / 1000));
+        }
         if (player.e10Until > System.currentTimeMillis()) { // Năng lượng E10
             sendItemTime(player, nro.models.services.ItemService.gI().getTemplate(2035).iconID, (int) ((player.e10Until - System.currentTimeMillis()) / 1000));
         }
