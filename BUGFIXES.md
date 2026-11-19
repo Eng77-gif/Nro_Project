@@ -2610,3 +2610,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - 8 cải trang chưa từng có hình (ảnh 1x1 đen, không đầu / thân / chân), không nơi nào phát: Fide chai 1839, Test 1849, Sida 1905, Heles 1908, Rumsshi 1911, Mosco 1912, Champa 2062, Belmod 2063 -> "Vật phẩm đã gỡ" (giữ mã vì bảng tra theo vị trí), bỏ chỉ số, món cũ tự mất khi tải nhân vật; panel Vật phẩm ẩn các ô "đã gỡ / đã xoá".
 - Cải trang Trâu (vàng 843, đen 844, trắng 845, nâu 853 - 855, đốm 856 - 858): HP+31%, HP+50%/30s, sức đánh+21%. Món cũ đổi khi đăng nhập.
 - Cải trang Pan VIP (1921): hút 14% HP (biến tấn công thành HP), +100% may mắn, không giao dịch. Món cũ đổi khi đăng nhập.
+- Cải trang Fide vàng (629): sức đánh 22%, KI 19%, HP 19%, giáp 19% (option 94), không giao dịch; cả món rơi từ boss Fide Vàng / Death Beam. Món cũ đổi khi đăng nhập.

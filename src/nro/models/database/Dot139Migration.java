@@ -330,6 +330,9 @@ public class Dot139Migration {
     /** Đợt 13: Cải trang Pan VIP: hút 14% HP (biến tấn công thành HP), +100% may mắn, không giao dịch. */
     static final int[][][] EVENT_ITEMS13 = {
         {{1921}, {95, 14}, {236, 100}}};
+    /** Đợt 14: Cải trang Fide vàng: sức đánh 22%, KI 19%, HP 19%, giáp 19% (option 94), không giao dịch. */
+    static final int[][][] EVENT_ITEMS14 = {
+        {{629}, {50, 22}, {103, 19}, {77, 19}, {94, 19}}};
     /** Đợt 8 (ảnh anh gửi 19/11): cải trang nhóm Bunma / Thỏ / Poc, cải trang Android 21 / Sarah / Muscular Lady / Caulifla, Xuka, Nón Noel. */
     static final int[][][] EVENT_ITEMS8 = {
         {{676}, {50, 10}, {77, 10}, {103, 10}, {94, 10}}, // Cải trang Sarah
@@ -488,6 +491,11 @@ public class Dot139Migration {
             writeStats(con, EVENT_ITEMS13);
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 1921, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 1921 and option_id = 30)");
             update(con, "insert into server_migration (name) values ('event_items_1119l')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119m'")) {
+            writeStats(con, EVENT_ITEMS14);
+            update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 629, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 629 and option_id = 30)");
+            update(con, "insert into server_migration (name) values ('event_items_1119m')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);

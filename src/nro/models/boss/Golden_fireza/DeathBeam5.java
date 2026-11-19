@@ -37,9 +37,10 @@ public class DeathBeam5 extends Boss {
         // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         ItemMap CaiTrangFideVang = new ItemMap(zone, 629,1, this.location.x + Util.nextInt(-50, 50), this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id);
         CaiTrangFideVang.options.add(new Item.ItemOption(30, 1));
-        CaiTrangFideVang.options.add(new Item.ItemOption(50, 20));
-        CaiTrangFideVang.options.add(new Item.ItemOption(77, 20));
-        CaiTrangFideVang.options.add(new Item.ItemOption(103, 20));
+        CaiTrangFideVang.options.add(new Item.ItemOption(50, 22));
+        CaiTrangFideVang.options.add(new Item.ItemOption(103, 19));
+        CaiTrangFideVang.options.add(new Item.ItemOption(77, 19));
+        CaiTrangFideVang.options.add(new Item.ItemOption(94, 19)); // giáp 19%
         CaiTrangFideVang.options.add(new Item.ItemOption(93, 20));
         Service.gI().dropItemMap(this.zone, CaiTrangFideVang);
     }
