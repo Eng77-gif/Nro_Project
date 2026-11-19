@@ -558,6 +558,19 @@ public class Dot139Migration {
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 681, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 681 and option_id = 30)");
             update(con, "insert into server_migration (name) values ('event_items_1119n')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'tops_2011'")) {
+            // đua top 20/11 như bản chính thức: Giao 7 viên ngọc rồng (802), Hộp quà 20-11 VIP (803), Hộp quà 20-11 (804) thay Tặng hộp trà (801); quà như top cũ
+            for (int[] t : new int[][]{{802}, {803}, {804}}) {
+                String name = t[0] == 802 ? "Giao 7 viên ngọc rồng" : t[0] == 803 ? "Hộp quà 20-11 VIP" : "Hộp quà 20-11";
+                update(con, "insert into season_event_top (id, event_id, name) select " + t[0] + ", 8, '" + name + "' from dual where not exists (select 1 from season_event_top where id = " + t[0] + ")");
+                update(con, "insert into season_event_top_reward (top_id, rank_from, rank_to, item_id, qty, hsd_days, min_point) select " + t[0]
+                        + ", rank_from, rank_to, item_id, qty, hsd_days, min_point from season_event_top_reward where top_id = 801 and not exists (select 1 from season_event_top_reward where top_id = " + t[0] + ")");
+            }
+            update(con, "update season_event_exchange set top_id = 0, top_point = 0 where top_id = 801"); // điểm top Hộp quà tính khi mở hộp
+            update(con, "delete from season_event_top_reward where top_id = 801");
+            update(con, "delete from season_event_top where id = 801");
+            update(con, "insert into server_migration (name) values ('tops_2011')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1119v'")) {
             update(con, "insert into item_option_template (id, NAME) select 275, 'Cool: +#% sức đánh bản thân và đồng minh' from dual where not exists (select 1 from item_option_template where id = 275)");
             update(con, "delete from item_template_option where template_id in (1795, 1963, 1971, 1976, 1941, 1943, 710, 711) and option_id in (30, 6, 267, 154, 159, 275)");

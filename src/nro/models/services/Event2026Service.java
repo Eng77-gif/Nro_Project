@@ -331,6 +331,9 @@ public class Event2026Service {
         short[] icon = {-1};
         String got = openBoxById(pl, box.template.id, icon);
         if (got != null) {
+            if (boxId == 1739 || boxId == 1944) { // đua top 20/11: mở Hộp quà 20-11 / Hộp quà 20-11 VIP
+                SeasonEventService.gI().addTopPointById(boxId == 1944 ? 803 : 804, pl, 1);
+            }
             InventoryService.gI().subQuantityItemsBag(pl, box, 1);
             InventoryService.gI().sendItemBags(pl);
             if (boxId == HOM_HALLOWEEN && pl.zone != null) {
@@ -573,9 +576,12 @@ public class Event2026Service {
         for (Item b : balls) {
             InventoryService.gI().subQuantityItemsBag(pl, b, sets);
         }
-        PlayerExtraDAO.addQlPoints(pl, sets);
+        if (SeasonEventService.gI().isActive(nro.models.database.Dot89Migration.EV_QUY_LAO)) {
+            PlayerExtraDAO.addQlPoints(pl, sets);
+        }
+        SeasonEventService.gI().addTopPointById(802, pl, sets); // đua top 20/11 "Giao 7 viên ngọc rồng" (chỉ khi 20/11 đang chạy)
         InventoryService.gI().sendItemBags(pl);
-        Service.gI().sendThongBao(pl, "Đã tặng " + sets + " bộ ngọc rồng, điểm đua top hiện tại: " + pl.qlPoints);
+        Service.gI().sendThongBao(pl, "Đã giao " + sets + " bộ 7 viên ngọc rồng" + (SeasonEventService.gI().isActive(nro.models.database.Dot89Migration.EV_QUY_LAO) ? ", điểm đua top hiện tại: " + pl.qlPoints : ""));
     }
 
     public String topText() {

@@ -374,6 +374,9 @@ public class QuyLaoKame extends Npc {
                     // đua top tặng bộ ngọc rồng: sự kiện riêng, bật / tắt trên web panel
                     menu.add("Đua top\nngọc rồng\n[" + player.qlPoints + "]");
                     act.add(4);
+                } else if (nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.TEACHERS_DAY)) {
+                    menu.add("Giao\n7 viên\nngọc rồng"); // đua top 20/11 (xem top ở Chi Chi)
+                    act.add(7);
                 }
                 if (nro.models.services.SeasonEventService.gI().isActive(TRUNG_THU)) {
                     // nội dung riêng của sự kiện Trung Thu
@@ -455,6 +458,11 @@ public class QuyLaoKame extends Npc {
                     case 2 -> NpcService.gI().createTutorial(player, tempId, this.avartar, Event2026Service.gI().topText());
                 }
                 break;
+            case MENU_GIAO_NR:
+                if (select <= 1 && nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.TEACHERS_DAY)) {
+                    Event2026Service.gI().giveDragonBallSet(player, select == 1);
+                }
+                break;
             case MENU_QUA_TRUNG_THU:
                 switch (select) {
                     case 0 -> Event2026Service.gI().exchangeTrangTron(player);
@@ -500,11 +508,16 @@ public class QuyLaoKame extends Npc {
             case 6:
                 handleTradeRuacon(player);
                 break;
+            case 7:
+                this.createOtherMenu(player, MENU_GIAO_NR, "Giao ta 1 bộ ngọc rồng 1 - 7 sao để nhận 1 điểm đua top Giao 7 viên ngọc rồng.\nXem bảng xếp hạng ở Chi Chi",
+                        "Giao\n1 bộ", "Giao\ntất cả", "Đóng");
+                break;
         }
     }
 
     private static final int MENU_DUA_TOP = 2026_1;
     private static final int MENU_QUA_TRUNG_THU = 2026_2;
+    private static final int MENU_GIAO_NR = 2026_3;
 
     private void handleTalk(Player player) {
         if (player.LearnSkill.Time != -1 && player.LearnSkill.Time <= System.currentTimeMillis()) {

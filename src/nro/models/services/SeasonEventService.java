@@ -508,8 +508,54 @@ public class SeasonEventService implements Runnable {
                 }
             }
         }
+        closeHalloweenTopsOnce(d);
+        refreshClosedTops();
         syncNpcs();
         syncMobs();
+    }
+
+    /** Đua top đang mở mà đã chốt sớm (vd Halloween chốt 19/11 khi sự kiện còn bật tay): không hiện ở "Top", không cộng điểm nữa. */
+    private final Set<Integer> closedTops = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    private void refreshClosedTops() {
+        Set<Integer> now = new HashSet<>();
+        try (Connection con = LocalManager.getConnection();
+                PreparedStatement ps = con.prepareStatement("select top_id, closed_at from season_event_top_closed"); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Top t = tops.get(rs.getInt(1));
+                if (t != null && t.season != null && t.season.active && t.season.start != null
+                        && !rs.getTimestamp(2).toLocalDateTime().toLocalDate().isBefore(t.season.start)) {
+                    now.add(t.id);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        closedTops.retainAll(now);
+        closedTops.addAll(now);
+    }
+
+    /** Anh yêu cầu: chốt đua top Halloween ngày 19/11/2026 (Halloween vẫn chạy song song 20/11, top chuyển sang 20/11). */
+    private void closeHalloweenTopsOnce(LocalDate d) {
+        if (testDate != null || d.isBefore(LocalDate.of(2026, 11, 19))) {
+            return;
+        }
+        try (Connection con = LocalManager.getConnection(); java.sql.Statement st = con.createStatement()) {
+            try (ResultSet rs = st.executeQuery("select 1 from server_migration where name = 'close_halloween_top_1119'")) {
+                if (rs.next()) {
+                    return;
+                }
+            }
+            st.executeUpdate("insert into server_migration (name) values ('close_halloween_top_1119')");
+        } catch (Exception e) {
+            return;
+        }
+        Season h = seasons.get(HALLOWEEN);
+        if (h != null) {
+            for (Top t : h.tops) {
+                closeTop(t);
+                closedTops.add(t.id);
+            }
+        }
     }
 
     // ------------------------------------------------------------------ quái to sự kiện
@@ -1557,7 +1603,7 @@ public class SeasonEventService implements Runnable {
     }
 
     private void addTopPoint(Top t, Player pl, int pts) {
-        if (pl.isAdmin()) { // tài khoản admin không lên bảng xếp hạng nào
+        if (pl.isAdmin() || closedTops.contains(t.id)) { // tài khoản admin không lên bảng xếp hạng nào
             return;
         }
         try {
@@ -2170,7 +2216,12 @@ public class SeasonEventService implements Runnable {
         tab.id = -1;
         tab.name = quyLao ? "Đổi\nthưởng" : "Shop\nsự kiện";
         Map<Integer, Exchange> map = new LinkedHashMap<>();
-        for (Exchange e : s.exchanges) {
+        // Chi Chi: 2 sự kiện cùng bật thì đồ sự kiện trước ở trên, sự kiện sau ở dưới
+        List<Exchange> all = new ArrayList<>();
+        for (Season se : quyLao ? List.of(s) : activeByStart()) {
+            all.addAll(se.exchanges);
+        }
+        for (Exchange e : all) {
             boolean ok = quyLao ? isPointGroup(e.group) && e.costPoint > 0 : isShopGroup(e.group);
             if (!ok || e.need.length > 0 || e.openNow || map.containsKey(e.rewardItem)) {
                 continue;
@@ -2305,8 +2356,22 @@ public class SeasonEventService implements Runnable {
     }
 
     public List<Top> currentTops() {
-        Season s = current();
-        return s == null ? new ArrayList<>() : s.tops;
+        List<Top> out = new ArrayList<>();
+        for (Season s : activeByStart()) {
+            for (Top t : s.tops) {
+                if (!closedTops.contains(t.id)) {
+                    out.add(t);
+                }
+            }
+        }
+        return out;
+    }
+
+    /** Sự kiện đang chạy, sự kiện bắt đầu trước đứng trước. */
+    public List<Season> activeByStart() {
+        List<Season> list = activeSeasons();
+        list.sort(java.util.Comparator.comparing((Season x) -> x.start == null ? LocalDate.MAX : x.start).thenComparingInt(x -> x.id));
+        return list;
     }
 
     public String topName(Top t) {
