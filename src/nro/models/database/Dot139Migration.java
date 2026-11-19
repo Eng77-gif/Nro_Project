@@ -560,6 +560,28 @@ public class Dot139Migration {
         }
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8");
+        if (!exists(con, "select 1 from server_migration where name = 'box_2011'")) {
+            // quà hộp theo ảnh 20/11 (item:qtyMin-qtyMax:weight:hsd:perm%:bảo hiểm); Gohan SSJ (đệ tử) chưa có trong data
+            String[][] boxes = {
+                {"1944", // Hộp 20/11 VIP
+                    "1937:1:5:7,15:0:200", "2116:1:5:7,15:0:200", "2045:1:30::0:0", "1951:1:20:7,15:0:70", "1173:10:25::0:0",
+                    "1386:1:20:7,15:3:0", "2090:1:15::0:0", "2075:1:3:7,15:0:500", "1453:1:20::0:0", "1965:1:20:7,15:0:70"},
+                {"1739", // Hộp tháng 20/11 (20tr vàng): hạn dùng + 1% vĩnh viễn
+                    "1380:1:20:3:1:0", "1381:1:20:3:1:0", "1383:1:20:3:1:0", "1384:1:20:3:1:0", "1389:1:7:3:1:0", "1390:1:7:3:1:0", "1391:1:6:3:1:0",
+                    "1371:1:20:3:1:0", "2017:1:5:3:1:300", "2061:1:15:3:1:0", "1998:1:8:3:1:100"},
+                {"2124", // Giấy tốt nghiệp (50 ngọc): hạn dùng 15 / 30 / 45 ngày + 2% vĩnh viễn
+                    "1919:1:5:15,30,45:2:0", "860:1:5:15,30,45:2:0", "1380:1:10:15,30,45:2:0", "1381:1:10:15,30,45:2:0", "1383:1:10:15,30,45:2:0",
+                    "1384:1:10:15,30,45:2:0", "1389:1:4:15,30,45:2:0", "1390:1:3:15,30,45:2:0", "1391:1:3:15,30,45:2:0", "1371:1:10:15,30,45:2:0"}};
+            for (String[] b : boxes) {
+                update(con, "delete from item_box_reward where box_id = " + b[0]);
+                for (int i = 1; i < b.length; i++) {
+                    String[] f = b[i].split(":", -1);
+                    update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values (" + b[0] + ", " + f[0] + ", " + f[1] + ", " + f[1]
+                            + ", " + f[2] + ", '" + f[3] + "', " + f[4] + ", " + f[5] + ")");
+                }
+            }
+            update(con, "insert into server_migration (name) values ('box_2011')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'tops_2011c'")) {
             // quà 4 top 20/11 theo bài diễn đàn chính thức (item_id:qty:hsd, rank_from-rank_to, min_point)
             String[][] rw = {
