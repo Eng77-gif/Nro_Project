@@ -1024,6 +1024,9 @@ public class ItemService {
 
     public static boolean fillThanLinh(Item it) {
         dedupeNoTrade(it); // lỗi cũ refreshTitle nhân dòng không giao dịch mỗi lần đăng nhập
+        if (it != null && it.template != null && nro.models.services.NguHanhSonService.EVENT_CT.contains((int) it.template.id) && it.getOptionById(94) == null) {
+            it.itemOptions.add(new ItemOption(94, Util.nextInt(10, 15))); // CT dòng Tôn Ngộ Không cũ: thêm giảm 10 - 15% sát thương
+        }
         if (it == null || it.template == null || it.template.id < 555 || it.template.id > 567) {
             return false;
         }

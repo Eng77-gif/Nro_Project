@@ -156,6 +156,7 @@ public class NguHanhSonService {
         it.itemOptions.add(new Item.ItemOption(101, Util.nextInt(30, 100)));
         it.itemOptions.add(new Item.ItemOption(100, Util.nextInt(70, 130)));
         it.itemOptions.add(new Item.ItemOption(148, Util.nextInt(50, 120)));
+        it.itemOptions.add(new Item.ItemOption(94, Util.nextInt(10, 15))); // giảm 10 - 15% sát thương (cả dòng Tôn Ngộ Không)
         if (Util.isTrue(20, 100)) {
             it.itemOptions.add(new Item.ItemOption(106, 0));
         }

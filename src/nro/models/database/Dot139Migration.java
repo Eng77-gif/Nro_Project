@@ -448,6 +448,13 @@ public class Dot139Migration {
             }
             update(con, "insert into server_migration (name) values ('nhs_ct_goc')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'nhs_ct_giam_st'")) { // dòng Tôn Ngộ Không: + giảm 10 - 15% sát thương
+            for (int id : new int[]{544, 545, 546, 547, 548, 1302}) {
+                update(con, "delete from item_template_option where template_id = " + id + " and option_id = 94");
+                update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (" + id + ", 94, 10, 15, 100, 0)");
+            }
+            update(con, "insert into server_migration (name) values ('nhs_ct_giam_st')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
             update(con, "insert into server_migration (name) values ('event_items_1116e')");
