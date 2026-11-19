@@ -1725,8 +1725,8 @@ public class UseItem {
             case 1115: // Máy dò Ngọc rồng sự kiện: 30 phút x2 tỉ lệ rơi Bí ngô 1-7 sao từ boss (cộng dồn)
                 pl.mayDoNrskUntil = Math.max(pl.mayDoNrskUntil, System.currentTimeMillis()) + 1_800_000;
                 break;
-            case 2098: // Năng lượng tà ác: 10 phút giảm 10% chí mạng, +100% sức đánh lên quái (cộng dồn thời gian)
-                pl.taAcUntil = Math.max(pl.taAcUntil, System.currentTimeMillis()) + 600_000;
+            case 2098: // Năng lượng tà ác: giảm 10% chí mạng, +100% sức đánh lên quái, tối đa 10 phút như cuồng nộ (dùng lại thì về 10 phút)
+                pl.taAcUntil = System.currentTimeMillis() + 600_000;
                 pl.nPoint.calPoint();
                 Service.gI().point(pl);
                 break;

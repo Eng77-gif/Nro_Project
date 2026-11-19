@@ -13,8 +13,10 @@ import nro.models.utils.Util;
  */
 public class NangChiSoBongTai3 {
     // Chi phí & tỉ lệ
-    private static final int GEM_NANG_BT = 1_000;
-    private static final int RATIO_NANG_CAP = 30;
+    private static final int GEM_NANG_BT = 500; // như bản chính thức (ảnh): 500 ngọc, 50%
+    private static final int RATIO_NANG_CAP = 50;
+    /** Khóa chỉ số 1 Bông tai cấp 3: giữ nguyên dòng chỉ số 1, chỉ quay lại dòng 2. */
+    public static final int KHOA_ID = nro.models.services.Event2026Service.KHOA_BONG_TAI_3;
     private static final int ITEM_PARAM_INDEX = 31;
     private static final int BONG_TAI_C3_ID = 1884;
     private static final int HON_BONG_TAI_ID = 934;
@@ -72,13 +74,19 @@ public class NangChiSoBongTai3 {
                     npcSay += "|2|Cần 1 " + daXanhLam.template.name + "\n";
                     npcSay += "|2|Cần: " + player.combineNew.gemCombine + " ngọc\n";
                     npcSay += "|1|Kết quả: +2 dòng chỉ số ngẫu nhiên (có thể trùng nhau)";
-                    CombineService.gI().baHatMit.createOtherMenu(
-                            player,
-                            ConstNpc.MENU_START_COMBINE,
-                            npcSay,
-                            "Nâng cấp\n" + player.combineNew.gemCombine + " ngọc",
-                            "Từ chối"
-                    );
+                    int khoa = khoaCount(player);
+                    if (khoa > 0 && hasStatLine(bongTai)) {
+                        CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.MENU_START_COMBINE, npcSay,
+                                "Dùng khóa\nchỉ số dòng 1\n(" + khoa + ")", "Nâng cấp\nkhông dùng\nkhóa", "Từ chối");
+                    } else {
+                        CombineService.gI().baHatMit.createOtherMenu(
+                                player,
+                                ConstNpc.MENU_START_COMBINE,
+                                npcSay,
+                                "Nâng cấp\n" + player.combineNew.gemCombine + " ngọc",
+                                "Từ chối"
+                        );
+                    }
                 }
             } else {
                 CombineService.gI().baHatMit.createOtherMenu(
@@ -97,7 +105,31 @@ public class NangChiSoBongTai3 {
             );
         }
     }
+    public static int khoaCount(Player player) {
+        Item k = InventoryService.gI().findItemBag(player, KHOA_ID);
+        return k == null ? 0 : k.quantity;
+    }
+
+    private static boolean hasStatLine(Item bongTai) {
+        return bongTai.itemOptions.stream().anyMatch(o -> o.optionTemplate != null && o.optionTemplate.id != 72);
+    }
+
+    /** Menu nâng chỉ số: có khóa thì nút 0 = dùng khóa, nút 1 = không dùng khóa; không có khóa thì nút 0 = nâng cấp. */
+    public static void onSelect(Player player, int select) {
+        Item bongTai = player.combineNew.itemsCombine.stream().filter(it -> it != null && it.isNotNullItem() && it.template.id == BONG_TAI_C3_ID).findFirst().orElse(null);
+        boolean menuKhoa = khoaCount(player) > 0 && bongTai != null && hasStatLine(bongTai);
+        if (select == 0) {
+            nangChiSoBongTai(player, menuKhoa);
+        } else if (select == 1 && menuKhoa) {
+            nangChiSoBongTai(player, false);
+        }
+    }
+
     public static void nangChiSoBongTai(Player player) {
+        nangChiSoBongTai(player, false);
+    }
+
+    public static void nangChiSoBongTai(Player player, boolean useKhoa) {
         try {
             int currentHon = InventoryService.gI().getParam(player, ITEM_PARAM_INDEX, HON_BONG_TAI_ID);
             Item daXanhLam = InventoryService.gI().findItemBag(player, DA_XANH_LAM_ID);
@@ -121,15 +153,23 @@ public class NangChiSoBongTai3 {
                 return;
             }
 
+            Item khoa = useKhoa ? InventoryService.gI().findItemBag(player, KHOA_ID) : null;
+            Item.ItemOption keep = useKhoa ? bongTai.itemOptions.stream().filter(o -> o.optionTemplate != null && o.optionTemplate.id != 72).findFirst().orElse(null) : null;
+            if (useKhoa && (khoa == null || keep == null)) {
+                player.inventory.gem += player.combineNew.gemCombine;
+                Service.gI().sendThongBao(player, "Không có Khóa chỉ số hoặc bông tai chưa có chỉ số");
+                return;
+            }
+            if (khoa != null) {
+                InventoryService.gI().subQuantityItemsBag(player, khoa, 1); // mất khóa mỗi lần dùng, thành công hay thất bại
+            }
             boolean success = Util.isTrue(player.combineNew.ratioCombine, 100);
             if (success) {
-                byte opt1 = randomOpt();
-                byte opt2 = randomOpt();
-                byte p1 = (byte) Util.nextInt(PARAM_MIN, PARAM_MAX);
-                byte p2 = (byte) Util.nextInt(PARAM_MIN, PARAM_MAX);
+                Item.ItemOption line1 = keep != null ? new Item.ItemOption(keep.optionTemplate.id, keep.param)
+                        : new Item.ItemOption(randomOpt(), Util.nextInt(PARAM_MIN, PARAM_MAX));
                 bongTai.itemOptions.clear();
-                bongTai.itemOptions.add(new Item.ItemOption(opt1, p1));
-                bongTai.itemOptions.add(new Item.ItemOption(opt2, p2));
+                bongTai.itemOptions.add(line1);
+                bongTai.itemOptions.add(new Item.ItemOption(randomOpt(), Util.nextInt(PARAM_MIN, PARAM_MAX)));
                 bongTai.itemOptions.add(new Item.ItemOption((short) 72, 3));
 
                 CombineService.gI().sendEffectSuccessCombine(player);
