@@ -24,6 +24,7 @@ public class SubMenuService {
     public static final int CUU_SAT = 503;
     public static final int MENU = 504;
     public static final int BUY_BACK = 505;
+    public static final int XIN_LOI_CHUC = 506; // 20/11: xin lời chúc người chơi khác, tối đa 10 / ngày
 
     private static SubMenuService i;
 
@@ -105,6 +106,19 @@ public class SubMenuService {
                     }
                     player.timesPerDayCuuSat--;
 //                    new CuuSat(player, plTarget);
+                }
+                break;
+            case XIN_LOI_CHUC:
+                if (plTarget != null && plTarget != player && SeasonEventService.gI().isActive(SeasonEventService.TEACHERS_DAY)) {
+                    if (InventoryService.gI().getCountEmptyBag(player) <= 0 && InventoryService.gI().findItemBag(player, 1375) == null) {
+                        Service.gI().sendThongBao(player, "Hành trang không còn chỗ trống");
+                    } else if (SeasonEventService.gI().takeDaily(player, "loi_chuc", 10, 1) <= 0) {
+                        Service.gI().sendThongBao(player, "Hôm nay bạn đã xin đủ 10 lời chúc");
+                    } else {
+                        InventoryService.gI().addItemBag(player, ItemService.gI().createNewItem((short) 1375, 1));
+                        InventoryService.gI().sendItemBags(player);
+                        Service.gI().sendThongBao(player, plTarget.name + " đã gửi bạn 1 Lời chúc");
+                    }
                 }
                 break;
             case BUY_BACK:

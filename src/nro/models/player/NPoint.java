@@ -2576,6 +2576,10 @@ public class NPoint {
                 }
             }
             tiemNang *= Manager.RATE_EXP_SERVER;
+            Player hoaOwner = this.player.isPet && this.player instanceof nro.models.player.Pet pt ? pt.master : this.player;
+            if (hoaOwner != null && hoaOwner.hoaTnsmUntil > System.currentTimeMillis()) {
+                tiemNang *= 2; // 20/11: tặng hoa Whis, x2 TNSM sư phụ và đệ tử 30 phút
+            }
             if (nro.models.services.SeasonEventService.gI().summerPromo(true)) {
                 tiemNang *= 3; // khuyến mãi x3 tiềm năng sự kiện hè
             }

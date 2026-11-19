@@ -287,6 +287,7 @@ public class Player implements Runnable {
     public boolean skhMenu; // đã từng có Cápsule Vỡ: Bà Hạt Mít hiện Phân rã / Tái tạo vĩnh viễn
     public int wishCrit; // số lần ước +1% chí mạng gốc ở Rồng thần siêu cấp (tối đa 5)
     /** Pet Ma tốc độ: hết bất tử lúc này; Năng lượng E10: hết hiệu lực lúc này */
+    public long hoaTnsmUntil; // 20/11 tặng hoa Whis: x2 TNSM sư phụ và đệ tử (không lưu khi thoát game)
     public long taAcUntil; // Năng lượng tà ác (2098): hết hiệu lực lúc này (không lưu khi thoát game)
     public long batTuUntil, e10Until, mayDoNrskUntil; // mayDoNrskUntil: Máy dò Ngọc rồng sự kiện (x2 tỉ lệ rơi Bí ngô 1-7 sao)
     private boolean e10Active;

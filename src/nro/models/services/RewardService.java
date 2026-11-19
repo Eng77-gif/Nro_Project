@@ -51,8 +51,14 @@ public class RewardService {
     public static final int[] SUMMER_WHEEL_1_3 = {1087, 1088, 1089, 1090, 1091, 1571};
     public static final int[] SUMMER_WHEEL_2 = {1842, 1708, 1144, 1234, 1235};
 
+    /** Vòng quay Thượng Đế 20/11 (diễn đàn): Bó hoa hồng, Bó hoa vàng, CT Bulma Ả Rập, Bút chì hồng, Hematite (khóa). */
+    public static final int[] TEACHERS_WHEEL = {1388, 955, 1309, 1386, 1441};
+
     private static int[] summerWheel() {
         SeasonEventService se = SeasonEventService.gI();
+        if (se.isActive(SeasonEventService.TEACHERS_DAY)) {
+            return TEACHERS_WHEEL;
+        }
         if (se.isActive(SeasonEventService.SUMMER_2)) {
             return SUMMER_WHEEL_2;
         }

@@ -1755,7 +1755,10 @@ public class Service {
                 player.idMark.setAcpTrade(false);
                 return;
             }
-//            SubMenuService.gI().showMenu(player);
+            // 20/11: mục "Xin lời chúc" xuất hiện ngẫu nhiên trong menu người chơi khác
+            if (player.id != playerId && SeasonEventService.gI().isActive(SeasonEventService.TEACHERS_DAY) && Util.isTrue(30, 100)) {
+                SubMenuService.gI().showSubMenu(player, new SubMenuService.SubMenu(SubMenuService.XIN_LOI_CHUC, "Xin lời chúc", "Sự kiện 20/11"));
+            }
         } catch (Exception e) {
             Logger.logException(Service.class, e);
         }

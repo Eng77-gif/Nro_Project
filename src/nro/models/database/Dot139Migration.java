@@ -560,6 +560,43 @@ public class Dot139Migration {
         }
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8");
+        if (!exists(con, "select 1 from server_migration where name = 'restore_98302'")) {
+            // bản thử trước ghi nhầm quà tặng hoa Whis vào hộp 98302 (Giao Người tuyết - Giáng sinh): trả lại quà gốc
+            if (exists(con, "select 1 from item_box_reward where box_id = 98302 and item_id = 1934")) {
+                update(con, "delete from item_box_reward where box_id = 98302");
+                Dot118Migration.box(con, 98302, new int[][]{{76, 15}, {77, 15}, {17, 5}, {18, 5}, {19, 5}, {20, 5}, {1758, 5}, {1759, 5}, {1150, 5}, {1151, 5}, {1152, 5},
+                    {1153, 5}, {1154, 5}, {925, 2}, {926, 2}, {927, 2}, {928, 2}, {929, 2}, {930, 2}, {931, 2}}, "");
+                update(con, "update item_box_reward set qty_min = 5000000, qty_max = 20000000 where box_id = 98302 and item_id = 76");
+                update(con, "update item_box_reward set qty_min = 10, qty_max = 50 where box_id = 98302 and item_id = 77");
+                update(con, "delete from server_migration where name = 'event_2011_rest'"); // chạy lại phần 20/11 với mã quà mới 98411 / 98412
+            }
+            update(con, "insert into server_migration (name) values ('restore_98302')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_2011_rest'")) {
+            // 20/11 phần còn lại theo bài diễn đàn
+            // Mảnh giấy: map rừng (Bamboo, Dương xỉ, Cọ, Đá) tối đa 999/ngày; Keo dán: Ốc sên Trái Đất; Nia tre thêm từ boss; Lời chúc xin ở menu người chơi (bỏ rơi từ quái)
+            update(con, "update season_event_drop set maps = '27,28,35,36', daily_max = 999 where event_id = 8 and item_id = 1373");
+            update(con, "update season_event_drop set mobs = '14', rate = 50, daily_max = 999 where event_id = 8 and item_id = 1374");
+            update(con, "delete from season_event_drop where event_id = 8 and item_id = 1375");
+            update(con, "insert into season_event_drop (event_id, item_id, rate, qty_min, qty_max, source, daily_max, item_to, need_item, mobs, maps) "
+                    + "select 8, 1365, 5000, 1, 3, 'boss', 999, 0, 0, '', '' from dual where not exists (select 1 from season_event_drop where event_id = 8 and item_id = 1365 and source = 'boss')");
+            // Tặng Hộp trà hoa cúc ở Quy Lão ra Sách giáo khoa; mở Sách giáo khoa ra cải trang (thêm CT Gohan học đường)
+            update(con, "update season_event_exchange set reward_item = 1740, reward_qty = 1, reward_qty_max = 1, open_now = 0 where id = 581");
+            update(con, "update season_event_exchange set reward_item = 1740, reward_qty = 10, reward_qty_max = 10, open_now = 0 where id = 582");
+            update(con, "delete from item_box_reward where box_id in (1740, 1376, 1377, 98412)");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 1740, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity from item_box_reward where box_id in (98202, 98203)");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values (1740, 1933, 1, 1, 10, '7,15', 2, 0)");
+            // Thiệp chúc thường / đặc biệt mở ra vật phẩm (đặc biệt có thêm Pet Capybara hồng vĩnh viễn)
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 1376, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity from item_box_reward where box_id = 98201");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 1377, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity from item_box_reward where box_id = 98202");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values (1377, 1668, 1, 1, 5, '', 0, 0)");
+            // Whis (Thần Vũ Trụ): tặng hoa - 1 đóa x2 TNSM sư phụ + đệ tử 30 phút, 10 đóa thêm 1 quà đặc biệt (CT Videl học đường...)
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values "
+                    + "(98412, 1934, 1, 1, 10, '7,15', 2, 0), (98412, 1933, 1, 1, 10, '7,15', 2, 0), (98412, 955, 1, 1, 20, '7,15', 2, 0), (98412, 987, 1, 3, 30, '', 0, 0), (98412, 457, 1, 2, 30, '', 0, 0)");
+            update(con, "insert into season_event_exchange (event_id, grp, name, need, reward_item, open_now, npc) select 8, 'Tặng\\nhoa', 'Tặng 1 Đóa hoa', '1530:1', 98411, 1, '56' from dual where not exists (select 1 from season_event_exchange where reward_item = 98411)");
+            update(con, "insert into season_event_exchange (event_id, grp, name, need, reward_item, open_now, npc) select 8, 'Tặng\\nhoa', 'Tặng 10 Đóa hoa', '1530:10', 98412, 1, '56' from dual where not exists (select 1 from season_event_exchange where reward_item = 98412)");
+            update(con, "insert into server_migration (name) values ('event_2011_rest')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'top_2011_spl'")) {
             // top Hộp quà 20-11 (vàng): top 1 Sao pha lê lấp lánh 10% vàng, top 2 9% vàng (chỉ số đặt lúc nhận quà, SeasonEventService.topRewardItem)
             update(con, "insert into season_event_top_reward (top_id, rank_from, rank_to, item_id, qty, hsd_days, min_point) values (801, 1, 1, 1431, 1, '', 0), (801, 2, 2, 1431, 1, '', 0)");

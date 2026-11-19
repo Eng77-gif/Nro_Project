@@ -331,6 +331,9 @@ public class Event2026Service {
         short[] icon = {-1};
         String got = openBoxById(pl, box.template.id, icon);
         if (got != null) {
+            if (boxId == 1377) { // Thiệp chúc đặc biệt: tính danh hiệu Gõ Đầu Trẻ (49 thiệp / ngày)
+                SeasonEventService.gI().goDauTre(pl, "thiep", 1, 49);
+            }
             InventoryService.gI().subQuantityItemsBag(pl, box, 1);
             InventoryService.gI().sendItemBags(pl);
             if (boxId == HOM_HALLOWEEN && pl.zone != null) {

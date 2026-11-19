@@ -65,6 +65,7 @@ public class SeasonEventService implements Runnable {
     public static final int MENU_EXCHANGE = 84000; // + id công thức
     public static final int MENU_GROUP = 86000; // + id sự kiện * 50 + nhóm
     public static final int MENU_NPC = 97000; // menu sự kiện ở NPC khác Santa
+    public static final int MENU_TEA = 97001; // Bà Hạt Mít: sấy nhanh Túi trà khô
 
     public static class Season {
 
@@ -1018,7 +1019,97 @@ public class SeasonEventService implements Runnable {
         npc.createOtherMenu(pl, MENU_GROUP + s.id * 50 + g, sb.toString(), opts);
     }
 
+    // ------------------------------------------------------------------ 20/11: tặng hoa Whis, danh hiệu Gõ Đầu Trẻ
+    public static final int TANG_HOA_1 = 98411, TANG_HOA_10 = 98412; // mã quà ảo của công thức tặng hoa ở Whis
+    private static final int HOA_HONG = 1530, HOP_TRA_HOA_CUC = 1370, THIEP_DB = 1377, GO_DAU_TRE = 1392;
+
+    private void teachersDayAfter(Player pl, Exchange e, int times, List<String> got) {
+        if (e.season == null || e.season.id != TEACHERS_DAY) {
+            return;
+        }
+        if (e.rewardItem == TANG_HOA_1 || e.rewardItem == TANG_HOA_10) { // x2 TNSM cho sư phụ và đệ tử 30 phút
+            pl.hoaTnsmUntil = System.currentTimeMillis() + 30 * 60_000L;
+            nro.models.services.ItemTimeService.gI().sendAllItemTime(pl);
+            got.add("x2 TNSM sư phụ và đệ tử 30 phút");
+        }
+        for (int[] n : e.need) {
+            if (n[0] == HOP_TRA_HOA_CUC) {
+                goDauTre(pl, "tra", n[1] * times, 99);
+            } else if (n[0] == HOA_HONG) {
+                goDauTre(pl, "hoa", n[1] * times, 49);
+            }
+        }
+    }
+
+    /** Danh hiệu Gõ Đầu Trẻ (60 ngày): trong 1 ngày tặng đủ 99 Hộp trà hoa cúc / 49 Thiệp chúc đặc biệt / 49 Hoa. */
+    public void goDauTre(Player pl, String kind, int qty, int need) {
+        if (pl == null || !pl.isPl() || !isActive(TEACHERS_DAY)) {
+            return;
+        }
+        LocalDate t = today();
+        if (!t.equals(dailyDate)) {
+            daily.clear();
+            dailyDate = t;
+        }
+        String k = pl.id + ":gdt_" + kind;
+        int before = daily.getOrDefault(k, 0), now = before + qty;
+        daily.put(k, now);
+        if (before < need && now >= need && !daily.containsKey(pl.id + ":gdt_done")) {
+            daily.put(pl.id + ":gdt_done", 1);
+            InventoryService.gI().addItemBag(pl, noTrade(Event2026Service.gI().createItem(GO_DAU_TRE + Math.max(0, Math.min(2, pl.gender)), 1, 60)));
+            InventoryService.gI().sendItemBags(pl);
+            Service.gI().sendThongBao(pl, "Chúc mừng! Bạn nhận được danh hiệu Gõ Đầu Trẻ (60 ngày)");
+        }
+    }
+
+    // ------------------------------------------------------------------ 20/11: sấy Túi trà khô (90 giây hoặc 5tr vàng)
+    private static final int TUI_TRA_KHO = 1368;
+    private static final long TEA_MS = 90_000, TEA_FAST_GOLD = 5_000_000;
+    private final Map<Long, Long> teaDrying = new ConcurrentHashMap<>(); // shortcut: lưu trong RAM, khởi động lại server thì mất mẻ đang sấy (lá trà đã trừ); cần thì lưu DB như nồi bánh
+
+    private boolean teaPending(Npc npc, Player pl, Exchange e) {
+        Long ready = e.rewardItem == TUI_TRA_KHO ? teaDrying.get(pl.id) : null;
+        if (ready == null) {
+            return false;
+        }
+        long left = ready - System.currentTimeMillis();
+        if (left <= 0) {
+            giveTea(pl);
+        } else {
+            npc.createOtherMenu(pl, MENU_TEA, "Lá trà đang được sấy, còn " + Math.max(1, left / 1000) + " giây nữa\nDùng " + Util.numberToMoney(TEA_FAST_GOLD) + " vàng để sấy khô cấp tốc?",
+                    "Sấy nhanh\n" + Util.numberToMoney(TEA_FAST_GOLD) + " vàng", "Đóng");
+        }
+        return true;
+    }
+
+    private void fastDryTea(Player pl) {
+        if (!teaDrying.containsKey(pl.id)) {
+            return;
+        }
+        if (pl.inventory.gold < TEA_FAST_GOLD) {
+            Service.gI().sendThongBao(pl, "Không đủ vàng");
+            return;
+        }
+        pl.inventory.gold -= TEA_FAST_GOLD;
+        Service.gI().sendMoney(pl);
+        giveTea(pl);
+    }
+
+    private void giveTea(Player pl) {
+        if (InventoryService.gI().getCountEmptyBag(pl) <= 0 && InventoryService.gI().findItemBag(pl, TUI_TRA_KHO) == null) {
+            Service.gI().sendThongBao(pl, "Hành trang không còn chỗ trống");
+            return;
+        }
+        teaDrying.remove(pl.id);
+        InventoryService.gI().addItemBag(pl, noTrade(Event2026Service.gI().createItem(TUI_TRA_KHO, 1, 0)));
+        InventoryService.gI().sendItemBags(pl);
+        Service.gI().sendThongBao(pl, "Trà đã khô! Nhận được x1 Túi trà khô");
+    }
+
     private void openExchange(Npc npc, Player pl, Exchange e) {
+        if (teaPending(npc, pl, e)) {
+            return;
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(ConstFont.BOLD_GREEN).append(e.name.replace("\n", " ")).append("\n");
         sb.append(ConstFont.BOLD_DARK).append("Cần cho 1 lần:\n");
@@ -1188,6 +1279,12 @@ public class SeasonEventService implements Runnable {
 
     /** Xử lý chọn menu của sự kiện; trả về true nếu đúng menu sự kiện. */
     public boolean confirmMenu(Npc npc, Player pl, int menu, int select) {
+        if (menu == MENU_TEA) {
+            if (select == 0) {
+                fastDryTea(pl);
+            }
+            return true;
+        }
         if (menu == MENU_LIST) {
             List<Season> list = activeSeasons();
             if (select >= 0 && select < list.size()) {
@@ -1401,6 +1498,13 @@ public class SeasonEventService implements Runnable {
                 Service.gI().sendThongBao(pl, "Hành trang không đủ chỗ trống");
                 return;
             }
+            if (e.rewardItem == TUI_TRA_KHO && e.season != null && e.season.id == TEACHERS_DAY) {
+                if (teaDrying.containsKey(pl.id)) {
+                    Service.gI().sendThongBao(pl, "Đang sấy mẻ trà trước, hãy nhận trước đã");
+                    return;
+                }
+                times = 1;
+            }
             if (isCook(e)) {
                 if (cooking.containsKey(pl.id)) {
                     Service.gI().sendThongBao(pl, "Nồi đang nấu bánh, hãy chờ bánh chín rồi nhận");
@@ -1420,6 +1524,13 @@ public class SeasonEventService implements Runnable {
             pl.inventory.ruby -= e.ruby * times;
             if (e.costPoint > 0) {
                 pl.event.subEventPoint(e.costPoint * times);
+            }
+            if (e.rewardItem == TUI_TRA_KHO && e.season != null && e.season.id == TEACHERS_DAY) { // 20/11: sấy 90 giây
+                teaDrying.put(pl.id, System.currentTimeMillis() + TEA_MS);
+                InventoryService.gI().sendItemBags(pl);
+                Service.gI().sendMoney(pl);
+                Service.gI().sendThongBao(pl, "Đang sấy khô lá trà, 90 giây nữa quay lại Bà Hạt Mít để nhận (hoặc dùng 5tr vàng sấy cấp tốc)");
+                return;
             }
             if (isCook(e)) { // nồi bánh (như v10): bánh chín sau 60 giây, quay lại nồi bánh nhận
                 cooking.put(pl.id, new long[]{e.id, System.currentTimeMillis() + COOK_MS});
@@ -1472,6 +1583,7 @@ public class SeasonEventService implements Runnable {
                 pl.event.addEventPoint(e.eventPoint * times);
                 got.add(e.eventPoint * times + " điểm sự kiện");
             }
+            teachersDayAfter(pl, e, times, got);
             Top t = tops.get(e.topId);
             if (t != null && e.topPoint > 0) {
                 addTopPoint(t, pl, e.topPoint * times);
