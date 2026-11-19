@@ -2604,3 +2604,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Nhóm Đôrêmon theo ảnh: Xekô 863 HP+20% KI+20%, Chaien 864 SĐ+20% HP+5%, Đôrêmon 806 giáp 20% + 10% né, Nobita 862 chí mạng 5% + SĐ 15%, Xuka 1992 như Xuka 819; dòng set (Ở gần đủ 5 loại +20% sức đánh +50% tốc độ chạy) nay có hiệu lực: người mặc 1 món nhóm Đôrêmon đứng gần đủ 4 loại còn lại thì +20% SĐ, +50% tốc độ chạy.
 - Cải trang Đôrêmon 806: dòng giáp dùng option 47 (Giáp+20) thay cho 94 (Giảm 20% sát thương).
 - Cải trang Đôrêmon 806: giáp về lại option 94 (giáp 20%, như ngọc rồng 2 sao).
+- Ngũ Hành Sơn: bỏ 3 cải trang đệ tử tự tạo 2128 - 2130 (trùng món có sẵn), đổi quà / chỉ dành cho đệ dùng cải trang gốc 548 Bát Giới, 547 Ngộ Không, 1302 Sa Tăng; món 2128 - 2130 người chơi đang có tự đổi về món gốc khi tải nhân vật, dòng 2128 - 2130 thành vật phẩm đã gỡ.

@@ -1,6 +1,6 @@
 # Vật phẩm đang dùng chỉ số tạm (mượn)
 
-Tổng: **467** món (đã bỏ đồ / cải trang bán ở Santa, quà ước rồng và các món đã có chỉ số theo ảnh). Có ảnh chỉ số thật thì gửi để thay (hoặc sửa ở Panel > Vật phẩm > chỉ số mặc định).
+Tổng: **464** món (đã bỏ đồ / cải trang bán ở Santa, quà ước rồng và các món đã có chỉ số theo ảnh). Có ảnh chỉ số thật thì gửi để thay (hoặc sửa ở Panel > Vật phẩm > chỉ số mặc định).
 
 ## 1. Chỉ số chung đặt tạm, chưa có chỉ số thật: 443 món
 ### Cải trang / avatar (SĐ, HP, KI +15%): 181 món
@@ -21,5 +21,5 @@ Thỏ xám (892), Thỏ trắng (893), Ma phong ba (908), Thần chết cute (90
 ## 2. Mượn chỉ số cửa hàng v10: 15 món
 Bóng khí Gas (1223), Gậy thượng đế (1231), Búa hắc hường (1254), Cờ khỉ hoàng đế (1301), Bút chì hồng (1386), Kiếm Kitetsu (1456), Cờ dây pháo (1479), Thuyền Âu Lạc (1534), Tàu ngầm 19 Cam (1554), Tàu ngầm 19 Vàng (1555), Tivi bay (1625), Phong hỏa luân (1676), Xe xanh Chi Chi (1677), Xe đỏ Bun ma (1678), CT Omega (1685)
 
-## 3. Đồ Tây Du / CT đệ tử Ngũ Hành Sơn (chỉ số tự đặt): 9 món
-Quạt ba tiêu (1023), Như Ý Kim Cô Bổng (1024), Cửu Xỉ Đinh Ba (1025), Nguyệt Nha Sản (1026), Cửu Hoàn Thiên Tích Trượng (1027), Bồ cào 9 răng (1699), Cải trang Bát Giới (Đệ) (2128), Cải trang Tôn Ngộ Không (Đệ) (2129), Cải trang Sa Tăng (Đệ) (2130)
+## 3. Đồ Tây Du (chỉ số tự đặt): 6 món
+Quạt ba tiêu (1023), Như Ý Kim Cô Bổng (1024), Cửu Xỉ Đinh Ba (1025), Nguyệt Nha Sản (1026), Cửu Hoàn Thiên Tích Trượng (1027), Bồ cào 9 răng (1699)

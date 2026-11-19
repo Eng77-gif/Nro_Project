@@ -18,10 +18,8 @@ import static nro.models.database.Dot77Migration.update;
 public class Dot86Migration {
 
     /** {id, tên, icon, head, body, leg} - cải trang chỉ dành cho đệ tử */
-    private static final Object[][] CT = {
-        {2128, "Cải trang Bát Giới (Đệ)", 14082, 1583, 1584, 1585},
-        {2129, "Cải trang Tôn Ngộ Không (Đệ)", 4520, 462, 468, 469},
-        {2130, "Cải trang Sa Tăng (Đệ)", 3785, 344, 345, 346},};
+    /** (2128 - 2130 cải trang đệ tử tự tạo đã gỡ: dùng cải trang có sẵn 547 / 548 / 1302 - Dot139Migration) */
+    private static final Object[][] CT = {};
 
     /** chỉ số tạm {item, {option, giá trị}...} */
     private static final int[][][] OPTS = {

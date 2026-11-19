@@ -20,7 +20,7 @@ public class Dot87Migration {
 
     /** {option, min, max} - giống NguHanhSonService.createEventCt */
     private static final int[][] CT_OPTS = {{50, 15, 20}, {77, 50, 100}, {103, 50, 100}, {101, 30, 100}, {100, 70, 130}, {148, 50, 120}};
-    private static final int[] CT_IDS = {544, 545, 546, 547, 548, 2128, 2129, 2130};
+    private static final int[] CT_IDS = {544, 545, 546, 547, 548, 1302};
 
     public static void run(Connection con) {
         int changed = 0;

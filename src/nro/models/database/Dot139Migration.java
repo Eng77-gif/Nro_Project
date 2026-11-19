@@ -440,6 +440,19 @@ public class Dot139Migration {
             writeStats(con, new int[][][]{EVENT_ITEMS11[2]});
             update(con, "insert into server_migration (name) values ('event_items_1119j')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'nhs_ct_goc'")) {
+            // Ngũ Hành Sơn: bỏ 3 cải trang đệ tử tự tạo 2128 - 2130 (trùng món có sẵn), dùng 548 Bát Giới / 547 Ngộ Không / 1302 Sa Tăng;
+            // giữ dòng item_template (mã = vị trí) dạng vật phẩm đã gỡ, món người chơi đang có đổi về món gốc khi tải nhân vật
+            update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1, head = -1, body = -1, leg = -1 where id in (2128, 2129, 2130)");
+            update(con, "delete from item_template_option where template_id in (2128, 2129, 2130)");
+            update(con, "delete from item_shop where temp_id in (2128, 2129, 2130)");
+            update(con, "delete from item_box_reward where item_id in (2128, 2129, 2130)");
+            update(con, "delete from item_template_option where template_id = 1302");
+            for (int[] o : new int[][]{{50, 15, 20}, {77, 50, 100}, {103, 50, 100}, {101, 30, 100}, {100, 70, 130}, {148, 50, 120}}) {
+                update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1302, " + o[0] + ", " + o[1] + ", " + o[2] + ", 100, 0)");
+            }
+            update(con, "insert into server_migration (name) values ('nhs_ct_goc')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
             update(con, "insert into server_migration (name) values ('event_items_1116e')");
