@@ -284,8 +284,15 @@ public class Dot139Migration {
     /** Đợt 6 (video sinh nhật 12 năm): Máy bay NRO. */
     static final int[][][] EVENT_ITEMS6 = {
         {{1954}, {50, 7}, {77, 7}, {103, 14}, {236, 5}, {253, 12}}}; // Máy bay NRO (+12% TN, SM cho đệ tử khi sư phụ mặc)
+    /** Đợt 7 (ảnh anh gửi): CT Yardrat 3 hành tinh, CT Gohan / Videl học đường. Thú cưỡi chim đất VIP 2058 đã đúng ảnh. */
+    static final int[][][] EVENT_ITEMS7 = {
+        {{592}, {47, 350}, {108, 10}, {33, 0}}, // Cải trang Yardrat: Giáp+350, 10% né đòn, dịch chuyển tức thời
+        {{593}, {47, 350}, {108, 10}, {33, 0}},
+        {{594}, {47, 350}, {108, 10}, {33, 0}},
+        {{1933}, {77, 20}, {103, 20}, {50, 25}, {101, 50}, {10, 10}}, // CT Gohan học đường: sát thương chuẩn 10%
+        {{1934}, {77, 25}, {103, 20}, {50, 25}, {101, 50}, {94, 10}}}; // CT Videl học đường: giảm 10% sát thương
     /** Mọi dòng chỉ số 2 đợt dùng (xoá rồi ghi lại); dòng khác như không giao dịch 30, bay 85 giữ nguyên. Dùng chung với ItemService.refreshTitle. */
-    public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 104, 106, 108,
+    public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(10, 33, 5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 104, 106, 108,
             114, 117, 126, 43, 44, 273, 274, 226, 253, 148, 154, 155, 183, 191, 199, 200, 204, 210, 221, 236, 268, 269, 270, 271, 272);
     private static final String STAT_IDS = STAT_SET.toString().replace("[", "").replace("]", "");
 
@@ -333,6 +340,13 @@ public class Dot139Migration {
             writeStats(con, EVENT_ITEMS6);
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 1954, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 1954 and option_id = 30)");
             update(con, "insert into server_migration (name) values ('event_items_1117a')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119a'")) {
+            writeStats(con, EVENT_ITEMS7);
+            for (int id : new int[]{1933, 1934}) { // "Không giao dịch" như ảnh
+                update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select " + id + ", 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = " + id + " and option_id = 30)");
+            }
+            update(con, "insert into server_migration (name) values ('event_items_1119a')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
