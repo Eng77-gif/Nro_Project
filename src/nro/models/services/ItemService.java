@@ -710,6 +710,7 @@ public class ItemService {
             843, 844, 845, 853, 854, 855, 856, 857, 858, // đợt 12: cải trang Trâu
             1921, // đợt 13: CT Pan VIP
             629, // đợt 14: CT Fide vàng
+            583, 581, 582, 719, 730, 746, 745, // đợt 18: Póc, Bum ma, Lý Tiểu Nương, Urôn, Sói Basil, Xe tuần lộc, Bông tuyết
             635, 636, 637, // đợt 17: nhóm Piláp (TN,SM ngẫu nhiên: chỉ đổi 1 lần, xem refreshTitle)
             421, 422, // đợt 16: CT Sơn Tinh / Thủy Tinh
             463, 681, 642, 643, 644, 645, 646, // đợt 15: Thỏ đại ca, Nàng Tiên Cá, bộ xương / ma trơi / dơi nhí

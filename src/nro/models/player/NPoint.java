@@ -233,6 +233,7 @@ public class NPoint {
     public int halloweenXq = -1; // option 262 / 263: biến người xung quanh thành Zombi (0) / Bí Ngô (2) mỗi 30 giây
     public boolean khongHoaXuong; // option 32: không bị hóa Xương
     public int tlHoiDongBang; // option 221: phục hồi #% HP và KI mỗi 30 giây cho bản thân và đồng bang
+    public int fireMob; // option 165: cơ hội ra đòn +#% sát thương lửa khi cận chiến quái
     public int ngocMoiNgay; // option 161: thêm # ngọc mỗi ngày khi đánh quái
     public int punchStackMax; // option 156: cộng dồn 1% SĐ mỗi đòn đấm liên tiếp, tối đa #%
     private int punchStack;
@@ -1234,6 +1235,9 @@ public class NPoint {
             case 221: //Phục hồi #% HP và KI mỗi 30 giây cho bản thân và đồng bang
                 this.tlHoiDongBang += io.param;
                 break;
+            case 165: //Cơ hội ra đòn +#% sát thương lửa khi cận chiến quái
+                this.fireMob += io.param;
+                break;
             case 161: //Thêm # ngọc mỗi ngày khi đánh quái
                 this.ngocMoiNgay += io.param;
                 break;
@@ -2133,6 +2137,7 @@ public class NPoint {
         this.khongHoaXuong = false;
         this.tlHoiDongBang = 0;
         this.ngocMoiNgay = 0;
+        this.fireMob = 0;
         this.punchStackMax = 0;
         this.giamSTKhiItKi = 0;
         this.flyMobCotNha = 0;
@@ -2390,6 +2395,13 @@ public class NPoint {
                 dameAttack += dameAttack * punchStack / 100;
             } else {
                 punchStack = 0;
+            }
+        }
+        // option 165: chiêu cận chiến (đấm) lên quái, 30% cơ hội cộng thêm #% sát thương lửa
+        if (fireMob > 0 && isAttackMob) {
+            int sk = skillSelect.template.id;
+            if ((sk == Skill.DRAGON || sk == Skill.DEMON || sk == Skill.GALICK) && Util.isTrue(30, 100)) { // shortcut: tỉ lệ 30% tự đặt (ảnh không ghi), sửa khi có số gốc
+                dameAttack += dameAttack * fireMob / 100;
             }
         }
         // option 272: hấp thụ sức mạnh, cứ 10 đòn thì đòn thứ 10 bộc phá x2 sát thương
