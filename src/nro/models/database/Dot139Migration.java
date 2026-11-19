@@ -295,6 +295,19 @@ public class Dot139Migration {
     static final int[][][] EVENT_ITEMS9 = {
         {{408}, {50, 20}, {77, 20}}, {{580}, {50, 20}, {77, 20}}, // 724 bán ở Santa đã đúng chỉ số: không đụng
         {{283}, {77, 10}}};
+    /** Đợt 10 (ảnh anh gửi): cải trang Hải Tặc Tí Hon (One Piece) +5% sức đánh, +12% tốc độ chạy, tăng khi ở gần CT Hải Tặc khác loại. */
+    static final int[][][] EVENT_ITEMS10 = {
+        {{618}, {147, 5}, {148, 12}, {149, 0}},
+        {{619}, {147, 5}, {148, 12}, {149, 0}},
+        {{620}, {147, 5}, {148, 12}, {149, 0}},
+        {{621}, {147, 5}, {148, 12}, {149, 0}},
+        {{622}, {147, 5}, {148, 12}, {149, 0}},
+        {{623}, {147, 5}, {148, 12}, {149, 0}},
+        {{624}, {147, 5}, {148, 12}, {149, 0}},
+        {{625}, {147, 5}, {148, 12}, {149, 0}},
+        {{626}, {147, 5}, {148, 12}, {149, 0}},
+        {{628}, {147, 5}, {148, 12}, {149, 0}},
+    };
     /** Đợt 8 (ảnh anh gửi 19/11): cải trang nhóm Bunma / Thỏ / Poc, cải trang Android 21 / Sarah / Muscular Lady / Caulifla, Xuka, Nón Noel. */
     static final int[][][] EVENT_ITEMS8 = {
         {{676}, {50, 10}, {77, 10}, {103, 10}, {94, 10}}, // Cải trang Sarah
@@ -321,7 +334,7 @@ public class Dot139Migration {
         {{394}, {77, 30}, {106, 0}, {80, 50}, {50, 20}},
     };
     /** Mọi dòng chỉ số 2 đợt dùng (xoá rồi ghi lại); dòng khác như không giao dịch 30, bay 85 giữ nguyên. Dùng chung với ItemService.refreshTitle. */
-    public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(10, 33, 176, 193, 196, 265, 5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 104, 106, 108,
+    public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(10, 33, 176, 193, 196, 265, 147, 149, 5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 104, 106, 108,
             114, 117, 126, 43, 44, 273, 274, 226, 253, 148, 154, 155, 183, 191, 199, 200, 204, 210, 221, 236, 268, 269, 270, 271, 272);
     private static final String STAT_IDS = STAT_SET.toString().replace("[", "").replace("]", "");
 
@@ -398,6 +411,10 @@ public class Dot139Migration {
                 update(con, "insert into item_shop_option (item_shop_id, option_id, param) select id, " + o[0] + ", " + o[1] + " from item_shop where temp_id = 724");
             }
             update(con, "insert into server_migration (name) values ('event_items_1119e')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119f'")) {
+            writeStats(con, EVENT_ITEMS10);
+            update(con, "insert into server_migration (name) values ('event_items_1119f')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
