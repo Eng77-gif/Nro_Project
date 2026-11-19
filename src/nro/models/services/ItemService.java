@@ -370,7 +370,7 @@ public class ItemService {
     }
 
     /** Vật phẩm đã gỡ khỏi game nhưng giữ dòng trong item_template (danh sách tra theo vị trí = mã): coi như không có, món cũ tự mất khi tải nhân vật. */
-    public static final java.util.Set<Integer> REMOVED = java.util.Set.of(2121, 2122); // Đại bàng đất sét nổ VIP / thường
+    public static final java.util.Set<Integer> REMOVED = java.util.Set.of(); // (Đại bàng 2121 / 2122 đã xoá hẳn, mã dồn cho Kỳ Lân / Con dấu VIP)
 
     public Template.ItemTemplate getTemplate(int id) {
         // vật phẩm đã xóa (vd. thú cưỡi 2124 - 2127) không làm lỗi cả hành trang khi tải nhân vật

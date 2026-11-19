@@ -654,8 +654,8 @@ public final class Dot56Migration {
 
     /** {id, tên, icon, part, chỉ số {option, từ, đến}...} - theo ảnh: Đại bàng đất sét nổ / VIP; Kỳ Lân giữ tạm */
     private static final Object[][] MOUNTS_71 = {
-        // 2121 / 2122 Đại bàng đất sét nổ (VIP) đã gỡ khỏi game (Dot139Migration.removeItems, ItemService.REMOVED)
-        {2123, "Thú cưỡi Kỳ Lân", 32304, 77, new int[][]{{50, 6, 10}, {77, 6, 10}, {103, 6, 10}, {85, 0, 0}}},};
+        // Kỳ Lân dồn từ 2123 về 2121, Con dấu VIP 2131 về 2122 (Dot139Migration.compactTail)
+        {2121, "Thú cưỡi Kỳ Lân", 32304, 77, new int[][]{{50, 6, 10}, {77, 6, 10}, {103, 6, 10}, {85, 0, 0}}},};
 
     private static int runDot71(Connection con) throws Exception {
         int changed = 0;

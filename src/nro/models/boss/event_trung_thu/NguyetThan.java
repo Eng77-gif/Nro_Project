@@ -44,7 +44,7 @@ public class NguyetThan extends Boss {
     @Override
     public void afk() {
         if (playerReward.isPl() && !isReward && this.zone != null) {
-            ItemMap it = new ItemMap(this.zone, 2123, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x,
+            ItemMap it = new ItemMap(this.zone, 2121, 1, this.location.x, this.zone.map.yPhysicInTop(this.location.x,
                     this.location.y - 24), playerReward.id);
             it.options.add(new Item.ItemOption(77, Util.nextInt(10, 20)));
             it.options.add(new Item.ItemOption(103, Util.nextInt(10, 20)));

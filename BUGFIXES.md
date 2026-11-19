@@ -2605,3 +2605,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Cải trang Đôrêmon 806: dòng giáp dùng option 47 (Giáp+20) thay cho 94 (Giảm 20% sát thương).
 - Cải trang Đôrêmon 806: giáp về lại option 94 (giáp 20%, như ngọc rồng 2 sao).
 - Ngũ Hành Sơn: bỏ 3 cải trang đệ tử tự tạo 2128 - 2130 (trùng món có sẵn), đổi quà / chỉ dành cho đệ dùng cải trang gốc 548 Bát Giới, 547 Ngộ Không, 1302 Sa Tăng; món 2128 - 2130 người chơi đang có tự đổi về món gốc khi tải nhân vật, dòng 2128 - 2130 thành vật phẩm đã gỡ.
+- Xoá hẳn các mã vật phẩm cuối bảng không còn dùng: Đại bàng đất sét nổ 2121 / 2122, thú cưỡi đã xoá 2124 - 2127, cải trang đệ tử tự tạo 2128 - 2130. Danh sách vật phẩm tra theo vị trí nên dồn 2 món còn dùng: Thú cưỡi Kỳ Lân 2123 -> 2121, Con dấu VIP 2131 -> 2122 (đổi mã ở cửa hàng, hộp quà, sự kiện, ký gửi và đồ người chơi; Đại bàng cũ thành ô trống, CT đệ tử 2128 / 2129 / 2130 thành 548 / 547 / 1302). vsItem 38 để client tải lại bảng vật phẩm.

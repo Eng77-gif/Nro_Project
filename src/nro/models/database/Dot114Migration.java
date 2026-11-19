@@ -9,7 +9,7 @@ import static nro.models.database.Dot77Migration.update;
 /**
  * Đợt 114:
  * - Lấp mã vật phẩm bị xoá (2124 - 2127) bằng vật phẩm giữ chỗ: server / client tra theo vị trí nên mọi món phía sau bị lệch.
- * - Con dấu VIP (2131) cho đổi sách Tuyệt Kỹ: thành công 100%, sách tối thiểu 2 dòng (10% ra 3, 5% ra 4).
+ * - Con dấu VIP (2122, trước là 2131) cho đổi sách Tuyệt Kỹ: thành công 100%, sách tối thiểu 2 dòng (10% ra 3, 5% ra 4).
  * - Dòng chỉ số 88 của cờ đổi tên như v10 "Cộng #% exp khi đánh quái" (bảng đổi cờ).
  * - Mô tả chiêu thức (skill_template.description, lấy từ v10): trước đây server gửi cứng chữ "null" nên bảng kỹ năng hiện "null".
  * - Quái Cađíc M (Sa mạc hoang vu) đi lại như v10 thay vì đứng im.
@@ -81,11 +81,11 @@ public class Dot114Migration {
             if (filled > 0) {
                 Logger.success("Đợt 114: lấp " + filled + " mã vật phẩm trống để mã trùng vị trí\n");
             }
-            if (!exists(con, "select 1 from item_template where id = 2131")) {
+            if (!exists(con, "select 1 from item_template where id = 2122")) {
                 update(con, "insert into item_template (id, TYPE, gender, NAME, description, level, icon_id, part, is_up_to_up, power_require, gold, gem, head, body, leg) "
-                        + "select 2131, TYPE, gender, 'Con dấu VIP', 'Đổi sách Tuyệt Kỹ 100%, tối thiểu 2 dòng', level, icon_id, part, 1, "
+                        + "select 2122, TYPE, gender, 'Con dấu VIP', 'Đổi sách Tuyệt Kỹ 100%, tối thiểu 2 dòng', level, icon_id, part, 1, "
                         + "power_require, gold, gem, head, body, leg from item_template where id = 1851");
-                Logger.success("Đợt 114: thêm Con dấu VIP (2131)\n");
+                Logger.success("Đợt 114: thêm Con dấu VIP (2122)\n");
             }
             if (!exists(con, "select 1 from server_migration where name = 'dot114_stack'")) {
                 // gộp mọi vật phẩm vào 1 ô, trừ đồ mặc được (áo, quần, găng, giày, rada / nhẫn, cải trang, đeo lưng, thú cưỡi, pet,

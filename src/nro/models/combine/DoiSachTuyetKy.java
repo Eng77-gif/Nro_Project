@@ -21,7 +21,7 @@ public class DoiSachTuyetKy {
     private static final int SUCCESS_RATE_PERCENT = 20;
     /** Tỉ lệ sách ra thêm 1 dòng khi đổi thường; dùng con dấu x5. */
     private static final int EXTRA_LINE_PERCENT = 4;
-    public static final int CON_DAU = 1851, CON_DAU_VIP = 2131;
+    public static final int CON_DAU = 1851, CON_DAU_VIP = 2122;
     private static final short[] SACH_IDS = new short[]{1044, 1211, 1212};
     /** Cách đổi: 0 thường, 1 con dấu, 2 con dấu VIP. */
     private static final int THUONG = 0, DAU = 1, DAU_VIP = 2;

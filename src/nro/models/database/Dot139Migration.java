@@ -56,6 +56,7 @@ public class Dot139Migration {
 
     public static void run(Connection con) {
         try {
+            compactTail(con);
             update(con, "alter table web_topup add column if not exists gem_pending int not null default 0"); // ngọc nạp lúc offline, cộng khi đăng nhập
             removeAdminFromRanks(con);
             update(con, "alter table player_extra add column if not exists skh_menu tinyint not null default 0"); // Bà Hạt Mít: đã từng có Cápsule Vỡ
@@ -377,12 +378,6 @@ public class Dot139Migration {
         }
         update(con, "update item_template set part = 84 where id = 1954 and part <> 84");
         // gỡ Đại bàng đất sét nổ (VIP): giữ dòng item_template (mã = vị trí), bỏ chỉ số và mọi nơi bán / phát
-        update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1 where id in (2121, 2122) and NAME <> 'Vật phẩm đã gỡ'");
-        update(con, "delete from item_template_option where template_id in (2121, 2122)");
-        update(con, "delete from item_shop_option where item_shop_id in (select id from item_shop where temp_id in (2121, 2122))");
-        update(con, "delete from item_shop where temp_id in (2121, 2122)");
-        update(con, "delete from item_box_reward where item_id in (2121, 2122)");
-        update(con, "delete from shop_ky_gui where item_id in (2121, 2122)");
         update(con, "insert into item_option_template (id, NAME) select 274, '#% cơ hội ra Chống lạnh' from dual where not exists (select 1 from item_option_template where id = 274)");
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1117a'")) {
             writeStats(con, EVENT_ITEMS6);
@@ -461,6 +456,98 @@ public class Dot139Migration {
             writeStats(con, EVENT_ITEMS4);
             update(con, "insert into server_migration (name) values ('event_items_1116d')");
         }
+    }
+
+    /**
+     * Xoá hẳn các mã vật phẩm cuối bảng không còn dùng (2121 / 2122 Đại bàng đất sét nổ, 2124 - 2127 thú cưỡi đã xoá, 2128 - 2130 cải trang
+     * đệ tử tự tạo): danh sách vật phẩm tra theo vị trí nên dồn 2 món còn dùng lên: Thú cưỡi Kỳ Lân 2123 -> 2121, Con dấu VIP 2131 -> 2122.
+     * Đổi mã trong mọi bảng (cửa hàng, hộp quà, sự kiện, ký gửi) và trong đồ của người chơi (trang bị, hành trang, rương, đệ tử);
+     * đồ Đại bàng cũ thành ô trống, cải trang đệ tử 2128 / 2129 / 2130 thành 548 / 547 / 1302. Chạy 1 lần.
+     */
+    private static void compactTail(Connection con) throws Exception {
+        if (exists(con, "select 1 from server_migration where name = 'compact_2122'")) {
+            return;
+        }
+        java.util.Map<Integer, Integer> map = new java.util.LinkedHashMap<>();
+        map.put(2121, -1);
+        map.put(2122, -1);
+        for (int i = 2124; i <= 2127; i++) {
+            map.put(i, -1);
+        }
+        map.put(2128, 548);
+        map.put(2129, 547);
+        map.put(2130, 1302);
+        map.put(2123, 2121);
+        map.put(2131, 2122);
+        // bảng vật phẩm
+        update(con, "delete from item_template_option where template_id in (2121, 2122, 2124, 2125, 2126, 2127, 2128, 2129, 2130)");
+        update(con, "delete from item_template where id in (2121, 2122)");
+        update(con, "update item_template set id = 2121 where id = 2123");
+        update(con, "update item_template_option set template_id = 2121 where template_id = 2123");
+        update(con, "update item_template set id = 2122 where id = 2131");
+        update(con, "update item_template_option set template_id = 2122 where template_id = 2131");
+        update(con, "delete from item_template where id > 2122");
+        // các bảng tham chiếu mã vật phẩm: món đã bỏ thì xoá dòng, món dồn lên thì đổi mã
+        String[][] refs = {{"item_shop", "temp_id"}, {"item_box_reward", "item_id"}, {"item_box_reward", "box_id"}, {"season_event_exchange", "reward_item"},
+            {"season_event_exchange", "bonus_item"}, {"season_event_drop", "item_id"}, {"season_event_drop", "item_to"}, {"season_event_drop", "need_item"},
+            {"season_event_reward_item", "item_id"}, {"boss_reward", "item_id"}, {"shop_ky_gui", "item_id"}};
+        for (String[] r : refs) {
+            if (!exists(con, "select 1 from information_schema.columns where table_schema = database() and table_name = '" + r[0] + "' and column_name = '" + r[1] + "'")) {
+                continue;
+            }
+            for (java.util.Map.Entry<Integer, Integer> e : map.entrySet()) {
+                int to = e.getValue() == -1 ? -1 : e.getValue();
+                if (to == -1 || (e.getKey() >= 2128 && e.getKey() <= 2130)) {
+                    if (r[1].equals("item_id") || r[1].equals("temp_id") || r[1].equals("reward_item")) {
+                        update(con, "delete from " + r[0] + " where " + r[1] + " = " + e.getKey());
+                    } else {
+                        update(con, "update " + r[0] + " set " + r[1] + " = 0 where " + r[1] + " = " + e.getKey());
+                    }
+                } else {
+                    update(con, "update " + r[0] + " set " + r[1] + " = " + to + " where " + r[1] + " = " + e.getKey());
+                }
+            }
+        }
+        // đồ người chơi: mỗi món lưu dạng "[mã,số lượng,...]" (trong chuỗi JSON, có thể lồng trong dữ liệu đệ tử)
+        java.util.regex.Pattern pat = java.util.regex.Pattern.compile("(?<=[\"\\\\])\\[(21(?:2[1-9]|3[01])),");
+        String[] cols = {"items_body", "items_bag", "items_box", "items_box_lucky_round", "items_daban", "pet"};
+        int changed = 0;
+        try (java.sql.Statement st = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+                java.sql.ResultSet rs = st.executeQuery("select id, " + String.join(", ", cols) + " from player")) {
+            while (rs.next()) {
+                StringBuilder set = new StringBuilder();
+                java.util.List<String> vals = new java.util.ArrayList<>();
+                for (String c : cols) {
+                    String v = rs.getString(c);
+                    if (v == null) {
+                        continue;
+                    }
+                    java.util.regex.Matcher m = pat.matcher(v);
+                    StringBuilder out = new StringBuilder();
+                    boolean any = false;
+                    while (m.find()) {
+                        any = true;
+                        m.appendReplacement(out, "[" + map.getOrDefault(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(1))) + ",");
+                    }
+                    if (any) {
+                        m.appendTail(out);
+                        set.append(set.length() > 0 ? ", " : "").append(c).append(" = ?");
+                        vals.add(out.toString());
+                    }
+                }
+                if (!vals.isEmpty()) {
+                    try (java.sql.PreparedStatement ps = con.prepareStatement("update player set " + set + " where id = ?")) {
+                        for (int i = 0; i < vals.size(); i++) {
+                            ps.setString(i + 1, vals.get(i));
+                        }
+                        ps.setLong(vals.size() + 1, rs.getLong("id"));
+                        changed += ps.executeUpdate();
+                    }
+                }
+            }
+        }
+        update(con, "insert into server_migration (name) values ('compact_2122')");
+        nro.models.utils.Logger.success("Dồn mã vật phẩm cuối bảng: xoá 2123 - 2131, Kỳ Lân -> 2121, Con dấu VIP -> 2122 (" + changed + " nhân vật đổi mã đồ)\n");
     }
 
     private static void writeStats(Connection con, int[][][] items) throws Exception {
