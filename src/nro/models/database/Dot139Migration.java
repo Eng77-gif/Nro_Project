@@ -342,6 +342,8 @@ public class Dot139Migration {
         {{644}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}, // CT bộ xương
         {{645}, {8, 4}, {50, 20}, {77, 17}, {103, 17}},
         {{646}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}};
+    /** Đợt 19 (ảnh): CT Siêu Thần Xayda 911: SĐ 22%, giáp +450, 30% né đòn, giảm 10% thời gian hồi Khiên, không bán lại. */
+    static final int[][][] EVENT_ITEMS19 = {{{911}, {50, 22}, {47, 450}, {108, 30}, {183, 10}, {154, 0}}};
     /** Đợt 18 (ảnh): CT Póc Android sát thủ 583, Bum ma 581, Lý Tiểu Nương 582, Urôn 719, Sói Basil 730, Xe tuần lộc 746, Bông tuyết 745. */
     static final int[][][] EVENT_ITEMS18 = {
         {{583}, {50, 8}, {77, 8}, {94, 8}, {150, 0}, {154, 0}},
@@ -529,6 +531,11 @@ public class Dot139Migration {
             update(con, "delete from item_template_option where template_id between 642 and 646 and option_id = 14"); // bỏ chí mạng 3% tạm
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 681, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 681 and option_id = 30)");
             update(con, "insert into server_migration (name) values ('event_items_1119n')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119r'")) {
+            update(con, "delete from item_template_option where template_id = 911 and option_id = 154");
+            writeStats(con, EVENT_ITEMS19);
+            update(con, "insert into server_migration (name) values ('event_items_1119r')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1119q'")) {
             // dòng không phải chỉ số (150, 154, 30, 161, 165, 84, 85, 106) xoá trước để không trùng
