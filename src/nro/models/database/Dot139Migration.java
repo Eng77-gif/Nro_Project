@@ -291,8 +291,33 @@ public class Dot139Migration {
         {{594}, {47, 350}, {108, 10}, {33, 0}},
         {{1933}, {77, 20}, {103, 20}, {50, 25}, {101, 50}, {10, 10}}, // CT Gohan học đường: sát thương chuẩn 10%
         {{1934}, {77, 25}, {103, 20}, {50, 25}, {101, 50}, {94, 10}}}; // CT Videl học đường: giảm 10% sát thương
+    /** Đợt 8 (ảnh anh gửi 19/11): cải trang nhóm Bunma / Thỏ / Poc, cải trang Android 21 / Sarah / Muscular Lady / Caulifla, Xuka, Nón Noel. */
+    static final int[][][] EVENT_ITEMS8 = {
+        {{676}, {50, 10}, {77, 10}, {103, 10}, {94, 10}}, // Cải trang Sarah
+        {{678}, {50, 14}, {77, 14}, {103, 14}, {94, 14}}, // Cải trang Android 21
+        {{679}, {50, 16}, {77, 16}, {103, 16}, {94, 16}}, // Cải trang Muscular Lady
+        {{680}, {50, 18}, {77, 18}, {103, 18}, {94, 18}}, // Cải trang Caulifla
+        {{819}, {117, 10}, {80, 6}, {176, 0}}, // Cải trang Xuka
+        {{977}, {50, 22}, {103, 22}, {77, 22}, {94, 17}, {148, 20}, {108, 15}, {193, 2}, {154, 0}}, // Số 3 Poc
+        {{1041}, {50, 25}, {77, 23}, {103, 22}, {94, 18}, {148, 20}, {108, 12}, {196, 2}, {154, 0}}, // Thỏ hồng Bun ma
+        {{1042}, {50, 25}, {77, 23}, {103, 22}, {94, 18}, {148, 20}, {108, 12}, {196, 2}, {154, 0}}, // Thỏ đỏ Chi Chi
+        {{1209}, {50, 22}, {77, 23}, {103, 23}, {94, 10}, {108, 5}, {148, 20}, {154, 0}}, // Bunma tóc nâu băng đô
+        {{1210}, {50, 22}, {77, 23}, {103, 23}, {94, 10}, {97, 5}, {148, 20}, {154, 0}}, // Bunma tóc tím thắt bím
+        {{1235}, {50, 24}, {77, 24}, {103, 24}, {14, 10}, {108, 15}, {114, 20}}, // CT Poc Bikini
+        {{1476}, {50, 24}, {77, 24}, {103, 24}, {94, 10}, {14, 5}, {148, 50}, {154, 0}}, // CT Bunma rực rỡ
+        {{1797}, {50, 24}, {77, 23}, {108, 23}, {5, 12}, {95, 10}, {253, 30}}, // CT Bunma Rider
+        {{386}, {77, 10}, {106, 0}, {50, 10}},
+        {{389}, {77, 10}, {106, 0}, {50, 10}},
+        {{392}, {77, 10}, {106, 0}, {50, 10}},
+        {{387}, {77, 25}, {106, 0}, {80, 24}, {50, 17}, {103, 15}},
+        {{390}, {77, 25}, {106, 0}, {80, 24}, {50, 17}, {103, 15}},
+        {{393}, {77, 25}, {106, 0}, {80, 24}, {50, 17}, {103, 15}},
+        {{388}, {77, 30}, {106, 0}, {80, 50}, {50, 20}},
+        {{391}, {77, 30}, {106, 0}, {80, 50}, {50, 20}},
+        {{394}, {77, 30}, {106, 0}, {80, 50}, {50, 20}},
+    };
     /** Mọi dòng chỉ số 2 đợt dùng (xoá rồi ghi lại); dòng khác như không giao dịch 30, bay 85 giữ nguyên. Dùng chung với ItemService.refreshTitle. */
-    public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(10, 33, 5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 104, 106, 108,
+    public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(10, 33, 176, 193, 196, 5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 104, 106, 108,
             114, 117, 126, 43, 44, 273, 274, 226, 253, 148, 154, 155, 183, 191, 199, 200, 204, 210, 221, 236, 268, 269, 270, 271, 272);
     private static final String STAT_IDS = STAT_SET.toString().replace("[", "").replace("]", "");
 
@@ -347,6 +372,11 @@ public class Dot139Migration {
                 update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select " + id + ", 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = " + id + " and option_id = 30)");
             }
             update(con, "insert into server_migration (name) values ('event_items_1119a')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119b'")) {
+            writeStats(con, EVENT_ITEMS8);
+            update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 1797, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 1797 and option_id = 30)");
+            update(con, "insert into server_migration (name) values ('event_items_1119b')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
