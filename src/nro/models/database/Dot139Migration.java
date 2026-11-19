@@ -306,7 +306,6 @@ public class Dot139Migration {
         {{624}, {147, 5}, {148, 12}, {149, 0}},
         {{625}, {147, 5}, {148, 12}, {149, 0}},
         {{626}, {147, 5}, {148, 12}, {149, 0}},
-        {{628}, {147, 5}, {148, 12}, {149, 0}},
     };
     /** Đợt 8 (ảnh anh gửi 19/11): cải trang nhóm Bunma / Thỏ / Poc, cải trang Android 21 / Sarah / Muscular Lady / Caulifla, Xuka, Nón Noel. */
     static final int[][][] EVENT_ITEMS8 = {
@@ -415,6 +414,11 @@ public class Dot139Migration {
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1119f'")) {
             writeStats(con, EVENT_ITEMS10);
             update(con, "insert into server_migration (name) values ('event_items_1119f')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119g'")) { // 628 là hộp (mở ra CT One Piece), không có chỉ số
+            update(con, "delete from item_template_option where template_id = 628");
+            update(con, "update item_template set description = 'Mở ra ngẫu nhiên 1 cải trang Hải Tặc Tí Hon' where id = 628");
+            update(con, "insert into server_migration (name) values ('event_items_1119g')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);

@@ -793,8 +793,8 @@ public class NPoint {
     private static final int[][] CAU_THU = {{968}, {969}, {970}, {971}, {972}, {973}, {974}, {975}, {976}, {977}, {978}};
     private static final int[][] THO = {{1041}, {1042}, {1043}};
     private static final int[][] HAU_GAI = {{1503}, {1504}, {1512}};
-    /** Cải trang Hải Tặc Tí Hon (One Piece): Luffy, Zoro, Sanji, Brook, Chopper, Nami, Franky, Usopp, Robin, Hải Tặc. */
-    private static final int[][] HAI_TAC = {{618}, {619}, {620}, {621}, {622}, {623}, {624}, {625}, {626}, {628}};
+    /** Cải trang Hải Tặc Tí Hon (One Piece): Luffy, Zoro, Sanji, Brook, Chopper, Nami, Franky, Usopp, Robin (628 Cải trang Hải Tặc là hộp mở ra 1 món). */
+    private static final int[][] HAI_TAC = {{618}, {619}, {620}, {621}, {622}, {623}, {624}, {625}, {626}};
     /** Bunma tóc xanh neon / nâu băng đô / tím thắt bím: mô tả "+3% sức đánh, tối đa 10% khi ở gần Bunma tóc xanh, nâu, tím mới". */
     private static final int[][] BUNMA_TOC = {{1208}, {1209}, {1210}};
     private static final int CT_TAU_PAY_PAY = 284, COT_NHA = 744, GHE_BAY = 795;

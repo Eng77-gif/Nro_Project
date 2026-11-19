@@ -288,6 +288,10 @@ public class UseItem {
                 }
                 return;
             }
+            if (item.template.id == 628) { // Cải trang Hải Tặc: mở ra ngẫu nhiên 1 CT One Piece (Luffy ... Robin)
+                openHaiTac(pl, item);
+                return;
+            }
             if (item.template.strRequire <= pl.nPoint.power) {
                 if (Event2026Service.gI().isFoot(item)) {
                     // mọi bóng mờ mang ở ô bóng bước chân (kể cả Bóng mờ trung thu loại đeo lưng)
@@ -1655,6 +1659,25 @@ public class UseItem {
         } else {
             Service.gI().sendThongBao(player, "Hành trang không đủ chỗ trống!");
         }
+    }
+
+    /** Cải trang Hải Tặc (628): mở ra 1 cải trang Hải Tặc Tí Hon ngẫu nhiên (618 - 626), hiệu ứng như Capsule kì bí. */
+    private void openHaiTac(Player pl, Item box) {
+        if (InventoryService.gI().getCountEmptyBag(pl) <= 0) {
+            Service.gI().sendThongBao(pl, "Hành trang không còn chỗ trống");
+            return;
+        }
+        short boxIcon = box.template.iconID;
+        Item ct = Event2026Service.gI().createItem(Util.nextInt(618, 626), 1, 0);
+        for (Item.ItemOption o : box.itemOptions) { // giữ hạn sử dụng / không giao dịch của hộp
+            if (o != null && o.optionTemplate != null && (o.optionTemplate.id == 93 || o.optionTemplate.id == 30) && ct.getOptionById(o.optionTemplate.id) == null) {
+                ct.itemOptions.add(new Item.ItemOption(o.optionTemplate.id, o.param));
+            }
+        }
+        InventoryService.gI().subQuantityItemsBag(pl, box, 1);
+        InventoryService.gI().addItemBag(pl, ct);
+        InventoryService.gI().sendItemBags(pl);
+        CombineService.gI().sendEffectOpenItem(pl, boxIcon, ct.template.iconID);
     }
 
     private void openCSKB(Player pl, Item item) {
