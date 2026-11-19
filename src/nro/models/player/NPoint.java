@@ -652,6 +652,9 @@ public class NPoint {
         if (has(2027) && has(CO_VAN_HOA_DONG)) { // CT Vũ Trí Ba Tá Trợ + Cờ Vạn Hoa Đồng: +1% sát thương cuối
             this.tlSTCuoi += 1;
         }
+        if (ct == 463) { // Cải trang Thỏ đại ca: biến cà rốt người xung quanh (mô tả "biến cà rốt người chạm vào")
+            this.halloweenXq = 5;
+        }
         if (has(1564)) { // Pet Po: biến mọi người xung quanh thành bánh bao mỗi 30 giây (người chơi, bot, đệ tử đều như nhau)
             this.halloweenXq = 6;
         }

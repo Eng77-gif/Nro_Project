@@ -2612,3 +2612,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Cải trang Pan VIP (1921): hút 14% HP (biến tấn công thành HP), +100% may mắn, không giao dịch. Món cũ đổi khi đăng nhập.
 - Cải trang Fide vàng (629): sức đánh 22%, KI 19%, HP 19%, giáp 19% (option 94), không giao dịch; cả món rơi từ boss Fide Vàng / Death Beam. Món cũ đổi khi đăng nhập.
 - Cải trang Fide vàng rơi từ boss Fide Vàng / Death Beam: hạn sử dụng ngẫu nhiên 7 - 30 ngày (trước cố định 20 ngày).
+- Chỉ số theo ảnh: CT Thỏ đại ca 463 (kháng TDHS, +25% TĐ chạy, biến cà rốt người xung quanh mỗi 30 giây trong 5 giây), CT Nàng Tiên Cá 681 (SĐ / HP / KI +20%, giáp 20%, không giao dịch), CT ma trơi 642 / dơi nhí 643 / bộ xương 644 - 646 (hút 4% HP, KI xung quanh mỗi 5 giây, SĐ 20%, HP 17%, KI 17%). Món cũ đổi khi đăng nhập.

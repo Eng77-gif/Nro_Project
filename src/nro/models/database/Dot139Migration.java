@@ -333,6 +333,15 @@ public class Dot139Migration {
     /** Đợt 14: Cải trang Fide vàng: sức đánh 22%, KI 19%, HP 19%, giáp 19% (option 94), không giao dịch. */
     static final int[][][] EVENT_ITEMS14 = {
         {{629}, {50, 22}, {103, 19}, {77, 19}, {94, 19}}};
+    /** Đợt 15 (ảnh anh gửi): CT Thỏ đại ca, CT Nàng Tiên Cá, CT bộ xương / ma trơi / dơi nhí. */
+    static final int[][][] EVENT_ITEMS15 = {
+        {{463}, {116, 0}, {114, 25}}, // Thỏ đại ca: kháng TDHS, +25% TĐ chạy (biến cà rốt: NPoint)
+        {{681}, {50, 20}, {77, 20}, {103, 20}, {94, 20}}, // Nàng Tiên Cá: giáp 20% (option 94)
+        {{642}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}, // CT ma trơi: hút 4% HP, KI xung quanh mỗi 5 giây
+        {{643}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}, // CT dơi nhí
+        {{644}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}, // CT bộ xương
+        {{645}, {8, 4}, {50, 20}, {77, 17}, {103, 17}},
+        {{646}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}};
     /** Đợt 8 (ảnh anh gửi 19/11): cải trang nhóm Bunma / Thỏ / Poc, cải trang Android 21 / Sarah / Muscular Lady / Caulifla, Xuka, Nón Noel. */
     static final int[][][] EVENT_ITEMS8 = {
         {{676}, {50, 10}, {77, 10}, {103, 10}, {94, 10}}, // Cải trang Sarah
@@ -359,7 +368,7 @@ public class Dot139Migration {
         {{394}, {77, 30}, {106, 0}, {80, 50}, {50, 20}},
     };
     /** Mọi dòng chỉ số 2 đợt dùng (xoá rồi ghi lại); dòng khác như không giao dịch 30, bay 85 giữ nguyên. Dùng chung với ItemService.refreshTitle. */
-    public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(10, 33, 176, 193, 196, 265, 147, 149, 5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 104, 106, 108,
+    public static final java.util.Set<Integer> STAT_SET = java.util.Set.of(116, 10, 33, 176, 193, 196, 265, 147, 149, 5, 7, 8, 14, 29, 47, 50, 77, 80, 81, 83, 94, 95, 97, 100, 101, 103, 104, 106, 108,
             114, 117, 126, 43, 44, 273, 274, 226, 253, 148, 154, 155, 183, 191, 199, 200, 204, 210, 221, 236, 268, 269, 270, 271, 272);
     private static final String STAT_IDS = STAT_SET.toString().replace("[", "").replace("]", "");
 
@@ -496,6 +505,12 @@ public class Dot139Migration {
             writeStats(con, EVENT_ITEMS14);
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 629, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 629 and option_id = 30)");
             update(con, "insert into server_migration (name) values ('event_items_1119m')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119n'")) {
+            writeStats(con, EVENT_ITEMS15);
+            update(con, "delete from item_template_option where template_id between 642 and 646 and option_id = 14"); // bỏ chí mạng 3% tạm
+            update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 681, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 681 and option_id = 30)");
+            update(con, "insert into server_migration (name) values ('event_items_1119n')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);

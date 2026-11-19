@@ -710,6 +710,7 @@ public class ItemService {
             843, 844, 845, 853, 854, 855, 856, 857, 858, // đợt 12: cải trang Trâu
             1921, // đợt 13: CT Pan VIP
             629, // đợt 14: CT Fide vàng
+            463, 681, 642, 643, 644, 645, 646, // đợt 15: Thỏ đại ca, Nàng Tiên Cá, bộ xương / ma trơi / dơi nhí
             618, 619, 620, 621, 622, 623, 624, 625, 626, // đợt 10: CT Hải Tặc
             283, 408, 580, 724); // đợt 9: CT Yarirobe, CT Chi Chi (724: món cũ lấy lại chỉ số Santa) // món có dòng ẩn 210 (1590, 1803, Goku Day / Cađic) không đổi món cũ: dòng ẩn đã mở sẽ bị quay lại
 
