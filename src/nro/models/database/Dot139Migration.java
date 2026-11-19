@@ -291,9 +291,9 @@ public class Dot139Migration {
         {{594}, {47, 350}, {108, 10}, {33, 0}},
         {{1933}, {77, 20}, {103, 20}, {50, 25}, {101, 50}, {10, 10}}, // CT Gohan học đường: sát thương chuẩn 10%
         {{1934}, {77, 25}, {103, 20}, {50, 25}, {101, 50}, {94, 10}}}; // CT Videl học đường: giảm 10% sát thương
-    /** Đợt 9 (ảnh anh gửi): Cải trang thành Chi Chi (408, 580, 724) SĐ / HP +20%; Cải trang thành Yarirobe (283) HP+10%. */
+    /** Đợt 9 (ảnh anh gửi): Cải trang thành Chi Chi (408, 580) SĐ / HP +20%; Cải trang thành Yarirobe (283) HP+10%. */
     static final int[][][] EVENT_ITEMS9 = {
-        {{408}, {50, 20}, {77, 20}}, {{580}, {50, 20}, {77, 20}}, {{724}, {50, 20}, {77, 20}},
+        {{408}, {50, 20}, {77, 20}}, {{580}, {50, 20}, {77, 20}}, // 724 bán ở Santa đã đúng chỉ số: không đụng
         {{283}, {77, 10}}};
     /** Đợt 8 (ảnh anh gửi 19/11): cải trang nhóm Bunma / Thỏ / Poc, cải trang Android 21 / Sarah / Muscular Lady / Caulifla, Xuka, Nón Noel. */
     static final int[][][] EVENT_ITEMS8 = {
@@ -389,6 +389,15 @@ public class Dot139Migration {
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1119d'")) {
             writeStats(con, EVENT_ITEMS9);
             update(con, "insert into server_migration (name) values ('event_items_1119d')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119e'")) {
+            // trả lại chỉ số gốc CT Chi Chi 724 ở Santa (đợt 9 ghi nhầm SĐ / HP 20%): SĐ+20%, HP+17%, KI+17% (+ dòng 162 giữ nguyên)
+            update(con, "delete from item_template_option where template_id = 724");
+            update(con, "delete from item_shop_option where option_id in (50, 77, 103) and item_shop_id in (select id from item_shop where temp_id = 724)");
+            for (int[] o : new int[][]{{50, 20}, {77, 17}, {103, 17}}) {
+                update(con, "insert into item_shop_option (item_shop_id, option_id, param) select id, " + o[0] + ", " + o[1] + " from item_shop where temp_id = 724");
+            }
+            update(con, "insert into server_migration (name) values ('event_items_1119e')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
