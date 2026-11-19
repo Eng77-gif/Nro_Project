@@ -892,7 +892,7 @@ public final class Manager {
             Logger.success(Logger.PURPLE + "Successfully loaded mob template (" + MOB_TEMPLATES.size() + ")\n");
 
             //load npc template
-            ps = ConnectionDatabase.prepareStatement("select * from npc_template");
+            ps = ConnectionDatabase.prepareStatement("select * from npc_template order by id");
             rs = ps.executeQuery();
             while (rs.next()) {
                 NpcTemplate npcTemp = new NpcTemplate();
@@ -902,6 +902,16 @@ public final class Manager {
                 npcTemp.body = rs.getShort("body");
                 npcTemp.leg = rs.getShort("leg");
                 npcTemp.avatar = rs.getInt("avatar");
+                while (NPC_TEMPLATES.size() < npcTemp.id) { // mã NPC bị hở (85 - 102): điền chỗ trống để NPC_TEMPLATES.get(id) và client đúng vị trí (trước Cây hoa hồng 111 lỗi Index 111 out of bounds)
+                    NpcTemplate gap = new NpcTemplate();
+                    gap.id = NPC_TEMPLATES.size();
+                    gap.name = "";
+                    gap.head = NPC_TEMPLATES.get(0).head;
+                    gap.body = NPC_TEMPLATES.get(0).body;
+                    gap.leg = NPC_TEMPLATES.get(0).leg;
+                    gap.avatar = NPC_TEMPLATES.get(0).avatar;
+                    NPC_TEMPLATES.add(gap);
+                }
                 NPC_TEMPLATES.add(npcTemp);
             }
             Logger.success(Logger.RED + "Successfully loaded npc template (" + NPC_TEMPLATES.size() + ")\n");

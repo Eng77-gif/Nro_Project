@@ -411,7 +411,7 @@ public class SeasonEventService implements Runnable {
     }
 
     /** Sự kiện được phép chạy (bỏ id khỏi đây là khoá hẳn, bật tay / event.active cũng không chạy). */
-    public static final Set<Integer> ONLY_EVENTS = Set.of(7);
+    public static final Set<Integer> ONLY_EVENTS = Set.of(7, 8); // + 20/11 (anh yêu cầu bật, chạy song song Halloween)
 
     /** event.active trong Config.properties (đọc lại mỗi lần cập nhật để sửa file không cần khởi động lại). */
     public static Set<Integer> configActive() {

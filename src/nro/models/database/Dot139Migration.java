@@ -548,6 +548,13 @@ public class Dot139Migration {
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 681, 30, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 681 and option_id = 30)");
             update(con, "insert into server_migration (name) values ('event_items_1119n')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'event_2011_on'")) {
+            // bật sự kiện 20/11 (tự chạy 15/11 - 22/11); Halloween hết lịch 19/11 nên bật tay để chạy song song (admin chưa đặt thì mới bật)
+            update(con, "update season_event set enabled = 1 where id = 8");
+            update(con, "create table if not exists season_event_force (event_id int primary key, force_on tinyint not null)");
+            update(con, "insert into season_event_force (event_id, force_on) select 7, 1 from dual where not exists (select 1 from season_event_force where event_id = 7)");
+            update(con, "insert into server_migration (name) values ('event_2011_on')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1119u'")) {
             update(con, "delete from item_template_option where template_id in (905, 907, 1957, 1798, 1144, 1571, 1632, 1953) and option_id in (154, 30, 6, 84, 85)");
             writeStats(con, EVENT_ITEMS22);
