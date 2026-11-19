@@ -311,7 +311,7 @@ public class Dot139Migration {
     static final int[][][] EVENT_ITEMS11 = {
         {{863}, {77, 20}, {103, 20}, {176, 0}}, // Cải trang Xekô
         {{864}, {50, 20}, {77, 5}, {176, 0}}, // Cải trang Chaien
-        {{806}, {47, 20}, {108, 10}, {176, 0}}, // Cải trang Đôrêmon: giáp (option 47) 20, 10% né đòn
+        {{806}, {94, 20}, {108, 10}, {176, 0}}, // Cải trang Đôrêmon: giáp 20% (option 94 như ngọc rồng 2 sao), 10% né đòn
         {{862}, {14, 5}, {50, 15}, {176, 0}}, // Cải trang Nobita: chí mạng 5%, sức đánh 15%
         {{1992}, {117, 10}, {80, 6}, {176, 0}}}; // Cải trang Xuka (mã 2) như Xuka 819
     /** Đợt 8 (ảnh anh gửi 19/11): cải trang nhóm Bunma / Thỏ / Poc, cải trang Android 21 / Sarah / Muscular Lady / Caulifla, Xuka, Nón Noel. */
@@ -435,6 +435,10 @@ public class Dot139Migration {
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1119i'")) { // Đôrêmon: giáp dùng option 47
             writeStats(con, new int[][][]{EVENT_ITEMS11[2]});
             update(con, "insert into server_migration (name) values ('event_items_1119i')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1119j'")) { // Đôrêmon: giáp % về option 94
+            writeStats(con, new int[][][]{EVENT_ITEMS11[2]});
+            update(con, "insert into server_migration (name) values ('event_items_1119j')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1116e'")) {
             writeStats(con, EVENT_ITEMS5);
