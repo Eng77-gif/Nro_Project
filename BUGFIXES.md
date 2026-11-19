@@ -2609,3 +2609,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Dòng cải trang Tôn Ngộ Không (544 - 546, Ngộ Không đệ 547, Bát Giới đệ 548, Sa Tăng đệ 1302) chung chỉ số, thêm dòng giảm 10 - 15% sát thương (đồ mới đổi ở Đường Tăng và món cũ khi tải nhân vật).
 - 8 cải trang chưa từng có hình (ảnh 1x1 đen, không đầu / thân / chân), không nơi nào phát: Fide chai 1839, Test 1849, Sida 1905, Heles 1908, Rumsshi 1911, Mosco 1912, Champa 2062, Belmod 2063 -> "Vật phẩm đã gỡ" (giữ mã vì bảng tra theo vị trí), bỏ chỉ số, món cũ tự mất khi tải nhân vật; panel Vật phẩm ẩn các ô "đã gỡ / đã xoá".
 - Cải trang Trâu (vàng 843, đen 844, trắng 845, nâu 853 - 855, đốm 856 - 858): HP+31%, HP+50%/30s, sức đánh+21%. Món cũ đổi khi đăng nhập.
+- Cải trang Pan VIP (1921): hút 14% HP (biến tấn công thành HP), +100% may mắn, không giao dịch. Món cũ đổi khi đăng nhập.
