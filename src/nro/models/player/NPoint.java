@@ -889,10 +889,10 @@ public class NPoint {
             if (p196 > 0) {
                 d += Math.min(18, p196 * otherKindsNear(THO, near));
             }
-            if (optParam(ct, 149) > 0) { // Hải Tặc: tăng đều theo số CT Hải Tặc khác loại ở gần, đủ 8 loại khác = tối đa 49% sức đánh, 108% tốc độ chạy
+            if (optParam(ct, 149) > 0) { // Hải Tặc: tăng đều theo số CT Hải Tặc khác loại ở gần, đủ 8 loại khác = tối đa 48% sức đánh, 108% tốc độ chạy
                 int n = Math.min(8, otherKindsNear(HAI_TAC, near));
                 int sd = optParam(ct, 147), td = optParam(ct, 148);
-                d += Math.round(n * Math.max(0, 49 - sd) / 8f);
+                d += Math.round(n * Math.max(0, 48 - sd) / 8f);
                 sp += Math.round(n * Math.max(0, 108 - td) / 8f);
             }
             if (in(new int[]{1208, 1209, 1210}, ct.template.id)) { // dòng mô tả (không có option riêng)
