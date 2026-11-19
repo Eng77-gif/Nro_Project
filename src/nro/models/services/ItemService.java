@@ -727,6 +727,9 @@ public class ItemService {
                 keep.add(o);
             }
         }
+        if (fresh.stream().anyMatch(o -> o.optionTemplate != null && o.optionTemplate.id == 30)) { // chỉ số mặc định đã có dòng không giao dịch: không giữ thêm dòng cũ (trước đây mỗi lần đăng nhập nhân thêm 1 dòng)
+            keep.removeIf(o -> o.optionTemplate.id == 30);
+        }
         if (keep.stream().anyMatch(o -> o.optionTemplate.id == 93)) {
             fresh.removeIf(o -> o.optionTemplate != null && o.optionTemplate.id == 93);
         }
@@ -994,7 +997,28 @@ public class ItemService {
     }
 
     /** Đồ Thần Linh thiếu chỉ số gốc (tạo từ hộp, shop, giftcode, panel...): bổ sung chỉ số +1 - 15% và yêu cầu sức mạnh. Trả về true nếu có sửa. */
+    /** Gộp dòng "Không thể giao dịch" (30) trùng thành 1 dòng. Trả về true nếu có sửa. */
+    public static boolean dedupeNoTrade(Item it) {
+        if (it == null || it.itemOptions == null) {
+            return false;
+        }
+        boolean[] seen = {false};
+        return it.itemOptions.removeIf(o -> dupNoTrade(o, seen));
+    }
+
+    private static boolean dupNoTrade(ItemOption o, boolean[] seen) {
+        if (o == null || o.optionTemplate == null || o.optionTemplate.id != 30) {
+            return false;
+        }
+        if (seen[0]) {
+            return true;
+        }
+        seen[0] = true;
+        return false;
+    }
+
     public static boolean fillThanLinh(Item it) {
+        dedupeNoTrade(it); // lỗi cũ refreshTitle nhân dòng không giao dịch mỗi lần đăng nhập
         if (it == null || it.template == null || it.template.id < 555 || it.template.id > 567) {
             return false;
         }
