@@ -95,6 +95,9 @@ public class RadarService {
 
     /** Thẻ Oozaru (1771) gộp 3 thẻ: mảnh Oozarun 1 (2104), Oozarun 2 (2105) cũng là Thẻ Oozaru. */
     public static final int OOZARU = 1771;
+    /** Thẻ Broly (no.21): Mảnh Broly 2126, đổi ở Bà Hạt Mít bằng 5 Mảnh Đội trưởng Vàng + 5 Mảnh Rồng thần Namếc + 10 Mảnh Khỉ Oozaru. */
+    public static final int BROLY = 2126;
+    public static final int[][] BROLY_COST = {{956, 5}, {1204, 5}, {1771, 10}};
 
     public static int cardIdOf(int itemId) {
         return itemId == 2104 || itemId == 2105 ? OOZARU : itemId;
@@ -163,7 +166,7 @@ public class RadarService {
     public static int[] thresholds(int cardId, int defMax) {
         return switch (cardId) {
             case 956, 1204 -> new int[]{3, 30, 30}; // Đội Trưởng Vàng, Rồng Thần Namek
-            case OOZARU, 2040 -> new int[]{10, 125, 125}; // Oozaru, Khỉ con
+            case OOZARU, 2040, BROLY -> new int[]{10, 125, 125}; // Oozaru, Khỉ con, Broly
             default -> new int[]{1, Math.max(1, defMax), Math.max(1, defMax)};
         };
     }
@@ -214,6 +217,7 @@ public class RadarService {
             case 1204 -> 1;
             case OOZARU -> new short[]{2, 3, 4}[i];
             case 2040 -> new short[]{120, 121, 122}[i];
+            case BROLY -> new short[]{123, 124, 125}[i]; // hình biến hình khỉ xanh / Broly xanh (gói x4)
             default -> -1;
         };
     }
@@ -237,7 +241,8 @@ public class RadarService {
      */
     private static final java.util.Map<Integer, int[][]> LEVEL_LOOK = java.util.Map.of(
             OOZARU, new int[][]{{14247, 1727, 1728, 1729}, {14248, 1730, 1731, 1732}, {14249, 1733, 1734, 1735}},
-            2040, new int[][]{{16482, 1977, 1978, 1979}, {16520, 1947, 1948, 1949}, {16976, 1980, 1981, 1982}});
+            2040, new int[][]{{16482, 1977, 1978, 1979}, {16520, 1947, 1948, 1949}, {16976, 1980, 1981, 1982}},
+            BROLY, new int[][]{{17798, 2398, 2399, 2400}, {17793, 2401, 2402, 2403}, {17796, 2404, 2405, 2406}}); // khỉ xanh -> Broly xanh -> Broly xanh áo choàng
 
     public static int[] levelLook(int cardId, int level) {
         int[][] l = LEVEL_LOOK.get(cardId);

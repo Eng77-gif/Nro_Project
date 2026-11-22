@@ -32,6 +32,38 @@ public class BaHatMit extends Npc {
 
     private static final java.util.Map<Long, java.util.List<Integer>> MENU_ACT = new java.util.concurrent.ConcurrentHashMap<>();
 
+    private static final int MENU_DOI_BROLY = 2126_01;
+
+    private void openDoiBroly(Player player) {
+        StringBuilder sb = new StringBuilder("Đổi 1 Mảnh Broly cần:");
+        for (int[] c : nro.models.services.RadarService.BROLY_COST) {
+            sb.append("\n- ").append(c[1]).append(" ").append(ItemService.gI().getTemplate(c[0]).name);
+        }
+        createOtherMenu(player, MENU_DOI_BROLY, sb.toString(), "Đồng ý", "Từ chối");
+    }
+
+    private void doiBroly(Player player) {
+        synchronized (player) {
+            for (int[] c : nro.models.services.RadarService.BROLY_COST) {
+                Item it = InventoryService.gI().findItemBag(player, c[0]);
+                if (it == null || it.quantity < c[1]) {
+                    Service.gI().sendThongBao(player, "Không đủ " + ItemService.gI().getTemplate(c[0]).name);
+                    return;
+                }
+            }
+            if (InventoryService.gI().getCountEmptyBag(player) <= 0 && InventoryService.gI().findItemBag(player, nro.models.services.RadarService.BROLY) == null) {
+                Service.gI().sendThongBao(player, "Hành trang không còn chỗ trống");
+                return;
+            }
+            for (int[] c : nro.models.services.RadarService.BROLY_COST) {
+                InventoryService.gI().subQuantityItemsBag(player, InventoryService.gI().findItemBag(player, c[0]), c[1]);
+            }
+            InventoryService.gI().addItemBag(player, ItemService.gI().createNewItem((short) nro.models.services.RadarService.BROLY, 1));
+            InventoryService.gI().sendItemBags(player);
+            Service.gI().sendThongBao(player, "Bạn nhận được 1 Mảnh Broly");
+        }
+    }
+
     public BaHatMit(int mapId, int status, int cx, int cy, int tempId, int avartar) {
         super(mapId, status, cx, cy, tempId, avartar);
     }
@@ -130,6 +162,8 @@ public class BaHatMit extends Npc {
                                 ? "Mở chỉ số\nBông tai\nPorata cấp\n3"
                                 : "Nâng cấp\nBông tai\nPorata cấp\n3");
                     }
+
+                    menu.add("Đổi\nMảnh Broly"); // Thẻ Broly (radar no.21)
 
                     // Thêm thưởng bùa nếu còn lượt hôm nay (đặt lên đầu để case 0 vẫn là thưởng bùa)
                     if (DailyGiftService.checkDailyGift(player, ConstDailyGift.NHAN_BUA_MIEN_PHI)) {
@@ -394,10 +428,15 @@ public class BaHatMit extends Npc {
                             case 6:
                                 CombineService.gI().openTabCombine(player, CombineService.NHAP_NGOC_RONG);
                                 break;
+                            case 8:
+                                openDoiBroly(player);
+                                break;
                             case 7: {
                                 boolean hasBt3 = InventoryService.gI().findItem(player, 1884);
                                 boolean hasBt2 = InventoryService.gI().findItemBongTaiCap2(player) || InventoryService.gI().findItem(player, 921);
-                                if (hasBt3) {
+                                if (!hasBt3 && !hasBt2) { // không có mục bông tai cấp 3 thì nút này là Đổi Mảnh Broly
+                                    openDoiBroly(player);
+                                } else if (hasBt3) {
                                     // Mở tab "Mở chỉ số BT3"
                                     CombineService.gI().openTabCombine(player, CombineService.NANG_CHI_SO_BONG_TAI3);
                                 } else if (hasBt2) {
@@ -408,6 +447,10 @@ public class BaHatMit extends Npc {
                                 }
                                 break;
                             }
+                        }
+                    } else if (player.idMark.getIndexMenu() == MENU_DOI_BROLY) {
+                        if (select == 0) {
+                            doiBroly(player);
                         }
                     } else if (player.idMark.getIndexMenu() == ConstNpc.MENU_SACH_TUYET_KY) {
                         switch (select) {

@@ -575,6 +575,17 @@ public class Dot139Migration {
         }
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8");
+        if (!exists(con, "select 1 from server_migration where name = 'radar_broly'")) {
+            // Thẻ Broly (radar no.21, ảnh): Mở khóa +1% vàng rơi; Lv.1 tấn công +5% khi đánh quái, +3% vàng rơi; Lv.2 chí mạng +5%, +3% vàng rơi; Lv.3 +5% SĐ chí mạng, +4% vàng rơi
+            update(con, "insert into item_template (id, TYPE, gender, NAME, description, level, icon_id, part, is_up_to_up, power_require, gold, gem, head, body, leg) "
+                    + "select 2126, 33, 3, 'Mảnh Broly', 'Vật phẩm sự kiện', 0, 17798, -1, 1, 0, 0, 0, -1, -1, -1 from dual where not exists (select 1 from item_template where id = 2126)");
+            update(con, "insert into radar (id, iconId, `rank`, max, type, mob_id, body, name, info, options, `require`, require_level, aura_id) select 2126, 17798, 6, 125, 1, -1, "
+                    + "'[{\"head\":2398, \"body\":2399, \"leg\":2400, \"bag\":-1}]', 'Thẻ Broly', 'Vật phẩm sự kiện', "
+                    + "'[{\"id\": 268, \"param\": 1, \"activeCard\": 0}, {\"id\": 19, \"param\": 5, \"activeCard\": 1}, {\"id\": 268, \"param\": 3, \"activeCard\": 1}, "
+                    + "{\"id\": 14, \"param\": 5, \"activeCard\": 2}, {\"id\": 268, \"param\": 3, \"activeCard\": 2}, {\"id\": 5, \"param\": 5, \"activeCard\": 3}, {\"id\": 268, \"param\": 4, \"activeCard\": 3}]', -1, 0, -1 "
+                    + "from dual where not exists (select 1 from radar where id = 2126)");
+            update(con, "insert into server_migration (name) values ('radar_broly')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'parts_x4_1122'")) {
             for (String[] pt : PARTS_X4) {
                 update(con, "delete from part where id = " + pt[0]);
