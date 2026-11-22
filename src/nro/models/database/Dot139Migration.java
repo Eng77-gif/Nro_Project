@@ -575,6 +575,22 @@ public class Dot139Migration {
         }
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8");
+        if (!exists(con, "select 1 from server_migration where name = 'quylao_2011_order'")) {
+            // cửa hàng đổi điểm Quy Lão 20/11 đúng 25 món, đúng thứ tự như video (thêm theo thứ tự id = thứ tự hiện)
+            update(con, "update season_event_exchange set event_id = -8 where event_id = 8 and npc = '13' and cost_point > 0");
+            int[][] ql = { // {item, điểm, HSD ngày, top}
+                {1757, 99, 30, 0}, {1840, 99, 30, 0}, {1944, 99, 30, 803}, {1821, 99, 30, 0}, {1901, 99, 30, 0},
+                {1713, 499, 0, 0}, {1682, 499, 0, 0}, {1632, 499, 0, 0}, {2025, 499, 0, 0},
+                {1941, 750, 0, 0}, {1735, 750, 0, 0}, {1711, 750, 0, 0},
+                {1943, 999, 0, 0}, {2022, 999, 0, 0}, {1997, 999, 30, 0}, {1731, 999, 0, 0}, {1795, 999, 30, 0}, {1567, 999, 0, 0}, {1476, 999, 0, 0}, {1921, 999, 0, 0},
+                {2023, 1999, 0, 0}, {1976, 1999, 0, 0}, {1971, 1999, 0, 0}, {1981, 1999, 0, 0}, {1963, 1999, 0, 0}};
+            for (int[] q : ql) {
+                update(con, "insert into season_event_exchange (event_id, grp, name, need, gold, gem, ruby, cost_point, reward_item, reward_qty, reward_days, top_id, top_point, npc) "
+                        + "select 8, 'Đổi\\nđiểm', NAME, '', 0, 0, 0, " + q[1] + ", " + q[0] + ", 1, '" + (q[2] > 0 ? q[2] : "") + "', " + q[3] + ", " + (q[3] > 0 ? 1 : 0)
+                        + ", '13' from item_template where id = " + q[0]);
+            }
+            update(con, "insert into server_migration (name) values ('quylao_2011_order')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'video_2011'")) {
             // 20/11 theo video "Ơn Thầy Nghĩa Trò"
             // Bà Hạt Mít: nút "Làm Túi trà khô", "Làm Hộp trà"...

@@ -2448,6 +2448,10 @@ public class SeasonEventService implements Runnable {
     /** Cửa hàng sự kiện dạng shop: Chi Chi bán nhóm "Cửa hàng" (ngọc / vàng / hồng ngọc), Quy Lão nhóm "Đổi điểm" (điểm sự kiện). */
     public void openEventShop(Player pl, boolean quyLao) {
         Season s = current();
+        if (quyLao && s != null) { // 2 sự kiện cùng bật: cửa hàng đổi điểm Quy Lão theo sự kiện mới nhất
+            List<Season> act = activeByStart();
+            s = act.get(act.size() - 1);
+        }
         if (s == null) {
             Service.gI().sendThongBaoOK(pl, "Hiện chưa có sự kiện nào.\n" + upcomingText());
             return;
