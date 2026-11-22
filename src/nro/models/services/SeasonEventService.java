@@ -505,7 +505,9 @@ public class SeasonEventService implements Runnable {
                 // hết sự kiện thật (không phải admin thử ngày / tắt tay) thì tự chốt top
                 if (testDate == null && !forced.containsKey(s.id)) {
                     for (Top t : s.tops) {
-                        closeTop(t);
+                        if (!closedTops.contains(t.id)) { // đã chốt sớm (15 ngày trước khi hết) thì không chốt lại
+                            closeTop(t);
+                        }
                     }
                     clearCounters(s);
                 }
@@ -513,8 +515,39 @@ public class SeasonEventService implements Runnable {
         }
         closeHalloweenTopsOnce(d);
         refreshClosedTops();
+        closeTopsEarly(d);
         syncNpcs();
         syncMobs();
+    }
+
+    /** Đua top chỉ tính đến TOP_END_BEFORE ngày trước khi hết sự kiện (sự kiện ngắn hơn thì tính đến hết sự kiện). */
+    public static final int TOP_END_BEFORE = 15;
+
+    /** Ngày cuối cùng còn tính điểm đua top của sự kiện (null = chưa biết, vd bật tay ngoài lịch). */
+    public static LocalDate topEnd(Season s) {
+        if (s == null || s.end == null) {
+            return null;
+        }
+        LocalDate e = s.end.minusDays(TOP_END_BEFORE);
+        return s.start != null && e.isBefore(s.start) ? s.end : e;
+    }
+
+    private void closeTopsEarly(LocalDate d) {
+        if (testDate != null) {
+            return;
+        }
+        for (Season s : seasons.values()) {
+            LocalDate te = s.active ? topEnd(s) : null;
+            if (te == null || !d.isAfter(te) || te.equals(s.end)) {
+                continue;
+            }
+            for (Top t : s.tops) {
+                if (!closedTops.contains(t.id)) {
+                    closeTop(t);
+                    closedTops.add(t.id);
+                }
+            }
+        }
     }
 
     /** Đua top đang mở mà đã chốt sớm (vd Halloween chốt 19/11 khi sự kiện còn bật tay): không hiện ở "Top", không cộng điểm nữa. */
@@ -2638,8 +2671,8 @@ public class SeasonEventService implements Runnable {
     public String topIntro(Top t) {
         Season s = t.season;
         StringBuilder sb = new StringBuilder("Sự kiện đua Top " + topName(t) + " nhận quà khủng\n");
-        if (s != null && s.end != null) {
-            long left = Math.max(0, ChronoUnit.DAYS.between(today(), s.end) + 1);
+        if (s != null && topEnd(s) != null) {
+            long left = Math.max(0, ChronoUnit.DAYS.between(today(), topEnd(s)) + 1);
             sb.append("Kết thúc và trao giải sau: (").append(left).append(" ngày nữa)\n");
             sb.append("Hạn chót nhận giải: (").append(left + CLAIM_DAYS).append(" ngày nữa)\n");
         } else {

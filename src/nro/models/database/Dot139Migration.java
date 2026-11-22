@@ -576,6 +576,11 @@ public class Dot139Migration {
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8"); // 202 - 204 có id cố định (Dot48)
         // các dòng khác của sự kiện 20/11 / Giáng sinh: id mỗi máy chủ khác nhau, không sửa theo id (xem Dot140Migration)
+        if (!exists(con, "select 1 from server_migration where name = 'ev2011_dates'")) {
+            // 20/11 theo diễn đàn: 19/11 - hết 17/12 (đua top tính đến 2/12, 15 ngày trước khi hết)
+            update(con, "update season_event set days_before = 1, days_after = 27 where id = 8");
+            update(con, "insert into server_migration (name) values ('ev2011_dates')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'condau_vip_desc2'")) {
             update(con, "update item_template set description = 'Vật phẩm sự kiện' where id = 2122");
             update(con, "insert into server_migration (name) values ('condau_vip_desc2')");
