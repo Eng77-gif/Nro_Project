@@ -92,7 +92,7 @@ public class QuyLaoKame extends Npc {
         quest(5, ConstNpc.KOL_QUEST_TYPE_NINJA_TIM, -1, 10, "Nhiệm vụ 5:\nHạ 10 Ninja tím trong Doanh Trại (tính luôn bóng)",
                 Arrays.asList(new RewardItem(1592, 5), new RewardItem(1757, 5)), Arrays.asList(new RewardItem(1592, 10), new RewardItem(1757, 10)));
         quest(6, ConstNpc.KOL_QUEST_TYPE_MONSTER_KILL_COUNT, -1, 100000, "Nhiệm vụ 6:\nĐánh 100.000 quái (dùng tự động luyện tập)",
-                Arrays.asList(new RewardItem(2019, 1, 60)), Arrays.asList(new RewardItem(1898, 1, 365)));
+                Arrays.asList(new RewardItem(2019, 1, 60)), Arrays.asList(new RewardItem(1898, 1, 365), new RewardItem(1592, 10), new RewardItem(1757, 10)));
         quest(7, ConstNpc.KOL_QUEST_TYPE_ITEM_COLLECTION, 14, 7, "Nhiệm vụ 7:\nNói chuyện và tặng Quy Lão bộ ngọc rồng 1 sao (7 viên)",
                 Arrays.asList(new RewardItem(1593, 1)), Arrays.asList(new RewardItem(2020, 1)));
         try {

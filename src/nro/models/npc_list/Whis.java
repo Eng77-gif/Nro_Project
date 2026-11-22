@@ -41,12 +41,20 @@ public class Whis extends Npc {
             case 164 ->
                 createOtherMenu(player, ConstNpc.BASE_MENU,
                         "Ta có thể giúp gì cho ngươi?", "Quay về", "Từ chối");
-            case 48 ->
-                createOtherMenu(player, ConstNpc.BASE_MENU, "Coming Soon");
+            case 48 -> {
+                if (nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.TEACHERS_DAY)) {
+                    createOtherMenu(player, MENU_TANG_HOA, "Chưa tới giờ thi đấu, xem hướng dẫn để biết thêm chi tiết",
+                            "Tặng\nBó hoa hồng", "Tặng\n10 Bó hoa\nhồng", "Hướng\ndẫn\nthêm", "Từ chối");
+                } else {
+                    createOtherMenu(player, ConstNpc.BASE_MENU, "Coming Soon");
+                }
+            }
             default -> // map khác (vd Võ Đài Siêu Cấp) trước đây không có menu, map lại không có lối ra
                 createOtherMenu(player, ConstNpc.BASE_MENU, "Ta có thể giúp gì cho ngươi?", "Về nhà", "Từ chối");
         }
     }
+
+    private static final int MENU_TANG_HOA = 2011_56;
 
     @Override
     public void confirmMenu(Player player, int select) {
@@ -54,6 +62,17 @@ public class Whis extends Npc {
             return;
         }
 
+        if (player.idMark.getIndexMenu() == MENU_TANG_HOA) {
+            switch (select) {
+                case 0 -> nro.models.services.SeasonEventService.gI().tangHoaWhis(player, 1);
+                case 1 -> nro.models.services.SeasonEventService.gI().tangHoaWhis(player, 10);
+                case 2 -> nro.models.map.service.NpcService.gI().createTutorial(player, tempId, avartar,
+                        "Sự kiện 20/11: dùng Kéo tỉa hoa (mua ở Chi Chi) tỉa các bụi Bông hồng mọc khắp nơi để nhận hoa.\n"
+                        + "Tặng ta 1 Bó hoa hồng: sư phụ và đệ tử được x2 kinh nghiệm trong 30 phút.\n"
+                        + "Tặng 10 Bó hoa hồng: x2 kinh nghiệm 60 phút và thêm 1 phần quà đặc biệt (may mắn nhận Cải trang Videl trung học).");
+            }
+            return;
+        }
         if (player.idMark.isBaseMenu()) {
             handleBaseMenu(player, select);
         } else {

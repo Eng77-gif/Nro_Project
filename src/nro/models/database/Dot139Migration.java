@@ -575,6 +575,41 @@ public class Dot139Migration {
         }
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8");
+        if (!exists(con, "select 1 from server_migration where name = 'video_2011'")) {
+            // 20/11 theo video "Ơn Thầy Nghĩa Trò"
+            // Bà Hạt Mít: nút "Làm Túi trà khô", "Làm Hộp trà"...
+            String[][] names = {{"575", "Làm\\nTúi trà khô"}, {"576", "Làm\\nHộp trà"}, {"577", "Làm\\nHộp trà hoa\\ncúc"}, {"578", "Làm\\nThiệp chúc\\nthường"}, {"579", "Làm\\nThiệp chúc\\nđặc biệt"}};
+            for (String[] n : names) {
+                update(con, "update season_event_exchange set name = '" + n[1] + "' where id = " + n[0]);
+            }
+            // tặng hoa: nút riêng ở Whis (Hành tinh Kaio), dùng Bó hoa hồng; bỏ công thức cũ và Hộp quà đổi bằng Bông hoa hồng
+            update(con, "update season_event_exchange set event_id = -8 where reward_item in (98411, 98412) or id = 607");
+            update(con, "delete from item_box_reward where box_id = 98412");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values "
+                    + "(98412, 1380, 1, 1, 20, '15', 1, 0), (98412, 1381, 1, 1, 20, '15', 1, 0), (98412, 1371, 1, 1, 20, '15', 1, 0), "
+                    + "(98412, 1934, 1, 1, 8, '7,15', 1, 0), (98412, 955, 1, 1, 15, '7,15', 1, 0), (98412, 987, 1, 3, 17, '', 0, 0)");
+            // Keo dán: Ốc mượn hồn / Ốc sên
+            update(con, "update season_event_drop set mobs = '13,14' where event_id = 8 and item_id = 1374");
+            // danh hiệu Gõ Đầu Trẻ (ảnh): SĐ 8%, HP 10%, KI 10%, chí mạng 10%
+            for (int id = 1392; id <= 1394; id++) {
+                writeStats(con, new int[][][]{{{id}, {50, 8}, {77, 10}, {103, 10}, {14, 10}}});
+            }
+            // CT đệ tử Sửu / Dần (ảnh): SĐ 25%, HP / KI 23%, chống lạnh, hút 5% HP KI xung quanh mỗi 5 giây
+            for (int id : new int[]{1380, 1381}) {
+                writeStats(con, new int[][][]{{{id}, {50, 25}, {77, 23}, {103, 23}, {106, 0}, {8, 5}}});
+            }
+            // cửa hàng đổi điểm Quy Lão (video): thêm CT Chi Chi giỗ tổ, CT Chi Chi Hoa Hồng Xanh (HSD 30 ngày), CT Frieren, Bunma rực rỡ, Pan VIP; Pet Hải Ly 499, Rương Rồng Thần HSD 30 ngày
+            int[][] ql = {{1997, 999, 30}, {1795, 999, 30}, {1567, 999, 0}, {1476, 999, 0}, {1921, 999, 0}};
+            for (int[] q : ql) {
+                String nm = "(select NAME from item_template where id = " + q[0] + ")";
+                update(con, "insert into season_event_exchange (event_id, grp, name, need, gold, gem, ruby, cost_point, reward_item, reward_qty, reward_days, top_id, top_point, npc) "
+                        + "select 8, 'Đổi\\nđiểm', " + nm + ", '', 0, 0, 0, " + q[1] + ", " + q[0] + ", 1, '" + (q[2] > 0 ? q[2] : "") + "', 0, 0, '13' from dual "
+                        + "where not exists (select 1 from season_event_exchange where event_id = 8 and npc = '13' and reward_item = " + q[0] + ")");
+            }
+            update(con, "update season_event_exchange set cost_point = 499 where id = 584");
+            update(con, "update season_event_exchange set reward_days = '30' where id = 591");
+            update(con, "insert into server_migration (name) values ('video_2011')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'radar_broly'")) {
             // Thẻ Broly (radar no.21, ảnh): Mở khóa +1% vàng rơi; Lv.1 tấn công +5% khi đánh quái, +3% vàng rơi; Lv.2 chí mạng +5%, +3% vàng rơi; Lv.3 +5% SĐ chí mạng, +4% vàng rơi
             update(con, "insert into item_template (id, TYPE, gender, NAME, description, level, icon_id, part, is_up_to_up, power_require, gold, gem, head, body, leg) "

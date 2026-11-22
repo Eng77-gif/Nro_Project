@@ -10,12 +10,14 @@ import nro.models.utils.Util;
 
 /**
  * Cây hoa hồng sự kiện Nhà giáo Việt Nam 20/11 (theo source V10 "HaiHoaHong").
- * Dùng Kéo tỉa hoa (1387) hái được 1 - 5 Bông hoa hồng (1530); Kéo tỉa hoa đặc biệt (1382) hái được 1 - 3 Bó hoa hồng (1388).
+ * Dùng Kéo tỉa hoa (1387): chờ 3 giây, có thể hụt (mất kéo), được 1 Đóa hoa hồng (1395); Kéo tỉa hoa đặc biệt (1382) không hụt, được 1 Bó hoa hồng (1388).
  * Mỗi cây hái được 7 lần rồi tàn, 5 phút sau nở lại. Cây do SeasonEventService đặt khi sự kiện 20/11 đang chạy.
  */
 public class HoaHong extends Npc {
 
-    public static final int KEO = 1387, KEO_DAC_BIET = 1382, BONG_HOA = 1530, BO_HOA = 1388;
+    public static final int KEO = 1387, KEO_DAC_BIET = 1382, BONG_HOA = 1395, BO_HOA = 1388; // kéo thường: 1 Đóa hoa hồng (có thể hụt), kéo đặc biệt: 1 Bó hoa hồng
+    private static final int TI_LE_HUT = 30; // % tỉa hụt bằng kéo thường (mất kéo); shortcut: tỉ lệ tự đặt, video chỉ nói "tỉa hụt sẽ mất kéo"
+    private final java.util.Set<Long> dangTia = java.util.concurrent.ConcurrentHashMap.newKeySet();
     private static final int LUOT_HAI = 7;
     private static final long TAN_MS = 5 * 60_000L;
 
@@ -36,8 +38,7 @@ public class HoaHong extends Npc {
             createOtherMenu(player, 0, "Hoa vừa bị hái hết, " + (con / 1000 + 1) + " giây nữa sẽ nở lại.", "Đóng");
             return;
         }
-        createOtherMenu(player, 0, "Muốn tỉa mình, xem trình bạn thế nào?\n(Cần Kéo tỉa hoa hoặc Kéo tỉa hoa đặc biệt)",
-                "Đồng ý", "Từ chối");
+        createOtherMenu(player, 0, "Muốn tỉa mình, xem trình bạn thế nào?", "Đồng ý", "Từ chối");
     }
 
     @Override
@@ -63,15 +64,39 @@ public class HoaHong extends Npc {
             Service.gI().sendThongBaoOK(player, "Cần ít nhất 1 ô trống trong hành trang!");
             return;
         }
-        Item hoa = ItemService.gI().createNewItem((short) (dacBiet ? BO_HOA : BONG_HOA), dacBiet ? Util.nextInt(1, 3) : Util.nextInt(1, 5));
-        InventoryService.gI().subQuantityItemsBag(player, dacBiet ? keoDb : keo, 1);
-        InventoryService.gI().addItemBag(player, hoa);
-        InventoryService.gI().sendItemBags(player);
-        Service.gI().sendThongBao(player, "Bạn nhận được " + hoa.quantity + " " + hoa.template.name);
-        if (++count >= LUOT_HAI) {
-            count = 0;
-            tanDen = System.currentTimeMillis() + TAN_MS;
-            npcChat(player, "Hoa đã bị hái hết, 5 phút nữa ta sẽ nở lại!");
+        if (!dangTia.add(player.id)) {
+            return; // đang tỉa
         }
+        InventoryService.gI().subQuantityItemsBag(player, dacBiet ? keoDb : keo, 1); // mất kéo dù tỉa được hay hụt
+        InventoryService.gI().sendItemBags(player);
+        Service.gI().sendThongBao(player, "Đang tỉa hoa, chờ chút...");
+        // tỉa hoa phải chờ vài giây (như bản chính thức)
+        java.util.concurrent.CompletableFuture.delayedExecutor(3, java.util.concurrent.TimeUnit.SECONDS).execute(() -> {
+            try {
+                if (player.zone == null || player.zone.map == null || player.zone.map.mapId != this.mapId) {
+                    return;
+                }
+                if (!dacBiet && Util.isTrue(TI_LE_HUT, 100)) {
+                    npcChat(player, "Tỉa hụt rồi, mất kéo mà chẳng được bông nào!");
+                    return;
+                }
+                synchronized (this) {
+                    Item hoa = ItemService.gI().createNewItem((short) (dacBiet ? BO_HOA : BONG_HOA), 1);
+                    hoa.itemOptions.add(new Item.ItemOption(30, 0));
+                    hoa.itemOptions.add(new Item.ItemOption(93, 35));
+                    InventoryService.gI().addItemBag(player, hoa);
+                    InventoryService.gI().sendItemBags(player);
+                    npcChat(player, "Bạn nhận được " + (dacBiet ? "Bó hoa hồng" : "1 Đóa hoa hồng"));
+                    if (++count >= LUOT_HAI) {
+                        count = 0;
+                        tanDen = System.currentTimeMillis() + TAN_MS;
+                    }
+                }
+            } catch (Exception e) {
+                nro.models.utils.Logger.logException(HoaHong.class, e);
+            } finally {
+                dangTia.remove(player.id);
+            }
+        });
     }
 }

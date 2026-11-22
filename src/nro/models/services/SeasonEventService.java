@@ -1021,7 +1021,49 @@ public class SeasonEventService implements Runnable {
 
     // ------------------------------------------------------------------ 20/11: tặng hoa Whis, danh hiệu Gõ Đầu Trẻ
     public static final int TANG_HOA_1 = 98411, TANG_HOA_10 = 98412; // mã quà ảo của công thức tặng hoa ở Whis
-    private static final int HOA_HONG = 1530, HOP_TRA_HOA_CUC = 1370, THIEP_DB = 1377, GO_DAU_TRE = 1392;
+    private static final int HOA_HONG = 1388, HOP_TRA_HOA_CUC = 1370, THIEP_DB = 1377, GO_DAU_TRE = 1392;
+
+    public static final int BO_HOA_HONG = 1388, DOA_HOA_HONG = 1395;
+
+    /** Whis (Hành tinh Kaio): tặng 1 Bó hoa hồng x2 TNSM sư phụ + đệ tử 30 phút, tặng 10 bó 60 phút + 1 quà đặc biệt. */
+    public void tangHoaWhis(Player pl, int n) {
+        if (!isActive(TEACHERS_DAY)) {
+            Service.gI().sendThongBao(pl, "Sự kiện 20/11 đã kết thúc");
+            return;
+        }
+        synchronized (pl) {
+            int have = count(pl, BO_HOA_HONG) + count(pl, DOA_HOA_HONG);
+            if (have < n) {
+                Service.gI().sendThongBao(pl, "Cần " + n + " Bó hoa hồng");
+                return;
+            }
+            if (n >= 10 && InventoryService.gI().getCountEmptyBag(pl) <= 0) {
+                Service.gI().sendThongBao(pl, "Hành trang không còn chỗ trống");
+                return;
+            }
+            int left = n;
+            for (int id : new int[]{BO_HOA_HONG, DOA_HOA_HONG}) {
+                int c = Math.min(left, count(pl, id));
+                if (c > 0) {
+                    take(pl, id, c);
+                    left -= c;
+                }
+            }
+            pl.hoaTnsmUntil = System.currentTimeMillis() + (n >= 10 ? 60 : 30) * 60_000L;
+            String msg = "Sư phụ và đệ tử được x2 kinh nghiệm trong " + (n >= 10 ? 60 : 30) + " phút";
+            if (n >= 10) {
+                short[] icon = {-1};
+                String g = Event2026Service.gI().openBoxById(pl, TANG_HOA_10, icon);
+                if (g != null) {
+                    msg += ", nhận được " + g;
+                }
+            }
+            goDauTre(pl, "hoa", n, 49);
+            InventoryService.gI().sendItemBags(pl);
+            nro.models.services.ItemTimeService.gI().sendAllItemTime(pl);
+            Service.gI().sendThongBao(pl, msg);
+        }
+    }
 
     private void teachersDayAfter(Player pl, Exchange e, int times, List<String> got) {
         if (e.season == null || e.season.id != TEACHERS_DAY) {
@@ -1106,8 +1148,33 @@ public class SeasonEventService implements Runnable {
         Service.gI().sendThongBao(pl, "Trà đã khô! Nhận được x1 Túi trà khô");
     }
 
+    /** Công thức 20/11 ở Bà Hạt Mít (nhóm "Sự kiện 20/11"): hộp thoại như bản chính thức. */
+    private static boolean isTeaRecipe(Exchange e) {
+        return e.season != null && e.season.id == TEACHERS_DAY && e.group != null && e.group.startsWith("Sự kiện");
+    }
+
     private void openExchange(Npc npc, Player pl, Exchange e) {
         if (teaPending(npc, pl, e)) {
+            return;
+        }
+        if (isTeaRecipe(e)) {
+            String name = ItemService.gI().getTemplate(e.rewardItem).name;
+            StringBuilder sb = new StringBuilder("Để làm ra 1 " + name + " cần");
+            for (int[] n : e.need) {
+                sb.append("\n").append(ItemService.gI().getTemplate(n[0]).name).append(" ").append(count(pl, n[0])).append("/").append(n[1]);
+            }
+            if (e.gem > 0) {
+                sb.append("\nGiá ngọc: ").append(e.gem);
+            }
+            if (e.gold > 0) {
+                sb.append("\nGiá vàng: ").append(Util.numberToMoney(e.gold));
+            }
+            if (e.rewardItem == TUI_TRA_KHO) {
+                sb.append("\nVới công thức gia truyền nhà ta\nbảo đảm thơm ngon và ...\ngiòn luôn cả sâu.");
+                npc.createOtherMenu(pl, MENU_EXCHANGE + e.id, sb.toString(), "90 giây\ntới nhận\nhàng", "Sấy\nlấy liền\n5tr vàng", "Từ chối");
+            } else {
+                npc.createOtherMenu(pl, MENU_EXCHANGE + e.id, sb.toString(), "Đồng ý", "Từ chối");
+            }
             return;
         }
         StringBuilder sb = new StringBuilder();
@@ -1203,12 +1270,46 @@ public class SeasonEventService implements Runnable {
             npcOption.remove(pl.id);
             return menu;
         }
-        Season s = list.get(0).season;
-        boolean one = list.stream().allMatch(e -> e.season == s);
-        String[] out = java.util.Arrays.copyOf(menu, menu.length + 1);
-        out[menu.length] = one ? s.name.replace(" ", "\n") : "Sự kiện";
-        npcOption.put(pl.id, new int[]{npc.tempId, menu.length});
+        // mỗi sự kiện 1 nút riêng (như bản chính thức: "Sự kiện 20-11", "Sự kiện Halloween"), sự kiện mới trước
+        List<Season> ss = new ArrayList<>();
+        for (Exchange e : list) {
+            if (!ss.contains(e.season)) {
+                ss.add(e.season);
+            }
+        }
+        ss.sort(java.util.Comparator.comparing((Season x) -> x.start == null ? LocalDate.MIN : x.start).reversed());
+        String[] out = java.util.Arrays.copyOf(menu, menu.length + ss.size());
+        int[] opt = new int[2 + ss.size()];
+        opt[0] = npc.tempId;
+        opt[1] = menu.length;
+        for (int i = 0; i < ss.size(); i++) {
+            out[menu.length + i] = seasonButton(ss.get(i), npc.tempId, ss.size());
+            opt[2 + i] = ss.get(i).id;
+        }
+        npcOption.put(pl.id, opt);
         return out;
+    }
+
+    private static String seasonButton(Season s, int npcTemp, int count) {
+        if (s.id == TEACHERS_DAY) {
+            return npcTemp == nro.models.consts.ConstNpc.QUY_LAO_KAME ? "Tặng\nhộp trà" : "Sự kiện\n20-11";
+        }
+        if (s.id == HALLOWEEN) {
+            return "Sự kiện\nHalloween";
+        }
+        return count == 1 ? s.name.replace(" ", "\n") : "Sự kiện\n" + s.name;
+    }
+
+    /** playerId -> sự kiện đang mở ở menu NPC (nhiều sự kiện cùng NPC) */
+    private final Map<Long, Integer> npcSeason = new ConcurrentHashMap<>();
+
+    private List<Exchange> npcExchanges(int npcTemp, Player pl) {
+        Integer sid = npcSeason.get(pl.id);
+        List<Exchange> l = npcExchanges(npcTemp);
+        if (sid != null) {
+            l.removeIf(e -> e.season == null || e.season.id != sid);
+        }
+        return l;
     }
 
     /** Gọi trước confirmMenu của mọi NPC: xử lý nút sự kiện và các menu sự kiện. */
@@ -1216,14 +1317,15 @@ public class SeasonEventService implements Runnable {
         int menu = pl.idMark.getIndexMenu();
         if (pl.idMark.isBaseMenu()) {
             int[] o = npcOption.get(pl.id);
-            if (o != null && o[0] == npc.tempId && o[1] == select && npc.tempId != nro.models.consts.ConstNpc.SANTA) {
+            if (o != null && o[0] == npc.tempId && select >= o[1] && select < o.length - 2 + o[1] && npc.tempId != nro.models.consts.ConstNpc.SANTA) {
+                npcSeason.put(pl.id, o[2 + select - o[1]]);
                 openNpcEvent(npc, pl);
                 return true;
             }
             return false;
         }
         if (menu == MENU_NPC) {
-            List<Exchange> list = npcExchanges(npc.tempId);
+            List<Exchange> list = npcExchanges(npc.tempId, pl);
             if (select >= 0 && select < list.size()) {
                 openExchange(npc, pl, list.get(select));
             } else if (select == list.size() && !ticketExchanges(npc.tempId).isEmpty()) {
@@ -1252,7 +1354,7 @@ public class SeasonEventService implements Runnable {
     }
 
     private void openNpcEvent(Npc npc, Player pl) {
-        List<Exchange> list = npcExchanges(npc.tempId);
+        List<Exchange> list = npcExchanges(npc.tempId, pl);
         List<Exchange> tickets = ticketExchanges(npc.tempId);
         if (list.isEmpty() && tickets.isEmpty()) {
             return;
@@ -1274,7 +1376,7 @@ public class SeasonEventService implements Runnable {
         if (!tickets.isEmpty()) {
             opts[list.size()] = "Đổi\n" + ItemService.gI().getTemplate(tickets.get(0).need[0][0]).name;
         }
-        npc.createOtherMenu(pl, MENU_NPC, s.name + " vui vẻ\nTa có thể giúp gì cho con?", opts);
+        npc.createOtherMenu(pl, MENU_NPC, s.id == TEACHERS_DAY ? "Ta có thể giúp gì cho ngươi ?" : s.name + " vui vẻ\nTa có thể giúp gì cho con?", opts);
     }
 
     /** Xử lý chọn menu của sự kiện; trả về true nếu đúng menu sự kiện. */
@@ -1322,6 +1424,21 @@ public class SeasonEventService implements Runnable {
             Exchange e = exchanges.get(menu - MENU_EXCHANGE);
             if (e == null || !e.season.active) {
                 Service.gI().sendThongBao(pl, "Sự kiện đã kết thúc");
+                return true;
+            }
+            if (isTeaRecipe(e)) {
+                if (select == 0) {
+                    exchange(pl, e, 1);
+                } else if (select == 1 && e.rewardItem == TUI_TRA_KHO) {
+                    if (pl.inventory.gold < TEA_FAST_GOLD + e.gold) {
+                        Service.gI().sendThongBao(pl, "Không đủ vàng");
+                    } else if (maxTimes(pl, e) > 0 && !teaDrying.containsKey(pl.id)) {
+                        exchange(pl, e, 1);
+                        fastDryTea(pl);
+                    } else {
+                        Service.gI().sendThongBao(pl, "Không đủ nguyên liệu");
+                    }
+                }
                 return true;
             }
             int times = switch (select) {
