@@ -373,7 +373,8 @@ public class SeasonEventService implements Runnable {
 
     /**
      * Sự kiện được chạy (theo kiểu source V10: mỗi lúc chỉ 1 sự kiện):
-     * - Config.properties có event.active=7 (hoặc 7,8...) thì chỉ chạy đúng các sự kiện đó, không xét ngày.
+     * - Config.properties có event.active=7 (hoặc 7,8...) thì chỉ các sự kiện đó được chạy, và chỉ trong lịch của chúng
+     *   (hết lịch tự tắt; trước đây chạy mãi không xét ngày nên Halloween qua 19/11 vẫn chạy). Muốn chạy ngoài lịch thì bật tay trên panel.
      * - Để trống thì chạy theo lịch, nhưng chỉ 1 sự kiện: nếu nhiều đợt trùng ngày, đợt bắt đầu muộn nhất (mới nhất) được chạy.
      * - Bật / tắt tay trên panel hoặc lệnh admin luôn được ưu tiên.
      */
@@ -382,7 +383,8 @@ public class SeasonEventService implements Runnable {
         Set<Integer> cfg = configActive();
         if (!cfg.isEmpty()) {
             for (int id : cfg) {
-                if (seasons.containsKey(id)) {
+                Season s = seasons.get(id);
+                if (s != null && window(s, d) != null) {
                     run.add(id);
                 }
             }
