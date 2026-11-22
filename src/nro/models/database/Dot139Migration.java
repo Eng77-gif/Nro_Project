@@ -577,7 +577,7 @@ public class Dot139Migration {
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8");
         if (!exists(con, "select 1 from server_migration where name = 'broly_lv_2011'")) {
             update(con, "update radar set max = 50 where id = 2126"); // Thẻ Broly: 15 / 50 / 50 mảnh (RadarService.thresholds)
-            update(con, "update item_template set description = 'Sử dụng tạo ra Sách Tuyệt Kỹ 2 dòng, tăng tỉ lệ ra Sách Tuyệt Kỹ 3 dòng và 4 dòng' where id = 2122");
+            update(con, "update item_template set description = 'Tạo Sách Tuyệt Kỹ 2 dòng, tăng tỉ lệ ra sách 3 dòng và 4 dòng' where id = 2122");
             update(con, "insert into server_migration (name) values ('broly_lv_2011')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'quylao_2011_order'")) {
