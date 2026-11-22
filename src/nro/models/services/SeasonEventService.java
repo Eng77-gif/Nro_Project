@@ -507,6 +507,8 @@ public class SeasonEventService implements Runnable {
                     for (Top t : s.tops) {
                         if (!closedTops.contains(t.id)) { // đã chốt sớm (15 ngày trước khi hết) thì không chốt lại
                             closeTop(t);
+                        } else {
+                            dropTopRewards(t); // hết sự kiện: quà top (đã chốt sớm) chưa nhận thì mất
                         }
                     }
                     clearCounters(s);
@@ -518,6 +520,21 @@ public class SeasonEventService implements Runnable {
         closeTopsEarly(d);
         syncNpcs();
         syncMobs();
+    }
+
+    /** Hết sự kiện: xoá quà đua top chưa nhận của top này. */
+    private void dropTopRewards(Top t) {
+        try (Connection con = LocalManager.getConnection()) {
+            ensureRewardItemTable(con);
+            for (String sql : new String[]{"delete from season_event_reward_pending where top_id = ?", "delete from season_event_reward_item where top_id = ?"}) {
+                try (PreparedStatement ps = con.prepareStatement(sql)) {
+                    ps.setInt(1, t.id);
+                    ps.executeUpdate();
+                }
+            }
+        } catch (Exception e) {
+            Logger.error("Không xoá được quà top " + t.name + ": " + e.getMessage() + "\n");
+        }
     }
 
     /** Đua top chỉ tính đến TOP_END_BEFORE ngày trước khi hết sự kiện (sự kiện ngắn hơn thì tính đến hết sự kiện). */
