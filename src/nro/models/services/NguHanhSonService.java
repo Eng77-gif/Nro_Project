@@ -26,7 +26,7 @@ public class NguHanhSonService {
     public static final int VONG_KIM_CO = 543;
     /** Cải trang chỉ dành cho đệ tử */
     public static final int CT_BAT_GIOI_DE = 548, CT_NGO_KHONG_DE = 547, CT_SA_TANG_DE = 1302; // cải trang đệ tử có sẵn trong game
-    public static final Set<Integer> PET_ONLY = Set.of(CT_BAT_GIOI_DE, CT_NGO_KHONG_DE, CT_SA_TANG_DE);
+    public static final Set<Integer> PET_ONLY = Set.of(CT_BAT_GIOI_DE, CT_NGO_KHONG_DE, CT_SA_TANG_DE, 2125); // + 2125 Cải trang Gohan SSJ (20/11)
     /** Cải trang Tôn Ngộ Không có sẵn trong game: 544 Trái Đất, 545 Namếc, 546 Xayda (đổi bằng 10 chữ mỗi loại) */
     public static final int CT_NGO_KHONG = 544;
     /** 4 chữ "Giải Khai Phong Ấn" có sẵn trong game (537 - 540), nhận khi tặng đào cho Ngộ Không */

@@ -342,6 +342,21 @@ public class Dot139Migration {
         {{644}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}, // CT bộ xương
         {{645}, {8, 4}, {50, 20}, {77, 17}, {103, 17}},
         {{646}, {8, 4}, {50, 20}, {77, 17}, {103, 17}}};
+    /** Part gói x4 (Nr_Part.sql thư viện 2085 - 2096): khỉ xanh 2398 - 2400, Broly xanh 2401 - 2403, Broly xanh áo choàng 2404 - 2406, Gohan SSJ 2407 - 2409. {id, type, data} */
+    static final String[][] PARTS_X4 = {
+            {"2398", "0", "[[17790,3,-11],[2955,0,0],[2955,0,0]]"}, // thư viện 2085
+            {"2399", "1", "[[2955,0,0],[17791,-22,-23],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]"}, // thư viện 2086
+            {"2400", "2", "[[2955,0,0],[17792,-20,-27],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]"}, // thư viện 2087
+            {"2401", "0", "[[17793,0,-15],[2955,0,0],[2955,0,0]]"}, // thư viện 2088
+            {"2402", "1", "[[2955,0,0],[17794,-22,-23],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]"}, // thư viện 2089
+            {"2403", "2", "[[2955,0,0],[17795,-20,-27],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]"}, // thư viện 2090
+            {"2404", "0", "[[17796,1,-15],[2955,0,0],[2955,0,0]]"}, // thư viện 2091
+            {"2405", "1", "[[2955,0,0],[17797,-22,-23],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]"}, // thư viện 2092
+            {"2406", "2", "[[2955,0,0],[17795,-20,-27],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]"}, // thư viện 2093
+            {"2407", "0", "[[17807,2,-2],[17808,1,-2],[2955,0,0]]"}, // thư viện 2094
+            {"2408", "1", "[[17809,-7,2],[17810,-2,-1],[17811,-8,-1],[17812,-2,-1],[17813,-8,0],[17814,-5,0],[17815,-4,-2],[17816,-4,0],[17817,0,0],[17818,-3,0],[17819,-6,0],[17820,0,0],[17821,-2,-1],[17822,0,0],[17823,0,0],[17824,-3,0],[2955,0,0]]"}, // thư viện 2095
+            {"2409", "2", "[[17825,4,8],[17826,0,1],[17827,0,1],[17828,0,0],[17829,0,0],[17830,0,0],[17831,0,0],[17832,-1,4],[17833,-1,2],[17834,0,0],[17835,0,0],[17836,0,0],[17837,0,0],[2955,0,0]]"}, // thư viện 2096
+    };
     /** Đợt 23 (ảnh shop 20/11 Quy Lão): CT Chi Chi Hoa Hồng Xanh, Đeo lưng lồng đèn Tết, Bóng mờ NRO, Hiệu ứng hoa Tết, Ba lô ngọc rồng, Bảng đen, CT Quy lão Kamê 710, CT Jacky Chun 711. */
     static final int[][][] EVENT_ITEMS23 = {
         {{1795}, {50, 26}, {77, 24}, {275, 16}, {236, 22}, {30, 0}},
@@ -560,6 +575,28 @@ public class Dot139Migration {
         }
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8");
+        if (!exists(con, "select 1 from server_migration where name = 'parts_x4_1122'")) {
+            for (String[] pt : PARTS_X4) {
+                update(con, "delete from part where id = " + pt[0]);
+                update(con, "insert into part (id, TYPE, DATA) values (" + pt[0] + ", " + pt[1] + ", '" + pt[2] + "')");
+            }
+            int[][] av = {{2398, 17790}, {2401, 17793}, {2404, 17796}, {2407, 17838}};
+            for (int[] a : av) {
+                update(con, "insert into head_avatar (head_id, avatar_id) select " + a[0] + ", " + a[1] + " from dual where not exists (select 1 from head_avatar where head_id = " + a[0] + ")");
+            }
+            // Cải trang Gohan SSJ (chỉ dành cho đệ tử): SĐ 20 - 25%, tấn công +5.000 - 10.000 (ảnh Hộp tháng 20/11 / Giấy tốt nghiệp)
+            update(con, "insert into item_template (id, TYPE, gender, NAME, description, level, icon_id, part, is_up_to_up, power_require, gold, gem, head, body, leg) "
+                    + "select 2125, 5, 3, 'Cải trang Gohan SSJ', 'Vật phẩm sự kiện (chỉ dành cho đệ tử)', 0, 17838, -1, 0, 0, 0, 0, 2407, 2408, 2409 from dual where not exists (select 1 from item_template where id = 2125)");
+            update(con, "delete from item_template_option where template_id = 2125");
+            update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (2125, 50, 20, 25, 100, 0), (2125, 0, 5000, 10000, 100, 0)");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 1739, 2125, 1, 1, 10, '3', 1, 0 from dual where not exists (select 1 from item_box_reward where box_id = 1739 and item_id = 2125)");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 2124, 2125, 1, 1, 5, '15,30,45', 2, 0 from dual where not exists (select 1 from item_box_reward where box_id = 2124 and item_id = 2125)");
+            // hình biến hình khỉ xanh / Broly xanh (aura_11 - 13 của gói, đổi số vì 11 - 13 đã là hào quang thẻ radar), 8 khung
+            for (String n : new String[]{"aura_123_0", "aura_124_0", "aura_124_1", "aura_125_0", "aura_125_1"}) {
+                update(con, "insert into img_by_name (NAME, n_frame) select '" + n + "', 8 from dual where not exists (select 1 from img_by_name where NAME = '" + n + "')");
+            }
+            update(con, "insert into server_migration (name) values ('parts_x4_1122')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'icon_x4_1119'")) {
             // hình mới gói x4 anh gửi: Giỏ hoa 20/11, Giấy tốt nghiệp, Con dấu VIP (trước mượn hình Con dấu)
             update(con, "update item_template set icon_id = 17842 where id = 2123");
