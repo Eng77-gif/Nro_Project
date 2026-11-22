@@ -166,7 +166,8 @@ public class RadarService {
     public static int[] thresholds(int cardId, int defMax) {
         return switch (cardId) {
             case 956, 1204 -> new int[]{3, 30, 30}; // Đội Trưởng Vàng, Rồng Thần Namek
-            case OOZARU, 2040, BROLY -> new int[]{10, 125, 125}; // Oozaru, Khỉ con, Broly
+            case OOZARU, 2040 -> new int[]{10, 125, 125}; // Oozaru, Khỉ con
+            case BROLY -> new int[]{15, 50, 50}; // Broly (ảnh): Mở khóa + Lv.1 15 mảnh, Lv.2 50, Lv.3 50
             default -> new int[]{1, Math.max(1, defMax), Math.max(1, defMax)};
         };
     }
