@@ -560,6 +560,13 @@ public class Dot139Migration {
         }
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8");
+        if (!exists(con, "select 1 from server_migration where name = 'icon_x4_1119'")) {
+            // hình mới gói x4 anh gửi: Giỏ hoa 20/11, Giấy tốt nghiệp, Con dấu VIP (trước mượn hình Con dấu)
+            update(con, "update item_template set icon_id = 17842 where id = 2123");
+            update(con, "update item_template set icon_id = 17843 where id = 2124");
+            update(con, "update item_template set icon_id = 17805 where id = 2122");
+            update(con, "insert into server_migration (name) values ('icon_x4_1119')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'restore_98302'")) {
             // bản thử trước ghi nhầm quà tặng hoa Whis vào hộp 98302 (Giao Người tuyết - Giáng sinh): trả lại quà gốc
             if (exists(con, "select 1 from item_box_reward where box_id = 98302 and item_id = 1934")) {
