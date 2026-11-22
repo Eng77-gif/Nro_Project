@@ -574,7 +574,8 @@ public class Dot139Migration {
             update(con, "insert into server_migration (name) values ('event_items_1119n')");
         }
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
-        update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8");
+        update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8"); // 202 - 204 có id cố định (Dot48)
+        // các dòng khác của sự kiện 20/11 / Giáng sinh: id mỗi máy chủ khác nhau, không sửa theo id (xem Dot140Migration)
         if (!exists(con, "select 1 from server_migration where name = 'condau_vip_desc2'")) {
             update(con, "update item_template set description = 'Vật phẩm sự kiện' where id = 2122");
             update(con, "insert into server_migration (name) values ('condau_vip_desc2')");
@@ -605,10 +606,8 @@ public class Dot139Migration {
             // Bà Hạt Mít: nút "Làm Túi trà khô", "Làm Hộp trà"...
             String[][] names = {{"575", "Làm\\nTúi trà khô"}, {"576", "Làm\\nHộp trà"}, {"577", "Làm\\nHộp trà hoa\\ncúc"}, {"578", "Làm\\nThiệp chúc\\nthường"}, {"579", "Làm\\nThiệp chúc\\nđặc biệt"}};
             for (String[] n : names) {
-                update(con, "update season_event_exchange set name = '" + n[1] + "' where id = " + n[0]);
             }
             // tặng hoa: nút riêng ở Whis (Hành tinh Kaio), dùng Bó hoa hồng; bỏ công thức cũ và Hộp quà đổi bằng Bông hoa hồng
-            update(con, "update season_event_exchange set event_id = -8 where reward_item in (98411, 98412) or id = 607");
             update(con, "delete from item_box_reward where box_id = 98412");
             update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values "
                     + "(98412, 1380, 1, 1, 20, '15', 1, 0), (98412, 1381, 1, 1, 20, '15', 1, 0), (98412, 1371, 1, 1, 20, '15', 1, 0), "
@@ -631,8 +630,6 @@ public class Dot139Migration {
                         + "select 8, 'Đổi\\nđiểm', " + nm + ", '', 0, 0, 0, " + q[1] + ", " + q[0] + ", 1, '" + (q[2] > 0 ? q[2] : "") + "', 0, 0, '13' from dual "
                         + "where not exists (select 1 from season_event_exchange where event_id = 8 and npc = '13' and reward_item = " + q[0] + ")");
             }
-            update(con, "update season_event_exchange set cost_point = 499 where id = 584");
-            update(con, "update season_event_exchange set reward_days = '30' where id = 591");
             update(con, "insert into server_migration (name) values ('video_2011')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'radar_broly'")) {
@@ -696,8 +693,6 @@ public class Dot139Migration {
             update(con, "insert into season_event_drop (event_id, item_id, rate, qty_min, qty_max, source, daily_max, item_to, need_item, mobs, maps) "
                     + "select 8, 1365, 5000, 1, 3, 'boss', 999, 0, 0, '', '' from dual where not exists (select 1 from season_event_drop where event_id = 8 and item_id = 1365 and source = 'boss')");
             // Tặng Hộp trà hoa cúc ở Quy Lão ra Sách giáo khoa; mở Sách giáo khoa ra cải trang (thêm CT Gohan học đường)
-            update(con, "update season_event_exchange set reward_item = 1740, reward_qty = 1, reward_qty_max = 1, open_now = 0 where id = 581");
-            update(con, "update season_event_exchange set reward_item = 1740, reward_qty = 10, reward_qty_max = 10, open_now = 0 where id = 582");
             update(con, "delete from item_box_reward where box_id in (1740, 1376, 1377, 98412)");
             update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 1740, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity from item_box_reward where box_id in (98202, 98203)");
             update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values (1740, 1933, 1, 1, 10, '7,15', 2, 0)");
@@ -774,7 +769,6 @@ public class Dot139Migration {
             }
             update(con, "update season_event_top set name = 'Giao 7 viên ngọc rồng' where id = 802");
             // điểm top tính lúc mua như bản chính thức: Hộp quà 20-11 (Chi Chi, vàng) -> 801, Hộp quà 20-11 VIP (Quy Lão, điểm) -> 803
-            update(con, "update season_event_exchange set top_id = 801, top_point = 1 where id = 598");
             update(con, "insert into season_event_exchange (event_id, grp, name, need, gold, gem, ruby, cost_point, reward_item, reward_qty, reward_days, top_id, top_point, npc) "
                     + "select 8, 'Đổi\\nđiểm', 'Hộp quà 20-11 VIP', '', 0, 0, 0, 99, 1944, 1, '30', 803, 1, '13' from dual where not exists (select 1 from season_event_exchange where event_id = 8 and reward_item = 1944)");
             // Giỏ hoa 20/11 là vật phẩm đua top (không phải hộp quà)
@@ -793,11 +787,9 @@ public class Dot139Migration {
             // Giỏ hoa 20/11 mở ra quà như Hộp quà 20-11
             update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 2123, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity "
                     + "from item_box_reward where box_id = 1739 and not exists (select 1 from item_box_reward where box_id = 2123)");
-            update(con, "delete from season_event_exchange where id = 606"); // Rađa phóng xạ không có ở bản chính thức
             String[] shop = {"598:20000000:0:30", "599:30000000:0:35", "600:0:10:35", "601:0:10:35", "602:40000000:0:35", "603:0:3000:", "604:0:1000:", "605:0:5999:"};
             for (String s : shop) {
                 String[] f = s.split(":", -1);
-                update(con, "update season_event_exchange set gold = " + f[1] + ", gem = " + f[2] + ", ruby = 0, reward_days = '" + f[3] + "' where id = " + f[0]);
             }
             update(con, "insert into season_event_exchange (event_id, grp, name, need, gold, gem, ruby, cost_point, reward_item, reward_qty, reward_days, top_id, top_point, npc) "
                     + "select 8, 'Cửa\\nhàng', 'Giỏ hoa 20/11', '', 0, 20, 0, 0, 2123, 1, '30', 0, 0, '81' from dual where not exists (select 1 from season_event_exchange where reward_item = 2123)");
@@ -808,11 +800,6 @@ public class Dot139Migration {
             update(con, "insert into season_event_top_reward (top_id, rank_from, rank_to, item_id, qty, hsd_days, min_point) select 805, rank_from, rank_to, item_id, qty, hsd_days, min_point "
                     + "from season_event_top_reward where top_id = 802 and not exists (select 1 from season_event_top_reward where top_id = 805)");
             // Bà Hạt Mít: Hộp trà 30tr vàng, Hộp trà hoa cúc 5 ngọc, thiệp thường 15 ngọc, thiệp đặc biệt 30 ngọc, Túi trà khô miễn phí
-            update(con, "update season_event_exchange set gold = 0, gem = 0 where id = 575");
-            update(con, "update season_event_exchange set gold = 30000000, gem = 0 where id = 576");
-            update(con, "update season_event_exchange set gold = 0, gem = 5 where id = 577");
-            update(con, "update season_event_exchange set gold = 0, gem = 15 where id = 578");
-            update(con, "update season_event_exchange set gold = 0, gem = 30 where id = 579");
             writeStats(con, new int[][][]{{{1710}, {50, 24}, {77, 22}, {103, 22}, {159, 5}, {253, 60}, {154, 0}}}); // CT Android 21 Tiến Sĩ (ảnh)
             update(con, "delete from item_template_option where template_id = 1710 and option_id = 14");
             update(con, "insert into server_migration (name) values ('shop_2011')");
