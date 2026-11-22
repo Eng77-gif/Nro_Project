@@ -163,7 +163,9 @@ public class BaHatMit extends Npc {
                                 : "Nâng cấp\nBông tai\nPorata cấp\n3");
                     }
 
-                    menu.add("Đổi\nMảnh Broly"); // Thẻ Broly (radar no.21)
+                    if (this.mapId == 84) {
+                        menu.add("Đổi\nMảnh Broly"); // Thẻ Broly (radar no.21): chỉ Bà Hạt Mít ở Siêu Thị
+                    }
 
                     // Thêm thưởng bùa nếu còn lượt hôm nay (đặt lên đầu để case 0 vẫn là thưởng bùa)
                     if (DailyGiftService.checkDailyGift(player, ConstDailyGift.NHAN_BUA_MIEN_PHI)) {
@@ -429,13 +431,17 @@ public class BaHatMit extends Npc {
                                 CombineService.gI().openTabCombine(player, CombineService.NHAP_NGOC_RONG);
                                 break;
                             case 8:
-                                openDoiBroly(player);
+                                if (this.mapId == 84) {
+                                    openDoiBroly(player);
+                                }
                                 break;
                             case 7: {
                                 boolean hasBt3 = InventoryService.gI().findItem(player, 1884);
                                 boolean hasBt2 = InventoryService.gI().findItemBongTaiCap2(player) || InventoryService.gI().findItem(player, 921);
-                                if (!hasBt3 && !hasBt2) { // không có mục bông tai cấp 3 thì nút này là Đổi Mảnh Broly
-                                    openDoiBroly(player);
+                                if (!hasBt3 && !hasBt2) { // không có mục bông tai cấp 3 thì nút này là Đổi Mảnh Broly (chỉ ở Siêu Thị)
+                                    if (this.mapId == 84) {
+                                        openDoiBroly(player);
+                                    }
                                 } else if (hasBt3) {
                                     // Mở tab "Mở chỉ số BT3"
                                     CombineService.gI().openTabCombine(player, CombineService.NANG_CHI_SO_BONG_TAI3);
@@ -449,7 +455,7 @@ public class BaHatMit extends Npc {
                             }
                         }
                     } else if (player.idMark.getIndexMenu() == MENU_DOI_BROLY) {
-                        if (select == 0) {
+                        if (select == 0 && this.mapId == 84) {
                             doiBroly(player);
                         }
                     } else if (player.idMark.getIndexMenu() == ConstNpc.MENU_SACH_TUYET_KY) {
