@@ -1993,6 +1993,9 @@ public class SeasonEventService implements Runnable {
                         continue;
                     }
                     for (Season se : seasons.values()) {
+                        if (!se.active) {
+                            continue; // hết sự kiện: tự tắt các nút top ở Chi Chi (quà chưa nhận vẫn nhận ở nút "Nhận thưởng Sự kiện Đua Top")
+                        }
                         for (Top t : se.tops) {
                             if (t.id == id) {
                                 out.add(t);
