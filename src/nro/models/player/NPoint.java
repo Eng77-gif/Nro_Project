@@ -242,6 +242,7 @@ public class NPoint {
     // hiệu ứng "ở gần cải trang khác loại" (145, 146, 150, 177, 179, 193, 196, 256), cập nhật mỗi 3 giây
     public int nearDame, nearHp, nearKi, nearSpeed, nearCrit;
     public int nearGiap, nearNe, nearSdcm, nearPetDame; // cặp cải trang đứng gần nhau (updateNearSets)
+    public boolean nearTrongLuc; // đứng gần người mặc CT có dòng 24 (trọng lực): chậm 70% tốc độ chạy
     public boolean nearLoLang; // đứng gần người mặc Zenitsu (1090): 30% hụt khi đánh quái
     public int skhBeerus; // số món SKH Thần hủy diệt Beerus đang mặc (option 115)
     public int skhChampa; // số món SKH Thần hủy diệt Champa đang mặc (option 257)
@@ -1008,16 +1009,21 @@ public class NPoint {
                 petD = kinds >= 3 ? 10 : 0;
             }
         }
-        boolean loLang = false;
+        boolean loLang = false, trongLuc = false;
         if (player.zone != null && !player.isPet) {
             for (Player o : new java.util.ArrayList<>(player.zone.getNotBosses())) {
-                if (o != player && !o.isPet && !o.isNewPet && !o.isDie() && costumeId(o) == 1090 && Util.getDistance(player, o) <= 300) {
-                    loLang = true; // Zenitsu: làm mọi người xung quanh lo lắng
-                    break;
+                if (o != player && !o.isPet && !o.isNewPet && !o.isDie() && Util.getDistance(player, o) <= 300) {
+                    loLang |= costumeId(o) == 1090; // Zenitsu: làm mọi người xung quanh lo lắng
+                    Item oc = o.inventory != null && o.inventory.itemsBody.size() > 5 ? o.inventory.itemsBody.get(5) : null;
+                    trongLuc |= oc != null && oc.isNotNullItem() && oc.getOptionById(24) != null; // Thầy giáo Goku: tăng trọng lực
                 }
             }
         }
         nearLoLang = loLang;
+        if (trongLuc != nearTrongLuc) {
+            nearTrongLuc = trongLuc;
+            nearDame = Integer.MIN_VALUE; // buộc tính lại tốc độ
+        }
         if (cr != nearCrit || gi != nearGiap || ne != nearNe || sc != nearSdcm || petD != nearPetDame) {
             nearCrit = cr;
             nearGiap = gi;
@@ -1493,6 +1499,9 @@ public class NPoint {
     private void setSpeed() {
         if (player.isPl()) {
             speed = (byte) Math.min(127, 8 + 8 * tlSpeed / 100); // trước đây chia nguyên trước nên +% dưới 100 không có tác dụng
+            if (nearTrongLuc) { // trọng lực: chậm 70% tốc độ chạy
+                speed = (byte) Math.max(1, speed * 30 / 100);
+            }
         }
     }
 

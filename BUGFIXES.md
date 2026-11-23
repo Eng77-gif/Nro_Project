@@ -2650,3 +2650,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Cập nhật 3 gói: panel icon NRO Art V3.1 (data/panel/index.html), trang web Đăng nhập mới (đổi Vũ trụ, Turnstile, thích bài, ảnh đính kèm, bài ghim 20/11 / Halloween; bảng web_post_like + cột photo tự tạo ở Dot112), menu Termux có hiệu ứng nro-ui.sh. Sửa ảnh data/web/assets/guide/ bị 404.
 - Đợt 26 (ảnh): chỉ số CT Thầy giáo Goku, Chi Chi Võ Đài, Zenitsu, Máy Bay Xám, Cờ hồn Xên Bọ Hung, Phong Xích Lan, Bí Ngô Cánh Dơi, Đuôi rắn rực lửa, Đeo lưng Kẹo Noel, Kiếm Kitetsu, Avatar Cử nhân (migration event_items_1123e).
 - Mô tả có tác dụng thật: Zenitsu làm người đứng gần (300px) bị 30% hụt khi đánh quái; dòng 'Đi cùng CT Diệt Quỷ +2% SĐ, tối đa 18%' (mỗi người mặc Tanjiro / Inosuke / Zenitsu / Nezuko đứng gần +2%). Mô tả CT đệ tử Tí theo ảnh.
+- CT Thầy giáo Goku (dòng 'Làm tăng trọng lực'): người đứng gần (300px) bị chậm 70% tốc độ chạy.
