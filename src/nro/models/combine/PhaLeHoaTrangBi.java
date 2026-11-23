@@ -204,7 +204,9 @@ public class PhaLeHoaTrangBi {
                     } else {
                         optionStar.param = star;
                     }
-                    //  ChatGlobalService.gI().ThongBaoDapDo(player, "Chúc mừng " + player.name + " vừa pha lê hóa thành công " + item.template.name + " lên " + star + " sao pha lê");
+                    if (star >= 5) { // báo server (cả bot) từ +5 ô sao pha lê trở lên
+                        nro.models.server.ServerNotify.gI().notify("Chúc mừng " + player.name + " đã pha lê hóa thành công " + item.template.name + " +" + star + " ô Sao Pha Lê");
+                    }
                 }
                 CombineService.gI().sendEffectSuccessCombine(player);
                 CombineService.gI().baHatMit.npcChat(player, "Chúc mừng con nhé");

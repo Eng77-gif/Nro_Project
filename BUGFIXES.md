@@ -2703,3 +2703,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Vòng quay Thượng Đế: quay ra cải trang / đeo lưng / ván bay / pet thì báo toàn server 'Chúc mừng <tên> đã may mắn quay Vòng quay <Vàng / May mắn> nhận được <món> hạn dùng <N ngày / vĩnh viễn>'.
 - Nâng cấp đồ (Bà Hạt Mít) thành công +6 đến +9: kênh thế giới hiện 'tên: Vừa nâng cấp thành công <món> lên +N'.
 - Thông báo nâng cấp +6 đến +9 chuyển sang báo server (dòng chữ chạy), cả bot cũng báo.
+- Pha lê hóa thành công từ +5 ô trở lên: báo server 'Chúc mừng <tên> đã pha lê hóa thành công <món> +N ô Sao Pha Lê' (cả bot).
