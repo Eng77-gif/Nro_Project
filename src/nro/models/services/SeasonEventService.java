@@ -2593,8 +2593,46 @@ public class SeasonEventService implements Runnable {
             Service.gI().sendThongBao(pl, e.costPoint > 0 ? "Bạn không đủ điểm sự kiện (cần " + e.costPoint + ")" : "Bạn không đủ tiền để mua");
             return;
         }
-        exchange(pl, e, 1);
+        // như bản chính thức: hỏi số lượng muốn mua (gợi ý tối đa có thể mua)
+        pendingBuy.put(pl.id, tempId);
+        nro.models.services_func.Input.gI().createForm(pl, nro.models.services_func.Input.EVENT_SHOP_QTY,
+                "Bạn muốn mua bao nhiêu [" + e.name.replace("\n", " ") + "] ?",
+                new nro.models.services_func.Input.SubInput("Số lượng (tối đa có thể mua " + maxTimes(pl, e) + ")", nro.models.services_func.Input.NUMERIC));
+    }
+
+    private final Map<Long, Integer> pendingBuy = new ConcurrentHashMap<>();
+
+    /** Nhập số lượng ở cửa hàng sự kiện xong: mua n lần, nhân vật nói "Bạn đã mua thành công n <tên>". */
+    public void buyFromEventShopQty(Player pl, String text) {
+        Integer tempId = pendingBuy.remove(pl.id);
+        Map<Integer, Exchange> m = shopOpen.get(pl.id);
+        Exchange e = m == null || tempId == null ? null : m.get(tempId);
+        if (e == null || e.season == null || !e.season.active) {
+            Service.gI().sendThongBao(pl, "Sự kiện đã kết thúc");
+            return;
+        }
+        int n;
+        try {
+            n = Integer.parseInt(text.trim());
+        } catch (Exception ex) {
+            Service.gI().sendThongBao(pl, "Số lượng không hợp lệ");
+            return;
+        }
+        int max = maxTimes(pl, e);
+        if (n <= 0) {
+            Service.gI().sendThongBao(pl, "Số lượng không hợp lệ");
+            return;
+        }
+        if (n > max) {
+            Service.gI().sendThongBao(pl, max <= 0 ? (e.costPoint > 0 ? "Bạn không đủ điểm sự kiện" : "Bạn không đủ tiền để mua") : "Chỉ có thể mua tối đa " + max);
+            return;
+        }
+        int before = count(pl, e.rewardItem);
+        exchange(pl, e, n);
         Service.gI().sendMoney(pl);
+        if (count(pl, e.rewardItem) > before) {
+            Service.gI().chat(pl, "Bạn đã mua thành công " + n + " " + e.name.replace("\n", " "));
+        }
     }
 
     /** Bot: mua đồ có tính điểm đua top ở cửa hàng sự kiện (hộp Chi Chi...) để leo top như người chơi, chừa lại ngọc / vàng. */

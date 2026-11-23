@@ -2671,3 +2671,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Tỉa hoa theo video quay màn hình: tỉa xong cây biến mất ngay; hiệu ứng 241 gắn trên người tỉa, đi theo người ~3,5 giây (trúng hay hụt), nhân vật nói 'Bạn nhận được ...'.
 - Tỉa hoa đúng video (2 đoạn cuối): bấm Đồng ý là hiệu ứng 241 chạy ngay trên cây hoa suốt 3 giây chờ (phát lại mỗi giây), xong cây biến mất và nhân vật nói 'Bạn nhận được ...' (hụt thì không có hoa).
 - Hiệu ứng tỉa hoa 241 vẽ ở lớp trước (đè lên cây hoa / nhân vật), trước bị che sau cây.
+- Cửa hàng sự kiện (Chi Chi / Quy Lão) như video: bấm mua hiện ô 'Bạn muốn mua bao nhiêu [tên] ?' (gợi ý tối đa có thể mua), mua đủ số lượng 1 lần, nhân vật nói 'Bạn đã mua thành công N <tên>'.
