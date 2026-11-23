@@ -357,6 +357,33 @@ public class Dot139Migration {
             {"2408", "1", "[[17809,-7,2],[17810,-2,-1],[17811,-8,-1],[17812,-2,-1],[17813,-8,0],[17814,-5,0],[17815,-4,-2],[17816,-4,0],[17817,0,0],[17818,-3,0],[17819,-6,0],[17820,0,0],[17821,-2,-1],[17822,0,0],[17823,0,0],[17824,-3,0],[2955,0,0]]"}, // thư viện 2095
             {"2409", "2", "[[17825,4,8],[17826,0,1],[17827,0,1],[17828,0,0],[17829,0,0],[17830,0,0],[17831,0,0],[17832,-1,4],[17833,-1,2],[17834,0,0],[17835,0,0],[17836,0,0],[17837,0,0],[2955,0,0]]"}, // thư viện 2096
     };
+    /** Đợt 24 (ảnh): Ván Rồng 7 sao, CT Fide nhí, Pet Capybara xì mũi, CT Broly SSJ4 / SSJ God, Ván bay Magikarp, CT Cađíc / Pôcôlô Dragon, Avatar mũ rồng,
+     * Cờ dây pháo, CT Thần tài, Cờ bao lì xì, Thỏi vàng bay, Cửu Hoàn Thiên Tích Trượng, Như Ý Kim Cô Bổng, CT / Nón Hổ vàng, Pet Ngựa Thần Tài, Pet ngựa chiến, Đeo lưng Bao lì xì. */
+    static final int[][][] EVENT_ITEMS24 = {
+        {{2100}, {50, 12}, {19, 7}, {204, 7}, {5, 7}, {14, 7}, {95, 7}, {268, 7}},
+        {{1599}, {50, 21}, {77, 21}, {103, 21}, {106, 0}, {210, 2}},
+        {{1630}, {50, 20}, {14, 7}, {5, 10}, {30, 0}},
+        {{1775}, {50, 29}, {77, 29}, {103, 29}, {204, 20}, {5, 20}, {10, 5}, {106, 0}, {30, 0}},
+        {{1777}, {77, 33}, {94, 20}, {108, 15}, {80, 5}, {148, 75}, {30, 0}},
+        {{1767}, {50, 9}, {103, 9}, {94, 2}, {30, 0}},
+        {{1500}, {50, 24}, {77, 24}, {103, 24}, {94, 10}, {191, 15}, {80, 10}, {101, 10}, {154, 0}},
+        {{1499}, {50, 24}, {77, 24}, {103, 24}, {108, 14}, {81, 15}, {97, 20}, {101, 10}, {223, 30}, {154, 0}},
+        {{1469}, {77, 26}, {103, 26}, {50, 25}, {101, 25}},
+        {{1470}, {77, 26}, {103, 26}, {50, 25}, {101, 25}},
+        {{1471}, {77, 26}, {103, 26}, {50, 25}, {101, 25}},
+        {{1479}, {50, 15}, {77, 15}, {103, 15}, {5, 10}},
+        {{1484}, {77, 23}, {103, 23}, {50, 22}, {81, 10}, {14, 7}, {101, 25}, {104, 20}, {154, 0}},
+        {{1485}, {77, 23}, {103, 23}, {50, 22}, {81, 10}, {14, 7}, {101, 25}, {104, 20}, {154, 0}},
+        {{1486}, {77, 23}, {103, 23}, {50, 22}, {81, 10}, {14, 7}, {101, 25}, {104, 20}, {154, 0}},
+        {{1478}, {50, 16}, {77, 15}, {103, 15}, {94, 7}},
+        {{1477}, {50, 5}, {77, 7}, {103, 5}, {84, 0}},
+        {{1027}, {50, 18}, {77, 15}, {103, 15}, {80, 20}},
+        {{1024}, {50, 18}, {77, 15}, {103, 15}, {14, 15}},
+        {{948}, {77, 22}, {103, 22}, {50, 23}, {94, 10}, {80, 11}, {154, 0}},
+        {{941}, {50, 21}, {77, 16}, {80, 50}, {154, 0}},
+        {{1964}, {50, 20}, {77, 20}, {10, 20}, {0, 5000}, {204, 20}, {30, 0}},
+        {{1962}, {50, 24}, {14, 10}, {30, 0}},
+        {{1979}, {77, 21}, {6, 25000}, {108, 9}, {94, 13}, {30, 0}}};
     /** Đợt 23 (ảnh shop 20/11 Quy Lão): CT Chi Chi Hoa Hồng Xanh, Đeo lưng lồng đèn Tết, Bóng mờ NRO, Hiệu ứng hoa Tết, Ba lô ngọc rồng, Bảng đen, CT Quy lão Kamê 710, CT Jacky Chun 711. */
     static final int[][][] EVENT_ITEMS23 = {
         {{1795}, {50, 26}, {77, 24}, {275, 16}, {236, 22}, {30, 0}},
@@ -576,6 +603,16 @@ public class Dot139Migration {
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8"); // 202 - 204 có id cố định (Dot48)
         // các dòng khác của sự kiện 20/11 / Giáng sinh: id mỗi máy chủ khác nhau, không sửa theo id (xem Dot140Migration)
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1123b'")) {
+            StringBuilder ids = new StringBuilder();
+            for (int[][] it : EVENT_ITEMS24) {
+                ids.append(ids.length() > 0 ? "," : "").append(it[0][0]);
+            }
+            // dòng không phải chỉ số (không giao dịch, không bán lại, bay, chống lạnh, kích hồi, HP+#, tấn công+#, dòng ẩn) xoá trước để không trùng
+            update(con, "delete from item_template_option where template_id in (" + ids + ") and option_id in (30, 154, 84, 106, 223, 6, 0, 210, 19)");
+            writeStats(con, EVENT_ITEMS24);
+            update(con, "insert into server_migration (name) values ('event_items_1123b')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'ev2011_dates'")) {
             // 20/11 theo diễn đàn: 19/11 - hết 17/12 (đua top tính đến 2/12, 15 ngày trước khi hết)
             update(con, "update season_event set days_before = 1, days_after = 27 where id = 8");
