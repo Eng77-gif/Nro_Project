@@ -2660,3 +2660,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Thông báo mở hộp bỏ luôn đuôi [bảo hiểm], chỉ còn 'Bạn nhận được <tên món>'.
 - Thông báo mở hộp bỏ luôn số lượng (x2, số vàng / ngọc): chỉ 'Bạn nhận được <tên>'.
 - Thông báo mở hộp: quà vàng / ngọc vẫn ghi số (vd Bạn nhận được 5.000.000 vàng), món khác chỉ ghi tên.
+- Trang web mới đưa lên Cloudflare Worker (nro-web.dov77471.workers.dev); deploy_worker.sh gửi kèm ảnh trong assets/guide/ (trước bỏ sót thư mục con).

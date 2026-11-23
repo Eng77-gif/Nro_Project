@@ -15,9 +15,10 @@ IDX=$(mktemp)
 echo "// tự tạo bởi deploy_worker.sh" > "$IDX"
 ENTRIES=""
 n=0
-for f in ../data/web/assets/*; do
-  b=$(basename "$f")
-  case "$b" in *[!A-Za-z0-9._-]*) continue;; esac # chỉ tên file an toàn
+for f in ../data/web/assets/* ../data/web/assets/guide/*; do
+  [ -f "$f" ] || continue
+  b=${f#../data/web/assets/} # tên tương đối, vd guide/bag.webp
+  case "$b" in *[!A-Za-z0-9._/-]*|*..*) continue;; esac # chỉ tên file an toàn
   ASSET_ARGS+=(-F "assets/$b=@$f;filename=assets/$b;type=application/octet-stream")
   echo "import a$n from './assets/$b';" >> "$IDX"
   ENTRIES="$ENTRIES'$b': a$n, "
