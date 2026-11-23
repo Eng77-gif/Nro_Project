@@ -2705,3 +2705,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Thông báo nâng cấp +6 đến +9 chuyển sang báo server (dòng chữ chạy), cả bot cũng báo.
 - Pha lê hóa thành công từ +5 ô trở lên: báo server 'Chúc mừng <tên> đã pha lê hóa thành công <món> +N ô Sao Pha Lê' (cả bot).
 - Thông báo vòng quay may mắn chỉ báo đồ hạn dùng vĩnh viễn (đồ có hạn không báo).
+- Vòng quay Thượng Đế mùa 20/11: chỉ ra quà chủ đề 20/11 (CT thầy giáo, đệ tử Tí/Sửu/Dần, Gohan/Videl học đường, Bunma Ả Rập, Avatar Cử nhân, Bút chì hồng, Bó Hoa Vàng), bỏ Bó hoa hồng/Hematite và pool đặc biệt thường; sửa mô tả rương '|2||7| LUCKY REWARD' thành 'Vòng quay Thượng Đế'.

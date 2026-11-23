@@ -425,7 +425,7 @@ public class ShopService {
             msg.writer().writeByte(items.size());
             for (Item item : items) {
                 msg.writer().writeShort(item.template.id);
-                msg.writer().writeUTF("|7| LUCKY REWARD");
+                msg.writer().writeUTF("Vòng quay Thượng Đế"); // trước ghi "|7| LUCKY REWARD", client hiện cả mã màu
                 List<Item.ItemOption> opts = item.itemOptions.stream().filter(io -> io != null && io.optionTemplate != null).toList();
                 msg.writer().writeByte(opts.size() + 1);
                 for (Item.ItemOption io : opts) {

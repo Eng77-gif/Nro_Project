@@ -51,8 +51,9 @@ public class RewardService {
     public static final int[] SUMMER_WHEEL_1_3 = {1087, 1088, 1089, 1090, 1091, 1571};
     public static final int[] SUMMER_WHEEL_2 = {1842, 1708, 1144, 1234, 1235};
 
-    /** Vòng quay Thượng Đế 20/11 (diễn đàn): Bó hoa hồng, Bó hoa vàng, CT Bulma Ả Rập, Bút chì hồng, Hematite (khóa). */
-    public static final int[] TEACHERS_WHEEL = {1388, 955, 1309, 1386, 1441};
+    /** Vòng quay Thượng Đế mùa 20/11: cải trang thầy giáo, đệ tử, học đường, Bunma Ả Rập, Avatar Cử nhân, Bút chì hồng, Bó Hoa Vàng
+     *  (thay hẳn vòng quay đặc biệt thường trong mùa sự kiện; 3% vĩnh viễn như vòng quay đặc biệt). */
+    public static final int[] TEACHERS_WHEEL = {1384, 1385, 1362, 1378, 1379, 1383, 1371, 1380, 1381, 1933, 1934, 1309, 1391, 1386, 955};
 
     private static int[] summerWheel() {
         SeasonEventService se = SeasonEventService.gI();
@@ -140,7 +141,7 @@ public class RewardService {
                 list.add(createWheelItem(summer));
                 continue;
             }
-            if (vip && Util.isTrue(SPECIAL_WHEEL_RATE, 100)) {
+            if (vip && summer != TEACHERS_WHEEL && Util.isTrue(SPECIAL_WHEEL_RATE, 100)) { // mùa 20/11: chỉ quà chủ đề 20/11
                 list.add(createSpecialWheelItem());
                 continue;
             }
