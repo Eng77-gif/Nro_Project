@@ -242,6 +242,7 @@ public class NPoint {
     // hiệu ứng "ở gần cải trang khác loại" (145, 146, 150, 177, 179, 193, 196, 256), cập nhật mỗi 3 giây
     public int nearDame, nearHp, nearKi, nearSpeed, nearCrit;
     public int nearGiap, nearNe, nearSdcm, nearPetDame; // cặp cải trang đứng gần nhau (updateNearSets)
+    public boolean nearLoLang; // đứng gần người mặc Zenitsu (1090): 30% hụt khi đánh quái
     public int skhBeerus; // số món SKH Thần hủy diệt Beerus đang mặc (option 115)
     public int skhChampa; // số món SKH Thần hủy diệt Champa đang mặc (option 257)
 
@@ -960,10 +961,17 @@ public class NPoint {
         int me = costumeId(player);
         if (player.zone != null && !player.isPet && me > 0) {
             java.util.Set<Integer> nearCt = new java.util.HashSet<>();
+            int dietQuy = 0;
             for (Player o : new java.util.ArrayList<>(player.zone.getNotBosses())) {
                 if (o != player && !o.isPet && !o.isNewPet && !o.isDie() && Util.getDistance(player, o) <= 300) {
-                    nearCt.add(costumeId(o));
+                    int c = costumeId(o);
+                    nearCt.add(c);
+                    dietQuy += c >= 1087 && c <= 1091 ? 1 : 0; // CT Diệt Quỷ: Tanjiro, Inosuke, Zenitsu, Nezuko
                 }
+            }
+            Item.ItemOption o205 = ct != null && ct.isNotNullItem() ? ct.getOptionById(205) : null;
+            if (o205 != null) { // option 205: mỗi người mặc CT Diệt Quỷ đứng gần +#% SĐ, tối đa 18%
+                d += Math.min(18, dietQuy * o205.param);
             }
             if (me == 1700 && nearCt.contains(1698)) { // CT Hằng Nga gần CT Urôn Trư Bát Giới: giảm 10% sát thương
                 gi += 10;
@@ -1000,6 +1008,16 @@ public class NPoint {
                 petD = kinds >= 3 ? 10 : 0;
             }
         }
+        boolean loLang = false;
+        if (player.zone != null && !player.isPet) {
+            for (Player o : new java.util.ArrayList<>(player.zone.getNotBosses())) {
+                if (o != player && !o.isPet && !o.isNewPet && !o.isDie() && costumeId(o) == 1090 && Util.getDistance(player, o) <= 300) {
+                    loLang = true; // Zenitsu: làm mọi người xung quanh lo lắng
+                    break;
+                }
+            }
+        }
+        nearLoLang = loLang;
         if (cr != nearCrit || gi != nearGiap || ne != nearNe || sc != nearSdcm || petD != nearPetDame) {
             nearCrit = cr;
             nearGiap = gi;
@@ -2409,6 +2427,10 @@ public class NPoint {
         // Năng lượng tà ác: +100% sức đánh lên quái
         if (isAttackMob && player.taAcUntil > System.currentTimeMillis()) {
             dameAttack *= 2;
+        }
+        // Zenitsu: người đứng gần người mặc bị lo lắng, 30% hụt khi đánh quái
+        if (isAttackMob && nearLoLang && Util.isTrue(30, 100)) {
+            return 0;
         }
         // option 165: chiêu cận chiến (đấm) lên quái, 30% cơ hội cộng thêm #% sát thương lửa
         if (fireMob > 0 && isAttackMob) {

@@ -633,6 +633,10 @@ public class Dot139Migration {
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8"); // 202 - 204 có id cố định (Dot48)
         // các dòng khác của sự kiện 20/11 / Giáng sinh: id mỗi máy chủ khác nhau, không sửa theo id (xem Dot140Migration)
+        if (!exists(con, "select 1 from server_migration where name = 'desc_1371'")) { // mô tả CT đệ tử Tí theo ảnh
+            update(con, "update item_template set description = 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' where id = 1371");
+            update(con, "insert into server_migration (name) values ('desc_1371')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1123e'")) {
             StringBuilder ids = new StringBuilder();
             for (int[][] it : EVENT_ITEMS26) {
