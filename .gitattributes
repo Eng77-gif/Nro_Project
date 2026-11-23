@@ -1,0 +1,6 @@
+# Tải repo (Download ZIP / git archive) bỏ tài liệu .md và file chỉ dùng cho Termux
+*.md export-ignore
+nro_termux.sh export-ignore
+run_termux.sh export-ignore
+termux_install.sh export-ignore
+nro-ui.sh export-ignore
