@@ -2659,3 +2659,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Thông báo mở hộp chỉ ghi 'Bạn nhận được <tên món>', không ghi hạn (ngày / vĩnh viễn).
 - Thông báo mở hộp bỏ luôn đuôi [bảo hiểm], chỉ còn 'Bạn nhận được <tên món>'.
 - Thông báo mở hộp bỏ luôn số lượng (x2, số vàng / ngọc): chỉ 'Bạn nhận được <tên>'.
+- Thông báo mở hộp: quà vàng / ngọc vẫn ghi số (vd Bạn nhận được 5.000.000 vàng), món khác chỉ ghi tên.
