@@ -2688,3 +2688,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Quà tặng 10 bông Whis: mọi món có hạn (CT Videl / Gohan học đường, CT đệ tử Mão / Dần / Tí, Bó Hoa Vàng) HSD 7-15 ngày, 15% ra vĩnh viễn (migration whis_hoa10_vv).
 - Quà tặng 10 bông Whis: CT đệ tử Mão / Dần / Tí, Bó Hoa Vàng 7% vĩnh viễn (CT Videl / Gohan học đường giữ 15%) (migration whis_hoa10_vv7).
 - Ô 'Gõ OK hoặc 1 để hủy bỏ' chỉ cho cải trang, đeo lưng, ván bay / thú cưỡi, pet; vật phẩm khác hỏi 'Bạn chắc chắn muốn vứt ...?' như cũ.
+- Vòng quay May mắn (Thượng Đế): 7 viên hiện đủ ngọc rồng 1-7 sao (trước gửi toàn icon 1 sao).

@@ -74,7 +74,7 @@ public class LuckyRound {
             msg.writer().writeByte(0);
             msg.writer().writeByte(7);
             for (int i = 0; i < 7; i++) {
-                msg.writer().writeShort(419);
+                msg.writer().writeShort(419 + i); // ngọc rồng 1 - 7 sao (trước đây gửi toàn 1 sao)
             }
             msg.writer().writeByte(type);
             msg.writer().writeInt(type == USING_GEM ? PRICE_GEM : PRICE_GOLD);
