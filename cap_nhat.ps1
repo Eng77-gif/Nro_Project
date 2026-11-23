@@ -14,10 +14,17 @@ function Bar([double]$pct, [string]$text) {
     Write-Host ("`r" + $line.PadRight(79).Substring(0, 79)) -NoNewline
 }
 
+# mang VPS hay bi ngat giua chung ("connection forcibly closed"): thu lai toi 5 lan
+function Retry([scriptblock]$job) {
+    for ($t = 1; ; $t++) {
+        try { return & $job } catch { if ($t -ge 5) { throw }; Start-Sleep -Seconds (2 * $t) }
+    }
+}
+
 $wc = New-Object Net.WebClient
 $wc.Headers.Add('User-Agent', 'nro-update')
 $wc.Encoding = [Text.Encoding]::UTF8
-$man = $wc.DownloadString("https://raw.githubusercontent.com/$R/update-manifest/manifest.txt?t=" + [DateTime]::Now.Ticks)
+$man = Retry { $wc.DownloadString("https://raw.githubusercontent.com/$R/update-manifest/manifest.txt?t=" + [DateTime]::Now.Ticks) }
 $lines = $man -split "`n" | Where-Object { $_ -ne '' }
 $sha = $lines[0].Substring(2).Trim()
 $short = $sha.Substring(0, 9)
@@ -89,7 +96,7 @@ foreach ($r in $need) {
     $full = Join-Path $here ($r[2] -replace '/', '\')
     New-Item -ItemType Directory -Force -Path (Split-Path $full) | Out-Null
     Bar (100.0 * $done / [Math]::Max(1, $total)) ('Tai ' + $k + '/' + $need.Count + ': ' + [IO.Path]::GetFileName($r[2]))
-    $wc.DownloadFile($url, $full)
+    Retry { $wc.DownloadFile($url, $full) }
     $done += $r[1]
     $fi = New-Object IO.FileInfo($full)
     [void]$newCache.Add("$($r[0])`t$($fi.Length)`t$($fi.LastWriteTimeUtc.Ticks)`t$($r[2])")

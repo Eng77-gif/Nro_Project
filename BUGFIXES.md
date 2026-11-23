@@ -2694,3 +2694,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - cap_nhat.bat không hiện link GitHub nữa: hiện mã commit (bản đang dùng / bản mới nhất, vd 8f91c04cd), đã mới nhất thì không tải; tải đúng commit đó, ghi VERSION. Repo tải ZIP có file VERSION tự điền mã commit (export-subst).
 - cap_nhat.bat có thanh tiến trình 0-100% (ASCII [####----] + %, 1 dòng, hiện tốt trên cmd VPS): 0-70% tải (MB), 70-80% giải nén, 80-100% chép file; phần PowerShell tách ra cap_nhat.ps1.
 - cap_nhat.bat không tải cả repo ~1 GB nữa (bản cũ Invoke-WebRequest đếm từng byte rất chậm): GitHub Actions (update-manifest.yml) ghi danh sách file vào nhánh update-manifest; cap_nhat.ps1 so mã file trên máy (lưu .capnhat_cache) và chỉ tải file đã đổi, thanh tiến trình 0-100% cho bước kiểm tra và bước tải.
+- cap_nhat.ps1: tự thử lại tối đa 5 lần khi mạng VPS ngắt giữa chừng (connection forcibly closed).
