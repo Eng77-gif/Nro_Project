@@ -289,6 +289,36 @@ parameterizedCommands.put("upp", (player, text) -> {
             }
             return true;
         }
+        if ((text.equals("hoa hong") || text.startsWith("den hoa")) && player.isAdmin()) { // admin: xem chỗ cây hoa hồng 20/11, "den hoa [số]" dịch chuyển tới
+            java.util.List<nro.models.npc.Npc> roses = new java.util.ArrayList<>();
+            for (nro.models.map.Map m : Manager.MAPS) {
+                for (nro.models.npc.Npc n : new java.util.ArrayList<>(m.npcs)) {
+                    if (n.tempId == nro.models.consts.ConstNpc.HOA_HONG) {
+                        roses.add(n);
+                    }
+                }
+            }
+            if (roses.isEmpty()) {
+                Service.gI().sendThongBao(player, "Chưa có cây hoa hồng nào (sự kiện 20/11 chưa chạy?)");
+                return true;
+            }
+            if (text.equals("hoa hong")) {
+                StringBuilder sb = new StringBuilder("|7|Cây hoa hồng\n|1|");
+                for (int i = 0; i < roses.size(); i++) {
+                    sb.append(i + 1).append(". ").append(roses.get(i).map.mapName).append(" [").append(roses.get(i).mapId).append("] x ").append(roses.get(i).cx).append('\n');
+                }
+                sb.append("|2|Chat \"den hoa\" hoặc \"den hoa <số>\" để tới");
+                Service.gI().sendThongBaoOK(player, sb.toString());
+                return true;
+            }
+            String num = text.substring(7).trim();
+            int i = num.isEmpty() ? 0 : Math.max(0, Math.min(roses.size() - 1, Integer.parseInt(num.replaceAll("\\D", "0")) - 1));
+            nro.models.npc.Npc n = roses.get(i);
+            nro.models.map.Zone z = n.map.zones.get(0);
+            nro.models.map.service.ChangeMapService.gI().changeMap(player, z, n.cx, n.cy);
+            Service.gI().sendThongBao(player, "Đến cây hoa hồng " + (i + 1) + " tại " + n.map.mapName);
+            return true;
+        }
         if (text.startsWith("den boss ") && player.isAdmin()) { // admin: dịch chuyển tới boss theo tên
             String want = text.substring(9).trim().toLowerCase();
             java.util.List<nro.models.boss.Boss> all = new java.util.ArrayList<>(nro.models.boss.Boss_Manager.BossManager.gI().getBosses());

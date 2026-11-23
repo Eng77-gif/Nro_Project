@@ -2667,3 +2667,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Tỉa hoa: câu nhận hoa chỉ còn 'Bạn nhận được Đóa hoa hồng / Bó hoa hồng' (bỏ số lượng).
 - Tỉa hụt cũng hiện hiệu ứng tỉa hoa 241 nhưng không ra hoa.
 - Hoa hồng 20/11: mỗi cây chỉ tỉa 1 lần (trúng hay hụt); hiệu ứng 241 hiện ngay trên cây; tỉa xong cây biến mất và mọc lại ngẫu nhiên ở map thường khác (lúc bật sự kiện 5 cây cũng mọc ngẫu nhiên, không cố định ở làng).
+- Lệnh chat admin: 'hoa hong' xem chỗ các cây hoa hồng 20/11, 'den hoa' / 'den hoa <số>' dịch chuyển tới cây.
