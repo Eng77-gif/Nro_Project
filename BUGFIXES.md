@@ -2702,3 +2702,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Gộp cap_nhat.ps1 vào cap_nhat.bat (1 file): phần PowerShell nằm sau dòng #PSSTART, bat tự đọc và chạy; lần chạy đầu tự xoá cap_nhat.ps1 cũ trên VPS.
 - Vòng quay Thượng Đế: quay ra cải trang / đeo lưng / ván bay / pet thì báo toàn server 'Chúc mừng <tên> đã may mắn quay Vòng quay <Vàng / May mắn> nhận được <món> hạn dùng <N ngày / vĩnh viễn>'.
 - Nâng cấp đồ (Bà Hạt Mít) thành công +6 đến +9: kênh thế giới hiện 'tên: Vừa nâng cấp thành công <món> lên +N'.
+- Thông báo nâng cấp +6 đến +9 chuyển sang báo server (dòng chữ chạy), cả bot cũng báo.
