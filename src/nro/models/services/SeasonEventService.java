@@ -715,6 +715,9 @@ public class SeasonEventService implements Runnable {
                     npc.map = m;
                     m.npcs.add(npc);
                     eventNpcs.put(en.getKey(), npc);
+                    if (npc instanceof nro.models.event.HoaHong h) {
+                        h.doiCho(); // cây hoa hồng mọc ngẫu nhiên ở các map, mỗi lần tỉa xong lại đổi chỗ
+                    }
                 }
             } catch (Exception e) {
                 Logger.error("Không đặt được NPC sự kiện " + n[0] + " ở map " + n[1] + ": " + e.getMessage() + "\n");

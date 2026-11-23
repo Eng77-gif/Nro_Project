@@ -2666,3 +2666,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Thêm dự phòng 188 file hiệu ứng / aura có trong v10 mà mình thiếu (effect 29, 89, 143-149, 190, 387-392, 647, 1003-1026, aura_95; không ghi đè file sẵn có). Tỉa hoa đặt hiệu ứng 241 lệch ngẫu nhiên tới 50px như v10. v10 không có hiệu ứng tỉa hụt.
 - Tỉa hoa: câu nhận hoa chỉ còn 'Bạn nhận được Đóa hoa hồng / Bó hoa hồng' (bỏ số lượng).
 - Tỉa hụt cũng hiện hiệu ứng tỉa hoa 241 nhưng không ra hoa.
+- Hoa hồng 20/11: mỗi cây chỉ tỉa 1 lần (trúng hay hụt); hiệu ứng 241 hiện ngay trên cây; tỉa xong cây biến mất và mọc lại ngẫu nhiên ở map thường khác (lúc bật sự kiện 5 cây cũng mọc ngẫu nhiên, không cố định ở làng).

@@ -11,18 +11,15 @@ import nro.models.utils.Util;
 /**
  * Cây hoa hồng sự kiện Nhà giáo Việt Nam 20/11 (theo source V10 "HaiHoaHong").
  * Dùng Kéo tỉa hoa (1387): chờ 3 giây, có thể hụt (mất kéo), được 1 Đóa hoa hồng (1395); Kéo tỉa hoa đặc biệt (1382) không hụt, được 1 Bó hoa hồng (1388).
- * Mỗi cây hái được 7 lần rồi tàn, 5 phút sau nở lại. Cây do SeasonEventService đặt khi sự kiện 20/11 đang chạy.
+ * Mỗi cây chỉ tỉa được 1 lần (trúng hay hụt): hiệu ứng tỉa (241) hiện trên cây, xong cây biến mất và mọc lại ngẫu nhiên ở một map khác.
+ * Cây do SeasonEventService đặt khi sự kiện 20/11 đang chạy.
  */
 public class HoaHong extends Npc {
 
     public static final int KEO = 1387, KEO_DAC_BIET = 1382, BONG_HOA = 1395, BO_HOA = 1388; // kéo thường: 1 Đóa hoa hồng (có thể hụt), kéo đặc biệt: 1 Bó hoa hồng
     private static final int TI_LE_HUT = 30; // % tỉa hụt bằng kéo thường (mất kéo); shortcut: tỉ lệ tự đặt, video chỉ nói "tỉa hụt sẽ mất kéo"
     private final java.util.Set<Long> dangTia = java.util.concurrent.ConcurrentHashMap.newKeySet();
-    private static final int LUOT_HAI = 7;
-    private static final long TAN_MS = 5 * 60_000L;
-
-    private int count;
-    private long tanDen;
+    private volatile boolean dangCat; // cây đang có người tỉa (mỗi cây 1 lần)
 
     public HoaHong(int mapId, int status, int cx, int cy, int tempId, int avatar) {
         super(mapId, status, cx, cy, tempId, avatar);
@@ -33,9 +30,8 @@ public class HoaHong extends Npc {
         if (!canOpenNpc(player)) {
             return;
         }
-        long con = tanDen - System.currentTimeMillis();
-        if (con > 0) {
-            createOtherMenu(player, 0, "Hoa vừa bị hái hết, " + (con / 1000 + 1) + " giây nữa sẽ nở lại.", "Đóng");
+        if (dangCat) {
+            createOtherMenu(player, 0, "Hoa đang được người khác tỉa rồi.", "Đóng");
             return;
         }
         createOtherMenu(player, 0, "Muốn tỉa mình, xem trình bạn thế nào?", "Đồng ý", "Từ chối");
@@ -43,14 +39,14 @@ public class HoaHong extends Npc {
 
     @Override
     public void confirmMenu(Player player, int select) {
-        if (canOpenNpc(player) && player.idMark.getIndexMenu() == 0 && select == 0 && tanDen <= System.currentTimeMillis()) {
+        if (canOpenNpc(player) && player.idMark.getIndexMenu() == 0 && select == 0) {
             hai(player);
         }
     }
 
     private synchronized void hai(Player player) {
-        if (tanDen > System.currentTimeMillis()) {
-            Service.gI().sendThongBao(player, "Hoa đã bị hái hết, chờ nở lại nhé");
+        if (dangCat) {
+            Service.gI().sendThongBao(player, "Hoa đang được người khác tỉa rồi");
             return;
         }
         Item keo = InventoryService.gI().findItemBag(player, KEO);
@@ -67,6 +63,7 @@ public class HoaHong extends Npc {
         if (!dangTia.add(player.id)) {
             return; // đang tỉa
         }
+        dangCat = true;
         InventoryService.gI().subQuantityItemsBag(player, dacBiet ? keoDb : keo, 1); // mất kéo dù tỉa được hay hụt
         InventoryService.gI().sendItemBags(player);
         // tỉa hoa phải chờ vài giây (như bản chính thức)
@@ -77,7 +74,7 @@ public class HoaHong extends Npc {
                 }
                 if (!dacBiet && Util.isTrue(TI_LE_HUT, 100)) {
                     // tỉa hụt: vẫn hiện hiệu ứng tỉa (241) nhưng không ra hoa
-                    nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(player.zone, 241, 1, 1, player.location.x - Util.nextInt(-50, 50), player.location.y, 1);
+                    nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(player.zone, 241, 1, 1, this.cx, this.cy, 1); // hiệu ứng chèn lên cây hoa
                     npcChat(player, "Tỉa hụt rồi, mất kéo mà chẳng được bông nào!");
                     return;
                 }
@@ -88,18 +85,59 @@ public class HoaHong extends Npc {
                     InventoryService.gI().addItemBag(player, hoa);
                     InventoryService.gI().sendItemBags(player);
                     // hiệu ứng tỉa hoa như video / bản v10 (HaiHoaHong.activeHoahong): effect 241 = mây hoa hồng + kéo, xong hiện bó hoa trên người
-                    nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(player.zone, 241, 1, 1, player.location.x - Util.nextInt(-50, 50), player.location.y, 1); // như v10: lệch ngẫu nhiên tới 50px
+                    nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(player.zone, 241, 1, 1, this.cx, this.cy, 1); // hiệu ứng chèn lên cây hoa
                     Service.gI().chat(player, "Bạn nhận được " + (dacBiet ? "Bó hoa hồng" : "Đóa hoa hồng"));
-                    if (++count >= LUOT_HAI) {
-                        count = 0;
-                        tanDen = System.currentTimeMillis() + TAN_MS;
-                    }
                 }
             } catch (Exception e) {
                 nro.models.utils.Logger.logException(HoaHong.class, e);
             } finally {
                 dangTia.remove(player.id);
+                // tỉa xong (trúng hay hụt): cây biến mất sau hiệu ứng rồi mọc ở map khác
+                java.util.concurrent.CompletableFuture.delayedExecutor(1500, java.util.concurrent.TimeUnit.MILLISECONDS).execute(this::doiCho);
             }
         });
+    }
+
+    /** Ẩn cây ở map cũ và đặt sang 1 map thường ngẫu nhiên (cùng loại map Dr. Myuu được đứng), map đó chưa có cây hoa. */
+    public synchronized void doiCho() {
+        try {
+            nro.models.map.Map old = this.map;
+            java.util.List<nro.models.map.Map> maps = new java.util.ArrayList<>();
+            for (nro.models.map.Map m : nro.models.server.Manager.MAPS) {
+                if (m != old && nro.models.services.DrMyuuService.allowed(m) && m.npcs.stream().noneMatch(n -> n.tempId == this.tempId)) {
+                    maps.add(m);
+                }
+            }
+            for (int t = 0; t < 10 && !maps.isEmpty(); t++) {
+                nro.models.map.Map m = maps.get(Util.nextInt(0, maps.size() - 1));
+                int x = -1, y = 0;
+                for (int k = 0; k < 40 && y <= 0; k++) { // chỗ có mặt đất
+                    x = Util.nextInt(Math.min(150, m.mapWidth / 3), Math.max(160, m.mapWidth - 150));
+                    y = m.yPhysicInTop(x, 24);
+                }
+                if (y <= 0) {
+                    continue;
+                }
+                if (old != null) {
+                    old.npcs.remove(this);
+                    for (nro.models.map.Zone z : old.zones) {
+                        for (Player p : new java.util.ArrayList<>(z.players)) {
+                            Service.gI().sendHideNpc(p, this.tempId, true);
+                        }
+                    }
+                }
+                this.mapId = m.mapId;
+                this.cx = x;
+                this.cy = y;
+                this.map = m;
+                m.npcs.add(this);
+                nro.models.utils.Logger.success("Hoa hồng mọc ở " + m.mapName + " [" + m.mapId + "]\n");
+                return;
+            }
+        } catch (Exception e) {
+            nro.models.utils.Logger.logException(HoaHong.class, e);
+        } finally {
+            dangCat = false;
+        }
     }
 }
