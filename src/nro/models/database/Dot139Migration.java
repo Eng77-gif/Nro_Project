@@ -359,6 +359,21 @@ public class Dot139Migration {
     };
     /** Đợt 24 (ảnh): Ván Rồng 7 sao, CT Fide nhí, Pet Capybara xì mũi, CT Broly SSJ4 / SSJ God, Ván bay Magikarp, CT Cađíc / Pôcôlô Dragon, Avatar mũ rồng,
      * Cờ dây pháo, CT Thần tài, Cờ bao lì xì, Thỏi vàng bay, Cửu Hoàn Thiên Tích Trượng, Như Ý Kim Cô Bổng, CT / Nón Hổ vàng, Pet Ngựa Thần Tài, Pet ngựa chiến, Đeo lưng Bao lì xì. */
+    /** Đợt 26 (ảnh): CT Thầy giáo Goku, Chi Chi Võ Đài, Zenitsu, Máy Bay Xám, Cờ hồn Xên Bọ Hung, Phong Xích Lan, Bí Ngô Cánh Dơi, Đuôi rắn rực lửa, Đeo lưng Kẹo Noel, Kiếm Kitetsu, Avatar Cử nhân. */
+    static final int[][][] EVENT_ITEMS26 = {
+        {{1384}, {50, 23}, {77, 23}, {103, 23}, {94, 7}, {108, 10}, {24, 0}},
+        {{1705}, {50, 24}, {77, 23}, {103, 23}, {5, 12}, {95, 10}, {226, 10}, {30, 0}},
+        {{1090}, {50, 22}, {77, 21}, {103, 21}, {94, 18}, {108, 13}, {148, 20}, {205, 2}, {154, 0}},
+        {{1833}, {50, 9}, {77, 10}, {103, 12}, {94, 4}, {108, 5}, {85, 0}, {30, 0}},
+        {{1359}, {77, 10}, {103, 10}, {50, 10}, {191, 3}, {8, 2}, {30, 0}},
+        {{1734}, {50, 9}, {77, 10}, {103, 9}, {5, 9}, {160, 30}, {104, 5}, {30, 0}},
+        {{1704}, {50, 9}, {77, 12}, {103, 10}, {8, 5}, {5, 10}, {85, 0}},
+        {{1773}, {50, 20}, {77, 20}, {103, 20}, {94, 12}, {108, 7}, {30, 0}},
+        {{1760}, {50, 16}, {77, 15}, {103, 15}, {204, 20}, {30, 0}},
+        {{1456}, {50, 18}, {77, 15}, {103, 15}, {5, 12}, {30, 0}},
+        {{1391}, {50, 24}, {77, 23}, {103, 23}, {101, 25}},
+    };
+
     /** Đợt 25 (ảnh): Nón Hổ trắng, Nón Chuột / Nón Trâu may mắn, Cây trúc, CT Hit, Bút chì hồng, CT Gohan SSJ (đệ tử 2). */
     static final int[][][] EVENT_ITEMS25 = {
         {{946}, {50, 21}, {103, 16}, {80, 51}, {154, 0}},
@@ -618,6 +633,15 @@ public class Dot139Migration {
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8"); // 202 - 204 có id cố định (Dot48)
         // các dòng khác của sự kiện 20/11 / Giáng sinh: id mỗi máy chủ khác nhau, không sửa theo id (xem Dot140Migration)
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1123e'")) {
+            StringBuilder ids = new StringBuilder();
+            for (int[][] it : EVENT_ITEMS26) {
+                ids.append(ids.length() > 0 ? "," : "").append(it[0][0]);
+            }
+            update(con, "delete from item_template_option where template_id in (" + ids + ") and option_id in (30, 154, 85, 24, 160, 0)");
+            writeStats(con, EVENT_ITEMS26);
+            update(con, "insert into server_migration (name) values ('event_items_1123e')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1123d'")) { // CT Hổ trắng (ảnh)
             update(con, "delete from item_template_option where template_id = 952 and option_id in (30, 154)");
             writeStats(con, new int[][][]{{{952}, {77, 23}, {103, 23}, {50, 23}, {94, 11}, {80, 11}, {154, 0}}});

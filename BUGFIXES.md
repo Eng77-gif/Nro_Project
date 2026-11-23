@@ -2648,3 +2648,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Đợt 25 (ảnh): chỉ số Nón Hổ trắng, Nón Chuột / Nón Trâu may mắn (HP 30%, HP+50%/30s, SĐ 20%), Cây trúc, CT Hit, Bút chì hồng (giảm 5% hồi Khiên), CT Gohan SSJ thêm dòng Dành cho đệ tử 2 + Không giao dịch (migration event_items_1123c).
 - CT Hổ trắng (ảnh): HP / KI / SĐ 23%, giáp 11%, HP+11%/30s, không thể bán lại (migration event_items_1123d).
 - Cập nhật 3 gói: panel icon NRO Art V3.1 (data/panel/index.html), trang web Đăng nhập mới (đổi Vũ trụ, Turnstile, thích bài, ảnh đính kèm, bài ghim 20/11 / Halloween; bảng web_post_like + cột photo tự tạo ở Dot112), menu Termux có hiệu ứng nro-ui.sh. Sửa ảnh data/web/assets/guide/ bị 404.
+- Đợt 26 (ảnh): chỉ số CT Thầy giáo Goku, Chi Chi Võ Đài, Zenitsu, Máy Bay Xám, Cờ hồn Xên Bọ Hung, Phong Xích Lan, Bí Ngô Cánh Dơi, Đuôi rắn rực lửa, Đeo lưng Kẹo Noel, Kiếm Kitetsu, Avatar Cử nhân (migration event_items_1123e).
