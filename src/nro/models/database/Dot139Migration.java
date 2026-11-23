@@ -655,6 +655,8 @@ public class Dot139Migration {
                 {{898}, {50, 24}, {14, 3}, {77, 15}, {103, 20}, {5, 16}, {80, 11}, {154, 0}}});
             update(con, "insert into server_migration (name) values ('event_items_1123f')");
         }
+        // hoa hồng 20/11 (Bó 1388, Đóa 1395, Bông 1530) chỉ để tặng Whis: không phải hộp quà, không mở ra quà (mỗi lần khởi động)
+        update(con, "delete from item_box_reward where box_id in (1388, 1395, 1530)");
         if (!exists(con, "select 1 from server_migration where name = 'whis_hoa10_box2'")) {
             // thêm lại quà cũ: CT đệ tử Mão / Dần / Tí (15 ngày), Bó Hoa Vàng (7-15 ngày), Đá bảo vệ
             update(con, "delete from item_box_reward where box_id = 98412 and item_id in (1380, 1381, 1371, 955, 987)");

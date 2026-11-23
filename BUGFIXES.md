@@ -2684,3 +2684,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Thượng Đế: nút vòng quay đổi tên thành 'Vòng quay Vàng' và 'Vòng quay May mắn'.
 - Tặng hoa Whis (20/11): 1 bông x2 TNSM sư phụ + đệ tử 30 phút, 10 bông 60 phút, cộng dồn tối đa 530 phút; thông báo 'Bạn nhận được x2 tiềm năng và sức mạnh cho sư phụ và đệ tử trong vòng N phút [Tối đa 530 phút].'; 10 bông thêm 1 quà: vàng 5-20tr / 5-20 ngọc / ngọc rồng 1-3 sao / CT Videl, Gohan học đường HSD 7-15 ngày 15% vĩnh viễn (migration whis_hoa10_box).
 - Quà tặng 10 bông Whis thêm lại CT đệ tử Mão / Dần / Tí (15 ngày), Bó Hoa Vàng (7-15 ngày), Đá bảo vệ 1-3 (migration whis_hoa10_box2). Đồng hồ x2 TNSM tặng hoa dùng icon Bùa Trí Tuệ (1403) như ảnh.
+- Bó hoa hồng (1388) bị coi là hộp quà (bảng item_box_reward cũ có box_id 1388) nên dùng là mở ra quà. Xoá quà của 1388 / 1395 / 1530 mỗi lần khởi động và trong sql/team2026.sql: hoa chỉ để tặng Whis, không mở được.
