@@ -668,6 +668,8 @@ public class NpcFactory {
                         break;
                     }
 
+                    case ConstNpc.CONFIRM_REMOVE_ITEM_LUCKY_ROUND ->
+                        nro.models.shop.ShopService.gI().confirmRemoveLuckyRound(player, select);
                     case ConstNpc.CONFIRM_REMOVE_ALL_ITEM_LUCKY_ROUND -> {
                         if (select == 0) {
                             for (int i = 0; i < player.inventory.itemsBoxCrackBall.size(); i++) {

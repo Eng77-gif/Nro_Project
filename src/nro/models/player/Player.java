@@ -121,6 +121,7 @@ public class Player implements Runnable {
 
     public int mbv = 0;
     public boolean baovetaikhoan;
+    public boolean xoaRuongKhongHoi; // rương phụ: đã chọn "Xóa không cần hỏi lại" (đến khi thoát game)
     public long mbvtime;
 
     public int timeGohome;

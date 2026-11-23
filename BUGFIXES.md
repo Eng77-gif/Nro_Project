@@ -2678,3 +2678,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Shop Santa: món có hạn / thời gian (dòng 1 hoặc 93, vd. Phiếu sao vàng may mắn) không gộp được nên không hỏi số lượng, mua 1 cái như cũ.
 - Ôsin (Sa mạc hoang vu) làm phép x2 hút năng lượng tà ác như ảnh: 5 ngọc 10 phút / 28 ngọc 60 phút / 250 ngọc 530 phút, cộng dồn tối đa 530 phút.
 - Cập nhật repo không tải file .md và file Termux: .gitattributes export-ignore (Download ZIP / git archive bỏ *.md, nro_termux.sh, run_termux.sh, termux_install.sh, nro-ui.sh); VPS Windows chạy cap_nhat.bat (git sparse-checkout bỏ các file đó rồi git pull, không đụng Config.properties).
+- Hủy bỏ vật phẩm như ảnh: ô 'Bạn có chắc muốn hủy bỏ (mất luôn) <tên> ?' gõ OK hoặc 1 để xác nhận. Rương phụ (Thượng Đế): rương trống không hiện nút, bỏ nút 'Xóa hết trong rương'; xóa 1 món hỏi 'Bạn có chắc muốn xóa (mất luôn) vật phẩm <tên> ?' với Đồng ý / Xóa không cần hỏi lại / Xóa đồ có hsd dưới 7 ngày / dưới 15 ngày / Từ chối.

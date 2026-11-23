@@ -1380,6 +1380,45 @@ public class ShopService {
         }
     }
 
+    private final java.util.Map<Long, Item> pendingRemove = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Chọn ở menu xóa món rương phụ: 0 xóa món đó, 1 xóa và từ giờ không hỏi lại, 2 / 3 xóa mọi món có hạn dưới 7 / 15 ngày. */
+    public void confirmRemoveLuckyRound(Player player, int select) {
+        Item item = pendingRemove.remove(player.id);
+        List<Item> items = player.inventory.itemsBoxCrackBall;
+        int n = 0;
+        switch (select) {
+            case 0, 1 -> {
+                if (select == 1) {
+                    player.xoaRuongKhongHoi = true;
+                }
+                if (item != null && items.remove(item)) {
+                    n = 1;
+                }
+            }
+            case 2, 3 -> {
+                int days = select == 2 ? 7 : 15;
+                for (int i = items.size() - 1; i >= 0; i--) {
+                    Item.ItemOption hsd = items.get(i).isNotNullItem() ? items.get(i).getOptionById(93) : null;
+                    if (hsd != null && hsd.param < days) {
+                        items.remove(i);
+                        n++;
+                    }
+                }
+            }
+            default -> {
+            }
+        }
+        if (n > 0) {
+            Service.gI().sendThongBao(player, select >= 2 ? "Đã xóa " + n + " vật phẩm" : "Xóa vật phẩm thành công");
+        } else if (select >= 2 && select <= 3) {
+            Service.gI().sendThongBao(player, "Không có vật phẩm nào có hạn dưới " + (select == 2 ? 7 : 15) + " ngày");
+        }
+        if (select <= 3) {
+            openShopType4(player, "ITEMS_LUCKY_ROUND", items);
+        }
+    }
+
     private void getItemSideBoxLuckyRound(Player player, List<Item> items, byte type, int index) {
         if (items == null) {
             return;
@@ -1406,10 +1445,20 @@ public class ShopService {
                     Service.gI().sendThongBao(player, "Không thể thực hiện");
                 }
                 break;
-            case 1: //xóa
-                items.remove(index);
-                Service.gI().sendThongBao(player, "Xóa vật phẩm thành công");
-                break;
+            case 1: //xóa: hỏi lại như bản chính thức (trừ khi đã chọn "Xóa không cần hỏi lại")
+                if (player.xoaRuongKhongHoi) {
+                    items.remove(index);
+                    Service.gI().sendThongBao(player, "Xóa vật phẩm thành công");
+                    break;
+                }
+                if (!item.isNotNullItem()) {
+                    return;
+                }
+                pendingRemove.put(player.id, item);
+                nro.models.services.NpcService.gI().createMenuConMeo(player, nro.models.consts.ConstNpc.CONFIRM_REMOVE_ITEM_LUCKY_ROUND, -1,
+                        "Bạn có chắc muốn xóa (mất luôn) vật phẩm " + item.template.name + " ?",
+                        "Đồng ý", "Xóa\nkhông cần\nhỏi lại", "Xóa đồ\ncó hsd\ndưới 7 ngày", "Xóa đồ\ncó hsd\ndưới 15 ngày", "Từ chối");
+                return;
             case 2: //nhận hết
                 for (int i = items.size() - 1; i >= 0; i--) {
                     item = items.get(i);

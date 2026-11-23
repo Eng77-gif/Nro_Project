@@ -96,14 +96,18 @@ public class ThuongDe extends Npc {
                             case 3 ->
                                 ChangeMapService.gI().changeMapBySpaceShip(player, 48, -1, 354);
                             case 4 ->
-                                this.createOtherMenu(player, ConstNpc.MENU_CHOOSE_LUCKY_ROUND,
-                                        "Con muốn làm gì nào?", "Quay bằng\nvàng",
-                                        "Vòng quay\nđặc biệt\n(ngọc)",
-                                        "Rương phụ\n("
-                                        + (player.inventory.itemsBoxCrackBall.size()
-                                        - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsBoxCrackBall))
-                                        + " món)",
-                                        "Xóa hết\ntrong rương", "Đóng");
+                            {
+                                int soMon = player.inventory.itemsBoxCrackBall.size()
+                                        - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsBoxCrackBall);
+                                // rương phụ trống thì không hiện nút; bỏ nút "Xóa hết trong rương" (xóa từng món trong rương)
+                                if (soMon > 0) {
+                                    this.createOtherMenu(player, ConstNpc.MENU_CHOOSE_LUCKY_ROUND, "Con muốn làm gì nào?",
+                                            "Quay bằng\nvàng", "Vòng quay\nđặc biệt\n(ngọc)", "Rương phụ\n(" + soMon + " món)", "Đóng");
+                                } else {
+                                    this.createOtherMenu(player, ConstNpc.MENU_CHOOSE_LUCKY_ROUND, "Con muốn làm gì nào?",
+                                            "Quay bằng\nvàng", "Vòng quay\nđặc biệt\n(ngọc)", "Đóng");
+                                }
+                            }
                         }
                     } else if (player.idMark.getIndexMenu() == 2001) {
                         switch (select) {
@@ -138,14 +142,11 @@ public class ThuongDe extends Npc {
                                 LuckyRound.gI().openCrackBallUI(player, LuckyRound.USING_GOLD);
                             case 1 ->
                                 LuckyRound.gI().openCrackBallVipUI(player, LuckyRound.USING_GEM); // vòng quay đặc biệt: quay bằng ngọc
-                            case 2 ->
-                                ShopService.gI().opendShop(player, "ITEMS_LUCKY_ROUND", true);
-                            case 3 ->
-                                NpcService.gI().createMenuConMeo(player,
-                                        ConstNpc.CONFIRM_REMOVE_ALL_ITEM_LUCKY_ROUND, this.avartar,
-                                        "Con có chắc muốn xóa hết vật phẩm trong rương phụ? Sau khi xóa "
-                                        + "sẽ không thể khôi phục!",
-                                        "Đồng ý", "Hủy bỏ");
+                            case 2 -> {
+                                if (player.inventory.itemsBoxCrackBall.size() > InventoryService.gI().getCountEmptyListItem(player.inventory.itemsBoxCrackBall)) {
+                                    ShopService.gI().opendShop(player, "ITEMS_LUCKY_ROUND", true);
+                                }
+                            }
                         }
                     }
                 }

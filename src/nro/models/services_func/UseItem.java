@@ -162,6 +162,24 @@ public class UseItem {
         return null;
     }
 
+    private final java.util.Map<Long, int[]> pendingThrow = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Ô xác nhận hủy bỏ: gõ OK / 1 thì vứt đúng món đã chọn (món trong ô đổi thì bỏ qua). */
+    public void confirmThrow(Player player, String text) {
+        int[] p = pendingThrow.remove(player.id);
+        if (p == null || text == null || !(text.trim().equalsIgnoreCase("ok") || text.trim().equals("1"))) {
+            return;
+        }
+        java.util.List<Item> list = p[0] == 0 ? player.inventory.itemsBody : player.inventory.itemsBag;
+        if (p[1] < 0 || p[1] >= list.size() || !list.get(p[1]).isNotNullItem() || list.get(p[1]).template.id != p[2]) {
+            Service.gI().sendThongBao(player, "Không thể thực hiện");
+            return;
+        }
+        InventoryService.gI().throwItem(player, p[0], p[1]);
+        Service.gI().point(player);
+        InventoryService.gI().sendItemBags(player);
+    }
+
     public void doItem(Player player, Message _msg) {
         TransactionService.gI().cancelTrade(player);
         Message msg = null;
@@ -238,12 +256,10 @@ public class UseItem {
                         if (!item.isNotNullItem()) {
                             return;
                         }
-                        msg = new Message(-43);
-                        msg.writer().writeByte(type);
-                        msg.writer().writeByte(where);
-                        msg.writer().writeByte(index);
-                        msg.writer().writeUTF("Bạn chắc chắn muốn vứt " + item.template.name + "?");
-                        player.sendMessage(msg);
+                        // như bản chính thức: gõ OK hoặc 1 để xác nhận hủy bỏ
+                        pendingThrow.put(player.id, new int[]{where, index, item.template.id});
+                        Input.gI().createForm(player, Input.THROW_CONFIRM, "Bạn có chắc muốn hủy bỏ (mất luôn)\n" + item.template.name + " ?",
+                                new Input.SubInput("Gõ OK hoặc số 1 để xác nhận hủy bỏ vật phẩm này", Input.ANY));
                     } else {
                         Service.gI().sendThongBao(player, "Không thể thực hiện");
                     }

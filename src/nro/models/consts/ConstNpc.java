@@ -210,6 +210,7 @@ public class ConstNpc {
     public static final int BAN_PLAYER = 513;
     public static final int BUFF_PET = 514;
     public static final int CONFIRM_REMOVE_ALL_ITEM_LUCKY_ROUND = 515;
+    public static final int CONFIRM_REMOVE_ITEM_LUCKY_ROUND = 5150; // xóa 1 món trong rương phụ (như bản chính thức)
     public static final int MENU_FIND_PLAYER = 516;
     public static final int CONFIRM_DISSOLUTION_CLAN = 517;
     public static final int CONFIRM_TELE_NAMEC = 522;
