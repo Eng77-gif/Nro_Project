@@ -2593,7 +2593,13 @@ public class SeasonEventService implements Runnable {
             Service.gI().sendThongBao(pl, e.costPoint > 0 ? "Bạn không đủ điểm sự kiện (cần " + e.costPoint + ")" : "Bạn không đủ tiền để mua");
             return;
         }
-        // như bản chính thức: hỏi số lượng muốn mua (gợi ý tối đa có thể mua)
+        nro.models.player_system.Template.ItemTemplate t = ItemService.gI().getTemplate(e.rewardItem);
+        if (t == null || !t.isUpToUp) { // món không gộp được (cải trang, đeo lưng...): mua 1 cái như cũ
+            exchange(pl, e, 1);
+            Service.gI().sendMoney(pl);
+            return;
+        }
+        // món gộp được: như bản chính thức, hỏi số lượng muốn mua (gợi ý tối đa có thể mua)
         pendingBuy.put(pl.id, tempId);
         nro.models.services_func.Input.gI().createForm(pl, nro.models.services_func.Input.EVENT_SHOP_QTY,
                 "Bạn muốn mua bao nhiêu [" + e.name.replace("\n", " ") + "] ?",
