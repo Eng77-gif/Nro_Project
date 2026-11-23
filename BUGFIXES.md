@@ -2664,3 +2664,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Tỉa hoa như video: bỏ thông báo 'Đang tỉa hoa'; tỉa được thì hoa rơi ngay chỗ người tỉa rồi tự bay vào người (hiệu ứng nhặt đồ + 'Bạn nhận được ...' trên đầu), kéo hiện dưới chân ~1,8 giây.
 - Tỉa hoa dùng đúng hiệu ứng của v10 (effect 241: mây hoa hồng + kéo rồi hiện bó hoa trên người, giống video), nhân vật nói 'Bạn nhận được ...'; bỏ cách cho hoa rơi rồi tự nhặt.
 - Thêm dự phòng 188 file hiệu ứng / aura có trong v10 mà mình thiếu (effect 29, 89, 143-149, 190, 387-392, 647, 1003-1026, aura_95; không ghi đè file sẵn có). Tỉa hoa đặt hiệu ứng 241 lệch ngẫu nhiên tới 50px như v10. v10 không có hiệu ứng tỉa hụt.
+- Tỉa hoa: câu nhận hoa chỉ còn 'Bạn nhận được Đóa hoa hồng / Bó hoa hồng' (bỏ số lượng).
