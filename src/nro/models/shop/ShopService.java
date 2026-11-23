@@ -431,9 +431,8 @@ public class ShopService {
                 for (Item.ItemOption io : opts) {
                     msg.writeItemOption(io.optionTemplate.id, io.param);
                 }
-                //số lượng
-                msg.writer().writeByte(31);
-                msg.writer().writeShort(Math.min(item.quantity, Short.MAX_VALUE));
+                // số lượng: ghi như mọi dòng chỉ số (client 2.4.x đọc id 2 byte + param 4 byte; ghi thẳng 3 byte làm lệch gói, rương phụ không mở)
+                msg.writeItemOption(31, item.quantity);
                 //
                 msg.writer().writeByte(1);
                 if (item.template.type == 5) {
