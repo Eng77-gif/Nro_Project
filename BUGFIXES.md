@@ -2691,3 +2691,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Vòng quay May mắn (Thượng Đế): 7 viên hiện đủ ngọc rồng 1-7 sao (trước gửi toàn icon 1 sao).
 - cap_nhat.bat: tải thẳng ZIP từ GitHub (Eng77-gif/Nro_Project nhánh main) bằng PowerShell, không cần cài git; chép đè lên thư mục, bỏ qua .md, file Termux, Config.properties, backup.key.
 - Ô gõ OK / 1 khi hủy bỏ chỉ cho CT, đeo lưng, ván bay, pet vĩnh viễn (không có dòng hạn sử dụng); đồ có hạn hỏi như cũ.
+- cap_nhat.bat không hiện link GitHub nữa: hiện mã commit (bản đang dùng / bản mới nhất, vd 8f91c04cd), đã mới nhất thì không tải; tải đúng commit đó, ghi VERSION. Repo tải ZIP có file VERSION tự điền mã commit (export-subst).

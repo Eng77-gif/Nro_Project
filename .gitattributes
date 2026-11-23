@@ -4,3 +4,4 @@ nro_termux.sh export-ignore
 run_termux.sh export-ignore
 termux_install.sh export-ignore
 nro-ui.sh export-ignore
+VERSION export-subst
