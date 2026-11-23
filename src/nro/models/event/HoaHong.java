@@ -69,7 +69,6 @@ public class HoaHong extends Npc {
         }
         InventoryService.gI().subQuantityItemsBag(player, dacBiet ? keoDb : keo, 1); // mất kéo dù tỉa được hay hụt
         InventoryService.gI().sendItemBags(player);
-        Service.gI().sendThongBao(player, "Đang tỉa hoa, chờ chút...");
         // tỉa hoa phải chờ vài giây (như bản chính thức)
         java.util.concurrent.CompletableFuture.delayedExecutor(3, java.util.concurrent.TimeUnit.SECONDS).execute(() -> {
             try {
@@ -81,12 +80,17 @@ public class HoaHong extends Npc {
                     return;
                 }
                 synchronized (this) {
-                    Item hoa = ItemService.gI().createNewItem((short) (dacBiet ? BO_HOA : BONG_HOA), 1);
-                    hoa.itemOptions.add(new Item.ItemOption(30, 0));
-                    hoa.itemOptions.add(new Item.ItemOption(93, 35));
-                    InventoryService.gI().addItemBag(player, hoa);
-                    InventoryService.gI().sendItemBags(player);
-                    npcChat(player, "Bạn nhận được " + (dacBiet ? "Bó hoa hồng" : "1 Đóa hoa hồng"));
+                    // như video: hoa rơi ngay chỗ người tỉa rồi tự bay vào người (hiệu ứng nhặt + "Bạn nhận được ..."), kéo hiện dưới chân một lúc
+                    nro.models.map.Zone z = player.zone;
+                    int x = player.location.x, y = player.location.y;
+                    nro.models.map.ItemMap hoa = new nro.models.map.ItemMap(z, dacBiet ? BO_HOA : BONG_HOA, 1, x, y, player.id);
+                    hoa.options.add(new Item.ItemOption(30, 0));
+                    hoa.options.add(new Item.ItemOption(93, 35));
+                    nro.models.map.ItemMap keoFx = new nro.models.map.ItemMap(z, dacBiet ? KEO_DAC_BIET : KEO, 1, x + 15, y, 123456789); // không ai nhặt được
+                    Service.gI().dropItemMap(z, hoa);
+                    Service.gI().dropItemMap(z, keoFx);
+                    java.util.concurrent.CompletableFuture.delayedExecutor(400, java.util.concurrent.TimeUnit.MILLISECONDS).execute(() -> z.pickItem(player, hoa.itemMapId));
+                    java.util.concurrent.CompletableFuture.delayedExecutor(1800, java.util.concurrent.TimeUnit.MILLISECONDS).execute(() -> nro.models.map.service.ItemMapService.gI().removeItemMapAndSendClient(keoFx));
                     if (++count >= LUOT_HAI) {
                         count = 0;
                         tanDen = System.currentTimeMillis() + TAN_MS;

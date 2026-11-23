@@ -2661,3 +2661,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Thông báo mở hộp bỏ luôn số lượng (x2, số vàng / ngọc): chỉ 'Bạn nhận được <tên>'.
 - Thông báo mở hộp: quà vàng / ngọc vẫn ghi số (vd Bạn nhận được 5.000.000 vàng), món khác chỉ ghi tên.
 - Trang web mới đưa lên Cloudflare Worker (nro-web.dov77471.workers.dev); deploy_worker.sh gửi kèm ảnh trong assets/guide/ (trước bỏ sót thư mục con).
+- Tỉa hoa như video: bỏ thông báo 'Đang tỉa hoa'; tỉa được thì hoa rơi ngay chỗ người tỉa rồi tự bay vào người (hiệu ứng nhặt đồ + 'Bạn nhận được ...' trên đầu), kéo hiện dưới chân ~1,8 giây.
