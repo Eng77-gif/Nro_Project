@@ -2670,3 +2670,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Lệnh chat admin: 'hoa hong' xem chỗ các cây hoa hồng 20/11, 'den hoa' / 'den hoa <số>' dịch chuyển tới cây.
 - Tỉa hoa theo video quay màn hình: tỉa xong cây biến mất ngay; hiệu ứng 241 gắn trên người tỉa, đi theo người ~3,5 giây (trúng hay hụt), nhân vật nói 'Bạn nhận được ...'.
 - Tỉa hoa đúng video (2 đoạn cuối): bấm Đồng ý là hiệu ứng 241 chạy ngay trên cây hoa suốt 3 giây chờ (phát lại mỗi giây), xong cây biến mất và nhân vật nói 'Bạn nhận được ...' (hụt thì không có hoa).
+- Hiệu ứng tỉa hoa 241 vẽ ở lớp trước (đè lên cây hoa / nhân vật), trước bị che sau cây.

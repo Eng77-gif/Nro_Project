@@ -102,7 +102,7 @@ public class HoaHong extends Npc {
         int x = this.cx, y = this.cy;
         for (int i = 0; i < 3; i++) {
             java.util.concurrent.CompletableFuture.delayedExecutor(i * 1000L, java.util.concurrent.TimeUnit.MILLISECONDS)
-                    .execute(() -> nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(z, 241, 1, 1, x, y, 1));
+                    .execute(() -> nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(z, 241, 3, 1, x, y, 1)); // lớp 3: vẽ đè lên cây hoa và nhân vật (lớp 1 bị che sau cây)
         }
     }
 
