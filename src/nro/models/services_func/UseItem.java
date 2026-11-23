@@ -256,7 +256,18 @@ public class UseItem {
                         if (!item.isNotNullItem()) {
                             return;
                         }
-                        // như bản chính thức: gõ OK hoặc 1 để xác nhận hủy bỏ
+                        int tt = item.template.type;
+                        boolean thoiTrang = tt == 5 || tt == 11 || tt == 23 || tt == 24 || (tt == 27 && item.template.name.startsWith("Pet"));
+                        if (!thoiTrang) { // vật phẩm thường: hỏi như cũ
+                            msg = new Message(-43);
+                            msg.writer().writeByte(type);
+                            msg.writer().writeByte(where);
+                            msg.writer().writeByte(index);
+                            msg.writer().writeUTF("Bạn chắc chắn muốn vứt " + item.template.name + "?");
+                            player.sendMessage(msg);
+                            return;
+                        }
+                        // cải trang, đeo lưng, pet, ván bay / thú cưỡi: như bản chính thức, gõ OK hoặc 1 để xác nhận hủy bỏ
                         pendingThrow.put(player.id, new int[]{where, index, item.template.id});
                         Input.gI().createForm(player, Input.THROW_CONFIRM, "Bạn có chắc muốn hủy bỏ (mất luôn)\n" + item.template.name + " ?",
                                 new Input.SubInput("Gõ OK hoặc số 1 để xác nhận hủy bỏ vật phẩm này", Input.ANY));
