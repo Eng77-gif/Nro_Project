@@ -68,8 +68,8 @@ public class Whis extends Npc {
                 case 1 -> nro.models.services.SeasonEventService.gI().tangHoaWhis(player, 10);
                 case 2 -> nro.models.map.service.NpcService.gI().createTutorial(player, tempId, avartar,
                         "Sự kiện 20/11: dùng Kéo tỉa hoa (mua ở Chi Chi) tỉa các bụi Bông hồng mọc khắp nơi để nhận hoa.\n"
-                        + "Tặng ta 1 Bó hoa hồng: sư phụ và đệ tử được x2 kinh nghiệm trong 30 phút.\n"
-                        + "Tặng 10 Bó hoa hồng: x2 kinh nghiệm 60 phút và thêm 1 phần quà đặc biệt (may mắn nhận Cải trang Videl trung học).");
+                        + "Tặng ta 1 bông hoa: sư phụ và đệ tử được x2 tiềm năng, sức mạnh trong 30 phút (cộng dồn, tối đa 530 phút).\n"
+                        + "Tặng 10 bông: x2 trong 60 phút và thêm 1 phần quà: vàng, ngọc, ngọc rồng 1-3 sao, Cải trang Videl / Gohan học đường (7-15 ngày, có thể vĩnh viễn).");
             }
             return;
         }

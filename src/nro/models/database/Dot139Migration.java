@@ -655,6 +655,15 @@ public class Dot139Migration {
                 {{898}, {50, 24}, {14, 3}, {77, 15}, {103, 20}, {5, 16}, {80, 11}, {154, 0}}});
             update(con, "insert into server_migration (name) values ('event_items_1123f')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'whis_hoa10_box'")) {
+            // quà tặng 10 bông hoa cho Whis: vàng, ngọc, ngọc rồng 1-3 sao, CT Videl / Gohan học đường 7-15 ngày (15% vĩnh viễn)
+            update(con, "delete from item_box_reward where box_id = 98412");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values "
+                    + "(98412, -1, 5000000, 20000000, 25, '', 0, 0), (98412, -2, 5, 20, 20, '', 0, 0), "
+                    + "(98412, 14, 1, 1, 5, '', 0, 0), (98412, 15, 1, 1, 8, '', 0, 0), (98412, 16, 1, 1, 12, '', 0, 0), "
+                    + "(98412, 1934, 1, 1, 15, '7,15', 15, 0), (98412, 1933, 1, 1, 15, '7,15', 15, 0)");
+            update(con, "insert into server_migration (name) values ('whis_hoa10_box')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'desc_1371'")) { // mô tả CT đệ tử Tí theo ảnh
             update(con, "update item_template set description = 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' where id = 1371");
             update(con, "insert into server_migration (name) values ('desc_1371')");

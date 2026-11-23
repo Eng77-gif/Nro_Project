@@ -2682,3 +2682,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Rương phụ bấm vào không mở: ô trống / dòng chỉ số lỗi trong rương làm hỏng gói tin. Dọn ô trống trước khi mở, bỏ dòng chỉ số lỗi; tên tab 'N Vật phẩm' như ảnh.
 - Rương phụ vẫn không mở (client 2.4.x): dòng số lượng (option 31) ghi thẳng 3 byte trong khi client đọc 6 byte -> lệch gói. Ghi qua writeItemOption như mọi dòng chỉ số.
 - Thượng Đế: nút vòng quay đổi tên thành 'Vòng quay Vàng' và 'Vòng quay May mắn'.
+- Tặng hoa Whis (20/11): 1 bông x2 TNSM sư phụ + đệ tử 30 phút, 10 bông 60 phút, cộng dồn tối đa 530 phút; thông báo 'Bạn nhận được x2 tiềm năng và sức mạnh cho sư phụ và đệ tử trong vòng N phút [Tối đa 530 phút].'; 10 bông thêm 1 quà: vàng 5-20tr / 5-20 ngọc / ngọc rồng 1-3 sao / CT Videl, Gohan học đường HSD 7-15 ngày 15% vĩnh viễn (migration whis_hoa10_box).

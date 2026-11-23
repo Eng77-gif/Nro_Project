@@ -1078,20 +1078,27 @@ public class SeasonEventService implements Runnable {
                     left -= c;
                 }
             }
-            pl.hoaTnsmUntil = System.currentTimeMillis() + (n >= 10 ? 60 : 30) * 60_000L;
-            String msg = "Sư phụ và đệ tử được x2 kinh nghiệm trong " + (n >= 10 ? 60 : 30) + " phút";
-            if (n >= 10) {
-                short[] icon = {-1};
-                String g = Event2026Service.gI().openBoxById(pl, TANG_HOA_10, icon);
+            int phut = n >= 10 ? 60 : 30;
+            addHoaTnsm(pl, phut);
+            Service.gI().sendThongBao(pl, "Bạn nhận được x2 tiềm năng và sức mạnh cho sư phụ và đệ tử trong vòng " + phut + " phút [Tối đa " + HOA_TNSM_MAX + " phút].");
+            if (n >= 10) { // 10 bông: thêm 1 quà (vàng, ngọc, ngọc rồng 1-3 sao, CT Videl / Gohan học đường 7-15 ngày, 15% vĩnh viễn)
+                String g = Event2026Service.gI().openBoxById(pl, TANG_HOA_10, new short[]{-1});
                 if (g != null) {
-                    msg += ", nhận được " + g;
+                    Service.gI().sendThongBao(pl, "Bạn nhận được " + g.replaceAll(" \\((\\d+ ngày|vĩnh viễn)\\)| \\[bảo hiểm\\]", ""));
                 }
             }
             goDauTre(pl, "hoa", n, 49);
             InventoryService.gI().sendItemBags(pl);
-            nro.models.services.ItemTimeService.gI().sendAllItemTime(pl);
-            Service.gI().sendThongBao(pl, msg);
         }
+    }
+
+    public static final int HOA_TNSM_MAX = 530;
+
+    /** x2 TNSM sư phụ + đệ tử khi tặng hoa: cộng dồn, tối đa 530 phút. */
+    private static void addHoaTnsm(Player pl, int phut) {
+        long now = System.currentTimeMillis();
+        pl.hoaTnsmUntil = Math.min(now + HOA_TNSM_MAX * 60_000L, Math.max(now, pl.hoaTnsmUntil) + phut * 60_000L);
+        nro.models.services.ItemTimeService.gI().sendAllItemTime(pl);
     }
 
     private void teachersDayAfter(Player pl, Exchange e, int times, List<String> got) {
@@ -1099,9 +1106,8 @@ public class SeasonEventService implements Runnable {
             return;
         }
         if (e.rewardItem == TANG_HOA_1 || e.rewardItem == TANG_HOA_10) { // x2 TNSM cho sư phụ và đệ tử 30 phút
-            pl.hoaTnsmUntil = System.currentTimeMillis() + 30 * 60_000L;
-            nro.models.services.ItemTimeService.gI().sendAllItemTime(pl);
-            got.add("x2 TNSM sư phụ và đệ tử 30 phút");
+            addHoaTnsm(pl, (e.rewardItem == TANG_HOA_10 ? 60 : 30) * times);
+            got.add("x2 TNSM sư phụ và đệ tử " + (e.rewardItem == TANG_HOA_10 ? 60 : 30) * times + " phút");
         }
         for (int[] n : e.need) {
             if (n[0] == HOP_TRA_HOA_CUC) {
