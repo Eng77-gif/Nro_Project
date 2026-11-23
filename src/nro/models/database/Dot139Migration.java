@@ -659,6 +659,10 @@ public class Dot139Migration {
             update(con, "update item_box_reward set perm_rate = 15, hsd_days = '7,15' where box_id = 98412 and item_id in (1380, 1381, 1371, 955, 1933, 1934)");
             update(con, "insert into server_migration (name) values ('whis_hoa10_vv')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'whis_hoa10_vv7'")) { // CT đệ tử Mão / Dần / Tí, Bó Hoa Vàng: 7% vĩnh viễn (Videl / Gohan giữ 15%)
+            update(con, "update item_box_reward set perm_rate = 7 where box_id = 98412 and item_id in (1380, 1381, 1371, 955)");
+            update(con, "insert into server_migration (name) values ('whis_hoa10_vv7')");
+        }
         // hoa hồng 20/11 (Bó 1388, Đóa 1395, Bông 1530) chỉ để tặng Whis: không phải hộp quà, không mở ra quà (mỗi lần khởi động)
         update(con, "delete from item_box_reward where box_id in (1388, 1395, 1530)");
         if (!exists(con, "select 1 from server_migration where name = 'whis_hoa10_box2'")) {
