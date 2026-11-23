@@ -413,24 +413,27 @@ public class ShopService {
         if (items == null) {
             return;
         }
+        // ô trống (template null) trong rương phụ làm lỗi gói tin -> rương không mở: dọn trước (chỉ số món khớp lúc nhận / xóa)
+        items.removeIf(it -> it == null || !it.isNotNullItem());
         player.idMark.setTagNameShop(tagName);
         Message msg = null;
         try {
             msg = new Message(-44);
             msg.writer().writeByte(4);
             msg.writer().writeByte(1);
-            msg.writer().writeUTF("Phần\nthưởng");
+            msg.writer().writeUTF(items.size() + " Vật\nphẩm");
             msg.writer().writeByte(items.size());
             for (Item item : items) {
                 msg.writer().writeShort(item.template.id);
                 msg.writer().writeUTF("|7| LUCKY REWARD");
-                msg.writer().writeByte(item.itemOptions.size() + 1);
-                for (Item.ItemOption io : item.itemOptions) {
+                List<Item.ItemOption> opts = item.itemOptions.stream().filter(io -> io != null && io.optionTemplate != null).toList();
+                msg.writer().writeByte(opts.size() + 1);
+                for (Item.ItemOption io : opts) {
                     msg.writeItemOption(io.optionTemplate.id, io.param);
                 }
                 //số lượng
                 msg.writer().writeByte(31);
-                msg.writer().writeShort(item.quantity);
+                msg.writer().writeShort(Math.min(item.quantity, Short.MAX_VALUE));
                 //
                 msg.writer().writeByte(1);
                 if (item.template.type == 5) {
