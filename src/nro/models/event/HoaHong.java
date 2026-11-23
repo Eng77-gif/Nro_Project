@@ -66,6 +66,8 @@ public class HoaHong extends Npc {
         dangCat = true;
         InventoryService.gI().subQuantityItemsBag(player, dacBiet ? keoDb : keo, 1); // mất kéo dù tỉa được hay hụt
         InventoryService.gI().sendItemBags(player);
+        // như video: trong lúc chờ, hiệu ứng tỉa (241: mây hoa hồng + kéo) chạy ngay trên cây hoa, xong cây biến mất
+        tiaFx(player);
         // tỉa hoa phải chờ vài giây (như bản chính thức)
         java.util.concurrent.CompletableFuture.delayedExecutor(3, java.util.concurrent.TimeUnit.SECONDS).execute(() -> {
             try {
@@ -73,8 +75,6 @@ public class HoaHong extends Npc {
                     return;
                 }
                 if (!dacBiet && Util.isTrue(TI_LE_HUT, 100)) {
-                    // tỉa hụt: vẫn hiện hiệu ứng tỉa (241) nhưng không ra hoa
-                    tiaFx(player);
                     npcChat(player, "Tỉa hụt rồi, mất kéo mà chẳng được bông nào!");
                     return;
                 }
@@ -84,23 +84,26 @@ public class HoaHong extends Npc {
                     hoa.itemOptions.add(new Item.ItemOption(93, 35));
                     InventoryService.gI().addItemBag(player, hoa);
                     InventoryService.gI().sendItemBags(player);
-                    // hiệu ứng tỉa hoa như video / bản v10 (HaiHoaHong.activeHoahong): effect 241 = mây hoa hồng + kéo, xong hiện bó hoa trên người
-                    tiaFx(player);
                     Service.gI().chat(player, "Bạn nhận được " + (dacBiet ? "Bó hoa hồng" : "Đóa hoa hồng"));
                 }
             } catch (Exception e) {
                 nro.models.utils.Logger.logException(HoaHong.class, e);
             } finally {
                 dangTia.remove(player.id);
-                // tỉa xong (trúng hay hụt): cây biến mất sau hiệu ứng rồi mọc ở map khác
+                // tỉa xong (trúng hay hụt): cây biến mất rồi mọc ở map khác
                 doiCho(); // như video: tỉa xong cây biến mất ngay
             }
         });
     }
 
-    /** Hiệu ứng tỉa hoa như video: effect 241 (mây hoa hồng + kéo, bó hoa) gắn trên người tỉa, đi theo người ~3,5 giây. */
-    private static void tiaFx(Player player) {
-        Service.gI().LogicEffect(player, 241, 1, 1, 0, 1, 3500);
+    /** Hiệu ứng tỉa hoa như video: effect 241 đặt trên cây hoa, phát lại mỗi giây suốt 3 giây chờ (client chỉ chạy 1 vòng / lần gửi). */
+    private void tiaFx(Player player) {
+        nro.models.map.Zone z = player.zone;
+        int x = this.cx, y = this.cy;
+        for (int i = 0; i < 3; i++) {
+            java.util.concurrent.CompletableFuture.delayedExecutor(i * 1000L, java.util.concurrent.TimeUnit.MILLISECONDS)
+                    .execute(() -> nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(z, 241, 1, 1, x, y, 1));
+        }
     }
 
     /** Ẩn cây ở map cũ và đặt sang 1 map thường ngẫu nhiên (cùng loại map Dr. Myuu được đứng), map đó chưa có cây hoa. */
