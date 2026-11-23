@@ -163,7 +163,7 @@ public class WebServer {
             } else if (path.startsWith("/assets/")) { // ảnh giao diện (data/web/assets), chỉ tên file chữ / số
                 String name = path.substring(8);
                 File f = new File("data/web/assets", name);
-                if (!name.matches("[A-Za-z0-9_-]+\\.(png|gif|jpg|webp)") || !f.isFile()) {
+                if (!name.matches("(guide/)?[A-Za-z0-9_-]+\\.(png|gif|jpg|webp)") || !f.isFile()) {
                     PanelServer.sendText(ex, 404, "text/plain; charset=utf-8", "Không có".getBytes(StandardCharsets.UTF_8));
                     return;
                 }
@@ -215,7 +215,10 @@ public class WebServer {
         Map<String, Object> b = new HashMap<>();
         boolean post = "POST".equals(ex.getRequestMethod());
         if (post) {
-            byte[] raw = ex.getRequestBody().readNBytes(64_000);
+            int cap = route.equals("post/create") ? 360_000 : 64_000;
+            if (route.equals("post/create")) need(session(ex));
+            byte[] raw = ex.getRequestBody().readNBytes(cap + 1);
+            if (raw.length > cap) throw new ApiError(413, "Dữ liệu quá lớn");
             Map<String, Object> m = raw.length == 0 ? null : GSON.fromJson(new String(raw, StandardCharsets.UTF_8), new TypeToken<Map<String, Object>>() {
             }.getType());
             if (m != null) {
@@ -226,6 +229,7 @@ public class WebServer {
         Session s = session(ex);
         Object res = switch (route) {
             case "status" -> status();
+            case "auth/options" -> Map.of("name", conf("web.world.name").isBlank() ? serverName : conf("web.world.name"), "worlds", conf("web.worlds"), "sitekey", conf("web.turnstile.sitekey"), "register", conf("web.register.url"), "recover", conf("web.recover.url"));
             case "login" -> login(ip, b);
             case "logout" -> {
                 String t = ex.getRequestHeaders().getFirst("X-Token");
@@ -238,6 +242,7 @@ public class WebServer {
             case "posts" -> posts(s, q);
             case "post" -> post(s, intv(q.get("id")));
             case "post/create" -> createPost(need(s), b);
+            case "post/like" -> like(need(s), b);
             case "post/reply" -> reply(need(s), b);
             case "topup/info" -> topupInfo();
             case "topup/bank" -> topupBank(need(s), b);
@@ -376,6 +381,20 @@ public class WebServer {
 
     private Map<String, Object> login(String ip, Map<String, Object> b) throws Exception {
         limit("login:" + ip, 8, 5 * 60_000L, "Đăng nhập sai quá nhiều lần, thử lại sau 5 phút");
+        String secret = conf("web.turnstile.secret"), site = conf("web.turnstile.sitekey");
+        if (!secret.isBlank() || !site.isBlank()) {
+            if (secret.isBlank() || site.isBlank()) throw new ApiError(503, "Thiếu cấu hình Turnstile");
+            String proof = str(b.get("proof"));
+            if (proof.isBlank() || proof.length() > 2048) throw new ApiError(400, "Hãy xác minh đăng nhập");
+            String data = "secret=" + URLEncoder.encode(secret, StandardCharsets.UTF_8) + "&response=" + URLEncoder.encode(proof, StandardCharsets.UTF_8);
+            HttpRequest request = HttpRequest.newBuilder(URI.create("https://challenges.cloudflare.com/turnstile/v0/siteverify"))
+                    .timeout(Duration.ofSeconds(10)).header("Content-Type","application/x-www-form-urlencoded")
+                    .POST(HttpRequest.BodyPublishers.ofString(data)).build();
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            Map<?,?> check = GSON.fromJson(response.body(), Map.class);
+            if (response.statusCode()!=200 || check==null || !Boolean.TRUE.equals(check.get("success")) || !"login".equals(check.get("action")))
+                throw new ApiError(403, "Xác minh hết hạn hoặc không hợp lệ");
+        }
         String u = str(b.get("user")).trim(), pw = str(b.get("pass"));
         if (u.isEmpty() || u.length() > 20 || pw.isEmpty() || pw.length() > 100) {
             throw new ApiError(400, "Nhập tài khoản và mật khẩu");
@@ -447,18 +466,33 @@ public class WebServer {
             argl.add(like);
         }
         Object[] args = argl.toArray();
-        long total = ((Number) PanelApi.rows("select count(*) n from web_post where " + where, args).get(0).get("n")).longValue();
-        List<Object> a = new ArrayList<>(List.of(args));
-        a.add(size);
-        a.add((page - 1) * size);
-        List<Map<String, Object>> rows = PanelApi.rows("select id, title, author, target, status, pinned, replies, left(content, 240) excerpt, "
+        String select = "select (select count(*) from web_post_like l where l.post_id=web_post.id) likes, exists(select 1 from web_post_like l where l.post_id=web_post.id and l.account_id=" + (s == null ? -1 : s.accountId) + ") liked, photo, id, title, author, target, status, pinned, replies, left(content, 240) excerpt, "
                 + "coalesce((select is_admin from account where account.id = web_post.account_id), 0) is_admin, date_format(created_at, '%d/%m/%Y %H:%i') created_at, "
-                + "date_format(updated_at, '%d/%m/%Y %H:%i') updated_at from web_post where " + where + " order by pinned desc, updated_at desc limit ? offset ?", a.toArray());
-        return Map.of("rows", rows, "page", page, "pages", Math.max(1, (total + size - 1) / size), "total", total);
+                + "date_format(updated_at, '%d/%m/%Y %H:%i') updated_at from web_post where ";
+        String order = "latest".equals(f) ? " order by created_at desc, id desc" : " order by pinned desc, updated_at desc, id desc";
+        boolean mixed = kind.equals("forum") && (f.isEmpty() || f.equals("all"));
+        String admin = "exists(select 1 from account ac where ac.id=web_post.account_id and ac.is_admin=1)";
+        List<Map<String,Object>> rows = new ArrayList<>();
+        long pages = 1, total = 0;
+        for (int group = 0; group < (mixed ? 2 : 1); group++) {
+            int limit = mixed ? (group == 0 ? 2 : 8) : size;
+            boolean fixedPins = mixed && group == 0;
+            String condition = where + (fixedPins ? " and pinned=1 and " + admin : mixed ? " and not " + admin : "");
+            long count = ((Number) PanelApi.rows("select count(*) n from web_post where " + condition, args).get(0).get("n")).longValue();
+            total += fixedPins ? Math.min(count, limit) : count;
+            if (!fixedPins) pages = Math.max(pages, (count + limit - 1) / limit);
+            long offset = fixedPins ? 0 : (long)(page - 1) * limit;
+            if (offset >= count) continue;
+            List<Object> params = new ArrayList<>(argl);
+            params.add(limit);
+            params.add(offset);
+            rows.addAll(PanelApi.rows(select + condition + order + " limit ? offset ?", params.toArray()));
+        }
+        return Map.of("rows", rows, "page", page, "pages", pages, "total", total);
     }
 
     private Map<String, Object> post(Session s, int id) throws Exception {
-        List<Map<String, Object>> r = PanelApi.rows("select id, kind, account_id, title, author, target, content, status, pinned, replies, "
+        List<Map<String, Object>> r = PanelApi.rows("select photo, id, kind, account_id, title, author, target, content, status, pinned, replies, "
                 + "date_format(created_at, '%d/%m/%Y %H:%i') created_at from web_post where id = ?", id);
         if (r.isEmpty()) {
             throw new ApiError(404, "Bài viết không tồn tại");
@@ -472,6 +506,25 @@ public class WebServer {
         p.put("mine", mine);
         p.put("replyList", PanelApi.rows("select author, is_admin, content, date_format(created_at, '%d/%m/%Y %H:%i') created_at from web_reply where post_id = ? order by id", id));
         return p;
+    }
+
+    private String validatedPhoto(String value) {
+        if (value.isEmpty()) return null;
+        String prefix = "data:image/jpeg;base64,";
+        if (value.length() > 320000 || !value.startsWith(prefix)) throw new ApiError(400, "Ảnh không hợp lệ");
+        try {
+            byte[] bytes = java.util.Base64.getDecoder().decode(value.substring(prefix.length()));
+            try (var in = new javax.imageio.stream.MemoryCacheImageInputStream(new java.io.ByteArrayInputStream(bytes))) {
+                var reader = javax.imageio.ImageIO.getImageReadersByFormatName("JPEG").next();
+                try {
+                    reader.setInput(in);
+                    if (reader.getWidth(0) > 1200 || reader.getHeight(0) > 1200) throw new IllegalArgumentException();
+                    var out = new java.io.ByteArrayOutputStream();
+                    javax.imageio.ImageIO.write(reader.read(0), "jpg", out);
+                    return prefix + java.util.Base64.getEncoder().encodeToString(out.toByteArray());
+                } finally { reader.dispose(); }
+            }
+        } catch (Exception invalid) { throw new ApiError(400, "Không đọc được ảnh JPEG"); }
     }
 
     private Map<String, Object> createPost(Session s, Map<String, Object> b) throws Exception {
@@ -489,10 +542,24 @@ public class WebServer {
             throw new ApiError(400, "Nhập tên nhân vật bị tố cáo");
         }
         limit("post:" + kind + ":" + s.accountId, 1, 30_000L, "Bạn đăng quá nhanh, đợi 30 giây");
-        PanelApi.update("insert into web_post (kind, account_id, author, title, target, content) values (?, ?, ?, ?, ?, ?)",
-                kind, s.accountId, author(s), title, kind.equals("report") ? target : null, content);
+        String photo = validatedPhoto(str(b.get("photo")));
+        PanelApi.update("insert into web_post (kind, account_id, author, title, target, content, photo) values (?, ?, ?, ?, ?, ?, ?)",
+                kind, s.accountId, author(s), title, kind.equals("report") ? target : null, content, photo);
         statusCache = null;
         return Map.of("ok", true, "id", PanelApi.rows("select max(id) id from web_post where account_id = ?", s.accountId).get(0).get("id"));
+    }
+
+    private Map<String, Object> like(Session s, Map<String, Object> b) throws Exception {
+        int id = intv(b.get("id"));
+        if (PanelApi.rows("select id from web_post where id=? and kind='forum'", id).isEmpty()) {
+            throw new ApiError(404, "Không tìm thấy bài diễn đàn");
+        }
+        if (intv(b.get("liked")) == 1) {
+            PanelApi.update("insert ignore into web_post_like(post_id,account_id) values (?,?)", id, s.accountId);
+        } else {
+            PanelApi.update("delete from web_post_like where post_id=? and account_id=?", id, s.accountId);
+        }
+        return PanelApi.rows("select count(*) likes, coalesce(max(account_id=?),0) liked from web_post_like where post_id=?", s.accountId, id).get(0);
     }
 
     private Map<String, Object> reply(Session s, Map<String, Object> b) throws Exception {

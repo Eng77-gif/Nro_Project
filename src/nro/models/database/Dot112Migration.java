@@ -28,6 +28,23 @@ public class Dot112Migration {
                     + "status tinyint not null default 0, note varchar(255) null, credited int not null default 0, "
                     + "created_at datetime not null default current_timestamp, updated_at datetime not null default current_timestamp, "
                     + "key (account_id), key (status))");
+            // trang web đăng nhập mới: lượt thích bài diễn đàn, ảnh đính kèm bài viết (sql/web_community.sql, sql/web_post-photo.sql)
+            update(con, "create table if not exists web_post_like (post_id int not null, account_id int not null, primary key (post_id, account_id)) engine=InnoDB");
+            if (!Dot77Migration.exists(con, "select 1 from information_schema.columns where table_schema = database() and table_name = 'web_post' and column_name = 'photo'")) {
+                update(con, "alter table web_post add column photo mediumtext null");
+            }
+            // bài ghim sự kiện Halloween / 20-11 (sql/web_forum-events.sql), chạy 1 lần khi đã có tài khoản admin
+            java.io.File ev = new java.io.File("sql/web_forum-events.sql");
+            if (ev.isFile() && Dot77Migration.exists(con, "select 1 from account where is_admin = 1")
+                    && !Dot77Migration.exists(con, "select 1 from server_migration where name = 'web_forum_events'")) {
+                for (String sql : new String(java.nio.file.Files.readAllBytes(ev.toPath()), java.nio.charset.StandardCharsets.UTF_8).split(";\\s*\\n")) {
+                    sql = sql.trim();
+                    if (!sql.isEmpty() && !sql.equalsIgnoreCase("START TRANSACTION") && !sql.equalsIgnoreCase("COMMIT") && !sql.equalsIgnoreCase("COMMIT;")) {
+                        update(con, sql);
+                    }
+                }
+                update(con, "insert into server_migration (name) values ('web_forum_events')");
+            }
         } catch (Exception e) {
             Logger.error("Đợt 112: " + e.getMessage() + "\n");
         }
