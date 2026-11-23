@@ -998,6 +998,10 @@ public class NPoint {
             if (me == 2005 && nearCt.contains(1999)) { // Videl chiến binh gần Gohan chiến binh: +10% SĐ chí mạng
                 sc += 10;
             }
+            Item.ItemOption o180 = ct != null && ct.isNotNullItem() ? ct.getOptionById(180) : null;
+            if (o180 != null && nearCt.contains(883)) { // option 180: +#% SĐ khi ở gần CT Black Gohan Rose
+                d += o180.param;
+            }
             if (me == 1732 && nearCt.contains(1731)) { // CT Black Goku gần Black Goku Rose: +5% HP
                 h += 5;
             }

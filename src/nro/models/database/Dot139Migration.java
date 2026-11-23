@@ -633,6 +633,13 @@ public class Dot139Migration {
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8"); // 202 - 204 có id cố định (Dot48)
         // các dòng khác của sự kiện 20/11 / Giáng sinh: id mỗi máy chủ khác nhau, không sửa theo id (xem Dot140Migration)
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1123f'")) { // CT Black Goku SSJ White, CT Zamasu (ảnh)
+            update(con, "delete from item_template_option where template_id in (904, 898) and option_id in (154, 180)");
+            writeStats(con, new int[][][]{
+                {{904}, {50, 24}, {14, 4}, {94, 10}, {77, 15}, {103, 20}, {108, 5}, {80, 10}, {180, 2}, {154, 0}},
+                {{898}, {50, 24}, {14, 3}, {77, 15}, {103, 20}, {5, 16}, {80, 11}, {154, 0}}});
+            update(con, "insert into server_migration (name) values ('event_items_1123f')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'desc_1371'")) { // mô tả CT đệ tử Tí theo ảnh
             update(con, "update item_template set description = 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' where id = 1371");
             update(con, "insert into server_migration (name) values ('desc_1371')");
