@@ -24,7 +24,7 @@ function Retry([scriptblock]$job) {
 $wc = New-Object Net.WebClient
 $wc.Headers.Add('User-Agent', 'nro-update')
 $wc.Encoding = [Text.Encoding]::UTF8
-$man = Retry { $wc.DownloadString("https://raw.githubusercontent.com/$R/update-manifest/manifest.txt?t=" + [DateTime]::Now.Ticks) }
+$man = Retry { [Text.Encoding]::UTF8.GetString($wc.DownloadData("https://raw.githubusercontent.com/$R/update-manifest/manifest.txt?t=" + [DateTime]::Now.Ticks)) } # giai ma UTF-8 ro rang: duong dan co dau tieng Viet
 $lines = $man -split "`n" | Where-Object { $_ -ne '' }
 $sha = $lines[0].Substring(2).Trim()
 $short = $sha.Substring(0, 9)
@@ -41,7 +41,7 @@ foreach ($l in $lines[1..($lines.Count - 1)]) {
     $p = $l.TrimEnd("`r") -split "`t", 3
     if ($p.Count -lt 3) { continue }
     $path = $p[2]; $name = [IO.Path]::GetFileName($path)
-    if ($path.EndsWith('.md') -or $skip -contains $name -or $path -eq 'sql/team2026.sql.enc' -or $path.StartsWith('.github/')) { continue }
+    if ($path.EndsWith('.md') -or $skip -contains $name -or $path -eq 'sql/team2026.sql.enc' -or $path.StartsWith('.github/') -or $path.StartsWith('client/')) { continue }
     [void]$remote.Add(@($p[0], [long]$p[1], $path))
 }
 
@@ -89,20 +89,28 @@ if ($need.Count -eq 0) {
 
 # tai tung file da doi, tien trinh theo tong dung luong
 $total = 0L; foreach ($r in $need) { $total += $r[1] }
-$done = 0L; $k = 0
+$done = 0L; $k = 0; $failed = New-Object Collections.ArrayList
 foreach ($r in $need) {
     $k++
     $url = "https://raw.githubusercontent.com/$R/$sha/" + (($r[2] -split '/' | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/')
     $full = Join-Path $here ($r[2] -replace '/', '\')
     New-Item -ItemType Directory -Force -Path (Split-Path $full) | Out-Null
     Bar (100.0 * $done / [Math]::Max(1, $total)) ('Tai ' + $k + '/' + $need.Count + ': ' + [IO.Path]::GetFileName($r[2]))
-    Retry { $wc.DownloadFile($url, $full) }
+    try { Retry { $wc.DownloadFile($url, $full) } } catch {
+        # file loi (vd 404) khong lam dung ca lan cap nhat: ghi lai, chay tiep
+        [void]$failed.Add($r[2]); $done += $r[1]; continue
+    }
     $done += $r[1]
     $fi = New-Object IO.FileInfo($full)
     [void]$newCache.Add("$($r[0])`t$($fi.Length)`t$($fi.LastWriteTimeUtc.Ticks)`t$($r[2])")
 }
-Bar 100 ('Da tai ' + $need.Count + ' file (' + [Math]::Round($total / 1MB, 1) + ' MB)')
+Bar 100 ('Da tai ' + ($need.Count - $failed.Count) + ' file (' + [Math]::Round($total / 1MB, 1) + ' MB)')
 Write-Host ''
 [IO.File]::WriteAllLines($cacheFile, [string[]]$newCache)
+if ($failed.Count -gt 0) {
+    Write-Host ('Khong tai duoc ' + $failed.Count + ' file (chay lai cap_nhat.bat de thu lai):')
+    $failed | Select-Object -First 10 | ForEach-Object { Write-Host ('  ' + $_) }
+    exit 1
+}
 Set-Content 'VERSION' $short
 Write-Host ('Da cap nhat len ban ' + $short + '.')
