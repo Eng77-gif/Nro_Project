@@ -96,9 +96,13 @@ foreach ($r in $need) {
     $full = Join-Path $here ($r[2] -replace '/', '\')
     New-Item -ItemType Directory -Force -Path (Split-Path $full) | Out-Null
     Bar (100.0 * $done / [Math]::Max(1, $total)) ('Tai ' + $k + '/' + $need.Count + ': ' + [IO.Path]::GetFileName($r[2]))
-    try { Retry { $wc.DownloadFile($url, $full) } } catch {
-        # file loi (vd 404) khong lam dung ca lan cap nhat: ghi lai, chay tiep
-        [void]$failed.Add($r[2]); $done += $r[1]; continue
+    try {
+        $data = Retry { $wc.DownloadData($url) } # tai vao bo nho roi ghi (giong cach tai danh sach file, da chay duoc tren VPS)
+        [IO.File]::WriteAllBytes($full, $data)
+    } catch {
+        # file loi khong lam dung ca lan cap nhat: ghi lai ly do, chay tiep
+        $msg = $_.Exception.Message; if ($_.Exception.InnerException) { $msg = $_.Exception.InnerException.Message }
+        [void]$failed.Add($r[2] + '  -> ' + $msg); $done += $r[1]; continue
     }
     $done += $r[1]
     $fi = New-Object IO.FileInfo($full)

@@ -2697,3 +2697,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - cap_nhat.ps1: tự thử lại tối đa 5 lần khi mạng VPS ngắt giữa chừng (connection forcibly closed).
 - cap_nhat.ps1: bỏ qua thư mục client/ (bản PC, server không cần), giải mã danh sách file UTF-8 rõ ràng (đường dẫn có dấu), file tải lỗi (vd 404) không làm dừng cả lần cập nhật mà ghi lại cuối, chưa ghi VERSION để lần sau tải lại.
 - Xoá thư mục client/ (bản game PC LÂU CỒ MOD ~235 MB) khỏi repo theo yêu cầu.
+- cap_nhat.ps1: tải file bằng DownloadData rồi ghi (cách đã chạy được khi tải danh sách), in lý do lỗi từng file.
