@@ -2700,3 +2700,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - cap_nhat.ps1: tải file bằng DownloadData rồi ghi (cách đã chạy được khi tải danh sách), in lý do lỗi từng file.
 - cap_nhat.ps1 lỗi 404 mọi file: biến tên repo $R trùng biến vòng lặp $r (PowerShell không phân biệt hoa thường) nên URL sai. Đổi tên $Repo; tải file bằng DownloadFile, danh sách bằng byte + UTF-8 (không để PowerShell tách mảng byte). Đã đối chiếu mã blob tính theo cách của script với danh sách trên GitHub: khớp.
 - Gộp cap_nhat.ps1 vào cap_nhat.bat (1 file): phần PowerShell nằm sau dòng #PSSTART, bat tự đọc và chạy; lần chạy đầu tự xoá cap_nhat.ps1 cũ trên VPS.
+- Vòng quay Thượng Đế: quay ra cải trang / đeo lưng / ván bay / pet thì báo toàn server 'Chúc mừng <tên> đã may mắn quay Vòng quay <Vàng / May mắn> nhận được <món> hạn dùng <N ngày / vĩnh viễn>'.

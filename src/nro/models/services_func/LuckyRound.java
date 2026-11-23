@@ -133,6 +133,7 @@ public class LuckyRound {
                 List<Item> list = RewardService.gI().getListItemLuckyRound(player, count, true);
                 addItemToBox(player, list);
                 sendReward(player, list);
+                announce(player, list, "Vòng quay May mắn");
                 Service.gI().sendMoney(player);
                 gioToInfo(player);
             } else {
@@ -153,6 +154,7 @@ public class LuckyRound {
                 List<Item> list = RewardService.gI().getListItemLuckyRound(player, count, vip);
                 addItemToBox(player, list);
                 sendReward(player, list);
+                announce(player, list, vip ? "Vòng quay May mắn" : "Vòng quay Vàng");
                 Service.gI().sendMoney(player);
                 if (vip) {
                     gioToInfo(player);
@@ -176,11 +178,31 @@ public class LuckyRound {
                 List<Item> list = RewardService.gI().getListItemLuckyRound(player, count, true);
                 addItemToBox(player, list);
                 sendReward(player, list);
+                announce(player, list, "Vòng quay May mắn");
                 Service.gI().sendMoney(player);
                 gioToInfo(player);
             } else {
                 Service.gI().sendThongBao(player, "Rương phụ đã đầy");
             }
+        }
+    }
+
+    /** Quay ra vật phẩm may mắn (cải trang, đeo lưng, ván bay / thú cưỡi, pet): báo toàn server. */
+    private void announce(Player player, List<Item> items, String wheel) {
+        if (player == null || !player.isPl()) {
+            return;
+        }
+        for (Item it : items) {
+            if (it == null || !it.isNotNullItem()) {
+                continue;
+            }
+            int t = it.template.type;
+            if (t != 5 && t != 11 && t != 23 && t != 24 && !(t == 27 && it.template.name.startsWith("Pet"))) {
+                continue;
+            }
+            Item.ItemOption hsd = it.getOptionById(93);
+            nro.models.server.ServerNotify.gI().notify("Chúc mừng " + player.name + " đã may mắn quay " + wheel + " nhận được "
+                    + it.template.name + " hạn dùng " + (hsd == null ? "vĩnh viễn" : hsd.param + " ngày"));
         }
     }
 
