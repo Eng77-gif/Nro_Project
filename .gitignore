@@ -29,3 +29,4 @@ __pycache__/
 /backup.properties
 /sql/import.pending
 /sql/*.dl
+/backup.key.old

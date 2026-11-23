@@ -333,7 +333,7 @@ gh_menu() {
     local c k u t
     echo "  ${B}Dữ liệu GitHub${C0} ${DIM}(database mã hoá: $( [ -f backup.key ] && echo "${G}đã bật" || echo "${R}chưa có mật khẩu")${C0}${DIM})${C0}"
     echo "  ${DIM}Sau mỗi lần bảo trì server tự đẩy sql/team2026.sql.enc lên GitHub.${C0}"; echo
-    printf "  ${CY}1${C0}  Đặt mật khẩu mã hoá (mọi máy dùng chung)\n  ${CY}2${C0}  Đẩy dữ liệu lên GitHub ngay\n  ${CY}3${C0}  Tải dữ liệu từ GitHub, nạp đè máy này\n  ${CY}4${C0}  Lưu token GitHub (cần để đẩy)\n\n"
+    printf "  ${CY}1${C0}  Đặt mật khẩu mã hoá (mọi máy dùng chung)\n  ${CY}2${C0}  Đẩy dữ liệu lên GitHub ngay\n  ${CY}3${C0}  Tải dữ liệu từ GitHub, nạp đè máy này\n  ${CY}4${C0}  Lưu token GitHub (cần để đẩy)\n  ${CY}5${C0}  Quên mật khẩu\n\n"
     printf "  Chọn: "; read -rsn1 c; echo "$c"; echo
     case $c in
         1) read -rsp "  Mật khẩu (từ 6 ký tự, không hiện khi gõ): " k; echo
@@ -358,6 +358,29 @@ gh_menu() {
            git config credential.helper store
            printf 'https://%s:%s@github.com\n' "$u" "$t" > "$HOME/.git-credentials"; chmod 600 "$HOME/.git-credentials"
            ok "Đã lưu token (chỉ trên máy này)." ;;
+        5) # mật khẩu không khôi phục được từ file mã hoá: xem lại trên máy đã lưu, hoặc đặt mật khẩu mới rồi mã hoá lại từ database máy này
+           if [ -f backup.key ]; then
+               printf "  Máy này đang lưu mật khẩu. Bấm ${B}y${C0} để hiện: "; read -rsn1 k; echo
+               [ "$k" = y ] && echo "  Mật khẩu: ${Y}$(head -1 backup.key)${C0}"
+               echo
+           fi
+           echo "  ${DIM}Không nhớ mật khẩu thì bản trên GitHub không giải mã được nữa.${C0}"
+           echo "  ${DIM}Đặt mật khẩu mới: mã hoá lại database ĐANG CHẠY trên máy này rồi đẩy đè lên GitHub.${C0}"
+           printf "  Đặt mật khẩu mới? Bấm ${B}y${C0}: "; read -rsn1 k; echo
+           [ "$k" = y ] || { echo "  Huỷ."; return; }
+           read -rsp "  Mật khẩu mới (từ 6 ký tự, không hiện khi gõ): " k; echo
+           [ ${#k} -ge 6 ] || { err "Mật khẩu quá ngắn."; return; }
+           read -rsp "  Nhập lại: " u; echo
+           [ "$k" = "$u" ] || { err "Hai lần nhập không khớp."; return; }
+           [ -f backup.key ] && cp backup.key backup.key.old
+           printf '%s\n' "$k" > backup.key; chmod 600 backup.key
+           ensure_db >/dev/null 2>&1
+           if spin "Mã hoá lại database bằng mật khẩu mới + đẩy GitHub" $SB export push; then
+               ok "Xong. Máy khác (VPS) đặt mật khẩu mới này ở mục 1 để nạp."
+           else
+               [ -f backup.key.old ] && mv backup.key.old backup.key
+               err "Chưa đẩy được (kiểm tra token mục 4). Đã giữ lại mật khẩu cũ."
+           fi ;;
         *) echo "  Huỷ." ;;
     esac
 }

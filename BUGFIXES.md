@@ -2673,3 +2673,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Hiệu ứng tỉa hoa 241 vẽ ở lớp trước (đè lên cây hoa / nhân vật), trước bị che sau cây.
 - Cửa hàng sự kiện (Chi Chi / Quy Lão) như video: bấm mua hiện ô 'Bạn muốn mua bao nhiêu [tên] ?' (gợi ý tối đa có thể mua), mua đủ số lượng 1 lần, nhân vật nói 'Bạn đã mua thành công N <tên>'.
 - Cửa hàng sự kiện: chỉ món gộp được (is_up_to_up) mới hỏi số lượng; món không gộp (cải trang, đeo lưng, pet...) bấm mua là mua 1 cái như cũ.
+- Dữ liệu GitHub: thêm 'Quên mật khẩu' (Termux menu G mục 5, Windows quen_mat_khau_github.bat): xem mật khẩu đang lưu trên máy, hoặc đặt mật khẩu mới rồi mã hoá lại database máy này + đẩy đè lên GitHub (đẩy lỗi thì giữ mật khẩu cũ).
