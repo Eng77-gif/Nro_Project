@@ -359,6 +359,21 @@ public class Dot139Migration {
     };
     /** Đợt 24 (ảnh): Ván Rồng 7 sao, CT Fide nhí, Pet Capybara xì mũi, CT Broly SSJ4 / SSJ God, Ván bay Magikarp, CT Cađíc / Pôcôlô Dragon, Avatar mũ rồng,
      * Cờ dây pháo, CT Thần tài, Cờ bao lì xì, Thỏi vàng bay, Cửu Hoàn Thiên Tích Trượng, Như Ý Kim Cô Bổng, CT / Nón Hổ vàng, Pet Ngựa Thần Tài, Pet ngựa chiến, Đeo lưng Bao lì xì. */
+    /** Đợt 25 (ảnh): Nón Hổ trắng, Nón Chuột / Nón Trâu may mắn, Cây trúc, CT Hit, Bút chì hồng, CT Gohan SSJ (đệ tử 2). */
+    static final int[][][] EVENT_ITEMS25 = {
+        {{946}, {50, 21}, {103, 16}, {80, 51}, {154, 0}},
+        {{754}, {77, 30}, {80, 50}, {50, 20}},
+        {{755}, {77, 30}, {80, 50}, {50, 20}},
+        {{756}, {77, 30}, {80, 50}, {50, 20}},
+        {{846}, {77, 30}, {80, 50}, {50, 20}},
+        {{847}, {77, 30}, {80, 50}, {50, 20}},
+        {{848}, {77, 30}, {80, 50}, {50, 20}},
+        {{852}, {50, 10}, {77, 10}, {94, 10}, {103, 10}},
+        {{884}, {50, 24}, {14, 2}, {103, 19}, {5, 15}, {154, 0}},
+        {{1386}, {50, 20}, {77, 17}, {103, 17}, {183, 5}},
+        {{2125}, {50, 20, 25}, {0, 5000, 10000}, {267, 0}, {30, 0}},
+    };
+
     static final int[][][] EVENT_ITEMS24 = {
         {{2100}, {50, 12}, {19, 7}, {204, 7}, {5, 7}, {14, 7}, {95, 7}, {268, 7}},
         {{1599}, {50, 21}, {77, 21}, {103, 21}, {106, 0}, {210, 2}},
@@ -603,6 +618,15 @@ public class Dot139Migration {
         // Kéo tỉa hoa giá cũ trùng (202 / 203), Hộp quà (hoa hồng) trùng 607 (204): Dot48 tạo lại nếu xoá nên tách khỏi sự kiện (mỗi lần khởi động)
         update(con, "update season_event_exchange set event_id = -8 where id in (202, 203, 204) and event_id = 8"); // 202 - 204 có id cố định (Dot48)
         // các dòng khác của sự kiện 20/11 / Giáng sinh: id mỗi máy chủ khác nhau, không sửa theo id (xem Dot140Migration)
+        if (!exists(con, "select 1 from server_migration where name = 'event_items_1123c'")) {
+            StringBuilder ids = new StringBuilder();
+            for (int[][] it : EVENT_ITEMS25) {
+                ids.append(ids.length() > 0 ? "," : "").append(it[0][0]);
+            }
+            update(con, "delete from item_template_option where template_id in (" + ids + ") and option_id in (30, 154, 0, 267)");
+            writeStats(con, EVENT_ITEMS25);
+            update(con, "insert into server_migration (name) values ('event_items_1123c')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'event_items_1123b'")) {
             StringBuilder ids = new StringBuilder();
             for (int[][] it : EVENT_ITEMS24) {
