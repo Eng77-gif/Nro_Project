@@ -80,17 +80,14 @@ public class HoaHong extends Npc {
                     return;
                 }
                 synchronized (this) {
-                    // như video: hoa rơi ngay chỗ người tỉa rồi tự bay vào người (hiệu ứng nhặt + "Bạn nhận được ..."), kéo hiện dưới chân một lúc
-                    nro.models.map.Zone z = player.zone;
-                    int x = player.location.x, y = player.location.y;
-                    nro.models.map.ItemMap hoa = new nro.models.map.ItemMap(z, dacBiet ? BO_HOA : BONG_HOA, 1, x, y, player.id);
-                    hoa.options.add(new Item.ItemOption(30, 0));
-                    hoa.options.add(new Item.ItemOption(93, 35));
-                    nro.models.map.ItemMap keoFx = new nro.models.map.ItemMap(z, dacBiet ? KEO_DAC_BIET : KEO, 1, x + 15, y, 123456789); // không ai nhặt được
-                    Service.gI().dropItemMap(z, hoa);
-                    Service.gI().dropItemMap(z, keoFx);
-                    java.util.concurrent.CompletableFuture.delayedExecutor(400, java.util.concurrent.TimeUnit.MILLISECONDS).execute(() -> z.pickItem(player, hoa.itemMapId));
-                    java.util.concurrent.CompletableFuture.delayedExecutor(1800, java.util.concurrent.TimeUnit.MILLISECONDS).execute(() -> nro.models.map.service.ItemMapService.gI().removeItemMapAndSendClient(keoFx));
+                    Item hoa = ItemService.gI().createNewItem((short) (dacBiet ? BO_HOA : BONG_HOA), 1);
+                    hoa.itemOptions.add(new Item.ItemOption(30, 0));
+                    hoa.itemOptions.add(new Item.ItemOption(93, 35));
+                    InventoryService.gI().addItemBag(player, hoa);
+                    InventoryService.gI().sendItemBags(player);
+                    // hiệu ứng tỉa hoa như video / bản v10 (HaiHoaHong.activeHoahong): effect 241 = mây hoa hồng + kéo, xong hiện bó hoa trên người
+                    nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(player.zone, 241, 1, 1, player.location.x, player.location.y, 1);
+                    Service.gI().chat(player, "Bạn nhận được " + (dacBiet ? "Bó hoa hồng" : "1 Đóa hoa hồng"));
                     if (++count >= LUOT_HAI) {
                         count = 0;
                         tanDen = System.currentTimeMillis() + TAN_MS;
