@@ -343,7 +343,7 @@ public class Event2026Service {
                 nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, icon[0]);
             }
             if (boxId != HOM_HALLOWEEN) { // Hòm Halloween: nhân vật tự nói "Bạn nhận được ..." sau hiệu ứng
-                Service.gI().sendThongBao(pl, "Bạn nhận được " + got);
+                Service.gI().sendThongBao(pl, "Bạn nhận được " + got.replaceAll(" \\((\\d+ ngày|vĩnh viễn)\\)", "")); // không ghi hạn
             }
         }
     }
