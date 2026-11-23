@@ -212,8 +212,8 @@ public class NangCapVatPham {
                         } else {
                             optionLevel.param++;
                         }
-                        if (optionLevel != null && optionLevel.param >= 5) {
-                         //   ChatGlobalService.gI().ThongBaoRoiDo(player, "Chúc mừng " + player.name + " vừa nâng cấp " + "thành công " + itemDo.template.name + " lên +" + optionLevel.param);
+                        if (optionLevel != null && optionLevel.param >= 6 && optionLevel.param <= 9 && player.isPl()) { // kênh thế giới: "tên: Vừa nâng cấp thành công X lên +N" (+6 đến +9)
+                            nro.models.services.ChatGlobalService.gI().ThongBaoDapDo(player, "Vừa nâng cấp thành công " + itemDo.template.name + " lên +" + optionLevel.param);
                         }
                         CombineService.gI().sendEffectSuccessCombine(player);
                         CombineService.gI().baHatMit.npcChat(player, "Chúc mừng con nhé");
