@@ -570,7 +570,8 @@ public class ShopService {
     private boolean askQuantity(Player player, int tempId) {
         Shop shop = player.idMark.getShopOpen();
         ItemShop is = shop == null ? null : shop.getItemShop(tempId);
-        if (is == null || is.temp == null || !is.temp.isUpToUp || shop.typeShop != NORMAL_SHOP || NO_MULTI.contains(tempId) || java.util.Set.of(30, 44, 45, 49, 59, 60, 61, 62).contains(is.tabShop.id)) {
+        if (is == null || is.temp == null || !is.temp.isUpToUp || shop.typeShop != NORMAL_SHOP || NO_MULTI.contains(tempId) || java.util.Set.of(30, 44, 45, 49, 59, 60, 61, 62).contains(is.tabShop.id)
+                || is.options.stream().anyMatch(o -> o.optionTemplate != null && (o.optionTemplate.id == 1 || o.optionTemplate.id == 93))) { // có hạn / thời gian (vd. Phiếu sao vàng): mỗi cái 1 ô, không gộp
             return false;
         }
         pendingQty.put(player.id, tempId);
