@@ -253,23 +253,24 @@ public class Osin extends Npc {
                                 ChangeMapService.gI().changeMap(player, 52, -1, Util.nextInt(100, 300), 336);
                             case 1 ->
                                 createOtherMenu(player, ConstNpc.BUA_HO_TRO,
-                                        "Ta có thể làm phép giúp ngươi\nhút nhanh hơn gấp đôi năng lượng tà ác\ntrong 10 phút, tối đa 60 phút",
-                                        "Đồng ý\n5 ngọc", "Từ chối");
+                                        "Ta có thể làm phép giúp ngươi\nhút nhanh hơn gấp đôi năng lượng tà ác\ntrong 10 phút, tối đa 530 phút",
+                                        "Đồng ý\n5 ngọc\n10 phút", "Đồng ý\n28 ngọc\n60 phút", "Đồng ý\n250 ngọc\n530 phút", "Từ chối");
                         }
                     }
 
                     case ConstNpc.BUA_HO_TRO -> {
-                        if (select == 0) {
-                            if (player.inventory.getGem() >= 5) {
-                                player.inventory.subGem(5);
+                        int[] gem = {5, 28, 250}, phut = {10, 60, 530}; // như bản chính thức, tối đa 530 phút
+                        if (select >= 0 && select < gem.length) {
+                            if (player.inventory.getGem() >= gem[select]) {
+                                player.inventory.subGem(gem[select]);
                                 Service.gI().sendMoney(player);
                                 long currentTime = System.currentTimeMillis();
-                                long addedTime = 10 * 60 * 1000;
-                                long maxTime = 60 * 60 * 1000; 
+                                long addedTime = phut[select] * 60_000L;
+                                long maxTime = 530 * 60_000L;
 
                                 if (!player.itemTime.isUseKilis || currentTime > (player.itemTime.lastTimeUseKilis + player.itemTime.timeLengthKilis)) {
                                     player.itemTime.lastTimeUseKilis = currentTime;
-                                    player.itemTime.timeLengthKilis = addedTime;
+                                    player.itemTime.timeLengthKilis = Math.min(addedTime, maxTime);
                                     player.itemTime.isUseKilis = true;
                                 } else {
                                     long remainingTime = (player.itemTime.lastTimeUseKilis + player.itemTime.timeLengthKilis) - currentTime;
