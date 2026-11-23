@@ -2692,3 +2692,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - cap_nhat.bat: tải thẳng ZIP từ GitHub (Eng77-gif/Nro_Project nhánh main) bằng PowerShell, không cần cài git; chép đè lên thư mục, bỏ qua .md, file Termux, Config.properties, backup.key.
 - Ô gõ OK / 1 khi hủy bỏ chỉ cho CT, đeo lưng, ván bay, pet vĩnh viễn (không có dòng hạn sử dụng); đồ có hạn hỏi như cũ.
 - cap_nhat.bat không hiện link GitHub nữa: hiện mã commit (bản đang dùng / bản mới nhất, vd 8f91c04cd), đã mới nhất thì không tải; tải đúng commit đó, ghi VERSION. Repo tải ZIP có file VERSION tự điền mã commit (export-subst).
+- cap_nhat.bat có thanh tiến trình 0-100% (ASCII [####----] + %, 1 dòng, hiện tốt trên cmd VPS): 0-70% tải (MB), 70-80% giải nén, 80-100% chép file; phần PowerShell tách ra cap_nhat.ps1.
