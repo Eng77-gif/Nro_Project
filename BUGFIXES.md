@@ -2681,3 +2681,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Hủy bỏ vật phẩm như ảnh: ô 'Bạn có chắc muốn hủy bỏ (mất luôn) <tên> ?' gõ OK hoặc 1 để xác nhận. Rương phụ (Thượng Đế): rương trống không hiện nút, bỏ nút 'Xóa hết trong rương'; xóa 1 món hỏi 'Bạn có chắc muốn xóa (mất luôn) vật phẩm <tên> ?' với Đồng ý / Xóa không cần hỏi lại / Xóa đồ có hsd dưới 7 ngày / dưới 15 ngày / Từ chối.
 - Rương phụ bấm vào không mở: ô trống / dòng chỉ số lỗi trong rương làm hỏng gói tin. Dọn ô trống trước khi mở, bỏ dòng chỉ số lỗi; tên tab 'N Vật phẩm' như ảnh.
 - Rương phụ vẫn không mở (client 2.4.x): dòng số lượng (option 31) ghi thẳng 3 byte trong khi client đọc 6 byte -> lệch gói. Ghi qua writeItemOption như mọi dòng chỉ số.
+- Thượng Đế: nút vòng quay đổi tên thành 'Vòng quay Vàng' và 'Vòng quay May mắn'.

@@ -102,10 +102,10 @@ public class ThuongDe extends Npc {
                                 // rương phụ trống thì không hiện nút; bỏ nút "Xóa hết trong rương" (xóa từng món trong rương)
                                 if (soMon > 0) {
                                     this.createOtherMenu(player, ConstNpc.MENU_CHOOSE_LUCKY_ROUND, "Con muốn làm gì nào?",
-                                            "Quay bằng\nvàng", "Vòng quay\nđặc biệt\n(ngọc)", "Rương phụ\n(" + soMon + " món)", "Đóng");
+                                            "Vòng quay\nVàng", "Vòng quay\nMay mắn", "Rương phụ\n(" + soMon + " món)", "Đóng");
                                 } else {
                                     this.createOtherMenu(player, ConstNpc.MENU_CHOOSE_LUCKY_ROUND, "Con muốn làm gì nào?",
-                                            "Quay bằng\nvàng", "Vòng quay\nđặc biệt\n(ngọc)", "Đóng");
+                                            "Vòng quay\nVàng", "Vòng quay\nMay mắn", "Đóng");
                                 }
                             }
                         }
