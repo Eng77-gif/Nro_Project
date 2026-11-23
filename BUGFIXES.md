@@ -2653,3 +2653,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - CT Thầy giáo Goku (dòng 'Làm tăng trọng lực'): người đứng gần (300px) bị chậm 70% tốc độ chạy.
 - Chỉ số CT Black Goku SSJ White (+2% SĐ khi ở gần CT Black Gohan Rose, có tác dụng thật), CT Zamasu theo ảnh (migration event_items_1123f).
 - Chỉ số CT Black Gohan Rose theo ảnh (migration event_items_1123g).
+- Sự kiện chế độ Tự động: tới lịch (Lần diễn ra) là tự chạy, hết lịch tự tắt, không còn bị event.active / giới hạn chỉ Halloween chặn; bấm Tự động trên panel là bật lịch cho sự kiện đó; 20/11 bật tự động.

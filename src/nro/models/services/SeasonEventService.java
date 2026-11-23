@@ -378,43 +378,17 @@ public class SeasonEventService implements Runnable {
      * - Để trống thì chạy theo lịch, nhưng chỉ 1 sự kiện: nếu nhiều đợt trùng ngày, đợt bắt đầu muộn nhất (mới nhất) được chạy.
      * - Bật / tắt tay trên panel hoặc lệnh admin luôn được ưu tiên.
      */
+    /** Sự kiện chạy: bật tay luôn chạy, tắt tay không chạy, tự động thì chạy khi hôm nay nằm trong lịch diễn ra. */
     private Set<Integer> runSet(LocalDate d) {
         Set<Integer> run = new HashSet<>();
-        Set<Integer> cfg = configActive();
-        if (!cfg.isEmpty()) {
-            for (int id : cfg) {
-                Season s = seasons.get(id);
-                if (s != null && window(s, d) != null) {
-                    run.add(id);
-                }
-            }
-        } else {
-            Season best = null;
-            LocalDate bestStart = null;
-            for (Season s : seasons.values()) {
-                LocalDate[] w = s.enabled ? window(s, d) : null;
-                if (w != null && (best == null || w[0].isAfter(bestStart))) {
-                    best = s;
-                    bestStart = w[0];
-                }
-            }
-            if (best != null) {
-                run.add(best.id);
+        for (Season s : seasons.values()) {
+            Boolean f = forced.get(s.id);
+            if (f != null ? f : s.enabled && window(s, d) != null) {
+                run.add(s.id);
             }
         }
-        for (Map.Entry<Integer, Boolean> f : forced.entrySet()) {
-            if (f.getValue()) {
-                run.add(f.getKey());
-            } else {
-                run.remove(f.getKey());
-            }
-        }
-        run.retainAll(ONLY_EVENTS); // admin yêu cầu: các sự kiện khác còn nhiều lỗi, chỉ chạy Halloween
         return run;
     }
-
-    /** Sự kiện được phép chạy (bỏ id khỏi đây là khoá hẳn, bật tay / event.active cũng không chạy). */
-    public static final Set<Integer> ONLY_EVENTS = Set.of(7, 8); // + 20/11 (anh yêu cầu bật, chạy song song Halloween)
 
     /** event.active trong Config.properties (đọc lại mỗi lần cập nhật để sửa file không cần khởi động lại). */
     public static Set<Integer> configActive() {
@@ -438,7 +412,7 @@ public class SeasonEventService implements Runnable {
             m.put("enabled", s.enabled);
             m.put("active", s.active);
             Boolean f = forced.get(s.id);
-            m.put("mode", f == null ? "tự động" : f ? "bật tay" : "tắt tay");
+            m.put("mode", f == null ? (s.enabled ? "tự động" : "chưa bật (bấm Tự động)") : f ? "bật tay" : "tắt tay");
             m.put("lunar", s.lunar);
             m.put("anchor", s.day + "/" + s.month + (s.lunar ? " âm lịch" : ""));
             LocalDate[] w = next(s, d);
@@ -2926,6 +2900,13 @@ public class SeasonEventService implements Runnable {
                         forced.put(id, false);
                     } else {
                         forced.remove(id);
+                        seasons.get(id).enabled = true; // tự động: tới lịch là tự chạy
+                        try (Connection con = LocalManager.getConnection(); PreparedStatement ps = con.prepareStatement("update season_event set enabled = 1 where id = ?")) {
+                            ps.setInt(1, id);
+                            ps.executeUpdate();
+                        } catch (Exception e) {
+                            Logger.error("Không lưu được tự động sự kiện: " + e.getMessage() + "\n");
+                        }
                     }
                     saveForced(id); // giữ lại sau khi khởi động lại server
                     update();
