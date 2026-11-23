@@ -257,7 +257,8 @@ public class UseItem {
                             return;
                         }
                         int tt = item.template.type;
-                        boolean thoiTrang = tt == 5 || tt == 11 || tt == 23 || tt == 24 || (tt == 27 && item.template.name.startsWith("Pet"));
+                        boolean thoiTrang = (tt == 5 || tt == 11 || tt == 23 || tt == 24 || (tt == 27 && item.template.name.startsWith("Pet")))
+                                && item.getOptionById(93) == null; // chỉ đồ vĩnh viễn (không có dòng hạn sử dụng)
                         if (!thoiTrang) { // vật phẩm thường: hỏi như cũ
                             msg = new Message(-43);
                             msg.writer().writeByte(type);

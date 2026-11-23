@@ -2690,3 +2690,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Ô 'Gõ OK hoặc 1 để hủy bỏ' chỉ cho cải trang, đeo lưng, ván bay / thú cưỡi, pet; vật phẩm khác hỏi 'Bạn chắc chắn muốn vứt ...?' như cũ.
 - Vòng quay May mắn (Thượng Đế): 7 viên hiện đủ ngọc rồng 1-7 sao (trước gửi toàn icon 1 sao).
 - cap_nhat.bat: tải thẳng ZIP từ GitHub (Eng77-gif/Nro_Project nhánh main) bằng PowerShell, không cần cài git; chép đè lên thư mục, bỏ qua .md, file Termux, Config.properties, backup.key.
+- Ô gõ OK / 1 khi hủy bỏ chỉ cho CT, đeo lưng, ván bay, pet vĩnh viễn (không có dòng hạn sử dụng); đồ có hạn hỏi như cũ.
