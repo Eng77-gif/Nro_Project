@@ -76,6 +76,8 @@ public class HoaHong extends Npc {
                     return;
                 }
                 if (!dacBiet && Util.isTrue(TI_LE_HUT, 100)) {
+                    // tỉa hụt: vẫn hiện hiệu ứng tỉa (241) nhưng không ra hoa
+                    nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(player.zone, 241, 1, 1, player.location.x - Util.nextInt(-50, 50), player.location.y, 1);
                     npcChat(player, "Tỉa hụt rồi, mất kéo mà chẳng được bông nào!");
                     return;
                 }
