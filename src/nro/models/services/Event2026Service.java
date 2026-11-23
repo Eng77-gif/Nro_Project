@@ -342,7 +342,9 @@ public class Event2026Service {
                 // hiệu ứng mở giống Capsule kì bí: icon hộp -> icon quà
                 nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, icon[0]);
             }
-            // không báo "Mở ... nhận được ..." nữa: hiệu ứng mở hộp đã hiện món nhận được
+            if (boxId != HOM_HALLOWEEN) { // Hòm Halloween: nhân vật tự nói "Bạn nhận được ..." sau hiệu ứng
+                Service.gI().sendThongBao(pl, "Bạn nhận được " + got);
+            }
         }
     }
 
