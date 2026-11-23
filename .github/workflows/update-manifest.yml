@@ -1,0 +1,40 @@
+name: Update manifest
+
+# Mỗi lần main thay đổi: ghi danh sách file (mã blob, kích thước, đường dẫn) vào nhánh update-manifest.
+# cap_nhat.bat trên VPS so với file trên máy và chỉ tải các file đã đổi (không tải cả repo ~1 GB).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-manifest
+  cancel-in-progress: true
+
+jobs:
+  manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Tạo manifest
+        run: |
+          {
+            echo "# $(git rev-parse HEAD)"
+            git -c core.quotepath=off ls-tree -r -l HEAD | awk -F'\t' '{split($1,a," "); if (a[2]=="blob") print a[3] "\t" a[4] "\t" $2}'
+          } > /tmp/manifest.txt
+          wc -l /tmp/manifest.txt
+      - name: Đẩy lên nhánh update-manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan update-manifest
+          git rm -rq --cached .
+          cp /tmp/manifest.txt manifest.txt
+          git add manifest.txt
+          git commit -qm "manifest ${GITHUB_SHA::9}"
+          git push -f origin update-manifest

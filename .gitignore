@@ -30,3 +30,4 @@ __pycache__/
 /sql/import.pending
 /sql/*.dl
 /backup.key.old
+/.capnhat_cache
