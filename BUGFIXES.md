@@ -2683,3 +2683,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Rương phụ vẫn không mở (client 2.4.x): dòng số lượng (option 31) ghi thẳng 3 byte trong khi client đọc 6 byte -> lệch gói. Ghi qua writeItemOption như mọi dòng chỉ số.
 - Thượng Đế: nút vòng quay đổi tên thành 'Vòng quay Vàng' và 'Vòng quay May mắn'.
 - Tặng hoa Whis (20/11): 1 bông x2 TNSM sư phụ + đệ tử 30 phút, 10 bông 60 phút, cộng dồn tối đa 530 phút; thông báo 'Bạn nhận được x2 tiềm năng và sức mạnh cho sư phụ và đệ tử trong vòng N phút [Tối đa 530 phút].'; 10 bông thêm 1 quà: vàng 5-20tr / 5-20 ngọc / ngọc rồng 1-3 sao / CT Videl, Gohan học đường HSD 7-15 ngày 15% vĩnh viễn (migration whis_hoa10_box).
+- Quà tặng 10 bông Whis thêm lại CT đệ tử Mão / Dần / Tí (15 ngày), Bó Hoa Vàng (7-15 ngày), Đá bảo vệ 1-3 (migration whis_hoa10_box2). Đồng hồ x2 TNSM tặng hoa dùng icon Bùa Trí Tuệ (1403) như ảnh.

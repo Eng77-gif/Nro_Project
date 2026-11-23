@@ -93,7 +93,7 @@ public class ItemTimeService {
             sendItemTime(player, nro.models.services.ItemService.gI().getTemplate(1115).iconID, (int) ((player.mayDoNrskUntil - System.currentTimeMillis()) / 1000));
         }
         if (player.hoaTnsmUntil > System.currentTimeMillis()) { // 20/11 tặng hoa Whis: x2 TNSM
-            sendItemTime(player, nro.models.services.ItemService.gI().getTemplate(1388).iconID, (int) ((player.hoaTnsmUntil - System.currentTimeMillis()) / 1000));
+            sendItemTime(player, 1403, (int) ((player.hoaTnsmUntil - System.currentTimeMillis()) / 1000));
         }
         if (player.taAcUntil > System.currentTimeMillis()) { // Năng lượng tà ác
             sendItemTime(player, nro.models.services.ItemService.gI().getTemplate(2098).iconID, (int) ((player.taAcUntil - System.currentTimeMillis()) / 1000));

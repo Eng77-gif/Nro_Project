@@ -655,6 +655,14 @@ public class Dot139Migration {
                 {{898}, {50, 24}, {14, 3}, {77, 15}, {103, 20}, {5, 16}, {80, 11}, {154, 0}}});
             update(con, "insert into server_migration (name) values ('event_items_1123f')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'whis_hoa10_box2'")) {
+            // thêm lại quà cũ: CT đệ tử Mão / Dần / Tí (15 ngày), Bó Hoa Vàng (7-15 ngày), Đá bảo vệ
+            update(con, "delete from item_box_reward where box_id = 98412 and item_id in (1380, 1381, 1371, 955, 987)");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values "
+                    + "(98412, 1380, 1, 1, 8, '15', 1, 0), (98412, 1381, 1, 1, 8, '15', 1, 0), (98412, 1371, 1, 1, 8, '15', 1, 0), "
+                    + "(98412, 955, 1, 1, 10, '7,15', 1, 0), (98412, 987, 1, 3, 15, '', 0, 0)");
+            update(con, "insert into server_migration (name) values ('whis_hoa10_box2')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'whis_hoa10_box'")) {
             // quà tặng 10 bông hoa cho Whis: vàng, ngọc, ngọc rồng 1-3 sao, CT Videl / Gohan học đường 7-15 ngày (15% vĩnh viễn)
             update(con, "delete from item_box_reward where box_id = 98412");
