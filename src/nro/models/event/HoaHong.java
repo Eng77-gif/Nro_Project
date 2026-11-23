@@ -74,7 +74,7 @@ public class HoaHong extends Npc {
                 }
                 if (!dacBiet && Util.isTrue(TI_LE_HUT, 100)) {
                     // tỉa hụt: vẫn hiện hiệu ứng tỉa (241) nhưng không ra hoa
-                    nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(player.zone, 241, 1, 1, this.cx, this.cy, 1); // hiệu ứng chèn lên cây hoa
+                    tiaFx(player);
                     npcChat(player, "Tỉa hụt rồi, mất kéo mà chẳng được bông nào!");
                     return;
                 }
@@ -85,7 +85,7 @@ public class HoaHong extends Npc {
                     InventoryService.gI().addItemBag(player, hoa);
                     InventoryService.gI().sendItemBags(player);
                     // hiệu ứng tỉa hoa như video / bản v10 (HaiHoaHong.activeHoahong): effect 241 = mây hoa hồng + kéo, xong hiện bó hoa trên người
-                    nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(player.zone, 241, 1, 1, this.cx, this.cy, 1); // hiệu ứng chèn lên cây hoa
+                    tiaFx(player);
                     Service.gI().chat(player, "Bạn nhận được " + (dacBiet ? "Bó hoa hồng" : "Đóa hoa hồng"));
                 }
             } catch (Exception e) {
@@ -93,9 +93,14 @@ public class HoaHong extends Npc {
             } finally {
                 dangTia.remove(player.id);
                 // tỉa xong (trúng hay hụt): cây biến mất sau hiệu ứng rồi mọc ở map khác
-                java.util.concurrent.CompletableFuture.delayedExecutor(1500, java.util.concurrent.TimeUnit.MILLISECONDS).execute(this::doiCho);
+                doiCho(); // như video: tỉa xong cây biến mất ngay
             }
         });
+    }
+
+    /** Hiệu ứng tỉa hoa như video: effect 241 (mây hoa hồng + kéo, bó hoa) gắn trên người tỉa, đi theo người ~3,5 giây. */
+    private static void tiaFx(Player player) {
+        Service.gI().LogicEffect(player, 241, 1, 1, 0, 1, 3500);
     }
 
     /** Ẩn cây ở map cũ và đặt sang 1 map thường ngẫu nhiên (cùng loại map Dr. Myuu được đứng), map đó chưa có cây hoa. */
