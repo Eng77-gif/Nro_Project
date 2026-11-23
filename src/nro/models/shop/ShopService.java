@@ -540,10 +540,88 @@ public class ShopService {
             Service.gI().Send_Caitrang(player);
             Service.gI().point(player);
             Service.gI().sendThongBao(player, "Đổi kiểu tóc thành công");
+        } else if (tagName.equals("SANTA") && askQuantity(player, tempId)) {
+            return; // món gộp được: hỏi số lượng như cửa hàng sự kiện
         } else {
             buyItem(player, tempId);
         }
         Service.gI().sendMoney(player);
+    }
+
+    /** Món không mua nhiều được (gói 10, tự luyện tập, gia hạn mầm, đệ tử 2...) */
+    private static final java.util.Set<Integer> NO_MULTI = java.util.Set.of(361, 193, 521, 1523, 1524, 1703, 1717, 1825, 401, 1890);
+    private final java.util.Map<Long, Integer> pendingQty = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private static long money(Player p, ItemShop is) {
+        return switch (is.typeSell) {
+            case COST_GOLD -> p.inventory.gold;
+            case COST_GEM -> p.inventory.gem;
+            case COST_RUBY -> p.inventory.ruby;
+            case COST_COUPON -> p.inventory.coupon;
+            default -> 0;
+        };
+    }
+
+    private int maxQty(Player player, ItemShop is) {
+        return is.cost <= 0 ? 9999 : (int) Math.min(9999, money(player, is) / is.cost);
+    }
+
+    /** Shop Santa: món gộp được thì hiện ô "Bạn muốn mua bao nhiêu [tên] ?" (gợi ý tối đa có thể mua). */
+    private boolean askQuantity(Player player, int tempId) {
+        Shop shop = player.idMark.getShopOpen();
+        ItemShop is = shop == null ? null : shop.getItemShop(tempId);
+        if (is == null || is.temp == null || !is.temp.isUpToUp || shop.typeShop != NORMAL_SHOP || NO_MULTI.contains(tempId) || java.util.Set.of(30, 44, 45, 49, 59, 60, 61, 62).contains(is.tabShop.id)) {
+            return false;
+        }
+        pendingQty.put(player.id, tempId);
+        nro.models.services_func.Input.gI().createForm(player, nro.models.services_func.Input.SHOP_QTY,
+                "Bạn muốn mua bao nhiêu [" + is.temp.name + "] ?",
+                new nro.models.services_func.Input.SubInput("Số lượng (tối đa có thể mua " + maxQty(player, is) + ")", nro.models.services_func.Input.NUMERIC));
+        return true;
+    }
+
+    /** Nhập số lượng ở shop Santa xong: trừ tiền n lần, thêm n món (gộp 1 ô), nhân vật nói "Bạn đã mua thành công n <tên>". */
+    public void buyQuantity(Player player, String text) {
+        Integer tempId = pendingQty.remove(player.id);
+        Shop shop = player.idMark.getShopOpen();
+        ItemShop is = shop == null || tempId == null ? null : shop.getItemShop(tempId);
+        if (is == null) {
+            Service.gI().sendThongBao(player, "Không thể thực hiện");
+            return;
+        }
+        int n;
+        try {
+            n = Integer.parseInt(text.trim());
+        } catch (Exception e) {
+            Service.gI().sendThongBao(player, "Số lượng không hợp lệ");
+            return;
+        }
+        int max = maxQty(player, is);
+        if (n <= 0) {
+            Service.gI().sendThongBao(player, "Số lượng không hợp lệ");
+            return;
+        }
+        if (n > max) {
+            Service.gI().sendThongBao(player, max <= 0 ? "Bạn không đủ tiền để mua" : "Chỉ có thể mua tối đa " + max);
+            return;
+        }
+        if (InventoryService.gI().getCountEmptyBag(player) == 0 && InventoryService.gI().findItemBag(player, is.temp.id) == null) {
+            Service.gI().sendThongBao(player, "Hành trang đã đầy");
+            return;
+        }
+        long cost = (long) is.cost * n;
+        switch (is.typeSell) {
+            case COST_GOLD -> player.inventory.gold -= cost;
+            case COST_GEM -> player.inventory.gem -= (int) cost;
+            case COST_RUBY -> player.inventory.ruby -= (int) cost;
+            case COST_COUPON -> player.inventory.coupon -= (int) cost;
+        }
+        Item item = ItemService.gI().createItemFromItemShop(is);
+        item.quantity = n;
+        InventoryService.gI().addItemBag(player, item);
+        InventoryService.gI().sendItemBags(player);
+        Service.gI().sendMoney(player);
+        Service.gI().chat(player, "Bạn đã mua thành công " + n + " " + is.temp.name);
     }
 
     private boolean subMoneyByItemShop(Player player, ItemShop is) {

@@ -2674,3 +2674,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Cửa hàng sự kiện (Chi Chi / Quy Lão) như video: bấm mua hiện ô 'Bạn muốn mua bao nhiêu [tên] ?' (gợi ý tối đa có thể mua), mua đủ số lượng 1 lần, nhân vật nói 'Bạn đã mua thành công N <tên>'.
 - Cửa hàng sự kiện: chỉ món gộp được (is_up_to_up) mới hỏi số lượng; món không gộp (cải trang, đeo lưng, pet...) bấm mua là mua 1 cái như cũ.
 - Dữ liệu GitHub: thêm 'Quên mật khẩu' (Termux menu G mục 5, Windows quen_mat_khau_github.bat): xem mật khẩu đang lưu trên máy, hoặc đặt mật khẩu mới rồi mã hoá lại database máy này + đẩy đè lên GitHub (đẩy lỗi thì giữ mật khẩu cũ).
+- Shop Santa (Cửa hàng): món gộp được cũng hỏi 'Bạn muốn mua bao nhiêu [tên] ?' (gợi ý tối đa), mua n cái 1 lần, nhân vật nói 'Bạn đã mua thành công n <tên>'; món không gộp / đặc biệt (gói 10, tự luyện tập, gia hạn mầm, đổi đệ tử) mua như cũ.
