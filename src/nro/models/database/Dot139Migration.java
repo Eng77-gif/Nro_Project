@@ -655,6 +655,10 @@ public class Dot139Migration {
                 {{898}, {50, 24}, {14, 3}, {77, 15}, {103, 20}, {5, 16}, {80, 11}, {154, 0}}});
             update(con, "insert into server_migration (name) values ('event_items_1123f')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'whis_hoa10_vv'")) { // quà tặng 10 bông: món có hạn đều có 15% ra vĩnh viễn
+            update(con, "update item_box_reward set perm_rate = 15, hsd_days = '7,15' where box_id = 98412 and item_id in (1380, 1381, 1371, 955, 1933, 1934)");
+            update(con, "insert into server_migration (name) values ('whis_hoa10_vv')");
+        }
         // hoa hồng 20/11 (Bó 1388, Đóa 1395, Bông 1530) chỉ để tặng Whis: không phải hộp quà, không mở ra quà (mỗi lần khởi động)
         update(con, "delete from item_box_reward where box_id in (1388, 1395, 1530)");
         if (!exists(con, "select 1 from server_migration where name = 'whis_hoa10_box2'")) {
