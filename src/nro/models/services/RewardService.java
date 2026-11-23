@@ -51,9 +51,9 @@ public class RewardService {
     public static final int[] SUMMER_WHEEL_1_3 = {1087, 1088, 1089, 1090, 1091, 1571};
     public static final int[] SUMMER_WHEEL_2 = {1842, 1708, 1144, 1234, 1235};
 
-    /** Vòng quay Thượng Đế mùa 20/11: cải trang thầy giáo, đệ tử, học đường, Bunma Ả Rập, Avatar Cử nhân, Bút chì hồng, Bó Hoa Vàng
-     *  (thay hẳn vòng quay đặc biệt thường trong mùa sự kiện; 3% vĩnh viễn như vòng quay đặc biệt). */
-    public static final int[] TEACHERS_WHEEL = {1384, 1385, 1362, 1378, 1379, 1383, 1371, 1380, 1381, 1933, 1934, 1309, 1391, 1386, 955};
+    /** Vòng quay Thượng Đế mùa 20/11: chỉ đồ 20/11 không có trong hộp quà/shop nào (CT thầy giáo Quy Lão, Ca Lích, Cađíc, Pô cô lô,
+     *  Bunma Ả Rập Xê út, ván bay Bảng đen); thay hẳn vòng quay đặc biệt thường trong mùa, 3% vĩnh viễn. */
+    public static final int[] TEACHERS_WHEEL = {1385, 1362, 1378, 1379, 1309, 1943};
 
     private static int[] summerWheel() {
         SeasonEventService se = SeasonEventService.gI();
