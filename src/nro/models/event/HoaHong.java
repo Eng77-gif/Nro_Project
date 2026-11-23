@@ -86,7 +86,7 @@ public class HoaHong extends Npc {
                     InventoryService.gI().addItemBag(player, hoa);
                     InventoryService.gI().sendItemBags(player);
                     // hiệu ứng tỉa hoa như video / bản v10 (HaiHoaHong.activeHoahong): effect 241 = mây hoa hồng + kéo, xong hiện bó hoa trên người
-                    nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(player.zone, 241, 1, 1, player.location.x, player.location.y, 1);
+                    nro.models.services_func.EffectMapService.gI().sendEffectMapToAllInMap(player.zone, 241, 1, 1, player.location.x - Util.nextInt(-50, 50), player.location.y, 1); // như v10: lệch ngẫu nhiên tới 50px
                     Service.gI().chat(player, "Bạn nhận được " + (dacBiet ? "Bó hoa hồng" : "1 Đóa hoa hồng"));
                     if (++count >= LUOT_HAI) {
                         count = 0;
