@@ -2698,3 +2698,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - cap_nhat.ps1: bỏ qua thư mục client/ (bản PC, server không cần), giải mã danh sách file UTF-8 rõ ràng (đường dẫn có dấu), file tải lỗi (vd 404) không làm dừng cả lần cập nhật mà ghi lại cuối, chưa ghi VERSION để lần sau tải lại.
 - Xoá thư mục client/ (bản game PC LÂU CỒ MOD ~235 MB) khỏi repo theo yêu cầu.
 - cap_nhat.ps1: tải file bằng DownloadData rồi ghi (cách đã chạy được khi tải danh sách), in lý do lỗi từng file.
+- cap_nhat.ps1 lỗi 404 mọi file: biến tên repo $R trùng biến vòng lặp $r (PowerShell không phân biệt hoa thường) nên URL sai. Đổi tên $Repo; tải file bằng DownloadFile, danh sách bằng byte + UTF-8 (không để PowerShell tách mảng byte). Đã đối chiếu mã blob tính theo cách của script với danh sách trên GitHub: khớp.

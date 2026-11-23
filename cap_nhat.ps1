@@ -2,7 +2,7 @@
 # Danh sach file lay tu nhanh update-manifest (GitHub Actions tu tao moi lan main doi).
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-$R = 'Eng77-gif/Nro_Project'
+$Repo = 'Eng77-gif/Nro_Project' # khong dat ten $R: PowerShell khong phan biet hoa thuong, trung voi bien vong lap $r (loi 404 truoc day)
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $here
 $cacheFile = Join-Path $here '.capnhat_cache'
@@ -17,14 +17,16 @@ function Bar([double]$pct, [string]$text) {
 # mang VPS hay bi ngat giua chung ("connection forcibly closed"): thu lai toi 5 lan
 function Retry([scriptblock]$job) {
     for ($t = 1; ; $t++) {
-        try { return & $job } catch { if ($t -ge 5) { throw }; Start-Sleep -Seconds (2 * $t) }
+        try { & $job; return } catch { if ($t -ge 5) { throw }; Start-Sleep -Seconds (2 * $t) }
     }
 }
 
 $wc = New-Object Net.WebClient
 $wc.Headers.Add('User-Agent', 'nro-update')
 $wc.Encoding = [Text.Encoding]::UTF8
-$man = Retry { [Text.Encoding]::UTF8.GetString($wc.DownloadData("https://raw.githubusercontent.com/$R/update-manifest/manifest.txt?t=" + [DateTime]::Now.Ticks)) } # giai ma UTF-8 ro rang: duong dan co dau tieng Viet
+# tai byte roi giai ma UTF-8 ro rang (duong dan co dau tieng Viet); gan trong khoi de PowerShell khong tach mang byte
+Retry { $script:manBytes = $wc.DownloadData("https://raw.githubusercontent.com/$Repo/update-manifest/manifest.txt?t=" + [DateTime]::Now.Ticks) }
+$man = [Text.Encoding]::UTF8.GetString($script:manBytes)
 $lines = $man -split "`n" | Where-Object { $_ -ne '' }
 $sha = $lines[0].Substring(2).Trim()
 $short = $sha.Substring(0, 9)
@@ -92,13 +94,12 @@ $total = 0L; foreach ($r in $need) { $total += $r[1] }
 $done = 0L; $k = 0; $failed = New-Object Collections.ArrayList
 foreach ($r in $need) {
     $k++
-    $url = "https://raw.githubusercontent.com/$R/$sha/" + (($r[2] -split '/' | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/')
+    $url = "https://raw.githubusercontent.com/$Repo/$sha/" + (($r[2] -split '/' | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/')
     $full = Join-Path $here ($r[2] -replace '/', '\')
     New-Item -ItemType Directory -Force -Path (Split-Path $full) | Out-Null
     Bar (100.0 * $done / [Math]::Max(1, $total)) ('Tai ' + $k + '/' + $need.Count + ': ' + [IO.Path]::GetFileName($r[2]))
     try {
-        $data = Retry { $wc.DownloadData($url) } # tai vao bo nho roi ghi (giong cach tai danh sach file, da chay duoc tren VPS)
-        [IO.File]::WriteAllBytes($full, $data)
+        Retry { $wc.DownloadFile($url, $full) }
     } catch {
         # file loi khong lam dung ca lan cap nhat: ghi lai ly do, chay tiep
         $msg = $_.Exception.Message; if ($_.Exception.InnerException) { $msg = $_.Exception.InnerException.Message }
