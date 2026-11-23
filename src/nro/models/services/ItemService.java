@@ -710,7 +710,7 @@ public class ItemService {
             843, 844, 845, 853, 854, 855, 856, 857, 858, // đợt 12: cải trang Trâu
             1921, // đợt 13: CT Pan VIP
             629, // đợt 14: CT Fide vàng
-            904, 898, // CT Black Goku SSJ White, Zamasu
+            883, 904, 898, // CT Black Goku SSJ White, Zamasu
             1384, 1090, 1833, 1359, 1734, 1704, 1773, 1760, 1456, 1391, // đợt 26
             952, 946, 754, 755, 756, 846, 847, 848, 852, 884, 1386, // đợt 25 (CT Gohan SSJ 2125 chỉ số ngẫu nhiên: không đổi món cũ)
             2100, 1630, 1775, 1500, 1499, 1470, 1471, 1479, 1484, 1485, 1486, 1478, 1477, 1027, 1024, 948, 941, 1964, 1962, 1979, // đợt 24 (CT Fide nhí 1599 có dòng ẩn: không đổi món cũ)

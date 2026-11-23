@@ -2652,3 +2652,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Mô tả có tác dụng thật: Zenitsu làm người đứng gần (300px) bị 30% hụt khi đánh quái; dòng 'Đi cùng CT Diệt Quỷ +2% SĐ, tối đa 18%' (mỗi người mặc Tanjiro / Inosuke / Zenitsu / Nezuko đứng gần +2%). Mô tả CT đệ tử Tí theo ảnh.
 - CT Thầy giáo Goku (dòng 'Làm tăng trọng lực'): người đứng gần (300px) bị chậm 70% tốc độ chạy.
 - Chỉ số CT Black Goku SSJ White (+2% SĐ khi ở gần CT Black Gohan Rose, có tác dụng thật), CT Zamasu theo ảnh (migration event_items_1123f).
+- Chỉ số CT Black Gohan Rose theo ảnh (migration event_items_1123g).
