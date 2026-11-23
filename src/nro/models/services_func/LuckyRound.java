@@ -200,9 +200,11 @@ public class LuckyRound {
             if (t != 5 && t != 11 && t != 23 && t != 24 && !(t == 27 && it.template.name.startsWith("Pet"))) {
                 continue;
             }
-            Item.ItemOption hsd = it.getOptionById(93);
+            if (it.getOptionById(93) != null) {
+                continue; // chỉ báo đồ vĩnh viễn
+            }
             nro.models.server.ServerNotify.gI().notify("Chúc mừng " + player.name + " đã may mắn quay " + wheel + " nhận được "
-                    + it.template.name + " hạn dùng " + (hsd == null ? "vĩnh viễn" : hsd.param + " ngày"));
+                    + it.template.name + " hạn dùng vĩnh viễn");
         }
     }
 

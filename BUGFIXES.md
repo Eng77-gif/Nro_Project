@@ -2704,3 +2704,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Nâng cấp đồ (Bà Hạt Mít) thành công +6 đến +9: kênh thế giới hiện 'tên: Vừa nâng cấp thành công <món> lên +N'.
 - Thông báo nâng cấp +6 đến +9 chuyển sang báo server (dòng chữ chạy), cả bot cũng báo.
 - Pha lê hóa thành công từ +5 ô trở lên: báo server 'Chúc mừng <tên> đã pha lê hóa thành công <món> +N ô Sao Pha Lê' (cả bot).
+- Thông báo vòng quay may mắn chỉ báo đồ hạn dùng vĩnh viễn (đồ có hạn không báo).
