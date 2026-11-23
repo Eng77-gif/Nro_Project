@@ -2657,3 +2657,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Chi Chi hiện 7 nút top (4 của Hè 2): bật tay cũ của Hè 2 trước bị khoá nên không chạy, bỏ khoá thì chạy lại. Xoá các bật tay cũ (trừ Halloween, 20/11), Chi Chi chỉ còn 4 top 20/11.
 - Mở hộp quà sự kiện (Hộp quà 20-11, Giấy tốt nghiệp...) hiện lại thông báo 'Bạn nhận được ...' sau hiệu ứng mở hộp.
 - Thông báo mở hộp chỉ ghi 'Bạn nhận được <tên món>', không ghi hạn (ngày / vĩnh viễn).
+- Thông báo mở hộp bỏ luôn đuôi [bảo hiểm], chỉ còn 'Bạn nhận được <tên món>'.
