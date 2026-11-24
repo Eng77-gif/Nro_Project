@@ -188,6 +188,14 @@ public class AnnounceService {
         return type == 5 || type == 23 || type == 24 || ((type == 11 || type == 27) && it.template.part >= 0);
     }
 
+    /** Đổi quà sự kiện (Quy Lão, Chi Chi...) trúng tỉ lệ vĩnh viễn cải trang / pet / đeo lưng / thú cưỡi: thông báo server. */
+    public void onExchangePerm(Player pl, Item it) {
+        if (pl == null || !pl.isPl() || !isRare(it)) {
+            return;
+        }
+        ServerNotify.gI().notify("Chúc mừng " + pl.name + " đã may mắn đổi được " + it.template.name + " hạn dùng vĩnh viễn");
+    }
+
     public void onOpenBox(Player pl, int boxId, Item it) {
         if (pl == null || !isRare(it)) {
             return;

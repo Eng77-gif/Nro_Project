@@ -1727,7 +1727,11 @@ public class SeasonEventService implements Runnable {
                             if (e.rewardDays.length > 0 && !Util.isTrue(e.permRate, 100)) {
                                 days = e.rewardDays[Util.nextInt(0, e.rewardDays.length - 1)];
                             }
-                            InventoryService.gI().addItemBag(pl, noTrade(Event2026Service.gI().createItem(e.rewardItem, 1, days)));
+                            Item gotItem = noTrade(Event2026Service.gI().createItem(e.rewardItem, 1, days));
+                            InventoryService.gI().addItemBag(pl, gotItem);
+                            if (days == 0) { // ra món vĩnh viễn (cải trang / pet / đeo lưng / thú cưỡi): báo cả server như mở hộp quà
+                                AnnounceService.gI().onExchangePerm(pl, gotItem);
+                            }
                             got.add(rewardName); // không ghi số ngày trong thông báo (hạn dùng xem ở vật phẩm)
                         }
                     }

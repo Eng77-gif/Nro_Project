@@ -2772,3 +2772,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Chỉ số riêng 411 cải trang / pet / ván bay / đeo lưng: bỏ dòng Tấn công+# / HP+# / KI+#, mỗi món 2 - 4 dòng phụ; đồ cũ bỏ các dòng cộng thẳng của bản trước khi đăng nhập.
 - Vòng quay Thượng Đế: quay được vàng thì cộng thẳng vào hành trang và báo 'Bạn nhận được 100.000 vàng' (trước bỏ vào rương phụ).
 - Client DPNRO 2.3.7: trả về giao thức int (đăng nhập bằng long bị kẹt Xin chờ); log 'Client kết nối: loại, chuỗi phiên bản, số long/int' mỗi lần client kết nối để dò client lạ.
+- Đổi quà / cửa hàng sự kiện (Quy Lão, Chi Chi...) ra cải trang / pet / đeo lưng / thú cưỡi vĩnh viễn: thông báo server 'Chúc mừng X đã may mắn đổi được Y hạn dùng vĩnh viễn'.
