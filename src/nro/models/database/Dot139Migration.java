@@ -1371,6 +1371,10 @@ public class Dot139Migration {
             regenVaried(con, ids);
             update(con, "insert into server_migration (name) values ('stats_khac_nhau_deo_lung')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'stats_khac_nhau3'")) { // bỏ Tấn công+# / HP+# / KI+#, 2 - 4 dòng phụ
+            regenVaried(con);
+            update(con, "insert into server_migration (name) values ('stats_khac_nhau3')");
+        }
     }
 
     /**
@@ -1519,11 +1523,11 @@ public class Dot139Migration {
 
     /** Dòng phụ cho cải trang (mức pet = 60%, ván bay = 40%): {option, min, max}. */
     private static final int[][] EXTRA_POOL = {
-        {14, 3, 12}, {5, 5, 20}, {108, 5, 20}, {191, 3, 15}, {94, 3, 15}, {97, 3, 12}, {47, 500, 15000}, {0, 2000, 15000},
-        {6, 5000, 50000}, {7, 5000, 40000}, {80, 3, 15}, {81, 3, 12}, {95, 3, 12}, {104, 5, 15}, {10, 1, 8}, {204, 3, 15},
+        {14, 3, 12}, {5, 5, 20}, {108, 5, 20}, {191, 3, 15}, {94, 3, 15}, {97, 3, 12}, {47, 500, 15000},
+        {80, 3, 15}, {81, 3, 12}, {95, 3, 12}, {104, 5, 15}, {10, 1, 8}, {204, 3, 15},
         {19, 5, 20}, {148, 10, 50}, {101, 5, 30}, {236, 5, 30}, {268, 5, 20}};
 
-    /** Làm lại chỉ số các món ở item_stat_varied: SĐ / HP / KI + dòng phụ đủ loại (cải trang 2 - 3 dòng, pet / ván 1 - 2 dòng), không trùng nhau. */
+    /** Làm lại chỉ số các món ở item_stat_varied: SĐ / HP / KI % + 2 - 4 dòng phụ (không dùng Tấn công+# / HP+# / KI+#), không trùng nhau. */
     static void regenVaried(Connection con) throws Exception {
         regenVaried(con, null);
     }
@@ -1565,7 +1569,7 @@ public class Dot139Migration {
                 m.put(103, lo + r.nextInt(hi - lo + 1));
                 java.util.List<int[]> pool = new java.util.ArrayList<>(java.util.Arrays.asList(EXTRA_POOL));
                 java.util.Collections.shuffle(pool, r);
-                int n = t[1] == 5 ? 2 + r.nextInt(2) : 1 + r.nextInt(2);
+                int n = 2 + r.nextInt(3); // 2 - 4 dòng phụ
                 for (int k = 0; k < n; k++) {
                     int[] e = pool.get(k);
                     int mn = Math.max(1, e[1] * scale / 100), mx = Math.max(mn, e[2] * scale / 100);
@@ -1588,7 +1592,7 @@ public class Dot139Migration {
             row[0] = new int[]{t[0]};
             System.arraycopy(st, 0, row, 1, st.length);
             items.add(row);
-            update(con, "delete from item_template_option where template_id = " + t[0] + " and option_id in (0, 6, 19)"); // ngoài nhóm writeStats xoá
+            update(con, "delete from item_template_option where template_id = " + t[0] + " and option_id in (0, 6, 7, 19)"); // ngoài nhóm writeStats xoá
         }
         writeStats(con, items.toArray(new int[0][][]));
         nro.models.utils.Logger.success("Làm lại chỉ số đủ loại dòng phụ cho " + items.size() + " cải trang / pet / ván bay\n");

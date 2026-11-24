@@ -775,12 +775,16 @@ public class ItemService {
         List<Item.ItemOption> keep = new ArrayList<>();
         boolean eventItem = it.template.id != 1673 && it.template.id != 1978;
         java.util.Set<Integer> statIds = nro.models.database.Dot139Migration.STAT_SET;
+        boolean varied = VARIED.contains((int) it.template.id);
         for (Item.ItemOption o : it.itemOptions) {
             if (o == null || o.optionTemplate == null) {
                 continue;
             }
             int oid = o.optionTemplate.id;
             // danh hiệu: chỉ giữ không giao dịch / hạn dùng; vật phẩm sự kiện: chỉ thay dòng chỉ số, giữ sao pha lê, sự kiện năm...
+            if (varied && (oid == 0 || oid == 6 || oid == 19)) {
+                continue; // món chỉ số riêng: bỏ Tấn công+# / HP+# của bản trước
+            }
             if (oid == 93 || oid == 30 || (eventItem && !statIds.contains(oid) && fresh.stream().noneMatch(f -> f.optionTemplate != null && f.optionTemplate.id == oid))) {
                 keep.add(o);
             }
