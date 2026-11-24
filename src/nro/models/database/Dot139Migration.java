@@ -1348,6 +1348,10 @@ public class Dot139Migration {
             variedStats(con);
             update(con, "insert into server_migration (name) values ('stats_khac_nhau')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'stats_khac_nhau2'")) { // dòng phụ đủ loại: chí mạng, SĐ chí mạng, né, giáp...
+            regenVaried(con);
+            update(con, "insert into server_migration (name) values ('stats_khac_nhau2')");
+        }
     }
 
     /**
@@ -1492,6 +1496,75 @@ public class Dot139Migration {
         }
         writeStats(con, items.toArray(new int[0][][]));
         nro.models.utils.Logger.success("Chỉ số riêng cho " + items.size() + " cải trang / pet / ván bay đang trùng chỉ số tạm\n");
+    }
+
+    /** Dòng phụ cho cải trang (mức pet = 60%, ván bay = 40%): {option, min, max}. */
+    private static final int[][] EXTRA_POOL = {
+        {14, 3, 12}, {5, 5, 20}, {108, 5, 20}, {191, 3, 15}, {94, 3, 15}, {97, 3, 12}, {47, 500, 15000}, {0, 2000, 15000},
+        {6, 5000, 50000}, {7, 5000, 40000}, {80, 3, 15}, {81, 3, 12}, {95, 3, 12}, {104, 5, 15}, {10, 1, 8}, {204, 3, 15},
+        {19, 5, 20}, {148, 10, 50}, {101, 5, 30}, {236, 5, 30}, {268, 5, 20}};
+
+    /** Làm lại chỉ số các món ở item_stat_varied: SĐ / HP / KI + dòng phụ đủ loại (cải trang 2 - 3 dòng, pet / ván 1 - 2 dòng), không trùng nhau. */
+    static void regenVaried(Connection con) throws Exception {
+        String sigSql = "select i.id, (select group_concat(concat(t.option_id, '=', t.param, if(t.param_max <> t.param, concat('..', t.param_max), '')) order by t.option_id)"
+                + " from item_template_option t where t.template_id = i.id and t.option_id in (" + STAT_IDS + ")) sig from item_template i"
+                + " where i.id not in (select template_id from item_stat_varied)";
+        java.util.Set<String> used = new java.util.HashSet<>();
+        try (java.sql.PreparedStatement ps = con.prepareStatement(sigSql); java.sql.ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                if (rs.getString(2) != null) {
+                    used.add(rs.getString(2));
+                }
+            }
+        }
+        java.util.List<int[]> todo = new java.util.ArrayList<>();
+        try (java.sql.PreparedStatement ps = con.prepareStatement("select i.id, i.TYPE from item_template i join item_stat_varied v on v.template_id = i.id order by i.id");
+                java.sql.ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                todo.add(new int[]{rs.getInt(1), rs.getInt(2)});
+            }
+        }
+        java.util.List<int[][]> items = new java.util.ArrayList<>();
+        for (int[] t : todo) {
+            java.util.Random r = new java.util.Random(t[0] * 104729L + 31);
+            int lo = t[1] == 5 ? 12 : t[1] == 27 ? 8 : 3, hi = t[1] == 5 ? 24 : t[1] == 27 ? 18 : 10;
+            int scale = t[1] == 5 ? 100 : t[1] == 27 ? 60 : 40;
+            int[][] st;
+            String sig;
+            do {
+                java.util.TreeMap<Integer, Integer> m = new java.util.TreeMap<>();
+                m.put(50, lo + r.nextInt(hi - lo + 1));
+                m.put(77, lo + r.nextInt(hi - lo + 1));
+                m.put(103, lo + r.nextInt(hi - lo + 1));
+                java.util.List<int[]> pool = new java.util.ArrayList<>(java.util.Arrays.asList(EXTRA_POOL));
+                java.util.Collections.shuffle(pool, r);
+                int n = t[1] == 5 ? 2 + r.nextInt(2) : 1 + r.nextInt(2);
+                for (int k = 0; k < n; k++) {
+                    int[] e = pool.get(k);
+                    int mn = Math.max(1, e[1] * scale / 100), mx = Math.max(mn, e[2] * scale / 100);
+                    int v = mn + r.nextInt(mx - mn + 1);
+                    if (e[2] >= 1000) {
+                        v = v / 500 * 500; // số cộng thẳng làm tròn 500
+                    }
+                    m.put(e[0], Math.max(1, v));
+                }
+                st = new int[m.size()][];
+                int k = 0;
+                StringBuilder b = new StringBuilder();
+                for (java.util.Map.Entry<Integer, Integer> en : m.entrySet()) {
+                    st[k++] = new int[]{en.getKey(), en.getValue()};
+                    b.append(b.length() == 0 ? "" : ",").append(en.getKey()).append('=').append(en.getValue());
+                }
+                sig = b.toString();
+            } while (!used.add(sig));
+            int[][] row = new int[st.length + 1][];
+            row[0] = new int[]{t[0]};
+            System.arraycopy(st, 0, row, 1, st.length);
+            items.add(row);
+            update(con, "delete from item_template_option where template_id = " + t[0] + " and option_id in (0, 6, 19)"); // ngoài nhóm writeStats xoá
+        }
+        writeStats(con, items.toArray(new int[0][][]));
+        nro.models.utils.Logger.success("Làm lại chỉ số đủ loại dòng phụ cho " + items.size() + " cải trang / pet / ván bay\n");
     }
 
     /** SĐ / HP / KI theo loại món + 1 - 2 dòng phụ (chí mạng, né đòn, giảm sát thương, SĐ chí mạng, tốc độ chạy, vàng rơi). */
