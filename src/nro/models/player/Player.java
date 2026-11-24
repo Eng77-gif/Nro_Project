@@ -864,13 +864,13 @@ public class Player implements Runnable {
     }
 
     /**
-     * Hào quang theo mốc sức mạnh trên 50 tỷ (bảng auraPower của v10): 80 tỷ xanh dương, 110 tỷ xanh lá, 120 tỷ hồng, 180 tỷ đỏ.
-     * Dưới mốc này client tự vẽ hào quang theo cấp sức mạnh (gửi aura sẽ làm client tắt hào quang cấp của nó).
+     * Hào quang theo mốc sức mạnh, cùng bộ hình hào quang cấp của client (icon 7598 tím -> 7676 khói trắng -> 7677 trắng viền hồng -> 7678 xanh nhạt):
+     * dưới 90 tỷ client tự vẽ (gửi aura sẽ làm client tắt hào quang cấp của nó); 90 tỷ khói trắng (aura 5 = 7676, như ảnh bản chính thức),
+     * 120 tỷ trắng viền hồng (aura 14 = 7677), 180 tỷ xanh nhạt (aura 15 = 7678).
      */
     public short auraPower() {
         long p = nPoint == null ? 0 : nPoint.power;
-        return p >= 180_000_000_000L ? 84 : p >= 120_000_000_000L ? 83 : p >= 110_000_000_000L ? 82
-                : p >= 80_000_000_000L ? (short) 6 : -1;
+        return p >= 180_000_000_000L ? 15 : p >= 120_000_000_000L ? 14 : p >= 90_000_000_000L ? (short) 5 : -1;
     }
 
     public byte getEffFront() {
