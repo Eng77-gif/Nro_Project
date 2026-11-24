@@ -105,8 +105,10 @@ public class SkillService {
             return false;
         } else {
             switch (player.playerSkill.skillSelect.template.type) {
-                case 1 ->
+                case 1 -> {
                     useSkillAttack(player, plTarget, mobTarget);
+                    PhanThanService.onAttack(player, plTarget, mobTarget); // option 277 (CT Thiên sư phụ)
+                }
                 case 3 ->
                     useSkillAlone(player);
                 case 4 ->

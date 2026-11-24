@@ -676,6 +676,14 @@ public class Dot139Migration {
             update(con, "update item_box_reward set perm_rate = 15, hsd_days = '7,15' where box_id = 98412 and item_id in (1380, 1381, 1371, 955, 1933, 1934)");
             update(con, "insert into server_migration (name) values ('whis_hoa10_vv')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'thien_su_phu_1946'")) {
+            // CT Thiên sư phụ theo ảnh: phân thân gây mù CD 300 giây, SĐ+22%, HP+28%, KI+49%, giảm 10% sát thương, né đòn +15%
+            update(con, "insert ignore into item_option_template (id, NAME) values (277, 'Tạo ra phân thân gây mù đối phương CD # giây'), (278, 'Né đòn +#%')");
+            update(con, "delete from item_template_option where template_id = 1946");
+            update(con, "delete from item_shop_option where item_shop_id in (select id from item_shop where temp_id = 1946)");
+            writeStats(con, new int[][][]{{{1946}, {277, 300}, {50, 22}, {77, 28}, {103, 49}, {94, 10}, {278, 15}}});
+            update(con, "insert into server_migration (name) values ('thien_su_phu_1946')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'stats_anh_1124'")) {
             // Chỉ số theo ảnh anh gửi (tooltip đầy đủ): thay toàn bộ dòng chỉ số mặc định của các món dưới
             update(con, "insert ignore into item_option_template (id, NAME) values (276, 'Giáp #%')");

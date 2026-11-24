@@ -450,6 +450,7 @@ public class NPoint {
                             break;
                         case 111:
                         case 108: //#% Né đòn
+                        case 278: //Né đòn +#% (tên hiển thị như ảnh chính thức)
                             this.tlNeDon += io.param;
                             break;
                         case 109: //Hôi, giảm #% HP
@@ -1442,6 +1443,7 @@ public class NPoint {
                 break;
             case 111:
             case 108: //#% Né đòn
+            case 278: //Né đòn +#% (tên hiển thị như ảnh chính thức)
                 this.tlNeDon += io.param;
                 break;
             case 109: //Hôi, giảm #% HP
