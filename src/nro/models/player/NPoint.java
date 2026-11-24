@@ -446,6 +446,7 @@ public class NPoint {
                             this.wearingVoHinh = true;
                             break;
                         case 106: //Không ảnh hưởng bởi cái lạnh
+                        case 279: //Chống lạnh (tên như ảnh chính thức)
                             this.isKhongLanh = true;
                             break;
                         case 111:
@@ -1439,6 +1440,7 @@ public class NPoint {
                 this.wearingVoHinh = true;
                 break;
             case 106: //Không ảnh hưởng bởi cái lạnh
+            case 279: //Chống lạnh (tên như ảnh chính thức)
                 this.isKhongLanh = true;
                 break;
             case 111:

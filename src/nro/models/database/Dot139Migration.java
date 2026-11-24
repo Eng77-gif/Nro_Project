@@ -833,6 +833,14 @@ public class Dot139Migration {
             update(con, "delete from item_template_option where template_id = 2103");
             update(con, "insert into server_migration (name) values ('bo_hop_than_linh')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'ct_de_tu_dan_anh'")) { // CT đệ tử Dần theo ảnh: SĐ+24%, HP/KI+25%, Chống lạnh, biến 30% tấn công quái thành HP
+            update(con, "insert ignore into item_option_template (id, NAME) values (279, 'Chống lạnh')");
+            update(con, "update item_template set description = 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' where id = 1381");
+            update(con, "delete from item_template_option where template_id = 1381");
+            update(con, "delete from item_shop_option where item_shop_id in (select id from item_shop where temp_id = 1381)");
+            writeStats(con, new int[][][]{{{1381}, {50, 24}, {77, 25}, {103, 25}, {279, 0}, {104, 30}}});
+            update(con, "insert into server_migration (name) values ('ct_de_tu_dan_anh')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'hop_tra_kygui'")) { // Hộp trà / Hộp trà hoa cúc: ký gửi vàng, giao dịch được
             update(con, "delete from item_template_option where template_id in (1369, 1370) and option_id in (30, 86, 87)");
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1369, 86, 0, 0, 100, 0), (1370, 86, 0, 0, 100, 0)");
