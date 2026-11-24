@@ -1300,6 +1300,23 @@ public class Dot139Migration {
             writeStats(con, EVENT_ITEMS4);
             update(con, "insert into server_migration (name) values ('event_items_1116d')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'stats_anh_1124b'")) { // chỉ số theo ảnh bản chính thức (cờ ngọc rồng, Bunma, Bó Hoa Vàng, Goku giỗ tổ / GT Kid, Cánh hào khí)
+            writeStats(con, new int[][][]{
+                {{955}, {50, 12}, {77, 11}, {103, 11}}, // Bó Hoa Vàng
+                {{1208}, {50, 22}, {77, 23}, {103, 23}, {14, 10}, {108, 5}, {148, 20}, {154, 0}}, // Bunma tóc xanh neon
+                {{1579}, {50, 19}, {77, 19}, {103, 19}, {14, 10}, {5, 10}}, // Cờ ngọc rồng 1 sao
+                {{1580}, {50, 18}, {77, 18}, {103, 18}, {108, 10}, {94, 10}}, // 2 sao
+                {{1581}, {50, 17}, {77, 17}, {103, 17}, {108, 5}, {94, 5}}, // 3 sao
+                {{1582}, {50, 16}, {77, 16}, {103, 16}, {14, 5}, {5, 5}}, // 4 sao
+                {{1583}, {50, 15}, {77, 15}, {103, 15}, {14, 5}, {108, 5}}, // 5 sao
+                {{1584}, {50, 13}, {77, 13}, {103, 13}, {108, 5}}, // 6 sao
+                {{1585}, {50, 12}, {77, 12}, {103, 12}, {14, 5}}, // 7 sao
+                {{1586}, {50, 22}, {77, 22}, {103, 22}, {108, 10}, {94, 12}, {14, 10}, {5, 15}}, // Cờ ngọc rồng Super
+                {{1996}, {103, 35}, {7, 10000, 35000}, {108, 21}}, // Cải trang Goku giỗ tổ: KI +10k - 35k ngẫu nhiên
+                {{1955}, {77, 35}, {191, 22}, {6, 10000, 35000}}, // Cải trang Goku GT Kid: HP +10k - 35k ngẫu nhiên
+                {{1998}, {103, 40}, {7, 20000, 40000}, {268, 10}}}); // Cánh hào khí: KI +20k - 40k ngẫu nhiên
+            update(con, "insert into server_migration (name) values ('stats_anh_1124b')");
+        }
     }
 
     /**
