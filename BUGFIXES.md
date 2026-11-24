@@ -2782,3 +2782,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Bot có lối chơi riêng (theo mã bot: sức đánh / trâu HP / cân bằng): lối sức đánh ưu tiên dòng SĐ, chí mạng, SĐ chí mạng, sát thương chuẩn, Tấn công+# (vd Pháo hoa NRO); lối trâu ưu tiên HP, giảm ST, né, phản, HP+# (vd Cờ bông tuyết).
 - Đổi điểm Quy Lão 7 - 15 - 30 - 45 ngày / 2% vĩnh viễn: lọc nhóm 'Đổi điểm' trong Java sau khi chuẩn hoá chữ (SQL LIKE không khớp dữ liệu VPS nên VPS vẫn 30 ngày); log số món đã đổi khi khởi động.
 - Mọi nơi hiện món (hành trang, trang bị, rương, cửa hàng, ký gửi, giao dịch): dòng chỉ số trước, 'Không thể giao dịch' sau, dòng hạn sử dụng dưới cùng (trước đây 'Không thể giao dịch' có món nằm trên đầu).
+- Đổi quà / cửa hàng sự kiện ra cải trang có hạn (vd Cải trang Gohan Beast) bị mất dòng hạn sử dụng: InventoryService.stripCostumeHsd tự bỏ hạn của cải trang mới nhận -> món đổi có hạn được đánh dấu giữ hạn (đeo lưng / pet / ván không bị ảnh hưởng nên vẫn có hạn).
