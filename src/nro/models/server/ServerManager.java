@@ -77,7 +77,6 @@ public class ServerManager {
 
     public void init() {
         Manager.gI();
-        //TaskService.gI().loadTask();
         HistoryTransactionDAO.deleteHistory();
     }
 

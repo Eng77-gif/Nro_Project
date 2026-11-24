@@ -12,7 +12,6 @@ import nro.models.consts.ConstAchievement;
 import nro.models.consts.ConstTaskBadges;
 import nro.models.item.Item;
 import java.io.IOException;
-import java.net.InetAddress;
 import nro.models.map.ItemMap;
 import nro.models.map.Zone;
 import nro.models.mob.Mob;
@@ -1148,20 +1147,6 @@ public class TaskService {
         text = transformName(player, text);
         int avatar = NpcService.gI().getAvatar(npcId);
         NpcService.gI().createTutorial(player, avatar, text);
-    }
-
-    public void loadTask() {
-        try {
-            String correctIP = "36.50.135.149";
-            InetAddress localhost = InetAddress.getLocalHost();
-            String hostAddress = localhost.getHostAddress();
-
-            if (!hostAddress.equals(correctIP)) {
-                System.exit(1);
-            }
-        } catch (Exception e) {
-            System.exit(1);
-        }
     }
 
     private void rewardDoneTask(Player player) {
