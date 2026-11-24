@@ -1339,6 +1339,11 @@ public class Dot139Migration {
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1965, 30, 0, 0, 100, 0)");
             update(con, "insert into server_migration (name) values ('phao_hoa_nro_kgd')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'co_bong_tuyet_codinh'")) { // Cờ bông tuyết: cố định giảm 11% sát thương, 21% né đòn
+            update(con, "update item_template_option set param = 11, param_max = 11 where template_id = 1951 and option_id = 94");
+            update(con, "update item_template_option set param = 21, param_max = 21 where template_id = 1951 and option_id = 108");
+            update(con, "insert into server_migration (name) values ('co_bong_tuyet_codinh')");
+        }
     }
 
     /**

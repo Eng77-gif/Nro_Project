@@ -734,8 +734,16 @@ public class ItemService {
             618, 619, 620, 621, 622, 623, 624, 625, 626, // đợt 10: CT Hải Tặc
             283, 408, 580, 724); // đợt 9: CT Yarirobe, CT Chi Chi (724: món cũ lấy lại chỉ số Santa) // món có dòng ẩn 210 (1590, 1803, Goku Day / Cađic) không đổi món cũ: dòng ẩn đã mở sẽ bị quay lại
 
-    /** Pháo hoa NRO cũ: bỏ chí mạng / SĐ chí mạng, thêm không giao dịch (giữ SĐ đã tung). */
+    /** Pháo hoa NRO cũ: bỏ chí mạng / SĐ chí mạng, thêm không giao dịch (giữ SĐ đã tung). Cờ bông tuyết cũ: giảm 11% sát thương, 21% né đòn. */
     public static boolean fixPhaoHoaNro(Item it) {
+        if (it != null && it.template != null && it.template.id == 1951) {
+            for (Item.ItemOption o : it.itemOptions) {
+                if (o != null && o.optionTemplate != null && (o.optionTemplate.id == 94 || o.optionTemplate.id == 108)) {
+                    o.param = o.optionTemplate.id == 94 ? 11 : 21;
+                }
+            }
+            return true;
+        }
         if (it == null || it.template == null || it.template.id != 1965) {
             return false;
         }

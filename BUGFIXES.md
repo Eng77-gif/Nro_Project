@@ -2761,3 +2761,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Cánh hào khí: KI +5.000 - 40.000 ngẫu nhiên (trước 20k - 40k).
 - Chỉ số theo ảnh: Pet Rabbit / Secret / Panda / Dino (Baby), Ván bay Rồng Thiêng VIP, Pet Capybara hồng, Pet Shimo, Goku bay; đồ cũ nhận chỉ số mới khi đăng nhập.
 - Pháo hoa NRO (cờ): bỏ chí mạng / SĐ chí mạng (Dot92 không tự thêm lại mỗi lần khởi động), thay bằng Không giao dịch; món cũ (hành trang, rương, đang mặc) cũng bỏ 2 dòng đó khi đăng nhập.
+- Cờ bông tuyết: cố định giảm 11% sát thương, 21% né đòn (trước ngẫu nhiên 10 - 15% / 20 - 25%); món cũ cũng đổi khi đăng nhập.
