@@ -2784,3 +2784,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Mọi nơi hiện món (hành trang, trang bị, rương, cửa hàng, ký gửi, giao dịch): dòng chỉ số trước, 'Không thể giao dịch' sau, dòng hạn sử dụng dưới cùng (trước đây 'Không thể giao dịch' có món nằm trên đầu).
 - Đổi quà / cửa hàng sự kiện ra cải trang có hạn (vd Cải trang Gohan Beast) bị mất dòng hạn sử dụng: InventoryService.stripCostumeHsd tự bỏ hạn của cải trang mới nhận -> món đổi có hạn được đánh dấu giữ hạn (đeo lưng / pet / ván không bị ảnh hưởng nên vẫn có hạn).
 - Boss không rơi cải trang / pet / đeo lưng / thú cưỡi vĩnh viễn: đồ boss nhặt lên chưa có hạn thì hạn 7 - 15 - 30 ngày, giữ dòng hạn (không bị stripCostumeHsd bỏ).
+- Panel Hộp quà: thêm ô "Tỉ lệ ra (%)" nhập từ 0,1% (chấp nhận dấu phẩy); server quy đổi sang tỉ trọng thang 100000 và co giãn các dòng còn lại giữ nguyên tỉ lệ giữa chúng; bảng hiện tỉ lệ tới 0,001%.

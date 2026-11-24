@@ -1559,6 +1559,20 @@ public class PanelApi {
     private Object boxSave(Map<String, Object> b) throws Exception {
         Object[] v = {intv(b.get("box_id")), intv(b.get("item_id")), Math.max(1, intv(b.getOrDefault("qty_min", 1))), Math.max(1, intv(b.getOrDefault("qty_max", 1))),
             intv(b.getOrDefault("weight", 1)), str(b.get("hsd_days")), intv(b.getOrDefault("perm_rate", 0)), Math.max(0, intv(b.getOrDefault("pity", 0)))};
+        double rate = b.get("rate") == null || str(b.get("rate")).isBlank() ? 0 : Double.parseDouble(str(b.get("rate")).replace(',', '.'));
+        if (rate > 0) { // nhập theo %: quy về thang 100000 (1 = 0,001%), các dòng khác giữ nguyên tỉ lệ giữa nhau
+            rate = Math.max(0.1, Math.min(rate, 100));
+            int w = (int) Math.round(rate * 1000);
+            long self = lng(b.get("id"));
+            List<Map<String, Object>> others = rows("select id, weight from item_box_reward where box_id=? and id<>? and weight>0", v[0], self);
+            long sum = others.stream().mapToLong(o -> lng(o.get("weight"))).sum();
+            if (sum > 0 && w < 100000) {
+                for (Map<String, Object> o : others) {
+                    update("update item_box_reward set weight=? where id=?", Math.max(1, Math.round(lng(o.get("weight")) * (double) (100000 - w) / sum)), lng(o.get("id")));
+                }
+            }
+            v[4] = w;
+        }
         if (b.get("id") != null && lng(b.get("id")) > 0) {
             update("update item_box_reward set box_id=?, item_id=?, qty_min=?, qty_max=?, weight=?, hsd_days=?, perm_rate=?, pity=? where id=?",
                     v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], lng(b.get("id")));
