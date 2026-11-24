@@ -370,7 +370,7 @@ public class ItemService {
     }
 
     /** Vật phẩm đã gỡ khỏi game nhưng giữ dòng trong item_template (danh sách tra theo vị trí = mã): coi như không có, món cũ tự mất khi tải nhân vật. */
-    public static final java.util.Set<Integer> REMOVED = java.util.Set.of(1839, 1849, 1905, 1908, 1911, 1912, 2062, 2063, 2107, 2108, 2109, 1145, 1415, 1604, 1710, 1778, 1785, 1800, 1906, 1907, 1991, 1996); // CT chưa từng có hình (ảnh 1x1 đen, không đầu / thân / chân); Super 2 / 3 / 4 sao; CT không có hình trong data (không đầu / thân / chân)
+    public static final java.util.Set<Integer> REMOVED = java.util.Set.of(1839, 1849, 1905, 1908, 1911, 1912, 2062, 2063, 2107, 2108, 2109, 1145, 1415, 1604, 1778, 1906, 1907, 1991, 1996); // CT chưa từng có hình (ảnh 1x1 đen, không đầu / thân / chân); Super 2 / 3 / 4 sao; CT không có hình trong data (không đầu / thân / chân)
 
     public Template.ItemTemplate getTemplate(int id) {
         // vật phẩm đã xóa (vd. thú cưỡi 2124 - 2127) không làm lỗi cả hành trang khi tải nhân vật

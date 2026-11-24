@@ -2725,3 +2725,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Rađa dò Ngọc Rồng VIP: bỏ Super 2 / 3 / 4 sao (2107 - 2109), chỉ còn Cờ ngọc rồng Super và 1998 / 1930 / 1927.
 - Gỡ hẳn Super 2 / 3 / 4 sao (2107 - 2109): thành ô Vật phẩm đã gỡ, ẩn khỏi panel, game coi như không có.
 - Gỡ 11 cải trang không có hình trong data (không đầu / thân / chân): Black goku ssj 3 White, Dr Myuu, CT Sư, Android 21 Tiến Sĩ, Lý Tiểu Nương Rực Rỡ, Karin Kid Lân 2025, Chan Xư S+, Bill, Champa, Thủy Thủ Mặt Trăng, Goku giỗ tổ; bỏ khỏi hộp quà và shop Chi Chi.
+- Khôi phục 3 CT có part: Android 21 Tiến Sĩ (part v10 thành 2410 - 2412, ảnh có sẵn trong data), Karin Kid Lân 2025 (part Karin Kid Lân), Chan Xư S+ (part Chan Xư); trả lại hộp quà / shop Chi Chi; vsData 50.

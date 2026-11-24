@@ -721,13 +721,33 @@ public class Dot139Migration {
         }
         if (!exists(con, "select 1 from server_migration where name = 'go_ct_khong_hinh'")) {
             // gỡ cải trang không có hình trong data (không đầu / thân / chân): giữ ô vì mã = vị trí, bỏ khỏi hộp quà / shop
-            String g = "1145, 1415, 1604, 1710, 1778, 1785, 1800, 1906, 1907, 1991, 1996";
+            String g = "1145, 1415, 1604, 1778, 1906, 1907, 1991, 1996"; // 1710 / 1785 / 1800 có part (khôi phục ở ct_khoi_phuc_part)
             update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1, head = -1, body = -1, leg = -1 where id in (" + g + ")");
             update(con, "delete from item_template_option where template_id in (" + g + ")");
             update(con, "delete from item_box_reward where item_id in (" + g + ")");
             update(con, "delete from item_shop where temp_id in (" + g + ")");
             update(con, "delete from season_event_exchange where reward_item in (" + g + ")");
             update(con, "insert into server_migration (name) values ('go_ct_khong_hinh')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'ct_khoi_phuc_part'")) {
+            // khôi phục 3 CT có part: Android 21 Tiến Sĩ (part v10 1964 / 1967 / 1968 -> 2410 - 2412, ảnh 14205 - 14239 có trong data),
+            // Karin Kid Lân 2025 (cùng icon Karin Kid Lân: part 1198 - 1200), Chan Xư S+ (cùng icon Chan Xư: part 371 - 373)
+            update(con, "delete from part where id in (2410, 2411, 2412)");
+            update(con, "insert into part (id, TYPE, DATA) values (2410, 0, '[[14205,-2,-8],[14208,-6,-7],[2955,0,0]]'), "
+                    + "(2411, 1, '[[14211,-4,-5],[14212,-3,-9],[14213,-4,-8],[14214,-2,-9],[14215,-1,-8],[14216,0,-7],[14217,0,-7],[14218,1,-7],[14219,1,-3],[14220,-2,-4],[14221,-4,-8],[14222,-4,-6],[14223,1,-5],[14224,3,-12],[14225,-6,-8],[14226,-6,-8],[2954,0,0]]'), "
+                    + "(2412, 2, '[[14227,5,3],[14228,-1,-5],[14229,2,-2],[14230,4,-2],[14231,3,-3],[14232,4,-2],[14233,5,0],[14234,2,0],[14235,1,-4],[14236,1,-5],[14237,4,-2],[14238,2,2],[14239,0,-2],[2955,0,0]]')");
+            update(con, "insert into head_avatar (head_id, avatar_id) select 2410, 14240 from dual where not exists (select 1 from head_avatar where head_id = 2410)");
+            update(con, "update item_template set NAME = 'CT Android 21 Tiến Sĩ', description = 'VPSK', TYPE = 5, part = -1, head = 2410, body = 2411, leg = 2412 where id = 1710");
+            update(con, "update item_template set NAME = 'Karin Kid Lân 2025', description = 'Vật phẩm sự kiện', TYPE = 5, part = -1, head = 1198, body = 1199, leg = 1200 where id = 1785");
+            update(con, "update item_template set NAME = 'Cải trang Chan Xư S+', description = 'Cải trang sự kiện KOL', TYPE = 5, part = -1, head = 371, body = 372, leg = 373 where id = 1800");
+            writeStats(con, new int[][][]{{{1710}, {50, 24}, {77, 22}, {103, 22}, {159, 5}, {253, 60}, {154, 0}},
+                {{1785}, {50, 17}, {77, 15}, {103, 15}, {14, 5}, {80, 10}, {148, 20}},
+                {{1800}, {50, 22}, {77, 18}, {103, 25}, {95, 7}, {83, 0}}});
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select * from (select 758 b, 1785 i, 1 a, 1 c, 40 w, '3,7,15' h, 0 p, 0 y union all select 1779, 1785, 1, 1, 50, '3', 0, 0 "
+                    + "union all select 1781, 1785, 1, 1, 62, '7,15', 5, 0 union all select 1995, 1710, 1, 1, 41, '7,15', 2, 0) t where not exists (select 1 from item_box_reward r where r.box_id = t.b and r.item_id = t.i)");
+            update(con, "insert into season_event_exchange (event_id, grp, name, need, gold, gem, ruby, cost_point, reward_item, reward_qty, reward_qty_max, reward_days, perm_rate, bonus_item, bonus_rate, open_now, event_point, top_id, top_point, npc) "
+                    + "select 8, 'Cửa\\nhàng', 'CT Android 21 Tiến Sĩ', '', 0, 5999, 0, 0, 1710, 1, 0, '', 0, 0, 0, 0, 0, 0, 0, '81' from dual where not exists (select 1 from season_event_exchange where reward_item = 1710)");
+            update(con, "insert into server_migration (name) values ('ct_khoi_phuc_part')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'hop_tra_kygui'")) { // Hộp trà / Hộp trà hoa cúc: ký gửi vàng, giao dịch được
             update(con, "delete from item_template_option where template_id in (1369, 1370) and option_id in (30, 86, 87)");
