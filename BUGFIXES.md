@@ -2726,3 +2726,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Gỡ hẳn Super 2 / 3 / 4 sao (2107 - 2109): thành ô Vật phẩm đã gỡ, ẩn khỏi panel, game coi như không có.
 - Gỡ 11 cải trang không có hình trong data (không đầu / thân / chân): Black goku ssj 3 White, Dr Myuu, CT Sư, Android 21 Tiến Sĩ, Lý Tiểu Nương Rực Rỡ, Karin Kid Lân 2025, Chan Xư S+, Bill, Champa, Thủy Thủ Mặt Trăng, Goku giỗ tổ; bỏ khỏi hộp quà và shop Chi Chi.
 - Khôi phục 3 CT có part: Android 21 Tiến Sĩ (part v10 thành 2410 - 2412, ảnh có sẵn trong data), Karin Kid Lân 2025 (part Karin Kid Lân), Chan Xư S+ (part Chan Xư); trả lại hộp quà / shop Chi Chi; vsData 50.
+- Khôi phục CT Lý Tiểu Nương Rực Rỡ và Cải trang Goku giỗ tổ bằng ảnh trong bộ icon x4 gốc (part 2413 - 2418, toạ độ theo Lý Tiểu Nương hầu gái / Chi Chi giỗ tổ); Goku giỗ tổ trở lại Hộp hào khí; vsData 51.
