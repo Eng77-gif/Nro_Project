@@ -2585,6 +2585,10 @@ public class SeasonEventService implements Runnable {
         probe.itemOptions.addAll(is.options);
         is.options.clear();
         is.options.addAll(noTrade(probe).itemOptions);
+        // dòng hạn dùng ("Hạn sử dụng # ngày" / "Hạn sử dụng hoặc vĩnh viễn") nằm dưới dòng "Không thể giao dịch"
+        java.util.List<Item.ItemOption> hsd = new java.util.ArrayList<>();
+        is.options.removeIf(o -> o.optionTemplate != null && (o.optionTemplate.id == 93 || o.optionTemplate.id == 231) && hsd.add(o));
+        is.options.addAll(hsd);
         return is;
     }
 
@@ -2604,7 +2608,15 @@ public class SeasonEventService implements Runnable {
                  t == 9 || t == 10 || t == 34 || it.getOptionById(30) != null) {
             return it;
         }
-        it.itemOptions.add(new Item.ItemOption(30, 0));
+        int at = it.itemOptions.size(); // "Không thể giao dịch" đặt trên dòng hạn sử dụng
+        for (int k = 0; k < it.itemOptions.size(); k++) {
+            Item.ItemOption o = it.itemOptions.get(k);
+            if (o != null && o.optionTemplate != null && (o.optionTemplate.id == 93 || o.optionTemplate.id == 231)) {
+                at = k;
+                break;
+            }
+        }
+        it.itemOptions.add(at, new Item.ItemOption(30, 0));
         return it;
     }
 

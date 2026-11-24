@@ -2777,3 +2777,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Đổi quà sự kiện: chỉ thông báo server khi trúng tỉ lệ vĩnh viễn (món có hạn dùng / món luôn vĩnh viễn không báo).
 - Đổi quà / cửa hàng sự kiện (Quy Lão, Chi Chi...): mọi cải trang / pet / ván bay / đeo lưng thêm dòng 'Hạn sử dụng hoặc vĩnh viễn' (30 ngày, 10% vĩnh viễn) thay cho luôn vĩnh viễn hoặc 30 ngày cố định; trúng vĩnh viễn thì thông báo server.
 - Đổi điểm Quy Lão: cải trang / pet / ván bay / đeo lưng hạn 7 - 15 - 30 - 45 ngày, 2% vĩnh viễn (các cửa hàng khác giữ 30 ngày / 10%).
+- Cửa hàng / đổi quà sự kiện: dòng 'Hạn sử dụng hoặc vĩnh viễn' / 'Hạn sử dụng # ngày' nằm dưới dòng 'Không thể giao dịch' (cả món trong cửa hàng lẫn món nhận được).
