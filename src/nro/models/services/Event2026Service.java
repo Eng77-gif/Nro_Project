@@ -368,6 +368,13 @@ public class Event2026Service {
      */
     private static int randomByType(int type, Player pl) {
         List<Integer> c = new ArrayList<>();
+        if (type == 21) { // -121: CT thầy giáo theo hành tinh (Ca Lích Trái Đất, Pô cô lô Namếc, Cađíc Xayda)
+            int[] ct = {1362, 1379, 1378};
+            return ct[pl != null && pl.gender >= 0 && pl.gender <= 2 ? pl.gender : Util.nextInt(0, 2)];
+        }
+        if (type == 22) { // -122: bùa ngẫu nhiên các loại (thời hạn 1 giờ / 8 giờ chọn khi mở)
+            return Util.nextInt(213, 219);
+        }
         if (type == 20) { // -120: 1 món đồ Thần Linh (áo, quần, găng, giày đúng hành tinh, nhẫn)
             for (int id = 555; id <= 567; id++) {
                 nro.models.player_system.Template.ItemTemplate t = ItemService.gI().getTemplate(id);
@@ -424,7 +431,17 @@ public class Event2026Service {
         if (pick.itemId <= -100 && rewardId < 0) {
             return null;
         }
-        if (pick.itemId < 0 && pick.itemId > -100) {
+        if (pick.itemId == -122) { // bùa 1 giờ / 8 giờ: cộng thẳng thời gian bùa như mua ở shop bùa
+            int min = Util.isTrue(1, 2) ? 60 : 480;
+            if (pl != null) {
+                pl.charms.addTimeCharms(rewardId, min);
+            }
+            nro.models.player_system.Template.ItemTemplate t = ItemService.gI().getTemplate(rewardId);
+            if (iconOut != null && t != null) {
+                iconOut[0] = t.iconID;
+            }
+            got = (t != null ? t.name : "Bùa") + " " + (min / 60) + " giờ";
+        } else if (pick.itemId < 0 && pick.itemId > -100) {
             got = giveCurrency(pl, pick.itemId, qty);
             if (iconOut != null) {
                 iconOut[0] = (short) (pick.itemId == -1 ? 930 : pick.itemId == -2 ? 932 : 7743);

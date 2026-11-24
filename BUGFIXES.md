@@ -2714,3 +2714,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Phân thân CT Thiên sư phụ: bỏ câu chat "Mù mắt rồi", Kháng TDHS không chặn được mù của phân thân.
 - Phân thân CT Thiên sư phụ: người có Kháng TDHS không bị mù (trả lại).
 - Thiệp chúc thầy cô 20/11 theo bài: Mảnh giấy, Keo dán, Thiệp chúc thường có dòng Ký gửi vàng, Thiệp chúc đặc biệt Ký gửi ngọc, đem bán được ở chợ đồ sự kiện (King Furry) đúng loại tiền; quà trong thiệp có 5% vĩnh viễn, Pet Capybara hồng luôn vĩnh viễn.
+- Quà Thiệp chúc thường / đặc biệt 20/11 theo danh sách: CT thầy giáo theo hành tinh (Ca Lích / Cađíc / Pô cô lô), CT đệ tử Tí / Sửu / Dần, bùa 1h / 8h ngẫu nhiên, đá nâng cấp và đá may mắn cấp 1-3, Drabura Frost, thẻ sưu tầm thường, mảnh thẻ VIP, item hỗ trợ cấp 1 / cấp 2, Rương mảnh thiên sứ x10 / x20, Gậy như ý, Đá bảo vệ khóa (thiệp đặc biệt), Pet Capybara hồng vĩnh viễn.

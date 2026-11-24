@@ -676,13 +676,24 @@ public class Dot139Migration {
             update(con, "update item_box_reward set perm_rate = 15, hsd_days = '7,15' where box_id = 98412 and item_id in (1380, 1381, 1371, 955, 1933, 1934)");
             update(con, "insert into server_migration (name) values ('whis_hoa10_vv')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'thiep_2011_qua'")) {
+            // Quà Thiệp chúc thường / đặc biệt theo danh sách anh gửi (-121 CT thầy giáo theo hành tinh, -122 bùa 1 giờ / 8 giờ ngẫu nhiên)
+            update(con, "delete from item_box_reward where box_id in (1376, 1377)");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values "
+                    + "(1376, -121, 1, 1, 10, '7,15', 0, 0), (1376, 1380, 1, 1, 8, '7,15', 5, 0), (1376, -122, 1, 1, 15, '', 0, 0), (1376, 1074, 1, 1, 5, '', 0, 0), (1376, 1075, 1, 1, 4, '', 0, 0), (1376, 1076, 1, 1, 3, '', 0, 0), (1376, 1079, 1, 1, 5, '', 0, 0), (1376, 1080, 1, 1, 4, '', 0, 0), (1376, 1081, 1, 1, 3, '', 0, 0), (1376, 1205, 1, 1, 6, '7,15', 5, 0), (1376, 2120, 1, 1, 10, '', 0, 0), (1376, 2089, 1, 1, 5, '', 0, 0), (1376, 381, 1, 1, 3, '', 0, 0), (1376, 382, 1, 1, 3, '', 0, 0), (1376, 383, 1, 1, 3, '', 0, 0), (1376, 384, 1, 1, 3, '', 0, 0), (1376, 385, 1, 1, 3, '', 0, 0), (1376, 1173, 10, 10, 10, '', 0, 0), (1376, 920, 1, 1, 6, '7,15', 5, 0)");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values "
+                    + "(1377, 1371, 1, 1, 6, '7,15', 5, 0), (1377, 1381, 1, 1, 6, '7,15', 5, 0), (1377, 1380, 1, 1, 6, '7,15', 5, 0), (1377, -122, 1, 1, 15, '', 0, 0), (1377, 1074, 1, 1, 5, '', 0, 0), (1377, 1075, 1, 1, 4, '', 0, 0), (1377, 1076, 1, 1, 3, '', 0, 0), (1377, 1079, 1, 1, 5, '', 0, 0), (1377, 1080, 1, 1, 4, '', 0, 0), (1377, 1081, 1, 1, 3, '', 0, 0), (1377, 1205, 1, 1, 6, '7,15', 5, 0), (1377, 2120, 1, 1, 10, '', 0, 0), (1377, 2089, 1, 1, 5, '', 0, 0), (1377, 1150, 1, 1, 3, '', 0, 0), (1377, 1151, 1, 1, 3, '', 0, 0), (1377, 1152, 1, 1, 3, '', 0, 0), (1377, 1153, 1, 1, 3, '', 0, 0), (1377, 1154, 1, 1, 3, '', 0, 0), (1377, 1173, 20, 20, 10, '', 0, 0), (1377, 920, 1, 1, 6, '7,15', 5, 0), (1377, 1143, 1, 1, 10, '', 0, 0), (1377, 1668, 1, 1, 3, '', 0, 0)");
+            update(con, "insert into server_migration (name) values ('thiep_2011_qua')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'thiep_2011_kygui'")) {
             // Thiệp chúc thầy cô theo bài: dòng Ký gửi vàng (Mảnh giấy, Keo dán, Thiệp thường) / Ký gửi ngọc (Thiệp đặc biệt);
             // thiệp mở ra vật phẩm có hạn hoặc vĩnh viễn (5%), Pet Capybara hồng trong thiệp đặc biệt luôn vĩnh viễn
             update(con, "delete from item_template_option where template_id in (1373, 1374, 1376, 1377) and option_id in (86, 87)");
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values "
                     + "(1373, 86, 0, 0, 100, 0), (1374, 86, 0, 0, 100, 0), (1376, 86, 0, 0, 100, 0), (1377, 87, 0, 0, 100, 0)");
-            update(con, "update item_box_reward set perm_rate = 5 where box_id in (1376, 1377) and item_id <> 1668");
+            if (!exists(con, "select 1 from server_migration where name = 'thiep_2011_qua'")) { // danh sách mới (thiep_2011_qua) đã có tỉ lệ riêng
+                update(con, "update item_box_reward set perm_rate = 5 where box_id in (1376, 1377) and item_id <> 1668");
+            }
             update(con, "insert into server_migration (name) values ('thiep_2011_kygui')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'thien_su_phu_1946'")) {
