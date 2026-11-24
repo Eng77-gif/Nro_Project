@@ -1022,12 +1022,14 @@ public class Service {
             return 16;
         } else if (sucmanh < 80010000000L) {
             return 17;
-        } else if (sucmanh < 100010000000L) { // mốc như v10
+        } else if (sucmanh < 90010000000L) {
             return 18;
-        } else if (sucmanh < 11100010000000L) {
+        } else if (sucmanh < 100010000000L) { // 90,01 tỷ (tối đa) là 1 cấp như bản chính thức: client vẽ hào quang khói trắng (icon 7676)
             return 19;
+        } else if (sucmanh < 11100010000000L) {
+            return 20;
         }
-        return 20;
+        return 21;
     }
 
     public void hsChar(Player pl, long hp, long mp) {

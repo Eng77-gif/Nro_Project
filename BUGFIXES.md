@@ -2756,3 +2756,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Hào quang sức mạnh theo bộ hình hào quang cấp của client: dưới 90 tỷ client tự vẽ; 90 tỷ khói trắng (aura 5 = icon 7676, như ảnh bản chính thức), 120 tỷ trắng viền hồng (14 = 7677), 180 tỷ xanh nhạt (15 = 7678).
 - Hào quang sức mạnh: bỏ mốc 120 / 180 tỷ (sức mạnh tối đa 90 tỷ); chỉ còn 90 tỷ khói trắng, dưới 90 tỷ client tự vẽ.
 - Gỡ ảnh aura ghép (thẻ Rada + hào quang sức mạnh): client tự vẽ hào quang cấp chồng lên aura thẻ nên không cần ghép.
+- Hào quang 90 tỷ: thêm mốc 90,01 tỷ vào bảng cấp gửi client (như bản chính thức 'KaioShin cấp 2+0.0%') nên client tự vẽ khói trắng (icon 7676) cho cả người chơi lẫn đệ tử, chồng được với aura thẻ; bỏ aura server gửi theo sức mạnh. Danh xưng ở 90,01 tỷ lên 1 cấp.
