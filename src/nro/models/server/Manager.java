@@ -339,6 +339,13 @@ public final class Manager {
                 n++;
             }
             Logger.success("Successfully loaded item template option (" + n + ")\n");
+            ItemService.VARIED.clear();
+            try (PreparedStatement pv = con.prepareStatement("select template_id from item_stat_varied"); ResultSet rv = pv.executeQuery()) {
+                while (rv.next()) {
+                    ItemService.VARIED.add(rv.getInt(1));
+                }
+            } catch (Exception ignored) { // chưa có bảng
+            }
         } catch (Exception e) {
             Logger.error("Không tải được item_template_option: " + e.getMessage() + "\n");
         }

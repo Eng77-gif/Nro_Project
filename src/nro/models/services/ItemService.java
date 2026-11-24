@@ -754,12 +754,15 @@ public class ItemService {
         return true;
     }
 
+    /** Món đổi từ chỉ số tạm trùng nhau sang chỉ số riêng (bảng item_stat_varied, Dot139Migration.variedStats): đồ cũ lấy chỉ số mới. */
+    public static final java.util.Set<Integer> VARIED = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
     public void refreshTitle(Item it) {
         fillThanLinh(it); // đồ Thần Linh thiếu chỉ số gốc (hành trang / rương)
         if (fixPhaoHoaNro(it)) {
             return;
         }
-        if (it == null || it.template == null || !TITLE_REFRESH.contains((int) it.template.id)) {
+        if (it == null || it.template == null || !(TITLE_REFRESH.contains((int) it.template.id) || VARIED.contains((int) it.template.id))) {
             return;
         }
         if (it.template.id >= 635 && it.template.id <= 637 && it.getOptionById(151) != null) {

@@ -1344,6 +1344,10 @@ public class Dot139Migration {
             update(con, "update item_template_option set param = 21, param_max = 21 where template_id = 1951 and option_id = 108");
             update(con, "insert into server_migration (name) values ('co_bong_tuyet_codinh')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'stats_khac_nhau'")) {
+            variedStats(con);
+            update(con, "insert into server_migration (name) values ('stats_khac_nhau')");
+        }
     }
 
     /**
@@ -1436,6 +1440,78 @@ public class Dot139Migration {
         }
         update(con, "insert into server_migration (name) values ('compact_2122')");
         nro.models.utils.Logger.success("Dồn mã vật phẩm cuối bảng: xoá 2123 - 2131, Kỳ Lân -> 2121, Con dấu VIP -> 2122 (" + changed + " nhân vật đổi mã đồ)\n");
+    }
+
+    /**
+     * Cải trang / pet / ván bay đang dùng chung chỉ số tạm (CT 15/15/15, CT 12-18 + chí mạng, pet 10/10/10, ván 5/5/5...):
+     * mỗi món một bộ chỉ số riêng (cố định, sinh theo mã món nên chạy lại vẫn ra như nhau), không trùng với món nào khác.
+     * Danh sách món đổi lưu ở item_stat_varied để đồ cũ của người chơi lấy chỉ số mới khi đăng nhập (ItemService.refreshTitle).
+     */
+    static void variedStats(Connection con) throws Exception {
+        update(con, "create table if not exists item_stat_varied (template_id int primary key)");
+        String sigSql = "select i.id, i.type, (select group_concat(concat(t.option_id, '=', t.param, if(t.param_max <> t.param, concat('..', t.param_max), '')) order by t.option_id)"
+                + " from item_template_option t where t.template_id = i.id and t.option_id in (" + STAT_IDS + ")) sig from item_template i where i.NAME <> 'Vật phẩm đã gỡ'";
+        java.util.Set<String> used = new java.util.HashSet<>();
+        java.util.List<int[]> todo = new java.util.ArrayList<>();
+        java.util.Map<Integer, java.util.Set<String>> temp = java.util.Map.of(
+                5, java.util.Set.of("50=15,77=15,103=15", "14=3..5,50=12..18,77=12..18,103=12..18"),
+                27, java.util.Set.of("50=10,77=10,103=10"),
+                23, java.util.Set.of("50=5,77=5,103=5", "50=5..7,77=5..7,103=5..7"),
+                24, java.util.Set.of("50=5,77=5,103=5"));
+        try (java.sql.PreparedStatement ps = con.prepareStatement(sigSql); java.sql.ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String sig = rs.getString(3);
+                int type = rs.getInt(2);
+                if (sig != null && temp.containsKey(type) && temp.get(type).contains(sig)) {
+                    todo.add(new int[]{rs.getInt(1), type});
+                } else if (sig != null) {
+                    used.add(sig);
+                }
+            }
+        }
+        java.util.List<int[][]> items = new java.util.ArrayList<>();
+        for (int[] t : todo) {
+            java.util.Random r = new java.util.Random(t[0] * 7919L + 17);
+            int[][] st;
+            String sig;
+            do {
+                st = makeStats(r, t[1]);
+                java.util.TreeMap<Integer, Integer> m = new java.util.TreeMap<>();
+                for (int[] o : st) {
+                    m.put(o[0], o[1]);
+                }
+                StringBuilder b = new StringBuilder();
+                m.forEach((k, v) -> b.append(b.length() == 0 ? "" : ",").append(k).append('=').append(v));
+                sig = b.toString();
+            } while (!used.add(sig));
+            int[][] row = new int[st.length + 1][];
+            row[0] = new int[]{t[0]};
+            System.arraycopy(st, 0, row, 1, st.length);
+            items.add(row);
+            update(con, "insert ignore into item_stat_varied (template_id) values (" + t[0] + ")");
+        }
+        writeStats(con, items.toArray(new int[0][][]));
+        nro.models.utils.Logger.success("Chỉ số riêng cho " + items.size() + " cải trang / pet / ván bay đang trùng chỉ số tạm\n");
+    }
+
+    /** SĐ / HP / KI theo loại món + 1 - 2 dòng phụ (chí mạng, né đòn, giảm sát thương, SĐ chí mạng, tốc độ chạy, vàng rơi). */
+    private static int[][] makeStats(java.util.Random r, int type) {
+        int lo = type == 5 ? 12 : type == 27 ? 8 : 3, hi = type == 5 ? 24 : type == 27 ? 18 : 10;
+        java.util.List<int[]> out = new java.util.ArrayList<>();
+        out.add(new int[]{50, lo + r.nextInt(hi - lo + 1)});
+        out.add(new int[]{77, lo + r.nextInt(hi - lo + 1)});
+        out.add(new int[]{103, lo + r.nextInt(hi - lo + 1)});
+        int[][] extra = type == 5 ? new int[][]{{14, 3, 10}, {108, 3, 12}, {94, 3, 10}, {5, 5, 15}, {148, 10, 30}, {268, 5, 20}}
+                : type == 27 ? new int[][]{{14, 2, 8}, {108, 2, 8}, {94, 2, 8}, {5, 3, 10}, {268, 5, 15}}
+                : new int[][]{{14, 1, 5}, {108, 1, 5}, {94, 1, 5}, {5, 2, 8}};
+        int n = type == 5 ? 1 + r.nextInt(2) : r.nextInt(2);
+        java.util.List<int[]> pool = new java.util.ArrayList<>(java.util.Arrays.asList(extra));
+        java.util.Collections.shuffle(pool, r);
+        for (int k = 0; k < n; k++) {
+            int[] e = pool.get(k);
+            out.add(new int[]{e[0], e[1] + r.nextInt(e[2] - e[1] + 1)});
+        }
+        return out.toArray(new int[0][]);
     }
 
     private static void writeStats(Connection con, int[][][] items) throws Exception {
