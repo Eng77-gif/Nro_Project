@@ -2713,3 +2713,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - CT Thiên sư phụ theo ảnh: phân thân gây mù đối phương CD 300 giây (option 277: khi ra đòn hiện phân thân cạnh mục tiêu 5 giây, làm mù 3 giây người chơi đánh được và quái quanh đó), SĐ+22%, HP+28%, KI+49%, giảm 10% sát thương, né đòn +15% (option 278).
 - Phân thân CT Thiên sư phụ: bỏ câu chat "Mù mắt rồi", Kháng TDHS không chặn được mù của phân thân.
 - Phân thân CT Thiên sư phụ: người có Kháng TDHS không bị mù (trả lại).
+- Thiệp chúc thầy cô 20/11 theo bài: Mảnh giấy, Keo dán, Thiệp chúc thường có dòng Ký gửi vàng, Thiệp chúc đặc biệt Ký gửi ngọc, đem bán được ở chợ đồ sự kiện (King Furry) đúng loại tiền; quà trong thiệp có 5% vĩnh viễn, Pet Capybara hồng luôn vĩnh viễn.

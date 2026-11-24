@@ -362,7 +362,9 @@ public class ConsignShopService {
     }
 
     /** Chỉ những món này được đem ký gửi ở King Furry (Bí ngô 1-7 sao, Kẹo bàn tay); vật phẩm sự kiện khác phải tự kiếm. */
-    private static final java.util.Set<Integer> EVENT_CONSIGN = java.util.Set.of(702, 703, 704, 705, 706, 707, 708, 901);
+    private static final java.util.Set<Integer> EVENT_CONSIGN = java.util.Set.of(702, 703, 704, 705, 706, 707, 708, 901, 1373, 1374, 1376, 1377);
+    /** 20/11: Mảnh giấy, Keo dán, Thiệp chúc thường ký gửi vàng; Thiệp chúc đặc biệt ký gửi ngọc. */
+    private static final java.util.Set<Integer> KY_GUI_VANG = java.util.Set.of(901, 1373, 1374, 1376);
 
     /** Chợ King Furry: tab 1 = Bí ngô 1-3 sao, 2 = 4-5 sao, 3 = 6-7 sao, 4 = Kẹo bàn tay (chợ thường giữ tab cũ). */
     private static byte tabOf(Player pl, ConsignItem it) {
@@ -466,12 +468,12 @@ public class ConsignShopService {
             Item it = ItemService.gI().copyItem(itemBag);
             boolean kyGuiNgoc = it.getOptionById(87) != null; // dòng "Ký gửi ngọc": không giao dịch vẫn ký gửi được, chỉ bán bằng ngọc
             int tid = it.template.id;
-            if (tid == 901 && moneyType != 0) { // King Furry: Kẹo bàn tay ký gửi vàng, Bí ngô ký gửi ngọc
-                Service.gI().sendThongBao(pl, "Kẹo bàn tay chỉ ký gửi bằng vàng");
+            if (KY_GUI_VANG.contains(tid) && moneyType != 0) { // King Furry: Kẹo bàn tay, đồ làm thiệp 20/11 ký gửi vàng
+                Service.gI().sendThongBao(pl, it.template.name + " chỉ ký gửi bằng vàng");
                 openShopKyGui(pl);
                 return;
             }
-            if (tid >= 702 && tid <= 708) {
+            if ((tid >= 702 && tid <= 708) || tid == 1377) { // Bí ngô, Thiệp chúc đặc biệt: ký gửi ngọc
                 kyGuiNgoc = true;
             }
             if (kyGuiNgoc && moneyType != 1) {

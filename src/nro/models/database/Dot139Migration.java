@@ -676,6 +676,15 @@ public class Dot139Migration {
             update(con, "update item_box_reward set perm_rate = 15, hsd_days = '7,15' where box_id = 98412 and item_id in (1380, 1381, 1371, 955, 1933, 1934)");
             update(con, "insert into server_migration (name) values ('whis_hoa10_vv')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'thiep_2011_kygui'")) {
+            // Thiệp chúc thầy cô theo bài: dòng Ký gửi vàng (Mảnh giấy, Keo dán, Thiệp thường) / Ký gửi ngọc (Thiệp đặc biệt);
+            // thiệp mở ra vật phẩm có hạn hoặc vĩnh viễn (5%), Pet Capybara hồng trong thiệp đặc biệt luôn vĩnh viễn
+            update(con, "delete from item_template_option where template_id in (1373, 1374, 1376, 1377) and option_id in (86, 87)");
+            update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values "
+                    + "(1373, 86, 0, 0, 100, 0), (1374, 86, 0, 0, 100, 0), (1376, 86, 0, 0, 100, 0), (1377, 87, 0, 0, 100, 0)");
+            update(con, "update item_box_reward set perm_rate = 5 where box_id in (1376, 1377) and item_id <> 1668");
+            update(con, "insert into server_migration (name) values ('thiep_2011_kygui')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'thien_su_phu_1946'")) {
             // CT Thiên sư phụ theo ảnh: phân thân gây mù CD 300 giây, SĐ+22%, HP+28%, KI+49%, giảm 10% sát thương, né đòn +15%
             update(con, "insert ignore into item_option_template (id, NAME) values (277, 'Tạo ra phân thân gây mù đối phương CD # giây'), (278, 'Né đòn +#%')");
