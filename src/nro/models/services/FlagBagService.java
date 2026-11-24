@@ -81,9 +81,11 @@ public class FlagBagService {
             try {
                 msg = new Message(-63);
                 msg.writeDual(fb.id, 1, fb.id, 2); // J2ME đọc short
-                msg.writer().writeByte(fb.iconEffect.length);
-                for (Short iconId : fb.iconEffect) {
-                    msg.writer().writeShort(iconId);
+                // đeo lưng hiệu ứng (201 - 254, client vẽ bằng DataEffect): APK vẽ ảnh tĩnh -1 bị lỗi làm mất cả nhân vật -> gửi danh sách rỗng
+                boolean effectBag = fb.iconEffect.length == 1 && fb.iconEffect[0] == -1 && player.getSession() != null && player.getSession().typeClient != 1;
+                msg.writer().writeByte(effectBag ? 0 : fb.iconEffect.length);
+                for (int i = 0; i < (effectBag ? 0 : fb.iconEffect.length); i++) {
+                    msg.writer().writeShort(fb.iconEffect[i]);
                 }
                 player.sendMessage(msg);
                 msg.cleanup();

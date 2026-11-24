@@ -2740,3 +2740,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Bot ưu tiên mặc đủ bộ 1 set kích hoạt (set có nhiều món nhất; bằng nhau thì Cađíc > Kakarot > Nappa > Cađíc M), không mặc lẫn set; ô thiếu mới mặc món hạng cao nhất.
 - Chi Chi Xem điểm: hiện dạng 'Top 1 Hộp quà 20-11 với 1000 điểm' (cả top đang chạy lẫn top đã chốt).
 - CT Gohan SSJ: icon đổi sang ảnh đầu nhỏ 17807 (trước dùng ảnh avatar to 17838). Mua ở cửa hàng sự kiện (Chi Chi) không còn báo 'Bạn nhận được x50 ..., 50 điểm top'.
+- Đeo lưng hiệu ứng (mã 201 - 254: Bút chì hồng, Con Cat hường, Cờ hồn Mabư...) trên APK làm mất nhân vật: không gửi ảnh tĩnh -1 cho client APK nữa (J2ME giữ như cũ).
