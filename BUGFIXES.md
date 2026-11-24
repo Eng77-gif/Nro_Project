@@ -2729,3 +2729,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Khôi phục CT Lý Tiểu Nương Rực Rỡ và Cải trang Goku giỗ tổ bằng ảnh trong bộ icon x4 gốc (part 2413 - 2418, toạ độ theo Lý Tiểu Nương hầu gái / Chi Chi giỗ tổ); Goku giỗ tổ trở lại Hộp hào khí; vsData 51.
 - Part gốc từ Nr_Part.sql (bộ x4): LTN Rực Rỡ và Goku giỗ tổ dùng toạ độ gốc; khôi phục Cải trang Bill (part 508 - 510) và Cải trang Champa (511 - 513, avatar 5068), Bill trở lại Túi mù Halloween; vsData 52. Black Goku SSJ3 White / Thủy Thủ Mặt Trăng / Dr Myuu / CT Sư không có part trong file.
 - Khôi phục Thủy Thủ Mặt Trăng (1991): dùng bộ part gốc 772 - 774 của Cải trang Thủy Thủ Mặt Trăng cũ (đầu giống icon 16761).
+- CT Sư (1604): khôi phục, dùng part CT Mabư nhí 1482 - 1484 (cùng icon 13303).

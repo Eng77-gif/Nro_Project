@@ -721,7 +721,7 @@ public class Dot139Migration {
         }
         if (!exists(con, "select 1 from server_migration where name = 'go_ct_khong_hinh'")) {
             // gỡ cải trang không có hình trong data (không đầu / thân / chân): giữ ô vì mã = vị trí, bỏ khỏi hộp quà / shop
-            String g = "1145, 1415, 1604"; // Thủy Thủ Mặt Trăng: ct_thuy_thu;  Bill / Champa: ct_part_goc;  1710 / 1785 / 1800 / 1778 / 1996 có part (ct_khoi_phuc_part, ct_khoi_phuc_x4)
+            String g = "1145, 1415"; // CT Sư: ct_su_mabu;  Thủy Thủ Mặt Trăng: ct_thuy_thu;  Bill / Champa: ct_part_goc;  1710 / 1785 / 1800 / 1778 / 1996 có part (ct_khoi_phuc_part, ct_khoi_phuc_x4)
             update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1, head = -1, body = -1, leg = -1 where id in (" + g + ")");
             update(con, "delete from item_template_option where template_id in (" + g + ")");
             update(con, "delete from item_box_reward where item_id in (" + g + ")");
@@ -784,6 +784,10 @@ public class Dot139Migration {
             update(con, "update item_template set NAME = 'Thủy Thủ Mặt Trăng', description = 'Vật phẩm sự kiện', TYPE = 5, part = -1, head = 772, body = 773, leg = 774 where id = 1991");
             writeStats(con, new int[][][]{{{1991}, {103, 30}, {7, 25000}}});
             update(con, "insert into server_migration (name) values ('ct_thuy_thu')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'ct_su_mabu'")) { // CT Sư (chung icon 13303 với CT Mabư nhí): dùng part Mabư nhí 1482 - 1484
+            update(con, "update item_template set NAME = 'CT Sư', description = 'Vật phẩm sự kiện', TYPE = 5, part = -1, head = 1482, body = 1483, leg = 1484 where id = 1604");
+            update(con, "insert into server_migration (name) values ('ct_su_mabu')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'hop_tra_kygui'")) { // Hộp trà / Hộp trà hoa cúc: ký gửi vàng, giao dịch được
             update(con, "delete from item_template_option where template_id in (1369, 1370) and option_id in (30, 86, 87)");
