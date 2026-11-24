@@ -690,6 +690,15 @@ public class Dot139Migration {
             update(con, "update season_event_exchange set bonus_item = 1740, bonus_rate = 100 where event_id = 8 and reward_item = 98213");
             update(con, "insert into server_migration (name) values ('hop_tra_2011_sgk')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'sgk_2011_qua'")) {
+            // Sách giáo khoa chỉ ra: CT đệ tử Tí / Sửu / Dần, CT Thầy giáo Quy Lão, Cải trang Pan VIP, Bó Hoa Hồng (954), Bó Hoa Hồng 2 Mới (1925)
+            update(con, "delete from item_box_reward where box_id = 1740");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values "
+                    + "(1740, 1371, 1, 1, 10, '7,15', 5, 0), (1740, 1380, 1, 1, 10, '7,15', 5, 0), (1740, 1381, 1, 1, 10, '7,15', 5, 0), "
+                    + "(1740, 1385, 1, 1, 10, '7,15', 5, 0), (1740, 1921, 1, 1, 10, '7,15', 5, 0), (1740, 954, 1, 1, 10, '7,15', 5, 0), "
+                    + "(1740, 1925, 1, 1, 10, '7,15', 5, 0)");
+            update(con, "insert into server_migration (name) values ('sgk_2011_qua')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'thiep_2011_qua'")) {
             // Quà Thiệp chúc thường / đặc biệt theo danh sách anh gửi (-121 CT thầy giáo theo hành tinh, -122 bùa 1 giờ / 8 giờ ngẫu nhiên)
             update(con, "delete from item_box_reward where box_id in (1376, 1377)");
