@@ -719,6 +719,16 @@ public class Dot139Migration {
             update(con, "delete from item_template_option where template_id in (2107, 2108, 2109)");
             update(con, "insert into server_migration (name) values ('go_super_234')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'go_ct_khong_hinh'")) {
+            // gỡ cải trang không có hình trong data (không đầu / thân / chân): giữ ô vì mã = vị trí, bỏ khỏi hộp quà / shop
+            String g = "1145, 1415, 1604, 1710, 1778, 1785, 1800, 1906, 1907, 1991, 1996";
+            update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1, head = -1, body = -1, leg = -1 where id in (" + g + ")");
+            update(con, "delete from item_template_option where template_id in (" + g + ")");
+            update(con, "delete from item_box_reward where item_id in (" + g + ")");
+            update(con, "delete from item_shop where temp_id in (" + g + ")");
+            update(con, "delete from season_event_exchange where reward_item in (" + g + ")");
+            update(con, "insert into server_migration (name) values ('go_ct_khong_hinh')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'hop_tra_kygui'")) { // Hộp trà / Hộp trà hoa cúc: ký gửi vàng, giao dịch được
             update(con, "delete from item_template_option where template_id in (1369, 1370) and option_id in (30, 86, 87)");
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1369, 86, 0, 0, 100, 0), (1370, 86, 0, 0, 100, 0)");
