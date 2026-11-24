@@ -827,6 +827,16 @@ public class Player implements Runnable {
      */
     public short getAura() {
         short a = getAuraRaw();
+        long p = nPoint == null ? 0 : nPoint.power;
+        if (a >= 0 && a < 1000 && p >= 60_000_000_000L) { // thẻ radar / thưởng top + hào quang sức mạnh: ảnh ghép sẵn (tools/aura_combo.py)
+            int combo = (p >= 90_000_000_000L ? 3000 : 2000) + a;
+            if (nro.models.server.Manager.IMAGES_BY_NAME.containsKey("aura_" + combo + "_0")) {
+                return (short) combo;
+            }
+        }
+        if (a < 0) {
+            a = auraPower();
+        }
         return a >= 0 && a < 1000 && nro.models.server.Manager.IMAGES_BY_NAME.containsKey("aura_" + (a + 1000) + "_0") ? (short) (a + 1000) : a;
     }
 
@@ -860,12 +870,13 @@ public class Player implements Runnable {
         if (this.auraReward >= 0 && this.auraRewardUntil > System.currentTimeMillis()) {
             return (short) this.auraReward;
         }
-        return auraPower();
+        return -1;
     }
 
     /**
      * Hào quang sức mạnh: dưới 90 tỷ client tự vẽ hào quang theo cấp (gửi aura sẽ làm client tắt hào quang cấp của nó);
      * 90 tỷ (sức mạnh tối đa) khói trắng như ảnh bản chính thức (aura 5 = icon 7676 của client).
+     * Có cả thẻ radar / thưởng top thì getAura gửi ảnh ghép 2000+ (cấp 60 - 90 tỷ, icon 7598) / 3000+ (90 tỷ) để hiện cả hai.
      */
     public short auraPower() {
         return nPoint != null && nPoint.power >= 90_000_000_000L ? (short) 5 : -1;
