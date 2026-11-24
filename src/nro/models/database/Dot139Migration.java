@@ -1334,6 +1334,11 @@ public class Dot139Migration {
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 1828, 85, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 1828 and option_id = 85)");
             update(con, "insert into server_migration (name) values ('stats_anh_1124c')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'phao_hoa_nro_kgd'")) { // Pháo hoa NRO (cờ): bỏ chí mạng / SĐ chí mạng, thay bằng không giao dịch
+            update(con, "delete from item_template_option where template_id = 1965 and option_id in (5, 14, 30)");
+            update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1965, 30, 0, 0, 100, 0)");
+            update(con, "insert into server_migration (name) values ('phao_hoa_nro_kgd')");
+        }
     }
 
     /**

@@ -734,8 +734,23 @@ public class ItemService {
             618, 619, 620, 621, 622, 623, 624, 625, 626, // đợt 10: CT Hải Tặc
             283, 408, 580, 724); // đợt 9: CT Yarirobe, CT Chi Chi (724: món cũ lấy lại chỉ số Santa) // món có dòng ẩn 210 (1590, 1803, Goku Day / Cađic) không đổi món cũ: dòng ẩn đã mở sẽ bị quay lại
 
+    /** Pháo hoa NRO cũ: bỏ chí mạng / SĐ chí mạng, thêm không giao dịch (giữ SĐ đã tung). */
+    public static boolean fixPhaoHoaNro(Item it) {
+        if (it == null || it.template == null || it.template.id != 1965) {
+            return false;
+        }
+        it.itemOptions.removeIf(o -> o == null || o.optionTemplate == null || o.optionTemplate.id == 5 || o.optionTemplate.id == 14);
+        if (it.getOptionById(30) == null) {
+            it.itemOptions.add(new Item.ItemOption(30, 0));
+        }
+        return true;
+    }
+
     public void refreshTitle(Item it) {
         fillThanLinh(it); // đồ Thần Linh thiếu chỉ số gốc (hành trang / rương)
+        if (fixPhaoHoaNro(it)) {
+            return;
+        }
         if (it == null || it.template == null || !TITLE_REFRESH.contains((int) it.template.id)) {
             return;
         }

@@ -107,9 +107,9 @@ public class Dot92Migration {
             Logger.error("Đợt 92: không cập nhật được chỉ số radar / bộ sao may mắn: " + e.getMessage() + "\n");
         }
         try {
-            // Pháo hoa NRO (cờ): chí mạng 10 - 20%, sức đánh chí mạng 10 - 20%. Đeo lưng bông tuyết (cờ tuyết): giảm sát thương
+            // Pháo hoa NRO: bỏ chí mạng / SĐ chí mạng, thay bằng không giao dịch (Dot139 phao_hoa_nro_kgd). Đeo lưng bông tuyết (cờ tuyết): giảm sát thương
             // 10 - 15%, né đòn 20 - 25%, không ảnh hưởng bởi cái lạnh. Chỉ số ngẫu nhiên trong khoảng khi nhận món mới.
-            int[][] flags = {{1965, 14, 10, 20}, {1965, 5, 10, 20}, {1951, 94, 10, 15}, {1951, 108, 20, 25}, {1951, 106, 0, 0}};
+            int[][] flags = {{1951, 94, 10, 15}, {1951, 108, 20, 25}, {1951, 106, 0, 0}};
             for (int[] f : flags) {
                 if (!exists(con, "select 1 from item_template_option where template_id = " + f[0] + " and option_id = " + f[1])) {
                     changed += update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values ("

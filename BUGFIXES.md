@@ -2760,3 +2760,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Chỉ số theo ảnh bản chính thức: Cờ ngọc rồng 1 - 7 sao / Super, Bunma tóc xanh neon, Bó Hoa Vàng; Goku giỗ tổ KI +10k - 35k, Goku GT Kid HP +10k - 35k (HP 35%, né chí mạng 22%), Cánh hào khí KI +20k - 40k ngẫu nhiên khi nhận (đồ cũ giữ nguyên, không tung lại mỗi lần đăng nhập).
 - Cánh hào khí: KI +5.000 - 40.000 ngẫu nhiên (trước 20k - 40k).
 - Chỉ số theo ảnh: Pet Rabbit / Secret / Panda / Dino (Baby), Ván bay Rồng Thiêng VIP, Pet Capybara hồng, Pet Shimo, Goku bay; đồ cũ nhận chỉ số mới khi đăng nhập.
+- Pháo hoa NRO (cờ): bỏ chí mạng / SĐ chí mạng (Dot92 không tự thêm lại mỗi lần khởi động), thay bằng Không giao dịch; món cũ (hành trang, rương, đang mặc) cũng bỏ 2 dòng đó khi đăng nhập.

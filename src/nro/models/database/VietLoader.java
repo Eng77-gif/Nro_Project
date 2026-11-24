@@ -421,6 +421,7 @@ public class VietLoader {
                     item = ItemService.gI().createItemNull();
                 }
                 ItemService.fillThanLinh(item); // đồ Thần Linh thiếu chỉ số gốc
+                ItemService.fixPhaoHoaNro(item);
                 player.inventory.itemsBody.add(item);
             }
             if (player.inventory.itemsBody.size() == 10) {
