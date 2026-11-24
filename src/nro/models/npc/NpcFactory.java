@@ -405,6 +405,8 @@ public class NpcFactory {
                         nro.models.services.CapsuleVoService.gI().confirm(player, player.idMark.getIndexMenu(), select);
                     case nro.models.services.SaoPhaLe10Service.HOP_DA_9, nro.models.services.SaoPhaLe10Service.HOP_NRX ->
                         nro.models.services.SaoPhaLe10Service.gI().openBox(player, player.idMark.getIndexMenu(), select);
+                    case nro.models.services.Event2026Service.AUTO_OPEN_MENU ->
+                        nro.models.services.Event2026Service.gI().autoOpenSelect(player, select, PLAYERID_OBJECT.get(player.id));
                     case nro.models.services.Event2026Service.SKH_BEERUS_BOX ->
                         nro.models.services.Event2026Service.gI().openSkhBeerusBox(player, select);
                     case ConstNpc.CAPSULE_KICH_HOAT -> {

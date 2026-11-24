@@ -321,10 +321,84 @@ public class Event2026Service {
         return item != null && item.isNotNullItem() && boxes.containsKey((int) item.template.id);
     }
 
+    public static final int AUTO_OPEN_MENU = 7_700_001; // menu "Mở 1 hộp / Tự động mở" (con mèo)
+    private static final Map<Long, java.util.concurrent.ScheduledFuture<?>> AUTO_OPEN = new ConcurrentHashMap<>();
+    private static final java.util.concurrent.ScheduledExecutorService AUTO_EXEC = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "auto-open-box");
+        t.setDaemon(true);
+        return t;
+    });
+
+    /** Bấm Sử dụng hộp quà: còn từ 2 hộp (hoặc đang tự động mở) thì hỏi Mở 1 hộp / Tự động mở; còn lại mở luôn như cũ. */
     public void openBox(Player pl, Item box) {
+        if (pl.isPl() && box.template.id != HOM_HALLOWEEN && (box.quantity > 1 || AUTO_OPEN.containsKey(pl.id))) {
+            String[] menu = AUTO_OPEN.containsKey(pl.id)
+                    ? new String[]{"Dừng\ntự động mở", "Đóng"}
+                    : new String[]{"Mở 1 hộp", "Tự động mở\n(" + box.quantity + " hộp)", "Đóng"};
+            nro.models.map.service.NpcService.gI().createMenuConMeo(pl, AUTO_OPEN_MENU, -1,
+                    box.template.name + "\nĐang có " + box.quantity + " hộp", menu, (int) box.template.id);
+            return;
+        }
+        openBoxOne(pl, box);
+    }
+
+    /** Chọn trong menu tự động mở (NpcFactory, con mèo). */
+    public void autoOpenSelect(Player pl, int select, Object boxIdObj) {
+        if (AUTO_OPEN.containsKey(pl.id)) {
+            if (select == 0) {
+                stopAutoOpen(pl, "Đã dừng tự động mở");
+            }
+            return;
+        }
+        if (!(boxIdObj instanceof Integer boxId)) {
+            return;
+        }
+        Item box = InventoryService.gI().findItemBag(pl, boxId);
+        if (box == null || !isBox(box)) {
+            return;
+        }
+        if (select == 0) {
+            openBoxOne(pl, box);
+        } else if (select == 1) {
+            int[] opened = {0};
+            AUTO_OPEN.put(pl.id, AUTO_EXEC.scheduleWithFixedDelay(() -> {
+                try {
+                    Item b = InventoryService.gI().findItemBag(pl, boxId);
+                    if (pl.session == null || pl.beforeDispose) {
+                        stopAutoOpen(pl, null);
+                    } else if (b == null || !isBox(b)) {
+                        stopAutoOpen(pl, "Tự động mở xong: đã mở " + opened[0] + " hộp");
+                    } else if (InventoryService.gI().getCountEmptyBag(pl) <= 0) {
+                        stopAutoOpen(pl, "Hành trang đầy, dừng tự động mở (đã mở " + opened[0] + " hộp)");
+                    } else if (openBoxOne(pl, b)) {
+                        opened[0]++;
+                    } else {
+                        stopAutoOpen(pl, "Dừng tự động mở (đã mở " + opened[0] + " hộp)");
+                    }
+                } catch (Exception e) {
+                    stopAutoOpen(pl, null);
+                    Logger.logException(Event2026Service.class, e, "Lỗi tự động mở hộp");
+                }
+            }, 0, 500, java.util.concurrent.TimeUnit.MILLISECONDS));
+            Service.gI().sendThongBao(pl, "Bắt đầu tự động mở " + box.template.name);
+        }
+    }
+
+    private static void stopAutoOpen(Player pl, String msg) {
+        java.util.concurrent.ScheduledFuture<?> f = AUTO_OPEN.remove(pl.id);
+        if (f != null) {
+            f.cancel(false);
+            if (msg != null) {
+                Service.gI().sendThongBao(pl, msg);
+            }
+        }
+    }
+
+    /** Mở 1 hộp; true nếu mở được. */
+    private boolean openBoxOne(Player pl, Item box) {
         if (InventoryService.gI().getCountEmptyBag(pl) <= 0) {
             Service.gI().sendThongBao(pl, "Hành trang không còn chỗ trống");
-            return;
+            return false;
         }
         String boxName = box.template.name; // hộp cuối bị xóa (template = null) khi trừ số lượng
         short boxIcon = box.template.iconID;
@@ -346,7 +420,9 @@ public class Event2026Service {
             if (boxId != HOM_HALLOWEEN) { // Hòm Halloween: nhân vật tự nói "Bạn nhận được ..." sau hiệu ứng
                 Service.gI().sendThongBao(pl, "Bạn nhận được " + got.replaceAll("^x\\d+ | \\((\\d+ ngày|vĩnh viễn)\\)| \\[bảo hiểm\\]", "")); // chỉ tên món: không ghi số lượng (trừ vàng / ngọc), hạn, bảo hiểm
             }
+            return true;
         }
+        return false;
     }
 
     /** Đồ theo hành tinh (vd Nón Tết Trái Đất / Namếc / Xayda cùng tên): đổi sang bản đúng hành tinh của người mở. */
