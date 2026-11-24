@@ -676,6 +676,16 @@ public class Dot139Migration {
             update(con, "update item_box_reward set perm_rate = 15, hsd_days = '7,15' where box_id = 98412 and item_id in (1380, 1381, 1371, 955, 1933, 1934)");
             update(con, "insert into server_migration (name) values ('whis_hoa10_vv')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'hop_tra_2011_qua'")) {
+            // Tặng Quy Lão: Hộp trà (98201) / Hộp trà hoa cúc (98213, mở ngay thay cho Sách giáo khoa) theo danh sách anh gửi
+            update(con, "delete from item_box_reward where box_id in (98201, 98213)");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values "
+                    + "(98201, -122, 1, 1, 15, '', 0, 0), (98201, 1230, 1, 1, 8, '7,15', 0, 0), (98201, 1205, 1, 1, 8, '7,15', 0, 0), (98201, -123, 1, 1, 15, '', 0, 0), (98201, 381, 1, 1, 3, '', 0, 0), (98201, 382, 1, 1, 3, '', 0, 0), (98201, 383, 1, 1, 3, '', 0, 0), (98201, 384, 1, 1, 3, '', 0, 0), (98201, 385, 1, 1, 3, '', 0, 0), (98201, 1173, 3, 3, 15, '', 0, 0), (98201, 920, 1, 1, 8, '7,15', 0, 0)");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values "
+                    + "(98213, 1371, 1, 1, 6, '7,15', 5, 0), (98213, 1386, 1, 1, 8, '7,15', 0, 0), (98213, 1389, 1, 1, 6, '7,15', 5, 0), (98213, -122, 1, 1, 15, '', 0, 0), (98213, 1230, 1, 1, 8, '7,15', 0, 0), (98213, 1205, 1, 1, 6, '7,15', 5, 0), (98213, -123, 1, 1, 10, '', 0, 0), (98213, -124, 1, 1, 5, '', 0, 0), (98213, 1150, 1, 1, 3, '', 0, 0), (98213, 1151, 1, 1, 3, '', 0, 0), (98213, 1152, 1, 1, 3, '', 0, 0), (98213, 1153, 1, 1, 3, '', 0, 0), (98213, 1154, 1, 1, 3, '', 0, 0), (98213, 1173, 10, 10, 10, '', 0, 0), (98213, 920, 1, 1, 6, '7,15', 5, 0)");
+            update(con, "update season_event_exchange set reward_item = 98213, open_now = 1 where event_id = 8 and need in ('1370:1', '1370:10') and reward_item = 1740");
+            update(con, "insert into server_migration (name) values ('hop_tra_2011_qua')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'thiep_2011_qua'")) {
             // Quà Thiệp chúc thường / đặc biệt theo danh sách anh gửi (-121 CT thầy giáo theo hành tinh, -122 bùa 1 giờ / 8 giờ ngẫu nhiên)
             update(con, "delete from item_box_reward where box_id in (1376, 1377)");

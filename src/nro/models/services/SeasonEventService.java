@@ -1641,7 +1641,7 @@ public class SeasonEventService implements Runnable {
             boolean stack = !e.openNow && ItemService.gI().getTemplate(e.rewardItem).isUpToUp && e.rewardDays.length == 0;
             if (e.openNow || !stack) {
                 // mỗi lần đổi ra 1 món riêng: không đổi quá số ô trống
-                int perTime = e.openNow ? 1 : e.rewardQtyMax;
+                int perTime = e.openNow ? Math.max(1, e.rewardQty) : e.rewardQtyMax;
                 times = Math.min(times, (empty - (e.bonusItem > 0 ? 1 : 0)) / Math.max(1, perTime));
             } else if (empty < 1 + (e.bonusItem > 0 ? 1 : 0)) {
                 times = 0;
@@ -1696,14 +1696,16 @@ public class SeasonEventService implements Runnable {
             int total = 0, bonus = 0;
             for (int i = 0; i < times; i++) {
                 if (e.openNow) {
+                  for (int r = 0; r < Math.max(1, e.rewardQty); r++) { // vd. Tặng 10 Hộp trà hoa cúc: 10 phần quà
                     short[] icon = {-1};
                     String g = Event2026Service.gI().openBoxById(pl, e.rewardItem, icon);
                     if (g != null) {
                         got.add(g);
-                        if (times == 1 && icon[0] >= 0 && ItemService.gI().getTemplate(e.rewardItem) != null) {
+                        if (times == 1 && e.rewardQty <= 1 && icon[0] >= 0 && ItemService.gI().getTemplate(e.rewardItem) != null) {
                             nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, ItemService.gI().getTemplate(e.rewardItem).iconID, icon[0]);
                         }
                     }
+                  }
                 } else {
                     int qty = Util.nextInt(e.rewardQty, e.rewardQtyMax);
                     if (stack) {
