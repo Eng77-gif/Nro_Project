@@ -45,16 +45,43 @@ if ($cur -like '*Format*') { $cur = '' }
 Write-Host ('Ban dang dung : ' + $(if ($cur) { $cur } else { 'chua ro' }))
 Write-Host ('Ban moi nhat  : ' + $short)
 
-# file khong cap nhat: tai lieu, file Termux, cau hinh / du lieu rieng cua may
-$skip = @('nro_termux.sh', 'run_termux.sh', 'termux_install.sh', 'nro-ui.sh', 'Config.properties', 'backup.key', 'VERSION')
+# file khong cap nhat: cau hinh / du lieu rieng cua may
+$skip = @('Config.properties', 'backup.key', 'VERSION')
+# khong can tren may Windows chay server: ma nguon, cong cu, tai lieu, file chay Linux/Termux (.sh). 20.jar da gom du thu vien cua lib/
+$devDirs = @('src/', 'tools/', 'client/', 'lib/', 'nbproject/', 'docs/', 'preview/', 'cloudflare/', 'out_files/', '.github/')
+$devFiles = @('build.xml', 'manifest.mf', 'Dockerfile', '.dockerignore', '.gitignore', '.gitattributes', 'item.xlsx')
+function IsDev([string]$path) {
+    if ($path.EndsWith('.md') -or $path.EndsWith('.sh') -or $devFiles -contains $path) { return $true }
+    foreach ($d in $devDirs) { if ($path.StartsWith($d)) { return $true } }
+    return $false
+}
 $remote = New-Object Collections.ArrayList
+$drop = New-Object Collections.ArrayList
 foreach ($l in $lines[1..($lines.Count - 1)]) {
     $p = $l.TrimEnd("`r") -split "`t", 3
     if ($p.Count -lt 3) { continue }
     $path = $p[2]; $name = [IO.Path]::GetFileName($path)
-    if ($path.EndsWith('.md') -or $skip -contains $name -or $path -eq 'sql/team2026.sql.enc' -or $path.StartsWith('.github/') -or $path.StartsWith('client/')) { continue }
+    if (IsDev $path) { [void]$drop.Add($path); continue }
+    if ($skip -contains $name -or $path -eq 'sql/team2026.sql.enc') { continue }
     [void]$remote.Add(@($p[0], [long]$p[1], $path))
 }
+
+# xoa file cua repo khong can (tai tu ban cu): chi xoa dung duong dan co trong repo, khong dung file rieng cua may
+$freed = 0L; $nDel = 0; $dirs = @{}
+foreach ($path in $drop) {
+    $full = Join-Path $here ($path -replace '/', '\')
+    $fi = New-Object IO.FileInfo($full)
+    if ($fi.Exists) {
+        try { $len = $fi.Length; Remove-Item -LiteralPath $full -Force; $freed += $len; $nDel++; $dirs[$fi.DirectoryName] = 1 } catch { }
+    }
+}
+foreach ($d in ($dirs.Keys | Sort-Object Length -Descending)) {
+    $x = $d
+    while ($x.Length -gt $here.Length -and (Test-Path -LiteralPath $x) -and -not (Get-ChildItem -LiteralPath $x -Force | Select-Object -First 1)) {
+        Remove-Item -LiteralPath $x -Force; $x = Split-Path $x
+    }
+}
+if ($nDel -gt 0) { Write-Host ('Da xoa ' + $nDel + ' file khong can tren may Windows (' + [Math]::Round($freed / 1MB, 1) + ' MB)') }
 
 # ma blob git cua file tren may (luu cache theo kich thuoc + gio sua de lan sau khong phai doc lai)
 $cache = @{}

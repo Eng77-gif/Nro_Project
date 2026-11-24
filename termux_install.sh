@@ -19,6 +19,8 @@ else
     echo ">> Tải server từ GitHub (khoảng 1 GB) ..."
     git clone --depth 1 "$REPO" "$DIR"
 fi
+# bỏ mã nguồn / công cụ / file Windows khỏi thư mục (xem slim() trong nro_termux.sh)
+(cd "$DIR" && eval "$(sed -n '/^slim() {/,/^}/p' nro_termux.sh)" && slim) || true
 chmod +x "$DIR/nro_termux.sh"
 bash "$DIR/nro_termux.sh" setup
 bash "$DIR/nro_termux.sh" start

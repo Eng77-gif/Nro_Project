@@ -286,9 +286,18 @@ ip_info() {
     row "Panel" "${W}http://${ip:-127.0.0.1}:8088${C0}  admin / ${Y}$(panel_pass)${C0}"
 }
 
+# chỉ lấy file server cần chạy: bỏ mã nguồn / công cụ / tài liệu và file chạy Windows (.bat .exe) khỏi thư mục (20.jar đã gồm thư viện lib/)
+slim() {
+    git config core.sparseCheckout true
+    printf '%s\n' '/*' '!/src/' '!/tools/' '!/client/' '!/lib/' '!/nbproject/' '!/docs/' '!/preview/' '!/cloudflare/' '!/out_files/' '!/.github/' \
+        '!/build.xml' '!/manifest.mf' '!/Dockerfile' '!/item.xlsx' '!/*.bat' '!/*.exe' '!/*.md' > "$(git rev-parse --git-dir)/info/sparse-checkout"
+    git read-tree -mu HEAD 2>/dev/null || true
+}
+
 update() {
     local was=0; running && was=1 && stop
     git checkout -- Config.properties 2>/dev/null
+    slim
     spin "Tải bản mới từ GitHub" git pull --ff-only || warn "Không cập nhật được (mạng hoặc file sửa tay bị trùng)."
     chmod +x "$DIR/nro_termux.sh"
     sleep 1

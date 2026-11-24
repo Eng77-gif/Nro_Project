@@ -19,6 +19,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 	"sync"
@@ -26,13 +27,25 @@ import (
 	"time"
 )
 
-const version = "1.2 (09/11/2026)"
+const version = "1.3 (24/11/2026)"
+
+// devOnly: mã nguồn / công cụ / tài liệu, server chạy không cần (20.jar đã gồm đủ thư viện của lib/).
+const devOnly = "tools,client,src,lib,nbproject,docs,preview,cloudflare,out_files,.github,build.xml,manifest.mf,Dockerfile,.dockerignore,.gitignore,.gitattributes,item.xlsx,*.md"
+
+// osOnly: file chạy của hệ máy khác (Windows không cần .sh, Linux không cần .bat / .exe).
+func osOnly() string {
+	if runtime.GOOS == "windows" {
+		return "*.sh"
+	}
+	return "*.bat,*.exe"
+}
 
 var (
 	repo     = flag.String("repo", "Eng77-gif/Nro_Project", "repo GitHub dạng chủ/tên")
 	branch   = flag.String("branch", "main", "nhánh cần tải")
 	outDir   = flag.String("out", "", "thư mục lưu (mặc định: thư mục nro_server cạnh file exe)")
-	exclude  = flag.String("exclude", "tools,client", "các thư mục / file bỏ qua, cách nhau dấu phẩy")
+	exclude  = flag.String("exclude", devOnly+","+osOnly(), "các thư mục / file bỏ qua, cách nhau dấu phẩy (*.đuôi: theo đuôi file)")
+	clean    = flag.Bool("clean", true, "xoá file của repo nằm trong danh sách bỏ qua nếu đã có trên máy (tải từ bản cũ)")
 	keep     = flag.String("keep", "Config.properties,maintenanceConfig.txt", "file đã có trên máy thì giữ nguyên, không ghi đè (cấu hình riêng)")
 	token    = flag.String("token", "", "GitHub token (chỉ cần khi repo riêng tư; có thể để trong file token.txt cạnh exe)")
 	workers  = flag.Int("workers", 16, "số file tải cùng lúc ở chế độ cập nhật")
@@ -217,6 +230,12 @@ func splitList(s string) []string {
 
 func matches(p string, list []string) bool {
 	for _, x := range list {
+		if strings.HasPrefix(x, "*.") {
+			if strings.HasSuffix(strings.ToLower(p), strings.ToLower(x[1:])) {
+				return true
+			}
+			continue
+		}
 		if strings.EqualFold(p, x) || strings.HasPrefix(strings.ToLower(p), strings.ToLower(x)+"/") {
 			return true
 		}
@@ -447,17 +466,28 @@ func main() {
 		return
 	}
 	logF, _ = os.OpenFile(filepath.Join(base, "tai_repo_nhat_ky.txt"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
-	logf("=== %s  nhánh %s  -> %s  bỏ qua: %s", time.Now().Format("2006-01-02 15:04:05"), *branch, base, *exclude)
+	logf("=== %s  máy %s  nhánh %s  -> %s  bỏ qua: %s", time.Now().Format("2006-01-02 15:04:05"), runtime.GOOS, *branch, base, *exclude)
 	excl := splitList(*exclude)
 	keepL := splitList(*keep)
 
 	start := time.Now()
-	files, err := listFiles(*branch, "", excl)
+	all, err := listFiles(*branch, "", nil)
+	var files, drop []entry
+	for _, e := range all {
+		if matches(e.Path, excl) {
+			drop = append(drop, e)
+		} else {
+			files = append(files, e)
+		}
+	}
 	if err != nil {
 		logf("Không đọc được danh sách file: %v", err)
 		logf("(sai tên nhánh, mất mạng, hoặc repo riêng tư thì cần token: tạo file token.txt cạnh exe)")
 		pause()
 		return
+	}
+	if *clean {
+		removeDropped(base, drop, keepL, splitList(devOnly+","+osOnly()))
 	}
 	var need []entry
 	var total, skipped, haveAny, newFiles int
@@ -548,6 +578,43 @@ func main() {
 	}
 	saveManifest(base, manifest)
 	finish(n, failed, nil, start)
+}
+
+// removeDropped xoá file của repo không cần cho máy này (mã nguồn, công cụ, file chạy của hệ máy khác) nếu đã tải từ bản cũ.
+// Chỉ xoá đúng đường dẫn có trong repo, không đụng file riêng của máy (cấu hình, log, dữ liệu tự tạo).
+func removeDropped(base string, drop []entry, keepL, safe []string) {
+	var n int
+	var freed int64
+	dirs := map[string]bool{}
+	self, _ := os.Executable()
+	for _, e := range drop {
+		if matches(e.Path, keepL) || !matches(e.Path, safe) { // chỉ xoá theo danh sách có sẵn, không theo mục người dùng tự thêm (vd gõ nhầm data)
+			continue
+		}
+		dst, err := localPath(base, e.Path)
+		if err != nil || strings.EqualFold(dst, self) {
+			continue
+		}
+		if st, err := os.Stat(dst); err == nil && !st.IsDir() && os.Remove(dst) == nil {
+			n++
+			freed += st.Size()
+			for d := filepath.Dir(dst); len(d) > len(base); d = filepath.Dir(d) {
+				dirs[d] = true
+			}
+		}
+	}
+	// thư mục rỗng sau khi xoá: xoá luôn (sâu trước)
+	list := make([]string, 0, len(dirs))
+	for d := range dirs {
+		list = append(list, d)
+	}
+	sort.Slice(list, func(i, j int) bool { return len(list[i]) > len(list[j]) })
+	for _, d := range list {
+		os.Remove(d) // chỉ xoá được khi rỗng
+	}
+	if n > 0 {
+		logf("Đã xoá %d file không cần cho máy %s (%s)", n, runtime.GOOS, human(freed))
+	}
 }
 
 func finish(n int, failed []string, err error, start time.Time) {
