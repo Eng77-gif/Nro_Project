@@ -49,10 +49,9 @@ public final class PhanThanService {
             int cloneId = -(1_500_000_000 + (int) (Math.abs(pl.id) % 500_000_000));
             sendClone(zone, pl, cloneId, x, ty);
             for (Player p : new ArrayList<>(zone.players)) {
-                if (p != null && p != pl && p.nPoint != null && !p.nPoint.khangTDHS && !p.isDie()
+                if (p != null && p != pl && p.nPoint != null && !p.isDie()
                         && Math.abs(p.location.x - x) <= RANGE && Math.abs(p.location.y - ty) <= RANGE
                         && SkillService.gI().canAttackPlayer(pl, p)) {
-                    Service.gI().chat(p, "Mù mắt rồi");
                     EffectSkillService.gI().startStun(p, now, TIME_BLIND);
                 }
             }

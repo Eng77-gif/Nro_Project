@@ -2711,3 +2711,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Vòng quay Thượng Đế 20/11 đổi theo anh: Bó hoa hồng, Bó Hoa Vàng, CT Bulma Ả Rập, Bút chì hồng, Hematite (khóa).
 - Chỉ số theo ảnh 24/11: Xe heo tuần lộc, Pet Mèo Phù Thủy, Quạt ba tiêu, CT Thầy giáo Quy Lão/Cađíc, CT Gohan áo xanh/Búp bê Arale/Póc áo đỏ (dòng Giáp #% mới 276, +2% SĐ tối đa 10% khi gần nhau), Pet Rồng Xanh/Rồng xương, Cat hường, Quả bóng siêu việt, Bồ cào 9 răng, Cải trang Gohan; thêm tác dụng KI+#%/10s (178) và 120 giây kích hồi #% HP trong 30 giây (223).
 - CT Thiên sư phụ theo ảnh: phân thân gây mù đối phương CD 300 giây (option 277: khi ra đòn hiện phân thân cạnh mục tiêu 5 giây, làm mù 3 giây người chơi đánh được và quái quanh đó), SĐ+22%, HP+28%, KI+49%, giảm 10% sát thương, né đòn +15% (option 278).
+- Phân thân CT Thiên sư phụ: bỏ câu chat "Mù mắt rồi", Kháng TDHS không chặn được mù của phân thân.
