@@ -248,6 +248,8 @@ public class NPoint {
     public int skhChampa; // số món SKH Thần hủy diệt Champa đang mặc (option 257)
 
     public boolean isGogeta;
+    /** Hợp thể đặc biệt (Gogeta SSJ4: CT Goku SSJ4 + CT Cađíc SSJ4; Gogeta SSJ Blue: CT Goku SSJ Blue + CT Cađíc SSJ Blue, sư phụ và đệ tử mặc khác nhau): +5% HP, +5% sức đánh. */
+    public boolean isFusionSpecial;
 
     public int tlSpeed;
 
@@ -1528,8 +1530,12 @@ public class NPoint {
         Item pskin = this.player.pet.inventory.itemsBody.get(5);
         if (skin.isNotNullItem() && pskin.isNotNullItem()) {
             this.isGogeta = skin.template.id == 2133 && pskin.template.id == 2134 || skin.template.id == 2134 && pskin.template.id == 2133;
+            int a = skin.template.id, b = pskin.template.id;
+            this.isFusionSpecial = this.player.fusion.typeFusion != ConstPlayer.NON_FUSION && a != b
+                    && ((a == 1553 || a == 1693) && (b == 1553 || b == 1693) || (a == 1590 || a == 1746) && (b == 1590 || b == 1746));
         } else {
             this.isGogeta = false;
+            this.isFusionSpecial = false;
         }
     }
 
@@ -1718,6 +1724,9 @@ public class NPoint {
         // Xử lý gogeta
         if (this.isGogeta) {
             hpMax += (hpMax * 10 / 100L);
+        }
+        if (this.isFusionSpecial && this.player.fusion.typeFusion != ConstPlayer.NON_FUSION) {
+            hpMax += (hpMax * 5 / 100L);
         }
 
         // Phù map mabu
@@ -2012,6 +2021,9 @@ public class NPoint {
         // Xử lý gogeta
         if (this.isGogeta) {
             dame += (dame * 10 / 100L);
+        }
+        if (this.isFusionSpecial && this.player.fusion.typeFusion != ConstPlayer.NON_FUSION) {
+            dame += (dame * 5 / 100L);
         }
 
         // Phù map mabu
