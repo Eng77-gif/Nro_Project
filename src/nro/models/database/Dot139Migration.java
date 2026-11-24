@@ -360,6 +360,23 @@ public class Dot139Migration {
     /** Đợt 24 (ảnh): Ván Rồng 7 sao, CT Fide nhí, Pet Capybara xì mũi, CT Broly SSJ4 / SSJ God, Ván bay Magikarp, CT Cađíc / Pôcôlô Dragon, Avatar mũ rồng,
      * Cờ dây pháo, CT Thần tài, Cờ bao lì xì, Thỏi vàng bay, Cửu Hoàn Thiên Tích Trượng, Như Ý Kim Cô Bổng, CT / Nón Hổ vàng, Pet Ngựa Thần Tài, Pet ngựa chiến, Đeo lưng Bao lì xì. */
     /** Đợt 26 (ảnh): CT Thầy giáo Goku, Chi Chi Võ Đài, Zenitsu, Máy Bay Xám, Cờ hồn Xên Bọ Hung, Phong Xích Lan, Bí Ngô Cánh Dơi, Đuôi rắn rực lửa, Đeo lưng Kẹo Noel, Kiếm Kitetsu, Avatar Cử nhân. */
+    /** Chỉ số theo ảnh 24/11: Xe heo tuần lộc, Pet Mèo Phù Thủy, Quạt ba tiêu, CT Thầy giáo Quy Lão / Cađíc, CT Gohan áo xanh / Búp bê Arale / Póc áo đỏ,
+     *  Pet Rồng Xanh / Rồng xương, Thú cưỡi con Cat hường, Quả bóng siêu việt, Bồ cào 9 răng, Cải trang Gohan. */
+    static final int[][][] STATS_ANH_1124 = {
+        {{1172}, {84, 0}, {148, 25}, {50, 5}, {30, 0}},
+        {{1347}, {77, 15}, {103, 15}, {50, 15}},
+        {{1023}, {50, 11}, {77, 10}, {103, 10}, {14, 10}},
+        {{1385}, {50, 24}, {77, 24}, {103, 24}, {108, 10}, {80, 10}, {5, 10}, {101, 50}},
+        {{912}, {50, 23}, {77, 20}, {103, 20}, {276, 17}, {184, 2}, {106, 0}, {154, 0}},
+        {{914}, {50, 23}, {77, 20}, {103, 20}, {276, 19}, {184, 2}, {106, 0}, {154, 0}},
+        {{913}, {50, 22}, {77, 20}, {103, 20}, {276, 18}, {184, 2}, {106, 0}, {154, 0}},
+        {{1729}, {50, 14}, {77, 14}, {103, 14}, {108, 10}, {160, 15}, {30, 0}},
+        {{1712}, {50, 17}, {103, 17}, {77, 15}, {8, 5}, {94, 7}, {30, 0}},
+        {{1363}, {50, 7}, {77, 7}, {103, 7}, {148, 15}},
+        {{1131}, {84, 0}, {148, 25}, {77, 5}},
+        {{1699}, {50, 13}, {77, 15}, {103, 13}, {80, 3}, {14, 5}, {30, 0}},
+        {{1378}, {50, 20}, {77, 23}, {103, 23}, {94, 5}, {223, 30}},
+        {{876}, {50, 22}, {178, 3}, {116, 0}, {154, 0}}};
     static final int[][][] EVENT_ITEMS26 = {
         {{1384}, {50, 23}, {77, 23}, {103, 23}, {94, 7}, {108, 10}, {24, 0}},
         {{1705}, {50, 24}, {77, 23}, {103, 23}, {5, 12}, {95, 10}, {226, 10}, {30, 0}},
@@ -658,6 +675,17 @@ public class Dot139Migration {
         if (!exists(con, "select 1 from server_migration where name = 'whis_hoa10_vv'")) { // quà tặng 10 bông: món có hạn đều có 15% ra vĩnh viễn
             update(con, "update item_box_reward set perm_rate = 15, hsd_days = '7,15' where box_id = 98412 and item_id in (1380, 1381, 1371, 955, 1933, 1934)");
             update(con, "insert into server_migration (name) values ('whis_hoa10_vv')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'stats_anh_1124'")) {
+            // Chỉ số theo ảnh anh gửi (tooltip đầy đủ): thay toàn bộ dòng chỉ số mặc định của các món dưới
+            update(con, "insert ignore into item_option_template (id, NAME) values (276, 'Giáp #%')");
+            for (int[][] it : STATS_ANH_1124) {
+                int id = it[0][0];
+                update(con, "delete from item_template_option where template_id = " + id + (id == 1699 ? " and option_id <> 236" : ""));
+                update(con, "delete from item_shop_option where item_shop_id in (select id from item_shop where temp_id = " + id + ")" + (id == 1699 ? " and option_id <> 236" : ""));
+            }
+            writeStats(con, STATS_ANH_1124);
+            update(con, "insert into server_migration (name) values ('stats_anh_1124')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'super_rank_box_1924'")) {
             // Rương Siêu Hạng theo bài diễn đàn: 50k-200k vàng, Rương SPL VIP, NR 1 sao, CT Black Fide (7-15 ngày, 5% vĩnh viễn)

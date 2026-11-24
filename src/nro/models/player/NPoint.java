@@ -408,6 +408,7 @@ public class NPoint {
                             this.tlTNSM.add(io.param);
                             break;
                         case 94: //Giáp #%
+                        case 276: //Giáp #% (tên hiển thị như ảnh chính thức)
                             this.tlGiap += io.param;
                             break;
                         case 95: //Biến #% tấn công thành HP
@@ -962,17 +963,22 @@ public class NPoint {
         int me = costumeId(player);
         if (player.zone != null && !player.isPet && me > 0) {
             java.util.Set<Integer> nearCt = new java.util.HashSet<>();
-            int dietQuy = 0;
+            int dietQuy = 0, nhomGohan = 0;
             for (Player o : new java.util.ArrayList<>(player.zone.getNotBosses())) {
                 if (o != player && !o.isPet && !o.isNewPet && !o.isDie() && Util.getDistance(player, o) <= 300) {
                     int c = costumeId(o);
                     nearCt.add(c);
                     dietQuy += c >= 1087 && c <= 1091 ? 1 : 0; // CT Diệt Quỷ: Tanjiro, Inosuke, Zenitsu, Nezuko
+                    nhomGohan += c >= 912 && c <= 914 ? 1 : 0; // CT Gohan áo xanh, Póc áo đỏ, Búp bê Arale
                 }
             }
             Item.ItemOption o205 = ct != null && ct.isNotNullItem() ? ct.getOptionById(205) : null;
             if (o205 != null) { // option 205: mỗi người mặc CT Diệt Quỷ đứng gần +#% SĐ, tối đa 18%
                 d += Math.min(18, dietQuy * o205.param);
+            }
+            Item.ItemOption o184 = ct != null && ct.isNotNullItem() ? ct.getOptionById(184) : null;
+            if (o184 != null) { // option 184: mỗi người mặc Gohan xanh / Poc đỏ / Arale đứng gần +#% SĐ, tối đa 10%
+                d += Math.min(10, nhomGohan * o184.param);
             }
             if (me == 1700 && nearCt.contains(1698)) { // CT Hằng Nga gần CT Urôn Trư Bát Giới: giảm 10% sát thương
                 gi += 10;
@@ -1394,6 +1400,7 @@ public class NPoint {
                 this.tlTNSM.add(io.param);
                 break;
             case 94: //Giáp #%
+            case 276: //Giáp #% (tên hiển thị như ảnh chính thức)
                 this.tlGiap += io.param;
                 break;
             case 95: //Biến #% tấn công thành HP
@@ -2964,6 +2971,22 @@ public class NPoint {
     //--------------------------------------------------------------------------
     private long lastTimeHoiPhuc;
     private long lastTimeHoiStamina;
+    private long lastTimeKi10s, lastTimeKichHoi;
+    private int kichHoiTick = 6;
+
+    /** Tổng param của option trên đồ đang mặc (0 nếu không có). */
+    private int bodyOption(int optionId) {
+        int sum = 0;
+        if (player.inventory != null) {
+            for (Item it : player.inventory.itemsBody) {
+                if (it != null && it.isNotNullItem()) {
+                    Item.ItemOption o = it.getOptionById(optionId);
+                    sum += o != null ? o.param : 0;
+                }
+            }
+        }
+        return sum;
+    }
 
     public void update() {
         if (player != null && player.effectSkill != null) {
@@ -2994,6 +3017,27 @@ public class NPoint {
                 }
             }
 
+            if (!player.isDie() && Util.canDoWithTime(lastTimeKi10s, 10000)) { // option 178: KI+#%/10s
+                this.lastTimeKi10s = System.currentTimeMillis();
+                int ki = bodyOption(178);
+                if (ki > 0 && mp < mpMax) {
+                    PlayerService.gI().hoiPhuc(this.player, 0, mpMax * ki / 100);
+                }
+            }
+            int hoi120 = bodyOption(223); // option 223: cứ 120 giây kích hồi #% HP trong vòng 30 giây (chia 6 lần, 5 giây/lần)
+            if (hoi120 > 0 && !player.isDie()) {
+                long now = System.currentTimeMillis();
+                if (now - lastTimeKichHoi >= 120000) {
+                    lastTimeKichHoi = now;
+                    kichHoiTick = 0;
+                }
+                if (kichHoiTick < 6 && now - lastTimeKichHoi >= kichHoiTick * 5000L) {
+                    kichHoiTick++;
+                    if (hp < hpMax) {
+                        PlayerService.gI().hoiPhuc(this.player, hpMax * hoi120 / 100 / 6, 0);
+                    }
+                }
+            }
             if (Util.canDoWithTime(lastTimeHoiPhuc, 30000)) {
                 PlayerService.gI().hoiPhuc(this.player, hpHoi, mpHoi);
                 this.lastTimeHoiPhuc = System.currentTimeMillis();
