@@ -47,6 +47,23 @@ public class AnnounceService {
         }, "announce-login").start(); // đọc hạng từ DB, không chặn luồng đăng nhập
     }
 
+    /** Bot vào game: cũng báo top như người chơi đăng nhập. */
+    public void onBotLogin(Player b) {
+        BOT_QUEUE.execute(() -> { // một luồng xếp hàng: lúc khởi động hàng trăm bot vào cùng lúc không dồn DB
+            try {
+                announce(b);
+            } catch (Exception e) {
+                nro.models.utils.Logger.error("Thông báo top bot vào game lỗi: " + e + "\n");
+            }
+        });
+    }
+
+    private static final java.util.concurrent.ExecutorService BOT_QUEUE = java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "announce-bot");
+        t.setDaemon(true);
+        return t;
+    });
+
     private void announce(Player pl) {
         List<String> tops = new java.util.ArrayList<>();
         try {

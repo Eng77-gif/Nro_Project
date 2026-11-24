@@ -2605,7 +2605,8 @@ public class SeasonEventService implements Runnable {
     }
 
     public void buyFromEventShop(Player pl, int tempId) {
-        Service.gI().hideWaitDialog(pl); // client bật "Xin chờ" khi bấm mua: tắt ngay, không thì chờ hết hạn mới hiện ô nhập / kết quả
+        Service.gI().hideWaitDialog(pl);
+        Service.gI().sendMoney(pl); // hộp "Xin chờ" giữa màn hình của shop chỉ tắt khi client nhận tin tiền (msg 6), -99 không tắt được
         Map<Integer, Exchange> m = shopOpen.get(pl.id);
         Exchange e = m == null ? null : m.get(tempId);
         if (e == null || e.season == null || !e.season.active) {

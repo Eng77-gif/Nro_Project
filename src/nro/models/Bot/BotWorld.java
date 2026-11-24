@@ -956,6 +956,7 @@ public final class BotWorld {
             }
             return false;
         }
+        nro.models.services.AnnounceService.gI().onBotLogin(b);
         return true;
     }
 
@@ -1948,6 +1949,8 @@ public final class BotWorld {
         b.joinMap();
         if (b.zone == null) {
             BotManager.gI().bot.remove(b);
+        } else {
+            nro.models.services.AnnounceService.gI().onBotLogin(b);
         }
     }
 

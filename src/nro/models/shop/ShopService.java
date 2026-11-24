@@ -577,7 +577,8 @@ public class ShopService {
             return false;
         }
         pendingQty.put(player.id, tempId);
-        Service.gI().hideWaitDialog(player); // tắt "Xin chờ" của client ngay (không thì chờ hết hạn mới hiện ô nhập)
+        Service.gI().hideWaitDialog(player);
+        Service.gI().sendMoney(player); // hộp "Xin chờ" giữa màn hình của shop chỉ tắt khi client nhận tin tiền (msg 6), -99 không tắt được
         nro.models.services_func.Input.gI().createForm(player, nro.models.services_func.Input.SHOP_QTY,
                 "Bạn muốn mua bao nhiêu [" + is.temp.name + "] ?",
                 new nro.models.services_func.Input.SubInput("Số lượng (tối đa có thể mua " + maxQty(player, is) + ")", nro.models.services_func.Input.NUMERIC));
