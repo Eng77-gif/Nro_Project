@@ -204,8 +204,28 @@ final class BotGear {
             java.util.Map.entry(148, 2), java.util.Map.entry(114, 2), java.util.Map.entry(101, 3), java.util.Map.entry(236, 1),
             java.util.Map.entry(268, 1), java.util.Map.entry(100, 1), java.util.Map.entry(253, 2));
 
+    /** Lối chơi của bot (cố định theo mã bot): 0 sức đánh, 1 HP / trâu, 2 cân bằng. */
+    static int style(Bot b) {
+        return (int) Math.floorMod(b.id, 3L);
+    }
+
+    private static final java.util.Set<Integer> DAME_OPTS = java.util.Set.of(50, 14, 5, 10, 204, 19);
+    private static final java.util.Set<Integer> TANK_OPTS = java.util.Set.of(77, 94, 108, 97, 191, 80, 95);
+
+    /** Nhân hệ số theo lối chơi (phần trăm): dòng hợp lối chơi x1.6, dòng ngược lối chơi x0.7. */
+    private static int styleMul(Bot b, int id) {
+        int st = style(b);
+        if (st == 0) {
+            return DAME_OPTS.contains(id) ? 160 : TANK_OPTS.contains(id) ? 70 : 100;
+        }
+        if (st == 1) {
+            return TANK_OPTS.contains(id) ? 160 : DAME_OPTS.contains(id) ? 70 : 100;
+        }
+        return 100;
+    }
+
     /**
-     * Độ ngon của đồ ngoại hình với chính bot này: chỉ số theo giá trị thật (sức đánh / chí mạng / giảm sát thương nặng hơn may mắn / vàng rơi),
+     * Độ ngon của đồ ngoại hình với chính bot này (theo lối chơi: sức đánh đeo Pháo hoa NRO, trâu đeo Cờ bông tuyết): chỉ số theo giá trị thật (sức đánh / chí mạng / giảm sát thương nặng hơn may mắn / vàng rơi),
      * hợp với đồ đang mặc (dòng "Đi cùng X" khi bot hoặc đệ đang mặc X, cải trang hợp thể đặc biệt khi đệ mặc món còn lại), đồ vĩnh viễn hơn đồ có hạn.
      */
     static long lookScore(Bot b, Item it) {
@@ -233,8 +253,12 @@ final class BotGear {
                 s += io.param * (wearsMatch(b, n) ? 40L : 2L);
             } else if (id == 47) {
                 s += io.param / 200;
+            } else if (id == 0 || id == 6) { // Tấn công+# / HP+#: lối sức đánh thích tấn công, lối trâu thích HP
+                int st = style(b);
+                boolean fit = (id == 0 && st == 0) || (id == 6 && st == 1);
+                s += Math.min(io.param, 1_000_000) / (fit ? 80 : st == 2 ? 400 : 2000);
             } else if (n.contains("%")) {
-                s += (long) io.param * LOOK_WEIGHT.getOrDefault(id, 8);
+                s += (long) io.param * LOOK_WEIGHT.getOrDefault(id, 8) * styleMul(b, id) / 100;
             } else {
                 s += Math.min(io.param, 1_000_000) / 1000;
             }
