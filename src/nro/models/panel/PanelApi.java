@@ -1553,12 +1553,12 @@ public class PanelApi {
     // ------------------------------------------------------------------ hộp quà
 
     private Object boxRows(int boxId) throws Exception {
-        return rows("select b.id, b.box_id, b.item_id, t.name, t.icon_id, b.qty_min, b.qty_max, b.weight, b.hsd_days, b.perm_rate, b.pity from item_box_reward b left join item_template t on t.id=b.item_id where b.box_id=? order by b.id", boxId);
+        return rows("select b.id, b.box_id, b.item_id, t.name, t.icon_id, b.qty_min, b.qty_max, b.weight, b.hsd_days, b.perm_rate, b.pity, b.perm_pity from item_box_reward b left join item_template t on t.id=b.item_id where b.box_id=? order by b.id", boxId);
     }
 
     private Object boxSave(Map<String, Object> b) throws Exception {
         Object[] v = {intv(b.get("box_id")), intv(b.get("item_id")), Math.max(1, intv(b.getOrDefault("qty_min", 1))), Math.max(1, intv(b.getOrDefault("qty_max", 1))),
-            intv(b.getOrDefault("weight", 1)), str(b.get("hsd_days")), Math.max(0, Math.min(100, Double.parseDouble("0" + str(b.getOrDefault("perm_rate", 0)).replace(',', '.').replaceAll("[^0-9.]", "")))), Math.max(0, intv(b.getOrDefault("pity", 0)))};
+            intv(b.getOrDefault("weight", 1)), str(b.get("hsd_days")), Math.max(0, Math.min(100, Double.parseDouble("0" + str(b.getOrDefault("perm_rate", 0)).replace(',', '.').replaceAll("[^0-9.]", "")))), Math.max(0, intv(b.getOrDefault("pity", 0))), Math.max(0, intv(b.getOrDefault("perm_pity", 0)))};
         double rate = b.get("rate") == null || str(b.get("rate")).isBlank() ? 0 : Double.parseDouble(str(b.get("rate")).replace(',', '.'));
         if (rate > 0) { // nhập theo %: quy về thang 100000 (1 = 0,001%), các dòng khác giữ nguyên tỉ lệ giữa nhau
             rate = Math.max(0.1, Math.min(rate, 100));
@@ -1574,10 +1574,10 @@ public class PanelApi {
             v[4] = w;
         }
         if (b.get("id") != null && lng(b.get("id")) > 0) {
-            update("update item_box_reward set box_id=?, item_id=?, qty_min=?, qty_max=?, weight=?, hsd_days=?, perm_rate=?, pity=? where id=?",
-                    v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], lng(b.get("id")));
+            update("update item_box_reward set box_id=?, item_id=?, qty_min=?, qty_max=?, weight=?, hsd_days=?, perm_rate=?, pity=?, perm_pity=? where id=?",
+                    v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], lng(b.get("id")));
         } else {
-            update("insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values (?, ?, ?, ?, ?, ?, ?, ?)", v);
+            update("insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity, perm_pity) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", v);
         }
         Event2026Service.gI().reloadBoxes();
         return Map.of("ok", true);

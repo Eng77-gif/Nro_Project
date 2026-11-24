@@ -84,6 +84,7 @@ public class Input {
     public static final int LOA_THE_GIOI = 35; // Loa to thế giới (1652): dòng chữ chạy cho cả server
     public static final int THROW_CONFIRM = 39; // gõ OK / 1 để hủy bỏ vật phẩm
     public static final int SHOP_QTY = 38; // số lượng mua ở shop Santa
+    public static final int AUTO_OPEN_QTY = 41; // số hộp quà muốn tự động mở
     public static final int EVENT_SHOP_QTY = 37; // số lượng mua ở cửa hàng sự kiện (Chi Chi / Quy Lão)
     public static final int LOA_LIEN_VU_TRU = 36; // Loa to liên vũ trụ (1653): bảng thông báo lớn giữa màn hình mọi người
 
@@ -115,6 +116,8 @@ public class Input {
                     UseItem.gI().confirmThrow(player, text.length > 0 ? text[0] : "");
                 case SHOP_QTY ->
                     nro.models.shop.ShopService.gI().buyQuantity(player, text.length > 0 ? text[0] : "");
+                case AUTO_OPEN_QTY ->
+                    nro.models.services.Event2026Service.gI().autoOpenQty(player, text.length > 0 ? text[0] : "");
                 case EVENT_SHOP_QTY ->
                     nro.models.services.SeasonEventService.gI().buyFromEventShopQty(player, text.length > 0 ? text[0] : "");
                 case BOTITEM, BOTBOSS, BOTQUAI, BOTATTACKPLAYER, GIVE_IT, CHANGE_NAME, FIND_PLAYER -> {

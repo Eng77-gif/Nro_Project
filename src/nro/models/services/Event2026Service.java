@@ -215,6 +215,8 @@ public class Event2026Service {
         double permRate; // % ra vĩnh viễn, nhận số lẻ (0,1)
         /** Bảo hiểm: mở đủ số lần này mà chưa ra thì lần đó chắc chắn ra (0 = không có). */
         int pity;
+        /** Bảo hiểm vĩnh viễn: ra đủ số con có hạn cùng loại này thì con kế tiếp chắc chắn vĩnh viễn (0 = không có). */
+        int permPity;
         int[] days;
     }
 
@@ -230,6 +232,11 @@ public class Event2026Service {
                 b.qtyMax = Math.max(b.qtyMin, r.getInt("qty_max"));
                 b.weight = r.getInt("weight");
                 b.permRate = r.getDouble("perm_rate");
+                try {
+                    b.permPity = Math.max(0, r.getInt("perm_pity"));
+                } catch (Exception noColumn) {
+                    b.permPity = 0;
+                }
                 try {
                     b.pity = Math.max(0, r.getInt("pity"));
                 } catch (Exception noColumn) {
@@ -360,13 +367,44 @@ public class Event2026Service {
         if (select == 0) {
             openBoxOne(pl, box);
         } else if (select == 1) {
+            AUTO_PENDING.put(pl.id, boxId);
+            nro.models.services_func.Input.gI().createForm(pl, nro.models.services_func.Input.AUTO_OPEN_QTY,
+                    "Tự động mở bao nhiêu [" + box.template.name + "] ?",
+                    new nro.models.services_func.Input.SubInput("Số lượng (đang có " + box.quantity + ")", nro.models.services_func.Input.NUMERIC));
+        }
+    }
+
+    private static final Map<Long, Integer> AUTO_PENDING = new ConcurrentHashMap<>();
+
+    /** Nhập số lượng tự động mở (Input.AUTO_OPEN_QTY). */
+    public void autoOpenQty(Player pl, String text) {
+        Integer boxId = AUTO_PENDING.remove(pl.id);
+        if (boxId == null || AUTO_OPEN.containsKey(pl.id)) {
+            return;
+        }
+        Item box = InventoryService.gI().findItemBag(pl, boxId);
+        if (box == null || !isBox(box)) {
+            return;
+        }
+        int want;
+        try {
+            want = Integer.parseInt(text.replaceAll("[^0-9]", ""));
+        } catch (NumberFormatException bad) {
+            want = 0;
+        }
+        if (want <= 0) {
+            Service.gI().sendThongBao(pl, "Số lượng không hợp lệ");
+            return;
+        }
+        int limit = Math.min(want, box.quantity);
+        {
             int[] opened = {0};
             AUTO_OPEN.put(pl.id, AUTO_EXEC.scheduleWithFixedDelay(() -> {
                 try {
                     Item b = InventoryService.gI().findItemBag(pl, boxId);
                     if (pl.session == null || pl.beforeDispose) {
                         stopAutoOpen(pl, null);
-                    } else if (b == null || !isBox(b)) {
+                    } else if (b == null || !isBox(b) || opened[0] >= limit) {
                         stopAutoOpen(pl, "Tự động mở xong: đã mở " + opened[0] + " hộp");
                     } else if (InventoryService.gI().getCountEmptyBag(pl) <= 0) {
                         stopAutoOpen(pl, "Hành trang đầy, dừng tự động mở (đã mở " + opened[0] + " hộp)");
@@ -380,7 +418,7 @@ public class Event2026Service {
                     Logger.logException(Event2026Service.class, e, "Lỗi tự động mở hộp");
                 }
             }, 0, 500, java.util.concurrent.TimeUnit.MILLISECONDS));
-            Service.gI().sendThongBao(pl, "Bắt đầu tự động mở " + box.template.name);
+            Service.gI().sendThongBao(pl, "Bắt đầu tự động mở " + limit + " " + box.template.name);
         }
     }
 
@@ -535,6 +573,10 @@ public class Event2026Service {
             if (pick.days.length > 0 && !(Math.random() * 100 < pick.permRate)) {
                 days = pick.days[Util.nextInt(0, pick.days.length - 1)];
             }
+            if (pick.permPity > 0 && pick.days.length > 0 && pl != null && pl.isPl() && permPity(pl, boxId, rewardId, days > 0, pick.permPity)) {
+                days = 0; // bảo hiểm: đủ số con có hạn cùng loại -> con này vĩnh viễn
+                baoHiem = true;
+            }
             Item it = createItem(rewardId, qty, days);
             if (MAX_STAT_BOXES.contains(boxId)) { // Trứng Xên Vàng: pet chỉ số tối đa
                 it.itemOptions.removeIf(io -> io.optionTemplate == null || io.optionTemplate.id != 93);
@@ -554,6 +596,36 @@ public class Event2026Service {
      * Bảo hiểm hộp quà: đếm số lần mở chưa ra từng món có bảo hiểm (bảng box_pity). Món nào đạt đủ số lần thì lần này
      * chắc chắn ra món đó. Ra món nào thì đếm lại từ 0. Trả về món bị ép ra (null nếu không có).
      */
+    /** Đếm con có hạn liên tiếp của 1 loại quà (theo người chơi + hộp); trả true khi con này phải vĩnh viễn (đếm về 0). Ra vĩnh viễn tự nhiên cũng đếm lại từ 0. */
+    private static boolean permPity(Player pl, int boxId, int itemId, boolean hsd, int need) {
+        try (Connection con = nro.models.data.LocalManager.getConnection()) {
+            int cnt = 0;
+            try (PreparedStatement ps = con.prepareStatement("select cnt from box_perm_pity where player_id = ? and box_id = ? and item_id = ?")) {
+                ps.setLong(1, pl.id);
+                ps.setInt(2, boxId);
+                ps.setInt(3, itemId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        cnt = rs.getInt(1);
+                    }
+                }
+            }
+            boolean force = hsd && cnt + 1 >= need;
+            int next = hsd && !force ? cnt + 1 : 0;
+            try (PreparedStatement ps = con.prepareStatement("insert into box_perm_pity (player_id, box_id, item_id, cnt) values (?, ?, ?, ?) on duplicate key update cnt = values(cnt)")) {
+                ps.setLong(1, pl.id);
+                ps.setInt(2, boxId);
+                ps.setInt(3, itemId);
+                ps.setInt(4, next);
+                ps.executeUpdate();
+            }
+            return force;
+        } catch (Exception e) {
+            Logger.error("Bảo hiểm vĩnh viễn hộp quà: " + e.getMessage() + "\n");
+            return false;
+        }
+    }
+
     private BoxReward applyPity(Player pl, int boxId, List<BoxReward> list, BoxReward pick) {
         try (Connection con = nro.models.data.LocalManager.getConnection()) {
             Map<Integer, Integer> cnt = new java.util.HashMap<>();

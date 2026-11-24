@@ -1405,6 +1405,19 @@ public class Dot139Migration {
             nro.models.utils.Logger.success("Đổi điểm Quy Lão: " + ids.size() + " món hạn 7 - 15 - 30 - 45 ngày, 2% vĩnh viễn\n");
             update(con, "insert into server_migration (name) values ('doi_diem_quy_lao_han2')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'trung_ve_sau_xen'")) {
+            // Trứng ve sầu (2045) mở ra Pet Xên con / hoàn thiện / MAX (chỉ số ngẫu nhiên theo item_template_option),
+            // hạn 7 - 15 - 30 ngày, 1% vĩnh viễn; ra 119 con có hạn cùng loại thì con thứ 120 vĩnh viễn (perm_pity)
+            if (!exists(con, "select 1 from information_schema.columns where table_schema = database() and table_name = 'item_box_reward' and column_name = 'perm_pity'")) {
+                update(con, "alter table item_box_reward add perm_pity int not null default 0");
+            }
+            update(con, "create table if not exists box_perm_pity (player_id bigint not null, box_id int not null, item_id int not null, cnt int not null default 0, primary key (player_id, box_id, item_id))");
+            update(con, "delete from item_box_reward where box_id = 2045");
+            for (int pet : new int[]{2037, 2036, 2038}) {
+                update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity, perm_pity) values (2045, " + pet + ", 1, 1, 100, '7,15,30', 1, 0, 120)");
+            }
+            update(con, "insert into server_migration (name) values ('trung_ve_sau_xen')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'nappa_aura_vv_01'")) {
             // % ra vĩnh viễn của hộp quà nhận số lẻ (0,1%); CT Nappa Aura (2075) ở các hộp có hạn: 0,1% vĩnh viễn
             update(con, "alter table item_box_reward modify perm_rate decimal(6,2) not null default 0");
