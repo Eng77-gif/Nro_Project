@@ -71,6 +71,8 @@ public class PlayerExtraDAO {
             LocalManager.executeUpdate("replace into player_extra (player_id, item_foot, ql_points, aura_reward, aura_until, ql_reward_rank, hdba_count, hdba_reward_rank, hlw_buffs, collection, spl10_reward, lucky_map_until, cong_duc, wish_crit, skh_menu) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     player.id, toJson(player.itemFoot), player.qlPoints, player.auraReward, player.auraRewardUntil, player.qlRewardRank,
                     player.hdbaCount, player.hdbaRewardRank, hlw, toJsonList(player.itemsCollection), player.spl10Reward, player.luckyMapUntil, player.congDuc, player.wishCrit, player.skhMenu ? 1 : 0);
+            LocalManager.executeUpdate("replace into player_look (player_id, head, body, leg) values (?, ?, ?, ?)",
+                    player.id, (int) player.getHead(), (int) player.getBody(), (int) player.getLeg());
         } catch (Exception e) {
             Logger.logException(PlayerExtraDAO.class, e, "Lỗi lưu player_extra " + player.name);
         }

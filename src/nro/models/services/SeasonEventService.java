@@ -2829,6 +2829,18 @@ public class SeasonEventService implements Runnable {
                             offline.put(rs.getLong(1), look(rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getString(5)));
                         }
                     }
+                    try (PreparedStatement p4 = con.prepareStatement("select player_id, head, body, leg from player_look where player_id in (" + ids + ")");
+                            ResultSet rs = p4.executeQuery()) {
+                        while (rs.next()) { // hình lúc lưu cuối: có cả hợp thể / biến hình
+                            Object[] lk = offline.get(rs.getLong(1));
+                            if (lk != null) {
+                                lk[1] = rs.getInt(2);
+                                lk[2] = rs.getInt(3);
+                                lk[3] = rs.getInt(4);
+                            }
+                        }
+                    } catch (Exception ignored) { // chưa có bảng: dùng hình từ đồ đang mặc
+                    }
                 }
                 List<Object[]> list = new ArrayList<>(); // {id, name, head, body, leg, điểm}
                 for (long[] r : rows) {

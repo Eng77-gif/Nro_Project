@@ -2743,3 +2743,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Đeo lưng hiệu ứng (mã 201 - 254: Bút chì hồng, Con Cat hường, Cờ hồn Mabư...) trên APK làm mất nhân vật: không gửi ảnh tĩnh -1 cho client APK nữa (J2ME giữ như cũ).
 - Cửa hàng sự kiện (Chi Chi...) và shop Santa: bấm mua bị 'Xin chờ' vài giây mới hiện ô nhập số lượng -> tắt hộp chờ của client ngay khi xử lý.
 - Xem Top 100 sự kiện bị delay: người chơi offline không còn tải đầy đủ từng tài khoản, thay bằng 1 truy vấn gộp lấy tên / đầu / áo / quần / cải trang (SeasonEventService.showTop100).
+- Top 100 sự kiện: người offline hiện đúng hình lúc lưu cuối, có cả hợp thể / biến hình (bảng player_look, ghi mỗi lần lưu người chơi).

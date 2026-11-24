@@ -858,6 +858,8 @@ public class Dot139Migration {
             update(con, "delete from season_event_top_closed where top_id in (" + tops + ")");
             update(con, "insert into server_migration (name) values ('reopen_2011_tops')");
         }
+        // Hình dáng lần lưu cuối (có cả hợp thể / biến khỉ) để Top 100 hiện đúng người offline
+        update(con, "create table if not exists player_look (player_id bigint primary key, head int not null, body int not null, leg int not null)");
         if (!exists(con, "select 1 from server_migration where name = 'icon_gohan_ssj'")) { // CT Gohan SSJ: icon là ảnh đầu nhỏ 17807 (17838 là ảnh avatar to)
             update(con, "update item_template set icon_id = 17807 where id = 2125");
             update(con, "insert into server_migration (name) values ('icon_gohan_ssj')");
