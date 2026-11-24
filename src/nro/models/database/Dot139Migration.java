@@ -1382,6 +1382,11 @@ public class Dot139Migration {
             update(con, "update season_event_exchange x set x.perm_rate = 10 where x.reward_days = '30' and x.perm_rate = 0" + rare);
             update(con, "insert into server_migration (name) values ('doi_qua_han_hoac_vv')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'doi_diem_quy_lao_han'")) { // đổi điểm Quy Lão: CT / pet / ván / đeo lưng 7 - 15 - 30 - 45 ngày, 2% vĩnh viễn
+            update(con, "update season_event_exchange x set x.reward_days = '7,15,30,45', x.perm_rate = 2 where x.npc = '13' and replace(x.grp, '\\n', ' ') like 'Đổi%điểm'"
+                    + " and x.reward_item in (select id from item_template where TYPE in (5, 23, 24) or (TYPE in (11, 27) and part >= 0))");
+            update(con, "insert into server_migration (name) values ('doi_diem_quy_lao_han')");
+        }
     }
 
     /**
