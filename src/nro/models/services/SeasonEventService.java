@@ -2815,8 +2815,22 @@ public class SeasonEventService implements Runnable {
                 nro.models.network.Message msg = new nro.models.network.Message(-96);
                 msg.writer().writeByte(0);
                 msg.writer().writeUTF("Top 100");
-                List<Player> list = new ArrayList<>();
-                List<Integer> pts = new ArrayList<>();
+                Map<Long, Object[]> offline = new HashMap<>();
+                StringBuilder ids = new StringBuilder();
+                for (long[] r : rows) {
+                    if (Client.gI().getPlayer(r[0]) == null && !nro.models.Bot.BotWorld.isBotId(r[0])) {
+                        ids.append(ids.length() == 0 ? "" : ",").append(r[0]);
+                    }
+                }
+                if (ids.length() > 0) { // một truy vấn cho mọi người offline (trước đây tải đầy đủ từng người nên rất chậm)
+                    try (PreparedStatement p3 = con.prepareStatement("select id, name, head, gender, items_body from player where id in (" + ids + ")");
+                            ResultSet rs = p3.executeQuery()) {
+                        while (rs.next()) {
+                            offline.put(rs.getLong(1), look(rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getString(5)));
+                        }
+                    }
+                }
+                List<Object[]> list = new ArrayList<>(); // {id, name, head, body, leg, điểm}
                 for (long[] r : rows) {
                     Player p = Client.gI().getPlayer(r[0]);
                     if (p == null && nro.models.Bot.BotWorld.isBotId(r[0])) {
@@ -2825,28 +2839,25 @@ public class SeasonEventService implements Runnable {
                             continue; // bot đang không online
                         }
                     }
-                    if (p == null) {
-                        p = nro.models.database.VietLoader.loadById(r[0]);
-                    }
-                    if (p != null) {
-                        list.add(p);
-                        pts.add((int) r[1]);
+                    Object[] lk = p != null ? new Object[]{p.name, (int) p.getHead(), (int) p.getBody(), (int) p.getLeg()} : offline.get(r[0]);
+                    if (lk != null) {
+                        list.add(new Object[]{r[0], lk[0], lk[1], lk[2], lk[3], (int) r[1]});
                     }
                 }
                 msg.writer().writeByte(list.size());
                 for (int i = 0; i < list.size(); i++) {
-                    Player p = list.get(i);
+                    Object[] e = list.get(i);
                     msg.writer().writeInt(i + 1);
-                    msg.writer().writeInt((int) p.id);
-                    msg.writer().writeShort(p.getHead());
+                    msg.writer().writeInt((int) (long) (Long) e[0]);
+                    msg.writer().writeShort((Integer) e[2]);
                     if (pl.getSession() != null && pl.getSession().version > 214) {
                         msg.writer().writeShort(-1);
                     }
-                    msg.writer().writeShort(p.getBody());
-                    msg.writer().writeShort(p.getLeg());
-                    msg.writer().writeUTF(p.name);
+                    msg.writer().writeShort((Integer) e[3]);
+                    msg.writer().writeShort((Integer) e[4]);
+                    msg.writer().writeUTF((String) e[1]);
                     msg.writer().writeUTF("Hạng: " + (i + 1));
-                    msg.writer().writeUTF(pts.get(i) + " điểm");
+                    msg.writer().writeUTF(e[5] + " điểm");
                 }
                 pl.sendMessage(msg);
                 msg.cleanup();
@@ -2854,6 +2865,38 @@ public class SeasonEventService implements Runnable {
                 Logger.error("Lỗi xem top 100: " + e.getMessage() + "\n");
             }
         }, "Top100").start();
+    }
+
+    /** Hình dáng người offline lấy thẳng từ items_body: cải trang (ô 5) nếu có, không thì áo / quần / mặc định theo hành tinh. */
+    private static Object[] look(String name, int head, int gender, String body) {
+        int b = gender == 1 ? 59 : 57, l = gender == 1 ? 60 : 58;
+        try {
+            org.json.simple.JSONArray arr = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(body);
+            int[] ids = new int[6];
+            for (int i = 0; i < 6; i++) {
+                ids[i] = -1;
+                if (arr != null && i < arr.size()) {
+                    org.json.simple.JSONArray it = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(String.valueOf(arr.get(i)));
+                    ids[i] = ItemService.merged(Short.parseShort(String.valueOf(it.get(0))));
+                }
+            }
+            nro.models.player_system.Template.ItemTemplate ao = ids[0] < 0 ? null : ItemService.gI().getTemplate(ids[0]);
+            nro.models.player_system.Template.ItemTemplate quan = ids[1] < 0 ? null : ItemService.gI().getTemplate(ids[1]);
+            nro.models.player_system.Template.ItemTemplate ct = ids[5] < 0 ? null : ItemService.gI().getTemplate(ids[5]);
+            if (ao != null) {
+                b = ao.part;
+            }
+            if (quan != null) {
+                l = quan.part;
+            }
+            if (ct != null) {
+                head = ct.head != -1 ? ct.head : head;
+                b = ct.body != -1 ? ct.body : b;
+                l = ct.leg != -1 ? ct.leg : l;
+            }
+        } catch (Exception ignored) { // dữ liệu hỏng: dùng hình mặc định
+        }
+        return new Object[]{name, head, b, l};
     }
 
     public boolean hasPendingReward(Player pl) {
