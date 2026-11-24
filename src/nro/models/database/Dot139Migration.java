@@ -686,6 +686,10 @@ public class Dot139Migration {
             update(con, "update season_event_exchange set reward_item = 98213, open_now = 1 where event_id = 8 and need in ('1370:1', '1370:10') and reward_item = 1740");
             update(con, "insert into server_migration (name) values ('hop_tra_2011_qua')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'hop_tra_2011_sgk'")) { // tặng Hộp trà hoa cúc: quà + giữ Sách giáo khoa
+            update(con, "update season_event_exchange set bonus_item = 1740, bonus_rate = 100 where event_id = 8 and reward_item = 98213");
+            update(con, "insert into server_migration (name) values ('hop_tra_2011_sgk')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'thiep_2011_qua'")) {
             // Quà Thiệp chúc thường / đặc biệt theo danh sách anh gửi (-121 CT thầy giáo theo hành tinh, -122 bùa 1 giờ / 8 giờ ngẫu nhiên)
             update(con, "delete from item_box_reward where box_id in (1376, 1377)");

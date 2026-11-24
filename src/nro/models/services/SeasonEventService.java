@@ -1721,8 +1721,10 @@ public class SeasonEventService implements Runnable {
                         }
                     }
                 }
-                if (e.bonusItem > 0 && Util.isTrue(e.bonusRate, 100)) {
-                    bonus++;
+                for (int r = 0; r < (e.openNow ? Math.max(1, e.rewardQty) : 1); r++) { // Tặng 10 Hộp trà hoa cúc: 10 lần thêm Sách giáo khoa
+                    if (e.bonusItem > 0 && Util.isTrue(e.bonusRate, 100)) {
+                        bonus++;
+                    }
                 }
             }
             if (total > 0) {
