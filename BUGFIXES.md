@@ -2774,3 +2774,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Client DPNRO 2.3.7: trả về giao thức int (đăng nhập bằng long bị kẹt Xin chờ); log 'Client kết nối: loại, chuỗi phiên bản, số long/int' mỗi lần client kết nối để dò client lạ.
 - Đổi quà / cửa hàng sự kiện (Quy Lão, Chi Chi...) ra cải trang / pet / đeo lưng / thú cưỡi vĩnh viễn: thông báo server 'Chúc mừng X đã may mắn đổi được Y hạn dùng vĩnh viễn'.
 - Thông báo đồ vĩnh viễn (đổi quà sự kiện / mở hộp quà) theo mẫu: 'Chúc mừng X đã may mắn nhận được Y hạn dùng vĩnh viễn khi mở Z'.
+- Đổi quà sự kiện: chỉ thông báo server khi trúng tỉ lệ vĩnh viễn (món có hạn dùng / món luôn vĩnh viễn không báo).

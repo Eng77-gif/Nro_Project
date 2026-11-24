@@ -1729,7 +1729,7 @@ public class SeasonEventService implements Runnable {
                             }
                             Item gotItem = noTrade(Event2026Service.gI().createItem(e.rewardItem, 1, days));
                             InventoryService.gI().addItemBag(pl, gotItem);
-                            if (days == 0) { // ra món vĩnh viễn (cải trang / pet / đeo lưng / thú cưỡi): báo cả server như mở hộp quà
+                            if (days == 0 && e.rewardDays.length > 0 && e.permRate > 0) { // chỉ báo khi trúng tỉ lệ vĩnh viễn (món có hạn dùng không báo)
                                 AnnounceService.gI().onExchangePerm(pl, gotItem, e.name);
                             }
                             got.add(rewardName); // không ghi số ngày trong thông báo (hạn dùng xem ở vật phẩm)
