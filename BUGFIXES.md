@@ -2758,3 +2758,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Gỡ ảnh aura ghép (thẻ Rada + hào quang sức mạnh): client tự vẽ hào quang cấp chồng lên aura thẻ nên không cần ghép.
 - Hào quang 90 tỷ: thêm mốc 90,01 tỷ vào bảng cấp gửi client (như bản chính thức 'KaioShin cấp 2+0.0%') nên client tự vẽ khói trắng (icon 7676) cho cả người chơi lẫn đệ tử, chồng được với aura thẻ; bỏ aura server gửi theo sức mạnh. Danh xưng ở 90,01 tỷ lên 1 cấp.
 - Chỉ số theo ảnh bản chính thức: Cờ ngọc rồng 1 - 7 sao / Super, Bunma tóc xanh neon, Bó Hoa Vàng; Goku giỗ tổ KI +10k - 35k, Goku GT Kid HP +10k - 35k (HP 35%, né chí mạng 22%), Cánh hào khí KI +20k - 40k ngẫu nhiên khi nhận (đồ cũ giữ nguyên, không tung lại mỗi lần đăng nhập).
+- Cánh hào khí: KI +5.000 - 40.000 ngẫu nhiên (trước 20k - 40k).

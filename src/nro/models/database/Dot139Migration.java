@@ -1314,8 +1314,12 @@ public class Dot139Migration {
                 {{1586}, {50, 22}, {77, 22}, {103, 22}, {108, 10}, {94, 12}, {14, 10}, {5, 15}}, // Cờ ngọc rồng Super
                 {{1996}, {103, 35}, {7, 10000, 35000}, {108, 21}}, // Cải trang Goku giỗ tổ: KI +10k - 35k ngẫu nhiên
                 {{1955}, {77, 35}, {191, 22}, {6, 10000, 35000}}, // Cải trang Goku GT Kid: HP +10k - 35k ngẫu nhiên
-                {{1998}, {103, 40}, {7, 20000, 40000}, {268, 10}}}); // Cánh hào khí: KI +20k - 40k ngẫu nhiên
+                {{1998}, {103, 40}, {7, 20000, 40000}, {268, 10}}}); // Cánh hào khí (đổi 5k - 40k ở canh_hao_khi_5k)
             update(con, "insert into server_migration (name) values ('stats_anh_1124b')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'canh_hao_khi_5k'")) { // Cánh hào khí: KI +5k - 40k ngẫu nhiên
+            update(con, "update item_template_option set param = 5000, param_max = 40000 where template_id = 1998 and option_id = 7");
+            update(con, "insert into server_migration (name) values ('canh_hao_khi_5k')");
         }
     }
 
