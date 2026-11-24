@@ -178,13 +178,12 @@ public class SuperRankService {
         return text.toString();
     }
 
+    /** Như bản chính thức: đang chờ / đang thi đấu thì "Đang chờ để thi đấu", không thì "..." (không ghi phần thưởng). */
     public String textStatus(SuperRankBuilder srb) {
-        if (SuperRankManager.gI().awaitingCompetition(srb.getId())) {
+        if (SuperRankManager.gI().awaitingCompetition(srb.getId()) || SuperRankManager.gI().currentlyCompeting(srb.getId())) {
             return ConstSuperRank.TEXT_DANG_CHO;
-        } else if (SuperRankManager.gI().currentlyCompeting(srb.getId())) {
-            return SuperRankManager.gI().getCompeting(srb.getId());
         }
-        return textReward(srb.getRank());
+        return "...";
     }
 
     /** Thưởng ngày theo bài diễn đàn "Điều chỉnh phần thưởng giải Siêu hạng": {hồng ngọc, số Rương Siêu Hạng}. */
@@ -197,12 +196,6 @@ public class SuperRankService {
         if (rank >= 21 && rank <= 100) return new int[]{5, 0};
         if (rank >= 101 && rank <= 1000) return new int[]{2, 0};
         return null;
-    }
-
-    public String textReward(int rank) {
-        int[] rw = reward(rank);
-        if (rw == null) return "";
-        return "+" + rw[0] + " hồng ngọc" + (rw[1] > 0 ? ", " + rw[1] + " rương" : "") + (rank == 1 ? ", danh hiệu" : "") + "/ ngày";
     }
 
     public Zone getZone(int mapId) {

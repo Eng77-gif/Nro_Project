@@ -2749,3 +2749,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Bot đứng top 1 - 10 đua top sự kiện / Hộp đen bí ẩn: khi bot vào game cũng báo chat thế giới 'TOP N ... vừa đăng nhập' như người chơi (xếp hàng 1 luồng).
 - Mọi bảng xếp hạng (Top Whis, Bà Hạt Mít, máy đấm Trái Đất / Namếc / Xayda, Top 100 sự kiện) không còn tải đầy đủ từng người: dùng chung TopLook (1 truy vấn gộp + hình lúc lưu cuối). Top bang hội / Siêu hạng vốn đã đọc nhẹ.
 - Trọng tài Siêu hạng: thêm lại nút 'Top 100 Cao Thủ' (đầu menu, như ảnh bản chính thức).
+- Bảng Siêu hạng (Top 100 Cao Thủ / Giải siêu hạng): bỏ dòng thưởng '+200 hồng ngọc...' đè lên chữ Hạng; như bản chính thức hiện '...' hoặc 'Đang chờ để thi đấu' khi đang chờ / đang đấu.
