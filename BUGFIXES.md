@@ -2755,4 +2755,3 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Hào quang theo sức mạnh: dưới 80 tỷ để client tự vẽ hào quang cấp (60 - 80 tỷ sét xanh); từ 80 tỷ server gửi theo bảng v10: 80 tỷ xanh dương (6), 110 tỷ xanh lá (82), 120 tỷ hồng (83), 180 tỷ đỏ (84). Thẻ rada / thưởng Quy Lão vẫn ưu tiên.
 - Hào quang sức mạnh theo bộ hình hào quang cấp của client: dưới 90 tỷ client tự vẽ; 90 tỷ khói trắng (aura 5 = icon 7676, như ảnh bản chính thức), 120 tỷ trắng viền hồng (14 = 7677), 180 tỷ xanh nhạt (15 = 7678).
 - Hào quang sức mạnh: bỏ mốc 120 / 180 tỷ (sức mạnh tối đa 90 tỷ); chỉ còn 90 tỷ khói trắng, dưới 90 tỷ client tự vẽ.
-- Bật thẻ Rada (hoặc có aura thưởng top) vẫn thấy hào quang sức mạnh: ghép sẵn ảnh (tools/aura_combo.py) aura_2000+ = hào quang cấp 60 - 90 tỷ (icon 7598) + aura thẻ, aura_3000+ = khói trắng 90 tỷ + aura thẻ; server gửi ảnh ghép khi có cả hai.
