@@ -841,6 +841,10 @@ public class Dot139Migration {
             writeStats(con, new int[][][]{{{1381}, {50, 24}, {77, 25}, {103, 25}, {279, 0}, {104, 30}}});
             update(con, "insert into server_migration (name) values ('ct_de_tu_dan_anh')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'desc_1380'")) { // mô tả CT đệ tử Sửu giống Dần / Tí
+            update(con, "update item_template set description = 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' where id = 1380");
+            update(con, "insert into server_migration (name) values ('desc_1380')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'hop_tra_kygui'")) { // Hộp trà / Hộp trà hoa cúc: ký gửi vàng, giao dịch được
             update(con, "delete from item_template_option where template_id in (1369, 1370) and option_id in (30, 86, 87)");
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1369, 86, 0, 0, 100, 0), (1370, 86, 0, 0, 100, 0)");

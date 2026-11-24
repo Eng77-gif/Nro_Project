@@ -2735,3 +2735,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Bỏ Vé KOL VIP (mở KOL VIP chỉ bằng 450 ngọc) và Thú cưỡi Kỳ Lân (Nguyệt Thần không rơi nữa). Hào quang Sao Pha Lê 10 gắn vĩnh viễn trên đồ đập lên 10 sao trong sự kiện (chỉ mất khi gỡ sao).
 - Bỏ Hộp thần linh (2103, tự thêm), thay bằng Hộp trang bị Thần (1863, data gốc, mở ra 1 món đồ Thần Linh đúng hành tinh): quà Whis 9999 điểm, đồ người chơi đang giữ tự đổi khi đăng nhập.
 - CT đệ tử Dần theo ảnh: SĐ+24%, HP/KI+25%, Chống lạnh (option 279 mới, tác dụng như không bị lạnh), Biến 30% tấn công quái thành HP; mô tả 'Vật phẩm sự kiện (chỉ dành cho đệ tử)'.
+- Mô tả CT đệ tử Sửu: 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' giống Tí / Dần.
