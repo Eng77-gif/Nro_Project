@@ -1321,6 +1321,19 @@ public class Dot139Migration {
             update(con, "update item_template_option set param = 5000, param_max = 40000 where template_id = 1998 and option_id = 7");
             update(con, "insert into server_migration (name) values ('canh_hao_khi_5k')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'stats_anh_1124c'")) { // pet Baby (Rabbit / Secret / Panda / Dino), Ván bay Rồng Thiêng VIP, Pet Capybara hồng, Pet Shimo, Goku bay theo ảnh
+            writeStats(con, new int[][][]{
+                {{1792}, {77, 18}, {94, 5}, {108, 7}}, // Pet Rabbit
+                {{1791}, {77, 22}, {50, 22}, {94, 8}, {5, 11}, {14, 8}}, // Pet Secret
+                {{1794}, {50, 16}, {77, 16}, {103, 16}, {236, 20}}, // Pet Panda
+                {{1793}, {77, 18}, {5, 7}, {14, 5}}, // Pet Dino
+                {{1828}, {50, 14}, {77, 10}, {103, 10}, {5, 8}, {14, 5}, {94, 8}}, // Ván bay Rồng Thiêng VIP
+                {{1668}, {50, 15}, {103, 17}, {77, 15}, {83, 0}}, // Pet Capybara hồng
+                {{1568}, {50, 16}, {77, 18}, {103, 18}, {94, 7}, {14, 5}}, // Pet Shimo
+                {{1572}, {50, 15}, {77, 15}, {103, 15}}}); // Goku bay
+            update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 1828, 85, 0, 0, 100, 0 from dual where not exists (select 1 from item_template_option where template_id = 1828 and option_id = 85)");
+            update(con, "insert into server_migration (name) values ('stats_anh_1124c')");
+        }
     }
 
     /**
