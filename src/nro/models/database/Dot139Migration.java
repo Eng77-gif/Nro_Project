@@ -659,6 +659,14 @@ public class Dot139Migration {
             update(con, "update item_box_reward set perm_rate = 15, hsd_days = '7,15' where box_id = 98412 and item_id in (1380, 1381, 1371, 955, 1933, 1934)");
             update(con, "insert into server_migration (name) values ('whis_hoa10_vv')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'super_rank_box_1924'")) {
+            // Rương Siêu Hạng theo bài diễn đàn: 50k-200k vàng, Rương SPL VIP, NR 1 sao, CT Black Fide (7-15 ngày, 5% vĩnh viễn)
+            update(con, "delete from item_box_reward where box_id = 1924");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values "
+                    + "(1924, -1, 50000, 200000, 400, '', 0, 0), (1924, 1453, 1, 1, 150, '', 0, 0), "
+                    + "(1924, 14, 1, 1, 100, '', 0, 0), (1924, 1913, 1, 1, 50, '7,15', 5, 0)");
+            update(con, "insert into server_migration (name) values ('super_rank_box_1924')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'whis_hoa10_vv7'")) { // CT đệ tử Mão / Dần / Tí, Bó Hoa Vàng: 7% vĩnh viễn (Videl / Gohan giữ 15%)
             update(con, "update item_box_reward set perm_rate = 7 where box_id = 98412 and item_id in (1380, 1381, 1371, 955)");
             update(con, "insert into server_migration (name) values ('whis_hoa10_vv7')");

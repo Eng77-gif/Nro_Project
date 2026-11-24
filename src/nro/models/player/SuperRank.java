@@ -5,6 +5,9 @@ import java.util.List;
 import nro.models.consts.ConstTaskBadges;
 import nro.models.matches.dai_hoi_vo_thuat.SuperRankService;
 import nro.models.services.Service;
+import nro.models.services.InventoryService;
+import nro.models.services.ItemService;
+import nro.models.services.Event2026Service;
 import nro.models.map.service.NpcService;
 import nro.models.task.BadgesTaskService;
 
@@ -46,13 +49,31 @@ public class SuperRank {
             BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.CAO_THU_SIEU_HANG, 1);
         }
 
-        int rw = SuperRankService.gI().reward(rank);
-        if (rw != -1) {
-            Service.gI().sendThongBao(player, "Bạn đang ở TOP " + rank + " Siêu Hạng, nhận được " + rw + " ngọc");
-            player.inventory.gem += rw;
+        int[] rw = SuperRankService.gI().reward(rank);
+        if (rw != null) {
+            player.inventory.ruby += rw[0];
+            String text = "Bạn đang ở TOP " + rank + " Siêu Hạng, nhận được " + rw[0] + " hồng ngọc";
+            if (rw[1] > 0) {
+                give(ItemService.gI().createNewItem((short) 1924, rw[1])); // Rương Siêu Hạng
+                text += ", " + rw[1] + " Rương Siêu Hạng";
+            }
+            if (rank == 1) {
+                give(Event2026Service.gI().createItem(1293, 1, 3)); // Danh hiệu Cao thủ siêu hạng 3 ngày
+                text += ", Danh hiệu Cao thủ siêu hạng 3 ngày";
+            }
+            InventoryService.gI().sendItemBags(player);
+            Service.gI().sendMoney(player);
+            Service.gI().sendThongBao(player, text);
         }
 
         lastRewardTime = System.currentTimeMillis();
+    }
+
+    /** Hành trang đầy thì cất vào rương đồ, không mất quà. */
+    private void give(nro.models.item.Item it) {
+        if (!InventoryService.gI().addItemBag(player, it)) {
+            InventoryService.gI().addItemBox(player, it);
+        }
     }
 
     public void dispose() {

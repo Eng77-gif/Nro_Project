@@ -187,32 +187,22 @@ public class SuperRankService {
         return textReward(srb.getRank());
     }
 
-    public String textReward(int rank) {
-        String text = "";
-        if (rank == 1) {
-            text = "+100 ngọc/ ngày";
-        } else if (rank >= 2 && rank <= 10) {
-            text = "+20 ngọc/ ngày";
-        } else if (rank >= 11 && rank <= 100) {
-            text = "+5 ngọc/ ngày";
-        } else if (rank >= 101 && rank <= 1000) {
-            text = "+1 ngọc/ ngày";
-        }
-        return text;
+    /** Thưởng ngày theo bài diễn đàn "Điều chỉnh phần thưởng giải Siêu hạng": {hồng ngọc, số Rương Siêu Hạng}. */
+    public int[] reward(int rank) {
+        if (rank == 1) return new int[]{200, 10};
+        if (rank == 2) return new int[]{100, 5};
+        if (rank == 3) return new int[]{50, 2};
+        if (rank >= 4 && rank <= 10) return new int[]{20, 1};
+        if (rank >= 11 && rank <= 20) return new int[]{10, 0};
+        if (rank >= 21 && rank <= 100) return new int[]{5, 0};
+        if (rank >= 101 && rank <= 1000) return new int[]{2, 0};
+        return null;
     }
 
-    public int reward(int rank) {
-        int rw = -1;
-        if (rank == 1) {
-            rw = 100;
-        } else if (rank >= 2 && rank <= 10) {
-            rw = 20;
-        } else if (rank >= 11 && rank <= 100) {
-            rw = 5;
-        } else if (rank >= 101 && rank <= 1000) {
-            rw = 1;
-        }
-        return rw;
+    public String textReward(int rank) {
+        int[] rw = reward(rank);
+        if (rw == null) return "";
+        return "+" + rw[0] + " hồng ngọc" + (rw[1] > 0 ? ", " + rw[1] + " rương" : "") + (rank == 1 ? ", danh hiệu" : "") + "/ ngày";
     }
 
     public Zone getZone(int mapId) {
