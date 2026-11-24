@@ -2765,3 +2765,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Hợp thể đặc biệt Gogeta SSJ Blue: sư phụ và đệ tử đều mặc CT Goku SSJ Blue (1590) hoặc CT Cađíc SSJ Blue (1746) thì khi hợp thể hiện hình Cải trang Gogeta SSJ Blue (1865).
 - Hợp thể Gogeta SSJ Blue: sư phụ và đệ tử phải mặc khác nhau (1 Goku SSJ Blue + 1 Cađíc SSJ Blue), cùng loại thì hợp thể thường.
 - Hợp thể đặc biệt Gogeta SSJ4 (CT Goku SSJ4 + CT Cađíc SSJ4) và Gogeta SSJ Blue (CT Goku SSJ Blue + CT Cađíc SSJ Blue, sư phụ / đệ tử mặc khác nhau): +5% HP, +5% sức đánh.
+- Client Unity DPNRO (báo phiên bản 2.3.7, đã đổi IP): đọc HP / KI / SĐ bằng long -> server bật giao thức số lớn cho client không phải J2ME báo 2.3.7.
