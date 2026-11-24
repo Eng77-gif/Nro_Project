@@ -341,6 +341,7 @@ public class Trade {
                     } else {
                         msg.writer().writeInt(item.quantity);
                     }
+                    nro.models.item.Item.displayOrder(item.itemOptions);
                     msg.writeOptionCount(item.itemOptions.size(), item.template.id);
                     for (Item.ItemOption io : item.itemOptions) {
                         msg.writeItemOption(io.optionTemplate.id, io.param);
@@ -358,6 +359,7 @@ public class Trade {
                     } else {
                         msg.writer().writeInt(item.quantity);
                     }
+                    nro.models.item.Item.displayOrder(item.itemOptions);
                     msg.writeOptionCount(item.itemOptions.size(), item.template.id);
                     for (Item.ItemOption io : item.itemOptions) {
                         msg.writeItemOption(io.optionTemplate.id, io.param);

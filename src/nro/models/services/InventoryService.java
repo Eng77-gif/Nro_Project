@@ -617,6 +617,7 @@ public class InventoryService {
                 msg.writer().writeInt(item.quantity);
                 msg.writer().writeUTF(item.getInfo());
                 msg.writer().writeUTF(item.getContent());
+                nro.models.item.Item.displayOrder(item.itemOptions);
                 msg.writeOptionCount(item.itemOptions.size(), item.template.id);
                 for (int j = 0; j < item.itemOptions.size(); j++) {
                     if (item.itemOptions.get(j).optionTemplate.id == 213) {
@@ -675,6 +676,7 @@ public class InventoryService {
                     msg.writer().writeUTF(item.getInfo());
                     msg.writer().writeUTF(item.getContent());
                     List<Item.ItemOption> itemOptions = item.itemOptions;
+                    nro.models.item.Item.displayOrder(itemOptions);
                     msg.writeOptionCount(itemOptions.size(), item.template.id);
                     for (Item.ItemOption itemOption : itemOptions) {
                         if (itemOption.optionTemplate.id == 213) {
@@ -716,6 +718,7 @@ public class InventoryService {
                     msg.writer().writeInt(it.quantity);
                     msg.writer().writeUTF(it.getInfo());
                     msg.writer().writeUTF(it.getContent());
+                    nro.models.item.Item.displayOrder(it.itemOptions);
                     msg.writeOptionCount(it.itemOptions.size(), it.template.id);
                     for (Item.ItemOption io : it.itemOptions) {
                         if (io.optionTemplate.id == 213) {

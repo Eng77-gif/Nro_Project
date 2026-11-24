@@ -787,6 +787,7 @@ public class Service {
                     msg.writer().writeUTF(item.getInfo());
                     msg.writer().writeUTF(item.getContent());
                     List<ItemOption> itemOptions = item.itemOptions;
+                    nro.models.item.Item.displayOrder(itemOptions);
                     msg.writeOptionCount(itemOptions.size(), item.template.id);
                     for (ItemOption itemOption : itemOptions) {
                         msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
@@ -807,6 +808,7 @@ public class Service {
                     msg.writer().writeUTF(item.getInfo());
                     msg.writer().writeUTF(item.getContent());
                     List<ItemOption> itemOptions = item.itemOptions;
+                    nro.models.item.Item.displayOrder(itemOptions);
                     msg.writeOptionCount(itemOptions.size(), item.template.id);
                     for (ItemOption itemOption : itemOptions) {
                         msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);
@@ -827,6 +829,7 @@ public class Service {
                     msg.writer().writeUTF(item.getInfo());
                     msg.writer().writeUTF(item.getContent());
                     List<ItemOption> itemOptions = item.itemOptions;
+                    nro.models.item.Item.displayOrder(itemOptions);
                     msg.writeOptionCount(itemOptions.size(), item.template.id);
                     for (ItemOption itemOption : itemOptions) {
                         msg.writeItemOption(itemOption.optionTemplate.id, itemOption.param);

@@ -234,6 +234,7 @@ public class ShopService {
                             msg.writer().writeInt(itemShop.cost);
                         }
                         itemShop.options.removeIf(o -> o == null || o.optionTemplate == null);
+                        nro.models.item.Item.displayOrder(itemShop.options);
                         msg.writer().writeByte(itemShop.options.size());
                         for (Item.ItemOption option : itemShop.options) {
                             msg.writeItemOption(option.optionTemplate.id, option.param);
@@ -289,6 +290,7 @@ public class ShopService {
                             msg.writer().writeInt(itemShop.cost);
                         }
                         itemShop.options.removeIf(o -> o == null || o.optionTemplate == null);
+                        nro.models.item.Item.displayOrder(itemShop.options);
                         msg.writer().writeByte(itemShop.options.size());
                         for (Item.ItemOption option : itemShop.options) {
                             msg.writeItemOption(option.optionTemplate.id, option.param);
@@ -344,6 +346,7 @@ public class ShopService {
 
                         itemShop.options.removeIf(o -> o == null || o.optionTemplate == null);
 
+                        nro.models.item.Item.displayOrder(itemShop.options);
                         msg.writer().writeByte(itemShop.options.size());
                         for (Item.ItemOption option : itemShop.options) {
                             msg.writeItemOption(option.optionTemplate.id, option.param);
@@ -382,6 +385,7 @@ public class ShopService {
                         msg.writer().writeShort(itemShop.iconSpec);
                         msg.writer().writeInt(itemShop.cost);
                         itemShop.options.removeIf(o -> o == null || o.optionTemplate == null);
+                        nro.models.item.Item.displayOrder(itemShop.options);
                         msg.writer().writeByte(itemShop.options.size());
                         for (Item.ItemOption option : itemShop.options) {
                             msg.writeItemOption(option.optionTemplate.id, option.param);
@@ -427,6 +431,7 @@ public class ShopService {
                 msg.writer().writeShort(item.template.id);
                 msg.writer().writeUTF("Vòng quay Thượng Đế"); // trước ghi "|7| LUCKY REWARD", client hiện cả mã màu
                 List<Item.ItemOption> opts = item.itemOptions.stream().filter(io -> io != null && io.optionTemplate != null).toList();
+                nro.models.item.Item.displayOrder(opts);
                 msg.writer().writeByte(opts.size() + 1);
                 for (Item.ItemOption io : opts) {
                     msg.writeItemOption(io.optionTemplate.id, io.param);
@@ -474,6 +479,7 @@ public class ShopService {
                 msg.writer().writeInt(giamualaivang);
                 msg.writer().writeInt(giamualaingoc);
                 msg.writer().writeInt(item.quantity);
+                nro.models.item.Item.displayOrder(item.itemOptions);
                 msg.writeOptionCount(item.itemOptions.size(), item.template.id);
                 for (Item.ItemOption io : item.itemOptions) {
                     msg.writeItemOption(io.optionTemplate.id, io.param);

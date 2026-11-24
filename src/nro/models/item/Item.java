@@ -125,6 +125,35 @@ public class Item {
         }
     }
 
+    /**
+     * Thứ tự dòng hiện cho người chơi: các dòng chỉ số trước, "Không thể giao dịch" sau, dòng hạn sử dụng
+     * ("Hạn sử dụng # ngày" / "Hạn sử dụng hoặc vĩnh viễn") dưới cùng. Sắp xếp ngay trên danh sách (giữ thứ tự các dòng còn lại).
+     */
+    public static void displayOrder(java.util.List<ItemOption> opts) {
+        if (opts == null || opts.size() < 2) {
+            return;
+        }
+        java.util.List<ItemOption> head = new java.util.ArrayList<>(), noTrade = new java.util.ArrayList<>(), hsd = new java.util.ArrayList<>();
+        for (ItemOption o : opts) {
+            int id = o == null || o.optionTemplate == null ? -1 : o.optionTemplate.id;
+            (id == 30 ? noTrade : id == 93 || id == 231 ? hsd : head).add(o);
+        }
+        java.util.List<ItemOption> want = new java.util.ArrayList<>(head);
+        want.addAll(noTrade);
+        want.addAll(hsd);
+        boolean same = true;
+        for (int i = 0; i < want.size() && same; i++) {
+            same = want.get(i) == opts.get(i);
+        }
+        if (same) {
+            return; // đã đúng thứ tự: không đụng vào danh sách (luồng khác có thể đang đọc)
+        }
+        synchronized (opts) {
+            opts.clear();
+            opts.addAll(want);
+        }
+    }
+
     public static class ItemOption {
 
         public int param;

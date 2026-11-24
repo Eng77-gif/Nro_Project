@@ -2312,6 +2312,7 @@ public class SeasonEventService implements Runnable {
                 msg.writer().writeShort(tempId);
                 msg.writer().writeUTF("Cách nhận: Đua Top nhận\n|1|TOP #" + r[2] + " " + topName + (r[4] > 1 ? " (x" + Util.numberToMoney(r[4]) + ")" : ""));
                 List<Item.ItemOption> opts = it != null ? it.itemOptions : new ArrayList<>();
+                nro.models.item.Item.displayOrder(opts);
                 msg.writer().writeByte(opts.size());
                 for (Item.ItemOption io : opts) {
                     msg.writeItemOption(io.optionTemplate.id, io.param);
