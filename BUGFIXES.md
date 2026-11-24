@@ -2771,3 +2771,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - 140 đeo lưng đang trùng chỉ số tạm (8/8/8, 6 - 9, 8 - 12): mỗi món chỉ số riêng (SĐ/HP/KI 8 - 18% + 1 - 2 dòng phụ đủ loại, mức 60%), không trùng; đồ cũ lấy chỉ số mới khi đăng nhập.
 - Chỉ số riêng 411 cải trang / pet / ván bay / đeo lưng: bỏ dòng Tấn công+# / HP+# / KI+#, mỗi món 2 - 4 dòng phụ; đồ cũ bỏ các dòng cộng thẳng của bản trước khi đăng nhập.
 - Vòng quay Thượng Đế: quay được vàng thì cộng thẳng vào hành trang và báo 'Bạn nhận được 100.000 vàng' (trước bỏ vào rương phụ).
+- Client DPNRO 2.3.7: trả về giao thức int (đăng nhập bằng long bị kẹt Xin chờ); log 'Client kết nối: loại, chuỗi phiên bản, số long/int' mỗi lần client kết nối để dò client lạ.
