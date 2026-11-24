@@ -721,7 +721,7 @@ public class Dot139Migration {
         }
         if (!exists(con, "select 1 from server_migration where name = 'go_ct_khong_hinh'")) {
             // gỡ cải trang không có hình trong data (không đầu / thân / chân): giữ ô vì mã = vị trí, bỏ khỏi hộp quà / shop
-            String g = "1145, 1415, 1604, 1906, 1907, 1991"; // 1710 / 1785 / 1800 / 1778 / 1996 có part (ct_khoi_phuc_part, ct_khoi_phuc_x4)
+            String g = "1145, 1415, 1604, 1991"; // Bill / Champa: ct_part_goc;  1710 / 1785 / 1800 / 1778 / 1996 có part (ct_khoi_phuc_part, ct_khoi_phuc_x4)
             update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1, head = -1, body = -1, leg = -1 where id in (" + g + ")");
             update(con, "delete from item_template_option where template_id in (" + g + ")");
             update(con, "delete from item_box_reward where item_id in (" + g + ")");
@@ -761,6 +761,23 @@ public class Dot139Migration {
             writeStats(con, new int[][][]{{{1778}, {117, 30}, {14, 15}, {108, 15}}, {{1996}, {103, 35}, {7, 17000}, {108, 21}}});
             update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 2013, 1996, 1, 1, 50, '15,30', 2, 0 from dual where not exists (select 1 from item_box_reward where box_id = 2013 and item_id = 1996)");
             update(con, "insert into server_migration (name) values ('ct_khoi_phuc_x4')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'ct_part_goc'")) {
+            // part gốc trong Nr_Part.sql (bộ x4): Lý Tiểu Nương Rực Rỡ (1686 - 1688) / Goku giỗ tổ (1968 - 1970) thay toạ độ ghép tạm 2413 - 2418;
+            // Cải trang Bill (part 508 - 510, trùng sẵn), Cải trang Champa (511 + 512 / 513 theo bản gốc)
+            update(con, "update part set DATA = '[[14738,0,-8],[14739,-2,-12],[2955,0,0]]' where id = 2413");
+            update(con, "update part set DATA = '[[14740,-4,-4],[14741,-1,-6],[14742,0,-8],[14743,-1,-7],[14744,-1,-6],[14745,1,-7],[14746,0,-7],[14747,2,-10],[14748,-1,-6],[14749,-2,-6],[14750,-3,-7],[14751,-2,-6],[14752,-2,-8],[14753,-1,-7],[14754,-2,-7],[14755,-5,-4],[2955,0,0]]' where id = 2414");
+            update(con, "update part set DATA = '[[14756,3,2],[14757,-2,-3],[14758,0,-2],[14759,-2,-4],[14760,0,-5],[14761,-1,-4],[14762,1,-3],[14763,0,-3],[14764,-1,-2],[14765,-4,-7],[14766,2,-5],[14767,-5,-1],[14768,0,-5],[2955,0,0]]' where id = 2415");
+            update(con, "update part set DATA = '[[16763,0,-16],[16764,1,-20],[2955,0,0]]' where id = 2416");
+            update(con, "update part set DATA = '[[16765,-12,-7],[16790,-13,-12],[16766,-9,-14],[2955,4,-5],[2955,0,0],[2955,0,0],[2955,0,0],[16767,-5,-14],[16768,-10,-15],[16769,-11,-13],[16770,-9,-13],[16771,-4,-14],[16772,-8,-16],[16773,-7,-13],[16774,-12,-11],[16775,-20,-14],[2955,0,0]]' where id = 2417");
+            update(con, "update part set DATA = '[[16776,-1,1],[16791,-3,-7],[16777,0,-5],[16778,-4,-21],[16779,-10,-20],[16780,-4,-21],[16781,-4,-19],[16782,-3,-3],[16783,-3,-6],[16784,-7,-8],[16785,2,-3],[16786,0,-1],[16787,-2,-3],[2955,0,0]]' where id = 2418");
+            update(con, "update part set DATA = '[[4881,-1,-5],[4882,-4,-10],[4883,-5,-8],[4884,-2,-7],[4885,-2,-8],[4886,-1,-7],[4887,-4,-7],[4888,-2,-6],[4889,0,-7],[4894,-2,-6],[4890,-1,-5],[4893,-4,-4],[4891,0,-5],[4895,-1,-6],[4892,0,-7],[4907,-2,-7],[3001,0,0]]' where id = 512");
+            update(con, "update part set DATA = '[[4878,2,1],[4896,-2,-4],[4898,-15,-2],[4899,-8,-2],[4900,-17,-4],[4901,-9,-2],[4902,-12,-5],[4908,-3,-2],[4897,-5,-2],[4903,-2,-5],[4906,-3,-4],[4905,-3,0],[4904,-4,-3],[3002,0,0]]' where id = 513");
+            update(con, "update item_template set NAME = 'Cải trang Bill', description = 'Vật phẩm sự kiện', TYPE = 5, part = -1, head = 508, body = 509, leg = 510 where id = 1906");
+            update(con, "update item_template set NAME = 'Cải trang Champa', description = 'Vật phẩm sự kiện', TYPE = 5, part = -1, head = 511, body = 512, leg = 513 where id = 1907");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 1728, 1906, 1, 1, 5, '7,15', 1, 0 from dual where not exists (select 1 from item_box_reward where box_id = 1728 and item_id = 1906)");
+            update(con, "insert into head_avatar (head_id, avatar_id) select 511, 5068 from dual where not exists (select 1 from head_avatar where head_id = 511)");
+            update(con, "insert into server_migration (name) values ('ct_part_goc')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'hop_tra_kygui'")) { // Hộp trà / Hộp trà hoa cúc: ký gửi vàng, giao dịch được
             update(con, "delete from item_template_option where template_id in (1369, 1370) and option_id in (30, 86, 87)");
