@@ -367,44 +367,13 @@ public class Event2026Service {
         if (select == 0) {
             openBoxOne(pl, box);
         } else if (select == 1) {
-            AUTO_PENDING.put(pl.id, boxId);
-            nro.models.services_func.Input.gI().createForm(pl, nro.models.services_func.Input.AUTO_OPEN_QTY,
-                    "Tự động mở bao nhiêu [" + box.template.name + "] ?",
-                    new nro.models.services_func.Input.SubInput("Số lượng (đang có " + box.quantity + ")", nro.models.services_func.Input.NUMERIC));
-        }
-    }
-
-    private static final Map<Long, Integer> AUTO_PENDING = new ConcurrentHashMap<>();
-
-    /** Nhập số lượng tự động mở (Input.AUTO_OPEN_QTY). */
-    public void autoOpenQty(Player pl, String text) {
-        Integer boxId = AUTO_PENDING.remove(pl.id);
-        if (boxId == null || AUTO_OPEN.containsKey(pl.id)) {
-            return;
-        }
-        Item box = InventoryService.gI().findItemBag(pl, boxId);
-        if (box == null || !isBox(box)) {
-            return;
-        }
-        int want;
-        try {
-            want = Integer.parseInt(text.replaceAll("[^0-9]", ""));
-        } catch (NumberFormatException bad) {
-            want = 0;
-        }
-        if (want <= 0) {
-            Service.gI().sendThongBao(pl, "Số lượng không hợp lệ");
-            return;
-        }
-        int limit = Math.min(want, box.quantity);
-        {
             int[] opened = {0};
             AUTO_OPEN.put(pl.id, AUTO_EXEC.scheduleWithFixedDelay(() -> {
                 try {
                     Item b = InventoryService.gI().findItemBag(pl, boxId);
                     if (pl.session == null || pl.beforeDispose) {
                         stopAutoOpen(pl, null);
-                    } else if (b == null || !isBox(b) || opened[0] >= limit) {
+                    } else if (b == null || !isBox(b)) {
                         stopAutoOpen(pl, "Tự động mở xong: đã mở " + opened[0] + " hộp");
                     } else if (InventoryService.gI().getCountEmptyBag(pl) <= 0) {
                         stopAutoOpen(pl, "Hành trang đầy, dừng tự động mở (đã mở " + opened[0] + " hộp)");
@@ -418,7 +387,7 @@ public class Event2026Service {
                     Logger.logException(Event2026Service.class, e, "Lỗi tự động mở hộp");
                 }
             }, 0, 500, java.util.concurrent.TimeUnit.MILLISECONDS));
-            Service.gI().sendThongBao(pl, "Bắt đầu tự động mở " + limit + " " + box.template.name);
+            Service.gI().sendThongBao(pl, "Bắt đầu tự động mở " + box.template.name);
         }
     }
 

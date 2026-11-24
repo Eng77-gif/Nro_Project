@@ -2792,4 +2792,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Hộp quà: bấm Sử dụng khi có từ 2 hộp hiện menu Mở 1 hộp / Tự động mở (N hộp); tự động mở 0,5 giây 1 hộp (vẫn hiệu ứng + thông báo), dừng khi hết hộp, đầy hành trang, thoát game hoặc bấm lại Sử dụng > Dừng tự động mở; xong báo số hộp đã mở.
 - cap_nhat.bat: bước dọn file/thư mục thừa gặp lỗi quyền truy cập (Access is denied) làm hỏng cả lần cập nhật -> nay bỏ qua lỗi, chỉ dọn được bao nhiêu thì dọn.
 - Trứng ve sầu (2045) mở ra Pet Xên bọ hung con / hoàn thiện / MAX (tỉ lệ ngang nhau), chỉ số ngẫu nhiên theo ảnh (Xên con KI 18-25%, KI 15k-35k, vàng rơi 5-15%, may mắn 5-20%; hoàn thiện SĐ 17-23%, SĐ 10k-25k, chí mạng 5-10%, SĐ chí mạng 5-15%, sát thương chuẩn 1-3%; MAX HP 17-25%, HP 20k-150k, giảm ST 5-10%, né 10-20%, giáp 5k-35k), hạn 7/15/30 ngày, 1% vĩnh viễn. Bảo hiểm vĩnh viễn mới (cột perm_pity, chỉnh trên panel): ra 119 con có hạn cùng loại thì con thứ 120 vĩnh viễn.
-- Tự động mở hộp quà: chọn Tự động mở thì hỏi số lượng muốn mở.
+- Tự động mở hộp quà: bỏ bước hỏi số lượng, chọn Tự động mở là mở hết như trước.
