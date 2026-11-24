@@ -864,13 +864,11 @@ public class Player implements Runnable {
     }
 
     /**
-     * Hào quang theo mốc sức mạnh, cùng bộ hình hào quang cấp của client (icon 7598 tím -> 7676 khói trắng -> 7677 trắng viền hồng -> 7678 xanh nhạt):
-     * dưới 90 tỷ client tự vẽ (gửi aura sẽ làm client tắt hào quang cấp của nó); 90 tỷ khói trắng (aura 5 = 7676, như ảnh bản chính thức),
-     * 120 tỷ trắng viền hồng (aura 14 = 7677), 180 tỷ xanh nhạt (aura 15 = 7678).
+     * Hào quang sức mạnh: dưới 90 tỷ client tự vẽ hào quang theo cấp (gửi aura sẽ làm client tắt hào quang cấp của nó);
+     * 90 tỷ (sức mạnh tối đa) khói trắng như ảnh bản chính thức (aura 5 = icon 7676 của client).
      */
     public short auraPower() {
-        long p = nPoint == null ? 0 : nPoint.power;
-        return p >= 180_000_000_000L ? 15 : p >= 120_000_000_000L ? 14 : p >= 90_000_000_000L ? (short) 5 : -1;
+        return nPoint != null && nPoint.power >= 90_000_000_000L ? (short) 5 : -1;
     }
 
     public byte getEffFront() {
