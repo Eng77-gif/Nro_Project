@@ -343,6 +343,13 @@ public class Zone {
                         int playerId = Math.abs(itemMap.playerId > 100_000_000 ? 1_000_000_000 - (int) itemMap.playerId : (int) itemMap.playerId);
                         if (playerId == player.id || itemMap.playerId == player.id || itemMap.playerId == -1) {
                             Item item = ItemService.gI().createItemFromItemMap(itemMap);
+                            if (itemMap.fromBoss != null && nro.models.services.AnnounceService.isRare(item)) {
+                                // boss không rơi cải trang / pet / đeo lưng / thú cưỡi vĩnh viễn: chưa có hạn thì hạn 7 - 15 - 30 ngày
+                                if (item.itemOptions.stream().noneMatch(o -> o.optionTemplate != null && o.optionTemplate.id == 93)) {
+                                    item.itemOptions.add(new Item.ItemOption(93, new int[]{7, 15, 30}[Util.nextInt(0, 2)]));
+                                }
+                                item.fresh = false; // InventoryService.stripCostumeHsd không bỏ hạn
+                            }
                             boolean picked = false;  // Variable to track if the item was successfully picked
 
                             if (itemMap.needItem > 0) { // Bí ngô từ boss Halloween: nhặt vào Giỏ đựng ngọc bí, giỏ mất
