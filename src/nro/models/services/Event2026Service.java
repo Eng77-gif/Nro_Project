@@ -211,7 +211,8 @@ public class Event2026Service {
 
     private static class BoxReward {
 
-        int itemId, qtyMin, qtyMax, weight, permRate;
+        int itemId, qtyMin, qtyMax, weight;
+        double permRate; // % ra vĩnh viễn, nhận số lẻ (0,1)
         /** Bảo hiểm: mở đủ số lần này mà chưa ra thì lần đó chắc chắn ra (0 = không có). */
         int pity;
         int[] days;
@@ -228,7 +229,7 @@ public class Event2026Service {
                 b.qtyMin = Math.max(1, r.getInt("qty_min"));
                 b.qtyMax = Math.max(b.qtyMin, r.getInt("qty_max"));
                 b.weight = r.getInt("weight");
-                b.permRate = r.getInt("perm_rate");
+                b.permRate = r.getDouble("perm_rate");
                 try {
                     b.pity = Math.max(0, r.getInt("pity"));
                 } catch (Exception noColumn) {
@@ -455,7 +456,7 @@ public class Event2026Service {
             }
         } else {
             int days = 0;
-            if (pick.days.length > 0 && !Util.isTrue(pick.permRate, 100)) {
+            if (pick.days.length > 0 && !(Math.random() * 100 < pick.permRate)) {
                 days = pick.days[Util.nextInt(0, pick.days.length - 1)];
             }
             Item it = createItem(rewardId, qty, days);

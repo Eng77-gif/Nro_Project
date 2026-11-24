@@ -2785,3 +2785,5 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Đổi quà / cửa hàng sự kiện ra cải trang có hạn (vd Cải trang Gohan Beast) bị mất dòng hạn sử dụng: InventoryService.stripCostumeHsd tự bỏ hạn của cải trang mới nhận -> món đổi có hạn được đánh dấu giữ hạn (đeo lưng / pet / ván không bị ảnh hưởng nên vẫn có hạn).
 - Boss không rơi cải trang / pet / đeo lưng / thú cưỡi vĩnh viễn: đồ boss nhặt lên chưa có hạn thì hạn 7 - 15 - 30 ngày, giữ dòng hạn (không bị stripCostumeHsd bỏ).
 - Panel Hộp quà: thêm ô "Tỉ lệ ra (%)" nhập từ 0,1% (chấp nhận dấu phẩy); server quy đổi sang tỉ trọng thang 100000 và co giãn các dòng còn lại giữ nguyên tỉ lệ giữa chúng; bảng hiện tỉ lệ tới 0,001%.
+- Hộp quà: "% ra vĩnh viễn" nhận số lẻ (từ 0,1%) - cột item_box_reward.perm_rate đổi sang decimal, panel nhập bước 0,1. CT Nappa Aura (2075) ở các hộp có hạn (Hộp bánh Trung Thu VIP, Capsule CT HSD, Hộp quà 20-11 VIP): 0,1% ra vĩnh viễn.
+- Tối ưu bot chọn map luyện tập: 24 lượt rút map trùng nhau được gộp trước khi kiểm (mỗi map chỉ kiểm canGo / strongEnough 1 lần thay vì tới 24 lần, mỗi lần chép + sắp xếp danh sách quái).

@@ -1405,6 +1405,12 @@ public class Dot139Migration {
             nro.models.utils.Logger.success("Đổi điểm Quy Lão: " + ids.size() + " món hạn 7 - 15 - 30 - 45 ngày, 2% vĩnh viễn\n");
             update(con, "insert into server_migration (name) values ('doi_diem_quy_lao_han2')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'nappa_aura_vv_01'")) {
+            // % ra vĩnh viễn của hộp quà nhận số lẻ (0,1%); CT Nappa Aura (2075) ở các hộp có hạn: 0,1% vĩnh viễn
+            update(con, "alter table item_box_reward modify perm_rate decimal(6,2) not null default 0");
+            update(con, "update item_box_reward set perm_rate = 0.1 where item_id = 2075 and hsd_days <> ''");
+            update(con, "insert into server_migration (name) values ('nappa_aura_vv_01')");
+        }
     }
 
     /**

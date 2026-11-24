@@ -1558,7 +1558,7 @@ public class PanelApi {
 
     private Object boxSave(Map<String, Object> b) throws Exception {
         Object[] v = {intv(b.get("box_id")), intv(b.get("item_id")), Math.max(1, intv(b.getOrDefault("qty_min", 1))), Math.max(1, intv(b.getOrDefault("qty_max", 1))),
-            intv(b.getOrDefault("weight", 1)), str(b.get("hsd_days")), intv(b.getOrDefault("perm_rate", 0)), Math.max(0, intv(b.getOrDefault("pity", 0)))};
+            intv(b.getOrDefault("weight", 1)), str(b.get("hsd_days")), Math.max(0, Math.min(100, Double.parseDouble("0" + str(b.getOrDefault("perm_rate", 0)).replace(',', '.').replaceAll("[^0-9.]", "")))), Math.max(0, intv(b.getOrDefault("pity", 0)))};
         double rate = b.get("rate") == null || str(b.get("rate")).isBlank() ? 0 : Double.parseDouble(str(b.get("rate")).replace(',', '.'));
         if (rate > 0) { // nhập theo %: quy về thang 100000 (1 = 0,001%), các dòng khác giữ nguyên tỉ lệ giữa nhau
             rate = Math.max(0.1, Math.min(rate, 100));

@@ -141,14 +141,12 @@ public final class BotLearn {
 
     /** Gom các map hợp sức của bot (rút nhiều lần từ vùng map theo sức mạnh) rồi bỏ map chưa đi được / quá mạnh. */
     static Set<Integer> candidates(Bot b, java.util.function.IntSupplier pick) {
-        Set<Integer> out = new LinkedHashSet<>();
+        Set<Integer> drawn = new LinkedHashSet<>();
         for (int i = 0; i < 24; i++) {
-            int m = pick.getAsInt();
-            if (b.canGo(m) && b.strongEnough(m)) {
-                out.add(m);
-            }
+            drawn.add(pick.getAsInt());
         }
-        return out;
+        drawn.removeIf(m -> !(b.canGo(m) && b.strongEnough(m))); // kiểm mỗi map 1 lần (trước kiểm lại cả 24 lượt rút, map trùng nhiều)
+        return drawn;
     }
 
     // ------------------------------------------------------------------ panel
