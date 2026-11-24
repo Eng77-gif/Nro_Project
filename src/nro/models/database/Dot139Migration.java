@@ -1375,6 +1375,13 @@ public class Dot139Migration {
             regenVaried(con);
             update(con, "insert into server_migration (name) values ('stats_khac_nhau3')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'doi_qua_han_hoac_vv'")) {
+            // đổi quà / cửa hàng sự kiện: mọi cải trang / pet / ván bay / đeo lưng đều "Hạn sử dụng hoặc vĩnh viễn" (30 ngày, 10% vĩnh viễn)
+            String rare = " and x.reward_item in (select id from item_template where TYPE in (5, 23, 24) or (TYPE in (11, 27) and part >= 0))";
+            update(con, "update season_event_exchange x set x.reward_days = '30', x.perm_rate = 10 where (x.reward_days is null or trim(x.reward_days) = '' or x.reward_days = '0')" + rare);
+            update(con, "update season_event_exchange x set x.perm_rate = 10 where x.reward_days = '30' and x.perm_rate = 0" + rare);
+            update(con, "insert into server_migration (name) values ('doi_qua_han_hoac_vv')");
+        }
     }
 
     /**
