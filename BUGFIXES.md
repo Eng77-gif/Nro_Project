@@ -2720,3 +2720,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Tặng Hộp trà hoa cúc 20/11: vẫn nhận Sách giáo khoa (mỗi hộp 1 quyển) kèm 1 phần quà theo danh sách.
 - Tặng 10 hoa cho Whis: thêm bùa 1h/8h, đá nâng cấp / đá may mắn cấp 1-3, mảnh sưu tầm thường / VIP, item hỗ trợ cấp 2, Rương mảnh thiên sứ x10, Búa hắc hường (Blackpink) và Cờ Con Cat hường có hạn, Đá bảo vệ khóa.
 - Nguyên liệu 20/11 theo bài: Nia tre rơi thêm khi hạ siêu quái (chung giới hạn 999/ngày), Nia tre ký gửi vàng, Que tre ký gửi ngọc (dòng Ký gửi vàng/ngọc, bán ở chợ đồ sự kiện).
+- Hộp trà / Hộp trà hoa cúc 20/11: ký gửi vàng, giao dịch được (làm ra không còn dòng Không thể giao dịch).

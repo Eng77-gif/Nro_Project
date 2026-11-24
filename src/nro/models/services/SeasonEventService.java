@@ -2596,7 +2596,8 @@ public class SeasonEventService implements Runnable {
             return it;
         }
         int t = it.template.type, id = it.template.id;
-        if (id == 457 || id == 2032 || (id >= 14 && id <= 20) || t == 9 || t == 10 || t == 34 || it.getOptionById(30) != null) {
+        if (id == 457 || id == 2032 || id == 1369 || id == 1370 || (id >= 14 && id <= 20) || // Hộp trà / Hộp trà hoa cúc 20/11: giao dịch được
+                 t == 9 || t == 10 || t == 34 || it.getOptionById(30) != null) {
             return it;
         }
         it.itemOptions.add(new Item.ItemOption(30, 0));

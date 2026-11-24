@@ -362,9 +362,9 @@ public class ConsignShopService {
     }
 
     /** Chỉ những món này được đem ký gửi ở King Furry (Bí ngô 1-7 sao, Kẹo bàn tay); vật phẩm sự kiện khác phải tự kiếm. */
-    private static final java.util.Set<Integer> EVENT_CONSIGN = java.util.Set.of(702, 703, 704, 705, 706, 707, 708, 901, 1365, 1366, 1373, 1374, 1376, 1377);
+    private static final java.util.Set<Integer> EVENT_CONSIGN = java.util.Set.of(702, 703, 704, 705, 706, 707, 708, 901, 1365, 1366, 1369, 1370, 1373, 1374, 1376, 1377);
     /** 20/11: Mảnh giấy, Keo dán, Thiệp chúc thường ký gửi vàng; Thiệp chúc đặc biệt ký gửi ngọc. */
-    private static final java.util.Set<Integer> KY_GUI_VANG = java.util.Set.of(901, 1365, 1373, 1374, 1376);
+    private static final java.util.Set<Integer> KY_GUI_VANG = java.util.Set.of(901, 1365, 1369, 1370, 1373, 1374, 1376);
 
     /** Chợ King Furry: tab 1 = Bí ngô 1-3 sao, 2 = 4-5 sao, 3 = 6-7 sao, 4 = Kẹo bàn tay (chợ thường giữ tab cũ). */
     private static byte tabOf(Player pl, ConsignItem it) {
