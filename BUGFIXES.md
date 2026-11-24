@@ -2751,3 +2751,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Trọng tài Siêu hạng: thêm lại nút 'Top 100 Cao Thủ' (đầu menu, như ảnh bản chính thức).
 - Bảng Siêu hạng (Top 100 Cao Thủ / Giải siêu hạng): bỏ dòng thưởng '+200 hồng ngọc...' đè lên chữ Hạng; như bản chính thức hiện '...' hoặc 'Đang chờ để thi đấu' khi đang chờ / đang đấu.
 - Top 100 sự kiện (Chi Chi) như bản chính thức: bên phải dòng hiện 'X giờ trước' (lần cuối được cộng điểm, cột updated_at mới), bỏ chữ 'Hạng: N' đè lên chữ của client; popup hiện Top N / thời gian / '...'.
+- Chi Chi: lời chào chỉ còn 'Bạn muốn hỏi chi ?' (bỏ dòng 'Sự kiện ...').

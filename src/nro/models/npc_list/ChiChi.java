@@ -65,7 +65,7 @@ public class ChiChi extends Npc {
         label.add("Đóng");
         actions.put(player.id, act);
         String name = sv.currentName();
-        createOtherMenu(player, ConstNpc.BASE_MENU, name == null ? "Hiện chưa có sự kiện nào.\nBạn muốn hỏi chi ?" : "Sự kiện " + name + "\nBạn muốn hỏi chi ?",
+        createOtherMenu(player, ConstNpc.BASE_MENU, name == null ? "Hiện chưa có sự kiện nào.\nBạn muốn hỏi chi ?" : "Bạn muốn hỏi chi ?",
                 label.toArray(new String[0]));
     }
 
