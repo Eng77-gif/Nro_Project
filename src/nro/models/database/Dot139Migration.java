@@ -1352,6 +1352,25 @@ public class Dot139Migration {
             regenVaried(con);
             update(con, "insert into server_migration (name) values ('stats_khac_nhau2')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'stats_khac_nhau_deo_lung'")) { // đeo lưng đang trùng chỉ số tạm
+            update(con, "create table if not exists item_stat_varied (template_id int primary key)");
+            java.util.Set<Integer> ids = new java.util.TreeSet<>();
+            String q = "select i.id, (select group_concat(concat(t.option_id, '=', t.param, if(t.param_max <> t.param, concat('..', t.param_max), '')) order by t.option_id)"
+                    + " from item_template_option t where t.template_id = i.id and t.option_id in (" + STAT_IDS + ")) sig from item_template i where i.TYPE = 11 and i.NAME <> 'Vật phẩm đã gỡ'";
+            java.util.Set<String> temp = java.util.Set.of("50=8,77=8,103=8", "50=6..9,77=6..9,103=6..9", "50=8..12,77=8..12,103=8..12");
+            try (java.sql.PreparedStatement ps = con.prepareStatement(q); java.sql.ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    if (temp.contains(String.valueOf(rs.getString(2)))) {
+                        ids.add(rs.getInt(1));
+                    }
+                }
+            }
+            for (int id : ids) {
+                update(con, "insert ignore into item_stat_varied (template_id) values (" + id + ")");
+            }
+            regenVaried(con, ids);
+            update(con, "insert into server_migration (name) values ('stats_khac_nhau_deo_lung')");
+        }
     }
 
     /**
@@ -1506,9 +1525,14 @@ public class Dot139Migration {
 
     /** Làm lại chỉ số các món ở item_stat_varied: SĐ / HP / KI + dòng phụ đủ loại (cải trang 2 - 3 dòng, pet / ván 1 - 2 dòng), không trùng nhau. */
     static void regenVaried(Connection con) throws Exception {
+        regenVaried(con, null);
+    }
+
+    /** only: chỉ làm lại các mã này (null = mọi món ở item_stat_varied). */
+    static void regenVaried(Connection con, java.util.Set<Integer> only) throws Exception {
         String sigSql = "select i.id, (select group_concat(concat(t.option_id, '=', t.param, if(t.param_max <> t.param, concat('..', t.param_max), '')) order by t.option_id)"
                 + " from item_template_option t where t.template_id = i.id and t.option_id in (" + STAT_IDS + ")) sig from item_template i"
-                + " where i.id not in (select template_id from item_stat_varied)";
+                + " where i.id not in (select template_id from item_stat_varied)" + (only == null ? "" : " or i.id not in (" + (only.isEmpty() ? "-1" : only.toString().replaceAll("[\\[\\] ]", "")) + ")");
         java.util.Set<String> used = new java.util.HashSet<>();
         try (java.sql.PreparedStatement ps = con.prepareStatement(sigSql); java.sql.ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -1521,14 +1545,17 @@ public class Dot139Migration {
         try (java.sql.PreparedStatement ps = con.prepareStatement("select i.id, i.TYPE from item_template i join item_stat_varied v on v.template_id = i.id order by i.id");
                 java.sql.ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                todo.add(new int[]{rs.getInt(1), rs.getInt(2)});
+                if (only == null || only.contains(rs.getInt(1))) {
+                    todo.add(new int[]{rs.getInt(1), rs.getInt(2)});
+                }
             }
         }
         java.util.List<int[][]> items = new java.util.ArrayList<>();
         for (int[] t : todo) {
             java.util.Random r = new java.util.Random(t[0] * 104729L + 31);
-            int lo = t[1] == 5 ? 12 : t[1] == 27 ? 8 : 3, hi = t[1] == 5 ? 24 : t[1] == 27 ? 18 : 10;
-            int scale = t[1] == 5 ? 100 : t[1] == 27 ? 60 : 40;
+            boolean mid = t[1] == 27 || t[1] == 11; // pet / đeo lưng
+            int lo = t[1] == 5 ? 12 : mid ? 8 : 3, hi = t[1] == 5 ? 24 : mid ? 18 : 10;
+            int scale = t[1] == 5 ? 100 : mid ? 60 : 40;
             int[][] st;
             String sig;
             do {
