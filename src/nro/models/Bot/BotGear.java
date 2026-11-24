@@ -195,6 +195,90 @@ final class BotGear {
         return s;
     }
 
+    /** Giá trị 1 điểm của từng dòng % cho đồ ngoại hình (cải trang, pet, đeo lưng, ván bay, cờ...); dòng không có trong bảng: 8. */
+    private static final java.util.Map<Integer, Integer> LOOK_WEIGHT = java.util.Map.ofEntries(
+            java.util.Map.entry(50, 30), java.util.Map.entry(77, 20), java.util.Map.entry(103, 12), java.util.Map.entry(14, 30),
+            java.util.Map.entry(5, 18), java.util.Map.entry(108, 20), java.util.Map.entry(191, 12), java.util.Map.entry(94, 25),
+            java.util.Map.entry(97, 12), java.util.Map.entry(10, 35), java.util.Map.entry(204, 15), java.util.Map.entry(19, 6),
+            java.util.Map.entry(95, 10), java.util.Map.entry(104, 6), java.util.Map.entry(80, 8), java.util.Map.entry(81, 4),
+            java.util.Map.entry(148, 2), java.util.Map.entry(114, 2), java.util.Map.entry(101, 3), java.util.Map.entry(236, 1),
+            java.util.Map.entry(268, 1), java.util.Map.entry(100, 1), java.util.Map.entry(253, 2));
+
+    /**
+     * Độ ngon của đồ ngoại hình với chính bot này: chỉ số theo giá trị thật (sức đánh / chí mạng / giảm sát thương nặng hơn may mắn / vàng rơi),
+     * hợp với đồ đang mặc (dòng "Đi cùng X" khi bot hoặc đệ đang mặc X, cải trang hợp thể đặc biệt khi đệ mặc món còn lại), đồ vĩnh viễn hơn đồ có hạn.
+     */
+    static long lookScore(Bot b, Item it) {
+        if (it == null || !it.isNotNullItem()) {
+            return -1;
+        }
+        long s = 0;
+        boolean expiring = false;
+        for (Item.ItemOption io : it.itemOptions) {
+            if (io == null || io.optionTemplate == null || io.optionTemplate.name == null) {
+                continue;
+            }
+            int id = io.optionTemplate.id;
+            String n = io.optionTemplate.name;
+            if (id == 93) {
+                expiring = true;
+                continue;
+            }
+            if (id == 30 || id == 73 || id == 102 || id == 107 || id == 231) {
+                continue;
+            }
+            if (n.startsWith("Mặc giảm")) {
+                s -= io.param * 60L;
+            } else if (n.startsWith("Đi cùng ")) {
+                s += io.param * (wearsMatch(b, n) ? 40L : 2L);
+            } else if (id == 47) {
+                s += io.param / 200;
+            } else if (n.contains("%")) {
+                s += (long) io.param * LOOK_WEIGHT.getOrDefault(id, 8);
+            } else {
+                s += Math.min(io.param, 1_000_000) / 1000;
+            }
+        }
+        int tid = it.template.id;
+        int pair = tid == 1553 ? 1693 : tid == 1693 ? 1553 : tid == 1590 ? 1746 : tid == 1746 ? 1590 : -1;
+        if (pair > 0 && b.pet != null && b.pet.inventory != null && b.pet.inventory.itemsBody.size() > 5) {
+            Item pc = b.pet.inventory.itemsBody.get(5);
+            if (pc != null && pc.isNotNullItem() && pc.template.id == pair) {
+                s += 800; // hợp thể Gogeta SSJ4 / SSJ Blue: +5% HP, +5% sức đánh
+            }
+        }
+        return expiring ? s * 9 / 10 : s;
+    }
+
+    /** Dòng "Đi cùng X tăng ..." mà bot hoặc đệ đang mặc món có tên chứa X. */
+    private static boolean wearsMatch(Bot b, String optName) {
+        String t = optName.substring("Đi cùng ".length());
+        int cut = t.length();
+        for (String k : new String[]{" tăng", " +"}) {
+            int i = t.indexOf(k);
+            if (i > 0) {
+                cut = Math.min(cut, i);
+            }
+        }
+        String want = t.substring(0, cut).trim().toLowerCase();
+        if (want.isEmpty()) {
+            return false;
+        }
+        java.util.List<java.util.List<Item>> lists = new java.util.ArrayList<>();
+        lists.add(b.inventory.itemsBody);
+        if (b.pet != null && b.pet.inventory != null) {
+            lists.add(b.pet.inventory.itemsBody);
+        }
+        for (java.util.List<Item> l : lists) {
+            for (Item x : l) {
+                if (x != null && x.isNotNullItem() && x.template.name != null && x.template.name.toLowerCase().contains(want)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private static Item bodyAt(Bot b, int slot) {
         if (slot == -2) {
             return b.itemFoot;
@@ -205,13 +289,14 @@ final class BotGear {
     /** Cải trang, cờ, pet, đeo lưng, ván bay, ô 10, bóng mờ: mặc món ngon nhất trong hành trang nếu hơn món đang mặc. */
     private static void wearBestLook(Bot b) {
         for (int slot : new int[]{5, 6, 7, 8, 9, 10, -2}) {
-            long cur = score(bodyAt(b, slot));
+            long cur = lookScore(b, bodyAt(b, slot));
             int best = -1;
             for (int i = 0; i < b.inventory.itemsBag.size(); i++) {
                 Item it = b.inventory.itemsBag.get(i);
-                if (slotOf(it) == slot && wearable(b, it.template) && score(it) > cur) {
+                long v;
+                if (slotOf(it) == slot && wearable(b, it.template) && (v = lookScore(b, it)) > cur) {
                     best = i;
-                    cur = score(it);
+                    cur = v;
                 }
             }
             if (best >= 0) {
@@ -286,7 +371,8 @@ final class BotGear {
             Item it = b.inventory.itemsBag.get(i);
             int slot = slotOf(it);
             boolean otherGender = slot != -1 && it.template.gender < 3 && it.template.gender != b.gender;
-            if (slot == -1 || (!otherGender && score(it) > score(bodyAt(b, slot)))) {
+            boolean look = slot >= 5 || slot == -2;
+            if (slot == -1 || (!otherGender && (look ? lookScore(b, it) > lookScore(b, bodyAt(b, slot)) : score(it) > score(bodyAt(b, slot))))) {
                 continue; // không phải đồ mặc, hoặc ngon hơn đồ đang mặc (chưa đủ sức mạnh mặc thì giữ lại)
             }
             boolean expiring = it.itemOptions.stream().anyMatch(o -> o.optionTemplate != null && o.optionTemplate.id == 93);
@@ -331,6 +417,7 @@ final class BotGear {
             }
         }
         ItemShop pick = null;
+        long pickScore = Long.MIN_VALUE;
         for (var shop : Manager.SHOPS) {
             if (!REAL_SHOPS.contains(shop.tagName) || !reach(b, shop.npcId)) {
                 continue; // chỉ mua ở cửa hàng vàng / ngọc thật (Santa, Urôn) khi bot đã mở được map có NPC đó
@@ -341,8 +428,16 @@ final class BotGear {
                         continue;
                     }
                     boolean afford = is.typeSell == 0 ? is.cost <= b.inventory.gold / 5 : is.typeSell == 1 && is.cost <= b.inventory.gem / 2;
-                    if (afford && (pick == null || is.cost > pick.cost)) {
+                    if (!afford) {
+                        continue;
+                    }
+                    Item probe = ItemService.gI().createNewItem((short) is.temp.id); // món ngon nhất trong tầm tiền (trước đây: món đắt nhất)
+                    probe.itemOptions.addAll(is.options != null && !is.options.isEmpty() ? Item.ItemOption.copyAll(is.options)
+                            : ItemService.gI().getMaxOptions((short) is.temp.id));
+                    long v = lookScore(b, probe);
+                    if (pick == null || v > pickScore || (v == pickScore && is.cost > pick.cost)) {
                         pick = is;
+                        pickScore = v;
                     }
                 }
             }
