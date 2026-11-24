@@ -910,6 +910,17 @@ public class SeasonEventService implements Runnable {
         }
     }
 
+    /** 20/11: hạ siêu quái có cơ hội rơi 1 - 3 Nia tre (chung giới hạn 999 / ngày với Nia tre rơi từ quái phó bản). */
+    public void addSieuQuaiDrop(List<ItemMap> list, Player pl, Zone zone, int x, int y) {
+        if (pl == null || !pl.isPl() || !isActive(TEACHERS_DAY) || !Util.isTrue(50, 100)) {
+            return;
+        }
+        int qty = takeDaily(pl, "1365", 999, Util.nextInt(1, 3));
+        if (qty > 0) {
+            list.add(new ItemMap(zone, 1365, qty, x, y, pl.id));
+        }
+    }
+
     /** Vật phẩm sự kiện rơi khi hạ boss (mọi boss, hoặc boss có id trong cột mobs). */
     public void onBossKilled(Boss boss, Player pl) {
         if (pl == null || boss == null || boss.zone == null || !pl.isPl()) {

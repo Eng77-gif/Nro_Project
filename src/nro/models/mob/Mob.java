@@ -1129,6 +1129,9 @@ public class Mob {
         }
 
         nro.models.services.SeasonEventService.gI().addMobDrops(list, player, zone, x, yEnd, this.tempId);
+        if (this.lvMob > 0) { // siêu quái
+            nro.models.services.SeasonEventService.gI().addSieuQuaiDrop(list, player, zone, x, yEnd);
+        }
         nro.models.services.NguHanhSonService.gI().onMobKilled(player);
         if (player.itemTime.isUseCoBonLa) { // cỏ bốn lá: +50% vàng từ quái
             for (ItemMap it : list) {

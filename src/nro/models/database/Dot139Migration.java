@@ -705,6 +705,11 @@ public class Dot139Migration {
             update(con, "update item_box_reward set item_id = -124 where box_id in (1376, 1377) and item_id = 2089");
             update(con, "insert into server_migration (name) values ('thiep_2011_manh')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'nia_que_kygui'")) { // Nia tre ký gửi vàng, Que tre ký gửi ngọc
+            update(con, "delete from item_template_option where template_id in (1365, 1366) and option_id in (86, 87)");
+            update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1365, 86, 0, 0, 100, 0), (1366, 87, 0, 0, 100, 0)");
+            update(con, "insert into server_migration (name) values ('nia_que_kygui')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'thiep_2011_kygui'")) {
             // Thiệp chúc thầy cô theo bài: dòng Ký gửi vàng (Mảnh giấy, Keo dán, Thiệp thường) / Ký gửi ngọc (Thiệp đặc biệt);
             // thiệp mở ra vật phẩm có hạn hoặc vĩnh viễn (5%), Pet Capybara hồng trong thiệp đặc biệt luôn vĩnh viễn
