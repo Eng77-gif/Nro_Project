@@ -69,7 +69,6 @@ public class QuyLaoKame extends Npc {
     /** Đợt KOL đang chạy: đổi giá trị này khi sang tháng mới để mọi người làm lại từ nhiệm vụ 1. */
     public static volatile String KOL_SEASON = "2026-11";
     public static volatile int KOL_VIP_GEM = 450; // nạp 450 ngọc xanh cho Quy Lão để mở phần thưởng VIP
-    private static final int VE_KOL_VIP = 2110;
 
     private static volatile Map<Integer, KOLQuestData> KOL_QUESTS = new HashMap<>();
     private static volatile Map<Integer, KOLQuestData> KOL_VIP_QUESTS = new HashMap<>();
@@ -786,14 +785,11 @@ public class QuyLaoKame extends Npc {
 
             if (isVIP) {
                 if (!player.kolVip) {
-                    Item vipTicket = InventoryService.gI().findItemBag(player, VE_KOL_VIP);
-                    if (vipTicket != null && vipTicket.quantity > 0) {
-                        InventoryService.gI().subQuantityItemsBag(player, vipTicket, 1);
-                    } else if (player.inventory.gem >= KOL_VIP_GEM) {
+                    if (player.inventory.gem >= KOL_VIP_GEM) { // bỏ Vé KOL VIP (2110, không có trong data gốc)
                         player.inventory.subGem(KOL_VIP_GEM);
                         PlayerService.gI().sendInfoHpMpMoney(player);
                     } else {
-                        Service.gI().sendThongBao(player, "Cần nạp " + KOL_VIP_GEM + " ngọc xanh (hoặc 1 Vé KOL VIP) để mở phần thưởng KOL VIP tháng này");
+                        Service.gI().sendThongBao(player, "Cần nạp " + KOL_VIP_GEM + " ngọc xanh để mở phần thưởng KOL VIP tháng này");
                         return;
                     }
                     player.kolVip = true;
