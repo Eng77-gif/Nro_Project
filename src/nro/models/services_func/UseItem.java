@@ -951,9 +951,6 @@ public class UseItem {
                             case 728:
                                 UseItem.gI().ItemSieuThanThuy(pl, item);
                                 break;
-                            case 2103:
-                                UseItem.gI().OpenHopThanlinh(pl, item.template.id);
-                                break;
                             case 648:
                                 if (Event2026Service.gI().isBox(item)) { // quà lấy từ item_box_reward
                                     Event2026Service.gI().openBox(pl, item);
@@ -2147,62 +2144,6 @@ public class UseItem {
 
         } catch (Exception e) {
             Service.gI().sendThongBao(pl, "Không thể thực hiện");
-        }
-    }
-
-    public void OpenHopThanlinh(Player player, int itemUseiD) {
-        if (InventoryService.gI().getCountEmptyBag(player) > 0) {
-            Item itemused = InventoryService.gI().findItemBag(player, itemUseiD);
-
-            int[][] itemsByGenderAndType = {
-                {555, 556, 562, 563, 561},
-                {557, 558, 564, 565, 561},
-                {559, 560, 566, 567, 561}
-            };
-
-            List<Item> allPreInitializedItems = new ArrayList<>();
-
-            for (int genderIndex = 0; genderIndex < itemsByGenderAndType.length; genderIndex++) {
-                short aoId = (short) itemsByGenderAndType[genderIndex][0];
-                short quanId = (short) itemsByGenderAndType[genderIndex][1];
-                short gangId = (short) itemsByGenderAndType[genderIndex][2];
-                short giayId = (short) itemsByGenderAndType[genderIndex][3];
-                short nhanId = (short) itemsByGenderAndType[genderIndex][4];
-
-                Item aotl = ItemService.gI().createNewItem(aoId);
-                RewardService.gI().initChiSoItem(aotl);
-                aotl.itemOptions.add(new ItemOption(30, 1));
-                allPreInitializedItems.add(aotl);
-
-                Item wTl = ItemService.gI().createNewItem(quanId);
-                RewardService.gI().initChiSoItem(wTl);
-                wTl.itemOptions.add(new ItemOption(30, 1));
-                allPreInitializedItems.add(wTl);
-
-                Item gTl = ItemService.gI().createNewItem(gangId);
-                RewardService.gI().initChiSoItem(gTl);
-                gTl.itemOptions.add(new ItemOption(30, 1));
-                allPreInitializedItems.add(gTl);
-
-                Item jayTl = ItemService.gI().createNewItem(giayId);
-                RewardService.gI().initChiSoItem(jayTl);
-                jayTl.itemOptions.add(new ItemOption(30, 1));
-                allPreInitializedItems.add(jayTl);
-
-                Item RdTl = ItemService.gI().createNewItem(nhanId);
-                RewardService.gI().initChiSoItem(RdTl);
-                RdTl.itemOptions.add(new ItemOption(30, 1));
-                allPreInitializedItems.add(RdTl);
-            }
-
-            Random random = new Random();
-            Item chosenItem = allPreInitializedItems.get(random.nextInt(allPreInitializedItems.size()));
-            InventoryService.gI().addItemBag(player, chosenItem);
-            InventoryService.gI().subQuantityItemsBag(player, itemused, 1);
-            InventoryService.gI().sendItemBags(player);
-            // mở hộp: không thông báo (vật phẩm hiện ngay trong hành trang)
-        } else {
-            Service.gI().sendThongBao(player, "Yêu cầu có ít nhất 1 ô trống hành trang");
         }
     }
 

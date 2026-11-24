@@ -824,6 +824,15 @@ public class Dot139Migration {
             update(con, "delete from item_template_option where template_id in (2110, 2121)");
             update(con, "insert into server_migration (name) values ('bo_kol_ky_lan')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'bo_hop_than_linh'")) { // Hộp thần linh 2103 (tự thêm) -> Hộp trang bị Thần 1863 (data gốc, mở ra 1 món đồ Thần Linh)
+            update(con, "update season_event_exchange set reward_item = 1863, name = 'Hộp trang bị Thần' where reward_item = 2103");
+            update(con, "update item_box_reward set item_id = 1863 where item_id = 2103");
+            update(con, "update item_shop set temp_id = 1863 where temp_id = 2103");
+            update(con, "update season_event_top_reward set item_id = 1863 where item_id = 2103");
+            update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1, head = -1, body = -1, leg = -1 where id = 2103");
+            update(con, "delete from item_template_option where template_id = 2103");
+            update(con, "insert into server_migration (name) values ('bo_hop_than_linh')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'hop_tra_kygui'")) { // Hộp trà / Hộp trà hoa cúc: ký gửi vàng, giao dịch được
             update(con, "delete from item_template_option where template_id in (1369, 1370) and option_id in (30, 86, 87)");
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1369, 86, 0, 0, 100, 0), (1370, 86, 0, 0, 100, 0)");

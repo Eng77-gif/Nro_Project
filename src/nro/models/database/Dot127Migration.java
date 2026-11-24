@@ -88,7 +88,7 @@ public class Dot127Migration {
             update(con, "insert into season_event_exchange (event_id, grp, name, need, reward_item, reward_qty, npc) select " + ev
                     + ", 'Thức\\năn', concat(NAME, ' -> ', " + f[1] + ", ' phiếu'), '" + f[0] + ":1', 2106, " + f[1] + ", '" + WHIS + "' from item_template where id = " + f[0]);
         }
-        int[][] ticket = {{1808, 199, 0}, {1620, 1999, 20}, {1864, 99, 0}, {1855, 999, 20}, {2103, 9999, 0}};
+        int[][] ticket = {{1808, 199, 0}, {1620, 1999, 20}, {1864, 99, 0}, {1855, 999, 20}, {1863, 9999, 0}};
         for (int[] t : ticket) {
             update(con, "insert into season_event_exchange (event_id, grp, name, need, reward_item, reward_qty, reward_days, perm_rate, npc) select " + ev
                     + ", 'Phiếu\\nthức ăn', NAME, '2106:" + t[1] + "', id, 1, '" + (t[2] > 0 ? "7,15,30" : "") + "', " + t[2] + ", '" + WHIS
