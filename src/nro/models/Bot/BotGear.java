@@ -62,22 +62,85 @@ final class BotGear {
         return (t.gender == b.gender || t.gender == 3) && t.strRequire <= b.nPoint.power;
     }
 
-    /** Áo, quần, găng, giầy, rada (ô 0 - 4): mặc món hạng cao nhất trong hành trang nếu hơn món đang mặc. */
+    /** Mã set kích hoạt của món (Cađíc, Kakarot, Nappa, Cađíc M...), 0 = không phải đồ kích hoạt. */
+    static int setId(Item it) {
+        if (it == null || !it.isNotNullItem()) {
+            return 0;
+        }
+        for (Item.ItemOption o : it.itemOptions) {
+            int id = o.optionTemplate.id;
+            if ((id >= 127 && id <= 144) || (id >= 233 && id <= 248)) {
+                return id;
+            }
+        }
+        return 0;
+    }
+
+    /** Thứ tự ưu tiên khi số món bằng nhau: Cađíc, Kakarot, Nappa, Cađíc M rồi các set khác. */
+    private static final int[] SET_PRIORITY = {134, 133, 135, 241};
+
+    private static int setPriority(int set) {
+        for (int i = 0; i < SET_PRIORITY.length; i++) {
+            if (SET_PRIORITY[i] == set) {
+                return SET_PRIORITY.length - i;
+            }
+        }
+        return 0;
+    }
+
+    /** Set kích hoạt bot nhắm mặc đủ bộ: set có nhiều ô (áo, quần, găng, giầy, rada) nhất trong đồ đang mặc + hành trang. */
+    private static int targetSet(Bot b) {
+        java.util.Map<Integer, java.util.Set<Integer>> slots = new java.util.HashMap<>();
+        java.util.List<Item> all = new java.util.ArrayList<>(b.inventory.itemsBag);
+        for (int slot = 0; slot <= 4 && slot < b.inventory.itemsBody.size(); slot++) {
+            all.add(b.inventory.itemsBody.get(slot));
+        }
+        for (Item it : all) {
+            int set = setId(it);
+            if (set > 0 && it.template.type <= 4 && wearable(b, it.template)) {
+                slots.computeIfAbsent(set, k -> new java.util.HashSet<>()).add((int) it.template.type);
+            }
+        }
+        int best = 0, bestN = 0;
+        for (var e : slots.entrySet()) {
+            int n = e.getValue().size();
+            if (n > bestN || (n == bestN && setPriority(e.getKey()) > setPriority(best))) {
+                best = e.getKey();
+                bestN = n;
+            }
+        }
+        return best;
+    }
+
+    /** Áo, quần, găng, giầy, rada (ô 0 - 4): ưu tiên mặc đủ bộ 1 set kích hoạt (cùng set), ô thiếu thì mặc món hạng cao nhất. */
     private static void wearBest(Bot b) {
+        int target = targetSet(b);
         for (int slot = 0; slot <= 4 && slot < b.inventory.itemsBody.size(); slot++) {
             Item cur = b.inventory.itemsBody.get(slot);
+            boolean curTarget = target > 0 && setId(cur) == target;
             int curRank = rank(cur), best = -1;
             long bestScore = score(cur);
+            boolean bestTarget = curTarget;
             for (int i = 0; i < b.inventory.itemsBag.size(); i++) {
                 Item it = b.inventory.itemsBag.get(i);
                 if (it == null || !it.isNotNullItem() || it.template.type != slot || !wearable(b, it.template)) {
                     continue;
                 }
-                // hạng cao hơn thì mặc; cùng hạng (trừ set kích hoạt: giữ đủ bộ) thì mặc món chỉ số cao hơn (+ cấp nâng)
-                if (rank(it) > curRank || (curRank < 3 && rank(it) == curRank && score(it) > bestScore)) {
+                boolean itTarget = target > 0 && setId(it) == target;
+                boolean better;
+                if (itTarget != bestTarget) {
+                    better = itTarget; // món đúng set đang gom luôn hơn món khác
+                } else if (itTarget) {
+                    better = score(it) > bestScore; // cùng set: món chỉ số cao hơn
+                } else {
+                    // hạng cao hơn thì mặc; cùng hạng (trừ set kích hoạt: giữ đủ bộ) thì mặc món chỉ số cao hơn (+ cấp nâng)
+                    better = rank(it) > curRank || (curRank < 3 && rank(it) == curRank && score(it) > bestScore);
+                }
+                if (better) {
                     best = i;
                     curRank = rank(it);
                     bestScore = score(it);
+                    bestTarget = itTarget;
                 }
             }
             if (best >= 0) {

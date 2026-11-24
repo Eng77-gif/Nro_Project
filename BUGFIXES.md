@@ -2737,3 +2737,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - CT đệ tử Dần theo ảnh: SĐ+24%, HP/KI+25%, Chống lạnh (option 279 mới, tác dụng như không bị lạnh), Biến 30% tấn công quái thành HP; mô tả 'Vật phẩm sự kiện (chỉ dành cho đệ tử)'.
 - Mô tả CT đệ tử Sửu: 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' giống Tí / Dần.
 - Đua top 20/11 bị chốt sớm (trước 22/11 lịch 20/11 còn ngắn, sự kiện tự tắt và chốt top): mở lại toàn bộ top 20/11, trả điểm từ quà chờ nhận, bỏ quà top chưa nhận; top tính đến 2/12, sự kiện chạy đến 17/12.
+- Bot ưu tiên mặc đủ bộ 1 set kích hoạt (set có nhiều món nhất; bằng nhau thì Cađíc > Kakarot > Nappa > Cađíc M), không mặc lẫn set; ô thiếu mới mặc món hạng cao nhất.
