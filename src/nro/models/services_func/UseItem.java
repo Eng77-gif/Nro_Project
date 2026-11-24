@@ -1362,7 +1362,7 @@ public class UseItem {
                 return;
             }
 
-            int[] itemIds = {1586, 2107, 2108, 2109, 1998, 1930, 1927};
+            int[] itemIds = {1586, 1998, 1930, 1927}; // bỏ Super 2 / 3 / 4 sao (2107 - 2109)
             int randomIndex = (int) (Math.random() * itemIds.length);
             short randomItemId = (short) itemIds[randomIndex];
 
