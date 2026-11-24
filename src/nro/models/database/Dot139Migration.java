@@ -685,6 +685,12 @@ public class Dot139Migration {
                     + "(1377, 1371, 1, 1, 6, '7,15', 5, 0), (1377, 1381, 1, 1, 6, '7,15', 5, 0), (1377, 1380, 1, 1, 6, '7,15', 5, 0), (1377, -122, 1, 1, 15, '', 0, 0), (1377, 1074, 1, 1, 5, '', 0, 0), (1377, 1075, 1, 1, 4, '', 0, 0), (1377, 1076, 1, 1, 3, '', 0, 0), (1377, 1079, 1, 1, 5, '', 0, 0), (1377, 1080, 1, 1, 4, '', 0, 0), (1377, 1081, 1, 1, 3, '', 0, 0), (1377, 1205, 1, 1, 6, '7,15', 5, 0), (1377, 2120, 1, 1, 10, '', 0, 0), (1377, 2089, 1, 1, 5, '', 0, 0), (1377, 1150, 1, 1, 3, '', 0, 0), (1377, 1151, 1, 1, 3, '', 0, 0), (1377, 1152, 1, 1, 3, '', 0, 0), (1377, 1153, 1, 1, 3, '', 0, 0), (1377, 1154, 1, 1, 3, '', 0, 0), (1377, 1173, 20, 20, 10, '', 0, 0), (1377, 920, 1, 1, 6, '7,15', 5, 0), (1377, 1143, 1, 1, 10, '', 0, 0), (1377, 1668, 1, 1, 3, '', 0, 0)");
             update(con, "insert into server_migration (name) values ('thiep_2011_qua')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'thiep_2011_manh'")) {
+            // Mảnh sưu tầm thường / VIP trong thiệp = mảnh thẻ rađa ngẫu nhiên (-123 hạng 0 - 2, -124 hạng 3 - 4), thay Thẻ sưu tầm thường / Mảnh thẻ VIP
+            update(con, "update item_box_reward set item_id = -123 where box_id in (1376, 1377) and item_id = 2120");
+            update(con, "update item_box_reward set item_id = -124 where box_id in (1376, 1377) and item_id = 2089");
+            update(con, "insert into server_migration (name) values ('thiep_2011_manh')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'thiep_2011_kygui'")) {
             // Thiệp chúc thầy cô theo bài: dòng Ký gửi vàng (Mảnh giấy, Keo dán, Thiệp thường) / Ký gửi ngọc (Thiệp đặc biệt);
             // thiệp mở ra vật phẩm có hạn hoặc vĩnh viễn (5%), Pet Capybara hồng trong thiệp đặc biệt luôn vĩnh viễn

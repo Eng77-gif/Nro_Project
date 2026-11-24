@@ -372,6 +372,13 @@ public class Event2026Service {
             int[] ct = {1362, 1379, 1378};
             return ct[pl != null && pl.gender >= 0 && pl.gender <= 2 ? pl.gender : Util.nextInt(0, 2)];
         }
+        if (type == 23) { // -123: mảnh sưu tầm thường (thẻ rađa hạng 0 - 2: Khủng long ... Quỷ bay)
+            return Util.nextInt(828, 836);
+        }
+        if (type == 24) { // -124: mảnh sưu tầm VIP (thẻ rađa hạng 3 - 4: Lính độc nhãn ... Đội trưởng Vàng)
+            int[] vip = {837, 838, 839, 840, 841, 842, 859, 956};
+            return vip[Util.nextInt(0, vip.length - 1)];
+        }
         if (type == 22) { // -122: bùa ngẫu nhiên các loại (thời hạn 1 giờ / 8 giờ chọn khi mở)
             return Util.nextInt(213, 219);
         }
