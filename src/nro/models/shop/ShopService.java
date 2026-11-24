@@ -961,9 +961,6 @@ public class ShopService {
                 case 1771:
                     capsuleClanPointPrice = 3;
                     break;
-                case 2104:
-                    capsuleClanPointPrice = 4;
-                    break;
                 case 1634:
                     capsuleClanPointPrice = 10;
                     break;

@@ -370,11 +370,11 @@ public class ItemService {
     }
 
     /** Vật phẩm đã gỡ khỏi game nhưng giữ dòng trong item_template (danh sách tra theo vị trí = mã): coi như không có, món cũ tự mất khi tải nhân vật. */
-    public static final java.util.Set<Integer> REMOVED = java.util.Set.of(1839, 1849, 1905, 1908, 1911, 1912, 2062, 2063, 2107, 2108, 2109, 2111, 1145, 1415); // CT chưa từng có hình (ảnh 1x1 đen, không đầu / thân / chân); Super 2 / 3 / 4 sao; CT không có hình trong data (không đầu / thân / chân)
+    public static final java.util.Set<Integer> REMOVED = java.util.Set.of(1839, 1849, 1905, 1908, 1911, 1912, 2062, 2063, 2104, 2105, 2106, 2107, 2108, 2109, 2111, 2112, 1145, 1415); // CT chưa từng có hình (ảnh 1x1 đen, không đầu / thân / chân); Super 2 / 3 / 4 sao; CT không có hình trong data (không đầu / thân / chân)
 
-    /** Mã trùng đã gộp về mã gốc (đồ người chơi đang giữ tự đổi khi tải nhân vật): Cápsule Vỡ 2111 -> 1634. */
+    /** Mã trùng đã gộp về mã gốc (đồ người chơi đang giữ tự đổi khi tải nhân vật): Cápsule Vỡ 2111 -> 1634, Mảnh khỉ Oozaru 1 / 2 (2104 / 2105) -> 1771. */
     public static short merged(short id) {
-        return id == 2111 ? (short) 1634 : id;
+        return id == 2111 ? (short) 1634 : id == 2104 || id == 2105 ? (short) 1771 : id; // Mảnh khỉ Oozaru 1 / 2 -> Mảnh Khỉ Oozaru
     }
 
     public Template.ItemTemplate getTemplate(int id) {

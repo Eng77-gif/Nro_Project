@@ -171,7 +171,11 @@ public class PlayerExtraDAO {
             if (data == null || data.size() < 4) {
                 return null;
             }
-            Item item = ItemService.gI().createNewItem(Short.parseShort(String.valueOf(data.get(0))), Integer.parseInt(String.valueOf(data.get(1))));
+            short tid = ItemService.merged(Short.parseShort(String.valueOf(data.get(0))));
+            if (ItemService.gI().getTemplate(tid) == null) { // vật phẩm đã gỡ (vd. Hào quang chân SPL10 ở ô bóng chân)
+                return null;
+            }
+            Item item = ItemService.gI().createNewItem(tid, Integer.parseInt(String.valueOf(data.get(1))));
             item.fresh = false;
             for (Object o : (JSONArray) data.get(2)) {
                 JSONArray opt = (JSONArray) o;

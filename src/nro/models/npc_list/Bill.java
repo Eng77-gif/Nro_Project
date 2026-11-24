@@ -41,15 +41,9 @@ public class Bill extends Npc {
                         "...",
                         "Về\nthánh địa\nKaio", "Từ chối");
             } else {
-                if (summer()) { // đổi thức ăn / phiếu ăn chỉ có khi sự kiện hè đang chạy
-                    createOtherMenu(player, ConstNpc.BASE_MENU,
-                            "Chưa tới giờ thi đấu, xem hướng dẫn để biết thêm chi tiết",
-                            "Nói\nchuyện", "Hướng\ndẫn\nthêm", "Đổi thức ăn\nlấy phiếu ăn", "Đổi phiếu ăn\nlấy quà", "Từ chối");
-                } else {
-                    createOtherMenu(player, ConstNpc.BASE_MENU,
-                            "Chưa tới giờ thi đấu, xem hướng dẫn để biết thêm chi tiết",
-                            "Nói\nchuyện", "Hướng\ndẫn\nthêm", "Từ chối");
-                }
+                createOtherMenu(player, ConstNpc.BASE_MENU, // bỏ đổi thức ăn / Phiếu thức ăn (không có trong data gốc)
+                        "Chưa tới giờ thi đấu, xem hướng dẫn để biết thêm chi tiết",
+                        "Nói\nchuyện", "Hướng\ndẫn\nthêm", "Từ chối");
             }
         }
     }
@@ -84,26 +78,6 @@ public class Bill extends Npc {
                             }
                             case 1 ->
                                 NpcService.gI().createTutorial(player, tempId, this.avartar, ConstNpc.HUONG_DAN_BILL);
-                            case 2 -> {
-                                if (!summer()) {
-                                    return;
-                                }
-                                createOtherMenu(player, 10, "Ngươi có muốn đổi thức ăn thành phiếu ăn nhanh không?",
-                                        "Đồng ý",
-                                        "Từ chối");
-                                player.idMark.setIndexMenu(10);
-                            }
-                            case 3 -> {
-                                if (!summer()) {
-                                    return;
-                                }
-                                ShopService.gI().opendShop(player, "SHOP_SU_KIEN_VL", true);
-                            }
-                        }
-                    }
-                    case 10 -> {
-                        if (select == 0 && summer()) {
-                            doiNhanhItem(player);
                         }
                     }
                 }
@@ -120,58 +94,6 @@ public class Bill extends Npc {
                     ChangeMapService.gI().changeMap(player, 50, -1, 318, 336);
                 }
             }
-        }
-    }
-
-    private static boolean summer() {
-        return nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.SUMMER);
-    }
-
-    private void doiNhanhItem(Player player) {
-        int[] itemIds = {1857, 1858, 1859, 1860, 1862};
-        Set<Integer> itemIdSet = Arrays.stream(itemIds).boxed().collect(Collectors.toSet());
-        int total1805 = 0;
-
-        for (int id : itemIds) {
-            int count = 0;
-            List<Item> itemsToSubtract = new ArrayList<>();
-
-            for (Item item : player.inventory.itemsBag) {
-                if (item != null && item.template != null && item.template.id == id) {
-                    count += item.quantity;
-                    itemsToSubtract.add(item);
-                }
-            }
-
-            int soLanDoi = count / 99;
-            int soLuongTru = soLanDoi * 99;
-
-            if (soLanDoi > 0) {
-                total1805 += soLanDoi;
-
-                int remaining = soLuongTru;
-                for (Item item : itemsToSubtract) {
-                    if (remaining <= 0) {
-                        break;
-                    }
-
-                    int toSub = Math.min(remaining, item.quantity);
-                    InventoryService.gI().subQuantityItemsBag(player, item, toSub);
-                    remaining -= toSub;
-                }
-            }
-        }
-
-        if (total1805 > 0) {
-            Item item1805 = ItemService.gI().createNewItem((short) 2106);
-            item1805.quantity = total1805;
-            InventoryService.gI().addItemBag(player, item1805);
-
-            PlayerService.gI().sendInfoHpMpMoney(player);
-            InventoryService.gI().sendItemBags(player);
-            Service.gI().sendThongBao(player, "Bạn đã đổi thành công " + total1805 + " x Phiếu ăn.");
-        } else {
-            Service.gI().sendThongBao(player, "Bạn không có đủ 99 phần của bất kỳ vật phẩm nào để đổi.");
         }
     }
 

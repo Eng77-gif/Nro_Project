@@ -765,13 +765,6 @@ public class UseItem {
                             case 1569: // kho báu hải tặc
                                 UseItem.gI().KhoBauHaiTac(pl, item.template.id);
                                 break;
-                            case 1857:
-                            case 1860:
-                            case 1858:
-                            case 1859:
-                            case 1862:
-                                UseItem.gI().ThucAnChoThan(pl, item);
-                                break;
                             case 1653: // Loa to liên vũ trụ
                             case 1652: // Sử dụng item Loa Thế Giới
                                try {
@@ -1657,36 +1650,6 @@ public class UseItem {
             InventoryService.gI().sendItemBags(player);
         } else {
             Service.gI().sendThongBao(player, "Cần ít nhất 5 ô trống trong túi!");
-        }
-    }
-
-    private void ThucAnChoThan(Player player, Item item) {
-        if (InventoryService.gI().getCountEmptyBag(player) > 4) {
-            Item itemUsed = InventoryService.gI().findItemBag(player, item.template.id);
-
-            if (itemUsed == null || itemUsed.quantity < 1) {
-                Service.gI().sendThongBao(player, "Bạn không có vật phẩm cần dùng!");
-                return;
-            }
-
-            int id = itemUsed.template.id;
-            if ((id == 1830 || id == 1858 || id == 1859 || id == 1860 || id == 1862) && itemUsed.quantity >= 99) {
-
-                InventoryService.gI().subQuantityItemsBag(player, itemUsed, 99);
-
-                Item newItem = ItemService.gI().createNewItem((short) 2106);
-                InventoryService.gI().addItemBag(player, newItem);
-
-                Service.gI().sendThongBao(player, "Bạn đã nhận được 1 " + newItem.template.name + "!");
-            } else {
-                Service.gI().sendThongBao(player, "Số lượng vật phẩm không đủ hoặc không đúng loại!");
-                return;
-            }
-
-            PlayerService.gI().sendInfoHpMpMoney(player);
-            InventoryService.gI().sendItemBags(player);
-        } else {
-            Service.gI().sendThongBao(player, "Hành trang không đủ chỗ trống!");
         }
     }
 

@@ -30,9 +30,8 @@ public class SaoPhaLe10Service {
     /** Mốc nhiệm vụ: số món đủ 10 sao -> phần thưởng */
     public static final int[] MOC = {1, 2, 3, 5, 7};
     private static final String[] MOC_TEXT = {"1 hộp ngọc rồng xanh (tự chọn)", "2 hộp ngọc rồng xanh (tự chọn)", "1 Capsule Vỡ", "2 Capsule Vỡ",
-        "1 Hộp Set kích hoạt tùy chọn theo nhân vật + Hào quang chân Sao Pha Lê 10 vĩnh viễn"};
+        "1 Hộp Set kích hoạt tùy chọn theo nhân vật"};
     private static final int CAPSULE_KICH_HOAT = 1655;
-    private static final int FOOT_REWARD = nro.models.database.Dot56Migration.ITEM_HAO_QUANG_SPL10;
 
     /** Dòng đánh dấu đồ đập lên 10 sao trong thời gian sự kiện (có hào quang chân, hiệu ứng 515). */
     public static final int OPT_HAO_QUANG = nro.models.database.Dot56Migration.OPT_HAO_QUANG_SPL10;
@@ -64,13 +63,10 @@ public class SaoPhaLe10Service {
         }
     }
 
-    /** Đang mặc đồ 10 sao sự kiện hoặc mang Hào quang chân Sao Pha Lê 10. */
+    /** Đang mặc đồ đập lên 10 sao trong thời gian sự kiện (dòng Hào quang chân Sao Pha Lê 10). */
     public static boolean hasHaoQuang(Player pl) {
         if (pl == null || !pl.isPl() || pl.inventory == null) {
             return false;
-        }
-        if (hasMark(pl.itemFoot)) {
-            return true;
         }
         for (Item it : pl.inventory.itemsBody) {
             if (hasMark(it)) {
@@ -267,10 +263,7 @@ public class SaoPhaLe10Service {
             case 3 ->
                 list.add(ItemService.gI().createNewItem((short) Event2026Service.CAPSULE_VO, 2));
             case 4 -> {
-                list.add(ItemService.gI().createNewItem((short) CAPSULE_KICH_HOAT, 1));
-                Item foot = ItemService.gI().createNewItem((short) FOOT_REWARD, 1);
-                foot.itemOptions.add(new ItemOption(OPT_HAO_QUANG, 0));
-                list.add(foot);
+                list.add(ItemService.gI().createNewItem((short) CAPSULE_KICH_HOAT, 1)); // hào quang chỉ có khi mặc đồ đập 10 sao trong sự kiện, không còn món riêng
             }
         }
         return list;

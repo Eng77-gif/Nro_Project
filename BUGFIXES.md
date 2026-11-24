@@ -2731,3 +2731,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Khôi phục Thủy Thủ Mặt Trăng (1991): dùng bộ part gốc 772 - 774 của Cải trang Thủy Thủ Mặt Trăng cũ (đầu giống icon 16761).
 - CT Sư (1604): khôi phục, dùng part CT Mabư nhí 1482 - 1484 (cùng icon 13303).
 - Gộp Cápsule Vỡ 2111 (trùng) về mã gốc 1634 (món có tác dụng): quà top sự kiện / hộp KOL đổi sang 1634, đồ người chơi đang giữ tự đổi khi đăng nhập, 2111 thành ô Vật phẩm đã gỡ.
+- Bỏ vật phẩm tự thêm: Mảnh khỉ Oozaru 1/2 (đồ đang giữ đổi thành Mảnh Khỉ Oozaru), Phiếu thức ăn (thức ăn đổi ở Whis ra điểm sự kiện, quà Whis đổi bằng điểm; bỏ nút đổi phiếu ở Bill và đổi khi dùng thức ăn), Hào quang chân SPL10 (mốc 7 món chỉ còn Capsule kích hoạt; hào quang chỉ có khi mặc đồ đập lên 10 sao trong thời gian sự kiện).
