@@ -766,6 +766,14 @@ public class Dot139Migration {
                     + "(98412, 1934, 1, 1, 15, '7,15', 15, 0), (98412, 1933, 1, 1, 15, '7,15', 15, 0)");
             update(con, "insert into server_migration (name) values ('whis_hoa10_box')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'whis_hoa10_them'")) {
+            // Tặng 10 hoa cho Whis: thêm bùa 1h/8h, đá nâng cấp / đá may mắn cấp 1-3, mảnh sưu tầm thường / VIP, item hỗ trợ cấp 2,
+            // Rương mảnh thiên sứ x10, Búa hắc hường (Blackpink) và Cờ Con Cat hường có hạn, Đá bảo vệ khóa
+            update(con, "delete from item_box_reward where box_id = 98412 and item_id in (-122, -123, -124, 1074, 1075, 1076, 1079, 1080, 1081, 1150, 1151, 1152, 1153, 1154, 1173, 1254, 1344, 1143)");
+            update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) values "
+                    + "(98412, -122, 1, 1, 15, '', 0, 0), (98412, 1074, 1, 1, 5, '', 0, 0), (98412, 1075, 1, 1, 4, '', 0, 0), (98412, 1076, 1, 1, 3, '', 0, 0), (98412, 1079, 1, 1, 5, '', 0, 0), (98412, 1080, 1, 1, 4, '', 0, 0), (98412, 1081, 1, 1, 3, '', 0, 0), (98412, -123, 1, 1, 10, '', 0, 0), (98412, -124, 1, 1, 5, '', 0, 0), (98412, 1150, 1, 1, 3, '', 0, 0), (98412, 1151, 1, 1, 3, '', 0, 0), (98412, 1152, 1, 1, 3, '', 0, 0), (98412, 1153, 1, 1, 3, '', 0, 0), (98412, 1154, 1, 1, 3, '', 0, 0), (98412, 1173, 10, 10, 10, '', 0, 0), (98412, 1254, 1, 1, 6, '7,15', 0, 0), (98412, 1344, 1, 1, 6, '7,15', 0, 0), (98412, 1143, 1, 1, 10, '', 0, 0)");
+            update(con, "insert into server_migration (name) values ('whis_hoa10_them')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'desc_1371'")) { // mô tả CT đệ tử Tí theo ảnh
             update(con, "update item_template set description = 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' where id = 1371");
             update(con, "insert into server_migration (name) values ('desc_1371')");

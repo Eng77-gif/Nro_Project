@@ -2718,3 +2718,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Thiệp chúc 20/11: Mảnh sưu tầm thường / VIP là mảnh thẻ rađa ngẫu nhiên (thường: Khủng long ... Quỷ bay; VIP: Lính độc nhãn ... Đội trưởng Vàng), thay Thẻ sưu tầm thường / Mảnh thẻ VIP.
 - Tặng Quy Lão 20/11: Hộp trà / Hộp trà hoa cúc nhận quà theo danh sách (bùa 1h/8h, Hào quang rực rỡ, Drabura Frost, mảnh sưu tầm thường/VIP, item hỗ trợ cấp 1/2, Rương mảnh thiên sứ x3/x10, Gậy như ý; hoa cúc thêm CT đệ tử Tí, Bút chì hồng, Avatar Cử nhân), hoa cúc mở quà ngay thay cho Sách giáo khoa; Tặng 10 Hộp trà hoa cúc nhận đủ 10 phần quà.
 - Tặng Hộp trà hoa cúc 20/11: vẫn nhận Sách giáo khoa (mỗi hộp 1 quyển) kèm 1 phần quà theo danh sách.
+- Tặng 10 hoa cho Whis: thêm bùa 1h/8h, đá nâng cấp / đá may mắn cấp 1-3, mảnh sưu tầm thường / VIP, item hỗ trợ cấp 2, Rương mảnh thiên sứ x10, Búa hắc hường (Blackpink) và Cờ Con Cat hường có hạn, Đá bảo vệ khóa.
