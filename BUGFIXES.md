@@ -2723,3 +2723,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Hộp trà / Hộp trà hoa cúc 20/11: ký gửi vàng, giao dịch được (làm ra không còn dòng Không thể giao dịch).
 - Sách giáo khoa chỉ ra CT đệ tử Tí / Sửu / Dần, CT Thầy giáo Quy Lão, Cải trang Pan VIP, Bó Hoa Hồng (954), Bó Hoa Hồng 2 Mới (1925); hạn 7-15 ngày, 5% vĩnh viễn.
 - Rađa dò Ngọc Rồng VIP: bỏ Super 2 / 3 / 4 sao (2107 - 2109), chỉ còn Cờ ngọc rồng Super và 1998 / 1930 / 1927.
+- Gỡ hẳn Super 2 / 3 / 4 sao (2107 - 2109): thành ô Vật phẩm đã gỡ, ẩn khỏi panel, game coi như không có.

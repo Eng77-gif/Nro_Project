@@ -714,6 +714,11 @@ public class Dot139Migration {
             update(con, "update item_box_reward set item_id = -124 where box_id in (1376, 1377) and item_id = 2089");
             update(con, "insert into server_migration (name) values ('thiep_2011_manh')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'go_super_234'")) { // gỡ hẳn Super 2 / 3 / 4 sao (giữ ô vì mã = vị trí)
+            update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1, head = -1, body = -1, leg = -1 where id in (2107, 2108, 2109)");
+            update(con, "delete from item_template_option where template_id in (2107, 2108, 2109)");
+            update(con, "insert into server_migration (name) values ('go_super_234')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'hop_tra_kygui'")) { // Hộp trà / Hộp trà hoa cúc: ký gửi vàng, giao dịch được
             update(con, "delete from item_template_option where template_id in (1369, 1370) and option_id in (30, 86, 87)");
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1369, 86, 0, 0, 100, 0), (1370, 86, 0, 0, 100, 0)");
