@@ -69,17 +69,19 @@ foreach ($l in $lines[1..($lines.Count - 1)]) {
 # xoa file cua repo khong can (tai tu ban cu): chi xoa dung duong dan co trong repo, khong dung file rieng cua may
 $freed = 0L; $nDel = 0; $dirs = @{}
 foreach ($path in $drop) {
-    $full = Join-Path $here ($path -replace '/', '\')
-    $fi = New-Object IO.FileInfo($full)
-    if ($fi.Exists) {
-        try { $len = $fi.Length; Remove-Item -LiteralPath $full -Force; $freed += $len; $nDel++; $dirs[$fi.DirectoryName] = 1 } catch { }
-    }
+    try {
+        $fi = New-Object IO.FileInfo((Join-Path $here ($path -replace '/', '\')))
+        if ($fi.Exists) { $len = $fi.Length; $fi.Delete(); $freed += $len; $nDel++; $dirs[$fi.DirectoryName] = 1 }
+    } catch { }
 }
-foreach ($d in ($dirs.Keys | Sort-Object Length -Descending)) {
+# xoa thu muc da rong (sau nhat truoc); loi quyen truy cap thi bo qua, khong lam hong lan cap nhat
+foreach ($d in ([string[]]$dirs.Keys | Sort-Object { $_.Length } -Descending)) {
     $x = $d
-    while ($x.Length -gt $here.Length -and (Test-Path -LiteralPath $x) -and -not (Get-ChildItem -LiteralPath $x -Force | Select-Object -First 1)) {
-        Remove-Item -LiteralPath $x -Force; $x = Split-Path $x
-    }
+    try {
+        while ($x.Length -gt $here.Length -and [IO.Directory]::Exists($x) -and -not [IO.Directory]::EnumerateFileSystemEntries($x).GetEnumerator().MoveNext()) {
+            [IO.Directory]::Delete($x); $x = [IO.Path]::GetDirectoryName($x)
+        }
+    } catch { }
 }
 if ($nDel -gt 0) { Write-Host ('Da xoa ' + $nDel + ' file khong can tren may Windows (' + [Math]::Round($freed / 1MB, 1) + ' MB)') }
 
