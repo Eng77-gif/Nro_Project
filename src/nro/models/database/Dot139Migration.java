@@ -845,6 +845,19 @@ public class Dot139Migration {
             update(con, "update item_template set description = 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' where id = 1380");
             update(con, "insert into server_migration (name) values ('desc_1380')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'reopen_2011_tops'")) {
+            // Đua top 20/11 bị chốt sớm (trước 22/11 lịch sự kiện 20/11 còn ngắn nên sự kiện tự tắt và chốt top). Lịch nay 19/11 - 17/12,
+            // top tính đến 2/12: mở lại top, trả điểm từ quà chờ nhận (hạng + điểm lúc chốt), bỏ quà top chưa nhận để không nhận 2 lần
+            update(con, "create table if not exists season_event_top_closed (top_id int primary key, closed_at timestamp not null default current_timestamp)");
+            String tops = "select id from season_event_top where event_id = 8";
+            update(con, "insert into season_event_point (top_id, player_id, name, points) select p.top_id, p.player_id, coalesce((select name from player where id = p.player_id), ''), p.points "
+                    + "from season_event_reward_pending p where p.top_id in (" + tops + ") and p.top_id in (select top_id from season_event_top_closed) "
+                    + "on duplicate key update points = season_event_point.points + values(points)");
+            update(con, "delete from season_event_reward_pending where top_id in (" + tops + ") and top_id in (select top_id from season_event_top_closed)");
+            update(con, "delete from season_event_reward_item where top_id in (" + tops + ") and top_id in (select top_id from season_event_top_closed)");
+            update(con, "delete from season_event_top_closed where top_id in (" + tops + ")");
+            update(con, "insert into server_migration (name) values ('reopen_2011_tops')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'hop_tra_kygui'")) { // Hộp trà / Hộp trà hoa cúc: ký gửi vàng, giao dịch được
             update(con, "delete from item_template_option where template_id in (1369, 1370) and option_id in (30, 86, 87)");
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1369, 86, 0, 0, 100, 0), (1370, 86, 0, 0, 100, 0)");

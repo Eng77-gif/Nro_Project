@@ -2736,3 +2736,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Bỏ Hộp thần linh (2103, tự thêm), thay bằng Hộp trang bị Thần (1863, data gốc, mở ra 1 món đồ Thần Linh đúng hành tinh): quà Whis 9999 điểm, đồ người chơi đang giữ tự đổi khi đăng nhập.
 - CT đệ tử Dần theo ảnh: SĐ+24%, HP/KI+25%, Chống lạnh (option 279 mới, tác dụng như không bị lạnh), Biến 30% tấn công quái thành HP; mô tả 'Vật phẩm sự kiện (chỉ dành cho đệ tử)'.
 - Mô tả CT đệ tử Sửu: 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' giống Tí / Dần.
+- Đua top 20/11 bị chốt sớm (trước 22/11 lịch 20/11 còn ngắn, sự kiện tự tắt và chốt top): mở lại toàn bộ top 20/11, trả điểm từ quà chờ nhận, bỏ quà top chưa nhận; top tính đến 2/12, sự kiện chạy đến 17/12.
