@@ -858,6 +858,10 @@ public class Dot139Migration {
             update(con, "delete from season_event_top_closed where top_id in (" + tops + ")");
             update(con, "insert into server_migration (name) values ('reopen_2011_tops')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'icon_gohan_ssj'")) { // CT Gohan SSJ: icon là ảnh đầu nhỏ 17807 (17838 là ảnh avatar to)
+            update(con, "update item_template set icon_id = 17807 where id = 2125");
+            update(con, "insert into server_migration (name) values ('icon_gohan_ssj')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'hop_tra_kygui'")) { // Hộp trà / Hộp trà hoa cúc: ký gửi vàng, giao dịch được
             update(con, "delete from item_template_option where template_id in (1369, 1370) and option_id in (30, 86, 87)");
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1369, 86, 0, 0, 100, 0), (1370, 86, 0, 0, 100, 0)");
@@ -1057,7 +1061,7 @@ public class Dot139Migration {
             }
             // Cải trang Gohan SSJ (chỉ dành cho đệ tử): SĐ 20 - 25%, tấn công +5.000 - 10.000 (ảnh Hộp tháng 20/11 / Giấy tốt nghiệp)
             update(con, "insert into item_template (id, TYPE, gender, NAME, description, level, icon_id, part, is_up_to_up, power_require, gold, gem, head, body, leg) "
-                    + "select 2125, 5, 3, 'Cải trang Gohan SSJ', 'Vật phẩm sự kiện (chỉ dành cho đệ tử)', 0, 17838, -1, 0, 0, 0, 0, 2407, 2408, 2409 from dual where not exists (select 1 from item_template where id = 2125)");
+                    + "select 2125, 5, 3, 'Cải trang Gohan SSJ', 'Vật phẩm sự kiện (chỉ dành cho đệ tử)', 0, 17807, -1, 0, 0, 0, 0, 2407, 2408, 2409 from dual where not exists (select 1 from item_template where id = 2125)");
             update(con, "delete from item_template_option where template_id = 2125");
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (2125, 50, 20, 25, 100, 0), (2125, 0, 5000, 10000, 100, 0)");
             update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 1739, 2125, 1, 1, 10, '3', 1, 0 from dual where not exists (select 1 from item_box_reward where box_id = 1739 and item_id = 2125)");

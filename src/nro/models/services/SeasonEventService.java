@@ -1766,7 +1766,7 @@ public class SeasonEventService implements Runnable {
                         ServerNotify.gI().notify("Chúc mừng " + pl.name + " đã ước được " + g + " tại Bà Hạt Mít");
                     }
                 }
-            } else if (!got.isEmpty() && pl.isPl()) { // mua / đổi ở cửa hàng sự kiện (Chi Chi, Quy Lão...): con báo tin nói (chat của chính nhân vật thì client không vẽ con báo tin)
+            } else if (!got.isEmpty() && pl.isPl() && !isShopGroup(e.group)) { // mua ở cửa hàng sự kiện (Chi Chi...) thì không báo "Bạn nhận được x50 ..., 50 điểm top"; đổi quà vẫn báo (Chi Chi, Quy Lão...): con báo tin nói (chat của chính nhân vật thì client không vẽ con báo tin)
                 Service.gI().sendThongBao(pl, ("Bạn nhận được " + String.join(", ", got)).replaceAll(" \\((\\d+ ngày|vĩnh viễn)\\)", "").replaceAll("(được |, )x1 ", "$1"));
             }
         }
