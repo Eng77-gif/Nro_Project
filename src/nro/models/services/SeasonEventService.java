@@ -2816,43 +2816,16 @@ public class SeasonEventService implements Runnable {
                 nro.models.network.Message msg = new nro.models.network.Message(-96);
                 msg.writer().writeByte(0);
                 msg.writer().writeUTF("Top 100");
-                Map<Long, Object[]> offline = new HashMap<>();
-                StringBuilder ids = new StringBuilder();
+                List<Long> ids = new ArrayList<>();
                 for (long[] r : rows) {
-                    if (Client.gI().getPlayer(r[0]) == null && !nro.models.Bot.BotWorld.isBotId(r[0])) {
-                        ids.append(ids.length() == 0 ? "" : ",").append(r[0]);
+                    if (!nro.models.Bot.BotWorld.isBotId(r[0]) || nro.models.Bot.BotWorld.gI().find(r[0]) != null) {
+                        ids.add(r[0]); // bot đang không online thì bỏ qua như trước
                     }
                 }
-                if (ids.length() > 0) { // một truy vấn cho mọi người offline (trước đây tải đầy đủ từng người nên rất chậm)
-                    try (PreparedStatement p3 = con.prepareStatement("select id, name, head, gender, items_body from player where id in (" + ids + ")");
-                            ResultSet rs = p3.executeQuery()) {
-                        while (rs.next()) {
-                            offline.put(rs.getLong(1), look(rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getString(5)));
-                        }
-                    }
-                    try (PreparedStatement p4 = con.prepareStatement("select player_id, head, body, leg from player_look where player_id in (" + ids + ")");
-                            ResultSet rs = p4.executeQuery()) {
-                        while (rs.next()) { // hình lúc lưu cuối: có cả hợp thể / biến hình
-                            Object[] lk = offline.get(rs.getLong(1));
-                            if (lk != null) {
-                                lk[1] = rs.getInt(2);
-                                lk[2] = rs.getInt(3);
-                                lk[3] = rs.getInt(4);
-                            }
-                        }
-                    } catch (Exception ignored) { // chưa có bảng: dùng hình từ đồ đang mặc
-                    }
-                }
+                Map<Long, Object[]> looks = TopLook.of(ids);
                 List<Object[]> list = new ArrayList<>(); // {id, name, head, body, leg, điểm}
                 for (long[] r : rows) {
-                    Player p = Client.gI().getPlayer(r[0]);
-                    if (p == null && nro.models.Bot.BotWorld.isBotId(r[0])) {
-                        p = nro.models.Bot.BotWorld.gI().find(r[0]);
-                        if (p == null) {
-                            continue; // bot đang không online
-                        }
-                    }
-                    Object[] lk = p != null ? new Object[]{p.name, (int) p.getHead(), (int) p.getBody(), (int) p.getLeg()} : offline.get(r[0]);
+                    Object[] lk = ids.contains(r[0]) ? looks.get(r[0]) : null;
                     if (lk != null) {
                         list.add(new Object[]{r[0], lk[0], lk[1], lk[2], lk[3], (int) r[1]});
                     }
@@ -2878,38 +2851,6 @@ public class SeasonEventService implements Runnable {
                 Logger.error("Lỗi xem top 100: " + e.getMessage() + "\n");
             }
         }, "Top100").start();
-    }
-
-    /** Hình dáng người offline lấy thẳng từ items_body: cải trang (ô 5) nếu có, không thì áo / quần / mặc định theo hành tinh. */
-    private static Object[] look(String name, int head, int gender, String body) {
-        int b = gender == 1 ? 59 : 57, l = gender == 1 ? 60 : 58;
-        try {
-            org.json.simple.JSONArray arr = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(body);
-            int[] ids = new int[6];
-            for (int i = 0; i < 6; i++) {
-                ids[i] = -1;
-                if (arr != null && i < arr.size()) {
-                    org.json.simple.JSONArray it = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(String.valueOf(arr.get(i)));
-                    ids[i] = ItemService.merged(Short.parseShort(String.valueOf(it.get(0))));
-                }
-            }
-            nro.models.player_system.Template.ItemTemplate ao = ids[0] < 0 ? null : ItemService.gI().getTemplate(ids[0]);
-            nro.models.player_system.Template.ItemTemplate quan = ids[1] < 0 ? null : ItemService.gI().getTemplate(ids[1]);
-            nro.models.player_system.Template.ItemTemplate ct = ids[5] < 0 ? null : ItemService.gI().getTemplate(ids[5]);
-            if (ao != null) {
-                b = ao.part;
-            }
-            if (quan != null) {
-                l = quan.part;
-            }
-            if (ct != null) {
-                head = ct.head != -1 ? ct.head : head;
-                b = ct.body != -1 ? ct.body : b;
-                l = ct.leg != -1 ? ct.leg : l;
-            }
-        } catch (Exception ignored) { // dữ liệu hỏng: dùng hình mặc định
-        }
-        return new Object[]{name, head, b, l};
     }
 
     public boolean hasPendingReward(Player pl) {

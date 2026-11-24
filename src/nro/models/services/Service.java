@@ -232,142 +232,53 @@ public class Service {
     }
 
     public void showListTop(Player player, List<TOP> tops) {
-        Message msg;
-        try {
-            msg = new Message(-96);
-            msg.writer().writeByte(0);
-            msg.writer().writeUTF("Bảng Xếp Hạng");
-            msg.writer().writeByte(tops.size());
-
-            for (int i = 0; i < tops.size(); i++) {
-                TOP top = tops.get(i);
-                Player pl = VietLoader.loadById(top.getId_player());
-
-                if (pl == null) {
-                    continue;
-                }
-
-                msg.writer().writeInt(i + 1);
-                msg.writer().writeInt((int) pl.id);
-                msg.writer().writeShort(pl.getHead());
-                if (player.getSession().version > 214) {
-                    msg.writer().writeShort(-1);
-                }
-                msg.writer().writeShort(pl.getBody());
-                msg.writer().writeShort(pl.getLeg());
-                msg.writer().writeUTF(pl.name);
-                msg.writer().writeUTF(top.getInfo1());
-                msg.writer().writeUTF(top.getInfo2());
-            }
-
-            player.sendMessage(msg);
-            msg.cleanup();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        showListTopGender(player, tops, -1);
     }
 
     public void showListTopTraiDat(Player player, List<TOP> tops) {
-        Message msg;
-        try {
-            List<TOP> filteredTops = new ArrayList<>();
-            for (TOP top : tops) {
-                Player pl = VietLoader.loadById(top.getId_player());
-                if (pl != null && pl.gender == 0) {
-                    filteredTops.add(top);
-                }
-            }
-
-            msg = new Message(-96);
-            msg.writer().writeByte(0);
-            msg.writer().writeUTF("Bảng Xếp Hạng");
-            msg.writer().writeByte(filteredTops.size());
-            for (int i = 0; i < filteredTops.size(); i++) {
-                TOP top = filteredTops.get(i);
-                Player pl = VietLoader.loadById(top.getId_player());
-                msg.writer().writeInt(i + 1);
-                msg.writer().writeInt((int) pl.id);
-                msg.writer().writeShort(pl.getHead());
-                if (player.getSession().version > 214) {
-                    msg.writer().writeShort(-1);
-                }
-                msg.writer().writeShort(pl.getBody());
-                msg.writer().writeShort(pl.getLeg());
-                msg.writer().writeUTF(pl.name);
-                msg.writer().writeUTF(top.getInfo1());
-                msg.writer().writeUTF(top.getInfo2());
-            }
-            player.sendMessage(msg);
-            msg.cleanup();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        showListTopGender(player, tops, 0);
     }
 
     public void showListTopNamek(Player player, List<TOP> tops) {
-        Message msg;
-        try {
-            List<TOP> filteredTops = new ArrayList<>();
-            for (TOP top : tops) {
-                Player pl = VietLoader.loadById(top.getId_player());
-                if (pl != null && pl.gender == 1) {
-                    filteredTops.add(top);
-                }
-            }
-
-            msg = new Message(-96);
-            msg.writer().writeByte(0);
-            msg.writer().writeUTF("Bảng Xếp Hạng");
-            msg.writer().writeByte(filteredTops.size());
-            for (int i = 0; i < filteredTops.size(); i++) {
-                TOP top = filteredTops.get(i);
-                Player pl = VietLoader.loadById(top.getId_player());
-                msg.writer().writeInt(i + 1);
-                msg.writer().writeInt((int) pl.id);
-                msg.writer().writeShort(pl.getHead());
-                if (player.getSession().version > 214) {
-                    msg.writer().writeShort(-1);
-                }
-                msg.writer().writeShort(pl.getBody());
-                msg.writer().writeShort(pl.getLeg());
-                msg.writer().writeUTF(pl.name);
-                msg.writer().writeUTF(top.getInfo1());
-                msg.writer().writeUTF(top.getInfo2());
-            }
-            player.sendMessage(msg);
-            msg.cleanup();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        showListTopGender(player, tops, 1);
     }
 
     public void showListTopXayda(Player player, List<TOP> tops) {
+        showListTopGender(player, tops, 2);
+    }
+
+    /** gender -1 = mọi hành tinh. Hình lấy qua TopLook (1 truy vấn gộp) thay vì tải đầy đủ từng người nên mở bảng không bị chậm. */
+    private void showListTopGender(Player player, List<TOP> tops, int gender) {
         Message msg;
         try {
-            List<TOP> filteredTops = new ArrayList<>();
+            List<Long> ids = new ArrayList<>();
             for (TOP top : tops) {
-                Player pl = VietLoader.loadById(top.getId_player());
-                if (pl != null && pl.gender == 2) {
-                    filteredTops.add(top);
+                ids.add((long) top.getId_player());
+            }
+            java.util.Map<Long, Object[]> looks = TopLook.of(ids);
+            List<TOP> shown = new ArrayList<>();
+            for (TOP top : tops) {
+                Object[] lk = looks.get((long) top.getId_player());
+                if (lk != null && (gender < 0 || (Integer) lk[4] == gender)) {
+                    shown.add(top);
                 }
             }
-
             msg = new Message(-96);
             msg.writer().writeByte(0);
             msg.writer().writeUTF("Bảng Xếp Hạng");
-            msg.writer().writeByte(filteredTops.size());
-            for (int i = 0; i < filteredTops.size(); i++) {
-                TOP top = filteredTops.get(i);
-                Player pl = VietLoader.loadById(top.getId_player());
+            msg.writer().writeByte(shown.size());
+            for (int i = 0; i < shown.size(); i++) {
+                TOP top = shown.get(i);
+                Object[] lk = looks.get((long) top.getId_player());
                 msg.writer().writeInt(i + 1);
-                msg.writer().writeInt((int) pl.id);
-                msg.writer().writeShort(pl.getHead());
+                msg.writer().writeInt((int) top.getId_player());
+                msg.writer().writeShort((Integer) lk[1]);
                 if (player.getSession().version > 214) {
                     msg.writer().writeShort(-1);
                 }
-                msg.writer().writeShort(pl.getBody());
-                msg.writer().writeShort(pl.getLeg());
-                msg.writer().writeUTF(pl.name);
+                msg.writer().writeShort((Integer) lk[2]);
+                msg.writer().writeShort((Integer) lk[3]);
+                msg.writer().writeUTF((String) lk[0]);
                 msg.writer().writeUTF(top.getInfo1());
                 msg.writer().writeUTF(top.getInfo2());
             }

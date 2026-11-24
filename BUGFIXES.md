@@ -2747,3 +2747,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Bổ sung Hộp bút bay (mã 2109) theo data gốc: phương tiện bay, icon 16329, hình cưỡi part 66 (thêm khung mount_66_0 rỗng để server nhận).
 - Mua ở shop (Chi Chi / Santa): hộp 'Xin chờ' giữa màn hình chỉ tắt khi client nhận tin tiền (msg 6), -99 không tắt được -> gửi tin tiền ngay khi bấm mua.
 - Bot đứng top 1 - 10 đua top sự kiện / Hộp đen bí ẩn: khi bot vào game cũng báo chat thế giới 'TOP N ... vừa đăng nhập' như người chơi (xếp hàng 1 luồng).
+- Mọi bảng xếp hạng (Top Whis, Bà Hạt Mít, máy đấm Trái Đất / Namếc / Xayda, Top 100 sự kiện) không còn tải đầy đủ từng người: dùng chung TopLook (1 truy vấn gộp + hình lúc lưu cuối). Top bang hội / Siêu hạng vốn đã đọc nhẹ.
