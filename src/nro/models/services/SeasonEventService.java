@@ -2790,21 +2790,22 @@ public class SeasonEventService implements Runnable {
     public void showTop100(Player pl, Top t) {
         new Thread(() -> {
             try (Connection con = LocalManager.getConnection();
-                    PreparedStatement ps = con.prepareStatement("select player_id, points from season_event_point where top_id = ? and points >= "
+                    PreparedStatement ps = con.prepareStatement("select player_id, points, updated_at from season_event_point where top_id = ? and points >= "
                             + MIN_TOP_POINT + " order by points desc, player_id limit 100")) {
                 ps.setInt(1, t.id);
-                List<long[]> rows = new ArrayList<>();
+                List<long[]> rows = new ArrayList<>(); // {id, điểm, lần cuối cộng điểm}
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        rows.add(new long[]{rs.getLong(1), rs.getInt(2)});
+                        rows.add(new long[]{rs.getLong(1), rs.getInt(2), rs.getTimestamp(3).getTime()});
                     }
                 }
                 if (rows.isEmpty()) { // đua top đã chốt: điểm đã xoá, lấy bảng xếp hạng lúc chốt
-                    try (PreparedStatement p2 = con.prepareStatement("select player_id, points from season_event_reward_pending where top_id = ? order by rank_no limit 100")) {
+                    try (PreparedStatement p2 = con.prepareStatement("select player_id, points, created_at from season_event_reward_pending where top_id = ? order by rank_no limit 100")) {
                         p2.setInt(1, t.id);
                         try (ResultSet rs = p2.executeQuery()) {
                             while (rs.next()) {
-                                rows.add(new long[]{rs.getLong(1), rs.getLong(2)});
+                                java.sql.Timestamp ts = rs.getTimestamp(3);
+                                rows.add(new long[]{rs.getLong(1), rs.getLong(2), ts == null ? System.currentTimeMillis() : ts.getTime()});
                             }
                         }
                     }
@@ -2823,11 +2824,11 @@ public class SeasonEventService implements Runnable {
                     }
                 }
                 Map<Long, Object[]> looks = TopLook.of(ids);
-                List<Object[]> list = new ArrayList<>(); // {id, name, head, body, leg, điểm}
+                List<Object[]> list = new ArrayList<>(); // {id, name, head, body, leg, "x giờ trước"}
                 for (long[] r : rows) {
                     Object[] lk = ids.contains(r[0]) ? looks.get(r[0]) : null;
                     if (lk != null) {
-                        list.add(new Object[]{r[0], lk[0], lk[1], lk[2], lk[3], (int) r[1]});
+                        list.add(new Object[]{r[0], lk[0], lk[1], lk[2], lk[3], ago(r[2])});
                     }
                 }
                 msg.writer().writeByte(list.size());
@@ -2842,8 +2843,8 @@ public class SeasonEventService implements Runnable {
                     msg.writer().writeShort((Integer) e[3]);
                     msg.writer().writeShort((Integer) e[4]);
                     msg.writer().writeUTF((String) e[1]);
-                    msg.writer().writeUTF("Hạng: " + (i + 1));
-                    msg.writer().writeUTF(e[5] + " điểm");
+                    msg.writer().writeUTF((String) e[5]); // như bản chính thức: bên phải dòng (client tự ghi "Hạng: N")
+                    msg.writer().writeUTF("...");
                 }
                 pl.sendMessage(msg);
                 msg.cleanup();
@@ -2851,6 +2852,13 @@ public class SeasonEventService implements Runnable {
                 Logger.error("Lỗi xem top 100: " + e.getMessage() + "\n");
             }
         }, "Top100").start();
+    }
+
+    /** "5 phút trước", "2 giờ trước", "4 ngày trước". */
+    static String ago(long time) {
+        long sec = Math.max(0, (System.currentTimeMillis() - time) / 1000);
+        return sec >= 86400 ? sec / 86400 + " ngày trước" : sec >= 3600 ? sec / 3600 + " giờ trước"
+                : sec >= 60 ? sec / 60 + " phút trước" : "Vừa xong";
     }
 
     public boolean hasPendingReward(Player pl) {

@@ -2750,3 +2750,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Mọi bảng xếp hạng (Top Whis, Bà Hạt Mít, máy đấm Trái Đất / Namếc / Xayda, Top 100 sự kiện) không còn tải đầy đủ từng người: dùng chung TopLook (1 truy vấn gộp + hình lúc lưu cuối). Top bang hội / Siêu hạng vốn đã đọc nhẹ.
 - Trọng tài Siêu hạng: thêm lại nút 'Top 100 Cao Thủ' (đầu menu, như ảnh bản chính thức).
 - Bảng Siêu hạng (Top 100 Cao Thủ / Giải siêu hạng): bỏ dòng thưởng '+200 hồng ngọc...' đè lên chữ Hạng; như bản chính thức hiện '...' hoặc 'Đang chờ để thi đấu' khi đang chờ / đang đấu.
+- Top 100 sự kiện (Chi Chi) như bản chính thức: bên phải dòng hiện 'X giờ trước' (lần cuối được cộng điểm, cột updated_at mới), bỏ chữ 'Hạng: N' đè lên chữ của client; popup hiện Top N / thời gian / '...'.
