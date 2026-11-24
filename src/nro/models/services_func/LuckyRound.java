@@ -234,7 +234,20 @@ public class LuckyRound {
         }
     }
 
+    /** Vàng (vật phẩm loại 9) cộng thẳng vào hành trang kèm thông báo; vật phẩm khác vào rương phụ. */
     private void addItemToBox(Player player, List<Item> items) {
-        player.inventory.itemsBoxCrackBall.addAll(items);
+        long gold = 0;
+        for (Item it : items) {
+            if (it != null && it.template != null && it.template.type == 9) {
+                gold += it.quantity;
+            } else {
+                player.inventory.itemsBoxCrackBall.add(it);
+            }
+        }
+        if (gold > 0) {
+            player.inventory.gold = Math.min(nro.models.player.Inventory.LIMIT_GOLD, player.inventory.gold + gold);
+            Service.gI().sendMoney(player);
+            Service.gI().sendThongBao(player, "Bạn nhận được " + nro.models.utils.Util.formatNumber(gold) + " vàng");
+        }
     }
 }
