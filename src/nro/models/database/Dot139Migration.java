@@ -1387,6 +1387,24 @@ public class Dot139Migration {
                     + " and x.reward_item in (select id from item_template where TYPE in (5, 23, 24) or (TYPE in (11, 27) and part >= 0))");
             update(con, "insert into server_migration (name) values ('doi_diem_quy_lao_han')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'doi_diem_quy_lao_han2'")) {
+            // lần trước lọc nhóm bằng SQL LIKE 'Đổi%điểm': dữ liệu VPS có thể lưu chữ tiếng Việt / xuống dòng khác nên không khớp -> so trong Java sau khi chuẩn hoá
+            java.util.List<Integer> ids = new java.util.ArrayList<>();
+            try (java.sql.PreparedStatement ps = con.prepareStatement("select x.id, x.npc, x.grp from season_event_exchange x where x.reward_item in"
+                    + " (select id from item_template where TYPE in (5, 23, 24) or (TYPE in (11, 27) and part >= 0))"); java.sql.ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String grp = java.text.Normalizer.normalize(String.valueOf(rs.getString(3)), java.text.Normalizer.Form.NFC).replaceAll("\\s+", "").toLowerCase();
+                    if ("13".equals(String.valueOf(rs.getString(2)).trim()) && grp.equals("đổiđiểm")) {
+                        ids.add(rs.getInt(1));
+                    }
+                }
+            }
+            for (int id : ids) {
+                update(con, "update season_event_exchange set reward_days = '7,15,30,45', perm_rate = 2 where id = " + id);
+            }
+            nro.models.utils.Logger.success("Đổi điểm Quy Lão: " + ids.size() + " món hạn 7 - 15 - 30 - 45 ngày, 2% vĩnh viễn\n");
+            update(con, "insert into server_migration (name) values ('doi_diem_quy_lao_han2')");
+        }
     }
 
     /**
