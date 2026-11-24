@@ -789,6 +789,19 @@ public class Dot139Migration {
             update(con, "update item_template set NAME = 'CT Sư', description = 'Vật phẩm sự kiện', TYPE = 5, part = -1, head = 1482, body = 1483, leg = 1484 where id = 1604");
             update(con, "insert into server_migration (name) values ('ct_su_mabu')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'gop_capsule_vo'")) {
+            // Cápsule Vỡ 2111 trùng mã gốc 1634 (món có tác dụng ở CapsuleVoService): đổi mọi chỗ sang 1634, gỡ 2111
+            update(con, "update season_event_top_reward set item_id = 1634 where item_id = 2111");
+            update(con, "update season_event_reward_item set item_id = 1634 where item_id = 2111");
+            update(con, "update boss_reward set item_id = 1634 where item_id = 2111");
+            update(con, "update item_box_reward set item_id = 1634 where item_id = 2111");
+            update(con, "update item_shop set temp_id = 1634 where temp_id = 2111");
+            update(con, "update season_event_exchange set reward_item = 1634 where reward_item = 2111");
+            update(con, "update season_event_drop set item_id = 1634 where item_id = 2111");
+            update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1, head = -1, body = -1, leg = -1 where id = 2111");
+            update(con, "delete from item_template_option where template_id = 2111");
+            update(con, "insert into server_migration (name) values ('gop_capsule_vo')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'hop_tra_kygui'")) { // Hộp trà / Hộp trà hoa cúc: ký gửi vàng, giao dịch được
             update(con, "delete from item_template_option where template_id in (1369, 1370) and option_id in (30, 86, 87)");
             update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) values (1369, 86, 0, 0, 100, 0), (1370, 86, 0, 0, 100, 0)");
@@ -1072,23 +1085,23 @@ public class Dot139Migration {
             // quà 4 top 20/11 theo bài diễn đàn chính thức (item_id:qty:hsd, rank_from-rank_to, min_point)
             String[][] rw = {
                 // A. Hộp quà 20/11 VIP (803) - đổi điểm Quy Lão (Ván Bút Chì Bay chưa có trong data)
-                {"803", "1-1", "1283:70,1559:3,2111:3,2098:999,2122:2"}, {"803", "2-2", "1283:60,1559:2,2111:2,2098:500,2122:1"},
-                {"803", "3-3", "1283:50,1559:1,2111:1,2098:200"}, {"803", "4-10", "1283:20,1690:50,1909:250,2098:20"},
+                {"803", "1-1", "1283:70,1559:3,1634:3,2098:999,2122:2"}, {"803", "2-2", "1283:60,1559:2,1634:2,2098:500,2122:1"},
+                {"803", "3-3", "1283:50,1559:1,1634:1,2098:200"}, {"803", "4-10", "1283:20,1690:50,1909:250,2098:20"},
                 {"803", "11-50", "1283:10,1690:20,1909:100"}, {"803", "51-100", "1283:5,1690:10,1909:20"},
                 {"803", "1-1:25000", "1538:1,2102:1"},
                 // B. Giấy tốt nghiệp (805) - top ngọc
-                {"805", "1-1", "2085:1,1283:70,1559:3,2111:3,2046:10,2122:2,2006:1"}, {"805", "2-2", "2085:1,1283:60,1559:2,2111:2,2046:5,2122:1"},
-                {"805", "3-3", "2085:1,1283:50,1559:1,2111:1,2046:2"}, {"805", "4-10", "2085:1:365,1283:20,1690:50,1909:100"},
+                {"805", "1-1", "2085:1,1283:70,1559:3,1634:3,2046:10,2122:2,2006:1"}, {"805", "2-2", "2085:1,1283:60,1559:2,1634:2,2046:5,2122:1"},
+                {"805", "3-3", "2085:1,1283:50,1559:1,1634:1,2046:2"}, {"805", "4-10", "2085:1:365,1283:20,1690:50,1909:100"},
                 {"805", "11-50", "2085:1:90,1283:10,1690:20,1909:20"}, {"805", "51-100", "2085:1:30,1283:5,1690:10"},
                 {"805", "1-1:41250", "2102:1"},
                 // C. Hộp quà 20-11 (801) - top vàng (Sao pha lê 10% / 9% vàng chưa có trong data)
-                {"801", "1-1", "1809:100,987:60,1559:3,2111:3,1868:10000,2046:10"}, {"801", "2-2", "1809:50,987:40,1559:2,2111:2,1868:5000,2046:5"},
-                {"801", "3-3", "1809:30,987:30,1559:1,2111:1,1868:1000,2046:2"}, {"801", "4-10", "1809:20,987:20,1690:50,1909:100"},
+                {"801", "1-1", "1809:100,987:60,1559:3,1634:3,1868:10000,2046:10"}, {"801", "2-2", "1809:50,987:40,1559:2,1634:2,1868:5000,2046:5"},
+                {"801", "3-3", "1809:30,987:30,1559:1,1634:1,1868:1000,2046:2"}, {"801", "4-10", "1809:20,987:20,1690:50,1909:100"},
                 {"801", "11-50", "1809:10,987:10,1690:20,1909:20"}, {"801", "51-100", "1809:5,987:5,1690:10"},
                 {"801", "1-1:65000", "1537:1"},
                 // D. Tặng bộ ngọc rồng cho Quy Lão (802)
-                {"802", "1-1", "2100:1,1283:70,1559:3,2111:3,1868:10000,2046:10,2006:1"}, {"802", "2-2", "2100:1,1283:60,1559:2,2111:2,1868:5000,2046:5"},
-                {"802", "3-3", "2100:1,1283:50,1559:1,2111:1,1868:1000,2046:2"}, {"802", "4-10", "2100:1,1283:20,1690:50,1909:100"},
+                {"802", "1-1", "2100:1,1283:70,1559:3,1634:3,1868:10000,2046:10,2006:1"}, {"802", "2-2", "2100:1,1283:60,1559:2,1634:2,1868:5000,2046:5"},
+                {"802", "3-3", "2100:1,1283:50,1559:1,1634:1,1868:1000,2046:2"}, {"802", "4-10", "2100:1,1283:20,1690:50,1909:100"},
                 {"802", "11-50", "2100:1:90,1283:10,1690:20,1909:20"}, {"802", "51-100", "2100:1:60,1283:5,1690:10"}};
             update(con, "delete from season_event_top_reward where top_id in (801, 802, 803, 805)");
             for (String[] r : rw) {

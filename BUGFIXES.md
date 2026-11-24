@@ -2730,3 +2730,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Part gốc từ Nr_Part.sql (bộ x4): LTN Rực Rỡ và Goku giỗ tổ dùng toạ độ gốc; khôi phục Cải trang Bill (part 508 - 510) và Cải trang Champa (511 - 513, avatar 5068), Bill trở lại Túi mù Halloween; vsData 52. Black Goku SSJ3 White / Thủy Thủ Mặt Trăng / Dr Myuu / CT Sư không có part trong file.
 - Khôi phục Thủy Thủ Mặt Trăng (1991): dùng bộ part gốc 772 - 774 của Cải trang Thủy Thủ Mặt Trăng cũ (đầu giống icon 16761).
 - CT Sư (1604): khôi phục, dùng part CT Mabư nhí 1482 - 1484 (cùng icon 13303).
+- Gộp Cápsule Vỡ 2111 (trùng) về mã gốc 1634 (món có tác dụng): quà top sự kiện / hộp KOL đổi sang 1634, đồ người chơi đang giữ tự đổi khi đăng nhập, 2111 thành ô Vật phẩm đã gỡ.

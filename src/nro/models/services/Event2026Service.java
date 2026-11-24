@@ -149,7 +149,7 @@ public class Event2026Service {
     /** Hộp ra vật phẩm chỉ số tối đa: Trứng Xên Vàng */
     public static final Set<Integer> MAX_STAT_BOXES = Set.of(2084);
     public static final int VAN_RONG_7_SAO = 2100;
-    public static final int CAPSULE_VO = 2111;
+    public static final int CAPSULE_VO = 1634; // Cápsule Vỡ gốc (2111 trùng, đã gộp)
     public static final int MANH_CAPSULE_VO = 1909;
     public static final int KHOA_BONG_TAI_3 = 2046;
     public static final int QUA_TRANG_TRON = 2088;
