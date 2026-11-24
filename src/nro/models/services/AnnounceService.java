@@ -189,11 +189,12 @@ public class AnnounceService {
     }
 
     /** Đổi quà sự kiện (Quy Lão, Chi Chi...) trúng tỉ lệ vĩnh viễn cải trang / pet / đeo lưng / thú cưỡi: thông báo server. */
-    public void onExchangePerm(Player pl, Item it) {
+    public void onExchangePerm(Player pl, Item it, String from) {
         if (pl == null || !pl.isPl() || !isRare(it)) {
             return;
         }
-        ServerNotify.gI().notify("Chúc mừng " + pl.name + " đã may mắn đổi được " + it.template.name + " hạn dùng vĩnh viễn");
+        String src = from == null || from.isBlank() ? it.template.name : from.replace("\n", " ").trim();
+        ServerNotify.gI().notify("Chúc mừng " + pl.name + " đã may mắn nhận được " + it.template.name + " hạn dùng vĩnh viễn khi mở " + src);
     }
 
     public void onOpenBox(Player pl, int boxId, Item it) {
@@ -210,7 +211,6 @@ public class AnnounceService {
             return; // đồ có hạn dùng: không thông báo, chỉ thông báo đồ vĩnh viễn
         }
         String box = ItemService.gI().getTemplate(boxId) != null ? ItemService.gI().getTemplate(boxId).name : "hộp quà";
-        ServerNotify.gI().notify("Chúc mừng " + pl.name + " đã may mắn mở " + box + " nhận được " + it.template.name
-                + " hạn dùng vĩnh viễn");
+        ServerNotify.gI().notify("Chúc mừng " + pl.name + " đã may mắn nhận được " + it.template.name + " hạn dùng vĩnh viễn khi mở " + box);
     }
 }
