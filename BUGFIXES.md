@@ -2741,3 +2741,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Chi Chi Xem điểm: hiện dạng 'Top 1 Hộp quà 20-11 với 1000 điểm' (cả top đang chạy lẫn top đã chốt).
 - CT Gohan SSJ: icon đổi sang ảnh đầu nhỏ 17807 (trước dùng ảnh avatar to 17838). Mua ở cửa hàng sự kiện (Chi Chi) không còn báo 'Bạn nhận được x50 ..., 50 điểm top'.
 - Đeo lưng hiệu ứng (mã 201 - 254: Bút chì hồng, Con Cat hường, Cờ hồn Mabư...) trên APK làm mất nhân vật: không gửi ảnh tĩnh -1 cho client APK nữa (J2ME giữ như cũ).
+- Cửa hàng sự kiện (Chi Chi...) và shop Santa: bấm mua bị 'Xin chờ' vài giây mới hiện ô nhập số lượng -> tắt hộp chờ của client ngay khi xử lý.
