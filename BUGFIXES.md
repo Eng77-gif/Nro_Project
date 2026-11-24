@@ -2738,3 +2738,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Mô tả CT đệ tử Sửu: 'Vật phẩm sự kiện (chỉ dành cho đệ tử)' giống Tí / Dần.
 - Đua top 20/11 bị chốt sớm (trước 22/11 lịch 20/11 còn ngắn, sự kiện tự tắt và chốt top): mở lại toàn bộ top 20/11, trả điểm từ quà chờ nhận, bỏ quà top chưa nhận; top tính đến 2/12, sự kiện chạy đến 17/12.
 - Bot ưu tiên mặc đủ bộ 1 set kích hoạt (set có nhiều món nhất; bằng nhau thì Cađíc > Kakarot > Nappa > Cađíc M), không mặc lẫn set; ô thiếu mới mặc món hạng cao nhất.
+- Chi Chi Xem điểm: hiện dạng 'Top 1 Hộp quà 20-11 với 1000 điểm' (cả top đang chạy lẫn top đã chốt).

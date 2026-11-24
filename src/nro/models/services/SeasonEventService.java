@@ -2053,7 +2053,7 @@ public class SeasonEventService implements Runnable {
                     ps.setLong(2, pl.id);
                     try (ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) {
-                            return "Bạn đạt hạng " + rs.getInt(1) + (rs.getLong(2) > 0 ? " với " + rs.getLong(2) + " điểm" : "")
+                            return "Top " + rs.getInt(1) + " " + topName(t) + (rs.getLong(2) > 0 ? " với " + rs.getLong(2) + " điểm" : "")
                                     + "\nHãy bấm Nhận thưởng Sự kiện Đua Top để nhận quà";
                         }
                     }
@@ -2781,7 +2781,7 @@ public class SeasonEventService implements Runnable {
         if (p[0] < MIN_TOP_POINT) {
             return "Chưa đủ điểm vào TOP (ít nhất là " + MIN_TOP_POINT + " điểm)\nĐiểm của bạn: " + p[0];
         }
-        return "Bạn đang hạng " + p[1] + " với " + p[0] + " điểm\n\n" + topText(t, pl);
+        return "Top " + p[1] + " " + topName(t) + " với " + p[0] + " điểm";
     }
 
     /** Bảng Top 100 dạng danh sách (như video). */
