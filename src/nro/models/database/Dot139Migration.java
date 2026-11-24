@@ -721,7 +721,7 @@ public class Dot139Migration {
         }
         if (!exists(con, "select 1 from server_migration where name = 'go_ct_khong_hinh'")) {
             // gỡ cải trang không có hình trong data (không đầu / thân / chân): giữ ô vì mã = vị trí, bỏ khỏi hộp quà / shop
-            String g = "1145, 1415, 1604, 1991"; // Bill / Champa: ct_part_goc;  1710 / 1785 / 1800 / 1778 / 1996 có part (ct_khoi_phuc_part, ct_khoi_phuc_x4)
+            String g = "1145, 1415, 1604"; // Thủy Thủ Mặt Trăng: ct_thuy_thu;  Bill / Champa: ct_part_goc;  1710 / 1785 / 1800 / 1778 / 1996 có part (ct_khoi_phuc_part, ct_khoi_phuc_x4)
             update(con, "update item_template set NAME = 'Vật phẩm đã gỡ', description = 'Vật phẩm đã gỡ', TYPE = 27, part = -1, head = -1, body = -1, leg = -1 where id in (" + g + ")");
             update(con, "delete from item_template_option where template_id in (" + g + ")");
             update(con, "delete from item_box_reward where item_id in (" + g + ")");
@@ -778,6 +778,12 @@ public class Dot139Migration {
             update(con, "insert into item_box_reward (box_id, item_id, qty_min, qty_max, weight, hsd_days, perm_rate, pity) select 1728, 1906, 1, 1, 5, '7,15', 1, 0 from dual where not exists (select 1 from item_box_reward where box_id = 1728 and item_id = 1906)");
             update(con, "insert into head_avatar (head_id, avatar_id) select 511, 5068 from dual where not exists (select 1 from head_avatar where head_id = 511)");
             update(con, "insert into server_migration (name) values ('ct_part_goc')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'ct_thuy_thu'")) {
+            // Thủy Thủ Mặt Trăng (icon mới 16761) dùng bộ part gốc của Cải trang Thủy Thủ Mặt Trăng cũ (772 - 774, đầu 7102 giống icon)
+            update(con, "update item_template set NAME = 'Thủy Thủ Mặt Trăng', description = 'Vật phẩm sự kiện', TYPE = 5, part = -1, head = 772, body = 773, leg = 774 where id = 1991");
+            writeStats(con, new int[][][]{{{1991}, {103, 30}, {7, 25000}}});
+            update(con, "insert into server_migration (name) values ('ct_thuy_thu')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'hop_tra_kygui'")) { // Hộp trà / Hộp trà hoa cúc: ký gửi vàng, giao dịch được
             update(con, "delete from item_template_option where template_id in (1369, 1370) and option_id in (30, 86, 87)");
