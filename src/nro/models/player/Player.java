@@ -946,12 +946,12 @@ public class Player implements Runnable {
     }
 
     /**
-     * Hợp thể đặc biệt: sư phụ và đệ tử đều mặc CT Goku SSJ Blue hoặc CT Cađíc SSJ Blue -> hình Gogeta SSJ Blue
+     * Hợp thể đặc biệt: sư phụ và đệ tử mặc khác nhau, 1 người CT Goku SSJ Blue, 1 người CT Cađíc SSJ Blue -> hình Gogeta SSJ Blue
      * (đầu / thân / chân của Cải trang Gogeta SSJ Blue 1865). part 0 = đầu, 1 = thân, 2 = chân; -1 nếu không đủ điều kiện.
      */
     private static short fusionBluePart(Item item, Item petItem, int part) {
-        if (!isSsjBlue(item) || !isSsjBlue(petItem)) {
-            return -1;
+        if (!isSsjBlue(item) || !isSsjBlue(petItem) || item.template.id == petItem.template.id) {
+            return -1; // phải khác nhau: 1 người Goku, 1 người Cađíc
         }
         nro.models.player_system.Template.ItemTemplate t = nro.models.services.ItemService.gI().getTemplate(1865);
         if (t == null) {

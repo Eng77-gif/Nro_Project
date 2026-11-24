@@ -2763,3 +2763,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Pháo hoa NRO (cờ): bỏ chí mạng / SĐ chí mạng (Dot92 không tự thêm lại mỗi lần khởi động), thay bằng Không giao dịch; món cũ (hành trang, rương, đang mặc) cũng bỏ 2 dòng đó khi đăng nhập.
 - Cờ bông tuyết: cố định giảm 11% sát thương, 21% né đòn (trước ngẫu nhiên 10 - 15% / 20 - 25%); món cũ cũng đổi khi đăng nhập.
 - Hợp thể đặc biệt Gogeta SSJ Blue: sư phụ và đệ tử đều mặc CT Goku SSJ Blue (1590) hoặc CT Cađíc SSJ Blue (1746) thì khi hợp thể hiện hình Cải trang Gogeta SSJ Blue (1865).
+- Hợp thể Gogeta SSJ Blue: sư phụ và đệ tử phải mặc khác nhau (1 Goku SSJ Blue + 1 Cađíc SSJ Blue), cùng loại thì hợp thể thường.
