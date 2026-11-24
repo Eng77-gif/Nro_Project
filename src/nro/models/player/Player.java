@@ -940,6 +940,27 @@ public class Player implements Runnable {
         }
     }
 
+    /** CT Goku SSJ Blue (1590) / CT Cađíc SSJ Blue (1746). */
+    private static boolean isSsjBlue(Item it) {
+        return it != null && it.isNotNullItem() && (it.template.id == 1590 || it.template.id == 1746);
+    }
+
+    /**
+     * Hợp thể đặc biệt: sư phụ và đệ tử đều mặc CT Goku SSJ Blue hoặc CT Cađíc SSJ Blue -> hình Gogeta SSJ Blue
+     * (đầu / thân / chân của Cải trang Gogeta SSJ Blue 1865). part 0 = đầu, 1 = thân, 2 = chân; -1 nếu không đủ điều kiện.
+     */
+    private static short fusionBluePart(Item item, Item petItem, int part) {
+        if (!isSsjBlue(item) || !isSsjBlue(petItem)) {
+            return -1;
+        }
+        nro.models.player_system.Template.ItemTemplate t = nro.models.services.ItemService.gI().getTemplate(1865);
+        if (t == null) {
+            return -1;
+        }
+        int v = part == 0 ? t.head : part == 1 ? t.body : t.leg;
+        return (short) v;
+    }
+
     public short getHead() {
         if (this.isPl() && this.pet != null && this.fusion.typeFusion != ConstPlayer.NON_FUSION) { // trước đây thiếu ngoặc: không có đệ mà đang hợp thể thì NullPointerException
             Item item = inventory.itemsBody.get(5);
@@ -949,6 +970,10 @@ public class Player implements Runnable {
             boolean sameItem = item.isNotNullItem() && petItem.isNotNullItem() && item.template.id == petItem.template.id;
             if (hasItem1 && hasItem2 && !sameItem) {
                 return 1578;
+            }
+            short blue = fusionBluePart(item, petItem, 0);
+            if (blue >= 0) {
+                return blue;
             }
         }
         if (effectSkill != null && effectSkill.isBinh) {
@@ -1004,6 +1029,10 @@ public class Player implements Runnable {
             boolean sameItem = item.isNotNullItem() && petItem.isNotNullItem() && item.template.id == petItem.template.id;
             if (hasItem1 && hasItem2 && !sameItem) {
                 return 1581;
+            }
+            short blue = fusionBluePart(item, petItem, 1);
+            if (blue >= 0) {
+                return blue;
             }
         }
         if (effectSkill != null && effectSkill.isBinh) {
@@ -1064,6 +1093,10 @@ public class Player implements Runnable {
             boolean sameItem = item.isNotNullItem() && petItem.isNotNullItem() && item.template.id == petItem.template.id;
             if (hasItem1 && hasItem2 && !sameItem) {
                 return 1582;
+            }
+            short blue = fusionBluePart(item, petItem, 2);
+            if (blue >= 0) {
+                return blue;
             }
         }
         if (effectSkill != null && effectSkill.isBinh) {
