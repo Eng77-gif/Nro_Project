@@ -2752,3 +2752,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Bảng Siêu hạng (Top 100 Cao Thủ / Giải siêu hạng): bỏ dòng thưởng '+200 hồng ngọc...' đè lên chữ Hạng; như bản chính thức hiện '...' hoặc 'Đang chờ để thi đấu' khi đang chờ / đang đấu.
 - Top 100 sự kiện (Chi Chi) như bản chính thức: bên phải dòng hiện 'X giờ trước' (lần cuối được cộng điểm, cột updated_at mới), bỏ chữ 'Hạng: N' đè lên chữ của client; popup hiện Top N / thời gian / '...'.
 - Chi Chi: lời chào chỉ còn 'Bạn muốn hỏi chi ?' (bỏ dòng 'Sự kiện ...').
+- Hào quang theo sức mạnh: dưới 80 tỷ để client tự vẽ hào quang cấp (60 - 80 tỷ sét xanh); từ 80 tỷ server gửi theo bảng v10: 80 tỷ xanh dương (6), 110 tỷ xanh lá (82), 120 tỷ hồng (83), 180 tỷ đỏ (84). Thẻ rada / thưởng Quy Lão vẫn ưu tiên.

@@ -860,7 +860,17 @@ public class Player implements Runnable {
         if (this.auraReward >= 0 && this.auraRewardUntil > System.currentTimeMillis()) {
             return (short) this.auraReward;
         }
-        return -1;
+        return auraPower();
+    }
+
+    /**
+     * Hào quang theo mốc sức mạnh trên 50 tỷ (bảng auraPower của v10): 80 tỷ xanh dương, 110 tỷ xanh lá, 120 tỷ hồng, 180 tỷ đỏ.
+     * Dưới mốc này client tự vẽ hào quang theo cấp sức mạnh (gửi aura sẽ làm client tắt hào quang cấp của nó).
+     */
+    public short auraPower() {
+        long p = nPoint == null ? 0 : nPoint.power;
+        return p >= 180_000_000_000L ? 84 : p >= 120_000_000_000L ? 83 : p >= 110_000_000_000L ? 82
+                : p >= 80_000_000_000L ? (short) 6 : -1;
     }
 
     public byte getEffFront() {
