@@ -719,6 +719,11 @@ public class Dot139Migration {
             update(con, "delete from item_template_option where template_id in (2107, 2108, 2109)");
             update(con, "insert into server_migration (name) values ('go_super_234')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'hop_but_bay_2109'")) { // Hộp bút bay (data gốc: phương tiện bay, icon 16329, part 66)
+            update(con, "update item_template set NAME = 'Hộp bút bay', description = 'Vật phẩm sự kiện', TYPE = 23, gender = 3, icon_id = 16329, part = 66, power_require = 0, head = -1, body = -1, leg = -1 where id = 2109");
+            update(con, "insert into img_by_name (NAME, n_frame) select 'mount_66_0', 4 from dual where not exists (select 1 from img_by_name where NAME = 'mount_66_0')");
+            update(con, "insert into server_migration (name) values ('hop_but_bay_2109')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'go_ct_khong_hinh'")) {
             // gỡ cải trang không có hình trong data (không đầu / thân / chân): giữ ô vì mã = vị trí, bỏ khỏi hộp quà / shop
             String g = "1145, 1415"; // CT Sư: ct_su_mabu;  Thủy Thủ Mặt Trăng: ct_thuy_thu;  Bill / Champa: ct_part_goc;  1710 / 1785 / 1800 / 1778 / 1996 có part (ct_khoi_phuc_part, ct_khoi_phuc_x4)

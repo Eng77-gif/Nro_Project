@@ -2744,3 +2744,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Cửa hàng sự kiện (Chi Chi...) và shop Santa: bấm mua bị 'Xin chờ' vài giây mới hiện ô nhập số lượng -> tắt hộp chờ của client ngay khi xử lý.
 - Xem Top 100 sự kiện bị delay: người chơi offline không còn tải đầy đủ từng tài khoản, thay bằng 1 truy vấn gộp lấy tên / đầu / áo / quần / cải trang (SeasonEventService.showTop100).
 - Top 100 sự kiện: người offline hiện đúng hình lúc lưu cuối, có cả hợp thể / biến hình (bảng player_look, ghi mỗi lần lưu người chơi).
+- Bổ sung Hộp bút bay (mã 2109) theo data gốc: phương tiện bay, icon 16329, hình cưỡi part 66 (thêm khung mount_66_0 rỗng để server nhận).
