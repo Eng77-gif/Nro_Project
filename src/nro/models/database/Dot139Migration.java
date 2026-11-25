@@ -1454,6 +1454,11 @@ public class Dot139Migration {
             }
             update(con, "insert into server_migration (name) values ('vip_mua_1_ngay_2511')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'do_mac_khong_gop'")) {
+            // CT Cađíc (1741-1746), Diều rồng băng, Ván bay Cây Thông, pet... bị bật gộp (is_up_to_up = 1) nên nhận 2 cái thành 1 ô x2
+            update(con, "update item_template set is_up_to_up = 0 where is_up_to_up = 1 and (TYPE in (5, 11, 23, 24) or (TYPE = 27 and head >= 0))");
+            update(con, "insert into server_migration (name) values ('do_mac_khong_gop')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'cadic_ssj_blue_nhu_goku'")) {
             // CT Cađíc SSJ Blue (1746) chưa có chỉ số (ra chỉ số tạm SĐ / HP 30%): giống CT Goku SSJ Blue (1590)
             writeStats(con, new int[][][]{{{1746}, {50, 27}, {77, 27}, {103, 27}, {210, 4}, {106, 0}}});

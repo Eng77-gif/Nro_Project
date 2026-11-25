@@ -454,6 +454,7 @@ public class VietLoader {
                 ItemService.gI().refreshTitle(item); // danh hiệu đổi chỉ số: món cũ lấy chỉ số mới
                 player.inventory.itemsBag.add(item);
             }
+            splitWearStacks(player.inventory.itemsBag);
             dataArray.clear();
 
             //data box
@@ -1414,6 +1415,24 @@ public class VietLoader {
             return Long.parseLong(String.valueOf(arr.get(index)));
         } catch (NumberFormatException e) {
             return 0;
+        }
+    }
+
+    /** CT / đeo lưng / pet từng bị gộp (vd. CT Cađíc SSJ Blue x2): tách mỗi cái ra 1 ô trống, hết ô trống thì để nguyên. */
+    private static void splitWearStacks(java.util.List<Item> bag) {
+        for (int i = 0; i < bag.size(); i++) {
+            Item it = bag.get(i);
+            if (!it.isNotNullItem() || it.template.isUpToUp || !nro.models.services.VipSeason.isWearable(it.template)) {
+                continue;
+            }
+            for (int j = 0; j < bag.size() && it.quantity > 1; j++) {
+                if (!bag.get(j).isNotNullItem()) {
+                    Item one = ItemService.gI().copyItem(it);
+                    one.quantity = 1;
+                    bag.set(j, one);
+                    it.quantity--;
+                }
+            }
         }
     }
 }

@@ -152,7 +152,29 @@ public final class VipSeason {
                 b.append(" vĩnh viễn");
             }
         }
-        return b.toString();
+        return pack(b.toString());
+    }
+
+    /** Ghép 2 dòng quà ngắn vào 1 dòng để bảng Tori Bot không tràn khung (khung client chỉ chứa ~14 dòng). */
+    static String pack(String text) {
+        String[] ls = text.split("\n");
+        StringBuilder out = new StringBuilder(ls[0]);
+        String cur = null;
+        for (int i = 1; i < ls.length; i++) {
+            if (cur != null && cur.length() + 3 + ls[i].length() <= 56) {
+                out.append('\n').append(cur).append(" - ").append(ls[i]);
+                cur = null;
+            } else {
+                if (cur != null) {
+                    out.append('\n').append(cur);
+                }
+                cur = ls[i];
+            }
+        }
+        if (cur != null) {
+            out.append('\n').append(cur);
+        }
+        return out.toString();
     }
     /** Cải trang, đeo lưng, thú cưỡi, pet: khi không ghi dòng chỉ số thì lấy chỉ số gốc của món (item_template_option). */
     public static boolean isWearable(nro.models.player_system.Template.ItemTemplate t) {
