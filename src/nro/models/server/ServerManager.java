@@ -88,6 +88,45 @@ public class ServerManager {
         return instance;
     }
 
+    /** Mã commit đang chạy: file VERSION (cap_nhat / bộ tải ghi), máy cập nhật bằng git thì đọc .git/HEAD. */
+    static String runningVersion() {
+        try {
+            java.nio.file.Path v = java.nio.file.Path.of("VERSION");
+            if (java.nio.file.Files.exists(v)) {
+                String s = java.nio.file.Files.readString(v).trim();
+                if (s.matches("[0-9a-fA-F]{7,40}")) {
+                    return s.substring(0, Math.min(9, s.length()));
+                }
+            }
+            java.nio.file.Path head = java.nio.file.Path.of(".git", "HEAD");
+            if (java.nio.file.Files.exists(head)) {
+                String h = java.nio.file.Files.readString(head).trim();
+                if (h.startsWith("ref: ")) {
+                    java.nio.file.Path ref = java.nio.file.Path.of(".git").resolve(h.substring(5));
+                    if (java.nio.file.Files.exists(ref)) {
+                        h = java.nio.file.Files.readString(ref).trim();
+                    } else { // ref đã gói vào packed-refs
+                        String name = h.substring(5);
+                        h = "";
+                        java.nio.file.Path packed = java.nio.file.Path.of(".git", "packed-refs");
+                        if (java.nio.file.Files.exists(packed)) {
+                            for (String line : java.nio.file.Files.readAllLines(packed)) {
+                                if (line.endsWith(" " + name)) {
+                                    h = line.substring(0, line.indexOf(' '));
+                                }
+                            }
+                        }
+                    }
+                }
+                if (h.matches("[0-9a-f]{7,40}")) {
+                    return h.substring(0, 9);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return "chưa rõ (chạy cap_nhat để ghi mã phiên bản)";
+    }
+
     public static void main(String[] args) {
         nro.models.panel.PanelServer.captureConsole(); // ghi console ra logs/console.log từ đầu (trước cả dòng kiểm tra chữ ký)
         if (!JarSignatureCheck.verify()) {
@@ -96,6 +135,7 @@ public class ServerManager {
         }
         nro.models.utils.ConfigMerge.run(); // thêm mục cấu hình mới vào Config.properties (bộ tải repo không ghi đè file này)
         Logger.log(Logger.YELLOW, "Bản server (20.jar) build lúc: " + BUILD + "\n"); // để biết VPS đang chạy đúng bản mới
+        Logger.log(Logger.YELLOW, "Server đang chạy phiên bản: " + runningVersion() + "\n");
         nro.models.data.SqlBackup.importPendingAtBoot(); // panel đã tải dữ liệu GitHub: nạp trước khi đọc database
         try {
             timeStart = TimeUtil.getTimeNow("dd/MM/yyyy HH:mm:ss");
