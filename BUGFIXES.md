@@ -2824,3 +2824,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Tori Bot mua VIP khi đã có đệ tử: hỏi 'Bạn đang có đệ tử, bạn có muốn đổi lấy đệ tử mới (sơ sinh) theo tộc mình không?' với Đồng ý / Không nhận đệ tử mới / Từ chối; sửa bấm 'Đóng' ở bảng quà VIP cũng mua luôn.
 - Console: bỏ dòng [LOI] 'sendResponseHeaders: being invoked with a content length for a HEAD request' (Cloudflare / bot kiểm tra web gửi HEAD): web / panel trả HEAD không kèm thân.
 - CT Goku SSJ Blue / SSJ God, CT Cađíc SSJ Blue / SSJ4: dòng 'Không ảnh hưởng bởi cái lạnh' chỉ 20% (trước 100%), cả quà VIP lẫn mua shop; món đang có giữ nguyên, không tung lại khi đăng nhập. Sửa CT Cađíc SSJ Blue đã mở dòng ẩn bị quay lại chỉ số mỗi lần đăng nhập (chỉ đổi món còn chỉ số tạm 30%).
+- Shop: CT Goku / Cađíc SSJ Blue / God / SSJ4 không hiện dòng chống lạnh ở xem trước (hiện là chắc chắn ra); mua xong mới tung 20%.

@@ -53,10 +53,11 @@ public class ItemService {
         item.content = item.getContent();
         item.info = item.getInfo();
         for (Item.ItemOption io : itemShop.options) {
-            if (io.optionTemplate != null && io.optionTemplate.id == 106 && !Util.isTrue(chanceOf(itemShop.temp.id, 106), 100)) {
-                continue; // dòng chống lạnh có tỉ lệ (vd. CT Goku / Cađíc SSJ Blue 20%)
-            }
             item.itemOptions.add(new Item.ItemOption(io));
+        }
+        int c106 = chanceOf(itemShop.temp.id, 106);
+        if (c106 < 100 && item.getOptionById(106) == null && Util.isTrue(c106, 100)) {
+            item.itemOptions.add(new Item.ItemOption(106, 0)); // dòng chống lạnh có tỉ lệ (CT Goku / Cađíc SSJ Blue 20%): không hiện ở xem trước, mua mới tung
         }
         return item;
     }
