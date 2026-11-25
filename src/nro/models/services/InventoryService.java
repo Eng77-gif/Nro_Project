@@ -1297,9 +1297,6 @@ public class InventoryService {
         return getIndexItem(player, player.inventory.itemsBox, item);
     }
 
-    /** CT Goku (thường / SSJ / SSJ2 / SSJ3 / SSJ Blue / SSJ God / SSJ 4 Red), CT Cađíc SSJ / SSJ2 / SSJ Blue. */
-    private static final java.util.Set<Integer> GOKU_CADIC_210 = java.util.Set.of(1588, 1589, 1595, 1587, 1590, 1593, 1803, 1742, 1743, 1746);
-
     private void handleOption210(Item item) {
         for (int i = 0; i < item.itemOptions.size(); i++) {
             Item.ItemOption io = item.itemOptions.get(i);
@@ -1319,48 +1316,13 @@ public class InventoryService {
                         }
                     }
                 }
-                if (item.template.id == 1891) { // Thùng rác (hè 3): mỗi dòng ẩn mở ra 1 chỉ số ngẫu nhiên khác nhau (thử nhân phẩm)
-                    int[][] pool = {{50, 8, 17}, {77, 8, 17}, {103, 8, 17}, {14, 3, 11}, {5, 5, 15}, {108, 3, 10},
-                        {94, 3, 10}, {97, 3, 10}, {80, 3, 8}, {81, 3, 8}, {101, 5, 20}, {100, 5, 20}};
-                    List<int[]> left = new ArrayList<>(java.util.Arrays.asList(pool));
-                    for (int k = 0; k < io.param && !left.isEmpty(); k++) {
-                        int[] o = left.remove(nro.models.utils.Util.nextInt(0, left.size() - 1));
-                        item.itemOptions.add(option210Index + k, new Item.ItemOption(o[0], nro.models.utils.Util.nextInt(o[1], o[2])));
-                    }
-                    break;
+                // mọi dòng ẩn (CT Goku / Cađíc, Thùng rác, CT Fide nhí, Goku cận vô cực...): 13 chỉ số anh định, 10-20%, không trùng nhau
+                // (Lồng đèn Hốc trưởng không dùng dòng ẩn 210 mà tung 1 dòng theo nhóm trong item_template_option: giữ nguyên)
+                List<Integer> left = new ArrayList<>(java.util.Arrays.asList(5, 14, 80, 81, 94, 95, 96, 101, 104, 108, 199, 200, 201));
+                for (int k = 0; k < io.param && !left.isEmpty(); k++) {
+                    int op = left.remove(nro.models.utils.Util.nextInt(0, left.size() - 1));
+                    item.itemOptions.add(option210Index + k, new Item.ItemOption(op, nro.models.utils.Util.nextInt(10, 20)));
                 }
-                int numberOfOptionsToAdd = io.param;
-                if (GOKU_CADIC_210.contains((int) item.template.id)) {
-                    // CT Goku / Cađíc SSJ: dòng ẩn chỉ lấy trong 13 chỉ số anh định, mỗi dòng khác nhau
-                    List<Integer> left = new ArrayList<>(java.util.Arrays.asList(5, 14, 80, 81, 94, 95, 96, 101, 104, 108, 199, 200, 201));
-                    for (int k = 0; k < numberOfOptionsToAdd && !left.isEmpty(); k++) {
-                        int op = left.remove(nro.models.utils.Util.nextInt(0, left.size() - 1));
-                        item.itemOptions.add(option210Index + k, new Item.ItemOption(op, nro.models.utils.Util.nextInt(10, 20))); // mọi dòng 10-20%
-                    }
-                    break;
-                }
-                int[] allOptions = {8, 14, 108, 94, 108, 16, 80, 81, 97, 100, 101, 104, 106};
-                List<Integer> selectedOptions = new ArrayList<>();
-                while (selectedOptions.size() < numberOfOptionsToAdd && selectedOptions.size() < allOptions.length) {
-                    int randomIndex = (int) (Math.random() * allOptions.length);
-                    int selectedOption = allOptions[randomIndex];
-                    if (!selectedOptions.contains(selectedOption)) {
-                        selectedOptions.add(selectedOption);
-                    }
-                }
-                List<Item.ItemOption> newOptions = new ArrayList<>();
-                for (int option : selectedOptions) {
-                    int newParam = 0;
-                    if (option == 8 || option == 14 || option == 108 || option == 94 || option == 108) {
-                        newParam = 3 + (int) (Math.random() * 3);
-                    } else if (option == 16 || option == 80 || option == 81 || option == 97 || option == 100 || option == 101 || option == 104) {
-                        newParam = 10 + (int) (Math.random() * 16);
-                    } else if (option == 106) {
-                        newParam = 0;
-                    }
-                    newOptions.add(new Item.ItemOption(option, newParam));
-                }
-                item.itemOptions.addAll(option210Index, newOptions);
                 break;
             }
         }
