@@ -1,6 +1,7 @@
 @ECHO OFF
 REM Console UTF-8: chu tieng Viet trong log hien dung
 chcp 65001 >nul
+title Ngọc Rồng Online - Máy chủ game
 REM Chạy server cho VPS yếu (1-2 nhân, 1-2 GB RAM). VPS 1 GB: 320m, VPS 2 GB: 448m.
 IF "%RAM_MAX%"=="" SET RAM_MAX=384m
 REM Bao tri (ma thoat 3): server tu bat lai ngay trong cua so nay, khong mo cua so moi.

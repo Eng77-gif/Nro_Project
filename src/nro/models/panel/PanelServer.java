@@ -370,8 +370,8 @@ public class PanelServer {
             return;
         }
         captured = true;
-        System.setOut(new PrintStream(new TeeStream(System.out), true, StandardCharsets.UTF_8));
-        System.setErr(new PrintStream(new TeeStream(System.err), true, StandardCharsets.UTF_8));
+        System.setOut(new PrintStream(new TeeStream(System.out, false), true, StandardCharsets.UTF_8));
+        System.setErr(new PrintStream(new TeeStream(System.err, true), true, StandardCharsets.UTF_8));
     }
 
     /** Console Windows (cmd): không hiểu mã màu ANSI và in từng dòng nạp dữ liệu làm rối -> lọc gọn. Linux / Termux giữ nguyên (menu Termux đọc log). */
@@ -379,29 +379,103 @@ public class PanelServer {
     private static final java.util.regex.Pattern ANSI = java.util.regex.Pattern.compile("\u001B\\[[0-9;]*[A-Za-z]");
     private static int loaded;
 
-    private static synchronized void winConsole(OutputStream out, String raw) throws IOException {
-        String s = ANSI.matcher(raw).replaceAll("").replace("\r", "");
-        if (s.contains(": Data update successfully") || s.contains("idleTimeout is close to") || s.isBlank()) {
+    private static final java.util.regex.Pattern ERR_WORDS = java.util.regex.Pattern.compile(
+            "(?iu)(lỗi|error|exception|thất bại|failed|không (đọc|tải|lưu|kết nối|ghi|mở|nạp|tạo)( được)?|hết ô)");
+    private static final java.util.List<String> roses = new java.util.ArrayList<>();
+
+    private static void flushRoses(StringBuilder w) {
+        if (!roses.isEmpty()) {
+            w.append("  ").append(new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date())).append("  Hoa hồng mọc ở: ")
+                    .append(String.join(", ", roses)).append('\n');
+            roses.clear();
+        }
+    }
+
+    private static boolean bannerShown, readyShown;
+    private static String gamePort = "?", panelUrl = "?", webUrl = "?", build = "?";
+    private static final long BOOT = System.currentTimeMillis();
+    private static final int BOX = 62;
+
+    private static String row(String text) {
+        String t = text.length() > BOX - 4 ? text.substring(0, BOX - 4) : text;
+        return "  │ " + t + " ".repeat(BOX - 4 - t.length()) + " │\n";
+    }
+
+    private static String box(String title, String... rows) {
+        StringBuilder b = new StringBuilder("\n");
+        String head = title.isEmpty() ? "" : "─ " + title + " ";
+        b.append("  ┌").append(head).append("─".repeat(BOX - 2 - head.length())).append("┐\n");
+        for (String r : rows) {
+            b.append(row(r));
+        }
+        b.append("  └").append("─".repeat(BOX - 2)).append("┘\n\n");
+        return b.toString();
+    }
+
+    private static synchronized void winConsole(OutputStream out, String raw, boolean err) throws IOException {
+        String s = ANSI.matcher(raw).replaceAll("").replace("\r", "").stripTrailing();
+        if (s.contains(": Data update successfully") || s.contains(" save successfully!") || s.contains("idleTimeout is close to") || s.isBlank()) {
             return; // lưu nhân vật (mỗi lần lưu 1 dòng), cảnh báo HikariCP vô hại, dòng trống
         }
         if (s.contains("Successfully") || s.startsWith("Tạo player mới thành công")) {
             loaded++; // từng bảng nạp xong: chỉ đếm, in 1 dòng tổng khi nạp xong
             return;
         }
+        StringBuilder w = new StringBuilder();
+        if (!bannerShown) {
+            bannerShown = true;
+            w.append(box("", "NGỌC RỒNG ONLINE  ·  MÁY CHỦ GAME",
+                    "Khởi động lúc " + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date(BOOT))));
+        }
         if (s.startsWith("Total database loading time")) {
             s = "Đã nạp dữ liệu: " + loaded + " mục (" + s.replaceAll("[^0-9]", "") + " ms)";
         }
-        out.write((s + "\n").getBytes(StandardCharsets.UTF_8));
+        java.util.regex.Matcher m;
+        if ((m = java.util.regex.Pattern.compile("build lúc: (.+)$").matcher(s)).find()) {
+            build = m.group(1).trim();
+        } else if ((m = java.util.regex.Pattern.compile("đang mở cổng (\\d+)").matcher(s)).find()) {
+            gamePort = m.group(1);
+        } else if (s.startsWith("Panel web quản lý: ")) {
+            panelUrl = s.substring(19).replaceAll(" \\(.*$", "");
+        } else if (s.startsWith("Web người chơi: http")) {
+            webUrl = s.substring(16).trim();
+        }
+        if (s.startsWith("\tat ") || s.startsWith("Caused by") || s.startsWith("\t... ")) {
+            w.append("             ").append(s.trim()).append('\n'); // dòng stack trace: thụt vào, không lặp giờ
+        } else {
+            // nhãn theo nội dung (màu trong code cũ dùng tuỳ hứng: dòng thường cũng in đỏ / vàng)
+            boolean red = ERR_WORDS.matcher(s).find() || raw.contains(" ERROR ") || (err && !raw.contains(" INFO ") && !raw.contains(" WARN "));
+            boolean yellow = !red && raw.contains(" WARN ");
+            if (s.startsWith("Hoa hồng mọc ở ")) { // sự kiện 20/11: gộp các dòng vị trí hoa hồng thành 1 dòng
+                roses.add(s.substring(15));
+                return;
+            }
+            flushRoses(w);
+            w.append("  ").append(new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date())).append("  ")
+                    .append(red ? "[LỖI] " : yellow ? "[!] " : "").append(s).append('\n');
+        }
+        if (!readyShown && s.startsWith("Bot: giữ")) {
+            readyShown = true;
+            w.append(box("SERVER ĐÃ SẴN SÀNG",
+                    "Cổng game       " + gamePort,
+                    "Panel quản lý   " + panelUrl,
+                    "Web người chơi  " + webUrl,
+                    "Bản 20.jar      " + build,
+                    "Khởi động trong " + String.format("%.1f", (System.currentTimeMillis() - BOOT) / 1000.0) + " giây"));
+        }
+        out.write(w.toString().getBytes(StandardCharsets.UTF_8));
         out.flush();
     }
 
     private static class TeeStream extends OutputStream {
 
         private final OutputStream orig;
+        private final boolean err;
         private final ByteArrayOutputStream line = new ByteArrayOutputStream();
 
-        TeeStream(OutputStream orig) {
+        TeeStream(OutputStream orig, boolean err) {
             this.orig = orig;
+            this.err = err;
         }
 
         @Override
@@ -413,7 +487,7 @@ public class PanelServer {
                 String s = line.toString(StandardCharsets.UTF_8);
                 LOG.add(s);
                 if (WIN) {
-                    winConsole(orig, s);
+                    winConsole(orig, s, err);
                 }
                 line.reset();
             } else if (line.size() < 4000) {
