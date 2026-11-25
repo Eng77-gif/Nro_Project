@@ -2814,3 +2814,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Mua VIP ở Tori Bot dùng chung điểm sự kiện với cửa hàng đổi điểm Quy Lão (trước trừ 'điểm mùa' = số dư nạp account.vnd); menu hiện 'điểm sự kiện [n]', panel ghi 'Giá VIP (điểm sự kiện, chung điểm Quy Lão)'.
 - Giá VIP Tori Bot theo điểm sự kiện: VIP 1 = 500, VIP 2 = 800, VIP 3 = 2000, VIP 4 = 8000 điểm (migration vip_gia_diem_su_kien, chỉnh lại được trên panel).
 - Console khởi động thêm dòng 'Server đang chạy phiên bản: <mã commit>' dưới dòng build (đọc file VERSION do cap_nhat ghi, máy cập nhật bằng git thì đọc .git).
+- Sửa lỗi NullPointerException 'timeXinbatoBuff ... this.nPoint is null' (Player.update từ boss Siêu hạng): boss rời map đã dispose nhưng luồng quản lý boss còn gọi update -> Player.update / SuperRank.update bỏ qua khi nPoint đã null.

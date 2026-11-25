@@ -139,6 +139,9 @@ public abstract class SuperRank extends Boss {
 
     @Override
     public void update() {
+        if (this.nPoint == null) {
+            return; // đã rời map và dispose
+        }
         try {
             super.updateInfo();
             if ((this.effectSkill != null && this.effectSkill.isHaveEffectSkill()) || (this.newSkill != null && this.newSkill.isStartSkillSpecial)) {

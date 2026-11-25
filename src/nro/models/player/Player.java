@@ -480,6 +480,9 @@ public class Player implements Runnable {
     }
 
     public void update() {
+        if (this.nPoint == null) {
+            return; // đã dispose (vd boss Siêu hạng rời map) nhưng luồng quản lý boss còn gọi update trên danh sách cũ
+        }
         if (!this.beforeDispose) {
             try {
                 if (this.zone != null || (!this.isPl() && this.zone == null)) {
