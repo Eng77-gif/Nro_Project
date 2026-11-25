@@ -2805,3 +2805,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Console Windows ra ký tự rác (font Raster không hiện UTF-8): in tiếng Việt không dấu, khung vẽ bằng + - | (chỉ ASCII, hiện đúng mọi máy Windows); bỏ chcp 65001 khỏi run.bat / run_vps_yeu.bat, tiêu đề cửa sổ không dấu.
 - Console: dòng chữ ký rút gọn 'Chữ ký số hợp lệ'; bỏ dòng 'Đợt 89 ...' in ra mỗi lần khởi động.
 - Web: đăng ký tài khoản game ngay trên web (khi chưa đặt web.register.url): bấm 'Đăng ký tài khoản mới' chuyển form sang đăng ký (thêm ô nhập lại mật khẩu), tạo tài khoản như trong game rồi đăng nhập luôn. Tài khoản 4 - 20 ký tự (chữ không dấu, số, _), mật khẩu 4 - 30 ký tự, tối đa 3 tài khoản / IP / giờ (gõ sai không tính), dùng Turnstile nếu đã cấu hình.
+- Web đăng ký: chống bot tự động không cần cấu hình (trình duyệt tự giải bài toán proof-of-work ~1 giây, người chơi không phải nhập gì, gọi thẳng API không giải bị từ chối); Turnstile vẫn dùng nếu admin đã điền web.turnstile.*.

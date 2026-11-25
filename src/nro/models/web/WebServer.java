@@ -232,6 +232,7 @@ public class WebServer {
             case "auth/options" -> Map.of("name", conf("web.world.name").isBlank() ? serverName : conf("web.world.name"), "worlds", conf("web.worlds"), "sitekey", conf("web.turnstile.sitekey"), "register", conf("web.register.url"), "recover", conf("web.recover.url"));
             case "login" -> login(ip, b);
             case "register" -> register(ip, b);
+            case "auth/challenge" -> challenge(ip);
             case "logout" -> {
                 String t = ex.getRequestHeaders().getFirst("X-Token");
                 if (t != null) {
@@ -412,7 +413,11 @@ public class WebServer {
         if (used != null && used[0] >= 3 && System.currentTimeMillis() - used[1] <= 60 * 60_000L) {
             throw new ApiError(429, "Mỗi máy chỉ đăng ký tối đa 3 tài khoản mỗi giờ, thử lại sau");
         }
-        verifyHuman(b);
+        if (conf("web.turnstile.sitekey").isBlank() && conf("web.turnstile.secret").isBlank()) {
+            verifyPow(b); // không cấu hình Turnstile: chống bot tự động
+        } else {
+            verifyHuman(b);
+        }
         String u = str(b.get("user")).trim(), pw = str(b.get("pass")), pw2 = str(b.get("pass2"));
         if (!u.matches("[a-zA-Z0-9_]{4,20}")) {
             throw new ApiError(400, "Tài khoản 4 - 20 ký tự, chỉ gồm chữ không dấu, số và dấu _");
@@ -439,6 +444,41 @@ public class WebServer {
         }
         nro.models.utils.Logger.log("Web: đăng ký tài khoản mới " + u + "\n");
         return Map.of("ok", true, "token", newSession(id, u));
+    }
+
+    /** Chống bot không cần cấu hình: trình duyệt phải tìm n sao cho SHA-256(c:n) có POW_BITS bit 0 đầu (~1 giây), dùng 1 lần, hạn 5 phút. */
+    private static final int POW_BITS = 16;
+    private final Map<String, Long> challenges = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private Map<String, Object> challenge(String ip) {
+        limit("challenge:" + ip, 30, 10 * 60_000L, "Thử lại sau ít phút");
+        long now = System.currentTimeMillis();
+        challenges.values().removeIf(t -> t < now);
+        if (challenges.size() > 20_000) {
+            throw new ApiError(503, "Máy chủ đang bận, thử lại sau");
+        }
+        byte[] raw = new byte[16];
+        random.nextBytes(raw);
+        StringBuilder c = new StringBuilder();
+        for (byte x : raw) {
+            c.append(String.format("%02x", x));
+        }
+        challenges.put(c.toString(), now + 5 * 60_000L);
+        return Map.of("c", c.toString(), "bits", POW_BITS);
+    }
+
+    private void verifyPow(Map<String, Object> b) throws Exception {
+        String c = str(b.get("pc")), n = str(b.get("pn"));
+        Long exp = c.isEmpty() ? null : challenges.remove(c);
+        if (exp == null || exp < System.currentTimeMillis() || n.isEmpty() || n.length() > 20) {
+            throw new ApiError(400, "Xác minh hết hạn, hãy bấm lại");
+        }
+        byte[] h = MessageDigest.getInstance("SHA-256").digest((c + ":" + n).getBytes(StandardCharsets.UTF_8));
+        for (int i = 0; i < POW_BITS; i++) {
+            if ((h[i / 8] >> (7 - i % 8) & 1) != 0) {
+                throw new ApiError(400, "Xác minh không hợp lệ, hãy bấm lại");
+            }
+        }
     }
 
     private String newSession(int accountId, String username) {

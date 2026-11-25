@@ -220,6 +220,10 @@ async function getInfo(){if(!info)info=await api('status');return info}
 
 /* ---------- tài khoản (tài khoản chơi game) ---------- */
 async function loadMe(){if(!token){me=null;return}try{me=await api('me')}catch(e){me=null}}
+/* chống bot không cần cấu hình (khi chưa bật Turnstile): tìm n sao cho SHA-256(c:n) có đủ số bit 0 đầu, khoảng 1 giây */
+async function solvePow(btn){const ch=await api('auth/challenge'),old=btn.innerHTML;btn.textContent='Đang xác minh...';const enc=new TextEncoder();
+  try{for(let n=0;;n++){const h=new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(ch.c+':'+n)));let ok=true;
+    for(let i=0;i<ch.bits;i++){if(h[i>>3]>>(7-(i&7))&1){ok=false;break}}if(ok)return{pc:ch.c,pn:String(n)}}}finally{btn.innerHTML=old}}
 function authLink(address,label){try{const u=new URL(address);if(u.protocol==='https:')return '<a href="'+esc(u.href)+'">'+label+'</a>'}catch{}return ''}
 let authAfter=null,returnPage='#/dien-dan';
 function loginBox(after){
@@ -262,7 +266,7 @@ async function authPage(){
   form.onsubmit=async e=>{e.preventDefault();const btn=form.querySelector('.world-submit'),error=$('#auth-error');
     if(conf.sitekey&&!proof){error.textContent='Hãy hoàn tất xác minh.';return}
     btn.disabled=true;
-    try{const remember=$('#remember').checked,r=registering?await api('register',{user:$('#lu').value.trim(),pass:$('#lp').value,pass2:$('#lp2').value,proof}):await api('login',{user:$('#lu').value.trim(),pass:$('#lp').value,proof,world:servers[picker.selectedIndex].label});
+    try{const remember=$('#remember').checked,r=registering?await api('register',Object.assign({user:$('#lu').value.trim(),pass:$('#lp').value,pass2:$('#lp2').value,proof},conf.sitekey?{}:await solvePow(btn))):await api('login',{user:$('#lu').value.trim(),pass:$('#lp').value,proof,world:servers[picker.selectedIndex].label});
       token=r.token;try{localStorage.removeItem('nro_token');sessionStorage.removeItem('nro_token');(remember?localStorage:sessionStorage).setItem('nro_token',token)}catch{}
       await loadMe();if(!me)throw Error('Chưa tải được nhân vật. Hãy thử lại.');
       const after=authAfter;authAfter=null;location.hash=returnPage;
