@@ -2832,3 +2832,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Capsule 1 món kích hoạt: 8 cấp chia đều (mỗi cấp 12,5%).
 - Console: bỏ [LOI] 'Lỗi tại player: null ... this.nPoint is null' khi boss Siêu hạng bị dispose (rời map) đúng lúc đang update ở luồng khác.
 - CT Goku / Cađíc SSJ (mọi bản có dòng ẩn): dòng ẩn khi mặc chỉ ra trong option 5, 14, 80, 81, 94, 95, 96, 101, 104, 108, 199, 200, 201 (không trùng nhau); 5/80/81/101/104: 10-25%, còn lại 3-5%.
+- CT Goku / Cađíc SSJ: mọi dòng ẩn 10-20%.

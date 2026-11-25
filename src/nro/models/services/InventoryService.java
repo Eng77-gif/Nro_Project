@@ -1335,8 +1335,7 @@ public class InventoryService {
                     List<Integer> left = new ArrayList<>(java.util.Arrays.asList(5, 14, 80, 81, 94, 95, 96, 101, 104, 108, 199, 200, 201));
                     for (int k = 0; k < numberOfOptionsToAdd && !left.isEmpty(); k++) {
                         int op = left.remove(nro.models.utils.Util.nextInt(0, left.size() - 1));
-                        boolean big = op == 5 || op == 80 || op == 81 || op == 101 || op == 104;
-                        item.itemOptions.add(option210Index + k, new Item.ItemOption(op, big ? nro.models.utils.Util.nextInt(10, 25) : nro.models.utils.Util.nextInt(3, 5)));
+                        item.itemOptions.add(option210Index + k, new Item.ItemOption(op, nro.models.utils.Util.nextInt(10, 20))); // mọi dòng 10-20%
                     }
                     break;
                 }
