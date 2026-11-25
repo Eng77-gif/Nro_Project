@@ -33,6 +33,30 @@ public final class VipSeason {
         public final int[][] opts;
         /** id -11 / -12: ngọc xanh / hồng ngọc ngẫu nhiên từ qty đến max. */
         public int max;
+        /** Quà ngẫu nhiên 1 trong (id + alt), vd đá may mắn hoặc đá nâng cấp các cấp. */
+        public int[] alt = new int[0];
+        /** Tên hiện ở Tori Bot thay cho tên vật phẩm (vd "Ngẫu nhiên đá may mắn hoặc đá nâng cấp"). */
+        public String label = "";
+
+        /** Món phát ra: id, hoặc ngẫu nhiên trong id + alt. */
+        public int pickId() {
+            if (alt.length == 0) {
+                return id;
+            }
+            int i = nro.models.utils.Util.nextInt(0, alt.length);
+            return i == 0 ? id : alt[i - 1];
+        }
+
+        /** Khoá so sánh với VIP 4: cùng món (hoặc cùng nhóm ngẫu nhiên). */
+        String key() {
+            if (alt.length == 0) {
+                return String.valueOf(id);
+            }
+            int[] all = java.util.Arrays.copyOf(alt, alt.length + 1);
+            all[alt.length] = id;
+            java.util.Arrays.sort(all);
+            return java.util.Arrays.toString(all);
+        }
 
         Reward(int id, int qty, int[]... opts) {
             this.id = id;
@@ -102,7 +126,7 @@ public final class VipSeason {
 
     /** Dòng mô tả quà hiện ở Tori Bot. */
     public static String describe(int level) {
-        StringBuilder b = new StringBuilder("Nâng cấp VIP " + level + " bạn sẽ nhận được\nX3 Kinh nghiệm 30 ngày");
+        StringBuilder b = new StringBuilder("Nâng cấp VIP " + level + " bạn sẽ được\nX3 Kinh nghiệm toàn mùa");
         if (givePet(level)) {
             b.append("\nTặng 1 đệ tử (nếu chưa có)");
         }
@@ -112,15 +136,29 @@ public final class VipSeason {
                 continue;
             }
             var t = ItemService.gI().getTemplate(r.id);
+            if (!r.label.isEmpty()) {
+                b.append('\n').append(r.label).append(r.qty > 1 ? " x" + r.qty : "");
+                continue;
+            }
             b.append('\n').append(r.qty > 1 ? r.qty + " " : "").append(t != null ? t.name : "#" + r.id);
+            boolean hsd = false;
             for (int[] op : r.opts) {
                 if (op[0] == 93) {
                     b.append(" hsd ").append(op[1]).append(" ngày");
+                    hsd = true;
                 }
+            }
+            if (!hsd && isWearable(t)) {
+                b.append(" vĩnh viễn");
             }
         }
         return b.toString();
     }
+    /** Cải trang, đeo lưng, thú cưỡi, pet: khi không ghi dòng chỉ số thì lấy chỉ số gốc của món (item_template_option). */
+    public static boolean isWearable(nro.models.player_system.Template.ItemTemplate t) {
+        return t != null && (t.type == 5 || t.type == 11 || t.type == 23 || t.type == 24 || (t.type == 27 && t.head >= 0 && t.body >= 0 && t.leg >= 0));
+    }
+
     private static volatile boolean loaded;
 
     private VipSeason() {
@@ -237,6 +275,15 @@ public final class VipSeason {
                         }
                     }
                     Reward rw = new Reward(id, qty, ops.toArray(new int[0][]));
+                    if (it.get("alt") instanceof List<?> al) {
+                        rw.alt = al.stream().mapToInt(VipSeason::num).toArray();
+                        for (int a : rw.alt) {
+                            if (save && ItemService.gI().getTemplate(a) == null) {
+                                throw new IllegalArgumentException("VIP " + (lv + 1) + ": không có vật phẩm #" + a);
+                            }
+                        }
+                    }
+                    rw.label = it.get("label") == null ? "" : String.valueOf(it.get("label")).trim();
                     if (rand) {
                         rw.max = it.get("max") == null ? qty : num(it.get("max"));
                         if (rw.max < qty) {
@@ -246,6 +293,9 @@ public final class VipSeason {
                     items.add(rw);
                 }
                 nr.add(items);
+            }
+            if (save) {
+                checkNotAboveVip4(nr, npet);
             }
         }
         if (save) {
@@ -268,6 +318,39 @@ public final class VipSeason {
         givePet = npet;
     }
 
+    /** VIP 1 - 3 tự đặt nhưng không hơn VIP 4: chỉ gồm món VIP 4 có, số lượng không nhiều hơn, có đệ tử thì VIP 4 cũng phải có. */
+    private static void checkNotAboveVip4(List<List<Reward>> nr, boolean[] pet) {
+        Map<String, Integer> top = new java.util.HashMap<>();
+        for (Reward r : nr.get(3)) {
+            top.merge(r.key(), r.isRandGem() ? Math.max(r.qty, r.max) : r.qty, Integer::sum);
+        }
+        for (int lv = 0; lv < 3; lv++) {
+            if (pet[lv] && !pet[3]) {
+                throw new IllegalArgumentException("VIP " + (lv + 1) + " tặng đệ tử nhưng VIP 4 không tặng");
+            }
+            Map<String, Integer> mine = new java.util.HashMap<>();
+            for (Reward r : nr.get(lv)) {
+                mine.merge(r.key(), r.isRandGem() ? Math.max(r.qty, r.max) : r.qty, Integer::sum);
+            }
+            for (Map.Entry<String, Integer> e : mine.entrySet()) {
+                Integer cap = top.get(e.getKey());
+                String name = e.getKey();
+                try {
+                    var t = ItemService.gI().getTemplate(Integer.parseInt(name));
+                    name = t != null ? t.name : "#" + name;
+                } catch (NumberFormatException group) {
+                    name = "quà ngẫu nhiên " + name;
+                }
+                if (cap == null) {
+                    throw new IllegalArgumentException("VIP " + (lv + 1) + " có " + name + " nhưng VIP 4 không có (không được hơn VIP 4)");
+                }
+                if (e.getValue() > cap) {
+                    throw new IllegalArgumentException("VIP " + (lv + 1) + ": " + name + " x" + e.getValue() + " nhiều hơn VIP 4 (x" + cap + ")");
+                }
+            }
+        }
+    }
+
     private static List<Map<String, Object>> rewardsJson(List<List<Reward>> rw, boolean[] pet, boolean withNames) {
         List<Map<String, Object>> out = new ArrayList<>();
         for (int lv = 0; lv < 4; lv++) {
@@ -280,6 +363,12 @@ public final class VipSeason {
                 it.put("qty", r.qty);
                 List<int[]> ops = new ArrayList<>(List.of(r.opts));
                 it.put("opts", ops);
+                if (r.alt.length > 0) {
+                    it.put("alt", r.alt);
+                }
+                if (!r.label.isEmpty()) {
+                    it.put("label", r.label);
+                }
                 if (r.isRandGem()) {
                     it.put("max", Math.max(r.qty, r.max));
                 } else if (withNames) {

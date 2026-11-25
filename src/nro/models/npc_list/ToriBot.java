@@ -131,11 +131,10 @@ public class ToriBot extends Npc {
         openBaseMenu(pl);
     }
 
-    /** Quà theo cấu hình panel > Mùa VIP Tori Bot: +30 ngày VIP (X3 kinh nghiệm), đệ tử nếu chưa có, các vật phẩm. */
+    /** Quà theo cấu hình panel > Mùa VIP Tori Bot: VIP (X3 kinh nghiệm) tới hết mùa, đệ tử nếu chưa có, các vật phẩm. */
     private void grant(Player pl, int vipLevel) {
-        long now = System.currentTimeMillis();
-        long time = 30L * 24 * 60 * 60 * 1000;
-        pl.timevip = (pl.timevip < now ? now : pl.timevip) + time;
+        long seasonEnd = nro.models.services.VipSeason.end().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
+        pl.timevip = Math.max(pl.timevip, seasonEnd);
         if (nro.models.services.VipSeason.givePet(vipLevel) && pl.pet == null) {
             PetService.gI().createNormalPet(pl);
         }
@@ -144,9 +143,14 @@ public class ToriBot extends Npc {
                 Service.gI().sendThongBao(pl, "Nhận " + r.giveGem(pl) + (r.id == -11 ? " ngọc xanh" : " hồng ngọc"));
                 continue;
             }
-            Item it = ItemService.gI().createNewItem((short) r.id, r.qty);
+            int id = r.pickId();
+            Item it = ItemService.gI().createNewItem((short) id, r.qty);
             for (int[] op : r.opts) {
                 it.itemOptions.add(new ItemOption(op[0], op[1]));
+            }
+            if (r.opts.length == 0 && nro.models.services.VipSeason.isWearable(it.template)) { // CT / balo / pet không ghi chỉ số: chỉ số gốc, vĩnh viễn
+                it.itemOptions.addAll(ItemService.gI().getListOptionItemShop((short) id));
+                it.itemOptions.removeIf(io -> io.optionTemplate != null && io.optionTemplate.id == 93);
             }
             InventoryService.gI().addItemBag(pl, it);
         }

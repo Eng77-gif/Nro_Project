@@ -1405,6 +1405,55 @@ public class Dot139Migration {
             nro.models.utils.Logger.success("Đổi điểm Quy Lão: " + ids.size() + " món hạn 7 - 15 - 30 - 45 ngày, 2% vĩnh viễn\n");
             update(con, "insert into server_migration (name) values ('doi_diem_quy_lao_han2')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'vip_mua_1_ngay_2511'")) {
+            // Mùa VIP mới chỉ trong ngày 25/11/2026; VIP 4 theo ảnh, VIP 1 - 3 nhỏ hơn VIP 4 (panel cho tự đặt, không hơn VIP 4)
+            update(con, "create table if not exists vip_season (id int primary key, data text not null)");
+            com.google.gson.Gson gson = new com.google.gson.Gson();
+            java.util.Map<String, Object> m = new java.util.LinkedHashMap<>();
+            try (java.sql.PreparedStatement ps = con.prepareStatement("select data from vip_season where id = 1"); java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    m.putAll(gson.fromJson(rs.getString(1), java.util.Map.class));
+                }
+            }
+            m.putIfAbsent("prices", new int[]{50000, 100000, 150000, 200000});
+            m.putIfAbsent("max", 4);
+            m.put("start", "2026-11-25T00:00");
+            m.put("end", "2026-11-25T23:59:59");
+            int[] da = {1075, 1076, 1077, 1078, 1079, 1080, 1081, 1082, 1083}; // 1074 + 9 = đá nâng cấp / đá may mắn cấp 1 - 5
+            // {thỏi vàng, rương mảnh thiên sứ, mảnh khỉ Oozaru, đá ngẫu nhiên, đá bảo vệ khoá, sách cũ, capsule 1 món kích hoạt,
+            //  CT Cađíc SSJ Blue, balo Capybara hồng, pet Capybara hồng, rađa ngọc rồng VIP, CT Goku SSJ Blue, phiếu đổi capsule}
+            int[] ids = {457, 1173, 1771, 1074, 1143, 1283, 1559, 1746, 1670, 1668, 1809, 1590, 1690};
+            int[][] qty = {
+                {20, 200, 2, 3, 10, 10, 0, 0, 0, 0, 4, 0, 50},
+                {40, 400, 4, 6, 20, 20, 1, 0, 0, 0, 8, 0, 100},
+                {70, 700, 7, 10, 35, 35, 1, 0, 1, 1, 14, 0, 175},
+                {99, 1000, 10, 15, 50, 50, 1, 1, 1, 1, 20, 1, 250}};
+            java.util.List<Object> rewards = new java.util.ArrayList<>();
+            for (int[] q : qty) {
+                java.util.List<Object> items = new java.util.ArrayList<>();
+                for (int i = 0; i < ids.length; i++) {
+                    if (q[i] <= 0) {
+                        continue;
+                    }
+                    java.util.Map<String, Object> it = new java.util.LinkedHashMap<>();
+                    it.put("id", ids[i]);
+                    it.put("qty", q[i]);
+                    it.put("opts", new int[0][]);
+                    if (ids[i] == 1074) {
+                        it.put("alt", da);
+                        it.put("label", "Ngẫu nhiên đá may mắn hoặc đá nâng cấp");
+                    }
+                    items.add(it);
+                }
+                rewards.add(java.util.Map.of("pet", true, "items", items));
+            }
+            m.put("rewards", rewards);
+            try (java.sql.PreparedStatement ps = con.prepareStatement("replace into vip_season (id, data) values (1, ?)")) {
+                ps.setString(1, gson.toJson(m));
+                ps.executeUpdate();
+            }
+            update(con, "insert into server_migration (name) values ('vip_mua_1_ngay_2511')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'trung_ve_sau_xen'")) {
             // Trứng ve sầu (2045) mở ra Pet Xên con / hoàn thiện / MAX (chỉ số ngẫu nhiên theo item_template_option),
             // hạn 7 - 15 - 30 ngày, 1% vĩnh viễn; ra 119 con có hạn cùng loại thì con thứ 120 vĩnh viễn (perm_pity)
