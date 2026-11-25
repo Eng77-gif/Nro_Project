@@ -45,6 +45,10 @@ public class NpcManager {
             if (npc.tempId == ConstNpc.DUA_HAU && player.DuaHauEgg == null && player.zone.map.mapId == (21 + player.gender)) {
                 continue;
             } 
+            // Tori Bot (mua VIP) chỉ hiện trong thời gian mùa VIP
+            if (npc.tempId == ConstNpc.TORIBOT && !nro.models.services.VipSeason.isOpen()) {
+                continue;
+            }
             // Xe nước mía chỉ có trong Sự kiện Hè
             if (npc.tempId == ConstNpc.XE_NUOC_MIA && !nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.SUMMER)) {
                 continue;
