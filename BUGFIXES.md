@@ -2811,3 +2811,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Console: bỏ lỗi giả 'Web người chơi: Connection reset by peer' (người xem đóng tab giữa chừng); HikariCP kiểm tra kết nối nghỉ mỗi 30 giây (keepaliveTime) để đỡ gặp kết nối MySQL đã bị cắt, cảnh báo 'Failed to validate connection' (tự mở kết nối mới) không hiện trên console Windows.
 - Web: ảnh tròn ở đầu trang Diễn đàn / Sự kiện khi đã đăng nhập hiện avatar thật của nhân vật (đầu / cải trang đang mặc, đang online thì lấy đầu lúc này) thay ảnh Mabư mặc định.
 - Web: avatar nhân vật lấp đầy vòng tròn đầu trang (mặt to sát viền kem) như ảnh mẫu, thay vì hình nhỏ nằm giữa.
+- Mua VIP ở Tori Bot dùng chung điểm sự kiện với cửa hàng đổi điểm Quy Lão (trước trừ 'điểm mùa' = số dư nạp account.vnd); menu hiện 'điểm sự kiện [n]', panel ghi 'Giá VIP (điểm sự kiện, chung điểm Quy Lão)'.

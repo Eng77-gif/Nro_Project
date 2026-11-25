@@ -78,7 +78,7 @@ public class ToriBot extends Npc {
                 if (select >= 0 && select <= 3) {
                     int lv = select + 1;
                     createOtherMenu(pl, lv, nro.models.services.VipSeason.describe(lv),
-                            nro.models.services.VipSeason.price(lv) + "\nđiểm mùa [" + pl.getSession().vnd + "]", "Đóng");
+                            nro.models.services.VipSeason.price(lv) + "\nđiểm sự kiện [" + pl.event.getEventPoint() + "]", "Đóng");
                 }
             }
 
@@ -115,12 +115,13 @@ public class ToriBot extends Npc {
             Service.gI().sendThongBao(pl, "Hành trang cần trống ít nhất " + need + " ô");
             return;
         }
-        if (pl.getSession().vnd < cost) {
-            Service.gI().sendThongBao(pl, "Không đủ điểm mùa (" + cost + ") để mua VIP!");
+        // dùng chung điểm sự kiện với cửa hàng đổi điểm Quy Lão (một loại điểm, không còn "điểm mùa" riêng)
+        if (pl.event.getEventPoint() < cost) {
+            Service.gI().sendThongBao(pl, "Không đủ điểm sự kiện (" + cost + ") để mua VIP!");
             return;
         }
 
-        pl.getSession().vnd -= cost;
+        pl.event.subEventPoint(cost);
         if (vipLevel > pl.vip) {
             pl.vip = (byte) vipLevel;
         }
