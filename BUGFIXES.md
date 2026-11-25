@@ -2819,3 +2819,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Nạp web: bỏ đoạn 'cộng X điểm sự kiện' trong thông báo (điểm vẫn cộng).
 - Bù điểm sự kiện cho lần nạp web cũ (trước khi có 1 ngọc = 1 điểm): cột web_topup.ep_given, mỗi lệnh đã duyệt được bù đúng số ngọc đã nhận (đọc trong ghi chú, không có thì tính theo bảng gốc) cho nhân vật khi đăng nhập, 1 lần, không thông báo; lệnh duyệt từ 25/11/2026 11:50 đã cộng điểm lúc duyệt nên không bù lại.
 - Console Windows: cảnh báo HikariCP 'Thread starvation or clock leap detected (delta=…)' đổi thành dòng dễ hiểu '[!] Máy chủ vừa bị đứng / nhảy giờ khoảng N giây (VPS thiếu CPU, bị treo tạm thời hoặc Windows chỉnh đồng hồ)'.
+- CT Cađíc SSJ Blue (1746) chưa có chỉ số (ra chỉ số tạm SĐ/HP 30%): nay giống hệt CT Goku SSJ Blue (SĐ/HP/KI +27%, 4 dòng ẩn); đồ đang có trong hành trang tự làm mới chỉ số.

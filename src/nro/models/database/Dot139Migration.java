@@ -1454,6 +1454,11 @@ public class Dot139Migration {
             }
             update(con, "insert into server_migration (name) values ('vip_mua_1_ngay_2511')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'cadic_ssj_blue_nhu_goku'")) {
+            // CT Cađíc SSJ Blue (1746) chưa có chỉ số (ra chỉ số tạm SĐ / HP 30%): giống CT Goku SSJ Blue (1590)
+            writeStats(con, new int[][][]{{{1746}, {50, 27}, {77, 27}, {103, 27}, {210, 4}, {106, 0}}});
+            update(con, "insert into server_migration (name) values ('cadic_ssj_blue_nhu_goku')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'nap_bu_diem_su_kien'")
                 && exists(con, "select 1 from information_schema.tables where table_schema = database() and table_name = 'web_topup'")) {
             // nạp web: 1 ngọc = 1 điểm sự kiện. ep_given = 0: lệnh cũ chưa cộng điểm, bù khi nhân vật đăng nhập (WebServer.claimPendingGem).
