@@ -1469,6 +1469,15 @@ public class Dot139Migration {
             update(con, "update item_template_option set chance = 20 where option_id = 106 and template_id in (1590, 1746)");
             update(con, "insert into server_migration (name) values ('ct_ssj_blue_chong_lanh_20')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'nv_thuong_dung_thuc_te'")) {
+            // NV 1-3 ghi thưởng sai (200tr / 300tr / 400tr vàng, SM / TN thiếu phần thưởng chung): ghi đúng số TaskService.rewardDoneTask phát
+            String[][] fix = {{"1", "1000", "2000", "200tr vàng", "200.000 vàng"}, {"2", "1500", "2700", "300tr vàng", "300.000 vàng"}, {"3", "2000", "5000", "400tr vàng", "400.000 vàng"}};
+            for (String[] f : fix) {
+                update(con, "update task_main_template set detail = replace(replace(replace(detail, 'Thưởng " + f[1] + " sức mạnh', 'Thưởng " + f[2] + " sức mạnh'), "
+                        + "'Thưởng " + f[1] + " tiềm năng', 'Thưởng " + f[2] + " tiềm năng'), '" + f[3] + "', '" + f[4] + "') where id = " + f[0]);
+            }
+            update(con, "insert into server_migration (name) values ('nv_thuong_dung_thuc_te')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'stats_anh_2511_pokemon'")) {
             // theo ảnh: Cờ Quả Cầu Pokemon, Pet Pikachu, Pet Meowth, Mặt trời tí hon, Búa Mjolnir
             writeStats(con, new int[][][]{

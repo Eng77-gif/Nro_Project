@@ -2837,3 +2837,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Lồng đèn Hốc trưởng: SĐ / HP / KI 11-20% hiện sẵn, thêm 1 dòng ẩn (mở khi đeo) 1 trong: Tấn công 3.000-15.000, HP 5.000-20.000, KI 5.000-20.000, Giáp 5.000-30.000, Chí mạng 3-10% (trước dòng này ra lộ ngay khi nhận).
 - Thùng rác: dòng ẩn riêng (không trùng): Chí mạng 5-10%, SĐ chí mạng 10-20%, HP / KI / SĐ 10-20%, Né đòn 5-10%, Giảm sát thương 5-10%.
 - Theo ảnh: Cờ Quả Cầu Pokemon (SĐ/HP/KI 17%, chí mạng 10%, giảm 8% ST, +100% tốc độ chạy), Pet Pikachu (SĐ/HP/KI 13%, tấn công +13% lên boss, HP+13%/30s), Pet Meowth (SĐ/HP 17%, KI 37%, +100% TN SM, +100% TN SM đệ tử), Mặt trời tí hon (SĐ 15%, HP/KI 13%, +10% TN SM), Búa Mjolnir (SĐ 11%, HP/KI 10%, chí mạng 10%); boss Meowth / Musashi / Kochiro / Mặt trời rơi đúng chỉ số; đồ cũ tự đổi.
+- Nhiệm vụ 1-3 ghi thưởng sai (200tr/300tr/400tr vàng, SM/TN thiếu): ghi đúng số thật phát (NV1 2000 SM/TN + 200.000 vàng, NV2 2700 + 300.000, NV3 5000 + 400.000).
