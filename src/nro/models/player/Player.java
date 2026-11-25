@@ -687,6 +687,9 @@ public class Player implements Runnable {
                     }
                 }
             } catch (Exception e) {
+                if (this.nPoint == null) {
+                    return; // bị dispose giữa lúc đang update (boss Siêu hạng rời map từ luồng khác): bỏ qua, không phải lỗi
+                }
                 Logger.logException(Player.class, e, "Lỗi tại player: " + this.name);
             }
         }

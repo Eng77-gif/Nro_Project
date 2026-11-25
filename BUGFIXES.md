@@ -2830,3 +2830,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Phiếu đổi Cápsule: 99 phiếu đổi Capsule 1 món kích hoạt (trước đổi nhầm Cápsule kích hoạt 1 món tự chọn).
 - Capsule 1 món kích hoạt: ra ngẫu nhiên áo / quần / găng / giày / rada cấp 1-8 (Áo vải 3 lỗ ... Áo võ Goku, cấp càng cao càng hiếm: 25/20/16/13/10/8/5/3%) thay vì chỉ 2 món thấp nhất. Cápsule kích hoạt 1 món tự chọn: chọn loại, ra cấp 9-12 (Áo bạc Goku trở lên); sửa bảng đồ thiếu Găng vàng Goku, Áo sắt Tron, Quần da Xayda.
 - Capsule 1 món kích hoạt: 8 cấp chia đều (mỗi cấp 12,5%).
+- Console: bỏ [LOI] 'Lỗi tại player: null ... this.nPoint is null' khi boss Siêu hạng bị dispose (rời map) đúng lúc đang update ở luồng khác.
