@@ -2817,3 +2817,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Sửa lỗi NullPointerException 'timeXinbatoBuff ... this.nPoint is null' (Player.update từ boss Siêu hạng): boss rời map đã dispose nhưng luồng quản lý boss còn gọi update -> Player.update / SuperRank.update bỏ qua khi nPoint đã null.
 - Nạp qua web: 1 ngọc nhận được = 1 điểm sự kiện (điểm Quy Lão, dùng đổi quà Quy Lão và mua VIP Tori Bot); cộng cùng lúc với ngọc (online cộng ngay, offline cộng khi đăng nhập), thông báo kèm số điểm.
 - Nạp web: bỏ đoạn 'cộng X điểm sự kiện' trong thông báo (điểm vẫn cộng).
+- Bù điểm sự kiện cho lần nạp web cũ (trước khi có 1 ngọc = 1 điểm): cột web_topup.ep_given, mỗi lệnh đã duyệt được bù đúng số ngọc đã nhận (đọc trong ghi chú, không có thì tính theo bảng gốc) cho nhân vật khi đăng nhập, 1 lần, không thông báo; lệnh duyệt từ 25/11/2026 11:50 đã cộng điểm lúc duyệt nên không bù lại.

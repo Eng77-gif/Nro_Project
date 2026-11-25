@@ -1454,6 +1454,16 @@ public class Dot139Migration {
             }
             update(con, "insert into server_migration (name) values ('vip_mua_1_ngay_2511')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'nap_bu_diem_su_kien'")
+                && exists(con, "select 1 from information_schema.tables where table_schema = database() and table_name = 'web_topup'")) {
+            // nạp web: 1 ngọc = 1 điểm sự kiện. ep_given = 0: lệnh cũ chưa cộng điểm, bù khi nhân vật đăng nhập (WebServer.claimPendingGem).
+            // Lệnh duyệt sau khi có tính năng (từ 25/11/2026 11:50) đã được cộng điểm lúc duyệt.
+            if (!exists(con, "select 1 from information_schema.columns where table_schema = database() and table_name = 'web_topup' and column_name = 'ep_given'")) {
+                update(con, "alter table web_topup add ep_given tinyint not null default 0");
+            }
+            update(con, "update web_topup set ep_given = 1 where status <> 1 or updated_at >= '2026-11-25 11:50:00'");
+            update(con, "insert into server_migration (name) values ('nap_bu_diem_su_kien')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'vip_gia_diem_su_kien'")) {
             // VIP mua bằng điểm sự kiện (chung điểm Quy Lão): VIP 1 - 4 = 500 / 800 / 2000 / 8000 điểm
             com.google.gson.Gson gson = new com.google.gson.Gson();

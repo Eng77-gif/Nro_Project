@@ -931,7 +931,7 @@ public class WebServer {
         int acc = intv(r.get(0).get("account_id"));
         Player on = Client.gI().getPlayerByUser(acc);
         // offline: ngọc chờ ở gem_pending, cộng + báo khi đăng nhập (claimPendingGem)
-        if (PanelApi.update("update web_topup set status = 1, credited = ?, gem_pending = ?, note = ?, updated_at = now() where id = ? and status = 0",
+        if (PanelApi.update("update web_topup set status = 1, ep_given = 1, credited = ?, gem_pending = ?, note = ?, updated_at = now() where id = ? and status = 0",
                 credit, on == null ? gem : 0, note + (gem > 0 ? ", " + gem + " ngọc" : ""), id) <= 0) {
             return false;
         }
@@ -954,14 +954,40 @@ public class WebServer {
         try {
             int total = 0;
             for (Map<String, Object> r : PanelApi.rows("select id, gem_pending from web_topup where account_id = ? and gem_pending > 0", pl.getSession().userId)) {
-                if (PanelApi.update("update web_topup set gem_pending = 0 where id = ? and gem_pending > 0", r.get("id")) > 0) {
+                if (PanelApi.update("update web_topup set gem_pending = 0, ep_given = 1 where id = ? and gem_pending > 0", r.get("id")) > 0) {
                     total += intv(r.get("gem_pending"));
                 }
             }
             giveGem(pl, total);
+            // bù điểm sự kiện cho các lần nạp trước khi có "1 ngọc nạp = 1 điểm": mỗi lệnh 1 lần, không thông báo
+            int ep = 0;
+            for (Map<String, Object> r : PanelApi.rows("select id, credited, note from web_topup where account_id = ? and status = 1 and ep_given = 0 and gem_pending = 0", pl.getSession().userId)) {
+                if (PanelApi.update("update web_topup set ep_given = 1 where id = ? and ep_given = 0", r.get("id")) > 0) {
+                    ep += gemOf(intv(r.get("credited")), str(r.get("note")));
+                }
+            }
+            if (ep > 0 && pl.event != null) {
+                pl.event.addEventPoint(ep);
+                nro.models.utils.Logger.log("Bù " + ep + " điểm sự kiện nạp cũ cho " + pl.name + "\n");
+            }
         } catch (Exception e) {
             nro.models.utils.Logger.error("Cộng ngọc nạp chờ: " + e.getMessage() + "\n");
         }
+    }
+
+    /** Số ngọc 1 lệnh nạp cũ đã cho: ghi trong note ("..., 195 ngọc"), không có thì tính theo bảng quy đổi gốc (không x3). */
+    static int gemOf(int credited, String note) {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d+) ngọc").matcher(note == null ? "" : note);
+        if (m.find()) {
+            return Integer.parseInt(m.group(1));
+        }
+        int gem = 0, vnd = credited;
+        int[][] t = nro.models.services_func.Input.NAP_GEM;
+        for (int k = t.length - 1; k >= 0; k--) {
+            gem += (vnd / t[k][0]) * t[k][1];
+            vnd %= t[k][0];
+        }
+        return gem;
     }
 
     private static void giveGem(Player pl, int gem) {
