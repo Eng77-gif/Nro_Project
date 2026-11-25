@@ -1,6 +1,8 @@
 package nro.models.database;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import nro.models.utils.Logger;
 
 import static nro.models.database.Dot77Migration.exists;
@@ -1468,6 +1470,20 @@ public class Dot139Migration {
             // CT Goku SSJ Blue / SSJ God, CT Cađíc SSJ Blue / SSJ4: dòng "Không ảnh hưởng bởi cái lạnh" chỉ 20% (trước 100%)
             update(con, "update item_template_option set chance = 20 where option_id = 106 and template_id in (1590, 1746)");
             update(con, "insert into server_migration (name) values ('ct_ssj_blue_chong_lanh_20')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'ly_tieu_nuong_dao_kame'")) {
+            // Lý Tiểu Nương đứng bên phải Bà Hạt Mít ở Đảo Kamê (ảnh anh chỉ chỗ, như video chính thức)
+            try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery("select npcs from map_template where id = 5")) {
+                if (rs.next()) {
+                    String npcs = rs.getString(1).replaceAll(",?\\[54,\\d+,\\d+\\]", "").replace("[,", "[");
+                    npcs = npcs.equals("[]") ? "[[54,1300,408]]" : npcs.substring(0, npcs.length() - 1) + ",[54,1300,408]]";
+                    try (java.sql.PreparedStatement ps = con.prepareStatement("update map_template set npcs = ? where id = 5")) {
+                        ps.setString(1, npcs);
+                        ps.executeUpdate();
+                    }
+                }
+            }
+            update(con, "insert into server_migration (name) values ('ly_tieu_nuong_dao_kame')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'nv_thuong_dung_thuc_te'")) {
             // NV 1-3 ghi thưởng sai (200tr / 300tr / 400tr vàng, SM / TN thiếu phần thưởng chung): ghi đúng số TaskService.rewardDoneTask phát

@@ -2840,3 +2840,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Nhiệm vụ 1-3 ghi thưởng sai (200tr/300tr/400tr vàng, SM/TN thiếu): ghi đúng số thật phát (NV1 2000 SM/TN + 200.000 vàng, NV2 2700 + 300.000, NV3 5000 + 400.000).
 - Sự kiện 20/11: mục làm Túi trà khô / Hộp trà / Thiệp chúc chỉ còn ở Bà Hạt Mít Đảo Kamê (bỏ ở vách núi, Siêu thị, Võ đài Hạt Mít); bảng công thức có màu như ảnh (thiếu đỏ, đủ xanh), thiếu nguyên liệu / vàng / ngọc chỉ hiện nút Từ chối.
 - Theo video bản chính thức: Lý Tiểu Nương Đảo Kamê menu Kéo Búa Bao / Chọn ai đây / Đóng; Kéo Búa Bao cược 1 / 5 / 10 Tr vàng, mỗi ván đếm 15 giây (Kéo / Búa / Bao / Đổi mức cược / Nghỉ chơi), hết giờ Lý Tiểu Nương ra tay, tự sang ván mới. Quy Lão: gộp Nhận quà KOL / KOL VIP vào nút Nhiệm vụ KOL; mùa 20/11 Quy Lão Đảo Kamê đọc thơ tặng thầy cô.
+- Đảo Kamê: đặt NPC Lý Tiểu Nương bên phải Bà Hạt Mít (x 1300) theo ảnh.
