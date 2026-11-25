@@ -5,7 +5,7 @@ import nro.models.map.service.NpcService;
 import nro.models.player.Player;
 
 /**
- * Đổi vật phẩm sưu tầm: 999 Mảnh Cápsule Vỡ -> 1 Cápsule Vỡ, 99 Phiếu đổi Cápsule -> 1 Cápsule kích hoạt 1 món tự chọn.
+ * Đổi vật phẩm sưu tầm: 999 Mảnh Cápsule Vỡ -> 1 Cápsule Vỡ, 99 Phiếu đổi Cápsule -> 1 Capsule 1 món kích hoạt.
  * Cápsule Vỡ + Khoáng tái chế (phân rã đồ kích hoạt) tái tạo thành Cápsule kích hoạt ở Bà Hạt Mít.
  */
 public class CapsuleVoService {
@@ -13,7 +13,7 @@ public class CapsuleVoService {
     public static final int MANH_CAPSULE_VO = 1909;
     public static final int PHIEU_DOI_CAPSULE = 1690;
     private static final int CAPSULE_VO = 1634;
-    private static final int CAPSULE_KICH_HOAT = 1655;
+    private static final int CAPSULE_KICH_HOAT = 1559; // Capsule 1 món kích hoạt (ngẫu nhiên), không phải loại tự chọn 1655
     private static final int CAN_MANH = 999;
     private static final int CAN_PHIEU = 99;
 

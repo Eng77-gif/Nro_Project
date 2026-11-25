@@ -2827,3 +2827,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Shop: CT Goku / Cađíc SSJ Blue / God / SSJ4 không hiện dòng chống lạnh ở xem trước (hiện là chắc chắn ra); mua xong mới tung 20%.
 - Theo ảnh: CT Cađíc SSJ4 luôn có Chống lạnh (bỏ khỏi nhóm 20%, shop hiện lại dòng); CT Goku SSJ4 có chỉ số mặc định SĐ 20%, HP 17%, KI 17%, +10% SĐ chí mạng, Chống lạnh (trước nhận từ quà / hộp ra trống).
 - Chống lạnh 20% chỉ còn CT Goku SSJ Blue và CT Cađíc SSJ Blue; CT Goku SSJ God, CT Goku SSJ4, CT Cađíc SSJ4 luôn có (100%).
+- Phiếu đổi Cápsule: 99 phiếu đổi Capsule 1 món kích hoạt (trước đổi nhầm Cápsule kích hoạt 1 món tự chọn).
