@@ -1205,18 +1205,26 @@ public class SeasonEventService implements Runnable {
         }
         if (isTeaRecipe(e)) {
             String name = ItemService.gI().getTemplate(e.rewardItem).name;
-            StringBuilder sb = new StringBuilder("Để làm ra 1 " + name + " cần");
+            // như ảnh: tiêu đề xanh lá, món thiếu đỏ / đủ xanh dương, giá xanh dương
+            StringBuilder sb = new StringBuilder(ConstFont.BOLD_GREEN + "Để làm ra 1 " + name + " cần");
             for (int[] n : e.need) {
-                sb.append("\n").append(ItemService.gI().getTemplate(n[0]).name).append(" ").append(count(pl, n[0])).append("/").append(n[1]);
+                int have = count(pl, n[0]);
+                sb.append("\n").append(have >= n[1] ? ConstFont.BOLD_BLUE : ConstFont.BOLD_RED)
+                        .append(ItemService.gI().getTemplate(n[0]).name).append(" ").append(have).append("/").append(n[1]);
             }
             if (e.gem > 0) {
-                sb.append("\nGiá ngọc: ").append(e.gem);
+                sb.append("\n").append(ConstFont.BOLD_BLUE).append("Giá ngọc: ").append(e.gem);
             }
             if (e.gold > 0) {
-                sb.append("\nGiá vàng: ").append(Util.numberToMoney(e.gold));
+                sb.append("\n").append(ConstFont.BOLD_BLUE).append("Giá vàng: ").append(Util.numberToMoney(e.gold));
             }
             if (e.rewardItem == TUI_TRA_KHO) {
-                sb.append("\nVới công thức gia truyền nhà ta\nbảo đảm thơm ngon và ...\ngiòn luôn cả sâu.");
+                sb.append("\n").append(ConstFont.BOLD_RED).append("Với công thức gia truyền nhà ta\n").append(ConstFont.BOLD_RED).append("bảo đảm thơm ngon và ...\n")
+                        .append(ConstFont.BOLD_RED).append("giòn luôn cả sâu.");
+            }
+            if (maxTimes(pl, e) <= 0) { // thiếu nguyên liệu / vàng / ngọc: như bản chính thức chỉ có nút Từ chối
+                npc.createOtherMenu(pl, nro.models.consts.ConstNpc.IGNORE_MENU, sb.toString(), "Từ chối");
+            } else if (e.rewardItem == TUI_TRA_KHO) {
                 npc.createOtherMenu(pl, MENU_EXCHANGE + e.id, sb.toString(), "90 giây\ntới nhận\nhàng", "Sấy\nlấy liền\n5tr vàng", "Từ chối");
             } else {
                 npc.createOtherMenu(pl, MENU_EXCHANGE + e.id, sb.toString(), "Đồng ý", "Từ chối");
@@ -1312,6 +1320,9 @@ public class SeasonEventService implements Runnable {
     /** Thêm nút sự kiện vào cuối menu chính của NPC nếu NPC có mục sự kiện đang diễn ra. */
     public String[] withNpcOption(Npc npc, Player pl, String[] menu) {
         List<Exchange> list = npcExchanges(npc.tempId);
+        if (npc.tempId == nro.models.consts.ConstNpc.BA_HAT_MIT && npc.mapId != 5) { // mục 20/11 chỉ ở Bà Hạt Mít Đảo Kamê
+            list.removeIf(e -> e.season != null && e.season.id == TEACHERS_DAY);
+        }
         if (list.isEmpty()) {
             npcOption.remove(pl.id);
             return menu;
