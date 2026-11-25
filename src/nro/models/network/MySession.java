@@ -122,6 +122,11 @@ public class MySession extends Session {
             Service.gI().sendThongBaoOK(this, "Server đang trong thời gian bảo trì, vui lòng quay lại sau");
             return;
         }
+        if (!this.longNumbers) { // client đọc số int (PC / APK gốc, J2ME dưới 2.4.0): không hiện đủ chỉ số / option >= 255 -> không cho vào
+            Service.gI().sendThongBaoOK(this, "Phiên bản game này không còn được hỗ trợ.\nVui lòng tải bản game mới trên trang chủ để đăng nhập.");
+            nro.models.utils.Logger.log("Chặn đăng nhập client số int: " + username + " (loại " + this.typeClient + ", bản " + this.version + ")\n");
+            return;
+        }
         if (!this.isAdmin && Client.gI().getPlayers().size() >= Manager.MAX_PLAYER) {
             Service.gI().sendThongBaoOK(this, "Máy chủ hiện đang quá tải, "
                     + "cư dân vui lòng di chuyển sang máy chủ khác.");
