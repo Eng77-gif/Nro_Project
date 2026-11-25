@@ -296,6 +296,12 @@ public class PanelServer {
     public static void sendText(HttpExchange ex, int code, String type, byte[] data) throws IOException {
         ex.getResponseHeaders().set("Content-Type", type);
         ex.getResponseHeaders().set("X-Content-Type-Options", "nosniff");
+        if ("HEAD".equalsIgnoreCase(ex.getRequestMethod())) { // HEAD (bot kiểm tra web / Cloudflare): không gửi thân, tránh cảnh báo JDK "content length for a HEAD request"
+            ex.getResponseHeaders().set("Content-Length", String.valueOf(data.length));
+            ex.sendResponseHeaders(code, -1);
+            ex.close();
+            return;
+        }
         ex.sendResponseHeaders(code, data.length);
         try (OutputStream os = ex.getResponseBody()) {
             os.write(data);
