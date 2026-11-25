@@ -49,6 +49,11 @@ public class LyTieuNuong extends Npc {
     private static final java.util.concurrent.atomic.AtomicLong ROUND_SEQ = new java.util.concurrent.atomic.AtomicLong();
 
     private void startRound(Player player, long bet) {
+        startRound(player, bet, null);
+    }
+
+    /** last: kết quả ván trước (như bản chính thức hiện ngay trong bảng của ván mới) */
+    private void startRound(Player player, long bet, String last) {
         if (player.inventory.gold < bet) {
             ROUNDS.remove(player.id);
             Service.gI().sendThongBao(player, "Bạn không đủ vàng để chơi!");
@@ -57,8 +62,9 @@ public class LyTieuNuong extends Npc {
         long id = ROUND_SEQ.incrementAndGet();
         ROUNDS.put(player.id, new long[]{bet, -1, id});
         nro.models.services.ItemTimeService.gI().sendTextTimeKeoBuaBao(player, KBB_SECONDS);
-        createOtherMenu(player, ConstNpc.OTT, nro.models.consts.ConstFont.BOLD_GREEN + "Mức vàng cược: " + Util.numberToMoney(bet)
-                + "\n" + nro.models.consts.ConstFont.BOLD_GREEN + "Hãy chọn Kéo, Búa hoặc Bao\n" + nro.models.consts.ConstFont.BOLD_RED + "Thời gian " + KBB_SECONDS + " giây bắt đầu",
+        String head = last != null ? last : nro.models.consts.ConstFont.BOLD_GREEN + "Mức vàng cược: " + Util.numberToMoney(bet)
+                + "\n" + nro.models.consts.ConstFont.BOLD_GREEN + "Hãy chọn Kéo, Búa hoặc Bao\n" + nro.models.consts.ConstFont.BOLD_RED + "Thời gian " + KBB_SECONDS + " giây bắt đầu";
+        createOtherMenu(player, ConstNpc.OTT, head,
                 "Kéo", "Búa", "Bao", "Đổi\nmức cược", "Nghỉ chơi");
         KBB_TIMER.schedule(() -> {
             try {
@@ -88,18 +94,20 @@ public class LyTieuNuong extends Npc {
         int npcPick = Util.nextInt(0, 2);
         this.npcChat(player, KBB[npcPick]);
         String result = getResult(KBB[(int) r[1]], KBB[npcPick]);
+        String b = nro.models.consts.ConstFont.BOLD_BLUE;
+        String text = b + "Bạn ra cái <" + KBB[(int) r[1]] + ">\n" + b + "Tôi ra cái <" + KBB[npcPick] + ">\n" + b; // như bản chính thức
         if (result.equals("Thắng")) {
             long reward = bet * 96 / 100;
             player.inventory.gold += reward;
-            Service.gI().sendThongBao(player, "Ta ra " + KBB[npcPick] + ", bạn thắng " + Util.numberToMoney(reward) + " vàng!");
+            text += "Bạn thắng rồi, nhận " + Util.numberToMoney(reward) + " vàng";
         } else if (result.equals("Thua")) {
             player.inventory.gold -= bet;
-            Service.gI().sendThongBao(player, "Ta ra " + KBB[npcPick] + ", bạn thua " + Util.numberToMoney(bet) + " vàng!");
+            text += "Bạn thua rồi, mất " + Util.numberToMoney(bet) + " vàng nhé haha";
         } else {
-            Service.gI().sendThongBao(player, "Ta ra " + KBB[npcPick] + ", hòa!");
+            text += "Hòa nhau nhé haha";
         }
         Service.gI().sendMoney(player);
-        startRound(player, bet); // ván tiếp theo cho tới khi Nghỉ chơi
+        startRound(player, bet, text); // ván tiếp theo cho tới khi Nghỉ chơi
     }
 
     @Override
