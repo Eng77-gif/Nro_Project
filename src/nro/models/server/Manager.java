@@ -339,6 +339,15 @@ public final class Manager {
                 n++;
             }
             Logger.success("Successfully loaded item template option (" + n + ")\n");
+            java.util.Set<Integer> clash = new java.util.TreeSet<>();
+            ItemService.TEMPLATE_OPTIONS.values().forEach(l -> l.forEach(o -> {
+                if (nro.models.item.OptionIdMap.isSpare(o[0])) {
+                    clash.add(o[0]);
+                }
+            }));
+            if (!clash.isEmpty()) { // ô trống của client PC/APK bị item dùng: item đó hiện sai tên dòng
+                Logger.error("OptionIdMap: option " + clash + " đang có item dùng, cần bỏ khỏi SPARE\n");
+            }
             ItemService.VARIED.clear();
             try (PreparedStatement pv = con.prepareStatement("select template_id from item_stat_varied"); ResultSet rv = pv.executeQuery()) {
                 while (rv.next()) {

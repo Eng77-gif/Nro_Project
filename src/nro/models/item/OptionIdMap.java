@@ -19,8 +19,23 @@ public final class OptionIdMap {
         return SPARE.length;
     }
 
-    // 68 (Dùng để nâng cấp áo - Đá Titan) đang có item dùng nên thay bằng 41; thêm 6 ô cho option 269 - 274 (đủ 20 ô cho option 255 - 274)
-    private static final int[] SPARE = {201, 202, 203, 205, 195, 197, 192, 229, 62, 208, 67, 41, 69, 225, 45, 178, 181, 190, 215, 158};
+    public static boolean isSpare(int id) {
+        for (int s : SPARE) {
+            if (s == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 68 (Dùng để nâng cấp áo - Đá Titan) đang có item dùng nên thay bằng 41. 205 (Zenitsu) / 178 (Cải trang Gohan) có item dùng nên bỏ,
+    // thêm 46, 182, 185, 187, 230, 249: không item / shop / đồ người chơi / ký gửi / code nào dùng (kiểm tra 25/11/2026)
+    private static final int[] SPARE = {201, 202, 203, 195, 197, 192, 229, 62, 208, 67, 41, 69, 225, 45, 181, 190, 215, 158, 46, 182, 185, 187, 230, 249};
+    /** Option >= 255 trùng nghĩa với option < 255 có sẵn: gửi thẳng id đó, không tốn ô. */
+    private static final java.util.Map<Integer, Integer> ALIAS = java.util.Map.of(
+            268, 100, // +#% vàng rơi = +#% vàng từ quái
+            278, 108, // Né đòn +#% = #% Né đòn
+            279, 106); // Chống lạnh = Không ảnh hưởng bởi cái lạnh
 
     private static volatile int[] toClient = new int[0];
     private static volatile ItemOptionTemplate[] slots = new ItemOptionTemplate[0];
@@ -47,6 +62,11 @@ public final class OptionIdMap {
         java.util.List<Integer> noSlot = new java.util.ArrayList<>();
         for (ItemOptionTemplate t : list) {
             if (t.id < CLIENT_MAX) {
+                continue;
+            }
+            Integer alias = ALIAS.get(t.id);
+            if (alias != null) {
+                map[t.id] = alias;
                 continue;
             }
             if (spare >= SPARE.length) {
