@@ -398,17 +398,17 @@ public class PanelServer {
 
     private static String row(String text) {
         String t = text.length() > BOX - 4 ? text.substring(0, BOX - 4) : text;
-        return "  │ " + t + " ".repeat(BOX - 4 - t.length()) + " │\n";
+        return "  | " + t + " ".repeat(BOX - 4 - t.length()) + " |\n";
     }
 
     private static String box(String title, String... rows) {
         StringBuilder b = new StringBuilder("\n");
-        String head = title.isEmpty() ? "" : "─ " + title + " ";
-        b.append("  ┌").append(head).append("─".repeat(BOX - 2 - head.length())).append("┐\n");
+        String head = title.isEmpty() ? "" : "- " + title + " ";
+        b.append("  +").append(head).append("-".repeat(BOX - 2 - head.length())).append("+\n");
         for (String r : rows) {
             b.append(row(r));
         }
-        b.append("  └").append("─".repeat(BOX - 2)).append("┘\n\n");
+        b.append("  +").append("-".repeat(BOX - 2)).append("+\n\n");
         return b.toString();
     }
 
@@ -424,7 +424,7 @@ public class PanelServer {
         StringBuilder w = new StringBuilder();
         if (!bannerShown) {
             bannerShown = true;
-            w.append(box("", "NGỌC RỒNG ONLINE  ·  MÁY CHỦ GAME",
+            w.append(box("", "NGỌC RỒNG ONLINE  -  MÁY CHỦ GAME",
                     "Khởi động lúc " + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date(BOOT))));
         }
         if (s.startsWith("Total database loading time")) {
@@ -452,7 +452,7 @@ public class PanelServer {
             }
             flushRoses(w);
             w.append("  ").append(new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date())).append("  ")
-                    .append(red ? "[LỖI] " : yellow ? "[!] " : "").append(s).append('\n');
+                    .append(red ? "[LOI] " : yellow ? "[!] " : "").append(s).append('\n');
         }
         if (!readyShown && s.startsWith("Bot: giữ")) {
             readyShown = true;
@@ -463,8 +463,19 @@ public class PanelServer {
                     "Bản 20.jar      " + build,
                     "Khởi động trong " + String.format("%.1f", (System.currentTimeMillis() - BOOT) / 1000.0) + " giây"));
         }
-        out.write(w.toString().getBytes(StandardCharsets.UTF_8));
+        out.write(ascii(w.toString()).getBytes(StandardCharsets.US_ASCII));
         out.flush();
+    }
+
+    /** Console Windows cũ (font Raster, bảng mã 437 / 1258) không hiện được UTF-8: in tiếng Việt không dấu, chỉ ký tự ASCII. */
+    static String ascii(String s) {
+        String n = java.text.Normalizer.normalize(s.replace('đ', 'd').replace('Đ', 'D'), java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "");
+        StringBuilder b = new StringBuilder(n.length());
+        for (char c : n.toCharArray()) {
+            b.append(c < 128 ? c : '?');
+        }
+        return b.toString();
     }
 
     private static class TeeStream extends OutputStream {
