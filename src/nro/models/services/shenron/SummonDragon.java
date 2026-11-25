@@ -173,6 +173,9 @@ public class SummonDragon {
                     }
                     InventoryService.gI().sendItemBags(pl);
                     sendNotifyShenronAppear();
+                    if (dragonStar == 1) { // Trùm Ước Rồng: mỗi lần gọi bằng đủ 1 bộ ngọc rồng 1 - 7 sao (trước tính cả lúc rồng hiện lại, cả rồng 2 / 3 sao)
+                        BadgesTaskService.updateCountBagesTask(pl, ConstTaskBadges.TRUM_UOC_RONG, 1);
+                    }
                     activeShenron(pl, true, SummonDragon.DRAGON_SHENRON);
                     sendBlackGokuhesShenron(pl);
                 } else {
@@ -217,7 +220,6 @@ public class SummonDragon {
             msg = new Message(-83);
             msg.writer().writeByte(appear ? 0 : (byte) 1);
             if (appear) {
-                BadgesTaskService.updateCountBagesTask(pl, ConstTaskBadges.TRUM_UOC_RONG, 1);
                 msg.writer().writeShort(pl.zone.map.mapId);
                 msg.writer().writeShort(pl.zone.map.bgId);
                 msg.writer().writeByte(pl.zone.zoneId);

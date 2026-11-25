@@ -1471,6 +1471,11 @@ public class Dot139Migration {
             update(con, "update item_template_option set chance = 20 where option_id = 106 and template_id in (1590, 1746)");
             update(con, "insert into server_migration (name) values ('ct_ssj_blue_chong_lanh_20')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'thanh_o_do_theo_anh'")) {
+            // Thánh ở dơ theo ảnh: Hôi, giảm 2% HP, HP+5%, KI+5% (trước em tự đặt SĐ/HP/KI 5%)
+            update(con, "update data_badges set Options = '[{\"param\":2,\"id\":109},{\"param\":5,\"id\":77},{\"param\":5,\"id\":103},{\"param\":30,\"id\":93}]' where idEffect = 229");
+            update(con, "insert into server_migration (name) values ('thanh_o_do_theo_anh')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'san_danh_hieu_theo_anh'")) {
             // Săn danh hiệu theo ảnh: điều kiện mới, sửa danh hiệu thưởng sai (Sói / Nước Anh Bao / Ở Dơ lưu theo mã hiệu ứng), thêm Tay Nhanh Hơn Não
             String[][] t = {
