@@ -2828,3 +2828,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Theo ảnh: CT Cađíc SSJ4 luôn có Chống lạnh (bỏ khỏi nhóm 20%, shop hiện lại dòng); CT Goku SSJ4 có chỉ số mặc định SĐ 20%, HP 17%, KI 17%, +10% SĐ chí mạng, Chống lạnh (trước nhận từ quà / hộp ra trống).
 - Chống lạnh 20% chỉ còn CT Goku SSJ Blue và CT Cađíc SSJ Blue; CT Goku SSJ God, CT Goku SSJ4, CT Cađíc SSJ4 luôn có (100%).
 - Phiếu đổi Cápsule: 99 phiếu đổi Capsule 1 món kích hoạt (trước đổi nhầm Cápsule kích hoạt 1 món tự chọn).
+- Capsule 1 món kích hoạt: ra ngẫu nhiên áo / quần / găng / giày / rada cấp 1-8 (Áo vải 3 lỗ ... Áo võ Goku, cấp càng cao càng hiếm: 25/20/16/13/10/8/5/3%) thay vì chỉ 2 món thấp nhất. Cápsule kích hoạt 1 món tự chọn: chọn loại, ra cấp 9-12 (Áo bạc Goku trở lên); sửa bảng đồ thiếu Găng vàng Goku, Áo sắt Tron, Quần da Xayda.

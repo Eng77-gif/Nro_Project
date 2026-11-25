@@ -146,6 +146,42 @@ public class ItemService {
         return item;
     }
 
+    /** Đồ thường theo cấp 1-12 (vị trí = cấp - 1): [hành tinh][áo, quần, găng, giày, rada]. */
+    public static final int[][][] SKH_TIERS = {
+        { // Trái đất
+            {0, 33, 3, 34, 136, 137, 138, 139, 230, 231, 232, 233},
+            {6, 35, 9, 36, 140, 141, 142, 143, 242, 243, 244, 245},
+            {21, 24, 37, 38, 144, 145, 146, 147, 254, 255, 256, 257},
+            {27, 30, 39, 40, 148, 149, 150, 151, 266, 267, 268, 269},
+            {12, 57, 58, 59, 184, 185, 186, 187, 278, 279, 280, 281}
+        },
+        { // Namek
+            {1, 41, 4, 42, 152, 153, 154, 155, 234, 235, 236, 237},
+            {7, 43, 10, 44, 156, 157, 158, 159, 246, 247, 248, 249},
+            {22, 46, 25, 45, 160, 161, 162, 163, 258, 259, 260, 261},
+            {28, 47, 31, 48, 164, 165, 166, 167, 270, 271, 272, 273},
+            {12, 57, 58, 59, 184, 185, 186, 187, 278, 279, 280, 281}
+        },
+        { // Xayda
+            {2, 49, 5, 50, 168, 169, 170, 171, 238, 239, 240, 241},
+            {8, 51, 11, 52, 172, 173, 174, 175, 250, 251, 252, 253},
+            {23, 53, 26, 54, 176, 177, 178, 179, 262, 263, 264, 265},
+            {29, 55, 32, 56, 180, 181, 182, 183, 274, 275, 276, 277},
+            {12, 57, 58, 59, 184, 185, 186, 187, 278, 279, 280, 281}
+        }
+    };
+
+    /** Capsule 1 món kích hoạt: món ngẫu nhiên cấp 1-8 (Áo vải 3 lỗ ... Áo võ Goku), cấp càng cao càng hiếm. */
+    public int randTempCapsuleSkh(int gender) {
+        int type = Util.nextInt(0, 4);
+        int[] w = {25, 20, 16, 13, 10, 8, 5, 3}; // tổng 100
+        int r = Util.nextInt(0, 99), tier = 0;
+        while (r >= w[tier]) {
+            r -= w[tier++];
+        }
+        return SKH_TIERS[Math.max(0, Math.min(2, gender))][type][tier];
+    }
+
     public void OpenSKH(Player player, int itemUseId, int select) throws Exception {
         if (select < 0 || select > 4) {
             return;
@@ -164,38 +200,14 @@ public class ItemService {
         if (gender > 2) {
             gender = 2;
         }
-        int[][][] itemIds = {
-            { // Trái đất
-                {0, 3, 33, 34, 136, 137, 138, 139, 230, 231, 232, 233}, // Áo
-                {6, 9, 35, 36, 140, 141, 142, 143, 242, 243, 244, 245}, // Quần
-                {21, 24, 37, 38, 144, 145, 146, 147, 254, 256, 257}, // Găng
-                {27, 30, 39, 40, 148, 149, 150, 151, 266, 267, 268, 269}, // Giày
-                {12, 57, 58, 59, 184, 185, 186, 187, 278, 279, 280, 281} // Rada
-            },
-            { // Namek
-                {1, 4, 41, 42, 152, 153, 154, 155, 235, 236, 237}, // Áo
-                {7, 10, 43, 44, 156, 157, 158, 159, 246, 247, 248, 249}, // Quần
-                {22, 25, 45, 46, 160, 161, 162, 163, 259, 260, 261}, // Găng
-                {28, 31, 47, 48, 164, 165, 166, 167, 270, 271, 272, 273}, // Giày
-                {12, 57, 58, 59, 184, 185, 186, 187, 278, 279, 280, 281} // Rada
-            },
-            { // Xayda
-                {2, 5, 49, 50, 168, 169, 170, 171, 238, 239, 240, 241}, // Áo
-                {8, 11, 51, 52, 172, 173, 174, 174, 250, 251, 252, 253}, // Quần
-                {23, 26, 53, 54, 176, 177, 178, 179, 262, 263, 264, 265}, // Găng
-                {29, 32, 55, 56, 180, 181, 182, 183, 274, 275, 276, 277}, // Giày
-                {12, 57, 58, 59, 184, 185, 186, 187, 278, 279, 280, 281} // Rada
-            }
-        };
-
         int[][] optionIds = {
             {128, 129, 127, 233, 245}, // Trái đất
             {130, 131, 132, 233, 237}, // Namek
             {133, 135, 134, 233, 241} // Xayda
         };
 
-        int[] selectedItemIds = itemIds[gender][select];
-        int itemId = selectedItemIds[Util.nextInt(selectedItemIds.length)];
+        int[] tiers = SKH_TIERS[gender][select];
+        int itemId = tiers[Util.nextInt(8, 11)]; // tự chọn: từ Áo bạc Goku (cấp 9) tới cấp 12; cấp 1-8 nằm ở Capsule 1 món kích hoạt
         int[] possibleOptions = optionIds[gender];
         int optionRandom = possibleOptions[Util.nextInt(possibleOptions.length)];
 
@@ -257,8 +269,8 @@ public class ItemService {
             {133, 135, 134, 233, 241} // Xayda
         };
 
-        int[] selectedItemIds = itemIds[gender][select];
-        int itemId = selectedItemIds[Util.nextInt(selectedItemIds.length)];
+        int[] tiers = SKH_TIERS[gender][select];
+        int itemId = tiers[Util.nextInt(8, 11)]; // tự chọn: từ Áo bạc Goku (cấp 9) tới cấp 12; cấp 1-8 nằm ở Capsule 1 món kích hoạt
         int[] possibleOptions = optionIds[gender];
         int optionRandom = possibleOptions[Util.nextInt(possibleOptions.length)];
 

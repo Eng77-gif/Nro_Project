@@ -84,7 +84,7 @@ public final class EventItemUse {
         int stars = id == 1537 ? 3 : id == 1538 ? 5 : 0;
         StringBuilder got = new StringBuilder();
         if (id == 1559) {
-            Item it = ItemService.gI().createItemSKH(ItemService.gI().randTempItemKichHoat(g), skh);
+            Item it = ItemService.gI().createItemSKH(ItemService.gI().randTempCapsuleSkh(g), skh);
             InventoryService.gI().addItemBag(pl, it);
             got.append(it.template.name);
         } else {
