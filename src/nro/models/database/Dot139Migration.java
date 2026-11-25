@@ -1469,6 +1469,16 @@ public class Dot139Migration {
             update(con, "update item_template_option set chance = 20 where option_id = 106 and template_id in (1590, 1746)");
             update(con, "insert into server_migration (name) values ('ct_ssj_blue_chong_lanh_20')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'stats_anh_2511_pokemon'")) {
+            // theo ảnh: Cờ Quả Cầu Pokemon, Pet Pikachu, Pet Meowth, Mặt trời tí hon, Búa Mjolnir
+            writeStats(con, new int[][][]{
+                {{1875}, {50, 17}, {77, 17}, {103, 17}, {14, 10}, {94, 8}, {148, 100}},
+                {{1870}, {50, 13}, {77, 13}, {103, 13}, {204, 13}, {80, 13}},
+                {{1881}, {50, 17}, {77, 17}, {103, 37}, {101, 100}, {160, 100}},
+                {{1562}, {50, 15}, {77, 13}, {103, 13}, {101, 10}},
+                {{1021}, {50, 11}, {77, 10}, {103, 10}, {14, 10}}});
+            update(con, "insert into server_migration (name) values ('stats_anh_2511_pokemon')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'long_den_hoc_truong_dong_an'")) {
             // Lồng đèn Hốc trưởng: dòng SĐ / HP / KI / Giáp / Chí mạng thành 1 dòng ẩn, mở ra khi đeo (InventoryService.handleOption210)
             update(con, "delete from item_template_option where template_id = 2061 and group_id = 1");

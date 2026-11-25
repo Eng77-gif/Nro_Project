@@ -132,9 +132,10 @@ public class MatTroi extends Boss {
 
             ItemMap itemMap = new ItemMap(this.zone, costumeId, 1, x, y, plKill.id);
 
-            itemMap.options.add(new Item.ItemOption(50, Util.nextInt(7, 10)));
-            itemMap.options.add(new Item.ItemOption(77, Util.nextInt(7, 10)));
-            itemMap.options.add(new Item.ItemOption(103, Util.nextInt(7, 10)));
+            itemMap.options.add(new Item.ItemOption(50, 15)); // ảnh: SĐ 15%, HP / KI 13%, +10% TN SM
+            itemMap.options.add(new Item.ItemOption(77, 13));
+            itemMap.options.add(new Item.ItemOption(103, 13));
+            itemMap.options.add(new Item.ItemOption(101, 10));
             itemMap.options.add(new Item.ItemOption(30, 0));
             itemMap.options.add(new Item.ItemOption(93, Util.nextInt(2, 5)));
 

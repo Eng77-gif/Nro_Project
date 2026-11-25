@@ -32,6 +32,9 @@ public class Meowth extends Boss {
             it = new ItemMap(this.zone, 1881, 1, x, y, plKill.id); // Pet Meowth (mã v10 1878, ở server này 1878 là Ván bay cá đuối VIP)
             it.options.add(new ItemOption(50, 17)); // như video: sức đánh +17%, HP +17%
             it.options.add(new ItemOption(77, 17));
+            it.options.add(new ItemOption(103, 37)); // ảnh: KI +37%, +100% TN SM, +100% TN SM cho đệ tử khi sư phụ mặc
+            it.options.add(new ItemOption(101, 100));
+            it.options.add(new ItemOption(160, 100));
             it.options.add(new ItemOption(93, Util.nextInt(1, 5)));
         } else if (nro.models.services.BossDrops.roll("TrungThu.Meowth#2", 90, 100)) {
             it = new ItemMap(this.zone, 1482, 1, x, y, plKill.id);

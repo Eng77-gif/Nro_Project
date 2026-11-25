@@ -39,6 +39,7 @@ public class Kochiro extends Boss {
             it.options.add(new ItemOption(77, 13));
             it.options.add(new ItemOption(103, 13));
             it.options.add(new ItemOption(204, 13));
+            it.options.add(new ItemOption(80, 13)); // HP+13%/30s (ảnh)
             if (Util.isTrue(50, 100)) {
                 it.options.add(new ItemOption(93, Util.nextInt(3, 7)));
             }
