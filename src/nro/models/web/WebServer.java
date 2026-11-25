@@ -231,6 +231,7 @@ public class WebServer {
             case "status" -> status();
             case "auth/options" -> Map.of("name", conf("web.world.name").isBlank() ? serverName : conf("web.world.name"), "worlds", conf("web.worlds"), "sitekey", conf("web.turnstile.sitekey"), "register", conf("web.register.url"), "recover", conf("web.recover.url"));
             case "login" -> login(ip, b);
+            case "register" -> register(ip, b);
             case "logout" -> {
                 String t = ex.getRequestHeaders().getFirst("X-Token");
                 if (t != null) {
@@ -381,20 +382,7 @@ public class WebServer {
 
     private Map<String, Object> login(String ip, Map<String, Object> b) throws Exception {
         limit("login:" + ip, 8, 5 * 60_000L, "Đăng nhập sai quá nhiều lần, thử lại sau 5 phút");
-        String secret = conf("web.turnstile.secret"), site = conf("web.turnstile.sitekey");
-        if (!secret.isBlank() || !site.isBlank()) {
-            if (secret.isBlank() || site.isBlank()) throw new ApiError(503, "Thiếu cấu hình Turnstile");
-            String proof = str(b.get("proof"));
-            if (proof.isBlank() || proof.length() > 2048) throw new ApiError(400, "Hãy xác minh đăng nhập");
-            String data = "secret=" + URLEncoder.encode(secret, StandardCharsets.UTF_8) + "&response=" + URLEncoder.encode(proof, StandardCharsets.UTF_8);
-            HttpRequest request = HttpRequest.newBuilder(URI.create("https://challenges.cloudflare.com/turnstile/v0/siteverify"))
-                    .timeout(Duration.ofSeconds(10)).header("Content-Type","application/x-www-form-urlencoded")
-                    .POST(HttpRequest.BodyPublishers.ofString(data)).build();
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            Map<?,?> check = GSON.fromJson(response.body(), Map.class);
-            if (response.statusCode()!=200 || check==null || !Boolean.TRUE.equals(check.get("success")) || !"login".equals(check.get("action")))
-                throw new ApiError(403, "Xác minh hết hạn hoặc không hợp lệ");
-        }
+        verifyHuman(b);
         String u = str(b.get("user")).trim(), pw = str(b.get("pass"));
         if (u.isEmpty() || u.length() > 20 || pw.isEmpty() || pw.length() > 100) {
             throw new ApiError(400, "Nhập tài khoản và mật khẩu");
@@ -412,14 +400,74 @@ public class WebServer {
             throw new ApiError(403, "Đây là tài khoản bot của máy chủ");
         }
         limits.remove("login:" + ip);
+        return Map.of("ok", true, "token", newSession(id, str(r.get(0).get("username"))));
+    }
+
+    /** Đăng ký tài khoản game ngay trên web (khi chưa đặt web.register.url): tạo account như bot / đăng ký trong game, đăng nhập luôn. */
+    private Map<String, Object> register(String ip, Map<String, Object> b) throws Exception {
+        if (!conf("web.register.url").isBlank()) {
+            throw new ApiError(403, "Máy chủ dùng trang đăng ký riêng");
+        }
+        long[] used = limits.get("register:" + ip);
+        if (used != null && used[0] >= 3 && System.currentTimeMillis() - used[1] <= 60 * 60_000L) {
+            throw new ApiError(429, "Mỗi máy chỉ đăng ký tối đa 3 tài khoản mỗi giờ, thử lại sau");
+        }
+        verifyHuman(b);
+        String u = str(b.get("user")).trim(), pw = str(b.get("pass")), pw2 = str(b.get("pass2"));
+        if (!u.matches("[a-zA-Z0-9_]{4,20}")) {
+            throw new ApiError(400, "Tài khoản 4 - 20 ký tự, chỉ gồm chữ không dấu, số và dấu _");
+        }
+        if (pw.length() < 4 || pw.length() > 30 || pw.contains(" ")) {
+            throw new ApiError(400, "Mật khẩu 4 - 30 ký tự, không có dấu cách");
+        }
+        if (!pw.equals(pw2)) {
+            throw new ApiError(400, "Nhập lại mật khẩu không khớp");
+        }
+        if (!PanelApi.rows("select id from account where username = ?", u).isEmpty()) {
+            throw new ApiError(409, "Tài khoản đã có người dùng, hãy chọn tên khác");
+        }
+        try {
+            PanelApi.update("insert into account (username, password, email, token, xsrf_token, newpass, active, ip_address) values (?, ?, '', '', '', '', 1, ?)", u, pw, ip);
+        } catch (Exception dup) { // 2 người bấm cùng lúc một tên
+            throw new ApiError(409, "Tài khoản đã có người dùng, hãy chọn tên khác");
+        }
+        int id = ((Number) PanelApi.rows("select id from account where username = ?", u).get(0).get("id")).intValue();
+        try {
+            limit("register:" + ip, 3, 60 * 60_000L, ""); // chỉ đếm lần tạo được tài khoản (gõ sai không tính)
+        } catch (ApiError counted) {
+            // đã tạo xong, lần sau mới bị chặn
+        }
+        nro.models.utils.Logger.log("Web: đăng ký tài khoản mới " + u + "\n");
+        return Map.of("ok", true, "token", newSession(id, u));
+    }
+
+    private String newSession(int accountId, String username) {
         byte[] raw = new byte[24];
         random.nextBytes(raw);
         StringBuilder t = new StringBuilder();
         for (byte x : raw) {
             t.append(String.format("%02x", x));
         }
-        sessions.put(t.toString(), new Session(id, str(r.get(0).get("username")), System.currentTimeMillis() + 7 * 24 * 3600_000L));
-        return Map.of("ok", true, "token", t.toString());
+        sessions.put(t.toString(), new Session(accountId, username, System.currentTimeMillis() + 7 * 24 * 3600_000L));
+        return t.toString();
+    }
+
+    /** Cloudflare Turnstile (nếu đã cấu hình web.turnstile.*): chặn máy đăng nhập / đăng ký hàng loạt. */
+    private void verifyHuman(Map<String, Object> b) throws Exception {
+        String secret = conf("web.turnstile.secret"), site = conf("web.turnstile.sitekey");
+        if (!secret.isBlank() || !site.isBlank()) {
+            if (secret.isBlank() || site.isBlank()) throw new ApiError(503, "Thiếu cấu hình Turnstile");
+            String proof = str(b.get("proof"));
+            if (proof.isBlank() || proof.length() > 2048) throw new ApiError(400, "Hãy xác minh đăng nhập");
+            String data = "secret=" + URLEncoder.encode(secret, StandardCharsets.UTF_8) + "&response=" + URLEncoder.encode(proof, StandardCharsets.UTF_8);
+            HttpRequest request = HttpRequest.newBuilder(URI.create("https://challenges.cloudflare.com/turnstile/v0/siteverify"))
+                    .timeout(Duration.ofSeconds(10)).header("Content-Type","application/x-www-form-urlencoded")
+                    .POST(HttpRequest.BodyPublishers.ofString(data)).build();
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            Map<?,?> check = GSON.fromJson(response.body(), Map.class);
+            if (response.statusCode()!=200 || check==null || !Boolean.TRUE.equals(check.get("success")) || !"login".equals(check.get("action")))
+                throw new ApiError(403, "Xác minh hết hạn hoặc không hợp lệ");
+        }
     }
 
     private Map<String, Object> me(Session s) throws Exception {

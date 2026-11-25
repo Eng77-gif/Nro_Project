@@ -236,12 +236,20 @@ async function authPage(){
     try{const u=new URL(line.slice(split+1).trim());if(u.protocol==='https:'&&!u.username&&!u.password&&u.origin!==location.origin)servers.push({label:line.slice(0,split).trim(),url:u.origin})}catch{}
   }
   if(conf.demo)for(const label of ['Vũ trụ 2 Sao','Vũ trụ Super 1','Vũ trụ Vip 2'])servers.push({label,url:''});
-  $('#app').innerHTML=`<section class="world-login"><div class="world-bar"><a href="${esc(returnPage)}" aria-label="Quay lại">←</a><img src="/assets/logo.png" alt="Ngọc Rồng Online"></div><form id="world-form"><h1>Đăng nhập tài khoản</h1><p>${conf.demo?'Dùng tài khoản mẫu để trải nghiệm.':'Sử dụng tài khoản game của bạn để tiếp tục.'}</p><label>Vũ trụ<select id="world">${servers.map((v,i)=>`<option value="${i}">${esc(v.label)}</option>`).join('')}</select></label><label>Tài khoản<input id="lu" autocomplete="username" required maxlength="20" value="${conf.demo?'chienbinh':''}"></label><label>Mật khẩu<span class="pwrow"><input id="lp" type="password" autocomplete="current-password" required maxlength="100" value="${conf.demo?'ngocrong':''}"><button type="button" id="peek">Hiện</button></span></label><div id="challenge"></div>${conf.demo?'<div class="challenge-demo"><i aria-hidden="true"></i><span>Xác minh thử nghiệm</span><small>Turnstile · Demo</small></div>':''}
+  $('#app').innerHTML=`<section class="world-login"><div class="world-bar"><a href="${esc(returnPage)}" aria-label="Quay lại">←</a><img src="/assets/logo.png" alt="Ngọc Rồng Online"></div><form id="world-form"><h1>Đăng nhập tài khoản</h1><p>${conf.demo?'Dùng tài khoản mẫu để trải nghiệm.':'Sử dụng tài khoản game của bạn để tiếp tục.'}</p><label>Vũ trụ<select id="world">${servers.map((v,i)=>`<option value="${i}">${esc(v.label)}</option>`).join('')}</select></label><label>Tài khoản<input id="lu" autocomplete="username" required maxlength="20" value="${conf.demo?'chienbinh':''}"></label><label>Mật khẩu<span class="pwrow"><input id="lp" type="password" autocomplete="current-password" required maxlength="100" value="${conf.demo?'ngocrong':''}"><button type="button" id="peek">Hiện</button></span></label><label id="pass2-row" hidden>Nhập lại mật khẩu<input id="lp2" type="password" autocomplete="new-password" maxlength="30"></label><div id="challenge"></div>${conf.demo?'<div class="challenge-demo"><i aria-hidden="true"></i><span>Xác minh thử nghiệm</span><small>Turnstile · Demo</small></div>':''}
 <div class="login-options"><label class="remember"><input type="checkbox" id="remember" checked> Ghi nhớ đăng nhập</label>${authLink(conf.recover,"Quên mật khẩu?")||'<button type="button" data-missing="khôi phục mật khẩu">Quên mật khẩu?</button>'}</div>
 <p role="alert" id="auth-error"></p><button class="world-submit">${ic('login',19)} ĐĂNG NHẬP NGAY</button>
-<div class="login-divider">HOẶC</div><div class="login-register">${ic('shield',18)}${authLink(conf.register,"Đăng ký tài khoản mới")||'<button type="button" data-missing="đăng ký">Đăng ký tài khoản mới</button>'}</div></form></section>`;
+<div class="login-divider">HOẶC</div><div class="login-register">${ic('shield',18)}${authLink(conf.register,"Đăng ký tài khoản mới")||'<button type="button" id="to-register">Đăng ký tài khoản mới</button>'}</div></form></section>`;
   const form=$('#world-form'),picker=$('#world');
   form.querySelectorAll('[data-missing]').forEach(btn=>btn.onclick=()=>{$('#auth-error').textContent='Máy chủ chưa cấu hình trang '+btn.dataset.missing+'.'});
+  // đăng ký ngay trên web (máy chủ chưa đặt trang đăng ký riêng): cùng form, thêm ô nhập lại mật khẩu
+  let registering=false;const toReg=$('#to-register');
+  const setMode=reg=>{registering=reg;form.querySelector('h1').textContent=reg?'Đăng ký tài khoản':'Đăng nhập tài khoản';
+    form.querySelector('h1+p').textContent=reg?'Tạo tài khoản game mới, đăng ký xong vào game đăng nhập bằng tài khoản này.':'Sử dụng tài khoản game của bạn để tiếp tục.';
+    $('#pass2-row').hidden=!reg;$('#lp2').required=reg;$('#lp').autocomplete=reg?'new-password':'current-password';
+    form.querySelector('.world-submit').innerHTML=ic(reg?'shield':'login',19)+(reg?' ĐĂNG KÝ NGAY':' ĐĂNG NHẬP NGAY');
+    if(toReg)toReg.textContent=reg?'Đã có tài khoản? Đăng nhập':'Đăng ký tài khoản mới';$('#auth-error').textContent=''};
+  if(toReg)toReg.onclick=()=>setMode(!registering);
   if(conf.demo)picker.selectedIndex=Math.max(0,servers.findIndex(x=>x.label===demoWorld));
   picker.onchange=()=>{const dest=servers[picker.selectedIndex];if(dest.url)location.assign(dest.url+'/#/dang-nhap')};
   $('#peek').onclick=()=>{const pass=$('#lp');pass.type=pass.type==='password'?'text':'password';$('#peek').textContent=pass.type==='password'?'Hiện':'Ẩn'};
@@ -254,7 +262,7 @@ async function authPage(){
   form.onsubmit=async e=>{e.preventDefault();const btn=form.querySelector('.world-submit'),error=$('#auth-error');
     if(conf.sitekey&&!proof){error.textContent='Hãy hoàn tất xác minh.';return}
     btn.disabled=true;
-    try{const remember=$('#remember').checked,r=await api('login',{user:$('#lu').value.trim(),pass:$('#lp').value,proof,world:servers[picker.selectedIndex].label});
+    try{const remember=$('#remember').checked,r=registering?await api('register',{user:$('#lu').value.trim(),pass:$('#lp').value,pass2:$('#lp2').value,proof}):await api('login',{user:$('#lu').value.trim(),pass:$('#lp').value,proof,world:servers[picker.selectedIndex].label});
       token=r.token;try{localStorage.removeItem('nro_token');sessionStorage.removeItem('nro_token');(remember?localStorage:sessionStorage).setItem('nro_token',token)}catch{}
       await loadMe();if(!me)throw Error('Chưa tải được nhân vật. Hãy thử lại.');
       const after=authAfter;authAfter=null;location.hash=returnPage;
