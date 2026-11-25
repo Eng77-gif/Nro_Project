@@ -186,6 +186,10 @@ public class LocalManager {
         config.setMinimumIdle(MIN_CONN);
         config.setMaximumPoolSize(MAX_CONN);
         config.setMaxLifetime(MAX_LIFE_TIME);
+        // kiểm tra kết nối đang nghỉ mỗi 30 giây (phải nhỏ hơn maxLifetime): MySQL cắt kết nối nghỉ lâu -> đỡ gặp kết nối chết
+        if (MAX_LIFE_TIME > 60_000) {
+            config.setKeepaliveTime(30_000);
+        }
         config.setPoolName(poolName);
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");

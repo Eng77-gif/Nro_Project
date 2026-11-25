@@ -2808,3 +2808,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Web đăng ký: chống bot tự động không cần cấu hình (trình duyệt tự giải bài toán proof-of-work ~1 giây, người chơi không phải nhập gì, gọi thẳng API không giải bị từ chối); Turnstile vẫn dùng nếu admin đã điền web.turnstile.*.
 - Panel > Cấu hình có 2 ô web.turnstile.sitekey / web.turnstile.secret (tự thêm vào Config.properties khi khởi động, mã bí mật hiện ******), lưu xong web dùng Turnstile ngay không cần khởi động lại.
 - Web: form đăng nhập / đăng ký kiểu bản chính thức: ô có biểu tượng + chữ gợi ý (không nhãn), nút con mắt hiện / ẩn mật khẩu, ô vũ trụ có biểu tượng khiên, nút đỏ lớn.
+- Console: bỏ lỗi giả 'Web người chơi: Connection reset by peer' (người xem đóng tab giữa chừng); HikariCP kiểm tra kết nối nghỉ mỗi 30 giây (keepaliveTime) để đỡ gặp kết nối MySQL đã bị cắt, cảnh báo 'Failed to validate connection' (tự mở kết nối mới) không hiện trên console Windows.

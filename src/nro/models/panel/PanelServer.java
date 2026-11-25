@@ -414,7 +414,7 @@ public class PanelServer {
 
     private static synchronized void winConsole(OutputStream out, String raw, boolean err) throws IOException {
         String s = ANSI.matcher(raw).replaceAll("").replace("\r", "").stripTrailing();
-        if (s.contains(": Data update successfully") || s.contains(" save successfully!") || s.contains("idleTimeout is close to") || s.isBlank()) {
+        if (s.contains(": Data update successfully") || s.contains(" save successfully!") || s.contains("idleTimeout is close to") || s.contains("Failed to validate connection") || s.isBlank()) {
             return; // lưu nhân vật (mỗi lần lưu 1 dòng), cảnh báo HikariCP vô hại, dòng trống
         }
         if (s.contains("Successfully") || s.startsWith("Tạo player mới thành công")) {

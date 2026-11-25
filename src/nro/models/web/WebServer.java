@@ -185,6 +185,12 @@ public class WebServer {
             }
         } catch (ApiError e) {
             send(ex, e.code, Map.of("error", e.getMessage()));
+        } catch (java.io.IOException e) {
+            // người xem đóng tab / mất mạng giữa chừng (Connection reset, Broken pipe): không phải lỗi máy chủ, không cần trả lời
+            String m = String.valueOf(e.getMessage());
+            if (!(m.contains("reset") || m.contains("Broken pipe") || m.contains("aborted") || m.contains("closed"))) {
+                Logger.error("Web người chơi: " + e + "\n");
+            }
         } catch (Exception e) {
             Logger.error("Web người chơi: " + e + "\n");
             send(ex, 500, Map.of("error", "Lỗi máy chủ, thử lại sau"));
