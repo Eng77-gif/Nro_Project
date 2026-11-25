@@ -171,15 +171,10 @@ public class ItemService {
         }
     };
 
-    /** Capsule 1 món kích hoạt: món ngẫu nhiên cấp 1-8 (Áo vải 3 lỗ ... Áo võ Goku), cấp càng cao càng hiếm. */
+    /** Capsule 1 món kích hoạt: món ngẫu nhiên cấp 1-8 (Áo vải 3 lỗ ... Áo võ Goku), mỗi cấp 12,5%. */
     public int randTempCapsuleSkh(int gender) {
         int type = Util.nextInt(0, 4);
-        int[] w = {25, 20, 16, 13, 10, 8, 5, 3}; // tổng 100
-        int r = Util.nextInt(0, 99), tier = 0;
-        while (r >= w[tier]) {
-            r -= w[tier++];
-        }
-        return SKH_TIERS[Math.max(0, Math.min(2, gender))][type][tier];
+        return SKH_TIERS[Math.max(0, Math.min(2, gender))][type][Util.nextInt(0, 7)]; // chia đều 8 cấp
     }
 
     public void OpenSKH(Player player, int itemUseId, int select) throws Exception {
