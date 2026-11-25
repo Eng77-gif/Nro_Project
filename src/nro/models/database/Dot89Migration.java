@@ -122,9 +122,6 @@ public class Dot89Migration {
         } catch (Exception e) {
             Logger.error("Đợt 89: không cập nhật được database: " + e.getMessage() + "\n");
         }
-        if (changed > 0) {
-            Logger.success("Đợt 89: sự kiện Quán phở Anh 2, bật / tắt Sao Pha Lê 10 và đua top Quy Lão trên panel (" + changed + " dòng)\n");
-        }
     }
 
     private static int event(Connection con, int id, String name, int lunar, int month, int day, int before, int after, int enabled, String desc) throws Exception {

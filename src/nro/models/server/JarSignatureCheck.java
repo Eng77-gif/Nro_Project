@@ -71,7 +71,7 @@ public final class JarSignatureCheck {
         if (signed == 0) {
             return fail("jar chưa được ký");
         }
-        Logger.success("Chữ ký số Việt hợp lệ (" + signed + " file)\n");
+        Logger.success("Chữ ký số hợp lệ\n");
         status = "hợp lệ · CN=Việt · " + signed + " file";
         return true;
     }
