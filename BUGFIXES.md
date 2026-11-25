@@ -2806,3 +2806,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Console: dòng chữ ký rút gọn 'Chữ ký số hợp lệ'; bỏ dòng 'Đợt 89 ...' in ra mỗi lần khởi động.
 - Web: đăng ký tài khoản game ngay trên web (khi chưa đặt web.register.url): bấm 'Đăng ký tài khoản mới' chuyển form sang đăng ký (thêm ô nhập lại mật khẩu), tạo tài khoản như trong game rồi đăng nhập luôn. Tài khoản 4 - 20 ký tự (chữ không dấu, số, _), mật khẩu 4 - 30 ký tự, tối đa 3 tài khoản / IP / giờ (gõ sai không tính), dùng Turnstile nếu đã cấu hình.
 - Web đăng ký: chống bot tự động không cần cấu hình (trình duyệt tự giải bài toán proof-of-work ~1 giây, người chơi không phải nhập gì, gọi thẳng API không giải bị từ chối); Turnstile vẫn dùng nếu admin đã điền web.turnstile.*.
+- Panel > Cấu hình có 2 ô web.turnstile.sitekey / web.turnstile.secret (tự thêm vào Config.properties khi khởi động, mã bí mật hiện ******), lưu xong web dùng Turnstile ngay không cần khởi động lại.
