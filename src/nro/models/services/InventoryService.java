@@ -1322,7 +1322,16 @@ public class InventoryService {
                     item.itemOptions.add(option210Index, new Item.ItemOption(o[0], nro.models.utils.Util.nextInt(o[1], o[2])));
                     break;
                 }
-                // mọi dòng ẩn khác (CT Goku / Cađíc, Thùng rác, CT Fide nhí, Goku cận vô cực...): 13 chỉ số anh định, 10-20%, không trùng nhau
+                if (item.template.id == 1891) { // Thùng rác: dòng ẩn riêng, không trùng nhau
+                    int[][] pool = {{14, 5, 10}, {5, 10, 20}, {77, 10, 20}, {103, 10, 20}, {50, 10, 20}, {108, 5, 10}, {94, 5, 10}};
+                    List<int[]> rest = new ArrayList<>(java.util.Arrays.asList(pool));
+                    for (int k = 0; k < io.param && !rest.isEmpty(); k++) {
+                        int[] o = rest.remove(nro.models.utils.Util.nextInt(0, rest.size() - 1));
+                        item.itemOptions.add(option210Index + k, new Item.ItemOption(o[0], nro.models.utils.Util.nextInt(o[1], o[2])));
+                    }
+                    break;
+                }
+                // mọi dòng ẩn khác (CT Goku / Cađíc, CT Fide nhí, Goku cận vô cực...): 13 chỉ số anh định, 10-20%, không trùng nhau
                 List<Integer> left = new ArrayList<>(java.util.Arrays.asList(5, 14, 80, 81, 94, 95, 96, 101, 104, 108, 199, 200, 201));
                 for (int k = 0; k < io.param && !left.isEmpty(); k++) {
                     int op = left.remove(nro.models.utils.Util.nextInt(0, left.size() - 1));
