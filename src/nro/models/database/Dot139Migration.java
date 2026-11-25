@@ -1469,6 +1469,13 @@ public class Dot139Migration {
             update(con, "update item_template_option set chance = 20 where option_id = 106 and template_id in (1590, 1746)");
             update(con, "insert into server_migration (name) values ('ct_ssj_blue_chong_lanh_20')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'long_den_hoc_truong_dong_an'")) {
+            // Lồng đèn Hốc trưởng: dòng SĐ / HP / KI / Giáp / Chí mạng thành 1 dòng ẩn, mở ra khi đeo (InventoryService.handleOption210)
+            update(con, "delete from item_template_option where template_id = 2061 and group_id = 1");
+            update(con, "insert into item_template_option (template_id, option_id, param, param_max, chance, group_id) select 2061, 210, 1, 1, 100, 0 from dual "
+                    + "where not exists (select 1 from item_template_option where template_id = 2061 and option_id = 210)");
+            update(con, "insert into server_migration (name) values ('long_den_hoc_truong_dong_an')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'ct_god_chong_lanh_100'")) {
             // CT Goku SSJ God (1593) luôn có Chống lạnh (chỉ Goku / Cađíc SSJ Blue 20%), shop hiện lại dòng
             update(con, "update item_template_option set chance = 100 where template_id = 1593 and option_id = 106");

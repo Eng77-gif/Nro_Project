@@ -1316,8 +1316,13 @@ public class InventoryService {
                         }
                     }
                 }
-                // mọi dòng ẩn (CT Goku / Cađíc, Thùng rác, CT Fide nhí, Goku cận vô cực...): 13 chỉ số anh định, 10-20%, không trùng nhau
-                // (Lồng đèn Hốc trưởng không dùng dòng ẩn 210 mà tung 1 dòng theo nhóm trong item_template_option: giữ nguyên)
+                if (item.template.id == 2061) { // Lồng đèn Hốc trưởng: 1 dòng ẩn trong SĐ / HP / KI / Giáp / Chí mạng (theo ảnh)
+                    int[][] pool = {{0, 3000, 15000}, {6, 5000, 20000}, {7, 5000, 20000}, {47, 5000, 30000}, {14, 3, 10}};
+                    int[] o = pool[nro.models.utils.Util.nextInt(0, pool.length - 1)];
+                    item.itemOptions.add(option210Index, new Item.ItemOption(o[0], nro.models.utils.Util.nextInt(o[1], o[2])));
+                    break;
+                }
+                // mọi dòng ẩn khác (CT Goku / Cađíc, Thùng rác, CT Fide nhí, Goku cận vô cực...): 13 chỉ số anh định, 10-20%, không trùng nhau
                 List<Integer> left = new ArrayList<>(java.util.Arrays.asList(5, 14, 80, 81, 94, 95, 96, 101, 104, 108, 199, 200, 201));
                 for (int k = 0; k < io.param && !left.isEmpty(); k++) {
                     int op = left.remove(nro.models.utils.Util.nextInt(0, left.size() - 1));

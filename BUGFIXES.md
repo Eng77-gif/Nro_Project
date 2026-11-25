@@ -2834,3 +2834,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - CT Goku / Cađíc SSJ (mọi bản có dòng ẩn): dòng ẩn khi mặc chỉ ra trong option 5, 14, 80, 81, 94, 95, 96, 101, 104, 108, 199, 200, 201 (không trùng nhau); 5/80/81/101/104: 10-25%, còn lại 3-5%.
 - CT Goku / Cađíc SSJ: mọi dòng ẩn 10-20%.
 - Mọi món có dòng ẩn (CT Goku / Cađíc, Thùng rác, CT Fide nhí, Goku cận vô cực, đồ từ hộp có dòng ẩn...): dòng ẩn lấy trong option 5, 14, 80, 81, 94, 95, 96, 101, 104, 108, 199, 200, 201, 10-20%; Lồng đèn Hốc trưởng giữ nguyên.
+- Lồng đèn Hốc trưởng: SĐ / HP / KI 11-20% hiện sẵn, thêm 1 dòng ẩn (mở khi đeo) 1 trong: Tấn công 3.000-15.000, HP 5.000-20.000, KI 5.000-20.000, Giáp 5.000-30.000, Chí mạng 3-10% (trước dòng này ra lộ ngay khi nhận).
