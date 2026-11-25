@@ -2795,3 +2795,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Tự động mở hộp quà: bỏ bước hỏi số lượng, chọn Tự động mở là mở hết như trước.
 - Bảo trì xong (mã thoát 3) trước khi bật lại tự kiểm tra bản cập nhật trên GitHub, có thì cài rồi bật lại server: Windows gọi cap_nhat.bat auto (không chờ bấm phím) trong run.bat / run_vps_yeu.bat; Linux / Termux (run_vps_yeu.sh) git pull giữ nguyên Config.properties, hoặc chạy NroRepoDownloader-linux nếu có.
 - Thông báo con báo tin (sendThongBao) đến dồn dập (đổi quà / mở hộp liên tục) bị chồng 2 bong bóng lên nhau: nay cách nhau tối thiểu 2,5 giây, đến sớm hơn thì chỉ hiện cái mới nhất.
+- Trứng Xên Vàng (2084): bấm Sử dụng hiện menu chọn 1 trong 3 Pet Xên bọ hung (con / hoàn thiện / MAX) chỉ số tối đa, vĩnh viễn, thay vì ra ngẫu nhiên.

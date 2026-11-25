@@ -1001,6 +1001,39 @@ public class Event2026Service {
                 "Chọn 1 món Set Thần hủy diệt Beerus", "Áo", "Quần", "Găng", "Giày", "Rada", "Đóng");
     }
 
+    public static final int XEN_VANG_BOX = 2084; // Trứng Xên Vàng: chọn 1 trong 3 Pet Xên chỉ số tối đa, vĩnh viễn
+    private static final int[] XEN_VANG_PETS = {2037, 2036, 2038}; // con, hoàn thiện, MAX
+
+    public void openXenVangMenu(Player pl) {
+        nro.models.map.service.NpcService.gI().createMenuConMeo(pl, XEN_VANG_BOX, -1,
+                "Chọn 1 Pet Xên chỉ số tối đa, vĩnh viễn", "Xên bọ hung\ncon", "Xên bọ hung\nhoàn thiện", "Xên bọ hung\nMAX", "Đóng");
+    }
+
+    public void openXenVangBox(Player pl, int select) {
+        if (select < 0 || select >= XEN_VANG_PETS.length) {
+            return;
+        }
+        Item box = InventoryService.gI().findItemBag(pl, XEN_VANG_BOX);
+        if (box == null) {
+            return;
+        }
+        if (InventoryService.gI().getCountEmptyBag(pl) <= 0) {
+            Service.gI().sendThongBao(pl, "Hành trang không còn chỗ trống");
+            return;
+        }
+        short boxIcon = box.template.iconID;
+        int petId = XEN_VANG_PETS[select];
+        Item it = createItem(petId, 1, 0);
+        it.itemOptions.removeIf(io -> io.optionTemplate == null || io.optionTemplate.id != 93);
+        it.itemOptions.addAll(0, ItemService.gI().getMaxOptions((short) petId));
+        InventoryService.gI().subQuantityItemsBag(pl, box, 1);
+        InventoryService.gI().addItemBag(pl, it);
+        InventoryService.gI().sendItemBags(pl);
+        nro.models.combine.CombineService.gI().sendEffectOpenItem(pl, boxIcon, it.template.iconID);
+        AnnounceService.gI().onOpenBox(pl, XEN_VANG_BOX, it);
+        Service.gI().sendThongBao(pl, "Bạn nhận được " + it.template.name);
+    }
+
     public void openSkhBeerusBox(Player pl, int select) {
         if (select < 0 || select > 4) {
             return;
