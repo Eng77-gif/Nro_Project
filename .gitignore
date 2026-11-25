@@ -31,3 +31,4 @@ __pycache__/
 /sql/*.dl
 /backup.key.old
 /.capnhat_cache
+.Config.keep

@@ -6,9 +6,12 @@ REM Bao tri (ma thoat 3): server tu bat lai ngay trong cua so nay, khong mo cua 
 SET NRO_RESTART_LOOP=1
 :START
 java -server -XX:-OmitStackTraceInFastThrow -Dfile.encoding=UTF-8 -Xms48m -Xmx%RAM_MAX% -XX:+UseG1GC -XX:G1PeriodicGCInterval=20000 -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=25 -XX:+UseStringDeduplication -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=48m -XX:CICompilerCount=2 -Xss384k -XX:MaxDirectMemorySize=64m -XX:+ExitOnOutOfMemoryError -jar 20.jar
+REM Ca khoi IF doc 1 lan truoc khi chay: cap_nhat ghi de chinh file nay van an toan, GOTO START doc lai ban moi.
 IF %ERRORLEVEL% EQU 3 (
     echo.
-    echo Bao tri xong. Server tu khoi dong lai sau 5 phut nua - bam phim bat ky de bat lai ngay.
+    echo Bao tri xong. Kiem tra ban cap nhat moi tren GitHub...
+    IF EXIST cap_nhat.bat call cap_nhat.bat auto
+    echo Server tu khoi dong lai sau 5 phut nua - bam phim bat ky de bat lai ngay.
     timeout /t 300
     GOTO START
 )

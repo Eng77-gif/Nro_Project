@@ -4,7 +4,7 @@ rem Phan PowerShell nam ngay trong file nay (sau dong danh dau PS), khong can fi
 cd /d "%~dp0"
 mode con cols=100 >nul 2>nul
 set "NRO_DIR=%~dp0"
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$s=[IO.File]::ReadAllText('%~f0'); iex $s.Substring($s.IndexOf('#PS'+'START'))" & (if errorlevel 1 (echo. & echo Cap nhat loi. Kiem tra mang, hoac tat server truoc ^(20.jar dang chay khong ghi de duoc^).) else (echo Xong. Khoi dong lai server neu vua cap nhat.)) & pause & exit /b
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$s=[IO.File]::ReadAllText('%~f0'); iex $s.Substring($s.IndexOf('#PS'+'START'))" & (if errorlevel 1 (echo. & echo Cap nhat loi. Kiem tra mang, hoac tat server truoc ^(20.jar dang chay khong ghi de duoc^).) else (echo Xong. Khoi dong lai server neu vua cap nhat.)) & (if /i not "%~1"=="auto" pause) & exit /b
 #PSSTART
 # Phan PowerShell cua cap_nhat.bat: chi tai cac file da doi so voi ban tren may, khong tai ca repo.
 # Danh sach file lay tu nhanh update-manifest (GitHub Actions tu tao moi lan main doi).
