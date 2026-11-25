@@ -1466,8 +1466,15 @@ public class Dot139Migration {
         }
         if (!exists(con, "select 1 from server_migration where name = 'ct_ssj_blue_chong_lanh_20'")) {
             // CT Goku SSJ Blue / SSJ God, CT Cađíc SSJ Blue / SSJ4: dòng "Không ảnh hưởng bởi cái lạnh" chỉ 20% (trước 100%)
-            update(con, "update item_template_option set chance = 20 where option_id = 106 and template_id in (1590, 1593, 1746)");
+            update(con, "update item_template_option set chance = 20 where option_id = 106 and template_id in (1590, 1746)");
             update(con, "insert into server_migration (name) values ('ct_ssj_blue_chong_lanh_20')");
+        }
+        if (!exists(con, "select 1 from server_migration where name = 'ct_god_chong_lanh_100'")) {
+            // CT Goku SSJ God (1593) luôn có Chống lạnh (chỉ Goku / Cađíc SSJ Blue 20%), shop hiện lại dòng
+            update(con, "update item_template_option set chance = 100 where template_id = 1593 and option_id = 106");
+            update(con, "insert into item_shop_option (item_shop_id, option_id, param) select s.id, 106, 0 from item_shop s where s.temp_id = 1593 "
+                    + "and not exists (select 1 from item_shop_option x where x.item_shop_id = s.id and x.option_id = 106)");
+            update(con, "insert into server_migration (name) values ('ct_god_chong_lanh_100')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'ct_ssj4_chong_lanh_theo_anh'")) {
             // theo ảnh: CT Cađíc SSJ4 luôn có Chống lạnh (không theo 20% của dòng SSJ Blue), shop hiện lại dòng
@@ -1484,7 +1491,7 @@ public class Dot139Migration {
         }
         if (!exists(con, "select 1 from server_migration where name = 'ct_ssj_blue_shop_an_chong_lanh'")) {
             // shop không hiện dòng chống lạnh ở xem trước (có hiện là chắc chắn ra); mua xong tung 20%
-            update(con, "delete from item_shop_option where option_id = 106 and item_shop_id in (select id from item_shop where temp_id in (1590, 1593, 1746))");
+            update(con, "delete from item_shop_option where option_id = 106 and item_shop_id in (select id from item_shop where temp_id in (1590, 1746))");
             update(con, "insert into server_migration (name) values ('ct_ssj_blue_shop_an_chong_lanh')");
         }
         if (!exists(con, "select 1 from server_migration where name = 'nap_bu_diem_su_kien'")
