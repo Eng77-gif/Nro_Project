@@ -2816,3 +2816,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Console khởi động thêm dòng 'Server đang chạy phiên bản: <mã commit>' dưới dòng build (đọc file VERSION do cap_nhat ghi, máy cập nhật bằng git thì đọc .git).
 - Sửa lỗi NullPointerException 'timeXinbatoBuff ... this.nPoint is null' (Player.update từ boss Siêu hạng): boss rời map đã dispose nhưng luồng quản lý boss còn gọi update -> Player.update / SuperRank.update bỏ qua khi nPoint đã null.
 - Nạp qua web: 1 ngọc nhận được = 1 điểm sự kiện (điểm Quy Lão, dùng đổi quà Quy Lão và mua VIP Tori Bot); cộng cùng lúc với ngọc (online cộng ngay, offline cộng khi đăng nhập), thông báo kèm số điểm.
+- Nạp web: bỏ đoạn 'cộng X điểm sự kiện' trong thông báo (điểm vẫn cộng).

@@ -974,8 +974,7 @@ public class WebServer {
             pl.event.addEventPoint(gem);
         }
         nro.models.services.Service.gI().sendMoney(pl);
-        nro.models.services.Service.gI().sendThongBao(pl, "Bạn đã nạp " + nro.models.utils.Util.numberToMoney(gem) + " ngọc vào tài khoản, cộng "
-                + nro.models.utils.Util.numberToMoney(gem) + " điểm sự kiện");
+        nro.models.services.Service.gI().sendThongBao(pl, "Bạn đã nạp " + nro.models.utils.Util.numberToMoney(gem) + " ngọc vào tài khoản");
     }
 
     // ------------------------------------------------------------------ tiện ích
