@@ -1297,6 +1297,9 @@ public class InventoryService {
         return getIndexItem(player, player.inventory.itemsBox, item);
     }
 
+    /** CT Goku (thường / SSJ / SSJ2 / SSJ3 / SSJ Blue / SSJ God / SSJ 4 Red), CT Cađíc SSJ / SSJ2 / SSJ Blue. */
+    private static final java.util.Set<Integer> GOKU_CADIC_210 = java.util.Set.of(1588, 1589, 1595, 1587, 1590, 1593, 1803, 1742, 1743, 1746);
+
     private void handleOption210(Item item) {
         for (int i = 0; i < item.itemOptions.size(); i++) {
             Item.ItemOption io = item.itemOptions.get(i);
@@ -1327,6 +1330,16 @@ public class InventoryService {
                     break;
                 }
                 int numberOfOptionsToAdd = io.param;
+                if (GOKU_CADIC_210.contains((int) item.template.id)) {
+                    // CT Goku / Cađíc SSJ: dòng ẩn chỉ lấy trong 13 chỉ số anh định, mỗi dòng khác nhau
+                    List<Integer> left = new ArrayList<>(java.util.Arrays.asList(5, 14, 80, 81, 94, 95, 96, 101, 104, 108, 199, 200, 201));
+                    for (int k = 0; k < numberOfOptionsToAdd && !left.isEmpty(); k++) {
+                        int op = left.remove(nro.models.utils.Util.nextInt(0, left.size() - 1));
+                        boolean big = op == 5 || op == 80 || op == 81 || op == 101 || op == 104;
+                        item.itemOptions.add(option210Index + k, new Item.ItemOption(op, big ? nro.models.utils.Util.nextInt(10, 25) : nro.models.utils.Util.nextInt(3, 5)));
+                    }
+                    break;
+                }
                 int[] allOptions = {8, 14, 108, 94, 108, 16, 80, 81, 97, 100, 101, 104, 106};
                 List<Integer> selectedOptions = new ArrayList<>();
                 while (selectedOptions.size() < numberOfOptionsToAdd && selectedOptions.size() < allOptions.length) {
