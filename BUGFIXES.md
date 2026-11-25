@@ -2843,3 +2843,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Đảo Kamê: đặt NPC Lý Tiểu Nương bên phải Bà Hạt Mít (x 1300) theo ảnh.
 - Lý Tiểu Nương Đảo Kamê dời sang x 1324 như bản chính thức; Kéo Búa Bao hiện kết quả ngay trong bảng ván mới ('Bạn ra cái <Búa> / Tôi ra cái <Búa> / Hòa nhau nhé haha').
 - Kéo Búa Bao: bấm Kéo / Búa / Bao là báo kết quả ngay trong bảng (không chờ hết 15 giây), rồi sang ván mới đếm lại 15 giây.
+- Săn danh hiệu theo ảnh: Nạp 3250 ngọc (Đại Gia Mới Nhú, đếm theo ngọc nạp web), Ước rồng 1 sao x10, Diệt boss bất kỳ 30 lần, Đập 3 đồ +7, 10 NV Bò Mộng, Đánh/Cho sói ăn 20 lần, 5 lần thắng Xinbato (Nước Anh Bao), Nhặt đồ 500, 30 Boss Trộm, 30 Boss Ở Dơ, Loa vũ trụ 10 lần (Tay Nhanh Hơn Não, mới). Sửa thưởng sai: Sói / Nước Anh Bao / Ở Dơ trước trỏ mã vật phẩm nên không nhận được danh hiệu; tiến độ cũ của người chơi tự theo điều kiện mới.

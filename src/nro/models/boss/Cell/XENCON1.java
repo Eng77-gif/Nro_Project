@@ -25,7 +25,6 @@ public class XENCON1 extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.TRUM_SAN_BOSS, 1);
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
         if (nro.models.services.BossDrops.roll("Cell.XENCON1#1", 80, 100)) {
             int[] items = Util.isTrue(50, 100) ? new int[]{18, 19, 20} : new int[]{18, 19, 20};

@@ -1310,6 +1310,7 @@ public class VietLoader {
                     data.idBadgesReward = Integer.parseInt(obj.get("idBadgesReward").toString());
                     player.dataTaskBadges.add(data);
                 }
+                BadgesTaskService.syncWithTemplate(player);
                 dataArray.clear();
             } catch (Exception ex) {
                 BadgesTaskService.createAndResetTask(player);

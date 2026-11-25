@@ -714,6 +714,9 @@ public class Input {
                 }
             }
         }
+        if (itemId == 1653) { // danh hiệu Tay Nhanh Hơn Não: dùng Loa vũ trụ 10 lần
+            nro.models.task.BadgesTaskService.updateCountBagesTask(player, nro.models.consts.ConstTaskBadges.TAY_NHANH_HON_NAO, 1);
+        }
         Service.gI().sendThongBao(player, "Đã phát loa");
     }
 

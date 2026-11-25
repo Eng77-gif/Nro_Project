@@ -995,6 +995,7 @@ public class WebServer {
             return;
         }
         pl.inventory.gem += gem;
+        nro.models.task.BadgesTaskService.updateCountBagesTask(pl, nro.models.consts.ConstTaskBadges.DAI_GIA_MOI_NHU, gem); // danh hiệu Đại Gia Mới Nhú: nạp 3250 ngọc
         // 1 ngọc nạp = 1 điểm sự kiện (điểm Quy Lão, dùng đổi quà Quy Lão và mua VIP Tori Bot)
         if (pl.event != null) {
             pl.event.addEventPoint(gem);

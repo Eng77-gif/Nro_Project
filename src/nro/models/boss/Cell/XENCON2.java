@@ -25,7 +25,6 @@ public class XENCON2 extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.TRUM_SAN_BOSS, 1);
         // boss không cộng điểm sự kiện; vàng theo độ mạnh boss: BossRewardService
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
         if (nro.models.services.BossDrops.roll("Cell.XENCON2#1", 80, 100)) {

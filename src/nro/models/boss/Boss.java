@@ -652,6 +652,9 @@ public class Boss extends Player implements IBoss {
             nro.models.services.SeasonEventService.gI().onBossKilled(this, plKill);
             nro.models.services.SaoPhaLe10Service.gI().onBossKilled(this, plKill);
             nro.models.services.BossRewardService.gI().reward(this, plKill); // vàng, điểm, quà theo độ mạnh boss
+            if (!plKill.isBot) { // danh hiệu Trùm Săn Boss: diệt bất kỳ boss nào 30 lần
+                nro.models.task.BadgesTaskService.updateCountBagesTask(plKill, nro.models.consts.ConstTaskBadges.TRUM_SAN_BOSS, 1);
+            }
         }
 
         if (plKill != null

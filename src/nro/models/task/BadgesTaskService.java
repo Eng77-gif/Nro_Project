@@ -26,6 +26,27 @@ public class BadgesTaskService {
         }
     }
 
+    /** Nhiệm vụ đã lưu của người chơi theo đúng mẫu hiện tại (số lần cần, danh hiệu thưởng), thêm nhiệm vụ mới. */
+    public static void syncWithTemplate(Player player) {
+        for (BadgesTaskTemplate t : Manager.TASKS_BADGES_TEMPLATE) {
+            BadgesTask found = null;
+            for (BadgesTask d : player.dataTaskBadges) {
+                if (d.id == t.id) {
+                    found = d;
+                    break;
+                }
+            }
+            if (found == null) {
+                found = new BadgesTask();
+                found.id = t.id;
+                player.dataTaskBadges.add(found);
+            }
+            found.countMax = t.count;
+            found.idBadgesReward = t.idbadgesReward;
+            found.count = Math.min(found.count, found.countMax);
+        }
+    }
+
     public static void updateDoneTask(Player player) {
         for (BadgesTask data : player.dataTaskBadges) {
             if (data.isDone()) {

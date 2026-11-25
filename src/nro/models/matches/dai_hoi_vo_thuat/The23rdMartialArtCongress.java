@@ -110,6 +110,9 @@ public class The23rdMartialArtCongress {
             }
             if (player.location != null && player.isPKDHVT && !player.isDie() && player != null && player.zone != null) {
                 if (boss.isDie()) {
+                    if (boss instanceof Xinbato) { // danh hiệu Nước Anh Bao: thắng Xinbato 5 lần
+                        nro.models.task.BadgesTaskService.updateCountBagesTask(player, nro.models.consts.ConstTaskBadges.NUOC_ANH_BAO, 1);
+                    }
                     round++;
                     boss.leaveMap();
                     toTheNextRound();

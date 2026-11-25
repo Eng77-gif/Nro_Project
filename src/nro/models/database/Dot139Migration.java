@@ -1471,6 +1471,32 @@ public class Dot139Migration {
             update(con, "update item_template_option set chance = 20 where option_id = 106 and template_id in (1590, 1746)");
             update(con, "insert into server_migration (name) values ('ct_ssj_blue_chong_lanh_20')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'san_danh_hieu_theo_anh'")) {
+            // Săn danh hiệu theo ảnh: điều kiện mới, sửa danh hiệu thưởng sai (Sói / Nước Anh Bao / Ở Dơ lưu theo mã hiệu ứng), thêm Tay Nhanh Hơn Não
+            String[][] t = {
+                {"1", "Nạp 3250 Ngọc", "3250", "218"},
+                {"2", "Ước Rồng 1 Sao (x10)", "10", "219"},
+                {"3", "Diệt Boss (30 lần)", "30", "220"},
+                {"4", "Đập 3 Đồ +7", "3", "221"},
+                {"5", "Top 1 Siêu Hạng", "1", "222"},
+                {"6", "10 NV Bò Mộng", "10", "223"},
+                {"7", "Đánh/Cho Sói Ăn (20 lần)", "20", "215"},
+                {"8", "5 NV Xinbato", "5", "216"},
+                {"9", "Nhặt Đồ (500 lần)", "500", "224"},
+                {"10", "Diệt 30 Boss Trộm", "30", "225"},
+                {"11", "Diệt 30 Boss Ở Dơ", "30", "229"},
+                {"19", "Loa Vũ Trụ (10 lần)", "10", "1099"}};
+            for (String[] r : t) {
+                update(con, "delete from task_badges_template where id = " + r[0]);
+                update(con, "insert into task_badges_template (id, NAME, maxCount, idBadgesReward) values (" + r[0] + ", '" + r[1] + "', " + r[2] + ", " + r[3] + ")");
+            }
+            // danh hiệu Nước Anh Bao (hiệu ứng 216) / Thánh Ở Dơ (229) chưa có trong data_badges
+            update(con, "insert into data_badges (idEffect, idItem, NAME, Options) select 216, 1287, 'Nước anh bao', "
+                    + "'[{\"param\":5,\"id\":50},{\"param\":5,\"id\":77},{\"param\":5,\"id\":103},{\"param\":30,\"id\":93}]' from dual where not exists (select 1 from data_badges where idEffect = 216)");
+            update(con, "insert into data_badges (idEffect, idItem, NAME, Options) select 229, 1300, 'Thánh ở dơ', "
+                    + "'[{\"param\":5,\"id\":50},{\"param\":5,\"id\":77},{\"param\":5,\"id\":103},{\"param\":30,\"id\":93}]' from dual where not exists (select 1 from data_badges where idEffect = 229)");
+            update(con, "insert into server_migration (name) values ('san_danh_hieu_theo_anh')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'ly_tieu_nuong_dao_kame_1324'")) {
             // Lý Tiểu Nương đứng bên phải Bà Hạt Mít ở Đảo Kamê (ảnh anh chỉ chỗ, như video chính thức)
             try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery("select npcs from map_template where id = 5")) {

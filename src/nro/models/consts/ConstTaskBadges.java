@@ -20,6 +20,7 @@ public class ConstTaskBadges {
     public static final byte EM_XINH_EM_DEP = 16;
     public static final byte ME_RONG = 17;
     public static final byte KOL = 18;
+    public static final byte TAY_NHANH_HON_NAO = 19;
 
     public static String getNameById(int id) {
         return switch (id) {
@@ -59,6 +60,8 @@ public class ConstTaskBadges {
                 "Mẹ Rồng";
             case KOL ->
                 "KOL";
+            case TAY_NHANH_HON_NAO ->
+                "Tay Nhanh Hơn Não";
             default ->
                 "Danh hiệu không xác định";
         };
