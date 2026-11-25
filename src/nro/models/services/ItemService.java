@@ -53,9 +53,25 @@ public class ItemService {
         item.content = item.getContent();
         item.info = item.getInfo();
         for (Item.ItemOption io : itemShop.options) {
+            if (io.optionTemplate != null && io.optionTemplate.id == 106 && !Util.isTrue(chanceOf(itemShop.temp.id, 106), 100)) {
+                continue; // dòng chống lạnh có tỉ lệ (vd. CT Goku / Cađíc SSJ Blue 20%)
+            }
             item.itemOptions.add(new Item.ItemOption(io));
         }
         return item;
+    }
+
+    /** Tỉ lệ % của 1 dòng trong chỉ số mặc định (item_template_option.chance), không có thì 100. */
+    public static int chanceOf(int templateId, int optionId) {
+        List<int[]> d = TEMPLATE_OPTIONS.get(templateId);
+        if (d != null) {
+            for (int[] o : d) {
+                if (o[0] == optionId) {
+                    return o[3];
+                }
+            }
+        }
+        return 100;
     }
 
     public Item copyItem(Item item) {
@@ -769,9 +785,24 @@ public class ItemService {
         if (it.template.id >= 635 && it.template.id <= 637 && it.getOptionById(151) != null) {
             return; // nhóm Piláp đã đổi chỉ số mới: không quay lại TN,SM ngẫu nhiên mỗi lần đăng nhập
         }
+        boolean cadicPlaceholder = false;
+        if (it.template.id == 1746) { // CT Cađíc SSJ Blue: chỉ đổi món còn chỉ số tạm (SĐ 30%), món mới có dòng ẩn 210 không quay lại
+            Item.ItemOption sd = it.getOptionById(50);
+            if (sd == null || sd.param != 30) {
+                return;
+            }
+            cadicPlaceholder = true;
+        }
         List<Item.ItemOption> fresh = getListOptionItemShop(it.template.id);
         if (fresh.isEmpty()) {
             return;
+        }
+        if (!cadicPlaceholder && chanceOf(it.template.id, 106) < 100) {
+            // dòng chống lạnh có tỉ lệ: giữ đúng như món đang có, không tung lại mỗi lần đăng nhập
+            fresh.removeIf(o -> o.optionTemplate != null && o.optionTemplate.id == 106);
+            if (it.getOptionById(106) != null) {
+                fresh.add(new Item.ItemOption(106, 0));
+            }
         }
         List<Item.ItemOption> keep = new ArrayList<>();
         boolean eventItem = it.template.id != 1673 && it.template.id != 1978;
