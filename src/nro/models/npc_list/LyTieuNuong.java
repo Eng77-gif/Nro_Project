@@ -19,6 +19,10 @@ public class LyTieuNuong extends Npc {
     @Override
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
+            if (this.mapId == 5) { // như bản chính thức (video): chỉ Kéo Búa Bao, Chọn ai đây
+                createOtherMenu(player, ConstNpc.BASE_MENU, "Mini game.", "Kéo\nBúa\nBao", "Chọn ai đây", "Đóng");
+                return;
+            }
             createOtherMenu(player, ConstNpc.BASE_MENU, "Mini game.",
                     "Kéo\nBúa\nBao",
                     "Con số\nmay mắn\nthỏi vàng",
@@ -31,6 +35,72 @@ public class LyTieuNuong extends Npc {
     }
 
     private static final int MENU_QL_POINT = 54_401;
+
+    // ---------------- Kéo Búa Bao như bản chính thức: mỗi ván 15 giây, chọn trong lúc đếm giờ, hết giờ Lý Tiểu Nương ra tay
+    private static final String[] KBB = {"Kéo", "Búa", "Bao"};
+    private static final int KBB_SECONDS = 15;
+    /** playerId -> {mức cược, lựa chọn (-1 chưa chọn), mã ván} */
+    private static final java.util.Map<Long, long[]> ROUNDS = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.concurrent.ScheduledExecutorService KBB_TIMER = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "keo-bua-bao");
+        t.setDaemon(true);
+        return t;
+    });
+    private static final java.util.concurrent.atomic.AtomicLong ROUND_SEQ = new java.util.concurrent.atomic.AtomicLong();
+
+    private void startRound(Player player, long bet) {
+        if (player.inventory.gold < bet) {
+            ROUNDS.remove(player.id);
+            Service.gI().sendThongBao(player, "Bạn không đủ vàng để chơi!");
+            return;
+        }
+        long id = ROUND_SEQ.incrementAndGet();
+        ROUNDS.put(player.id, new long[]{bet, -1, id});
+        nro.models.services.ItemTimeService.gI().sendTextTimeKeoBuaBao(player, KBB_SECONDS);
+        createOtherMenu(player, ConstNpc.OTT, nro.models.consts.ConstFont.BOLD_GREEN + "Mức vàng cược: " + Util.numberToMoney(bet)
+                + "\n" + nro.models.consts.ConstFont.BOLD_GREEN + "Hãy chọn Kéo, Búa hoặc Bao\n" + nro.models.consts.ConstFont.BOLD_RED + "Thời gian " + KBB_SECONDS + " giây bắt đầu",
+                "Kéo", "Búa", "Bao", "Đổi\nmức cược", "Nghỉ chơi");
+        KBB_TIMER.schedule(() -> {
+            try {
+                endRound(player, id);
+            } catch (Exception e) {
+                nro.models.utils.Logger.logException(LyTieuNuong.class, e);
+            }
+        }, KBB_SECONDS, java.util.concurrent.TimeUnit.SECONDS);
+    }
+
+    private void endRound(Player player, long id) {
+        long[] r = ROUNDS.get(player.id);
+        if (r == null || r[2] != id) {
+            return; // đã nghỉ / đổi cược / sang ván mới
+        }
+        if (r[1] < 0 || player.zone == null || player.zone.map.mapId != this.mapId) { // không chọn hoặc rời map: dừng chơi
+            ROUNDS.remove(player.id);
+            nro.models.services.ItemTimeService.gI().removeTextTime(player, nro.models.item.ItemTime.TIME_KEO_BUA_BAO);
+            return;
+        }
+        long bet = r[0];
+        if (player.inventory.gold < bet) {
+            ROUNDS.remove(player.id);
+            Service.gI().sendThongBao(player, "Bạn không đủ vàng để chơi!");
+            return;
+        }
+        int npcPick = Util.nextInt(0, 2);
+        this.npcChat(player, KBB[npcPick]);
+        String result = getResult(KBB[(int) r[1]], KBB[npcPick]);
+        if (result.equals("Thắng")) {
+            long reward = bet * 96 / 100;
+            player.inventory.gold += reward;
+            Service.gI().sendThongBao(player, "Ta ra " + KBB[npcPick] + ", bạn thắng " + Util.numberToMoney(reward) + " vàng!");
+        } else if (result.equals("Thua")) {
+            player.inventory.gold -= bet;
+            Service.gI().sendThongBao(player, "Ta ra " + KBB[npcPick] + ", bạn thua " + Util.numberToMoney(bet) + " vàng!");
+        } else {
+            Service.gI().sendThongBao(player, "Ta ra " + KBB[npcPick] + ", hòa!");
+        }
+        Service.gI().sendMoney(player);
+        startRound(player, bet); // ván tiếp theo cho tới khi Nghỉ chơi
+    }
 
     @Override
     public void confirmMenu(Player player, int select) {
@@ -52,12 +122,12 @@ public class LyTieuNuong extends Npc {
         if (canOpenNpc(player)) {
             if (this.mapId == 5 || this.mapId == -1) { // -1: mở từ Menu game
                 if (player.idMark.isBaseMenu()) {
+                    if (this.mapId == 5) {
+                        select = select == 0 ? 0 : select == 1 ? 3 : -1; // menu rút gọn: Kéo Búa Bao, Chọn ai đây, Đóng
+                    }
                     switch (select) {
                         case 0: // Kéo, Búa, Bao
-                            createOtherMenu(player, ConstNpc.KEO_BUA_BAO, "Hãy chọn mức cược.",
-                                    "1 Tỷ vàng",
-                                    "5 Tỷ vàng",
-                                    "10 Tỷ vàng");
+                            createOtherMenu(player, ConstNpc.KEO_BUA_BAO, "Hãy chọn mức cược.", "1 Tr vàng", "5 Tr vàng", "10 Tr vàng");
                             break;
                         case 1: // Con số may mắn vàng
                             xửLýLựaChọnMiniGame_Gold(player);
@@ -77,47 +147,28 @@ public class LyTieuNuong extends Npc {
                             break;
                     }
                 } else if (player.idMark.getIndexMenu() == ConstNpc.KEO_BUA_BAO) {
-                    long tienCuoc = switch (select) {
-                        case 0 -> 1_000_000_000L;
-                        case 1 -> 5_000_000_000L;
-                        case 2 -> 10_000_000_000L;
+                    long bet = switch (select) {
+                        case 0 -> 1_000_000L;
+                        case 1 -> 5_000_000L;
+                        case 2 -> 10_000_000L;
                         default -> 0L;
                     };
-                    if (player.inventory.gold < tienCuoc) {
-                        Service.gI().sendThongBao(player, "Bạn không đủ vàng để chơi!");
+                    if (bet > 0) {
+                        startRound(player, bet);
+                    }
+                } else if (player.idMark.getIndexMenu() == ConstNpc.OTT) {
+                    long[] r = ROUNDS.get(player.id);
+                    if (r == null) {
                         return;
                     }
-                    player.idMark.tempId = tienCuoc;
-                    createOtherMenu(player, ConstNpc.OTT, "Bạn muốn ra gì?", "Kéo", "Búa", "Bao", "Hủy");
-                } else if (player.idMark.getIndexMenu() == ConstNpc.OTT) {
                     if (select < 3) {
-                        String[] options = new String[]{"Kéo", "Búa", "Bao"};
-                        int machineChoice = (int) (Math.random() * 3);
-
-                        player.idMark.setOtt(select);
-                        String playerChoice = options[select];
-                        String machineChoiceStr = options[machineChoice];
-
-                        long tienCuoc = player.idMark.tempId;
-
-                        if (player.inventory.gold < tienCuoc) {
-                            Service.gI().sendThongBao(player, "Bạn không đủ vàng để chơi!");
-                            return;
-                        }
-
-                        String result = getResult(playerChoice, machineChoiceStr);
-
-                        if (result.equals("Hòa")) {
-                            Service.gI().sendThongBao(player, "Hòa!");
-                        } else if (result.equals("Thắng")) {
-                            long reward = tienCuoc * 96 / 100;
-                            player.inventory.gold += reward;
-                            Service.gI().sendMoney(player);
-                            Service.gI().sendThongBao(player, "Bạn thắng và nhận được " + Util.numberToMoney(reward) + " vàng!");
-                        } else {
-                            player.inventory.gold -= tienCuoc;
-                            Service.gI().sendMoney(player);
-                            Service.gI().sendThongBao(player, "Bạn thua và mất " + Util.numberToMoney(tienCuoc) + " vàng!");
+                        r[1] = select;
+                        Service.gI().sendThongBao(player, "Bạn chọn " + KBB[select] + ", chờ hết giờ để biết kết quả");
+                    } else {
+                        ROUNDS.remove(player.id);
+                        nro.models.services.ItemTimeService.gI().removeTextTime(player, nro.models.item.ItemTime.TIME_KEO_BUA_BAO);
+                        if (select == 3) { // đổi mức cược
+                            createOtherMenu(player, ConstNpc.KEO_BUA_BAO, "Hãy chọn mức cược.", "1 Tr vàng", "5 Tr vàng", "10 Tr vàng");
                         }
                     }
                 } else if (player.idMark.getIndexMenu() == ConstNpc.CON_SO_MAY_MAN_NGOC_XANH) {

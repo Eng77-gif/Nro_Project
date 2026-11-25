@@ -352,7 +352,27 @@ public class QuyLaoKame extends Npc {
 
     public QuyLaoKame(int mapId, int status, int cx, int cy, int tempId, int avartar) {
         super(mapId, status, cx, cy, tempId, avartar);
+        if (mapId == 5) { // 20/11: Quy Lão ở Đảo Kamê đọc thơ tặng thầy cô (như bản chính thức)
+            POEM_TIMER.scheduleAtFixedRate(() -> {
+                try {
+                    if (this.map != null && nro.models.services.SeasonEventService.gI().isActive(nro.models.services.SeasonEventService.TEACHERS_DAY)) {
+                        npcChat(POEM[poemLine++ % POEM.length]);
+                    }
+                } catch (Exception e) {
+                    Logger.logException(QuyLaoKame.class, e);
+                }
+            }, 10, 6, java.util.concurrent.TimeUnit.SECONDS);
+        }
     }
+
+    private static final String[] POEM = {"Ngày xưa Thầy dạy dỗ", "Khi Thầy viết bảng", "Bụi phấn rơi rơi", "Có hạt bụi nào", "Rơi trên tóc Thầy",
+        "Chúc mừng ngày Nhà giáo Việt Nam 20/11"};
+    private static final java.util.concurrent.ScheduledExecutorService POEM_TIMER = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "quy-lao-tho");
+        t.setDaemon(true);
+        return t;
+    });
+    private int poemLine;
 
     @Override
     public void openBaseMenu(Player player) {
@@ -365,10 +385,8 @@ public class QuyLaoKame extends Npc {
                 act.add(0);
                 menu.add("Đổi điểm\nsự kiện\n[" + player.event.getEventPoint() + "]");
                 act.add(1);
-                menu.add("Nhận quà\nKOL");
-                act.add(2);
-                menu.add("Nhận quà\nKOL VIP");
-                act.add(3);
+                menu.add("Nhiệm vụ\nKOL"); // như bản chính thức: 1 nút, bên trong Nhận quà KOL / KOL VIP
+                act.add(8);
                 if (nro.models.services.SeasonEventService.gI().isActive(nro.models.database.Dot89Migration.EV_QUY_LAO)) {
                     // đua top tặng bộ ngọc rồng: sự kiện riêng, bật / tắt trên web panel
                     menu.add("Đua top\nngọc rồng\n[" + player.qlPoints + "]");
@@ -446,6 +464,11 @@ public class QuyLaoKame extends Npc {
             case ConstNpc.KOL_VIP_REWARD_MENU:
                 handleKOLQuestRewardConfirm(player, select, true);
                 break;
+            case MENU_KOL:
+                if (select == 0 || select == 1) {
+                    handleKOLQuest(player, select == 1);
+                }
+                break;
             case MENU_DUA_TOP:
                 if (select <= 1 && !nro.models.services.SeasonEventService.gI().isActive(nro.models.database.Dot89Migration.EV_QUY_LAO)) {
                     Service.gI().sendThongBao(player, "Đua top tặng ngọc rồng đã kết thúc");
@@ -507,6 +530,10 @@ public class QuyLaoKame extends Npc {
             case 6:
                 handleTradeRuacon(player);
                 break;
+            case 8:
+                this.createOtherMenu(player, MENU_KOL, "Nhiệm Vụ KOL đã diễn ra.\nMua thêm vé Vip để nhận nhiều phần thưởng hơn",
+                        "Nhận quà\nKOL", "Nhận quà\nKOL VIP", "Đóng");
+                break;
             case 7:
                 this.createOtherMenu(player, MENU_GIAO_NR, "Giao ta 1 bộ ngọc rồng 1 - 7 sao để nhận 1 điểm đua top Giao 7 viên ngọc rồng.\nXem bảng xếp hạng ở Chi Chi",
                         "Giao\n1 bộ", "Giao\ntất cả", "Đóng");
@@ -517,6 +544,7 @@ public class QuyLaoKame extends Npc {
     private static final int MENU_DUA_TOP = 2026_1;
     private static final int MENU_QUA_TRUNG_THU = 2026_2;
     private static final int MENU_GIAO_NR = 2026_3;
+    private static final int MENU_KOL = 2026_4;
 
     private void handleTalk(Player player) {
         if (player.LearnSkill.Time != -1 && player.LearnSkill.Time <= System.currentTimeMillis()) {
