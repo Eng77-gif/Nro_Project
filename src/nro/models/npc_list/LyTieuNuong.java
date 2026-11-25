@@ -36,7 +36,7 @@ public class LyTieuNuong extends Npc {
 
     private static final int MENU_QL_POINT = 54_401;
 
-    // ---------------- Kéo Búa Bao như bản chính thức: mỗi ván 15 giây, chọn trong lúc đếm giờ, hết giờ Lý Tiểu Nương ra tay
+    // ---------------- Kéo Búa Bao như bản chính thức: chọn là ra kết quả ngay; 15 giây không chọn thì dừng chơi
     private static final String[] KBB = {"Kéo", "Búa", "Bao"};
     private static final int KBB_SECONDS = 15;
     /** playerId -> {mức cược, lựa chọn (-1 chưa chọn), mã ván} */
@@ -77,8 +77,14 @@ public class LyTieuNuong extends Npc {
 
     private void endRound(Player player, long id) {
         long[] r = ROUNDS.get(player.id);
-        if (r == null || r[2] != id) {
-            return; // đã nghỉ / đổi cược / sang ván mới
+        if (r == null) {
+            return;
+        }
+        synchronized (r) { // người chơi bấm đúng lúc hết giờ: chỉ xử lý 1 lần
+            if (r[2] != id) {
+                return; // đã nghỉ / đổi cược / sang ván mới
+            }
+            r[2] = -1;
         }
         if (r[1] < 0 || player.zone == null || player.zone.map.mapId != this.mapId) { // không chọn hoặc rời map: dừng chơi
             ROUNDS.remove(player.id);
@@ -171,7 +177,7 @@ public class LyTieuNuong extends Npc {
                     }
                     if (select < 3) {
                         r[1] = select;
-                        Service.gI().sendThongBao(player, "Bạn chọn " + KBB[select] + ", chờ hết giờ để biết kết quả");
+                        endRound(player, r[2]); // như bản chính thức: báo kết quả ngay, sang ván mới (đếm lại 15 giây)
                     } else {
                         ROUNDS.remove(player.id);
                         nro.models.services.ItemTimeService.gI().removeTextTime(player, nro.models.item.ItemTime.TIME_KEO_BUA_BAO);

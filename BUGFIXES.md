@@ -2842,3 +2842,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Theo video bản chính thức: Lý Tiểu Nương Đảo Kamê menu Kéo Búa Bao / Chọn ai đây / Đóng; Kéo Búa Bao cược 1 / 5 / 10 Tr vàng, mỗi ván đếm 15 giây (Kéo / Búa / Bao / Đổi mức cược / Nghỉ chơi), hết giờ Lý Tiểu Nương ra tay, tự sang ván mới. Quy Lão: gộp Nhận quà KOL / KOL VIP vào nút Nhiệm vụ KOL; mùa 20/11 Quy Lão Đảo Kamê đọc thơ tặng thầy cô.
 - Đảo Kamê: đặt NPC Lý Tiểu Nương bên phải Bà Hạt Mít (x 1300) theo ảnh.
 - Lý Tiểu Nương Đảo Kamê dời sang x 1324 như bản chính thức; Kéo Búa Bao hiện kết quả ngay trong bảng ván mới ('Bạn ra cái <Búa> / Tôi ra cái <Búa> / Hòa nhau nhé haha').
+- Kéo Búa Bao: bấm Kéo / Búa / Bao là báo kết quả ngay trong bảng (không chờ hết 15 giây), rồi sang ván mới đếm lại 15 giây.
