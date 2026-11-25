@@ -427,6 +427,12 @@ public class PanelServer {
             w.append(box("", "NGỌC RỒNG ONLINE  -  MÁY CHỦ GAME",
                     "Khởi động lúc " + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date(BOOT))));
         }
+        if (s.contains("Thread starvation or clock leap detected")) { // HikariCP: cả server bị đứng / đồng hồ nhảy
+            java.util.regex.Matcher d = java.util.regex.Pattern.compile("delta=(?:(\\d+)m)?(\\d+)s").matcher(s);
+            String secs = d.find() ? String.valueOf((d.group(1) == null ? 0 : Integer.parseInt(d.group(1)) * 60) + Integer.parseInt(d.group(2))) : "?";
+            s = "Máy chủ vừa bị đứng / nhảy giờ khoảng " + secs + " giây (VPS thiếu CPU, bị treo tạm thời hoặc Windows chỉnh đồng hồ)";
+            raw = " WARN ";
+        }
         if (s.startsWith("Total database loading time")) {
             s = "Đã nạp dữ liệu: " + loaded + " mục (" + s.replaceAll("[^0-9]", "") + " ms)";
         }
