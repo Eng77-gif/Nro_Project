@@ -82,18 +82,30 @@ public class ToriBot extends Npc {
                 }
             }
 
-            case 1 ->
-                BuyVip(pl, 1, nro.models.services.VipSeason.price(1));
-            case 2 ->
-                BuyVip(pl, 2, nro.models.services.VipSeason.price(2));
-            case 3 ->
-                BuyVip(pl, 3, nro.models.services.VipSeason.price(3));
-            case 4 ->
-                BuyVip(pl, 4, nro.models.services.VipSeason.price(4));
+            case 1, 2, 3, 4 -> {
+                int lv = pl.idMark.getIndexMenu();
+                if (select != 0) { // "Đóng"
+                    return;
+                }
+                if (nro.models.services.VipSeason.givePet(lv) && pl.pet != null) {
+                    createOtherMenu(pl, 10 + lv, "Bạn đang có đệ tử,\nbạn có muốn đổi lấy đệ tử mới (sơ sinh)\ntheo tộc mình không ?\nNhớ thu lại trang bị của đệ tử trước khi đổi.",
+                            "Đồng ý", "Không nhận\nđệ tử mới", "Từ chối");
+                    return;
+                }
+                BuyVip(pl, lv, nro.models.services.VipSeason.price(lv), PET_AUTO);
+            }
+            case 11, 12, 13, 14 -> {
+                int lv = pl.idMark.getIndexMenu() - 10;
+                if (select == 0 || select == 1) {
+                    BuyVip(pl, lv, nro.models.services.VipSeason.price(lv), select == 0 ? PET_NEW : PET_NONE);
+                }
+            }
         }
     }
 
-    private void BuyVip(Player pl, int vipLevel, int cost) {
+    private static final int PET_AUTO = 0, PET_NEW = 1, PET_NONE = 2;
+
+    private void BuyVip(Player pl, int vipLevel, int cost, int petMode) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         if (currentDateTime.isAfter(nro.models.services.VipSeason.end()) || currentDateTime.isBefore(nro.models.services.VipSeason.start())) {
             Service.gI().sendThongBao(pl, "Mùa VIP chưa mở hoặc đã kết thúc.");
@@ -126,18 +138,22 @@ public class ToriBot extends Npc {
             pl.vip = (byte) vipLevel;
         }
         pl.vipPurchaseCount++;
-        grant(pl, vipLevel);
+        grant(pl, vipLevel, petMode);
 
         Service.gI().sendThongBao(pl, "Mua VIP " + vipLevel + " thành công! Bạn đã mua " + pl.vipPurchaseCount + "/" + nro.models.services.VipSeason.maxBuy() + " lượt VIP mùa này.");
         openBaseMenu(pl);
     }
 
     /** Quà theo cấu hình panel > Mùa VIP Tori Bot: VIP (X3 kinh nghiệm) tới hết mùa, đệ tử nếu chưa có, các vật phẩm. */
-    private void grant(Player pl, int vipLevel) {
+    private void grant(Player pl, int vipLevel, int petMode) {
         long seasonEnd = nro.models.services.VipSeason.end().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
         pl.timevip = Math.max(pl.timevip, seasonEnd);
-        if (nro.models.services.VipSeason.givePet(vipLevel) && pl.pet == null) {
-            PetService.gI().createNormalPet(pl);
+        if (nro.models.services.VipSeason.givePet(vipLevel) && petMode != PET_NONE) {
+            if (pl.pet == null) {
+                PetService.gI().createNormalPet(pl);
+            } else if (petMode == PET_NEW) { // đổi lấy đệ tử thường sơ sinh theo tộc người chơi
+                PetService.gI().changeNormalPet(pl, pl.gender);
+            }
         }
         for (nro.models.services.VipSeason.Reward r : nro.models.services.VipSeason.rewards(vipLevel)) {
             if (r.isRandGem()) {

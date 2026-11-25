@@ -2821,3 +2821,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Console Windows: cảnh báo HikariCP 'Thread starvation or clock leap detected (delta=…)' đổi thành dòng dễ hiểu '[!] Máy chủ vừa bị đứng / nhảy giờ khoảng N giây (VPS thiếu CPU, bị treo tạm thời hoặc Windows chỉnh đồng hồ)'.
 - CT Cađíc SSJ Blue (1746) chưa có chỉ số (ra chỉ số tạm SĐ/HP 30%): nay giống hệt CT Goku SSJ Blue (SĐ/HP/KI +27%, 4 dòng ẩn); đồ đang có trong hành trang tự làm mới chỉ số.
 - CT Cađíc (1741-1746), Diều rồng băng, Ván bay Cây Thông, vài pet bị bật gộp nên nhận 2 cái thành 1 ô x2: tắt gộp mọi đồ mặc được; ô đã bị gộp trong hành trang tự tách ra ô trống khi đăng nhập. Bảng quà VIP Tori Bot ghép 2 món ngắn / dòng cho khỏi tràn khung.
+- Tori Bot mua VIP khi đã có đệ tử: hỏi 'Bạn đang có đệ tử, bạn có muốn đổi lấy đệ tử mới (sơ sinh) theo tộc mình không?' với Đồng ý / Không nhận đệ tử mới / Từ chối; sửa bấm 'Đóng' ở bảng quà VIP cũng mua luôn.
