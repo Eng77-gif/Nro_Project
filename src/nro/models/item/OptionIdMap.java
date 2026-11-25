@@ -44,18 +44,22 @@ public final class OptionIdMap {
             }
         }
         int spare = 0;
+        java.util.List<Integer> noSlot = new java.util.ArrayList<>();
         for (ItemOptionTemplate t : list) {
             if (t.id < CLIENT_MAX) {
                 continue;
             }
             if (spare >= SPARE.length) {
-                Logger.error("OptionIdMap: hết ô trống cho option " + t.id + " (client PC/APK sẽ hiển thị sai)\n");
+                noSlot.add(t.id);
                 map[t.id] = 0;
                 continue;
             }
             int slot = SPARE[spare++];
             map[t.id] = slot;
             s[slot] = t;
+        }
+        if (!noSlot.isEmpty()) { // 1 dòng thay vì mỗi option 1 dòng
+            Logger.error("OptionIdMap: hết ô trống cho " + noSlot.size() + " option " + noSlot + " (client PC/APK sẽ hiển thị sai)\n");
         }
         toClient = map;
         slots = s;

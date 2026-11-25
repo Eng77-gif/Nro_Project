@@ -374,6 +374,27 @@ public class PanelServer {
         System.setErr(new PrintStream(new TeeStream(System.err), true, StandardCharsets.UTF_8));
     }
 
+    /** Console Windows (cmd): không hiểu mã màu ANSI và in từng dòng nạp dữ liệu làm rối -> lọc gọn. Linux / Termux giữ nguyên (menu Termux đọc log). */
+    private static final boolean WIN = System.getProperty("os.name", "").toLowerCase().contains("win");
+    private static final java.util.regex.Pattern ANSI = java.util.regex.Pattern.compile("\u001B\\[[0-9;]*[A-Za-z]");
+    private static int loaded;
+
+    private static synchronized void winConsole(OutputStream out, String raw) throws IOException {
+        String s = ANSI.matcher(raw).replaceAll("").replace("\r", "");
+        if (s.contains(": Data update successfully") || s.contains("idleTimeout is close to") || s.isBlank()) {
+            return; // lưu nhân vật (mỗi lần lưu 1 dòng), cảnh báo HikariCP vô hại, dòng trống
+        }
+        if (s.contains("Successfully") || s.startsWith("Tạo player mới thành công")) {
+            loaded++; // từng bảng nạp xong: chỉ đếm, in 1 dòng tổng khi nạp xong
+            return;
+        }
+        if (s.startsWith("Total database loading time")) {
+            s = "Đã nạp dữ liệu: " + loaded + " mục (" + s.replaceAll("[^0-9]", "") + " ms)";
+        }
+        out.write((s + "\n").getBytes(StandardCharsets.UTF_8));
+        out.flush();
+    }
+
     private static class TeeStream extends OutputStream {
 
         private final OutputStream orig;
@@ -385,9 +406,15 @@ public class PanelServer {
 
         @Override
         public synchronized void write(int b) throws IOException {
-            orig.write(b);
+            if (!WIN) {
+                orig.write(b);
+            }
             if (b == '\n') {
-                LOG.add(line.toString(StandardCharsets.UTF_8));
+                String s = line.toString(StandardCharsets.UTF_8);
+                LOG.add(s);
+                if (WIN) {
+                    winConsole(orig, s);
+                }
                 line.reset();
             } else if (line.size() < 4000) {
                 line.write(b);

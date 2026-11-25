@@ -89,11 +89,11 @@ public class ServerManager {
     }
 
     public static void main(String[] args) {
+        nro.models.panel.PanelServer.captureConsole(); // ghi console ra logs/console.log từ đầu (trước cả dòng kiểm tra chữ ký)
         if (!JarSignatureCheck.verify()) {
             System.exit(1);
             return;
         }
-        nro.models.panel.PanelServer.captureConsole(); // ghi console ra logs/console.log từ đầu
         nro.models.utils.ConfigMerge.run(); // thêm mục cấu hình mới vào Config.properties (bộ tải repo không ghi đè file này)
         Logger.log(Logger.YELLOW, "Bản server (20.jar) build lúc: " + BUILD + "\n"); // để biết VPS đang chạy đúng bản mới
         nro.models.data.SqlBackup.importPendingAtBoot(); // panel đã tải dữ liệu GitHub: nạp trước khi đọc database

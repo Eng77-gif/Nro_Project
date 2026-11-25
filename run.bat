@@ -1,4 +1,6 @@
 @ECHO OFF
+REM Console UTF-8: chu tieng Viet trong log hien dung
+chcp 65001 >nul
 REM RAM_MAX: RAM tối đa cho server Java. Máy 2 GB: 448m (thực tế server chỉ dùng khoảng 150 - 300 MB, phần thừa tự trả lại máy).
 REM Máy 4 GB trở lên có thể để 1g.
 IF "%RAM_MAX%"=="" SET RAM_MAX=448m
