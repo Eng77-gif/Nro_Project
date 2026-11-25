@@ -969,8 +969,13 @@ public class WebServer {
             return;
         }
         pl.inventory.gem += gem;
+        // 1 ngọc nạp = 1 điểm sự kiện (điểm Quy Lão, dùng đổi quà Quy Lão và mua VIP Tori Bot)
+        if (pl.event != null) {
+            pl.event.addEventPoint(gem);
+        }
         nro.models.services.Service.gI().sendMoney(pl);
-        nro.models.services.Service.gI().sendThongBao(pl, "Bạn đã nạp " + nro.models.utils.Util.numberToMoney(gem) + " ngọc vào tài khoản");
+        nro.models.services.Service.gI().sendThongBao(pl, "Bạn đã nạp " + nro.models.utils.Util.numberToMoney(gem) + " ngọc vào tài khoản, cộng "
+                + nro.models.utils.Util.numberToMoney(gem) + " điểm sự kiện");
     }
 
     // ------------------------------------------------------------------ tiện ích
