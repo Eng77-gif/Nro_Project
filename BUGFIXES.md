@@ -2812,3 +2812,4 @@ Bản cũ gần như không có tác dụng: điểm map tính bằng sức mạ
 - Web: ảnh tròn ở đầu trang Diễn đàn / Sự kiện khi đã đăng nhập hiện avatar thật của nhân vật (đầu / cải trang đang mặc, đang online thì lấy đầu lúc này) thay ảnh Mabư mặc định.
 - Web: avatar nhân vật lấp đầy vòng tròn đầu trang (mặt to sát viền kem) như ảnh mẫu, thay vì hình nhỏ nằm giữa.
 - Mua VIP ở Tori Bot dùng chung điểm sự kiện với cửa hàng đổi điểm Quy Lão (trước trừ 'điểm mùa' = số dư nạp account.vnd); menu hiện 'điểm sự kiện [n]', panel ghi 'Giá VIP (điểm sự kiện, chung điểm Quy Lão)'.
+- Giá VIP Tori Bot theo điểm sự kiện: VIP 1 = 500, VIP 2 = 800, VIP 3 = 2000, VIP 4 = 8000 điểm (migration vip_gia_diem_su_kien, chỉnh lại được trên panel).

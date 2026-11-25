@@ -1454,6 +1454,24 @@ public class Dot139Migration {
             }
             update(con, "insert into server_migration (name) values ('vip_mua_1_ngay_2511')");
         }
+        if (!exists(con, "select 1 from server_migration where name = 'vip_gia_diem_su_kien'")) {
+            // VIP mua bằng điểm sự kiện (chung điểm Quy Lão): VIP 1 - 4 = 500 / 800 / 2000 / 8000 điểm
+            com.google.gson.Gson gson = new com.google.gson.Gson();
+            java.util.Map<String, Object> m = null;
+            try (java.sql.PreparedStatement ps = con.prepareStatement("select data from vip_season where id = 1"); java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    m = new java.util.LinkedHashMap<>(gson.fromJson(rs.getString(1), java.util.Map.class));
+                }
+            }
+            if (m != null) {
+                m.put("prices", new int[]{500, 800, 2000, 8000});
+                try (java.sql.PreparedStatement ps = con.prepareStatement("update vip_season set data = ? where id = 1")) {
+                    ps.setString(1, gson.toJson(m));
+                    ps.executeUpdate();
+                }
+            }
+            update(con, "insert into server_migration (name) values ('vip_gia_diem_su_kien')");
+        }
         if (!exists(con, "select 1 from server_migration where name = 'trung_ve_sau_xen'")) {
             // Trứng ve sầu (2045) mở ra Pet Xên con / hoàn thiện / MAX (chỉ số ngẫu nhiên theo item_template_option),
             // hạn 7 - 15 - 30 ngày, 1% vĩnh viễn; ra 119 con có hạn cùng loại thì con thứ 120 vĩnh viễn (perm_pity)
