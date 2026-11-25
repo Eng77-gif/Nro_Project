@@ -518,7 +518,14 @@ public class WebServer {
 
     private Map<String, Object> me(Session s) throws Exception {
         Map<String, Object> m = new LinkedHashMap<>(PanelApi.rows("select username, vnd, tongnap from account where id = ?", s.accountId).get(0));
-        m.put("characters", PanelApi.rows("select name, gender from player where account_id = ?", s.accountId));
+        // avatar nhân vật: đầu đang hiện (cải trang ở ô 5 nếu có), như panel; đang online thì lấy đầu thật lúc này
+        List<Map<String, Object>> chars = PanelApi.rows("select id, name, gender, head, items_body from player where account_id = ?", s.accountId);
+        for (Map<String, Object> c : chars) {
+            Object head = c.remove("head"), body = c.remove("items_body");
+            nro.models.player.Player on = nro.models.server.Client.gI().getPlayer(((Number) c.remove("id")).longValue());
+            c.put("avatar", on != null ? PanelApi.avatarOfHead(on.getHead()) : PanelApi.avatarOf(head, body));
+        }
+        m.put("characters", chars);
         return m;
     }
 

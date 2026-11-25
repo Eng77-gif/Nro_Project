@@ -627,7 +627,7 @@ public class PanelApi {
     }
 
     /** Nhân vật offline: đầu trong bảng player, có cải trang (ô 5 của items_body) thì lấy đầu của cải trang. */
-    static int avatarOf(Object head, Object itemsBody) {
+    public static int avatarOf(Object head, Object itemsBody) {
         int h = head instanceof Number n ? n.intValue() : -1;
         try {
             JsonArray body = arr(itemsBody);
