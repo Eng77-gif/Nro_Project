@@ -1227,7 +1227,51 @@ public class Service {
         sendBigMessage(player, 1139, text);
     }
 
+    /** Khoảng cách tối thiểu giữa 2 thông báo (con báo tin) của cùng người chơi: client vẽ bong bóng mới đè lên bong bóng cũ. */
+    private static final long NOTICE_GAP = 2500;
+    private static final java.util.Map<Long, long[]> NOTICE_LAST = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Map<Long, String> NOTICE_PENDING = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.concurrent.ScheduledExecutorService NOTICE_EXEC = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "notice-gap");
+        t.setDaemon(true);
+        return t;
+    });
+
+    /** Thông báo con báo tin; đến dồn dập (đổi quà, mở hộp liên tục) thì giữ lại và chỉ hiện cái mới nhất sau khoảng cách NOTICE_GAP. */
     public void sendThongBao(Player pl, String thongBao) {
+        if (pl == null) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        long[] last = NOTICE_LAST.computeIfAbsent(pl.id, k -> new long[]{0});
+        synchronized (last) {
+            long wait = last[0] + NOTICE_GAP - now;
+            if (wait <= 0 && !NOTICE_PENDING.containsKey(pl.id)) {
+                last[0] = now;
+                sendThongBaoNow(pl, thongBao);
+                return;
+            }
+            if (NOTICE_PENDING.put(pl.id, thongBao) == null) { // chưa có lịch gửi: hẹn lúc hết khoảng cách
+                NOTICE_EXEC.schedule(() -> flushNotice(pl), Math.max(wait, 50), java.util.concurrent.TimeUnit.MILLISECONDS);
+            }
+        }
+    }
+
+    private void flushNotice(Player pl) {
+        long[] last = NOTICE_LAST.get(pl.id);
+        if (last == null) {
+            return;
+        }
+        synchronized (last) {
+            String text = NOTICE_PENDING.remove(pl.id);
+            if (text != null && pl.session != null && !pl.beforeDispose) {
+                last[0] = System.currentTimeMillis();
+                sendThongBaoNow(pl, text);
+            }
+        }
+    }
+
+    private void sendThongBaoNow(Player pl, String thongBao) {
         Message msg;
         try {
             msg = new Message(-25);
